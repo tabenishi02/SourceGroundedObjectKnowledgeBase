@@ -18,7 +18,7 @@ READMEのLoad unpacked、Host Install、Statusを実行します。CPCとlocalho
 | 動的ページ | Fixtureを開く | Main DOMに `JavaScript content` がある | OK（B14・B15でscript外の本文にJavaScript追加要素を確認） |
 | 展開後ページ | Fixtureの「もっと見る」を押してCapture | `Expanded content` があり、`hidden` attributeが外れている | OK（B14のextra要素はhiddenあり、B15ではhiddenなし。両方にExpanded contentを保持） |
 | フォームproperty | Fixtureの入力欄を変更しCapture | `input` のHTML attributeは `attribute-only` のまま。password propertyを書き戻していない | OK（B14・B15でinputのvalue属性はattribute-only、passwordにvalue属性なし。Fixtureのproperty変更処理と動的要素の実行結果を確認） |
-| 連続Capture | 同じURLを2回Capture | UUIDの異なる2つのZIPが存在し、1つ目の内容・更新日時は変わらない | 一部確認（同一実URLの5 ZIP、別UUID・日時で共存。最初のファイルの内容・更新日時不変は試験前の記録がなくPENDING） |
+| 連続Capture | 同じURLを2回Capture | UUIDの異なる2つのZIPが存在し、1つ目の内容・更新日時は変わらない | OK（ユーザーの前後比較で内容不変・更新日時不変・ZIPが1個増加がすべてTrue。最新2 ZIPも同一URL・別UUID・別Capture日時であることを検査） |
 | Raw保持 | ZIPの `capture/dom/main.html` をテキストで確認 | DOCTYPE、script、style、nav、aside、footer、UIが残る | OK（ZIP内容確認：全13 ZIPにDOCTYPE・script・style。B02等でnav・aside・footer・buttonも保持） |
 | MHTML | ZIPを展開して `capture/archive/page.mhtml` をChromeで開く | 補助Archiveが存在し、開ける。失敗時はmanifestにmhtml=failedと理由があり、空のMHTMLなし | 正常系OK（Archive・checksumは既確認。ユーザーがChromeでの正常表示を確認）。取得失敗時は自動テスト済み・実機PENDING |
 | iframe | Fixtureまたは同一オリジンFrameを含むページをCapture | アクセス可能FrameのDOM・親子関係を保持。取得不能Frameはframes.jsonにpermission_denied等を記録 | OK（ZIP内容確認：B01・B03・B11で成功FrameのDOMとmetadata、全Frameの親ID対応を確認。取得不能Frameはpermission_denied・理由を記録） |
@@ -63,7 +63,15 @@ Fixtureの動的ページ・展開後ページ・フォームproperty・Shadow D
 
 ユーザーからMHTMLの正常表示を確認したとの報告を受け、MHTMLの正常系をOKへ更新した。Archiveとchecksumの既存検査に加え、Chromeでの表示確認が完了した。MHTML取得失敗時の部分Capture・warning・空Artifactを作らない処理は自動テスト済みだが、実機再現は未確認として残す。
 
-残る実機確認は、連続Captureの更新日時不変、Host未登録・保存先失敗時の動作、MHTML取得失敗時の動作。総合受入は未完了。
+MHTML表示確認時点では、連続Captureの更新日時不変、Host未登録・保存先失敗時の動作、MHTML取得失敗時の動作が残っていた。連続Captureの追加確認は次節に記載する。
+
+## 連続Captureの実機確認（2026-10-04）
+
+ユーザーのPowerShellによるCapture前後の比較結果で、内容不変・更新日時不変・ZIPが1個増加がすべてTrueだった。追加検査で最新2 ZIP（21:40:10.391 JST、21:40:30.701 JST）が同一実URL・異なるUUIDとCapture日時を持ち、両方ともBundle検証に成功したことを確認した。連続CaptureをOKへ更新した。
+
+ユーザーのStatus出力ではRegistered・ManifestExists・LauncherExistsがすべてTrueだった。これは正常な登録状態の確認であり、Host未登録時の失敗試験を合格にする証拠とは区別する。
+
+残る実機確認は、Host未登録・保存先失敗時の動作、MHTML取得失敗時の動作。総合受入は未完了。
 
 ## 保存先失敗を安全に試す方法
 
