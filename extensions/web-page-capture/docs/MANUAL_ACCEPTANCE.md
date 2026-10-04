@@ -10,24 +10,37 @@ READMEのLoad unpacked、Host Install、Statusを実行します。CPCとlocalho
 
 ## 試験項目
 
-| 項目 | 操作 | 合格条件 |
-|---|---|---|
-| Load unpacked | `extension/` を読み込む | Manifest・Service Workerの読み込みエラーなし。Popup/Options/Side Panelなし |
-| 静的ページ | `https://example.com/` を開いて右クリックCapture | 保存成功通知、`local-captures/` にZIPが1つ生成される |
-| メニュー対象 | ページ、リンク、画像、選択文字列上から実行 | クリック対象ではなくActive Tab全体のDOMを保存 |
-| 動的ページ | Fixtureを開く | Main DOMに `JavaScript content` がある |
-| 展開後ページ | Fixtureの「もっと見る」を押してCapture | `Expanded content` があり、`hidden` attributeが外れている |
-| フォームproperty | Fixtureの入力欄を変更しCapture | `input` のHTML attributeは `attribute-only` のまま。password propertyを書き戻していない |
-| 連続Capture | 同じURLを2回Capture | UUIDの異なる2つのZIPが存在し、1つ目の内容・更新日時は変わらない |
-| Raw保持 | ZIPの `capture/dom/main.html` をテキストで確認 | DOCTYPE、script、style、nav、aside、footer、UIが残る |
-| MHTML | ZIPを展開して `capture/archive/page.mhtml` をChromeで開く | 補助Archiveが存在し、開ける。失敗時はmanifestにmhtml=failedと理由があり、空のMHTMLなし |
-| iframe | Fixtureまたは同一オリジンFrameを含むページをCapture | アクセス可能FrameのDOM・親子関係を保持。取得不能Frameはframes.jsonにpermission_denied等を記録 |
-| Shadow DOM | FixtureをCapture | shadow-dom.jsonにopen/nested shadowとHost位置がある。closed制約warningを記録 |
-| 完全性・checksum | manifestとchecksumsを確認 | format_version=1.0、実URLとcanonicalが別。全Artifact（checksums自身以外）にSHA-256とbyte数がある |
-| Host未登録 | Uninstall → Capture → Installで戻す | 失敗理由の通知、ZIPなし。再Install後に成功 |
-| 保存先失敗 | 以下の可逆な方法で試験 | 失敗通知、一時転送を正式Bundleとして残さない。復旧後に成功 |
+| 項目 | 操作 | 合格条件 | 結果 |
+|---|---|---|---|
+| Load unpacked | `extension/` を読み込む | Manifest・Service Workerの読み込みエラーなし。Popup/Options/Side Panelなし | 未記入 |
+| 静的ページ | `https://example.com/` を開いて右クリックCapture | 保存成功通知、`local-captures/` にZIPが1つ生成される | 未記入 |
+| メニュー対象 | ページ、リンク、画像、選択文字列上から実行 | クリック対象ではなくActive Tab全体のDOMを保存 | 未記入 |
+| 動的ページ | Fixtureを開く | Main DOMに `JavaScript content` がある | PENDING（収集済み13 ZIPにFixtureなし。指定markerの実機保存は未確認） |
+| 展開後ページ | Fixtureの「もっと見る」を押してCapture | `Expanded content` があり、`hidden` attributeが外れている | PENDING（Fixtureなし。展開前後の操作・DOM比較の証拠がない） |
+| フォームproperty | Fixtureの入力欄を変更しCapture | `input` のHTML attributeは `attribute-only` のまま。password propertyを書き戻していない | PENDING（Fixtureのinput/passwordがなく、property変更前後を判断できない） |
+| 連続Capture | 同じURLを2回Capture | UUIDの異なる2つのZIPが存在し、1つ目の内容・更新日時は変わらない | 一部確認（同一実URLの5 ZIP、別UUID・日時で共存。最初のファイルの内容・更新日時不変は試験前の記録がなくPENDING） |
+| Raw保持 | ZIPの `capture/dom/main.html` をテキストで確認 | DOCTYPE、script、style、nav、aside、footer、UIが残る | OK（ZIP内容確認：全13 ZIPにDOCTYPE・script・style。B02等でnav・aside・footer・buttonも保持） |
+| MHTML | ZIPを展開して `capture/archive/page.mhtml` をChromeで開く | 補助Archiveが存在し、開ける。失敗時はmanifestにmhtml=failedと理由があり、空のMHTMLなし | 一部確認（全13 ZIPでmhtml=success、非空Archive・MIMEヘッダー・checksum一致。Chromeでの表示とMHTML失敗時の実機動作はPENDING） |
+| iframe | Fixtureまたは同一オリジンFrameを含むページをCapture | アクセス可能FrameのDOM・親子関係を保持。取得不能Frameはframes.jsonにpermission_denied等を記録 | OK（ZIP内容確認：B01・B03・B11で成功FrameのDOMとmetadata、全Frameの親ID対応を確認。取得不能Frameはpermission_denied・理由を記録） |
+| Shadow DOM | FixtureをCapture | shadow-dom.jsonにopen/nested shadowとHost位置がある。closed制約warningを記録 | 一部確認（全13 ZIPでopen ShadowのHTML・Host位置とclosed制約warningを確認。Fixtureなし、入れ子open Shadowの実機保存はPENDING） |
+| 完全性・checksum | manifestとchecksumsを確認 | format_version=1.0、実URLとcanonicalが別。全Artifact（checksums自身以外）にSHA-256とbyte数がある | OK（全13 ZIPでFormat 1.0、実URLとcanonical別フィールド、全ArtifactのSHA-256・byte数・ZIP CRC一致、partialとwarning整合を確認） |
+| Host未登録 | Uninstall → Capture → Installで戻す | 失敗理由の通知、ZIPなし。再Install後に成功 | PENDING（保存成功ZIPから未登録時の通知・非生成・再登録後の動作は判断できない） |
+| 保存先失敗 | 以下の可逆な方法で試験 | 失敗通知、一時転送を正式Bundleとして残さない。復旧後に成功 | PENDING（検査時の.tmpは0件だが、書き込み失敗の実機再現・通知・復旧の証拠がない） |
 
 Main DOM / Frame / Shadow / MHTMLがすべて同時点になること、closed ShadowやクロスオリジンFrameを完全取得することは合格条件に含めません。これらの制約がmanifestに記録されることを確認します。
+
+## 収集済みZIPの検査記録（2026-10-04）
+
+対象は `local-captures/` の13 ZIP。Capture日時は2026-10-04 20:14:46〜20:29:12 JST、Capture Tool Versionはすべて0.1.0、実URLは9種類。実ページのURL・title・本文・ローカル絶対パスは本記録へ転記しない。B01〜B13はファイル名の昇順に対応する検査用ラベルで、対応表はGit管理外の `.local/acceptance-inspection.json` に保存した。
+
+- 13 ZIPすべてについてHostのBundle検証を実行し、必須Artifact・Manifest・ファイル名/UUID/日時・ZIP内パス・全ArtifactのSHA-256/byte数・ZIP CRCの検証に成功した。検査は読み取りのみで、既存ZIPは変更していない。
+- 最大BundleはB03の56,480,879 bytes。全13 ZIPでMain DOMとMHTMLの成功記録を確認した。MHTMLは非空で `MIME-Version` と `multipart/related` のヘッダーがある。Chromeでの表示可否はこの検査の対象外。
+- 同一実URLのB02・B04・B05・B06・B07が、別UUID・日時の5 Captureとして共存している。収集前のhash・更新日時がないため、最初のファイルが後のCaptureで変更されなかったことまでは証明しない。
+- Frameは成功7件、permission_denied 35件。成功Frameの対応するHTMLとmetadata、全Frameの親ID対応を確認した。
+- 全13 ZIPに合計135件のopen Shadow DOMの記録があり、Host位置・frame ID・mode=open・HTMLを確認した。入れ子Shadow Rootの記録と指定Fixtureはなかった。
+- 全体completenessとshadow_domはすべてpartial。全ZIPに `closed_shadow_dom_unobservable`、取得不能FrameがあるZIPには `cross_origin_or_unavailable` が記録されており、既知制約によるpartialを保存失敗とは扱わない。
+
+表中の既存OK/NGはユーザーの操作結果として保持し、追記したOKは明記したZIP内容の検査範囲に限る。「一部確認」は残る合格条件がPENDINGであり、総合合格ではない。通知・障害再現・未確認のFixture試験が残るため、実機受入は完了扱いにしない。
 
 ## 保存先失敗を安全に試す方法
 
