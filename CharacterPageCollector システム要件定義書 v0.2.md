@@ -1,5 +1,15 @@
 # CharacterPageCollector システム要件定義書 v0.2
 
+> **プロトタイプ実装方針**
+>
+> 本書は、CharacterPageCollectorの最終仕様を完全に固定するものではなく、まず一連の処理を実行可能なプロトタイプを構築するための**最低限の実装要件**を定義する。
+>
+> 本書に明示されていない詳細仕様、補助機能、内部Schema、例外処理、開発用機能等について、プロトタイプを成立させるために必要であれば実装担当者（Codex）が合理的な判断で追加してよい。
+>
+> ただし、追加要件は本書の基本原則・責務境界・Raw原本性・出典追跡性と矛盾してはならない。追加した要件や重要な設計判断は、後から見直せるようドキュメントへ記録する。
+>
+> プロトタイプで採用したSchema、アルゴリズム、モデル、Prompt、検索方式、出力形式等は暫定実装であり、実データによる評価後に変更可能とする。
+
 ## 1. システムの目的
 
 ### 1.1 大目標
@@ -84,23 +94,34 @@ Webページ取得の標準方式は、サーバー側からURLへ再アクセ�
 
 ## 4.2 Captureフロントエンド
 
-第一候補として自作Chrome Extensionを使用する。
+Webページ取得には、リポジトリ内の `extensions/web-page-capture/` で管理する自作Chrome Extensionを使用する。
 
-想定処理：
+Capture側の詳細仕様は同ディレクトリ内の設計書を正本とする。
+
+現在の基本フロー：
 
 ```text
 Chromeでページ閲覧
         ↓
 ユーザーが内容確認
         ↓
-CPC拡張機能を実行
+右クリックからWeb Page Captureを実行
         ↓
-現在DOM・URL・タイトル等を取得
+現在DOM・URL・タイトル・metadata等を取得
         ↓
-localhost上のCPCへ送信
+Web Capture Bundle
+*.webcapture.zip
         ↓
-Raw Snapshotとして保存
+extensions/web-page-capture/local-captures/
+        ↓
+CharacterPageCollectorが後からImport
 ```
+
+Capture ExtensionとCharacterPageCollector本体は分離する。
+
+Chrome ExtensionはWebページ情報の取得とRaw Capture保存を担当し、本文抽出、Source分類、Entity判定、Evidence / Fragment生成等は行わない。
+
+CharacterPageCollector本体は、保存済みWeb Capture Bundleを入力として後段処理を行う。
 
 Chrome Extensionは、ユーザーが明示的に操作したページを対象として取得することを基本とする。
 
@@ -351,11 +372,15 @@ https://example.com/article/123
 
 ## 7.3 Raw Snapshot
 
-Browser Captureによって取得した現在DOMをRaw Snapshotとする。
+Browser Captureによって取得されたWeb Capture Bundleを、WebページSourceに対するRaw原資料として扱う。
+
+Bundle内のRendered DOMはRaw Snapshotの中心情報であるが、将来の再解析に利用できるmetadata、MHTML、Frame情報、Structured Data等もRaw Captureの一部として保持する。
 
 Rawには少なくとも以下を関連付ける。
 
 - Source
+- Snapshot
+- capture_id
 - URL
 - page title
 - captured_at
@@ -363,6 +388,9 @@ Rawには少なくとも以下を関連付ける。
 - site
 - Source Type
 - Raw DOM
+- 元Web Capture Bundleまたはその保存位置
+
+Web Capture Bundle自体はImport後も原則として直接書き換えない。
 
 可能であれば追加metadataも保持する。
 
@@ -381,6 +409,44 @@ Raw Snapshotは取得後に直接書き換えない。
 - AI処理変更への対応
 - バグ修正後の再処理
 - 出典検証
+
+---
+
+## 7.5 WebCaptureImporter
+
+CharacterPageCollectorは、`extensions/web-page-capture/local-captures/` 等に保存された `*.webcapture.zip` を取り込むImporterを持つ。
+
+プロトタイプでは最低限、以下を実現する。
+
+```text
+*.webcapture.zip
+        ↓
+WebCaptureImporter
+        ↓
+Bundle / manifest検証
+        ↓
+capture_idによる重複Import確認
+        ↓
+URLを基準にSourceを特定または作成
+        ↓
+Snapshot登録
+        ↓
+Raw Bundleとの参照を保持
+        ↓
+後段処理対象として登録
+```
+
+最低要件：
+
+- `manifest.json` および必要なArtifactを読み取れる。
+- `capture_id` を一意なCapture識別子として扱い、同じBundleの二重Importを防止する。
+- 同一URLに複数Captureが存在する場合、1つのSourceに対する複数Snapshotとして保持可能とする。
+- 元のWeb Capture BundleをImport処理によって変更しない。
+- Import成功・失敗を識別できる。
+- 失敗したImportによって既存正常データを破壊しない。
+- Import後もSnapshotから元Bundleへ追跡可能とする。
+
+具体的なDB SchemaやArtifact参照方式はプロトタイプ実装で決定してよい。
 
 ---
 
@@ -1249,6 +1315,10 @@ Text ─────┘
 
 以下は後続設計または要件議論で決定する。
 
+ただし、これらが未確定であることを理由にプロトタイプ実装を停止する必要はない。
+
+プロトタイプを成立させるために具体値や暫定Schemaが必要な場合、実装担当者は本書の基本原則に反しない範囲で暫定仕様を決定してよい。暫定仕様は最終仕様として固定せず、実装理由と変更可能性をドキュメントへ記録する。
+
 - Fragmentの詳細Schema
 - Evidence Chunkの分割単位
 - Chunk size
@@ -1273,6 +1343,8 @@ Text ─────┘
 # 46. 次に要件定義すべき領域
 
 優先順位は以下とする。
+
+以下は最終設計へ向けて引き続き検討すべき領域であり、プロトタイプ実装の開始条件ではない。プロトタイプでは必要な範囲だけ暫定仕様を採用し、実際の出力・検索品質・運用性を確認した後に正式設計を見直す。
 
 ## 1. Fragment
 
@@ -1368,3 +1440,245 @@ Semantic Searchの品質へ直接影響する。
 - Embedding model更新
 - 旧成果物保持
 - Dependency tracking
+
+---
+
+# 47. プロトタイプ実装要件
+
+## 47.1 位置づけ
+
+最初の実装は、各機能を個別に完成させることよりも、
+
+**実際のWeb Captureを入力し、最終Documentを生成するまでの処理を一通り実行できること**
+
+を優先する。
+
+本節に記載する内容はプロトタイプとしての最低限の実装範囲である。
+
+本書に明示されていない追加要件についても、Vertical Sliceを成立させるために必要であればCodexが追加してよい。
+
+追加時は以下を守る。
+
+1. 既存の基本原則と矛盾しない。
+2. Raw情報を不可逆に失わない。
+3. Sourceから最終成果物までの追跡性を損なわない。
+4. 特定のLLM、Vector Backend、GUI等へCoreを不必要に固定しない。
+5. 大きな設計変更ではなく実装上の補完であることを優先する。
+6. 追加した要件・Schema・重要な判断をドキュメントへ記録する。
+7. 暫定実装であるものは、その旨を明記する。
+
+既存要件そのものを変更する必要が生じた場合は、実装内で暗黙に変更せず、変更点を明示する。
+
+---
+
+## 47.2 Prototype Vertical Slice
+
+最低限、以下の処理を1本の流れとして実行可能にする。
+
+```text
+Web Capture Bundle
+*.webcapture.zip
+        ↓
+WebCaptureImporter
+        ↓
+Source / Snapshot / Raw
+        ↓
+Site / Source Type判定
+        ↓
+Extractor
+        ↓
+Normalized Data
+        ↓
+Evidence
+        ↓
+Fragment
+        ↓
+Database
+        ↓
+Full-text Search
+        +
+Semantic Search
+        +
+Metadata filtering
+        ↓
+Candidate Merge
+        ↓
+簡易Reranking
+        ↓
+Evidence / Fragment Selection
+        ↓
+LLM
+        ↓
+Final Document
+```
+
+最初のプロトタイプでは大量データ・多数サイト・多数Entityへの対応を完成条件としない。
+
+少数の実Captureと少数のEntityを用いて、この一連の処理が成立することを優先する。
+
+---
+
+## 47.3 Evidenceの暫定実装
+
+Evidenceの最終Chunk設計は未確定である。
+
+プロトタイプでは、文書構造を失わないことを優先し、以下を基本単位候補として実装してよい。
+
+- Section
+- Paragraph
+- List
+- Table
+- BBS / SNS等の投稿単位
+
+長すぎる単位は必要に応じて分割する。
+
+プロトタイプEvidenceには最低限、以下を追跡可能とする。
+
+- Evidence ID
+- Source
+- Snapshot
+- 元文書内位置またはSection
+- Content
+- Evidence生成に必要なmetadata
+
+Chunk size、overlap、Table分割等は暫定仕様として実装してよい。
+
+---
+
+## 47.4 Fragmentの暫定実装
+
+Fragmentの最終Schemaは未確定である。
+
+プロトタイプでは少なくとも以下を保持可能な暫定Schemaを採用する。
+
+- Fragment ID
+- Subjectまたは関連Entity
+- Category / Facet等の分類
+- Content
+- 根拠となるEvidence参照
+- Extraction metadata
+- created_at等の生成管理情報
+
+必要であれば、関連Entity、時系列、関係情報等を追加してよい。
+
+Fragment Schemaはプロトタイプ出力を評価した後に変更可能とする。
+
+---
+
+## 47.5 Entity / Attributeの暫定実装
+
+プロトタイプでは少なくともWorkとCharacterを扱う。
+
+内部的に拡張可能なEntityモデルを採用し、実装上必要であれば、
+
+- Concept
+- Person
+- Organization
+- Place
+- Series
+- その他
+
+等のEntity Typeを暫定追加してよい。
+
+ただし、これらの追加を最終Entity分類の確定とはみなさない。
+
+性格、能力、外見、人間関係等のAttribute / Facetについても、初期段階では固定DB columnへ過度に展開せず、変更可能な形式を優先する。
+
+---
+
+## 47.6 Search / Embedding / Rerankingの暫定実装
+
+プロトタイプでは以下を一通り動作させる。
+
+- Full-text / lexical search
+- Semantic Search
+- Metadata filtering
+- Candidate Merge
+- Reranking
+
+具体的なEmbedding model、Vector Backend、Rerankerは暫定選定でよい。
+
+ただし後から交換可能な境界を設け、使用モデル・version等を記録する。
+
+Rerankingは初期段階では簡易方式でもよく、高精度化はプロトタイプ評価後に行う。
+
+---
+
+## 47.7 AI処理とPrompt
+
+EvidenceからFragmentを生成する処理、および検索結果からFinal Documentを生成する処理について、プロトタイプ用Promptを作成してよい。
+
+Promptはコードへ固定せず、可能な限り外部ファイルまたは交換可能な設定として管理する。
+
+少なくとも以下を追跡可能とする。
+
+- task type
+- model
+- model version
+- Prompt
+- Prompt version
+- executed_at
+- input
+- output
+
+Prompt内容はプロトタイプ結果を評価して変更する前提とする。
+
+---
+
+## 47.8 Final Documentの暫定実装
+
+Final Documentの最終形式は未確定である。
+
+プロトタイプではMarkdownを有力な暫定形式とし、少なくとも、
+
+- 指定EntityについてDocumentを生成できる。
+- Evidence / Fragmentを検索して材料として使用できる。
+- 元Source / Evidenceへ追跡できる情報を保持できる。
+
+ことを満たす。
+
+Citationの厳密な表示形式、Section構成、文章量等はプロトタイプ評価後に見直してよい。
+
+---
+
+## 47.9 プロトタイプで優先しない事項
+
+初回プロトタイプでは、以下の完成度を優先しない。
+
+- 大量データでの性能最適化
+- Fragment重複統合の最終アルゴリズム
+- 矛盾情報の最終表現
+- Source信頼度の最終モデル
+- Embedding modelの最適選定
+- Rerankerの最適選定
+- Vector Backendの最終選定
+- 高度なQuery Expansion
+- GUI Frameworkの最終選定
+- 画像・動画Sourceの本実装
+- Final Documentの最終書式
+- Work / Character以外のEntity分類の完全確定
+
+これらはVertical Sliceによる実データ評価後に設計する。
+
+---
+
+## 47.10 プロトタイプ完成条件
+
+最低限、以下を満たした時点で初回プロトタイプが成立したとみなす。
+
+1. 実際の `*.webcapture.zip` をImportできる。
+2. Source / Snapshot / Rawとして登録できる。
+3. Extractorによって本文・構造を正規化できる。
+4. Evidenceを生成できる。
+5. LLM等を利用してFragmentを生成できる。
+6. EntityとFragment / Evidenceを関連付けられる。
+7. Full-text Searchを実行できる。
+8. Semantic Searchを実行できる。
+9. Metadata filteringを実行できる。
+10. 検索候補を統合し、簡易Rerankingできる。
+11. 検索結果をLLMへ渡し、指定EntityについてFinal Documentを生成できる。
+12. Final Documentまたはその生成記録から、使用したFragment / Evidence / Snapshot / Sourceへ追跡できる。
+13. 同じRaw Captureから、Extractor・Prompt・Model等の変更後に再処理可能な構造を保つ。
+14. プロトタイプ実装で追加した要件・暫定仕様・未解決事項がドキュメント化されている。
+
+初回プロトタイプ完成後、実際のCaptureを利用して出力品質・検索品質・運用性を評価し、Fragment、Evidence、Entity、Search、Final Output等の正式設計を改めて行う。
