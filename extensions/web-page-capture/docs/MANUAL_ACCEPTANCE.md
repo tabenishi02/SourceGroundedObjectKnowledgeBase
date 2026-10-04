@@ -24,8 +24,8 @@ READMEのLoad unpacked、Host Install、Statusを実行します。CPCとlocalho
 | iframe | Fixtureまたは同一オリジンFrameを含むページをCapture | アクセス可能FrameのDOM・親子関係を保持。取得不能Frameはframes.jsonにpermission_denied等を記録 | OK（ZIP内容確認：B01・B03・B11で成功FrameのDOMとmetadata、全Frameの親ID対応を確認。取得不能Frameはpermission_denied・理由を記録） |
 | Shadow DOM | FixtureをCapture | shadow-dom.jsonにopen/nested shadowとHost位置がある。closed制約warningを記録 | OK（B14・B15にShadow contentとNested shadow、入れ子のHost位置、mode=open、closed制約warningを確認） |
 | 完全性・checksum | manifestとchecksumsを確認 | format_version=1.0、実URLとcanonicalが別。全Artifact（checksums自身以外）にSHA-256とbyte数がある | OK（全13 ZIPでFormat 1.0、実URLとcanonical別フィールド、全ArtifactのSHA-256・byte数・ZIP CRC一致、partialとwarning整合を確認） |
-| Host未登録 | Uninstall → Capture → Installで戻す | 失敗理由の通知、ZIPなし。再Install後に成功 | 一部確認（ユーザーが未登録時の失敗判定と、正常状態へ戻した後の保存成功を確認。理由付き通知・ZIP非増加の明示確認はPENDING） |
-| 保存先失敗 | 以下の可逆な方法で試験 | 失敗通知、一時転送を正式Bundleとして残さない。復旧後に成功 | 一部確認（ユーザーが失敗通知と復旧後の正常動作を確認。失敗時の正式ZIP非生成の明示確認はPENDING） |
+| Host未登録 | Uninstall → Capture → Installで戻す | 失敗理由の通知、ZIPなし。再Install後に成功 | OK（ユーザーが理由付き失敗通知・ZIP非増加・再登録後の保存成功を確認） |
+| 保存先失敗 | 以下の可逆な方法で試験 | 失敗通知、一時転送を正式Bundleとして残さない。復旧後に成功 | OK（ユーザーが理由付き失敗通知・ZIP非増加と復旧後の正常動作を確認。失敗時の正式ZIP非生成を確認済み） |
 
 Main DOM / Frame / Shadow / MHTMLがすべて同時点になること、closed ShadowやクロスオリジンFrameを完全取得することは合格条件に含めません。これらの制約がmanifestに記録されることを確認します。
 
@@ -84,6 +84,12 @@ MHTML表示確認時点では、連続Captureの更新日時不変、Host未登�
 ユーザーから、保存先失敗試験で失敗通知を確認し、正常に戻ることを確認したとの報告を受けた。失敗通知と復旧後の正常動作を確認済みとして記録した。失敗時に正式ZIPが生成されなかったことは報告に明記されていないため、未確認として残す。
 
 残る実機確認は、Host未登録時の理由付き通知・ZIP非増加、保存先失敗時の正式ZIP非生成、MHTML取得失敗時の動作。総合受入は未完了。
+
+## 障害試験の追加確認（2026-10-04）
+
+ユーザーから、上記2つの障害試験について理由付き通知とZIP非増加も確認済みとの補足報告を受けた。既報告の復旧後の成功と合わせ、Host未登録・保存先失敗をOKへ更新した。失敗時に正式ZIPを生成しないことも確認済みとした。
+
+試験表で残る実機未確認は、MHTML取得失敗時の部分Capture・warning・空Artifact非生成のみ。この異常系は自動テスト済みだが、実機確認済みとは扱わない。mainへのマージは実行していない。
 
 ## 保存先失敗を安全に試す方法
 
