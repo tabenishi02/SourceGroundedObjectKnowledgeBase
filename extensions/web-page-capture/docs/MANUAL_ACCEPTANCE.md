@@ -13,7 +13,7 @@ READMEのLoad unpacked、Host Install、Statusを実行します。CPCとlocalho
 | 項目 | 操作 | 合格条件 | 結果 |
 |---|---|---|---|
 | Load unpacked | `extension/` を読み込む | Manifest・Service Workerの読み込みエラーなし。Popup/Options/Side Panelなし | 未記入 |
-| 静的ページ | `https://example.com/` を開いて右クリックCapture | 保存成功通知、`local-captures/` にZIPが1つ生成される | 未記入 |
+| 静的ページ | `https://example.com/` を開いて右クリックCapture | 保存成功通知、`local-captures/` にZIPが1つ生成される | OK（ZIP保存は既確認。通知アイコンURL修正後、ユーザーが正常な通知表示を確認） |
 | メニュー対象 | ページ、リンク、画像、選択文字列上から実行 | クリック対象ではなくActive Tab全体のDOMを保存 | 未記入 |
 | 動的ページ | Fixtureを開く | Main DOMに `JavaScript content` がある | OK（B14・B15でscript外の本文にJavaScript追加要素を確認） |
 | 展開後ページ | Fixtureの「もっと見る」を押してCapture | `Expanded content` があり、`hidden` attributeが外れている | OK（B14のextra要素はhiddenあり、B15ではhiddenなし。両方にExpanded contentを保持） |
@@ -53,7 +53,11 @@ Main DOM / Frame / Shadow / MHTMLがすべて同時点になること、closed S
 - 両Captureでopen Shadow Rootの `Shadow content` と入れ子の `Nested shadow`、`/#shadow-root/` を含むHost位置を確認した。closed Shadowの制約warningも保持している。
 - 初回13 ZIPのSHA-256は前回検査記録とすべて一致し、追加収集後も内容が変更されていない。ただし、最初の連続Captureより前の内容・更新日時を記録していないため、その項目の未観測部分は残る。
 
-Fixtureの動的ページ・展開後ページ・フォームproperty・Shadow DOMは、追加ZIPの内容確認に基づきOKへ更新した。通知のNG、MHTML表示、連続Captureの更新日時不変、Host未登録・保存先失敗の実機確認は残っており、総合受入は未完了。
+Fixtureの動的ページ・展開後ページ・フォームproperty・Shadow DOMは、追加ZIPの内容確認に基づきOKへ更新した。この追加検査時点では通知のNGも残っていたが、次節の再試験で通知表示を確認した。MHTML表示、連続Captureの更新日時不変、Host未登録・保存先失敗の実機確認は残っており、総合受入は未完了。
+
+## 通知の再試験（2026-10-04）
+
+通知権限はgrantedだったが、通知画像の読み込みエラーで表示に失敗していた。通知アイコンを `chrome.runtime.getURL` で絶対URLにする修正（e865d15）後、ユーザーから正常に通知されることを確認したとの報告を受けた。既確認のZIP保存と合わせ、静的ページ項目をOKへ更新した。Host未登録・保存先失敗時の失敗通知や復旧は、この報告だけでは確認済みにしない。
 
 ## 保存先失敗を安全に試す方法
 
