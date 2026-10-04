@@ -15,14 +15,14 @@ READMEのLoad unpacked、Host Install、Statusを実行します。CPCとlocalho
 | Load unpacked | `extension/` を読み込む | Manifest・Service Workerの読み込みエラーなし。Popup/Options/Side Panelなし | 未記入 |
 | 静的ページ | `https://example.com/` を開いて右クリックCapture | 保存成功通知、`local-captures/` にZIPが1つ生成される | 未記入 |
 | メニュー対象 | ページ、リンク、画像、選択文字列上から実行 | クリック対象ではなくActive Tab全体のDOMを保存 | 未記入 |
-| 動的ページ | Fixtureを開く | Main DOMに `JavaScript content` がある | PENDING（収集済み13 ZIPにFixtureなし。指定markerの実機保存は未確認） |
-| 展開後ページ | Fixtureの「もっと見る」を押してCapture | `Expanded content` があり、`hidden` attributeが外れている | PENDING（Fixtureなし。展開前後の操作・DOM比較の証拠がない） |
-| フォームproperty | Fixtureの入力欄を変更しCapture | `input` のHTML attributeは `attribute-only` のまま。password propertyを書き戻していない | PENDING（Fixtureのinput/passwordがなく、property変更前後を判断できない） |
+| 動的ページ | Fixtureを開く | Main DOMに `JavaScript content` がある | OK（B14・B15でscript外の本文にJavaScript追加要素を確認） |
+| 展開後ページ | Fixtureの「もっと見る」を押してCapture | `Expanded content` があり、`hidden` attributeが外れている | OK（B14のextra要素はhiddenあり、B15ではhiddenなし。両方にExpanded contentを保持） |
+| フォームproperty | Fixtureの入力欄を変更しCapture | `input` のHTML attributeは `attribute-only` のまま。password propertyを書き戻していない | OK（B14・B15でinputのvalue属性はattribute-only、passwordにvalue属性なし。Fixtureのproperty変更処理と動的要素の実行結果を確認） |
 | 連続Capture | 同じURLを2回Capture | UUIDの異なる2つのZIPが存在し、1つ目の内容・更新日時は変わらない | 一部確認（同一実URLの5 ZIP、別UUID・日時で共存。最初のファイルの内容・更新日時不変は試験前の記録がなくPENDING） |
 | Raw保持 | ZIPの `capture/dom/main.html` をテキストで確認 | DOCTYPE、script、style、nav、aside、footer、UIが残る | OK（ZIP内容確認：全13 ZIPにDOCTYPE・script・style。B02等でnav・aside・footer・buttonも保持） |
 | MHTML | ZIPを展開して `capture/archive/page.mhtml` をChromeで開く | 補助Archiveが存在し、開ける。失敗時はmanifestにmhtml=failedと理由があり、空のMHTMLなし | 一部確認（全13 ZIPでmhtml=success、非空Archive・MIMEヘッダー・checksum一致。Chromeでの表示とMHTML失敗時の実機動作はPENDING） |
 | iframe | Fixtureまたは同一オリジンFrameを含むページをCapture | アクセス可能FrameのDOM・親子関係を保持。取得不能Frameはframes.jsonにpermission_denied等を記録 | OK（ZIP内容確認：B01・B03・B11で成功FrameのDOMとmetadata、全Frameの親ID対応を確認。取得不能Frameはpermission_denied・理由を記録） |
-| Shadow DOM | FixtureをCapture | shadow-dom.jsonにopen/nested shadowとHost位置がある。closed制約warningを記録 | 一部確認（全13 ZIPでopen ShadowのHTML・Host位置とclosed制約warningを確認。Fixtureなし、入れ子open Shadowの実機保存はPENDING） |
+| Shadow DOM | FixtureをCapture | shadow-dom.jsonにopen/nested shadowとHost位置がある。closed制約warningを記録 | OK（B14・B15にShadow contentとNested shadow、入れ子のHost位置、mode=open、closed制約warningを確認） |
 | 完全性・checksum | manifestとchecksumsを確認 | format_version=1.0、実URLとcanonicalが別。全Artifact（checksums自身以外）にSHA-256とbyte数がある | OK（全13 ZIPでFormat 1.0、実URLとcanonical別フィールド、全ArtifactのSHA-256・byte数・ZIP CRC一致、partialとwarning整合を確認） |
 | Host未登録 | Uninstall → Capture → Installで戻す | 失敗理由の通知、ZIPなし。再Install後に成功 | PENDING（保存成功ZIPから未登録時の通知・非生成・再登録後の動作は判断できない） |
 | 保存先失敗 | 以下の可逆な方法で試験 | 失敗通知、一時転送を正式Bundleとして残さない。復旧後に成功 | PENDING（検査時の.tmpは0件だが、書き込み失敗の実機再現・通知・復旧の証拠がない） |
@@ -40,7 +40,20 @@ Main DOM / Frame / Shadow / MHTMLがすべて同時点になること、closed S
 - 全13 ZIPに合計135件のopen Shadow DOMの記録があり、Host位置・frame ID・mode=open・HTMLを確認した。入れ子Shadow Rootの記録と指定Fixtureはなかった。
 - 全体completenessとshadow_domはすべてpartial。全ZIPに `closed_shadow_dom_unobservable`、取得不能FrameがあるZIPには `cross_origin_or_unavailable` が記録されており、既知制約によるpartialを保存失敗とは扱わない。
 
-表中の既存OK/NGはユーザーの操作結果として保持し、追記したOKは明記したZIP内容の検査範囲に限る。「一部確認」は残る合格条件がPENDINGであり、総合合格ではない。通知・障害再現・未確認のFixture試験が残るため、実機受入は完了扱いにしない。
+表中の既存OK/NGはユーザーの操作結果として保持し、追記したOKは明記したZIP内容の検査範囲に限る。「一部確認」は残る合格条件がPENDINGであり、総合合格ではない。初回検査時点では通知・障害再現・Fixture試験が未解決であり、実機受入は未完了とした。Fixture追加後の結果は次節に記載する。
+
+## Fixture追加検査（2026-10-04）
+
+初回13 ZIPの検査後、Fixtureの2 ZIPを追加確認した。B14は20:37:51.065 JST、B15は20:38:35.019 JSTのCapture。document titleと実URLの末尾 `tests/fixtures/page.html`、Fixture固有のDOMで対象を確認した。ローカル絶対URLは転記しない。対応表と検査詳細はGit管理外の `.local/fixture-acceptance-inspection.json` に保存した。
+
+- B14・B15ともBundle検証に成功。これで確認済みは計15 ZIP。Main DOMとMHTMLはsuccess、全ArtifactのSHA-256・byte数・ZIP CRCが一致した。MHTMLのChrome表示は引き続き未確認。
+- script文字列内の一致だけで判断せず、DOM本文の `JavaScript content` を確認した。extra要素の `Expanded content` は両Captureに残り、B14のhidden属性がB15ではなくなっているため、展開前後の保持を確認できた。
+- FixtureはJavaScriptでinput/passwordのproperty値を変更するが、両Captureのinputのvalue属性は `attribute-only`、passwordにはvalue属性がない。property値を書き戻していないことを確認した。
+- 両Captureでsrcdoc FrameのDOMに `Frame content` があり、parent_frame_id=main、capture_status=success。取得不能Frameはpermission_deniedと理由を記録している。
+- 両Captureでopen Shadow Rootの `Shadow content` と入れ子の `Nested shadow`、`/#shadow-root/` を含むHost位置を確認した。closed Shadowの制約warningも保持している。
+- 初回13 ZIPのSHA-256は前回検査記録とすべて一致し、追加収集後も内容が変更されていない。ただし、最初の連続Captureより前の内容・更新日時を記録していないため、その項目の未観測部分は残る。
+
+Fixtureの動的ページ・展開後ページ・フォームproperty・Shadow DOMは、追加ZIPの内容確認に基づきOKへ更新した。通知のNG、MHTML表示、連続Captureの更新日時不変、Host未登録・保存先失敗の実機確認は残っており、総合受入は未完了。
 
 ## 保存先失敗を安全に試す方法
 
