@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"><title>Capture fixture</title>
+<meta name="author" content="Fixture"><link rel="canonical" href="https://example.invalid/canonical">
+<style>aside {color: gray}</style><script type="application/ld+json">{"@type":"Thing","name":"Fixture"}</script></head>
+<body><nav>Navigation</nav><main>Static content <button id="more">もっと見る</button><p id="extra" hidden>Expanded content</p></main>
+<aside>Advertisement</aside><footer>Footer</footer><input id="input" value="attribute-only"><input type="password" id="password">
+<x-fixture></x-fixture><iframe srcdoc="<!DOCTYPE html><title>Child</title><p>Frame content</p>"></iframe>
+<iframe src="https://example.invalid/unavailable"></iframe>
+<script>
+document.getElementById('more').onclick = () => document.getElementById('extra').hidden = false;
+document.querySelector('x-fixture').attachShadow({mode:'open'}).innerHTML = '<span>Shadow content</span><x-nested></x-nested>';
+document.querySelector('x-fixture').shadowRoot.querySelector('x-nested').attachShadow({mode:'open'}).innerHTML = '<b>Nested shadow</b>';
+const added = document.createElement('p'); added.textContent = 'JavaScript content'; document.body.append(added);
+document.getElementById('input').value = 'property-only';
+document.getElementById('password').value = 'synthetic-property-password';
+</script></body></html>
