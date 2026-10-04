@@ -108,17 +108,18 @@ Native Hostの責務は小さく保つ。
 
 Native Hostは**保存用Bridge**であり、CPC Coreではない。
 
-## 5. 通信イメージ
+## 5. 通信プロトコル v1.0
 
 Native MessagingではChromeとNative Hostの間でメッセージをやり取りする。
 
-概念例：
+開始要求：
 
 ```json
 {
-  "command": "save_capture",
-  "filename": "20261004T182500+0900_abc123.webcapture.zip",
-  "data": "..."
+  "command": "begin",
+  "transfer_id": "11111111-1111-4111-8111-111111111111",
+  "filename": "20261004T092500000Z_11111111-1111-4111-8111-111111111111.webcapture.zip",
+  "size": 12345
 }
 ```
 
@@ -129,7 +130,8 @@ Native Host側からは例えば以下のような結果を返す。
 ```json
 {
   "success": true,
-  "filename": "20261004T182500+0900_abc123.webcapture.zip"
+  "filename": "20261004T092500000Z_11111111-1111-4111-8111-111111111111.webcapture.zip",
+  "sha256": "<ZIP全体のSHA-256>"
 }
 ```
 
@@ -142,7 +144,24 @@ Native Host側からは例えば以下のような結果を返す。
 }
 ```
 
-上記は概念例であり、実際のMessage Schema、Binary Dataの渡し方、最大Message Sizeへの対応等は実装設計時に確定する。
+`runtime.connectNative` の1接続につき1転送。各要求へACKが返るまで次を送らない。
+
+| command | 必須フィールド（commandを含む。余分なフィールドは拒否） | 意味 |
+|---|---|---|
+| hello | command | 保存前の接続確認。protocol_version=1.0を返す |
+| begin | command, transfer_id, filename, size | UUID v4、確定ファイル名、ZIP byte数で開始 |
+| chunk | command, transfer_id, sequence, data | 0開始の連続sequence、Base64で最大192 KiBのbinaryデータ |
+| finish | command, transfer_id, chunks | chunk数と全byte数、ZIP構造、Format、Artifact checksumを検証して確定 |
+
+Chromeの公式上限はExtension→Hostが64 MiB、Host→Extensionが1 MB。実装は受信JSONを300 KiB以下、返信を小さなACKに限定する。Bundleは最大512 MiB、ZIP STORE形式のみ。上限超過は失敗とし、保存成功扱いにしない。要求ごとのExtension側timeoutは60秒。
+
+Hostは各chunkを固定保存先の `.transfer-*.tmp` に書き込む。順序違反・欠落・重複・別transfer ID・不正Base64・サイズ超過を拒否する。完了時に全ArtifactのSHA-256とbyte数を検証し、ストリームで計算したZIP全体のSHA-256を返す。ZIP全体を1つのJSONにしない。
+
+fsync後、Windowsの非上書き `os.rename` で正式ファイルへ変更する。既存Bundleとの衝突は失敗。切断/通常の例外時に一時ファイルを除去する。プロセス強制終了や電源断時には `.tmp` が残る可能性があるが正式Bundleとして扱わず、動作中Hostがないことを確認してから手動削除する。
+
+エラーは `invalid_message`, `invalid_filename`, `invalid_sequence`, `incomplete_transfer`, `checksum_mismatch`, `capture_exists`, `save_or_bundle_validation_failed` 等のコードで返す。ページ本文・資格情報・ローカル絶対パスをエラーへ含めない。
+
+仕様根拠: [Chrome Native Messaging](https://developer.chrome.com/docs/extensions/develop/concepts/native-messaging)。
 
 ## 6. Native Host登録
 
@@ -159,27 +178,23 @@ Native Host executable/script path
 呼び出しを許可するChrome Extension ID
 ```
 
-WindowsではNative Messaging Host manifestとRegistry登録を利用する方式を前提候補とする。
+WindowsではNative Messaging Host manifestと現在ユーザーのRegistry登録を利用する。
 
-詳細なインストール・登録方法はNative Host実装時に確定する。
+`native-host/Manage-NativeHost.ps1` でInstall/Uninstall/Status/Prepareを実行する。HKCUの `Software\Google\Chrome\NativeMessagingHosts\com.characterpagecollector.web_page_capture` に `.local/host-manifest.json` を登録する。allowed_originsは指定Extension IDだけでwildcardなし。HostもChromeから渡されたoriginをmanifestと比較する。実設定・絶対パス・生成Executableは `.local/` に置きGit管理しない。詳細はREADMEを参照。
 
 ## 7. 実装言語
 
-現段階では確定しない。
+Python 3.10以降の標準ライブラリを採用する。CPCの依存Packageや解析コードを取り込まない。
 
-CharacterPageCollectorがPython中心であるため、初期候補としてPythonは自然である。
+既存のPython環境を再利用でき、ZIP/JSON/SHA-256/Native Messagingを外部依存なしで保守できることを選択理由とする。
 
-候補：
+起動構成：
 
 ```text
-開発時
-Python script
-    ↓
-必要に応じて
-配布用Executable
+Chrome → .local/host.exe（C#起動Bridge）→ python.exe -I -u native-host/host.py
 ```
 
-ただし、Python Runtime依存の扱い、Native Messaging起動方法、配布・更新方法を比較した上で最終決定する。
+Install時にWindowsの.NET Framework C# compilerで `Launcher.cs` をコンパイルする。Python/scriptの場所を固定した起動Bridgeだけを生成し、binary stdioを転送する。任意コマンド起動APIは持たない。Pythonはisolated modeで起動する。Python Runtimeが必要であるため、移動・削除後は再Installが必要。将来Python部分をExecutable化する場合も固定保存先・origin検証・同じstdioプロトコルを保持する。
 
 ## 8. 保存先
 
@@ -194,7 +209,7 @@ Python script
 
 Native Hostは、任意のユーザー指定パスへ無制限に保存する汎用ファイル書き込み機能にはしない。
 
-初期実装ではWeb Page Capture専用の保存先へ限定する方向を優先する。
+保存先はHost自身の配置から求めた `local-captures/` に固定する。Extensionから保存先を受け取らない。title/URLをファイル名に使用せず、UTC日時とUUID v4の厳格な形式だけを受け付ける。ZIPは展開せず、許可したArtifact名だけを検証する。保存先自体のsymlinkを拒否する。同じWindowsユーザーがリポジトリの親ディレクトリやHostコードを変更できることはOS権限の境界であり、本Hostはそれを防ぐsandboxではない。
 
 ## 9. セキュリティ原則
 

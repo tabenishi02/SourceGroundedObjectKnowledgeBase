@@ -91,7 +91,7 @@ Web Page Capture
 
 ## 5. Capture対象
 
-### 必須候補
+### 必須対象
 
 - Capture時点のMain Document DOM
 - 実際に表示していたURL
@@ -281,7 +281,7 @@ Native Hostへ保存依頼
 結果通知
 ```
 
-主な責務候補：
+実装した責務：
 
 - Context Menu登録
 - Capture開始
@@ -338,6 +338,20 @@ CDP/debugger権限を利用するAdvanced Captureは、権限が強いため標�
 - Native Messaging
 - Native Hostによる `local-captures/` 保存
 - 成功 / 失敗通知
+
+### 14.1 v0.1.0の確定構成
+
+- Chrome 116以降、Manifest V3、ビルド不要のJavaScript ES Modules。
+- 権限は `contextMenus`, `activeTab`, `scripting`, `nativeMessaging`, `pageCapture`, `notifications` のみ。常時Host Permission・常駐Content Script・debugger権限なし。
+- `scripting.executeScript` のisolated worldでMain Documentを取得し、アクセス可能な子Frameを再帰的に取得する。クロスオリジンFrameは取得不能を記録し、追加権限を要求しない。
+- open Shadow DOMのHost位置・HTML・入れ子の対応を別Artifactへ保存。closed Shadow DOMは有無を判定できないため既知の制約としてwarningを保存し、全体をpartialとする。
+- MHTMLは毎回 `pageCapture.saveAsMHTML` を試行する。Main DOM取得成功ならMHTML失敗も部分Captureとして保存する。主DOM失敗時はBundleを生成しない。
+- UUID v4とUTC日時でファイル名を決定。タイトル・ページ由来パスはファイル名に使用しない。
+- ExtensionがZIP（STORE形式）とArtifact SHA-256を生成。`connectNative` をCapture開始時に接続し、ACK付き192 KiB chunkで保存Hostへ転送する。
+- Python標準ライブラリのHostが検証、固定ディレクトリ内の一時ファイル、fsync、非上書きAtomic Renameを担当する。Hostはページの意味を解釈しない。
+- DOM/MHTMLは逐次取得であり、同時点を保証しない。取得中に実URLが変わった場合は保存を中止する。同一URLの再読み込みは検知を保証しない。
+
+Chrome公式仕様: [activeTab](https://developer.chrome.com/docs/extensions/develop/concepts/activeTab)、[scripting](https://developer.chrome.com/docs/extensions/reference/api/scripting)、[pageCapture](https://developer.chrome.com/docs/extensions/reference/api/pageCapture)、[Native Messaging](https://developer.chrome.com/docs/extensions/develop/concepts/native-messaging)。
 
 ## 15. 将来拡張
 

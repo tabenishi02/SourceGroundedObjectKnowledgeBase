@@ -3,4 +3,7 @@ dist/
 coverage/
 .local/
 local-captures/
+local-captures-acceptance-backup/
 *.webcapture.zip
+__pycache__/
+*.pyc

@@ -1,0 +1,116 @@
+# Windows 11 + Chrome 手動受入試験
+
+自動テスト成功は実機結合の合格を意味しません。次をユーザー操作で確認し、結果・Chrome/Python/Extensionのversion・日時をPRへ記録してください。実ページやBundleはGit/PRへ添付しません。実機試験完了前にmainへマージしません。
+
+## 現在の受入結果
+
+2026-10-04時点で試験表の全14項目がOK。MHTML取得失敗時のみ、ユーザーの明示承認により自動テスト成功を代替証拠として受け入れた（異常系の実機再現は未実施）。それ以外はユーザーの操作結果と収集済みZIPの検査で確認した。下記の検査記録は時系列の履歴であり、当時のPENDINGや未完了は現在の残タスクを示さない。
+
+## 準備
+
+READMEのLoad unpacked、Host Install、Statusを実行します。CPCとlocalhost Serverは停止した状態で試験します。Windows/Chrome通知を有効にします。
+
+`tests/fixtures/page.html` は人工Fixtureです。Chrome拡張機能詳細でファイルURLアクセスを有効にし、FixtureをChromeで開きます。ここだけ `example.invalid` のFrameを故意に取得不能にしています。静的/same-origin Frameも確認する場合は、Fixtureの一時コピーをGit管理外に置き、`srcdoc` FrameのDOMをChrome DevToolsで確認してください。
+
+## 試験項目
+
+| 項目 | 操作 | 合格条件 | 結果 |
+|---|---|---|---|
+| Load unpacked | `extension/` を読み込む | Manifest・Service Workerの読み込みエラーなし。Popup/Options/Side Panelなし | OK |
+| 静的ページ | `https://example.com/` を開いて右クリックCapture | 保存成功通知、`local-captures/` にZIPが1つ生成される | OK（ZIP保存は既確認。通知アイコンURL修正後、ユーザーが正常な通知表示を確認） |
+| メニュー対象 | ページ、リンク、画像、選択文字列上から実行 | クリック対象ではなくActive Tab全体のDOMを保存 | OK |
+| 動的ページ | Fixtureを開く | Main DOMに `JavaScript content` がある | OK（B14・B15でscript外の本文にJavaScript追加要素を確認） |
+| 展開後ページ | Fixtureの「もっと見る」を押してCapture | `Expanded content` があり、`hidden` attributeが外れている | OK（B14のextra要素はhiddenあり、B15ではhiddenなし。両方にExpanded contentを保持） |
+| フォームproperty | Fixtureの入力欄を変更しCapture | `input` のHTML attributeは `attribute-only` のまま。password propertyを書き戻していない | OK（B14・B15でinputのvalue属性はattribute-only、passwordにvalue属性なし。Fixtureのproperty変更処理と動的要素の実行結果を確認） |
+| 連続Capture | 同じURLを2回Capture | UUIDの異なる2つのZIPが存在し、1つ目の内容・更新日時は変わらない | OK（ユーザーの前後比較で内容不変・更新日時不変・ZIPが1個増加がすべてTrue。最新2 ZIPも同一URL・別UUID・別Capture日時であることを検査） |
+| Raw保持 | ZIPの `capture/dom/main.html` をテキストで確認 | DOCTYPE、script、style、nav、aside、footer、UIが残る | OK（ZIP内容確認：全13 ZIPにDOCTYPE・script・style。B02等でnav・aside・footer・buttonも保持） |
+| MHTML | ZIPを展開して `capture/archive/page.mhtml` をChromeで開く | 補助Archiveが存在し、開ける。失敗時はmanifestにmhtml=failedと理由があり、空のMHTMLなし | OK（正常表示は実機確認済み。取得失敗時は自動テスト成功を代替証拠としてユーザー承認。異常系の実機再現は未実施） |
+| iframe | Fixtureまたは同一オリジンFrameを含むページをCapture | アクセス可能FrameのDOM・親子関係を保持。取得不能Frameはframes.jsonにpermission_denied等を記録 | OK（ZIP内容確認：B01・B03・B11で成功FrameのDOMとmetadata、全Frameの親ID対応を確認。取得不能Frameはpermission_denied・理由を記録） |
+| Shadow DOM | FixtureをCapture | shadow-dom.jsonにopen/nested shadowとHost位置がある。closed制約warningを記録 | OK（B14・B15にShadow contentとNested shadow、入れ子のHost位置、mode=open、closed制約warningを確認） |
+| 完全性・checksum | manifestとchecksumsを確認 | format_version=1.0、実URLとcanonicalが別。全Artifact（checksums自身以外）にSHA-256とbyte数がある | OK（全13 ZIPでFormat 1.0、実URLとcanonical別フィールド、全ArtifactのSHA-256・byte数・ZIP CRC一致、partialとwarning整合を確認） |
+| Host未登録 | Uninstall → Capture → Installで戻す | 失敗理由の通知、ZIPなし。再Install後に成功 | OK（ユーザーが理由付き失敗通知・ZIP非増加・再登録後の保存成功を確認） |
+| 保存先失敗 | 以下の可逆な方法で試験 | 失敗通知、一時転送を正式Bundleとして残さない。復旧後に成功 | OK（ユーザーが理由付き失敗通知・ZIP非増加と復旧後の正常動作を確認。失敗時の正式ZIP非生成を確認済み） |
+
+Main DOM / Frame / Shadow / MHTMLがすべて同時点になること、closed ShadowやクロスオリジンFrameを完全取得することは合格条件に含めません。これらの制約がmanifestに記録されることを確認します。
+
+## 収集済みZIPの検査記録（2026-10-04）
+
+対象は `local-captures/` の13 ZIP。Capture日時は2026-10-04 20:14:46〜20:29:12 JST、Capture Tool Versionはすべて0.1.0、実URLは9種類。実ページのURL・title・本文・ローカル絶対パスは本記録へ転記しない。B01〜B13はファイル名の昇順に対応する検査用ラベルで、対応表はGit管理外の `.local/acceptance-inspection.json` に保存した。
+
+- 13 ZIPすべてについてHostのBundle検証を実行し、必須Artifact・Manifest・ファイル名/UUID/日時・ZIP内パス・全ArtifactのSHA-256/byte数・ZIP CRCの検証に成功した。検査は読み取りのみで、既存ZIPは変更していない。
+- 最大BundleはB03の56,480,879 bytes。全13 ZIPでMain DOMとMHTMLの成功記録を確認した。MHTMLは非空で `MIME-Version` と `multipart/related` のヘッダーがある。Chromeでの表示可否はこの検査の対象外。
+- 同一実URLのB02・B04・B05・B06・B07が、別UUID・日時の5 Captureとして共存している。収集前のhash・更新日時がないため、最初のファイルが後のCaptureで変更されなかったことまでは証明しない。
+- Frameは成功7件、permission_denied 35件。成功Frameの対応するHTMLとmetadata、全Frameの親ID対応を確認した。
+- 全13 ZIPに合計135件のopen Shadow DOMの記録があり、Host位置・frame ID・mode=open・HTMLを確認した。入れ子Shadow Rootの記録と指定Fixtureはなかった。
+- 全体completenessとshadow_domはすべてpartial。全ZIPに `closed_shadow_dom_unobservable`、取得不能FrameがあるZIPには `cross_origin_or_unavailable` が記録されており、既知制約によるpartialを保存失敗とは扱わない。
+
+表中の既存OK/NGはユーザーの操作結果として保持し、追記したOKは明記したZIP内容の検査範囲に限る。「一部確認」は残る合格条件がPENDINGであり、総合合格ではない。初回検査時点では通知・障害再現・Fixture試験が未解決であり、実機受入は未完了とした。Fixture追加後の結果は次節に記載する。
+
+## Fixture追加検査（2026-10-04）
+
+初回13 ZIPの検査後、Fixtureの2 ZIPを追加確認した。B14は20:37:51.065 JST、B15は20:38:35.019 JSTのCapture。document titleと実URLの末尾 `tests/fixtures/page.html`、Fixture固有のDOMで対象を確認した。ローカル絶対URLは転記しない。対応表と検査詳細はGit管理外の `.local/fixture-acceptance-inspection.json` に保存した。
+
+- B14・B15ともBundle検証に成功。これで確認済みは計15 ZIP。Main DOMとMHTMLはsuccess、全ArtifactのSHA-256・byte数・ZIP CRCが一致した。MHTMLのChrome表示は引き続き未確認。
+- script文字列内の一致だけで判断せず、DOM本文の `JavaScript content` を確認した。extra要素の `Expanded content` は両Captureに残り、B14のhidden属性がB15ではなくなっているため、展開前後の保持を確認できた。
+- FixtureはJavaScriptでinput/passwordのproperty値を変更するが、両Captureのinputのvalue属性は `attribute-only`、passwordにはvalue属性がない。property値を書き戻していないことを確認した。
+- 両Captureでsrcdoc FrameのDOMに `Frame content` があり、parent_frame_id=main、capture_status=success。取得不能Frameはpermission_deniedと理由を記録している。
+- 両Captureでopen Shadow Rootの `Shadow content` と入れ子の `Nested shadow`、`/#shadow-root/` を含むHost位置を確認した。closed Shadowの制約warningも保持している。
+- 初回13 ZIPのSHA-256は前回検査記録とすべて一致し、追加収集後も内容が変更されていない。ただし、最初の連続Captureより前の内容・更新日時を記録していないため、その項目の未観測部分は残る。
+
+Fixtureの動的ページ・展開後ページ・フォームproperty・Shadow DOMは、追加ZIPの内容確認に基づきOKへ更新した。この追加検査時点では通知のNGも残っていたが、次節の再試験で通知表示を確認した。MHTML表示、連続Captureの更新日時不変、Host未登録・保存先失敗の実機確認は残っており、総合受入は未完了。
+
+## 通知の再試験（2026-10-04）
+
+通知権限はgrantedだったが、通知画像の読み込みエラーで表示に失敗していた。通知アイコンを `chrome.runtime.getURL` で絶対URLにする修正（e865d15）後、ユーザーから正常に通知されることを確認したとの報告を受けた。既確認のZIP保存と合わせ、静的ページ項目をOKへ更新した。Host未登録・保存先失敗時の失敗通知や復旧は、この報告だけでは確認済みにしない。
+
+## MHTML表示の実機確認（2026-10-04）
+
+ユーザーからMHTMLの正常表示を確認したとの報告を受け、MHTMLの正常系をOKへ更新した。Archiveとchecksumの既存検査に加え、Chromeでの表示確認が完了した。MHTML取得失敗時の部分Capture・warning・空Artifactを作らない処理は自動テスト済みだが、実機再現は未確認として残す。
+
+MHTML表示確認時点では、連続Captureの更新日時不変、Host未登録・保存先失敗時の動作、MHTML取得失敗時の動作が残っていた。連続Captureの追加確認は次節に記載する。
+
+## 連続Captureの実機確認（2026-10-04）
+
+ユーザーのPowerShellによるCapture前後の比較結果で、内容不変・更新日時不変・ZIPが1個増加がすべてTrueだった。追加検査で最新2 ZIP（21:40:10.391 JST、21:40:30.701 JST）が同一実URL・異なるUUIDとCapture日時を持ち、両方ともBundle検証に成功したことを確認した。連続CaptureをOKへ更新した。
+
+ユーザーのStatus出力ではRegistered・ManifestExists・LauncherExistsがすべてTrueだった。これは正常な登録状態の確認であり、Host未登録時の失敗試験を合格にする証拠とは区別する。
+
+残る実機確認は、Host未登録・保存先失敗時の動作、MHTML取得失敗時の動作。総合受入は未完了。
+
+## Host未登録試験の報告（2026-10-04）
+
+ユーザーから、Host未登録試験について失敗判定を確認し、その後正常動作に戻して保存成功したとの報告を受けた。失敗判定と復旧後の保存成功を確認済みとして記録した。失敗理由の通知表示と失敗時のZIP非増加は報告に明記されていないため、確認済みとは扱わない。
+
+残る実機確認は、Host未登録時の理由付き通知・ZIP非増加、保存先失敗時の動作、MHTML取得失敗時の動作。総合受入は未完了。
+
+## 保存先失敗試験の報告（2026-10-04）
+
+ユーザーから、保存先失敗試験で失敗通知を確認し、正常に戻ることを確認したとの報告を受けた。失敗通知と復旧後の正常動作を確認済みとして記録した。失敗時に正式ZIPが生成されなかったことは報告に明記されていないため、未確認として残す。
+
+残る実機確認は、Host未登録時の理由付き通知・ZIP非増加、保存先失敗時の正式ZIP非生成、MHTML取得失敗時の動作。総合受入は未完了。
+
+## 障害試験の追加確認（2026-10-04）
+
+ユーザーから、上記2つの障害試験について理由付き通知とZIP非増加も確認済みとの補足報告を受けた。既報告の復旧後の成功と合わせ、Host未登録・保存先失敗をOKへ更新した。失敗時に正式ZIPを生成しないことも確認済みとした。
+
+この追加確認時点で残る実機未確認は、MHTML取得失敗時の部分Capture・warning・空Artifact非生成のみだった。この異常系の代替検証による受入判断は次節に記載する。
+
+## MHTML異常系の代替検証による受入（2026-10-04）
+
+実機でMHTML取得失敗を確実に再現する通常操作が確立されていないため、ユーザーの明示指示により自動テスト結果を根拠にOKとした。異常系の実機再現が未実施である事実は変更しない。
+
+- JavaScriptの関連テスト2件を再実行し、MHTML API失敗後も部分Captureを保存して成功通知に進むこと、mhtml=failed・warningを記録すること、ZIPにMHTML Artifactを作らないことを確認した。Artifact非生成の検証を既存テストへ追加した。
+- Python Hostの関連テスト2件を再実行し、MHTML失敗状態の部分Bundle保存と、MHTML状態・Artifact有無が矛盾するBundleの拒否を確認した。
+- 上記4件はすべて成功した。これまでの実機確認結果と合わせ、試験表の全項目をOKとする。MHTML異常系のみ、ユーザーが承認した自動テストによる代替検証である。
+
+受入判定の未完了項目はない。ユーザーのマージ指示によりmainへの統合対象とする。
+
+## 保存先失敗を安全に試す方法
+
+処理中のCaptureがないことを確認し、PowerShellで既存 `local-captures/` を同じ親ディレクトリの `local-captures-acceptance-backup/` へ手動で移動します。既存バックアップがある場合はこの操作を開始しません。移動先のフルパスがプロジェクト配下であることを確認します。`local-captures` という名前の空の通常ファイルを代わりに作り、Captureを実行します。Hostのmkdirが失敗し、失敗通知と正式ZIPが作られないことを確認します。
+
+試験後は作成した空ファイルだけを削除し、元のディレクトリを元の名前へ戻します。試験前に保存先がなかった場合は空ファイルを削除するだけです。Captureデータの再帰削除やACL変更は行いません。一時バックアップもGitに追加しません。
+
+## 未観測の状態
+
+この手順を作成しただけでは実機合格にはなりません。実機未実施の事実は明記し、代替検証での受入合意がない未実施項目はPENDINGとして残します。失敗時は通知理由とManifestのstatus（機密内容を含めない）を記録してください。

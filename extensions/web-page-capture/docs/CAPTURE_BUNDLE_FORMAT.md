@@ -4,7 +4,7 @@
 
 1回のCapture結果を、後段のCharacterPageCollectorや他ツールから再利用できる自己完結した保存単位として扱う。
 
-初期名称は **Web Capture Bundle** とし、ファイル名は以下を候補とする。
+名称は **Web Capture Bundle** とし、ファイル名は以下とする。
 
 ```text
 <timestamp>_<capture-id>.webcapture.zip
@@ -37,7 +37,7 @@ capture/
 
 ## 3. manifest.json
 
-最低限の候補：
+v1.0の基本フィールド例（追加の確定規則は第13節）：
 
 ```json
 {
@@ -58,8 +58,8 @@ capture/
     "metadata": "success",
     "structured_data": "success",
     "frames": "partial",
-    "shadow_dom": "success",
-    "mhtml": "not_requested"
+    "shadow_dom": "partial",
+    "mhtml": "success"
   },
   "warnings": []
 }
@@ -69,7 +69,7 @@ capture/
 
 ## 4. document.json
 
-候補：
+基本フィールド例：
 
 ```json
 {
@@ -180,7 +180,7 @@ closed Shadow DOMは取得不能である可能性をmanifestへ記録する。
 
 ## 9. resources.json
 
-DOM中で参照されていたResourceの索引を保存する候補。
+DOM中で参照されていたResourceの索引を保存する。
 
 ```json
 [
@@ -229,7 +229,7 @@ Hash一致を理由にCapture自体を自動削除・統合しない。
 - `not_supported`
 - `permission_denied`
 
-具体的なSchemaは実装前に確定する。
+v1.0の確定規則は第13節に記載する。
 
 ## 12. Versioning
 
@@ -244,3 +244,45 @@ Extension v1.0 → Format 2.0
 ```
 
 Format変更時には、どのVersionから何が追加・削除・意味変更されたかを本書へ記録する。
+
+## 13. 確定Schema v1.0（初回実装）
+
+本節をv1.0の規範とする。上のJSON例は主要フィールドの説明であり、全フィールドを示すものではない。JSONはUTF-8、HTMLはRendered DOMをUTF-8で保存する。MHTMLはChromeが返したbyte列を変換せずに保存する。ZIPは標準STORE形式、各entryは `capture/` から始まる。
+
+### ファイル名と必須Artifact
+
+ファイル名は `YYYYMMDDTHHMMSSmmmZ_<UUID-v4>.webcapture.zip`。日時はUTC、ミリ秒3桁。Capture IDは小文字UUID v4。page title/URLはファイル名に使用しない。同一URLでも新しいCapture IDを生成し、上書き・重複統合しない。
+
+必須Artifactは `manifest.json`, `dom/main.html`, `metadata/document.json`, `metadata/html-metadata.json`, `metadata/structured-data.json`, `metadata/frames.json`, `metadata/shadow-dom.json`, `metadata/resources.json`, `checksums.json`。取得できたFrameだけ `dom/frames/frame-NNNN.html` を追加する。MHTML成功時だけ `archive/page.mhtml` を追加する。
+
+### Manifest
+
+- `format`: `web-capture-bundle`、`format_version`: `1.0`。
+- `capture_id`: UUID v4。`captured_at`: Main DOM取得時の `YYYY-MM-DDTHH:mm:ss.sssZ`。
+- `capture_tool`: `name=WebPageCapture`, `version=Extension version`。
+- `page`: 実際にDOMから取得した `url`, `title`。canonicalで置き換えない。
+- `components`: `main_dom`, `metadata`, `structured_data`, `frames`, `shadow_dom`, `mhtml` の状態。
+- `completeness`: 全取得対象が成功ならsuccess、取得不能・失敗・既知の完全性制約があればpartial。初回実装はclosed Shadow DOMを判定できず、常にpartialとする。
+- `warnings`: `{code, component, reason?, frame_id?}` の配列。機密ページ情報や例外stackは含めない。
+
+Main DOMは必須でsuccessのみ保存可能。Main DOM失敗はCapture全体のfailedとして失敗通知し、正式Bundleを生成しない。MHTML失敗時はmhtml=failedとwarningを保存し、空Artifactを作らない。framesは取得不能Frameがあるとpartial、shadow_domはclosed制約によりpartial。未検出Frame/open Shadow/Structured Dataの索引は空配列で成功を示す。not_requested/not_supported/permission_deniedはSchema上有効な状態だが、毎回MHTMLを試す初回実装のmhtmlはsuccessまたはfailed。
+
+### Documentと索引
+
+`document.json` は第4節の全フィールドに加え `doctype`, `captured_at`, `size={width,height}` を持つ。canonicalがない場合はnull、doctypeがない場合は空文字列。DOCTYPEはHTML先頭にも保存する。propertyとしてのみ存在するフォーム値はattributeへ書き戻さない。
+
+`html-metadata.json` はmeta/link要素の全attributeを文字列辞書として保持する。重複要素と順序を保持する。raw hrefとresolved canonical_urlを区別する。
+
+`structured-data.json` は `json_ld=[{index,raw}]`（不正JSONもrawのまま）、`microdata=[attribute辞書]`, `rdfa=[attribute辞書]`。意味の解釈・分類は行わず、本文を含む元要素はRaw DOMにも残す。
+
+`frames.json` は配列。各項目に `frame_id`, `parent_frame_id`, `element_path`, `url`, `attributes`, `capture_status` を持つ。成功時は `file`, `metadata`（子document情報）, `html_metadata`, `structured_data` を追加する。取得不能時はreasonを記録し、metadata索引はnull、fileは存在しない。frame IDはDOM走査順のframe-0001等。クロスオリジン/sandbox等で読めない場合はpermission_denied、読み取り中の例外はfailed。その内部のFrameは列挙できない。
+
+`shadow-dom.json` は `{frame_id, host_path, mode=open, html}` の配列。位置は `/html[0]/body[1]/x-fixture[5]` のように各親のchildren内の0始まりindexを使い、Shadow Root境界は `/#shadow-root`。入れ子open Shadow Rootも別項目として保持する。Main DOMのouterHTMLにShadow内容を人工的に追加しない。closedは存在判定不能というwarningで表現する。
+
+`resources.json` は `{frame_id, element_path, element, attribute, raw, url}` の配列。src/href/poster/srcset/data attributeを索引化する。srcsetは複数URLなのでurl=null、raw文字列をそのまま保存。CSS内のURLやResource本体を独自取得しない。
+
+### Checksumと保存失敗
+
+`checksums.json` は、自身以外の全Artifact（manifestと各metadataも含む）の相対パスをキーに `{sha256: 小文字hex64桁, bytes: byte数}` を持つ。キーに `capture/` は含めない。Native Hostは全checksumとZIP CRCを検証してから正式ファイルへ確定する。
+
+転送・検証・書き込み失敗は保存全体のfailed。正式Bundleを残さず失敗通知する。一時ファイルはBundleではない。電源断等による残存一時ファイルの扱いと転送上限はNATIVE_HOST.mdに記載する。

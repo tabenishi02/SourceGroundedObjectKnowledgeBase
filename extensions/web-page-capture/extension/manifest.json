@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Web Page Capture",
+  "version": "0.1.0",
+  "minimum_chrome_version": "116",
+  "description": "右クリックしたページのRaw Captureをローカル保存します。",
+  "permissions": ["contextMenus", "activeTab", "scripting", "nativeMessaging", "pageCapture", "notifications"],
+  "background": {"service_worker": "src/background/service-worker.js", "type": "module"},
+  "icons": {"128": "public/icons/capture.png"}
+}

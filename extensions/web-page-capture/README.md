@@ -134,7 +134,7 @@ Side Panel:
 
 ## 目標ディレクトリ構成
 
-実装時には次の責務分離を目標とします。
+次の責務分離で実装しています。
 
 ```text
 web-page-capture/
@@ -159,7 +159,52 @@ web-page-capture/
 └─ local-captures/        # Git管理外
 ```
 
-実装開始時に `package.json`、TypeScript設定、Manifest V3設定、Native Host実装・登録方式等を追加します。ツールチェーンは実装設計時に確定します。
+拡張機能はES ModulesのJavaScriptで実装し、ビルドは不要です。Python 3.10以降の標準ライブラリで保存Hostを実装し、Windows標準の.NET Framework C# compilerで小さな起動用Executableを生成します。CPC、localhost Server、管理者権限は不要です。Node.js 22.13以降とnpmは自動テスト時のみ必要です。jsdomはテスト専用依存です。
+
+## 導入・利用（Windows 11 / Chrome 116以降）
+
+1. `chrome://extensions` でデベロッパーモードを有効にする。
+2. 「パッケージ化されていない拡張機能を読み込む」で、このディレクトリ内の `extension/` を選択する。
+3. 表示された32文字の拡張機能IDを控える。
+4. このディレクトリをカレントディレクトリにして、PowerShellで次を実行する。
+
+```powershell
+.\native-host\Manage-NativeHost.ps1 -Action Install -ExtensionId <拡張機能ID>
+.\native-host\Manage-NativeHost.ps1 -Action Status
+```
+
+必要なら `-PythonPath <python.exeのパス>` を指定します。実行ポリシーでブロックされる場合は、内容を確認したうえで `powershell -NoProfile -ExecutionPolicy Bypass -File .\native-host\Manage-NativeHost.ps1 -Action Install -ExtensionId <拡張機能ID>` を使用してください。
+
+5. 通常のWebページを開き、必要な内容を展開してから右クリック →「このページをキャプチャ」。画像・リンク上からでもページ全体を対象にする。
+6. 通知を確認し、`local-captures/` のZIPを展開して `capture/manifest.json` を確認する。
+
+ファイルページのFixtureを試す場合はChromeの拡張機能詳細で「ファイルのURLへのアクセスを許可する」を有効にしてください。通常のHTTP/HTTPSページでは不要です。通知が出ない場合はWindowsとChromeの通知設定を確認します。リポジトリの移動、Pythonの移動、Extension IDの変更後はInstallを再実行します。
+
+```powershell
+.\native-host\Manage-NativeHost.ps1 -Action Uninstall
+```
+
+アンインストールは現在ユーザーのRegistry登録だけを解除し、Captureは保持します。拡張機能は `chrome://extensions` から削除できます。`.local/` は実設定・生成Executableを含むGit管理外のディレクトリです。PrepareはRegistryを変更せずにHostの準備だけを行います。
+
+## テストと受入
+
+このディレクトリで実行します。
+
+```powershell
+npm ci --cache .local/npm-cache
+npm test
+python -m unittest discover -s tests/unit -p "test_*.py"
+```
+
+ChromeとNative Hostの実機結合は自動テストのみでは確認できません。[手動受入試験](docs/MANUAL_ACCEPTANCE.md)に従ってWindows 11 + Chromeで確認してください。実機試験が終わるまでmainへマージしません。
+
+## 保存範囲と制約
+
+MHTMLは毎回取得を試み、失敗時もMain DOMが取得済みなら部分Captureとして保存します。Main DOM取得失敗、途中のページ遷移、Host接続失敗、保存失敗は失敗通知となり、正式Bundleを保存しません。
+
+同一オリジンでアクセス可能なFrameを再帰的に保存します。クロスオリジンやsandboxで取得できないFrameはその要素・URL・親子関係と状態を保持します。その内部のFrame構造は不明です。open Shadow DOMは入れ子を含めて別Artifactに保持します。closed Shadow DOMの有無は判定できないため、完全取得は保証せず `shadow_dom` と全体のcompletenessは `partial` です。
+
+DOMとMHTMLは順に取得するため完全に同時ではありません。取得中の動的変更、同一URLへの再読み込み、canvas等の描画状態は完全には再現できません。Raw DOMとMHTMLに既に埋め込まれた機密情報は保存され得るため、Bundleは公開しないでください。ブラウザの資格情報・ストレージAPIにはアクセスせず、フォームのproperty値を書き戻しません。
 
 ## CPCとの境界
 
