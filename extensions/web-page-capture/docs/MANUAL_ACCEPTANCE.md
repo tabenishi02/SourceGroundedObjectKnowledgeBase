@@ -2,6 +2,10 @@
 
 自動テスト成功は実機結合の合格を意味しません。次をユーザー操作で確認し、結果・Chrome/Python/Extensionのversion・日時をPRへ記録してください。実ページやBundleはGit/PRへ添付しません。実機試験完了前にmainへマージしません。
 
+## 現在の受入結果
+
+2026-10-04時点で試験表の全14項目がOK。MHTML取得失敗時のみ、ユーザーの明示承認により自動テスト成功を代替証拠として受け入れた（異常系の実機再現は未実施）。それ以外はユーザーの操作結果と収集済みZIPの検査で確認した。下記の検査記録は時系列の履歴であり、当時のPENDINGや未完了は現在の残タスクを示さない。
+
 ## 準備
 
 READMEのLoad unpacked、Host Install、Statusを実行します。CPCとlocalhost Serverは停止した状態で試験します。Windows/Chrome通知を有効にします。
@@ -12,9 +16,9 @@ READMEのLoad unpacked、Host Install、Statusを実行します。CPCとlocalho
 
 | 項目 | 操作 | 合格条件 | 結果 |
 |---|---|---|---|
-| Load unpacked | `extension/` を読み込む | Manifest・Service Workerの読み込みエラーなし。Popup/Options/Side Panelなし | 未記入 |
+| Load unpacked | `extension/` を読み込む | Manifest・Service Workerの読み込みエラーなし。Popup/Options/Side Panelなし | OK |
 | 静的ページ | `https://example.com/` を開いて右クリックCapture | 保存成功通知、`local-captures/` にZIPが1つ生成される | OK（ZIP保存は既確認。通知アイコンURL修正後、ユーザーが正常な通知表示を確認） |
-| メニュー対象 | ページ、リンク、画像、選択文字列上から実行 | クリック対象ではなくActive Tab全体のDOMを保存 | 未記入 |
+| メニュー対象 | ページ、リンク、画像、選択文字列上から実行 | クリック対象ではなくActive Tab全体のDOMを保存 | OK |
 | 動的ページ | Fixtureを開く | Main DOMに `JavaScript content` がある | OK（B14・B15でscript外の本文にJavaScript追加要素を確認） |
 | 展開後ページ | Fixtureの「もっと見る」を押してCapture | `Expanded content` があり、`hidden` attributeが外れている | OK（B14のextra要素はhiddenあり、B15ではhiddenなし。両方にExpanded contentを保持） |
 | フォームproperty | Fixtureの入力欄を変更しCapture | `input` のHTML attributeは `attribute-only` のまま。password propertyを書き戻していない | OK（B14・B15でinputのvalue属性はattribute-only、passwordにvalue属性なし。Fixtureのproperty変更処理と動的要素の実行結果を確認） |
@@ -99,7 +103,7 @@ MHTML表示確認時点では、連続Captureの更新日時不変、Host未登�
 - Python Hostの関連テスト2件を再実行し、MHTML失敗状態の部分Bundle保存と、MHTML状態・Artifact有無が矛盾するBundleの拒否を確認した。
 - 上記4件はすべて成功した。これまでの実機確認結果と合わせ、試験表の全項目をOKとする。MHTML異常系のみ、ユーザーが承認した自動テストによる代替検証である。
 
-受入判定の未完了項目はない。mainへのマージは実行していない。
+受入判定の未完了項目はない。ユーザーのマージ指示によりmainへの統合対象とする。
 
 ## 保存先失敗を安全に試す方法
 
