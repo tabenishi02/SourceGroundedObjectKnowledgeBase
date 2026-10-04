@@ -8,7 +8,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 const running = new Set();
 async function notify(success, message) {
-  await chrome.notifications.create({type: "basic", iconUrl: "public/icons/capture.png", title: "Web Page Capture", message: `${success ? "キャプチャを保存しました。" : "キャプチャに失敗しました。"}\n${message}`});
+  await chrome.notifications.create({type: "basic", iconUrl: chrome.runtime.getURL("public/icons/capture.png"), title: "Web Page Capture", message: `${success ? "キャプチャを保存しました。" : "キャプチャに失敗しました。"}\n${message}`});
 }
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId !== MENU) return;

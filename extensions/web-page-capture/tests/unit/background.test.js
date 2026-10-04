@@ -26,6 +26,7 @@ test("background captures the active tab and reports save, MHTML partial and fai
   globalThis.chrome = {
     runtime: {
       onInstalled: {addListener(fn) {installed = fn;}}, getManifest: () => ({version: "0.1.0"}),
+      getURL: path => new URL(path, "chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/").href,
       connectNative() {
         const port = {onMessage: event(), onDisconnect: event(), disconnect() {disconnected++;}, postMessage(message) {
           messages.push(message);
@@ -38,7 +39,10 @@ test("background captures the active tab and reports save, MHTML partial and fai
     scripting: {async executeScript(options) {target = options.target; if (mode === "dom-failed") throw new Error("Cannot access page"); return [{result: raw()}];}},
     pageCapture: {async saveAsMHTML() {if (mode === "mhtml-failed") throw new Error("synthetic"); return new Blob(["MIME-Version: 1.0"]);}},
     tabs: {async get() {return {url: mode === "navigation" ? "https://example.invalid/other" : "https://example.invalid/"};}},
-    notifications: {async create(options) {notifications.push(options);}}
+    notifications: {async create(options) {
+      assert.equal(options.iconUrl, "chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/public/icons/capture.png");
+      notifications.push(options);
+    }}
   };
   await import("../../extension/src/background/service-worker.js");
   installed();
