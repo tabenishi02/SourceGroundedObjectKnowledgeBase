@@ -25,7 +25,7 @@ READMEのLoad unpacked、Host Install、Statusを実行します。CPCとlocalho
 | Shadow DOM | FixtureをCapture | shadow-dom.jsonにopen/nested shadowとHost位置がある。closed制約warningを記録 | OK（B14・B15にShadow contentとNested shadow、入れ子のHost位置、mode=open、closed制約warningを確認） |
 | 完全性・checksum | manifestとchecksumsを確認 | format_version=1.0、実URLとcanonicalが別。全Artifact（checksums自身以外）にSHA-256とbyte数がある | OK（全13 ZIPでFormat 1.0、実URLとcanonical別フィールド、全ArtifactのSHA-256・byte数・ZIP CRC一致、partialとwarning整合を確認） |
 | Host未登録 | Uninstall → Capture → Installで戻す | 失敗理由の通知、ZIPなし。再Install後に成功 | 一部確認（ユーザーが未登録時の失敗判定と、正常状態へ戻した後の保存成功を確認。理由付き通知・ZIP非増加の明示確認はPENDING） |
-| 保存先失敗 | 以下の可逆な方法で試験 | 失敗通知、一時転送を正式Bundleとして残さない。復旧後に成功 | PENDING（検査時の.tmpは0件だが、書き込み失敗の実機再現・通知・復旧の証拠がない） |
+| 保存先失敗 | 以下の可逆な方法で試験 | 失敗通知、一時転送を正式Bundleとして残さない。復旧後に成功 | 一部確認（ユーザーが失敗通知と復旧後の正常動作を確認。失敗時の正式ZIP非生成の明示確認はPENDING） |
 
 Main DOM / Frame / Shadow / MHTMLがすべて同時点になること、closed ShadowやクロスオリジンFrameを完全取得することは合格条件に含めません。これらの制約がmanifestに記録されることを確認します。
 
@@ -78,6 +78,12 @@ MHTML表示確認時点では、連続Captureの更新日時不変、Host未登�
 ユーザーから、Host未登録試験について失敗判定を確認し、その後正常動作に戻して保存成功したとの報告を受けた。失敗判定と復旧後の保存成功を確認済みとして記録した。失敗理由の通知表示と失敗時のZIP非増加は報告に明記されていないため、確認済みとは扱わない。
 
 残る実機確認は、Host未登録時の理由付き通知・ZIP非増加、保存先失敗時の動作、MHTML取得失敗時の動作。総合受入は未完了。
+
+## 保存先失敗試験の報告（2026-10-04）
+
+ユーザーから、保存先失敗試験で失敗通知を確認し、正常に戻ることを確認したとの報告を受けた。失敗通知と復旧後の正常動作を確認済みとして記録した。失敗時に正式ZIPが生成されなかったことは報告に明記されていないため、未確認として残す。
+
+残る実機確認は、Host未登録時の理由付き通知・ZIP非増加、保存先失敗時の正式ZIP非生成、MHTML取得失敗時の動作。総合受入は未完了。
 
 ## 保存先失敗を安全に試す方法
 
