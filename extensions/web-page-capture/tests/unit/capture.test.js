@@ -47,6 +47,7 @@ test("MHTML failure remains a partial capture; missing main DOM fails", async ()
   assert.equal(bundle.manifest.completeness, "partial");
   assert.equal(bundle.manifest.components.mhtml, "failed");
   assert.ok(bundle.manifest.warnings.some(w => w.code === "mhtml_failed"));
+  assert.equal(Buffer.from(await bundle.blob.arrayBuffer()).includes(Buffer.from("capture/archive/page.mhtml")), false);
   await assert.rejects(buildBundle({documents: []}, null, null, "0.1.0"), /main_dom_failed/);
 });
 test("filename uses timestamp and UUID, rejects unsafe names, SHA-256 is standard", async () => {

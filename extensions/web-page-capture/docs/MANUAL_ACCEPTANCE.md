@@ -20,7 +20,7 @@ READMEのLoad unpacked、Host Install、Statusを実行します。CPCとlocalho
 | フォームproperty | Fixtureの入力欄を変更しCapture | `input` のHTML attributeは `attribute-only` のまま。password propertyを書き戻していない | OK（B14・B15でinputのvalue属性はattribute-only、passwordにvalue属性なし。Fixtureのproperty変更処理と動的要素の実行結果を確認） |
 | 連続Capture | 同じURLを2回Capture | UUIDの異なる2つのZIPが存在し、1つ目の内容・更新日時は変わらない | OK（ユーザーの前後比較で内容不変・更新日時不変・ZIPが1個増加がすべてTrue。最新2 ZIPも同一URL・別UUID・別Capture日時であることを検査） |
 | Raw保持 | ZIPの `capture/dom/main.html` をテキストで確認 | DOCTYPE、script、style、nav、aside、footer、UIが残る | OK（ZIP内容確認：全13 ZIPにDOCTYPE・script・style。B02等でnav・aside・footer・buttonも保持） |
-| MHTML | ZIPを展開して `capture/archive/page.mhtml` をChromeで開く | 補助Archiveが存在し、開ける。失敗時はmanifestにmhtml=failedと理由があり、空のMHTMLなし | 正常系OK（Archive・checksumは既確認。ユーザーがChromeでの正常表示を確認）。取得失敗時は自動テスト済み・実機PENDING |
+| MHTML | ZIPを展開して `capture/archive/page.mhtml` をChromeで開く | 補助Archiveが存在し、開ける。失敗時はmanifestにmhtml=failedと理由があり、空のMHTMLなし | OK（正常表示は実機確認済み。取得失敗時は自動テスト成功を代替証拠としてユーザー承認。異常系の実機再現は未実施） |
 | iframe | Fixtureまたは同一オリジンFrameを含むページをCapture | アクセス可能FrameのDOM・親子関係を保持。取得不能Frameはframes.jsonにpermission_denied等を記録 | OK（ZIP内容確認：B01・B03・B11で成功FrameのDOMとmetadata、全Frameの親ID対応を確認。取得不能Frameはpermission_denied・理由を記録） |
 | Shadow DOM | FixtureをCapture | shadow-dom.jsonにopen/nested shadowとHost位置がある。closed制約warningを記録 | OK（B14・B15にShadow contentとNested shadow、入れ子のHost位置、mode=open、closed制約warningを確認） |
 | 完全性・checksum | manifestとchecksumsを確認 | format_version=1.0、実URLとcanonicalが別。全Artifact（checksums自身以外）にSHA-256とbyte数がある | OK（全13 ZIPでFormat 1.0、実URLとcanonical別フィールド、全ArtifactのSHA-256・byte数・ZIP CRC一致、partialとwarning整合を確認） |
@@ -89,7 +89,17 @@ MHTML表示確認時点では、連続Captureの更新日時不変、Host未登�
 
 ユーザーから、上記2つの障害試験について理由付き通知とZIP非増加も確認済みとの補足報告を受けた。既報告の復旧後の成功と合わせ、Host未登録・保存先失敗をOKへ更新した。失敗時に正式ZIPを生成しないことも確認済みとした。
 
-試験表で残る実機未確認は、MHTML取得失敗時の部分Capture・warning・空Artifact非生成のみ。この異常系は自動テスト済みだが、実機確認済みとは扱わない。mainへのマージは実行していない。
+この追加確認時点で残る実機未確認は、MHTML取得失敗時の部分Capture・warning・空Artifact非生成のみだった。この異常系の代替検証による受入判断は次節に記載する。
+
+## MHTML異常系の代替検証による受入（2026-10-04）
+
+実機でMHTML取得失敗を確実に再現する通常操作が確立されていないため、ユーザーの明示指示により自動テスト結果を根拠にOKとした。異常系の実機再現が未実施である事実は変更しない。
+
+- JavaScriptの関連テスト2件を再実行し、MHTML API失敗後も部分Captureを保存して成功通知に進むこと、mhtml=failed・warningを記録すること、ZIPにMHTML Artifactを作らないことを確認した。Artifact非生成の検証を既存テストへ追加した。
+- Python Hostの関連テスト2件を再実行し、MHTML失敗状態の部分Bundle保存と、MHTML状態・Artifact有無が矛盾するBundleの拒否を確認した。
+- 上記4件はすべて成功した。これまでの実機確認結果と合わせ、試験表の全項目をOKとする。MHTML異常系のみ、ユーザーが承認した自動テストによる代替検証である。
+
+受入判定の未完了項目はない。mainへのマージは実行していない。
 
 ## 保存先失敗を安全に試す方法
 
@@ -99,4 +109,4 @@ MHTML表示確認時点では、連続Captureの更新日時不変、Host未登�
 
 ## 未観測の状態
 
-この手順を作成しただけでは実機合格にはなりません。未実施項目はPENDINGとして残し、失敗時は通知理由とManifestのstatus（機密内容を含めない）を記録してください。
+この手順を作成しただけでは実機合格にはなりません。実機未実施の事実は明記し、代替検証での受入合意がない未実施項目はPENDINGとして残します。失敗時は通知理由とManifestのstatus（機密内容を含めない）を記録してください。
