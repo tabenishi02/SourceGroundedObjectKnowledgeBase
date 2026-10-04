@@ -20,7 +20,7 @@ READMEのLoad unpacked、Host Install、Statusを実行します。CPCとlocalho
 | フォームproperty | Fixtureの入力欄を変更しCapture | `input` のHTML attributeは `attribute-only` のまま。password propertyを書き戻していない | OK（B14・B15でinputのvalue属性はattribute-only、passwordにvalue属性なし。Fixtureのproperty変更処理と動的要素の実行結果を確認） |
 | 連続Capture | 同じURLを2回Capture | UUIDの異なる2つのZIPが存在し、1つ目の内容・更新日時は変わらない | 一部確認（同一実URLの5 ZIP、別UUID・日時で共存。最初のファイルの内容・更新日時不変は試験前の記録がなくPENDING） |
 | Raw保持 | ZIPの `capture/dom/main.html` をテキストで確認 | DOCTYPE、script、style、nav、aside、footer、UIが残る | OK（ZIP内容確認：全13 ZIPにDOCTYPE・script・style。B02等でnav・aside・footer・buttonも保持） |
-| MHTML | ZIPを展開して `capture/archive/page.mhtml` をChromeで開く | 補助Archiveが存在し、開ける。失敗時はmanifestにmhtml=failedと理由があり、空のMHTMLなし | 一部確認（全13 ZIPでmhtml=success、非空Archive・MIMEヘッダー・checksum一致。Chromeでの表示とMHTML失敗時の実機動作はPENDING） |
+| MHTML | ZIPを展開して `capture/archive/page.mhtml` をChromeで開く | 補助Archiveが存在し、開ける。失敗時はmanifestにmhtml=failedと理由があり、空のMHTMLなし | 正常系OK（Archive・checksumは既確認。ユーザーがChromeでの正常表示を確認）。取得失敗時は自動テスト済み・実機PENDING |
 | iframe | Fixtureまたは同一オリジンFrameを含むページをCapture | アクセス可能FrameのDOM・親子関係を保持。取得不能Frameはframes.jsonにpermission_denied等を記録 | OK（ZIP内容確認：B01・B03・B11で成功FrameのDOMとmetadata、全Frameの親ID対応を確認。取得不能Frameはpermission_denied・理由を記録） |
 | Shadow DOM | FixtureをCapture | shadow-dom.jsonにopen/nested shadowとHost位置がある。closed制約warningを記録 | OK（B14・B15にShadow contentとNested shadow、入れ子のHost位置、mode=open、closed制約warningを確認） |
 | 完全性・checksum | manifestとchecksumsを確認 | format_version=1.0、実URLとcanonicalが別。全Artifact（checksums自身以外）にSHA-256とbyte数がある | OK（全13 ZIPでFormat 1.0、実URLとcanonical別フィールド、全ArtifactのSHA-256・byte数・ZIP CRC一致、partialとwarning整合を確認） |
@@ -58,6 +58,12 @@ Fixtureの動的ページ・展開後ページ・フォームproperty・Shadow D
 ## 通知の再試験（2026-10-04）
 
 通知権限はgrantedだったが、通知画像の読み込みエラーで表示に失敗していた。通知アイコンを `chrome.runtime.getURL` で絶対URLにする修正（e865d15）後、ユーザーから正常に通知されることを確認したとの報告を受けた。既確認のZIP保存と合わせ、静的ページ項目をOKへ更新した。Host未登録・保存先失敗時の失敗通知や復旧は、この報告だけでは確認済みにしない。
+
+## MHTML表示の実機確認（2026-10-04）
+
+ユーザーからMHTMLの正常表示を確認したとの報告を受け、MHTMLの正常系をOKへ更新した。Archiveとchecksumの既存検査に加え、Chromeでの表示確認が完了した。MHTML取得失敗時の部分Capture・warning・空Artifactを作らない処理は自動テスト済みだが、実機再現は未確認として残す。
+
+残る実機確認は、連続Captureの更新日時不変、Host未登録・保存先失敗時の動作、MHTML取得失敗時の動作。総合受入は未完了。
 
 ## 保存先失敗を安全に試す方法
 
