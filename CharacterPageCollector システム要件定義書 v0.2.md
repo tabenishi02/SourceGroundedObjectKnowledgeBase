@@ -171,7 +171,7 @@ DOM Snapshotは「画面上で実際に見えている文字列のみ」を意�
 - atwiki.jp
 - Seesaa Wiki
 - PukiWiki
-- Miraheze
+- Miraheze（その他wikiへ統合）
 - その他Wiki
 
 ---
@@ -183,10 +183,10 @@ DOM Snapshotは「画面上で実際に見えている文字列のみ」を意�
 - FC2ブログ
 - 楽天ブログ
 - note
-- Tumblr
+- Tumblr（その他個人ブログへ統合）
 - ライブドアブログ
-- 忍者ブログ
-- Blogger
+- 忍者ブログ（その他個人ブログへ統合）
+- Blogger（その他個人ブログへ統合）
 - WordPressサイト
 - その他個人ブログ
 
