@@ -189,7 +189,7 @@ Reviewerは既存Fragmentの文章修正を主目的とせず、**取りこぼ�
 
 ## 3.3 Fragment比較モデル
 
-第一比較対象として次の6モデル系列を使用する。
+第一比較対象として次の8モデルを使用する。
 
 | ID | モデル | 位置づけ |
 |---|---|---|
@@ -199,6 +199,8 @@ Reviewerは既存Fragmentの文章修正を主目的とせず、**取りこぼ�
 | F-M4 | Mistral Small 3.2 24B | Instruction Following重視比較 |
 | F-M5 | Ministral 3 14B | 小型・高速比較 |
 | F-M6 | Nemotron 3 Nano 30B-A3B | 高効率MoE比較 |
+| F-M8 | meta/muse-glimmer | Meta系比較（Q4_K_M） |
+| F-M9 | google/gemma-4-31b-qat | Google系Dense比較（Q4_0） |
 
 追加比較候補：
 
@@ -353,9 +355,10 @@ Verifierには原Fragment / Evidenceを与え、Draftだけを評価させない
 | D-M1 | gpt-oss-20b | 現行Baseline |
 | D-M2 | Qwen3.8-27B | 高性能Dense候補 |
 | D-M3 | Gemma 4 26B-A4B | MoE候補 |
-| D-M4 | Gemma 4 31B | Final統合重視候補 |
+| D-M4 | google/gemma-4-31b-qat | Final統合重視候補（Q4_0） |
 | D-M5 | Mistral Small 3.2 24B | Instruction Following候補 |
 | D-M6 | Ministral 3 14B | 高速・小型基準 |
+| D-M7 | meta/muse-glimmer | Meta系統合比較（Q4_K_M） |
 
 Fragment ExtractionとFinal Documentで同一モデルを使う必要はない。
 
@@ -371,7 +374,7 @@ Fragment ExtractionとFinal Documentで同一モデルを使う必要はない�
 
 ### Phase D2: Model comparison
 
-最良のDocument生成方式を固定し、D-M1〜D-M6を比較する。
+最良のDocument生成方式を固定し、D-M1〜D-M7を比較する。
 
 ### Phase D3: Mixed pipeline
 
@@ -477,14 +480,15 @@ FTS + Semantic + Metadata + Rerankerの最終構成を比較する。
 
 # 7. 重点比較系列
 
-最初のLLM比較はQwenだけに偏らせず、少なくとも以下の5系列を含める。
+最初のLLM比較はQwenだけに偏らせず、少なくとも以下の6系列を含める。
 
 ```text
 OpenAI   : gpt-oss-20b
 Qwen     : Qwen3.8-27B
-Google   : Gemma 4 26B-A4B
+Google   : Gemma 4 26B-A4B / google/gemma-4-31b-qat
 Mistral  : Mistral Small 3.2 24B
 NVIDIA   : Nemotron 3 Nano 30B-A3B
+Meta     : meta/muse-glimmer
 ```
 
 速度比較用としてMinistral 3 14Bを追加する。
