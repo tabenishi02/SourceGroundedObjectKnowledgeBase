@@ -142,6 +142,33 @@ def test_long_evidence_is_bounded_and_later_failure_does_not_promote(core, make_
     assert len(repo.related_fragments(entity)) == original["fragments"]
 
 
+def test_output_budget_adaptively_splits_without_truncating_evidence(core, make_bundle):
+    app, repo, _, entity = grounded(core)
+
+    class DenseClaims(GroundedLLM):
+        def __init__(self):
+            super().__init__()
+            self.rejected = 0
+
+        def complete(self, prompt, payload, *, schema=None):
+            if sum(len(e["content"]) for e in payload["evidence"]) > 240:
+                self.rejected += 1
+                raise ValueError("LLM output reached token budget")
+            return super().complete(prompt, payload, schema=schema)
+
+    app.llm = DenseClaims()
+    text = "A" * 480
+    snapshot = app.import_path(make_bundle(html="<main><p>" + text + "</p></main>"))["snapshot"]
+    app.process(snapshot)
+    result = app.capture_fragments(snapshot, entity, batch_size=1)
+    assert result["status"] == "complete" and app.llm.rejected == 2
+    windows = [p["evidence"][0]["content"] for _, p in app.llm.calls]
+    assert [len(w) for w in windows] == [240, 240, 120]
+    assert windows[0] + windows[1][60:] + windows[2][60:] == text
+    assert all(len(f["metadata"]["original_text"]) <= 240 for f in repo.related_fragments(entity))
+    assert repo.coverage(result["job_id"])["failed"] == 0
+
+
 def test_context_generation_override_and_official_promotion(core, make_bundle):
     app, repo, *_ = core
     html = (

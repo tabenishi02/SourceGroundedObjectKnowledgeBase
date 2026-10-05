@@ -16,26 +16,28 @@ STRATEGIES = {
 
 WINDOW_CHARS = 480
 WINDOW_OVERLAP = 64
+MIN_WINDOW_CHARS = 120
 
 
-def extraction_windows(batch):
+def extraction_windows(batch, window_chars=WINDOW_CHARS):
     """Partition only inference inputs; preserve Evidence identities and every character."""
-    if sum(len(e["content"]) for e in batch) <= WINDOW_CHARS:
+    overlap = min(WINDOW_OVERLAP, window_chars // 4)
+    if sum(len(e["content"]) for e in batch) <= window_chars:
         yield batch
         return
     for evidence in batch:
         text = evidence["content"]
         start = 0
         while start < len(text):
-            end = min(start + WINDOW_CHARS, len(text))
+            end = min(start + window_chars, len(text))
             if end < len(text):
                 boundaries = list(re.finditer(r"[。！？.!?\n]", text[start:end]))
-                if boundaries and boundaries[-1].end() >= WINDOW_CHARS // 2:
+                if boundaries and boundaries[-1].end() >= window_chars // 2:
                     end = start + boundaries[-1].end()
             yield [{**evidence, "content": text[start:end]}]
             if end == len(text):
                 break
-            start = end - WINDOW_OVERLAP
+            start = end - overlap
 
 
 def quote_choices(allowed):
@@ -121,6 +123,42 @@ class HighRecallCapture:
         self.app, self.repo = app, app.repository
 
     def extract_window(self, payload, allowed, schema, strategy, max_chars):
+        try:
+            return self._extract_window(payload, allowed, schema, strategy, max_chars)
+        except ValueError as error:
+            if str(error) not in {
+                "LLM output reached token budget",
+                "LLM output truncated; increase CPC_LLM_MAX_TOKENS",
+            }:
+                raise
+            length = sum(len(e["content"]) for e in payload["evidence"])
+            if length <= MIN_WINDOW_CHARS:
+                raise
+            width = max(MIN_WINDOW_CHARS, min(WINDOW_CHARS, length) // 2)
+            combined = {"fragments": [], "entity_candidates": [], "assessments": []}
+            reasons, ai_id = {}, None
+            for window in extraction_windows(payload["evidence"], width):
+                neighbors = [{**e, "content": e["content"][:width]} for e in payload["neighbors"]]
+                subpayload = {
+                    **payload,
+                    "evidence": window,
+                    "neighbors": neighbors,
+                    "target_evidence_ids": [e["id"] for e in window],
+                }
+                subpayload.pop("validation_error", None)
+                result, subreasons, ai_id = self.extract_window(
+                    subpayload,
+                    {e["id"]: e for e in window + neighbors},
+                    schema,
+                    strategy,
+                    max_chars,
+                )
+                combined["fragments"].extend(result["fragments"])
+                combined["entity_candidates"].extend(result["entity_candidates"])
+                reasons.update(subreasons)
+            return combined, reasons, ai_id
+
+    def _extract_window(self, payload, allowed, schema, strategy, max_chars):
         ids = payload["target_evidence_ids"]
         choices = quote_choices(allowed)
         payload = {**payload, "quote_choices": choices}
@@ -193,9 +231,10 @@ class HighRecallCapture:
             (self.app.prompt_dir / "high_recall.schema.json").read_text(encoding="utf-8")
         )
         configuration = {
-            "algorithm": "full-evidence-v3-quote-selection",
+            "algorithm": "full-evidence-v4-adaptive-quote-selection",
             "window_chars": WINDOW_CHARS,
             "window_overlap": WINDOW_OVERLAP,
+            "minimum_window_chars": MIN_WINDOW_CHARS,
             "validation_retries": 1,
             "strategy": strategy,
             "batch_size": batch_size,
