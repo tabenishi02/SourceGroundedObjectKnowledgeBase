@@ -1,5 +1,33 @@
 # 初回プロトタイプ評価
 
+この節以降の初回評価は履歴として保持する。現行設計は[Prototype Upgrade](PROTOTYPE_UPGRADE.md)、新しい比較の実行手順は[benchmark](../benchmark/README.md)を参照。
+
+## Upgrade評価の進行状態（2026-10-06）
+
+- 初回DBを別の`.local/upgrade.sqlite`へbackupして002へ移行した。初回DBは変更していない。
+- 106件の実Captureを新Extractorで再処理した。現行世代のEvidenceは5068件（初回6129件）。件数減少だけで本文選択の品質改善とは判断しない。
+- 代表8Captureと2 Entityを`benchmark/sample-v1.json`で固定し、全Evidenceの抽出・0件理由・Coverage、検索3方式、構造化Finalを比較する。比較exportはignored `sample/CPC_Upgrade_評価/`へ生成する。
+- 初期のGPT-OSS text-mode試行はSchema違反が多く停止した。Qwen互換APIの空応答を受け、native API・reasoning offで検証した。原文転記の不一致11件と出力上限到達12件を調査し、引用ID選択と480文字から最小120文字までの適応分割を実装した。旧試行記録はDBに保持する。
+- 適応分割後の代表8Captureは全件complete。Raw SHA256 / 更新日時不変、integrity_check=ok、外部キーエラーなし。検索・Final Documentの再検証と比較出力は別途進行中。
+- human gold未付与の意味評価値はnull。件数・引用率をRecall/Precisionや意味上の正しさへ読み替えない。
+
+実データ比較の完了後に本節へ集計・代表内容レビューを追記する。既存の下記初回結果は置き換えない。
+
+### Fragment再評価（Qwen3.8-27B Q4_K_M、native API）
+
+| Case | Evidence | Fragment | 実質Evidenceの引用Coverage | 失敗 |
+|---|---:|---:|---:|---:|
+| 01 | 53 | 287 | 69.57% | 0 |
+| 02 | 49 | 158 | 63.83% | 0 |
+| 03 | 31 | 76 | 31.82% | 0 |
+| 04 | 32 | 3 | 9.38% | 0 |
+| 05 | 90 | 407 | 78.57% | 0 |
+| 06 | 145 | 627 | 84.40% | 0 |
+| 07 | 156 | 1338 | 85.04% | 0 |
+| 08 | 181 | 2350 | 83.33% | 0 |
+
+合計737 Evidenceから5246 Fragmentを保存した。これは主張数と厳密な引用検証の結果であり、意味上の正しさやRecall/Precisionの評価ではない。重なりのある処理単位による重複を含む。0件理由と分類・主張内容は比較テキストで確認する。複数モデルの比較は未実施。
+
 ## 対象と方法
 
 `sample/` を再帰調査し、実Capture 106件（59ドメイン）を使用しました。全件Bundle Format 1.0、Capture日時は各manifestで確認しています。title/実URL/時刻/Artifact/構造の個別一覧はGit管理外の `.local/sample-inventory.json` にあります。実ページ本文・アカウント情報・原ZIP・DB・生成文書をこのレポートへ複製していません。
