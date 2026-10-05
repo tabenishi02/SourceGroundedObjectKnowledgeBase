@@ -1,5 +1,7 @@
 # Local AI comparison
 
+次回のモデル比較は[モデル比較の実行計画](../docs/MODEL_COMPARISON_PLAN.md)に従う。現行の8CaptureはPrompt修正にも使用済みのため、独立した未知データのtestとは扱わず、モデル比較用manifestと保留データを別に用意する。
+
 `sample-v1.json`は代表8CaptureのFragment比較、2 Entity × 3検索方式、2 Finalの固定manifest。Raw UUID / SHA256で同一入力を確認し、本文はignored DBから解決する。validationとtestを分ける。現在human goldは未付与。自動引用率や件数をRecall/Precisionと呼ばない。
 
 `configurations.example.json`は比較候補の一覧で、全モデルの取得・実行を意味しない。LLM・抽出方式・Embedding・Rerankerを一度に変更せず、同じmanifest、Prompt、Schema、予算の条件で比較する。LLM / embeddingのAPIはloopbackに限定する。Coreの一般Provider機能とbenchmarkのローカル限定を分離した。
