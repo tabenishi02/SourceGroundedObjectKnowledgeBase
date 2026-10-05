@@ -5,9 +5,10 @@ import sqlite3
 from pathlib import Path
 
 from .domain import digest, json_text, now, uid
+from .knowledge_repository import KnowledgeRepository
 
 
-class Repository:
+class Repository(KnowledgeRepository):
     def __init__(self, path):
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -98,7 +99,7 @@ class Repository:
             "JOIN sources s ON s.id=n.source_id ORDER BY captured_at,id"
         )
 
-    def save_normalized(self, snapshot, blocks, evidence, configuration):
+    def save_normalized(self, snapshot, blocks, evidence, configuration, context=None):
         run_id = uid()
         with self.db:
             self.db.execute(
@@ -124,6 +125,8 @@ class Repository:
                     "INSERT INTO search_items(kind,target_id,content) VALUES(?,?,?)",
                     ("evidence", evidence_id, item["content"]),
                 )
+            if context is not None:
+                self._insert_context(run_id, snapshot["id"], context, {}, {})
             self.db.execute(
                 "UPDATE snapshots SET active_run=? WHERE id=?", (run_id, snapshot["id"])
             )
@@ -201,61 +204,69 @@ class Repository:
             )
 
     def save_fragments(self, snapshot, entity_id, items, ai_id, configuration):
-        run_id = uid()
         with self.db:
-            self.db.execute(
-                "UPDATE fragment_runs SET active=0 WHERE snapshot_id=? AND entity_id=?",
-                (snapshot["id"], entity_id),
+            ids, _ = self._insert_fragment_generation(
+                snapshot, entity_id, items, ai_id, configuration
             )
+        return ids
+
+    def _insert_fragment_generation(self, snapshot, entity_id, items, ai_id, configuration):
+        run_id = uid()
+        self.db.execute(
+            "UPDATE fragment_runs SET active=0 WHERE snapshot_id=? AND entity_id=?",
+            (snapshot["id"], entity_id),
+        )
+        self.db.execute(
+            "INSERT INTO fragment_runs VALUES(?,?,?,?,?,?,1,?)",
+            (
+                run_id,
+                snapshot["active_run"],
+                snapshot["id"],
+                entity_id,
+                ai_id,
+                json_text(configuration),
+                now(),
+            ),
+        )
+        ids = []
+        for item in items:
+            fragment_id = uid()
+            ids.append(fragment_id)
             self.db.execute(
-                "INSERT INTO fragment_runs VALUES(?,?,?,?,?,?,1,?)",
+                "INSERT INTO fragments VALUES(?,?,?,?,?,?,?,?)",
                 (
+                    fragment_id,
                     run_id,
-                    snapshot["active_run"],
-                    snapshot["id"],
                     entity_id,
-                    ai_id,
-                    json_text(configuration),
+                    item["facet"],
+                    item["content"],
+                    json_text(item),
+                    digest(item["content"]),
                     now(),
                 ),
             )
-            ids = []
-            for item in items:
-                fragment_id = uid()
-                ids.append(fragment_id)
-                self.db.execute(
-                    "INSERT INTO fragments VALUES(?,?,?,?,?,?,?,?)",
-                    (
-                        fragment_id,
-                        run_id,
-                        entity_id,
-                        item["facet"],
-                        item["content"],
-                        json_text(item),
-                        digest(item["content"]),
-                        now(),
-                    ),
-                )
-                self.db.executemany(
-                    "INSERT INTO fragment_evidence VALUES(?,?)",
-                    [(fragment_id, e) for e in set(item["evidence_ids"])],
-                )
-                self.db.executemany(
-                    "INSERT OR IGNORE INTO entity_evidence VALUES(?,?)",
-                    [(entity_id, e) for e in set(item["evidence_ids"])],
-                )
-                self.db.execute(
-                    "INSERT INTO search_items(kind,target_id,content) VALUES(?,?,?)",
-                    ("fragment", fragment_id, item["content"]),
-                )
-        return ids
+            self.db.executemany(
+                "INSERT INTO fragment_evidence VALUES(?,?)",
+                [(fragment_id, e) for e in set(item["evidence_ids"])],
+            )
+            self.db.executemany(
+                "INSERT OR IGNORE INTO entity_evidence VALUES(?,?)",
+                [(entity_id, e) for e in set(item["evidence_ids"])],
+            )
+            self.db.execute(
+                "INSERT INTO search_items(kind,target_id,content) VALUES(?,?,?)",
+                ("fragment", fragment_id, item["content"]),
+            )
+        return ids, run_id
 
     def candidates(self, filters):
         # Active generations only; filtering happens before lexical/vector candidate limits.
         sql = """SELECT i.id AS item_id, i.kind, i.target_id, i.content,
                  coalesce(e.source_id,s.id) AS source_id,
                  coalesce(e.snapshot_id,r.snapshot_id) AS snapshot_id,
-                 s.site,s.source_type,f.entity_id,f.facet,
+                 s.site,
+                 coalesce(json_extract(pc.effective,'$.source_type'),s.source_type) AS source_type,
+                 f.entity_id,f.facet,
                  coalesce(e.run_id,f.run_id) AS data_version,
                  coalesce(e.content_hash,f.content_hash) AS content_hash
           FROM search_items i
@@ -264,6 +275,8 @@ class Repository:
           LEFT JOIN fragment_runs r ON r.id=f.run_id
           JOIN snapshots n ON n.id=coalesce(e.snapshot_id,r.snapshot_id)
           JOIN sources s ON s.id=n.source_id
+          LEFT JOIN page_contexts pc ON pc.id=(SELECT id FROM page_contexts
+            WHERE normalized_run=n.active_run ORDER BY rowid DESC LIMIT 1)
           WHERE (i.kind='evidence' AND n.active_run=e.run_id)
              OR (i.kind='fragment' AND r.active=1 AND n.active_run=r.normalized_run)"""
         clauses, parameters = [], []
@@ -276,6 +289,9 @@ class Repository:
         ]:
             value = getattr(filters, key)
             if value:
+                if key == "source_type" and value in {"generic", "generic_web"}:
+                    clauses.append("source_type IN ('generic','generic_web')")
+                    continue
                 clauses.append(f"{column}=?")
                 parameters.append(value)
         if filters.entity:
@@ -339,7 +355,10 @@ class Repository:
         ]
 
     def provenance(self, kind, target_id):
+        fragment_metadata = None
         if kind == "fragment":
+            fragment = self.one("SELECT metadata FROM fragments WHERE id=?", (target_id,))
+            fragment_metadata = json.loads(fragment["metadata"]) if fragment else None
             evidence_ids = [
                 r["evidence_id"]
                 for r in self.rows(
@@ -366,7 +385,14 @@ class Repository:
                 raise ValueError("Evidence not found")
             row["metadata"] = json.loads(row["metadata"])
             result.append(row)
-        return {"kind": kind, "target_id": target_id, "evidence": result}
+        value = {"kind": kind, "target_id": target_id, "evidence": result}
+        if fragment_metadata is not None:
+            value["fragment_metadata"] = fragment_metadata
+        value["page_contexts"] = [
+            self.page_context(r["run_id"], (fragment_metadata or {}).get("context_id"))
+            for r in result
+        ]
+        return value
 
     def save_document(self, entity_id, ai_id, markdown, citations, configuration):
         document_id = uid()
@@ -400,5 +426,9 @@ class Repository:
             "embeddings",
             "documents",
             "ai_runs",
+            "page_contexts",
+            "extraction_jobs",
+            "structured_documents",
+            "benchmark_runs",
         )
         return {table: self.one(f"SELECT count(*) AS n FROM {table}")["n"] for table in tables}

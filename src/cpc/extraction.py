@@ -2,15 +2,19 @@
 
 import re
 
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup, Comment, NavigableString, Tag
 
 from .domain import Block
 
-NORMALIZATION_VERSION = "structure-v1"
+NORMALIZATION_VERSION = "structure-v2"
 NOISE = (
     "script,style,noscript,nav,footer,aside,button,form,svg,template,"
     "[role=navigation],[role=banner],[role=complementary],.advertisement,.adsbygoogle,"
-    ".mw-editsection,.vector-header,.vector-page-toolbar,.printfooter"
+    ".mw-editsection,.vector-header,.vector-page-toolbar,.printfooter,"
+    "[role=menu],[role=toolbar],.breadcrumb,.breadcrumbs,.cookie-banner,"
+    ".social-share,.share-buttons,.related-articles,.related-posts,.recommended-products,"
+    ".ranking-widget,.sidebar,.site-header,.site-footer,.ad-container,"
+    "body > header,.toc,#toc,#menu"
 )
 ATOMIC = {
     "p": "paragraph",
@@ -58,7 +62,7 @@ def positions(soup):
 
 class GenericExtractor:
     name = "generic"
-    version = "1"
+    version = "2.1"
 
     def root(self, soup):
         main = soup.select_one("main, [role=main]")
@@ -67,6 +71,23 @@ class GenericExtractor:
         articles = soup.find_all("article")
         if len(articles) == 1 and len(text(articles[0])) > 80:
             return articles[0]
+        # Existing BeautifulSoup DOM is the OSS substrate. Keep original positions and
+        # structural units instead of replacing them with an untraceable text-only extract.
+        candidates = soup.select(
+            "#wikibody,.wiki-body,.wiki-content,#article-body,.article-body,.entry-content"
+        )
+        if not candidates:
+            candidates = soup.select("#content, #main-content, #article")
+        if candidates:
+
+            def score(tag):
+                length = len(text(tag))
+                links = sum(len(text(a)) for a in tag.find_all("a"))
+                return length - links + 80 * len(tag.find_all(["p", "table", "blockquote"]))
+
+            best = max(candidates, key=score)
+            if score(best) > 120:
+                return best
         return soup.body or soup
 
     def extract_html(self, html, artifact="dom/main.html", prefix=""):
@@ -77,6 +98,24 @@ class GenericExtractor:
         for tag in soup.select(NOISE):
             tag.decompose()
         root = self.root(soup)
+        # Remove unmistakable link widgets, not sections merely mentioning related works.
+        labels = {"関連記事", "関連イラスト", "関連小説", "関連動画", "人気記事", "ランキング"}
+        for heading in list(root.find_all(["h2", "h3", "h4"])):
+            if text(heading) not in labels:
+                continue
+            sibling = heading.next_sibling
+            while sibling is not None:
+                following = sibling.next_sibling
+                if isinstance(sibling, Tag):
+                    if sibling.name in {"h1", "h2", "h3", "h4"}:
+                        break
+                    value = text(sibling)
+                    link_chars = sum(len(text(a)) for a in sibling.find_all("a"))
+                    if value and link_chars / len(value) < 0.55:
+                        break
+                    sibling.decompose()
+                sibling = following
+            heading.decompose()
         blocks, section = [], []
 
         def emit(tag, kind, content=None):
@@ -126,6 +165,8 @@ class GenericExtractor:
                     inline.clear()
 
             for child in tag.children:
+                if isinstance(child, Comment):
+                    continue
                 if isinstance(child, NavigableString):
                     if str(child).strip():
                         inline.append(str(child).strip())

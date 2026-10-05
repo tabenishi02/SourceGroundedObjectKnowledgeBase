@@ -4,6 +4,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
+from .context import analyze
 from .domain import (
     EmbeddingSpace,
     SearchFilter,
@@ -18,9 +19,12 @@ from .search import HybridSearch
 
 
 class Application:
-    def __init__(self, repository, llm=None, embedder=None, registry=None, prompt_dir=None):
+    def __init__(
+        self, repository, llm=None, embedder=None, registry=None, prompt_dir=None, reranker=None
+    ):
         self.repository, self.llm, self.embedder = repository, llm, embedder
         self.importer = WebCaptureImporter()
+        self.reranker = reranker
         self.registry = registry or ExtractorRegistry()
         self.prompt_dir = Path(prompt_dir) if prompt_dir else Path(__file__).with_name("prompts")
 
@@ -50,7 +54,11 @@ class Application:
             "raw_sha256": bundle.sha256,
         }
         run = self.repository.save_normalized(
-            snapshot, [asdict(b) for b in blocks], evidence, configuration
+            snapshot,
+            [asdict(b) for b in blocks],
+            evidence,
+            configuration,
+            analyze(bundle, snapshot, blocks),
         )
         return {
             "snapshot": snapshot_id,
@@ -67,13 +75,16 @@ class Application:
             raise ValueError("Prompt must declare version on first line")
         return prompt, first[9:] + ":" + digest(prompt)
 
-    def call_llm(self, task, prompt_name, payload):
+    def call_llm(self, task, prompt_name, payload, response_schema=None):
         if self.llm is None:
             raise ValueError("Real LLM provider required for this stage")
         prompt, version = self.prompt(prompt_name)
-        schema = json.loads(
+        schema = response_schema or json.loads(
             (self.prompt_dir / (prompt_name + ".schema.json")).read_text(encoding="utf-8")
         )
+        # Text-only providers also need the complete contract, not merely its filename.
+        prompt += "\nResponse JSON Schema (CPC instruction):\n" + json_text(schema)
+        version += ":" + digest(prompt)
         version += ":" + digest(json_text(schema))
         ai_id = self.repository.begin_ai(
             task,
@@ -87,18 +98,37 @@ class Application:
                 "provider_configuration": getattr(self.llm, "configuration", {}),
             },
         )
+        self.last_ai_id = ai_id
         output = None
+        observed = False
         try:
             output = self.llm.complete(prompt, payload, schema=schema)
+            self.repository.observe_ai(ai_id, getattr(self.llm, "last_observation", {}))
+            observed = True
             raw = output.strip()
+            if raw.startswith("<|channel|>final") and "<|message|>" in raw:
+                raw = raw.split("<|message|>", 1)[1].strip()
             if raw.startswith("```") and raw.endswith("```"):
                 raw = "\n".join(raw.splitlines()[1:-1])
             parsed = json.loads(raw)
             self.repository.finish_ai(ai_id, output)
         except Exception as error:
+            output = output if output is not None else getattr(self.llm, "last_output", None)
+            if not observed:
+                self.repository.observe_ai(ai_id, getattr(self.llm, "last_observation", {}))
             self.repository.finish_ai(ai_id, output, type(error).__name__)
             raise
         return ai_id, version, parsed
+
+    def capture_fragments(self, snapshot_id, entity_id, **options):
+        from .capture import HighRecallCapture
+
+        return HighRecallCapture(self).run(snapshot_id, entity_id, **options)
+
+    def build_document(self, entity_id, **options):
+        from .final import StructuredFinal
+
+        return StructuredFinal(self).build(entity_id, **options)
 
     def fragment(self, snapshot_id, entity_id, limit=6, max_chars=5000):
         snapshot = self.repository.snapshot(snapshot_id)
@@ -199,7 +229,9 @@ class Application:
         return {"embedded": len(rows), "space": space.key, "dimension": dimension}
 
     def search(self, query, filters=SearchFilter(), limit=10, mode="hybrid"):
-        return HybridSearch(self.repository, self.embedder).search(query, filters, limit, mode)
+        return HybridSearch(self.repository, self.embedder, reranker=self.reranker).search(
+            query, filters, limit, mode
+        )
 
     def generate(self, entity_id, query=None, limit=10):
         entity = self.repository.entity(entity_id)

@@ -57,7 +57,15 @@ def parser():
     fragment.add_argument("--snapshot", required=True)
     fragment.add_argument("--entity", required=True)
     fragment.add_argument("--limit", type=int, default=6)
-    fragment.add_argument("--max-chars", type=int, default=5000)
+    fragment.add_argument("--max-chars", type=int, default=6000)
+    fragment.add_argument("--batch-size", type=int, default=4)
+    fragment.add_argument(
+        "--strategy",
+        choices=["single_pass", "high_recall_multi_pass", "extract_review"],
+        default="single_pass",
+    )
+    fragment.add_argument("--resume")
+    fragment.add_argument("--legacy", action="store_true")
     embed = commands.add_parser("embed")
     add_filters(embed)
     embed.add_argument("--batch-size", type=int, default=16)
@@ -71,6 +79,27 @@ def parser():
     generate.add_argument("--query")
     generate.add_argument("--limit", type=int, default=10)
     generate.add_argument("--out", type=Path)
+    generate.add_argument("--legacy", action="store_true")
+    generate.add_argument("--llm-order", action="store_true")
+    generate.add_argument("--batch-size", type=int, default=24)
+    generate.add_argument("--max-chars", type=int, default=8000)
+    generate.add_argument("--format", choices=["markdown", "json", "context"], default="markdown")
+    context = commands.add_parser("context")
+    context.add_argument("--snapshot", required=True)
+    context.add_argument(
+        "--override", type=Path, help="JSON patch; creates an immutable context revision"
+    )
+    coverage = commands.add_parser("coverage")
+    coverage.add_argument("job_id")
+    benchmark = commands.add_parser("benchmark")
+    benchmark.add_argument("manifest", type=Path)
+    benchmark.add_argument(
+        "--phase", choices=["fragment", "retrieval", "final", "all"], default="all"
+    )
+    benchmark.add_argument("--strategy", default="single_pass")
+    benchmark.add_argument("--resume")
+    score = commands.add_parser("benchmark-score", help="Score semantic human/judge labels")
+    score.add_argument("labels", type=Path)
     provenance = commands.add_parser("provenance")
     provenance.add_argument("kind", choices=["evidence", "fragment", "document"])
     provenance.add_argument("id")
@@ -79,14 +108,14 @@ def parser():
     return root
 
 
-def export_markdown(path, markdown, repository):
+def export_markdown(path, markdown, repository, suffix=".md"):
     path = path.resolve()
     sample = Path("sample").resolve()
     raw_paths = {Path(s["raw_path"]).resolve() for s in repository.snapshots()}
     if path in raw_paths or sample in path.parents or path.name.endswith(".webcapture.zip"):
         raise ValueError("Refusing to overwrite Raw Capture or sample directory")
-    if path.suffix.lower() != ".md":
-        raise ValueError("Document export requires a .md path")
+    if path.suffix.lower() != suffix:
+        raise ValueError("Document export requires a " + suffix + " path")
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(path.name + ".tmp")
     temporary.write_text(markdown, encoding="utf-8")
@@ -102,12 +131,15 @@ def main(argv=None):
         repository = Repository(args.db)
         llm = (
             llm_from_env("final" if args.command == "generate" else "fragment")
-            if args.command in {"fragment", "generate"}
+            if args.command in {"fragment", "benchmark"}
+            or (args.command == "generate" and (args.legacy or args.llm_order))
             else None
         )
         embedder = (
             embedder_from_env()
-            if args.command in {"embed", "generate"}
+            if args.command == "embed"
+            or (args.command == "generate" and args.legacy)
+            or (args.command == "benchmark" and args.phase in {"retrieval", "all"})
             or (args.command == "search" and args.mode != "lexical")
             else None
         )
@@ -156,17 +188,73 @@ def main(argv=None):
                 repository.link_evidence(args.entity_id, [e["id"] for e in evidence])
                 result = {"linked": len(evidence)}
         elif args.command == "fragment":
-            result = app.fragment(args.snapshot, args.entity, args.limit, args.max_chars)
+            if args.legacy:
+                result = app.fragment(args.snapshot, args.entity, args.limit, args.max_chars)
+            else:
+                result = app.capture_fragments(
+                    args.snapshot,
+                    args.entity,
+                    batch_size=args.batch_size,
+                    max_chars=args.max_chars,
+                    strategy=args.strategy,
+                    resume=args.resume,
+                )
+                failed = result["status"] != "complete"
         elif args.command == "embed":
             result = app.embed(filters(args), args.batch_size)
         elif args.command == "search":
             result = app.search(args.query, filters(args), args.limit, args.mode)
         elif args.command == "generate":
-            result = app.generate(args.entity, args.query, args.limit)
+            result = (
+                app.generate(args.entity, args.query, args.limit)
+                if args.legacy
+                else app.build_document(
+                    args.entity,
+                    use_llm=args.llm_order,
+                    batch_size=args.batch_size,
+                    max_chars=args.max_chars,
+                    query=args.query,
+                )
+            )
             if args.out:
-                export_markdown(args.out, result["markdown"], repository)
-                result.pop("markdown")
+                key = {"markdown": "markdown", "json": "structured", "context": "ai_context"}[
+                    args.format
+                ]
+                value = result[key]
+                export_markdown(
+                    args.out,
+                    json.dumps(value, ensure_ascii=False, indent=2)
+                    if isinstance(value, dict)
+                    else value,
+                    repository,
+                    {"markdown": ".md", "json": ".json", "context": ".txt"}[args.format],
+                )
+                for field in ("markdown", "structured", "ai_context"):
+                    result.pop(field, None)
                 result["path"] = str(args.out)
+        elif args.command == "context":
+            snapshot = repository.snapshot(args.snapshot)
+            if not snapshot or not snapshot["active_run"]:
+                raise ValueError("Process snapshot first")
+            result = (
+                repository.revise_context(
+                    snapshot["active_run"],
+                    overrides=json.loads(args.override.read_text(encoding="utf-8")),
+                )
+                if args.override
+                else repository.page_context(snapshot["active_run"])
+            )
+        elif args.command == "coverage":
+            result = repository.coverage(args.job_id)
+        elif args.command == "benchmark":
+            from .benchmark import run_benchmark
+
+            result = run_benchmark(app, args.manifest, args.phase, args.strategy, args.resume)
+            failed = result["status"] != "complete"
+        elif args.command == "benchmark-score":
+            from .benchmark import judgement_metrics
+
+            result = judgement_metrics(json.loads(args.labels.read_text(encoding="utf-8")))
         elif args.command == "provenance":
             if args.kind == "document":
                 document = repository.document(args.id)

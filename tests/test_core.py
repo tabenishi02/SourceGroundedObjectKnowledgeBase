@@ -324,7 +324,7 @@ def test_migration_reopen_preserves_data(core):
     path = repo.db.execute("PRAGMA database_list").fetchone()[2]
     reopened = Repository(path)
     assert reopened.snapshot(snapshot)
-    assert reopened.one("SELECT count(*) AS n FROM schema_migrations")["n"] == 1
+    assert reopened.one("SELECT count(*) AS n FROM schema_migrations")["n"] == 2
     reopened.migrate()
     assert reopened.status()["sources"] == 1
     reopened.close()

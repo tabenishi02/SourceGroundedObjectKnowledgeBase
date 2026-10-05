@@ -2,6 +2,7 @@
 
 import json
 import os
+import time
 
 import httpx
 
@@ -28,6 +29,13 @@ class CompatibleLLM:
             "max_tokens": self.extra.get("max_tokens", max_tokens),
             "reasoning_effort": self.extra.get("reasoning_effort"),
             "response_format_override": self.extra.get("response_format"),
+            "seed": self.extra.get("seed"),
+            "extra_parameters": {
+                k: self.extra[k]
+                for k in ("top_p", "top_k", "min_p", "repeat_penalty", "chat_template_kwargs")
+                if k in self.extra
+            },
+            "runtime_metadata": json.loads(os.environ.get("CPC_RUNTIME_METADATA_JSON", "{}")),
         }
         self.client = httpx.Client(
             timeout=timeout,
@@ -36,6 +44,9 @@ class CompatibleLLM:
         )
 
     def complete(self, prompt, payload, *, schema=None):
+        started = time.perf_counter()
+        self.last_observation = {}
+        self.last_output = None
         response = self.client.post(
             self.base_url + "/chat/completions",
             json={
@@ -64,11 +75,94 @@ class CompatibleLLM:
             },
         )
         response.raise_for_status()
-        choice = response.json()["choices"][0]
+        body = response.json()
+        usage = body.get("usage", {})
+        elapsed = time.perf_counter() - started
+        tokens = usage.get("completion_tokens")
+        self.last_observation = {
+            "duration_seconds": elapsed,
+            "usage": usage,
+            "tokens_per_second": tokens / elapsed if isinstance(tokens, int) and elapsed else None,
+            "actual_model": body.get("model", self.model),
+            "runtime_metadata": self.configuration["runtime_metadata"],
+            "vram_bytes": None,
+            "ram_bytes": None,
+        }
+        choice = body["choices"][0]
+        self.last_output = choice["message"].get("content")
         if choice.get("finish_reason") == "length":
             raise ValueError("LLM output truncated; increase CPC_LLM_MAX_TOKENS")
         content = choice["message"].get("content")
         if not isinstance(content, str) or not content.strip():
+            raise ValueError("LLM returned no content")
+        return content
+
+
+class LMStudioLLM(CompatibleLLM):
+    """Native local adapter with explicit reasoning controls and no chat/tool persistence."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        permitted = {
+            "temperature",
+            "top_p",
+            "top_k",
+            "min_p",
+            "repeat_penalty",
+            "reasoning",
+            "max_tokens",
+        }
+        if set(self.extra) - permitted:
+            raise ValueError("Unsupported LM Studio native inference parameters")
+        self.configuration.update(
+            adapter="lmstudio-native-v1", reasoning=self.extra.get("reasoning", "off"), store=False
+        )
+
+    def complete(self, prompt, payload, *, schema=None):
+        started = time.perf_counter()
+        self.last_observation = {}
+        self.last_output = None
+        budget = self.extra.get("max_tokens", self.max_tokens)
+        root = self.base_url.removesuffix("/v1")
+        response = self.client.post(
+            root + "/api/v1/chat",
+            json={
+                "model": self.model,
+                "system_prompt": prompt,
+                "input": json_text(payload),
+                "temperature": self.extra.get("temperature", 0),
+                "reasoning": self.extra.get("reasoning", "off"),
+                "max_output_tokens": budget,
+                "store": False,
+                "integrations": [],
+                **{
+                    k: v
+                    for k, v in self.extra.items()
+                    if k in {"top_p", "top_k", "min_p", "repeat_penalty"}
+                },
+            },
+        )
+        response.raise_for_status()
+        body = response.json()
+        stats = body.get("stats", {})
+        self.last_observation = {
+            "duration_seconds": time.perf_counter() - started,
+            "usage": stats,
+            "tokens_per_second": stats.get("tokens_per_second"),
+            "actual_model": body.get("model_instance_id", self.model),
+            "runtime_metadata": self.configuration["runtime_metadata"],
+            "vram_bytes": None,
+            "ram_bytes": None,
+        }
+        if any(item.get("type") not in {"message", "reasoning"} for item in body.get("output", [])):
+            raise ValueError("Unexpected tool output from knowledge extraction provider")
+        content = "\n".join(
+            item["content"] for item in body.get("output", []) if item.get("type") == "message"
+        )
+        self.last_output = content
+        if stats.get("total_output_tokens", 0) >= budget:
+            raise ValueError("LLM output reached token budget")
+        if not content.strip():
             raise ValueError("LLM returned no content")
         return content
 
@@ -165,7 +259,12 @@ def llm_from_env(task_type=None):
         extra.update(
             json.loads(os.environ.get("CPC_LLM_" + task_type.upper() + "_EXTRA_JSON", "{}"))
         )
-    return CompatibleLLM(
+    provider = {"compatible": CompatibleLLM, "lmstudio": LMStudioLLM}.get(
+        os.environ.get("CPC_LLM_PROVIDER", "compatible")
+    )
+    if provider is None:
+        raise ValueError("Unknown LLM provider")
+    return provider(
         os.environ.get("CPC_LLM_BASE_URL", "http://127.0.0.1:1234/v1"),
         model,
         os.environ.get("CPC_LLM_REVISION", "unknown"),
