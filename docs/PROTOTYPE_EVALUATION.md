@@ -8,10 +8,10 @@
 - 106件の実Captureを新Extractorで再処理した。現行世代のEvidenceは5068件（初回6129件）。件数減少だけで本文選択の品質改善とは判断しない。
 - 代表8Captureと2 Entityを`benchmark/sample-v1.json`で固定し、全Evidenceの抽出・0件理由・Coverage、検索3方式、構造化Finalを比較する。比較exportはignored `sample/CPC_Upgrade_評価/`へ生成する。
 - 初期のGPT-OSS text-mode試行はSchema違反が多く停止した。Qwen互換APIの空応答を受け、native API・reasoning offで検証した。原文転記の不一致11件と出力上限到達12件を調査し、引用ID選択と480文字から最小120文字までの適応分割を実装した。旧試行記録はDBに保持する。
-- 適応分割後の代表8Captureは全件complete。Raw SHA256 / 更新日時不変、integrity_check=ok、外部キーエラーなし。検索・Final Documentの再検証と比較出力は別途進行中。
+- 適応分割後の代表8Capture、検索6ケース、Final Document 2ケースは全件complete（3つのrunで計16ケース）。各工程でRaw SHA256 / 更新日時不変、integrity_check=ok、外部キーエラーなし。比較テキスト8件、Final比較2件とJSON・AI Contextをignored `sample/CPC_Upgrade_評価/`へ出力した。
 - human gold未付与の意味評価値はnull。件数・引用率をRecall/Precisionや意味上の正しさへ読み替えない。
 
-実データ比較の完了後に本節へ集計・代表内容レビューを追記する。既存の下記初回結果は置き換えない。
+既存の下記初回結果は履歴として保持する。
 
 ### Fragment再評価（Qwen3.8-27B Q4_K_M、native API）
 
@@ -27,6 +27,21 @@
 | 08 | 181 | 2350 | 83.33% | 0 |
 
 合計737 Evidenceから5246 Fragmentを保存した。これは主張数と厳密な引用検証の結果であり、意味上の正しさやRecall/Precisionの評価ではない。重なりのある処理単位による重複を含む。0件理由と分類・主張内容は比較テキストで確認する。複数モデルの比較は未実施。
+
+### 初回との比較・代表内容確認
+
+代表8CaptureのEvidenceは876→737件、Fragmentは20→5246件。全CaptureのEvidenceは6129→5068件。人物紹介・カード情報・作品の楽曲／漫画情報まで出力範囲が拡大し、掲示板由来の感想はpublic_perceptionとして保存された。代表例を抜き取り確認したが、全主張を採点したものではない。
+
+| Final | 初回文字数 | Upgrade文字数 | 初回引用数 | Upgrade引用数 |
+|---|---:|---:|---:|---:|
+| Character | 926 | 499334 | 1 | 524 |
+| Work | 1125 | 3778450 | 2 | 4722 |
+
+Characterはfact 474 / source_interpretation 9 / derived_interpretation 2 / public_perception 23 Cluster、Workはfact 4269 / source_interpretation 52 / public_perception 106 / promotional_claim 1 Cluster。空の分類を捏造せず、情報種別を分離して保持した。Finalは既定の抽出的生成であり、LLMによる階層順列の実モデル比較は未実施。
+
+Workの数値矛盾候補は3組。異なる事前登録達成段階の報酬や異なる巻の発売情報も候補に含まれており、真の矛盾と判断してはいけない。型・原子性の宣言と原文引用が正しくても、主張の意味上の忠実さは別に検証する必要がある。
+
+優先課題は、(1) 引用原文に対する主張内容・主語解決・原子性の人間確認、(2) 重複と繰り返し引用によるFinalの長大化、(3) 文脈・時間を考慮した矛盾候補検出、(4) Evidenceの0件理由・分類・分割境界の妥当性、(5) gold付与と複数LLM／多言語Embedding／Reranker比較。検索は6ケースの実行成功を確認したが、gold未付与のためRecall@K/MRR/nDCGを品質証明として報告しない。
 
 ## 対象と方法
 

@@ -1,5 +1,11 @@
 # Prototype用暫定仕様
 
+## v0.2の現行仕様
+
+現行の既定処理は[Prototype Upgrade](PROTOTYPE_UPGRADE.md)に記載する。全EvidenceのHighRecall抽出、Page Context、0件理由とCoverage、構造化Final、再開可能な[ローカルAI比較](../benchmark/README.md)を追加した。Migrationは002を追加し001と旧世代を保持する。
+
+以下は初回v0.1の設計・評価条件の記録として残す。上位Evidence選択と検索上位のFinal生成は現在の既定ではなく、CLIの`--legacy`で選択する比較用方式である。
+
 ## 範囲と境界
 
 正本は `docs/cpc-prototype-minimum-requirements` の要件定義書v0.2（`1561a7d`）です。今回のFeature Branchで取り込みました。最終Schema、最適モデル、GUI、大規模運用は確定しません。
