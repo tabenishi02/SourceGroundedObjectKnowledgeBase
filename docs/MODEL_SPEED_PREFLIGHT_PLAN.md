@@ -113,6 +113,14 @@ tokenizerが異なるためtokens/sだけで日本語の実用速度を断定し
 | Qwen3.8-27B | S03 | 未測定 | 未測定 | 未測定 | 未測定 | 未測定 |
 | その他7モデル | S01〜S03 | 未測定 | 未測定 | 未測定 | 未測定 | 未測定 |
 
-専用runnerは未実装。現行Providerはstatsと総時間の取得境界があるが、CPC経路では出力上限を失敗として扱うため、S01/S02の速度記録用経路を別に用意する。runnerはモデルの逐次ロード、96試行、timeout・打切り、各試行のcheckpoint、CSV/日本語比較出力を行い、会話や既存benchmark DBを変更しない。
+専用runnerは`scripts/run_speed_preflight.py`に実装した。CPC経路では出力上限を失敗として扱うため、S01/S02の速度記録用経路を分けている。モデルの逐次ロード、96試行と最後のQwen確認、timeout・打切り、各試行のcheckpoint、CSV/日本語比較出力を行い、会話や既存benchmark DBを変更しない。Ministralは今回保存済みの`mistralai/ministral-3-14b-reasoning`を使用し、通常版とは区別して記録する。
 
-runnerは独立したバックグラウンド処理として起動し、PID・状態確認コマンド・成功/失敗条件を提示する。待機目的の自動ポーリングは行わない。本書作成では試験を起動していない。
+```powershell
+# 独立プロセスで起動し、ログはGit管理外へ保存する。
+$job = Start-Process .venv/Scripts/python.exe -ArgumentList 'scripts/run_speed_preflight.py' -WindowStyle Hidden -PassThru -RedirectStandardOutput .local/speed-preflight.log -RedirectStandardError .local/speed-preflight.err
+$job.Id
+Get-Content sample/モデル比較/予備速度試験/status.json -Encoding UTF8
+# 中断後は、入力を変更せず--resumeで未測定分を続行する。
+```
+
+runnerは独立したバックグラウンド処理として起動し、PID・状態確認コマンド・成功/失敗条件を提示する。待機目的の自動ポーリングは行わない。status.jsonのcompletedは測定工程の終了を意味し、全モデルのCPC適合ではない。failedは処理全体の停止で、モデル別・条件別の不適合は比較結果に記録する。
