@@ -48,8 +48,6 @@ engine=0.1.39、context=65536、control vector=`project:4-44`、projection有効
 測定は既にロード済みの同一モデルに対する逐次要求であり、後続回のキャッシュ効果を含む。
 詳細は`.local/strata-preflight/status.json`、生成結果は`fragments-0.json`〜`fragments-3.json`。
 
-以下は今回の実装前の調査記録である。エラー分類・専用runnerに関する課題は上記で対応した。
-
 ### 既存8モデルと同じ速度予備試験
 
 `scripts/run_strata_speed_preflight.py`は固定S01/S02/S03を各ウォームアップ1回＋測定3回、
@@ -76,6 +74,12 @@ Strataの既存context65536とprojection設定を保持し、runtime.jsonへ記�
 LM Studioのcontext16384とは異なるruntime条件として比較する。Strataの非streaming APIから
 TTFTは取得できないためnullとし、入力処理時間から推測しない。推論token内訳もAPIにない場合はnull。
 既存8モデルの再ロード・再実行や、代表8Captureの品質評価は行わない。
+
+追加速度試験は全12要求completed、S03適合3/3。S01/S02/S03中央値は77.90 / 89.50 / 90.40 tokens/s、S03総時間16.67秒。初期動作試験とはSchemaの渡し方も異なるため、比較には[追加予備試験結果](MODEL_SPEED_PREFLIGHT_RESULTS.md)を使用する。
+
+## 実装前の調査記録
+
+以下はStrata接続追加前の調査記録である。エラー分類・専用runnerの課題は上記で対応済み。jsonschema依存追加、Embedding併用、代表8Captureの品質評価は完了していない。下記の設定案は当時の互換接続例で、現在の推奨設定は`Use-Strata.ps1`と専用Providerである。
 
 このプロジェクトのLLMとして利用可能。既存の`CompatibleLLM`で通常のOpenAI互換接続ができ、架空資料による最小JSON抽出を実機で確認した。
 ただしCPCの全Schema・長い実ページ・中断再開まで確認したものではない。出力上限等のエラー処理と、既存プロジェクトとの資源共有を整えてから、別構成として実データ比較するのが妥当。速度改善や採用モデルの確定はまだ判断できない。

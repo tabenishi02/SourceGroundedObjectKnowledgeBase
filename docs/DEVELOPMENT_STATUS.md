@@ -13,6 +13,7 @@
 | Final Document | 情報種別を分離した構造、出典・保守的重複集約・矛盾候補・抽出的表示を実装。既定生成はLLMを使わない |
 | 評価・比較出力 | 固定manifest、自動の契約検証、人間評価値の未付与表示、Evidence/Fragment/Final比較出力を実装 |
 | 速度予備試験 | 8モデル・3条件・ウォームアップと反復・終了時Qwen確認、checkpoint、CSV/日本語集計を実装。モデル対応reasoning設定を選択し、推論条件と本文/推論tokenを区別 |
+| Strata接続・追加試験 | L09 Qwen3.8-Flash-Next IQ3_Sを追加。専用Provider・接続設定、構造化出力エラー分類、固定入力のCPC検証とS01/S02/S03速度試験を実装・実機確認 |
 
 ## 実データ評価
 
@@ -38,17 +39,22 @@ FinalはCharacter約50万字、Work約378万字。根拠全文の反復と主張
 | Nemotron 3 Nano 30B A3B | off | 61.64 | 3/3 |
 | Muse Glimmer | low | 47.62 | 3/3 |
 | Gemma 4 31B QAT | off | 40.55 | 3/3 |
+| Strata Qwen3.8-Flash-Next IQ3_S | enable_thinking=false | 90.40 | 3/3 |
+
+Strata追加run `360b4e04-ca63-4bd1-b9ed-d088862ab6a9`は12リクエストを完了し、APIエラー・timeout・CPC契約違反は0件。S01/S02/S03の中央値は77.90 / 89.50 / 90.40 tokens/s。S03は毎回6 Fragment、総時間中央値16.67秒。既存Qwenの12.11秒より約38%長く、今回の構成では高速化を確認していない。Strataはcontext65536・projection有効、既存8モデルはLM Studio context16384であり、構成差を含む比較。StrataのTTFT・推論token内訳は未取得。
 
 推論ありのtokens/sは本文だけの速度とは比較できない。Gemma 26BはJSON後の説明文、Ministralは必須subjectのnullで失敗。全モデルの実データ抽出品質比較はまだ実施していない。
 詳細: [予備試験結果](MODEL_SPEED_PREFLIGHT_RESULTS.md)、[モデル比較計画](MODEL_COMPARISON_PLAN.md)、[予備試験計画](MODEL_SPEED_PREFLIGHT_PLAN.md)。
+接続・初期動作試験・速度試験の条件: [Strata統合](STRATA_INTEGRATION_REVIEW.md)。Schemaをサーバーへ渡した初期動作試験と、既存8モデルに合わせたPrompt内Schemaのみの速度試験は別runとして区別する。
 
 ## 運用・速度・費用の調査
 
 - [実運用時間の評価](OPERATION_TIME_ESTIMATE.md): Qwenで数件/日を夜間に抽出し翌日検索する運用は条件付きで可能。大量処理・即時全量解析・Final全文承認は困難。
 - [速度ボトルネック調査](PROCESSING_BOTTLENECK_REVIEW.md): 1038推論・約194万出力token、AI応答待ちは全体の99%以上。上限時の不要な再試行、PromptだけのJSON制約、詳細出力の反復、window処理回数が改善対象。
+- [Knowledge Pipeline 効率化・再設計調査](KNOWLEDGE_PIPELINE_EFFICIENCY_REDESIGN.md): 現行CPCをGraphRAG、LightRAG、RAPTOR、Anthropic Contextual Retrieval、LLMLingua系、RECOMP、Lost in the Middleと比較。High RecallをEvidence層で保証しつつ、Adaptive Extraction、Compact Schema、Knowledge Claim層、用途別Token Budgetへ分離する案と追跡可能な出典を整理。
 - [クラウド費用試算](CLOUD_AI_COST_ESTIMATE.md): 同じ8件のtoken量を通常料金で処理するとSol約4345円、Opus約8690円（1 USD=150円の仮定、税別）。低価格モデルまたはローカル併用を比較する案。クラウド速度は未測定、外部送信・課金・Provider移行は未実施。
 
-これらは調査と提案。速度改善、Final短縮、変更分Embedding、クラウド経路のコード実装はまだ行っていない。
+効率化・再設計とクラウド利用は調査・提案段階。Strata接続と試験経路は実装済みだが、即時分割、コンパクトな出力、Adaptive Packer、Final短縮、変更分Embedding、クラウド経路の改善実装・比較評価はまだ行っていない。
 
 ## 次の作業
 
@@ -61,6 +67,6 @@ FinalはCharacter約50万字、Work約378万字。根拠全文の反復と主張
 
 ## 検証とGit
 
-Upgrade本体の直近確認はpytest 57件とRuff成功。速度runner追加・修正後は関連pytest 6件、Ruff、差分チェック成功。今回のpush準備では速度runner関連チェックと公開差分確認を行う。過去の実機結果と今回の自動チェックを区別する。
+Upgrade本体の確認はpytest 57件とRuff成功。Strata接続追加時は関連pytest 33件、Strata速度runner追加時は関連pytest 10件、Ruff、差分チェック成功。これらは範囲の重なる検証で、合算したテスト数として扱わない。今回の文書統合では差分と文書参照を確認し、推論試験は再実行していない。
 実Capture、DB、生応答、比較の全文、ログ、モデルは`sample/`・`.local/`等のGit管理外に保持し、公開対象へ含めない。
-開発ブランチは`feature/cpc-prototype-upgrade`。既存PR #5のbaseは`feature/cpc-prototype`。今回の依頼では現在の開発ブランチをpushし、mainへのmergeやブランチ削除は行わない。
+開発ブランチは`feature/cpc-prototype-upgrade`。既存PR #5のbaseは`feature/cpc-prototype`。GitHub側の再設計調査2コミットとローカルのStrata関連3コミットをマージし、文書を現行実装・試験結果へ合わせた。今回の統合ではpush・mainへのmerge・ブランチ削除は行っていない。

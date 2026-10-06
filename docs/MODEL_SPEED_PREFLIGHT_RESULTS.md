@@ -1,6 +1,24 @@
 # LLM出力速度の予備試験結果
 
-最新結果は下記「再試験結果」。初回runの結果は履歴として残す。
+既存8モデルの結果は「再試験結果」、Strataの追加測定は直下に記載する。初回runの結果は履歴として残す。
+
+## Strata追加試験（2026-10-06）
+
+run: `360b4e04-ca63-4bd1-b9ed-d088862ab6a9`、状態completed。固定S01/S02/S03を各ウォームアップ1回＋測定3回、全12要求を実行した。完了6件・予算到達6件、APIエラー・timeout・CPC契約違反は0件。入力ハッシュは既存8モデルの再試験と一致した。
+
+| 条件 | Strata生成tokens/s | 既存Qwen3.8-27B生成tokens/s |
+|---|---:|---:|
+| S01: 短文 | 77.90 | 90.58 |
+| S02: 長文 | 89.50 | 88.11 |
+| S03: CPC抽出 | 90.40 | 120.09 |
+
+ウォームアップを除く本測定3回の中央値。StrataのS03本文238.86文字/秒・総時間16.67秒・契約適合3/3で、毎回6 Fragmentを抽出した。既存QwenのS03総時間12.11秒に対し約38%長く、生成速度は約25%低い。今回の条件ではStrataによる高速化を確認していない。S01は本測定の出力が1024 / 1024 / 206 tokenと揃わず、速度範囲72.1〜105.1 tokens/sで、長さ・キャッシュの影響も含む。
+
+StrataはQwen3.8-Flash-Next IQ3_S、engine 0.1.39、context65536、control vector `project:4-44`・projection有効。既存8モデルはLM Studio Native/context16384で、runtime・量子化・tokenizer・contextの構成差を含む比較。推論は`enable_thinking=false`を指定したが、APIの推論token内訳は未取得。TTFTも未取得とし、prompt_msから推定していない。
+
+S03は両runtimeともPrompt内Schemaで指定し、CPC側で同じ契約検証を行った。先行するStrata初期動作試験はサーバーへSchemaも渡し、S03中央値56.3 tokens/s・27.09秒だった別条件である。今回との違いをSchema指定だけの因果効果と断定せず、速度比較には今回のrunを使用する。人間goldによる抽出品質と代表8CaptureのStrata評価は未実施。
+
+全9構成の集計はGit管理外の`sample/strata-speed-preflight/速度比較.txt`・`速度比較.csv`、状態と生応答は同フォルダへ保存した。既存8モデルは再実行せず、run `33753177-953d-4a1c-89d4-ee56a419ffd6`の記録を使用した。再実行は不要。
 
 ## 再試験結果（2026-10-06）
 

@@ -1,6 +1,6 @@
 # LLM出力速度の予備試験計画
 
-作成日: 2026-10-06。初回予備試験は終了した。[測定結果と制約](MODEL_SPEED_PREFLIGHT_RESULTS.md)を参照。全8モデルの速度取得が完了したという意味ではない。
+作成日・更新日: 2026-10-06。既存8モデルの再試験とStrata追加試験が終了した。[測定結果と制約](MODEL_SPEED_PREFLIGHT_RESULTS.md)を参照。以下の共通条件・手順は元のLM Studio試験を示し、Strataの構成差は追加条件として記録する。
 
 ## 目的
 
@@ -18,6 +18,9 @@
 | L06 | Nemotron 3 Nano 30B-A3B |
 | L07 | meta/muse-glimmer |
 | L08 | google/gemma-4-31b-qat |
+| L09 | Strata / Qwen3.8-Flash-Next IQ3_S（追加runtime条件） |
+
+L09は`run_strata_speed_preflight.py`で同じ固定S01/S02/S03を各ウォームアップ1回＋本測定3回、計12要求測定する。入力・Prompt・出力上限・temperature・条件順を既存試験に合わせ、入力ハッシュ一致を確認する。既存サーバーのcontext65536・projection有効を保持し、engine 0.1.39と共に構成を記録する。互換API、enable_thinking=false、Prompt内Schema指定で実行し、CPC契約検証は共通関数を使用する。ロード・アンロードと終了時Qwen再測定は行わず、既存8モデルの保存済み結果と比較する。StrataのTTFT・推論token内訳はAPIにない場合nullとする。LM Studioと同一runtime条件であるとは扱わない。
 
 本試験で使うGGUF・量子化をそのまま使用する。モデル系列だけでなく量子化とruntimeを含む構成の比較である。未取得・未対応・ロード失敗は未測定として記録する。Phi-4はReviewer速度を確認したい場合の追加枠で、上記8モデルの集計とは分ける。EmbeddingとRerankerは生成token速度を同じ尺度で比べず、別の予備測定で件数/秒・query遅延を測る。
 
