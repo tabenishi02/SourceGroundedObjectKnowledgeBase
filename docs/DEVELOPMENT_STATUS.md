@@ -46,6 +46,7 @@ FinalはCharacter約50万字、Work約378万字。根拠全文の反復と主張
 
 - [実運用時間の評価](OPERATION_TIME_ESTIMATE.md): Qwenで数件/日を夜間に抽出し翌日検索する運用は条件付きで可能。大量処理・即時全量解析・Final全文承認は困難。
 - [速度ボトルネック調査](PROCESSING_BOTTLENECK_REVIEW.md): 1038推論・約194万出力token、AI応答待ちは全体の99%以上。上限時の不要な再試行、PromptだけのJSON制約、詳細出力の反復、window処理回数が改善対象。
+- [Knowledge Pipeline 効率化・再設計調査](KNOWLEDGE_PIPELINE_EFFICIENCY_REDESIGN.md): 現行CPCをGraphRAG、LightRAG、RAPTOR、Anthropic Contextual Retrieval、LLMLingua系、RECOMP、Lost in the Middleと比較。High RecallをEvidence層で保証しつつ、Adaptive Extraction、Compact Schema、Knowledge Claim層、用途別Token Budgetへ分離する案と追跡可能な出典を整理。
 - [クラウド費用試算](CLOUD_AI_COST_ESTIMATE.md): 同じ8件のtoken量を通常料金で処理するとSol約4345円、Opus約8690円（1 USD=150円の仮定、税別）。低価格モデルまたはローカル併用を比較する案。クラウド速度は未測定、外部送信・課金・Provider移行は未実施。
 
 これらは調査と提案。速度改善、Final短縮、変更分Embedding、クラウド経路のコード実装はまだ行っていない。
