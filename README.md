@@ -2,6 +2,8 @@
 
 Web Capture Bundleを読み取り、構造化したEvidence、LLMによるFragment、Hybrid Searchを経て、出典付きのEntity文書を生成します。最終製品ではなく、実サンプルで処理を一周させるための暫定実装です。
 
+現在の実装・評価・残課題は[開発状況まとめ（2026-10-06）](docs/DEVELOPMENT_STATUS.md)を参照してください。Prototype Upgradeの実データ工程と8モデルの速度予備試験は終了しています。モデル別の実データ品質比較と速度改善の実装は未実施です。
+
 正本は[要件定義書 v0.2](CharacterPageCollector%20システム要件定義書%20v0.2.md)です。`docs/cpc-prototype-minimum-requirements` の更新をこのFeature Branchへ取り込んでいます。既存の[Web Page Capture拡張機能](extensions/web-page-capture/README.md)の取得・保存処理は独立したままです。
 
 ## セットアップ
