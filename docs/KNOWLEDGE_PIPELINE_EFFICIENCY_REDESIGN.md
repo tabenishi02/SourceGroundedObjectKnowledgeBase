@@ -908,3 +908,23 @@ UTF-8推定量は3098／3820、いずれも予算内。引用・文脈を含む�
 `003_efficiency.sql`はwindow/split、Claim/support、vector cacheを追加するmigration。旧テーブルを破壊せず、0.2 DB複製と旧読取を確認した。新CLIは指定DBを開くとmigrationを適用するため、正本へ適用する前にSQLite backupで復元用コピーを作る。戻す場合は追加tableをdropせず新オプションを無効にし、既存世代・`generate`を利用する。
 
 関連自動テストは90件成功、lint・差分チェックを実施。残る採用判定は開発2Capture／代表8Captureのcontrol比較、token packの実機測定、human gold・保留資料評価、意味relation／階層／圧縮の品質評価である。今回の合成資料の速度と契約成功から、これらを品質合格へ繰り上げない。
+
+### 12.5 実Captureの変更前後再抽出比較
+
+`scripts/run_efficiency_capture_comparison.py`で代表8Captureを変更前`94f7e9c`／変更後`e95d06e`から再抽出する。両コミットの`src`をGit管理外へ展開し、同一のSQLite backupから別々のDBを作る。正本DBを変更しない。過去のQwen評価と現在のStrata評価を設計変更の速度効果として直接比較しない。
+
+今回の条件は同じロード済みStrata、output8192、batch1、single_pass、固定文字window。変更後はCompact＋引用重複削減＋window checkpointを有効にする。即時分割も変更後コードの挙動に含まれる。実tokenizer・Embedding・Viewは今回の再抽出比較の対象外。変更前後の実行順はCaptureごとに交互にし、Prompt cache使用量を記録する。共有サーバーを再起動したりcacheを消したりせず、各リクエスト前にidle・runtime不変を確認する。
+
+比較出力は総時間、再試行を含むAPI tokenと呼出数、失敗試行、Fragment数、抽出内容の完全一致・追加／削除または変更、Raw hash／更新日時、DB整合性。ID・AI runの違いは内容比較から除外するが、主語・情報種別・強度・時期・Evidence参照などは比較する。重複数の変化も残す。完全一致率は意味Recall/Precisionの代替ではなく、内容差分を人間が評価する入口とする。
+
+```powershell
+# 初回は準備・再抽出・比較を順に実行。既存の出力フォルダは上書きしない
+python scripts/run_efficiency_capture_comparison.py
+# 中断・失敗後、同じruntimeで成功分を保ち再開
+python scripts/run_efficiency_capture_comparison.py --resume
+# 状態とエラー
+Get-Content sample/efficiency-capture-comparison/status.json
+Get-Content sample/efficiency-capture-comparison/worker.log -Tail 20
+```
+
+処理は独立したhidden processで実行する。各Captureの前後が揃うたび、`sample/efficiency-capture-comparison/comparison.txt`／`comparison.json`／内容差分JSONへ反映する。現時点では起動段階であり、速度・内容比較の結論は結果確認後に記載する。旧Qwen全量約5.1時間と今回のStrata予備速度を参考にすると両条件で十数時間規模が目安だが、実データでの分割・再試行が異なるため未確定。成功条件は16ケース完了、Raw不変、DB整合性正常、元DB不変。失敗や未完了を速度向上・品質合格として扱わない。
