@@ -4,6 +4,8 @@
 
 この文書は、Prototype 0.2 の実データ評価で顕在化した Fragment 数、LLM 呼び出し回数、出力 token 数、Final Document サイズの増大について、現在の CPC 実装と外部の RAG / Prompt Compression / Long Context 事例を比較し、次の設計見直し候補を整理するための調査・設計メモである。
 
+現行コードとProvider仕様を照合した実装順序・変更箇所・検証・移行の計画は[第11節](#11-実装計画現行コード照合後)に記載する。
+
 この文書に記載する数値は、次の3種類を区別する。
 
 1. **CPC 実測値**: 現在の Prototype Upgrade で実データを処理して得た値。
@@ -659,3 +661,159 @@ Retrieval結果を固定し、
 この構造であれば、Raw / Evidence / Raw Fragment を保持したまま、LLM 呼び出し回数、反復 Prompt、重複 Claim、数百万文字 Final をそれぞれ異なる層で削減できる。
 
 現時点では上記を**設計候補**とし、Prototype 0.2 の既存実装を即座に置換したとは扱わない。次の工程は、まず P0 の lossless I/O 改善と Adaptive Extraction Packer の比較実験を固定データで行い、人間 gold を含む品質評価を通過した変更だけを正式設計へ昇格することである。
+
+---
+
+## 11. 実装計画（現行コード照合後）
+
+計画作成日: 2026-10-06。以下は実装予定であり、この文書更新でコード・DB・運用設定を変更したものではない。
+対象はPrototype 0.2の既存契約を維持した段階的改善。GraphRAG等への全面置換、全モデル一括評価、クラウド送信は初回実装に含めない。
+
+### 11.1 調査で確認した実装境界
+
+| 現行の箇所 | 確認した動作 | 実装上の判断 |
+|---|---|---|
+| `capture.py::_extract_window()` | すべてのValueErrorで同一入力を最大2回試し、上限超過も対象 | 出力予算超過だけを即座に外側の分割処理へ渡す |
+| `capture.py::extract_window()` | 2種類のエラー文字列で予算超過を判定。再帰分割、最小120文字 | Provider共通の型付きエラーと終端条件を追加する |
+| `capture.py::quote_choices()` / `resolve_quotes()` | 本文をchoicesにもコピーし、Coreが引用を復元 | 送信側choicesからtextを除き、Core側の完全な対応表は保持する |
+| `application.py::call_llm()` | Promptに完全Schemaを付け、同じSchemaをProviderにも渡す | Prompt/transport/保存Schemaのversionを区別する。Core検証は残す |
+| `providers.py` | Compatible/StrataはSchema指定、Nativeはテキスト。Strata 502分類は実装済み | 接続経路ごとの能力を記録し、Schema指定を再実装しない |
+| `knowledge_repository.py::record_batch()` | batch単位の結果を保存。途中window成功はbatch完了前に永続化されない | 大きいpacker導入前にwindow単位の再開を追加する |
+| `knowledge_repository.py::promote_extraction()` | 未完了Evidenceがあると全体世代を昇格しない | 新しいwindow/checkpointにもこの契約を継承する |
+| `final.py::cluster_fragments()` | 非破壊の保守的集約はあるが永続Knowledge Claim世代はない | 現行集約を足場に、派生Claimとsupport参照を追加する |
+| `final.py::StructuredFinal.build()` | queryなしは全件。max_charsは局所並べ替え入力の上限 | 出力全体のtoken上限と監査Exportを別のモードにする |
+| `application.py::embed()` | 候補全件を再推論し、全件成功後に保存 | 推論済みvectorの再利用と新しい世代への関連付けを分ける |
+| `benchmark.py::run_benchmark()` | manifest/config一致の再開とRaw hash確認はある | codec/packer/tokenizer/capabilityもconfigへ入れ、別条件を混ぜない |
+
+外部仕様も再確認した。[LM Studio Structured Output](https://lmstudio.ai/docs/developer/openai-compat/structured-output)は`/v1/chat/completions`のJSON Schema指定とGGUFのgrammar samplingを説明している。したがってNative APIへ未知のパラメータを追加するより、**別条件の互換API経路を比較**する。実際に使うモデル・Schemaの対応は実機probeで確認し、対応保証とは扱わない。
+
+[LM Studio Tokenization](https://lmstudio.ai/docs/python/tokenization)はモデルtokenizerによる計数と、chat template適用後の会話計数を提供する。モデル別TokenCounterの候補にするが、現行CPCはSDKに依存しないため任意依存として追加する。Strataの対応手段は実装時にローカル仕様を確認し、存在未確認のtokenize endpointを前提にしない。
+
+### 11.2 推奨する実装順序と分割単位
+
+各段階を独立コミット・独立比較条件で実装する。既定動作の変更は受入判定後に行う。
+
+| 段階 | 内容 | 依存 | 主な変更先・追加先（予定） | 完了の判断 |
+|---|---|---|---|---|
+| E0 | 評価条件と観測の固定 | なし | `benchmark.py`、比較設定、評価用runner | 同一manifestで独立条件を記録し、未付与goldを合格扱いしない |
+| E1 | 即分割・能力判定・Compact Schema・引用重複除去 | E0 | `providers.py`、`capture.py`、`application.py`、新`transport.py`、version付きPrompt/Schema | 失敗処理とcanonical復元が正しく、各変更のtoken/時間差を測定 |
+| E2 | window/checkpoint世代 | E0、E1のversion管理 | `capture.py`、`knowledge_repository.py`、追加migration | 部分成功後の再開が重複・欠落なく動作し、不完全世代を昇格しない |
+| E3 | TokenCounter・Adaptive Packer | E1、E2 | 新`budget.py`、`capture.py`、CLI、benchmark条件 | 全入力span coverageを維持し、実測の呼出数/総時間を削減 |
+| E4 | 決定論的Knowledge Claim世代 | E0。E3と独立して着手可能 | 新`claims.py`、repository、追加migration、`final.py` | 元Fragment不変、全supportを追跡し、不適切な同一視を防ぐ |
+| E5 | 用途別Knowledge View / AI Context | E4、TokenCounter | `final.py`、CLI、document保存設定 | 表示全体が予算内、省略情報を明示、監査Exportは全件保持 |
+| E6 | 増分Embedding | E0。E4/E5と独立 | `application.py`、`repository.py`、Embedding設定 | 変更のない推論を再利用し、空間分離と原子的昇格を保持 |
+| E7 | 意味集約・階層化・Prompt Compression | E4/E5、品質gold | Claim候補選択、階層representation、context renderer | 個別A/Bで品質を確認。効果がない案は採用しない |
+
+**初回の実装範囲はE0〜E1**を推奨する。続いてE2〜E3で抽出効率を改善する。Finalの可読性改善はE4〜E5として分け、抽出モデルの変化と混同しない。E7を初回標準動作へ組み込まない。
+
+### 11.3 E0: 評価・再現性の準備
+
+1. 代表8Captureのmanifest、Raw SHA256、Normalized/Evidence世代、Entity、Page Context、旧Fragment runを固定する。実データ・DB・生応答はGit管理外に保管する。
+2. モデル、revision/量子化、runtime、context、reasoning、projection、Prompt/Schema/codec、packer、tokenizer、出力上限をconfigurationに保存する。未知値はunknown/null。別条件のresumeは拒否する。
+3. 基準モデルは現行Qwen3.8-27B構成。Strataは別runtime条件で、変更前後を同じStrata構成内で比較する。旧runと異なるSchema・cache状態の速度差を単一変更の効果としない。
+4. 小規模の開発セットは代表8件から、本文・高密度table/list/post・長文・否定/時期/主語曖昧・0件理由を含む2Captureを選ぶ。未使用の保留資料は調整に使わない。
+5. 開発セットに原子的gold claimと支持Evidence/spanを付与する。否定・条件・時期・発話者・資料種別・矛盾を含める。代表8件と保留資料のgoldが不足する間は品質を未評価と表示し、既定変更の最終承認を保留する。
+6. 試行/再試行/windowごとにstatus、error category、入力/出力token、本文/推論内訳、client総時間、API decode速度、分割深さ、評価Evidence/span、生成Fragment数を記録する。TTFT・ピークメモリが取れない場合は補完しない。
+
+### 11.4 E1: 情報を削らない入出力改善
+
+#### E1a: 予算超過を即分割
+
+- `OutputBudgetExceeded`等のValueError派生型を追加し、Compatible/Native/Strataから同じ型を返す。文字列判定に依存しない。
+- `_extract_window()`で予算超過を先に捕捉して再送せずraise。Schema/引用検証エラーの同一入力再試行は現行どおり最大1回とし、validation_errorを添える。
+- timeout、認証、接続、一般HTTP障害は内容分割へ分類しない。Strataの構造化出力エラーも打ち切りと形式違反を分ける。
+- 最小windowでも打ち切りならfailed。深さ・試行数の上限を設定し、子windowの全成功と全文coverage成立時のみ親をsuccessにする。
+- 上限を下げる試験では、モデルの推論tokenが予算に含まれるかも記録する。短いpartial JSONを完成Fragmentとして保存しない。
+
+#### E1b: Structured Outputの能力と経路を明示
+
+- Provider設定へ`structured_mode`（prompt_only / api_schema）と実装上の制約方法（unknown / grammar / prompt_and_validate）を記録する。APIへ指定できることと生成中に制約されることを区別する。
+- LM Studio Native controlを維持し、Schema対応の互換APIを別条件としてprobeする。probeは空配列、必須文字列、enum、引用ID、Evidence ID、上限超過を対象にする。
+- 推論必須モデルの設定は既存の対応情報を継承し、offを一律指定しない。互換APIで同じ設定を表現できなければ別条件・比較対象外と記録する。
+- Unsupported Schemaを黙ってtextへフォールバックせず、理由を記録する。Strataの共有サーバー・依存パッケージはCPC実装から自動変更しない。
+- 動的Schemaの入力ID/列挙を保ち、受信後のSchema・主張・引用・assessment検証はすべて実行する。
+
+#### E1c: Compact transportと引用送信を個別導入
+
+- まず**短いkeyのJSON object**を採用候補にする。位置だけで意味が決まるarrayは初回候補から外し、列ずれの診断とSchema対応を容易にする。
+- transport-v1の各key/enum codeとcanonical key/値の対応表をversion管理する。subject、facet、statement、atomic_claim、epistemic type、strength、asserted_by、temporal、conflict、Evidence ID、quote IDの意味を削らない。
+- 省略を許すのはcanonical Schemaでnull/既定値が同じ意味になる項目だけ。空文字・unknown・null・未提供を勝手に同一化しない。未知code/余分なkeyは拒否する。
+- `decode → quote復元 → canonical validate`の順を固定し、保存Schema・既存DB・検索APIは維持する。既存の通常transportも選択可能にする。
+- 引用重複除去は別条件で試す。モデルへはEvidence本文と`quote_id → evidence_id`を送り、Coreに現在の完全なchoicesを保持する。任意のspanをモデルに書かせる方式は初回で追加しない。
+- サーバーがSchemaを受けてもPrompt内Schemaの除去は別実験にする。意味を説明する短いガイドと厳密Schemaの役割を分け、拒否/検証失敗を観測する。
+
+### 11.5 E2〜E3: 再開可能な抽出単位と予算
+
+**Evidence保存の1000文字chunkは最初に変更しない。** 固定Evidence上の推論単位だけを変更すれば、ID・provenance・評価対象を変えず比較できる。Evidenceを800/1200 tokenで再生成する案は、packer評価後に別Normalized世代で試す。
+
+- 追加migrationでwindow結果とmembershipを保存する。最低限、job、parent window、元Evidence ID、content hash、Evidence内の半開区間[start,end)、順序、codec/packer version、AI run、status、resultを持つ。
+- window IDはjobの設定と入力spanから決定する。分割時の子window一覧も保存する。再開は保存済みの計画を使い、同じ入力の成功windowだけを再利用する。
+- sibling失敗後も成功windowを再推論しない。assessmentは単一windowから上書きせず、全windowの成功/破棄理由からEvidence単位へ集約する。独立multi-passの結果とAI run参照も保持する。
+- 新世代Fragmentの作成・active切替は既存の全体昇格契約を継承する。旧jobは旧batch経路で読めるようにし、途中の旧jobを新packerへ変換しない。
+- TokenCounterはモデルtokenizer・chat template・revisionを識別する。SDK等で正確に数える経路と保守的推定値を区別し、計測不能なら固定文字windowへ明示的に戻す。token比較としての採用判定には推定値を使わない。
+- 予算式は`formatted_input_tokens + requested_output_tokens + safety_margin <= effective_context`。本文だけでなくPrompt、Schema、Entity、Page Context、neighbor、review既出Fragmentを含める。api_schema部分の計数が不明なら差分校正と余裕を記録する。
+- 固定1000/2000/4000 material tokenを順に比較し、その後に密度対応を試す。計画上の初期targetは2000、4000は上限候補。output budgetは4096、control/hard upper candidateは8192。2048はCompact採用後の追加候補にする。
+- table/list/postは小さめから開始し、実測output/material比で調整する。調整履歴と算出設定を保存し、同じ構成を再開した時に異なる計画へ変更しない。
+- overlapを含むspan集合が元本文全域を覆うことを検証する。改行・Unicode・表の境界を壊すtoken IDの途中decodeは避け、原文文字境界でspanを選ぶ。入力削除や黙った切り捨てはしない。
+
+### 11.6 E4〜E5: Knowledge Claimと人間向けの表示
+
+#### 派生Claimの保存
+
+- 追加migrationでClaim世代、Claim本体、Fragment support、relationを保存する。正本のRaw Fragment、Fragment↔Evidence、AI runを更新・削除しない。
+- Claim世代はEntity、対象active Fragment run集合、algorithm/config hashで識別する。Snapshot/Context/Fragment世代変更で再生成し、途中世代を公開しない。
+- 決定論的集約から始める。Entity/subject、facet、主張本文、epistemic type、strength、asserted_by、temporal、conflictを一致条件にする。数値・否定・条件を正規化で消さない。
+- 同じ主張のsupportは複数資料から保持し、転載/同一sourceの別Snapshotを独立資料の数として数えない。強度の違う主張を勝手に格上げしない。
+- `same_claim`以外はrelationとして表現する。`different_time`、`conflict`、`related`は同一Claimへ統合しない。語義が不確かな場合は別Claimのままにする。
+- provenance APIの既存応答を維持し、ClaimからFragment/Evidence/Rawへの追加経路を用意する。全support集合とviewで選んだ引用集合を区別する。
+
+#### 用途別View
+
+- 新しい明示モードを追加し、現行の全件Finalは`audit`相当として保持する。既存`generate`の既定・戻り値は初回実装では変更しない。
+- まずLLMなしの抽出型Viewを作る。計画上の候補はshort=4k、standard=12k、AI context=12k/16k、detailed=24k/30k。値は実測前の候補で、model contextに収まらない指定はエラーとする。
+- query relevance、facet/epistemic type/sourceの多様性、同一主張の反復抑制を決定論的に組み合わせる。LLMによる新事実の補完は行わない。
+- 予算は本文だけでなく見出し・注記・引用・timeline・relationships・source notesを含む**最終出力全体**へ適用する。配置が複数になるClaimの反復も計数する。
+- Claim/引用ブロックを途中で切らず、入らないブロックは省略ID・理由を残す。必要ならAudit/機械可読manifestから全件へ戻れるようにする。
+- AI contextは消費先モデル用に数え、system/query/出力reserveも差し引く。表示用予算とLLMの空きcontextを同一視しない。
+- 保存設定へmode、budget、tokenizer、選択/省略Claim ID、元Claim世代、selection algorithmを記録する。既存Finalと比較して情報coverageと人間可読性を測る。
+
+### 11.7 E6〜E7: 後続の最適化
+
+**増分Embedding:** モデル/revision、次元、prefix・max_chars等の前処理、実際にEmbeddingへ渡す文字列のhashを含めて再利用keyを決める。Evidence/Fragment IDだけで再利用しない。現在の`EmbeddingSpace`分離とhash照合・全件保存transactionを足場に、必要な追加migrationで再利用cacheと世代membershipを作る。未変更vectorを再利用、変更分だけ推論し、全件有効になった時点で原子的昇格する。未知revisionの再利用範囲は同じ明示空間内に限定する。途中失敗時は旧検索世代を保持する。
+
+**意味Claim集約:** Embeddingによる候補上限を設定し、全Fragmentペアの総当たりを避ける。候補LLM分類と支持判定を保存する。推移律だけで連鎖統合せず、全memberがsubject・時期・発話者・情報種別の互換条件を満たすことを検証する。信頼度の閾値はgoldで決め、曖昧ならrelationだけにする。
+
+**階層・Prompt Compression:** Facet/Entity summaryはClaim IDを支持として保持した派生物とし、正本にしない。CompressionはRetrieval後のAI Contextだけで比較する。2x/3x/5xを別条件とし、否定・時期・数値・出典を検証する。Evidence抽出前のtoken削除、20xの初期標準化は実施しない。
+
+### 11.8 検証・受入・所要時間
+
+| 範囲 | 既存テストの足場 | 必要な追加確認 |
+|---|---|---|
+| エラー/Provider | `tests/test_providers.py`、Upgradeのbudget split | 上限時の同一入力再送0回、形式違反再試行、HTTP障害の非分割、終端failed |
+| transport/引用 | Upgradeのquote selector・Schema/原子性検証 | 対応表round-trip、null/省略差、未知code拒否、quote/Evidence ID一致 |
+| checkpoint/packer | Upgradeの全文window coverage・failure/resume・context変更 | 全span coverage、sibling失敗後の再開、multi-pass保存、config差拒否 |
+| Claim/View | Upgradeの非破壊cluster・final完全性・捏造拒否 | 時期/否定/subject/source差の分離、全support追跡、出力全体budget、省略manifest |
+| Embedding | `tests/test_core.py`の空間/検索契約 | 無変更時のAPI呼出0、前処理変更時miss、途中失敗時の旧世代維持 |
+| migration | Upgradeのv1 migration保存確認 | 既存0.2 DBを複製して移行・整合性・旧job再開を確認 |
+
+比較は「自動の契約検証 → 開発2Capture → 代表8Capture → 保留資料」の順に進める。各変更をcontrolと同じモデル構成で1要素ずつ測り、単体の効果確認後に採用候補だけを組み合わせる。8Capture全量で全factorの総当たりは行わない。
+
+受入条件:
+
+1. Raw hash/更新日時不変、保存済みEvidence/旧Fragment保持、SQLite integrity/foreign key正常、失敗世代非昇格。
+2. 全対象Evidenceとspanの処理coverage100%、引用・出典・schema契約違反0。discardedを根拠なくsuccessへ変えない。
+3. gold上のRecall/Precision/Atomicityをcontrolより悪化させず、新たなUnsupported・重大な否定/時期/subject誤り0。小標本での同等性は一般品質保証とせず、保留評価を必須とする。
+4. 同じruntime内の総時間・token・呼出数の比較で改善を確認する。初回の採用目標は総時間または総tokenの20%以上削減だが、**未実測の目標値**であり保証ではない。速度ばらつきが大きければ3回測定し、中央値と範囲を示す。
+5. Viewは全体予算遵守と省略の追跡を満たす。総情報数の減少やFragment数の減少だけで品質合格にしない。
+
+推論時間の計画値は旧Qwen代表8Captureの約5.1時間を参考にする。control再測定＋variant1本で約10.2時間、control1本＋variant4本なら約25.5時間。ただし旧runの失敗・再試行を含む参考値で、新しい実測時間は未確定。開発2件は選んだCaptureの旧時間合計から個別見積もりする。Claim/Viewの決定論的比較はFragment固定で再抽出を不要にする。Strataの所要時間は別実測で更新し、短いS03速度から実Captureの完了時間を断定しない。
+
+試験runnerは独立したhidden processで起動し、status/log/run ID/PIDをGit管理外へ保存する。長時間の自動ポーリングを既定にせず、起動確認と再開手順を示す。失敗時は原因を記録して未完了分を再開し、成功結果を再生成しない。
+
+### 11.9 互換性と移行・戻し方
+
+- 設定追加はopt-inとし、未指定時は現行codec/window/Final経路を保持する。単独採用の段階ごとにconfiguration versionを更新する。
+- DB変更は追加migrationで行い、既存カラム/ID/世代を再利用して意味を書き換えない。実DBへ適用する前にDB複製上で移行・旧読取を確認する。
+- 変更前のRaw・DBの復元用コピーとhashをGit管理外に保持する。DB migrationのreverse/dropやGit履歴書き換えを通常の戻し方にしない。
+- 問題があれば新設定を無効にし、旧Fragment/検索/文書世代を利用する。Schema上互換な旧読取とactive切替を検証し、CLI/APIの破壊的変更を避ける。
+- E0〜E1の完了はE2以降や代表8Captureの全モデル品質評価の完了を意味しない。各段階で実装・自動検証・実データ比較・human gold・採用を別々に記録する。
