@@ -24,11 +24,11 @@
 ## 共通条件
 
 - 同じPC、LM Studio native API、runtime、GPU設定で、同時に1モデル・1リクエストだけ実行する。
-- context 16384、temperature 0、reasoning off、store=false、integrations=[]、会話履歴なしを固定する。
+- context 16384、temperature 0、store=false、integrations=[]、会話履歴なしを固定する。初回はreasoning offを共通指定した。再試験では`GET /api/v1/models`の対応設定を確認し、off対応ならoff、設定非公開ならパラメータ省略、推論必須なら対応する最小設定を選ぶ。
 - seedは全対象で共通指定できる場合だけ固定する。他のsampling値は指定有無・実効値を記録し、黙ってモデル別に変更しない。
 - 他の推論・Embedding・モデルダウンロードを停止または別時間へ分離してから測定する。CPU offloadが発生したモデルはGPU中心のモデルとは別列にし、速度差の原因を示す。
 - ファイル名・SHA256、量子化、モデルrevision、runtime version、GPU offload、CPU thread設定、context長を記録する。不明な値はunknown/null。
-- Native APIやreasoning offに非対応なら接続不適合とする。互換API等での代替測定は別条件IDで記録する。
+- Native API非対応は接続不適合とする。reasoning条件は`S01-R-off`、`S01-R-low`、`S01-R-on`、`S01-R-omitted`のように区別し、推論ありの結果をoffと同一条件と扱わない。実行開始時の対応設定を保存し、再開時に変化していれば停止する。
 - 入力の本文・Prompt・Schemaと、そのhashをモデル間で固定する。同じ文字列でもtokenizerごとに入力token数が異なるため、実際の入力token数も記録する。
 
 ## 入力セット
@@ -76,6 +76,8 @@ S03は同じ主張密度の固定Evidenceを使い、引用ID・Schema・原子�
 
 APIの生成tokens/sが得られない場合はnullとし、出力tokens÷総時間を「end-to-end tokens/s」という別指標で表示する。総時間には入力処理も入るので、生成tokens/sと同じ列で順位を付けない。推論tokenの内訳が取得できないモデルは、本文だけのtoken速度を推定しない。
 
+再試験ではtotal_output_tokensとreasoning_output_tokens、その差である本文token数を記録する。内訳が欠ける場合は本文token数をnullとする。APIのtokens/sは推論を含む値として表示し、本文の純粋なdecode速度へ読み替えない。推論あり・内訳不明の測定からoff条件を基準とした本試験時間を自動換算しない。
+
 tokenizerが異なるためtokens/sだけで日本語の実用速度を断定しない。本文文字数/秒・実出力長・総時間を並べて判断する。3回では統計的な優劣を確定せず、速度差が小さい候補は本試験で再確認する。
 
 ## 終了・失敗条件
@@ -117,10 +119,11 @@ tokenizerが異なるためtokens/sだけで日本語の実用速度を断定し
 
 ```powershell
 # 独立プロセスで起動し、ログはGit管理外へ保存する。
-$job = Start-Process .venv/Scripts/python.exe -ArgumentList 'scripts/run_speed_preflight.py' -WindowStyle Hidden -PassThru -RedirectStandardOutput .local/speed-preflight.log -RedirectStandardError .local/speed-preflight.err
+$job = Start-Process .venv/Scripts/python.exe -ArgumentList 'scripts/run_speed_preflight.py --out sample/speed-preflight-v2' -WindowStyle Hidden -PassThru -RedirectStandardOutput .local/speed-preflight-v2.log -RedirectStandardError .local/speed-preflight-v2.err
 $job.Id
-Get-Content sample/モデル比較/予備速度試験/status.json -Encoding UTF8
+Get-Content sample/speed-preflight-v2/status.json -Encoding UTF8
 # 中断後は、入力を変更せず--resumeで未測定分を続行する。
+# 初回runはrunner_versionが異なるため再開せず、新しい出力先を使用する。
 ```
 
 runnerは独立したバックグラウンド処理として起動し、PID・状態確認コマンド・成功/失敗条件を提示する。待機目的の自動ポーリングは行わない。status.jsonのcompletedは測定工程の終了を意味し、全モデルのCPC適合ではない。failedは処理全体の停止で、モデル別・条件別の不適合は比較結果に記録する。

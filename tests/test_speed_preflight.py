@@ -51,3 +51,29 @@ def test_frozen_inputs_have_expected_lengths_and_cpc_quote_mapping():
     assert (
         next(iter(payload["quote_choices"].values()))["text"] == payload["evidence"][0]["content"]
     )
+
+
+def test_reasoning_policy_uses_capabilities_and_omits_unexposed_setting():
+    def model(options):
+        return {"capabilities": {"reasoning": {"allowed_options": options}}}
+
+    assert speed.reasoning_policy(model(["on", "off"])) == "off"
+    assert speed.reasoning_policy(model(["high", "medium", "low"])) == "low"
+    assert speed.reasoning_policy(model(["on"])) == "on"
+    assert speed.reasoning_policy({"capabilities": {}}) is None
+    condition = speed.inputs()[0]
+    assert "reasoning" not in speed.request_body("model", condition, None)
+    assert speed.request_body("model", condition, "low")["reasoning"] == "low"
+
+
+def test_enabled_reasoning_is_measured_without_false_mismatch():
+    body = {
+        "stats": {"total_output_tokens": 100, "reasoning_output_tokens": 60},
+        "output": [{"type": "message", "content": "Test"}],
+    }
+    row = speed.response_record(body, 10, speed.inputs()[0], "low")
+    assert row["status"] == "completed"
+    assert row["message_tokens"] == 40 and row["reasoning_tokens"] == 60
+    assert row["reasoning_setting"] == "low"
+    del body["stats"]["reasoning_output_tokens"]
+    assert speed.response_record(body, 10, speed.inputs()[0], "low")["message_tokens"] is None

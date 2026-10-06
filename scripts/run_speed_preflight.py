@@ -117,7 +117,33 @@ def inputs():
     ]
 
 
-def response_record(body, elapsed, condition):
+def reasoning_policy(model):
+    config = model.get("capabilities", {}).get("reasoning")
+    if config is None:
+        return None
+    options = config.get("allowed_options", [])
+    for option in ("off", "low", "medium", "high", "xhigh", "on"):
+        if option in options:
+            return option
+    raise ValueError("No supported public reasoning setting")
+
+
+def request_body(identifier, condition, reasoning):
+    body = {
+        "model": identifier,
+        "system_prompt": condition["prompt"],
+        "input": condition["input"],
+        "temperature": 0,
+        "max_output_tokens": condition["budget"],
+        "store": False,
+        "integrations": [],
+    }
+    if reasoning is not None:
+        body["reasoning"] = reasoning
+    return body
+
+
+def response_record(body, elapsed, condition, reasoning_setting="off"):
     stats = body.get("stats", {})
     output = body.get("output", [])
     content = "\n".join(item.get("content", "") for item in output if item.get("type") == "message")
@@ -151,7 +177,7 @@ def response_record(body, elapsed, condition):
             except (ValueError, KeyError) as exc:
                 state, error = "contract_failure", str(exc)
     reasoning = stats.get("reasoning_output_tokens")
-    if reasoning is not None and reasoning > 0:
+    if reasoning_setting == "off" and reasoning is not None and reasoning > 0:
         state, error = "reasoning_mismatch", "Reasoning tokens generated with reasoning off"
     return {
         "status": state,
@@ -162,6 +188,10 @@ def response_record(body, elapsed, condition):
         "output_tokens": tokens,
         "input_tokens": stats.get("input_tokens"),
         "reasoning_tokens": reasoning,
+        "message_tokens": tokens - reasoning
+        if isinstance(tokens, (int, float)) and isinstance(reasoning, (int, float))
+        else None,
+        "reasoning_setting": reasoning_setting,
         "characters": len(content),
         "characters_per_second": len(content) / elapsed if elapsed else None,
         "end_to_end_tokens_per_second": tokens / elapsed
@@ -193,6 +223,9 @@ def summarize(state, output):
         "output_tokens",
         "input_tokens",
         "reasoning_tokens",
+        "message_tokens",
+        "reasoning_setting",
+        "condition_variant",
         "characters",
         "characters_per_second",
         "cpc_valid",
@@ -207,13 +240,15 @@ def summarize(state, output):
         f"run: {state['run_id']} / 状態: {state['status']}",
         "速度と品質は別評価。予算到達は回答完了を意味しません。",
         "生成tokens/sはAPIの値。TTFTはエンジン側。総時間はclient計測。",
-        "条件: context16384 / temperature0 / reasoning off / sequential",
+        "条件: context16384 / temperature0 / sequential。reasoningはモデル対応設定を使用。",
+        "推論ありのtokens/sは推論と本文を含むAPI値。本文の純粋な生成速度は未取得。",
         "GPU offload、CPU配置、cache、runtime version、ピーク使用量が不明な場合はunknown。",
         "未取得値は推測しません。異なるtokenizer/量子化による構成差を含みます。",
         "Ministralは保存済みのReasoning版を使用し、通常版とは区別します。",
         "",
     ]
     for model in state["models"]:
+        lines.append(f"reasoning設定: {model.get('reasoning_setting', '未確定')}（Noneは省略）")
         lines.append(
             f"{model['id']} {model['name']} / {model['status']} / "
             f"{model.get('quantization', 'unknown')}"
@@ -244,7 +279,7 @@ def summarize(state, output):
                 )
 
             lines.append(
-                f"  {condition}: 測定{len(selected)}/3、"
+                f"  {condition}: 試行{len(selected)}/3、有効速度{len(valid)}/3、"
                 f"生成tokens/s {value('tokens_per_second')}、TTFT秒 {value('ttft_seconds')}、"
                 f"総時間秒 {value('total_seconds')}、文字/秒 {value('characters_per_second')}"
             )
@@ -294,6 +329,8 @@ def summarize(state, output):
                 and not r["warmup"]
                 and not r.get("final_check")
                 and r.get("cpc_valid") is True
+                and r.get("reasoning_setting") in {"off", None}
+                and r.get("reasoning_tokens") == 0
                 and r.get("tokens_per_second")
                 and r.get("ttft_seconds") is not None
             ]
@@ -340,6 +377,9 @@ def main():
     if state.get("status") == "completed":
         return
     state.update(pid=os.getpid(), status="running")
+    if args.resume and state.get("runner_version") != 2:
+        raise ValueError("Use a new output directory for the revised reasoning policy")
+    state["runner_version"] = 2
     lms = str(Path.home() / ".lmstudio/bin/lms.exe")
     conditions = inputs()
     condition_hash = digest(json_text(conditions))
@@ -384,6 +424,8 @@ def main():
             "trial": trial,
             "warmup": trial == 0 and not final,
             "final_check": final,
+            "reasoning_setting": model["reasoning_setting"],
+            "condition_variant": f"{condition['id']}-R-{model['reasoning_setting'] or 'omitted'}",
         }
         state["current"] = name
         save()
@@ -398,22 +440,15 @@ def main():
                 start = time.perf_counter()
                 response = client.post(
                     "http://127.0.0.1:1234/api/v1/chat",
-                    json={
-                        "model": identifier,
-                        "system_prompt": condition["prompt"],
-                        "input": condition["input"],
-                        "temperature": 0,
-                        "reasoning": "off",
-                        "max_output_tokens": condition["budget"],
-                        "store": False,
-                        "integrations": [],
-                    },
+                    json=request_body(identifier, condition, model["reasoning_setting"]),
                 )
                 elapsed = time.perf_counter() - start
                 raw = {"http_status": response.status_code, "body": response.text}
                 write_atomic(output / (name + "-response.json"), raw)
                 response.raise_for_status()
-                row.update(response_record(response.json(), elapsed, condition))
+                row.update(
+                    response_record(response.json(), elapsed, condition, model["reasoning_setting"])
+                )
         except httpx.TimeoutException:
             row.update(
                 status="timeout",
@@ -444,6 +479,11 @@ def main():
             raise RuntimeError("Models already loaded; do not interfere with another session")
         inventory = json.loads(cli("ls", "--json"))
         write_atomic(output / "inventory.json", inventory)
+        with httpx.Client(timeout=30) as client:
+            response = client.get("http://127.0.0.1:1234/api/v1/models")
+            response.raise_for_status()
+            capabilities = response.json()
+        write_atomic(output / "capabilities.json", capabilities)
         settings = json.loads((Path.home() / ".lmstudio/settings.json").read_text(encoding="utf-8"))
         folder = Path(settings["downloadsFolder"])
         for model in state["models"]:
@@ -457,6 +497,11 @@ def main():
                 save()
                 continue
             model["quantization"] = available.get("quantization", {}).get("name", "unknown")
+            capability = next(m for m in capabilities["models"] if m["key"] == model["key"])
+            selected_reasoning = reasoning_policy(capability)
+            if "reasoning_setting" in model and model["reasoning_setting"] != selected_reasoning:
+                raise ValueError("Reasoning capabilities changed during resume")
+            model["reasoning_setting"] = selected_reasoning
             paths = list(folder.rglob(model["filename"]))
             if len(paths) == 1:
                 state["current"] = model["id"] + " hash"
