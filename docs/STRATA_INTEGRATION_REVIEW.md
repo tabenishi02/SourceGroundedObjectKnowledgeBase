@@ -50,6 +50,33 @@ engine=0.1.39、context=65536、control vector=`project:4-44`、projection有効
 
 以下は今回の実装前の調査記録である。エラー分類・専用runnerに関する課題は上記で対応した。
 
+### 既存8モデルと同じ速度予備試験
+
+`scripts/run_strata_speed_preflight.py`は固定S01/S02/S03を各ウォームアップ1回＋測定3回、
+計12要求で実行する。初期動作試験とは別runで、S03のサーバー側`response_format`指定を
+省略し、既存LM Studio Native試験と同じPrompt内Schema・入力文字列・出力上限を使用する。
+応答は既存の`response_record()`でCPC契約検証し、打ち切り応答も速度測定として保持する。
+
+```powershell
+./.venv/Scripts/python.exe scripts/run_strata_speed_preflight.py
+Get-Content sample/strata-speed-preflight/status.json
+# 中断した場合の未測定分の再開
+./.venv/Scripts/python.exe scripts/run_strata_speed_preflight.py --resume
+```
+
+出力はGit管理外の`sample/strata-speed-preflight/`。`速度比較.txt`は既存8モデルの保存済み
+runとStrataを並べ、条件ごとの生成tokens/s、S03本文文字/秒・総時間・CPC適合率を表示する。
+`速度比較.csv`には試行別値、生応答JSONにはusage・timings・本文を保存する。
+入力ハッシュが既存runと一致しない場合は比較を拒否する。
+completedは12要求の速度試験終了を示し、S03契約違反やS01/S02予算到達は行ごとに区別する。
+API障害・共有サーバー使用中・構成変更はfailedとして残す。
+`--resume`は既に記録済みの試行を保持し、未記録分だけを実行する。
+
+Strataの既存context65536とprojection設定を保持し、runtime.jsonへ記録する。
+LM Studioのcontext16384とは異なるruntime条件として比較する。Strataの非streaming APIから
+TTFTは取得できないためnullとし、入力処理時間から推測しない。推論token内訳もAPIにない場合はnull。
+既存8モデルの再ロード・再実行や、代表8Captureの品質評価は行わない。
+
 このプロジェクトのLLMとして利用可能。既存の`CompatibleLLM`で通常のOpenAI互換接続ができ、架空資料による最小JSON抽出を実機で確認した。
 ただしCPCの全Schema・長い実ページ・中断再開まで確認したものではない。出力上限等のエラー処理と、既存プロジェクトとの資源共有を整えてから、別構成として実データ比較するのが妥当。速度改善や採用モデルの確定はまだ判断できない。
 
