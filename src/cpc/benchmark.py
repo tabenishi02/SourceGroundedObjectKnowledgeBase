@@ -6,6 +6,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from .domain import SearchFilter, digest, json_text
+from .transport import KEYS
 
 
 def require_local(provider):
@@ -82,12 +83,27 @@ def run_benchmark(
         raise ValueError("Nonempty unique benchmark cases required")
     require_local(app.llm)
     require_local(app.embedder)
+    extraction_options = manifest.get("extraction_options", {})
+    if set(extraction_options) - {
+        "transport",
+        "dedup_quotes",
+        "window_checkpoint",
+        "packer",
+        "token_counter",
+        "material_tokens",
+        "context_tokens",
+        "output_tokens",
+        "safety_margin",
+    }:
+        raise ValueError("Unknown extraction comparison option")
     schema_hashes, prompt_hashes = {}, {}
     for name in ("high_recall", "final_order"):
         prompt, _ = app.prompt(name)
         prompt_hashes[name] = digest(prompt)
         schema_hashes[name] = digest((app.prompt_dir / (name + ".schema.json")).read_bytes())
     config = {
+        "transport_map_hash": digest(json_text(KEYS)),
+        "extraction_options": extraction_options,
         "dataset_version": manifest["benchmark_version"],
         "phase": phase,
         "strategy": strategy,
@@ -140,6 +156,7 @@ def run_benchmark(
                     strategy=strategy,
                     resume=previous.get("job_id"),
                     batch_size=manifest.get("fragment_batch_size", 4),
+                    **extraction_options,
                 )
                 result["input_set"] = {
                     "normalized_run": snapshot["active_run"],

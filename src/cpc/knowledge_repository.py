@@ -86,6 +86,55 @@ class KnowledgeRepository:
             "SELECT * FROM evidence_assessments WHERE job_id=? ORDER BY rowid", (job_id,)
         )
 
+    def cached_window(self, job_id, key):
+        row = self.one(
+            "SELECT result FROM extraction_windows WHERE job_id=? AND window_key=?", (job_id, key)
+        )
+        return json.loads(row["result"]) if row else None
+
+    def save_claims(self, generation, entity_id, configuration, input_hash, claims):
+        with self.db:
+            self.db.execute(
+                "INSERT OR IGNORE INTO claim_generations VALUES(?,?,?,?,?)",
+                (generation, entity_id, json_text(configuration), input_hash, now()),
+            )
+            for claim in claims:
+                self.db.execute(
+                    "INSERT OR IGNORE INTO knowledge_claims VALUES(?,?,?)",
+                    (generation, claim["id"], json_text(claim)),
+                )
+                self.db.executemany(
+                    "INSERT OR IGNORE INTO claim_support VALUES(?,?,?)",
+                    [(generation, claim["id"], f) for f in claim["fragment_ids"]],
+                )
+
+    def cached_vector(self, key):
+        row = self.one("SELECT * FROM vector_cache WHERE cache_key=?", (key,))
+        return json.loads(row["vector"]) if row else None
+
+    def save_vector_cache(self, items):
+        with self.db:
+            self.db.executemany("INSERT OR IGNORE INTO vector_cache VALUES(?,?,?,?,?,?)", items)
+
+    def save_window(self, job_id, key, membership, result, ai_run):
+        with self.db:
+            self.db.execute(
+                "INSERT OR IGNORE INTO extraction_windows VALUES(?,?,?,?,?)",
+                (job_id, key, json_text(membership), json_text(result), ai_run),
+            )
+
+    def window_split(self, job_id, key, children=None):
+        if children is not None:
+            with self.db:
+                self.db.execute(
+                    "INSERT OR IGNORE INTO window_splits VALUES(?,?,?)",
+                    (job_id, key, json_text(children)),
+                )
+        row = self.one(
+            "SELECT children FROM window_splits WHERE job_id=? AND window_key=?", (job_id, key)
+        )
+        return json.loads(row["children"]) if row else None
+
     def record_batch(self, job_id, batch_key, evidence_ids, result=None, ai_run=None, error=None):
         batch_id = uid()
         status = "failed" if error else "success"
@@ -248,7 +297,15 @@ class KnowledgeRepository:
         return rows
 
     def save_structured(
-        self, entity_id, ai_id, representation, clusters, markdown, citations, config
+        self,
+        entity_id,
+        ai_id,
+        representation,
+        clusters,
+        markdown,
+        citations,
+        config,
+        algorithm="facet-epistemic-cluster-v1",
     ):
         document_id = uid()
         with self.db:
@@ -270,7 +327,7 @@ class KnowledgeRepository:
                     document_id,
                     json_text(representation),
                     json_text(clusters),
-                    "facet-epistemic-cluster-v1",
+                    algorithm,
                 ),
             )
         return document_id

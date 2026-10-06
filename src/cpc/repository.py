@@ -355,6 +355,21 @@ class Repository(KnowledgeRepository):
         ]
 
     def provenance(self, kind, target_id):
+        if kind == "claim":
+            row = self.one(
+                "SELECT * FROM knowledge_claims WHERE id=? ORDER BY rowid DESC LIMIT 1",
+                (target_id,),
+            )
+            if not row:
+                raise ValueError("Provenance target not found")
+            claim = json.loads(row["claim"])
+            return {
+                "kind": kind,
+                "target_id": target_id,
+                "generation_id": row["generation_id"],
+                "claim": claim,
+                "supports": [self.provenance("fragment", f) for f in claim["fragment_ids"]],
+            }
         fragment_metadata = None
         if kind == "fragment":
             fragment = self.one("SELECT metadata FROM fragments WHERE id=?", (target_id,))

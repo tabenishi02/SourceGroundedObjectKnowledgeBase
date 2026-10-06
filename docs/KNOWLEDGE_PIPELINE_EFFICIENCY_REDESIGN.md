@@ -817,3 +817,94 @@ Retrieval結果を固定し、
 - 変更前のRaw・DBの復元用コピーとhashをGit管理外に保持する。DB migrationのreverse/dropやGit履歴書き換えを通常の戻し方にしない。
 - 問題があれば新設定を無効にし、旧Fragment/検索/文書世代を利用する。Schema上互換な旧読取とactive切替を検証し、CLI/APIの破壊的変更を避ける。
 - E0〜E1の完了はE2以降や代表8Captureの全モデル品質評価の完了を意味しない。各段階で実装・自動検証・実データ比較・human gold・採用を別々に記録する。
+
+## 12. 計画に基づく実装と確認（2026-10-06）
+
+§1〜11の現状分析は変更前のPrototype 0.2を対象とする。今回、次の経路を追加した。**実装済みと品質上の採用済みは区別する。**
+
+| 段階 | 実装 | 確認範囲 |
+|---|---|---|
+| E0 評価条件固定 | Providerの`structured_mode`、constraint method、transport対応表hash、抽出設定を台帳・benchmarkへ保存。固定S03の4条件比較runnerを追加 | 同じStrata runtimeで16リクエストを実施。human goldは未付与 |
+| E1 出力量・無駄再送削減 | 出力上限を型付きエラーで分類し、新jobは直ちに分割。形式違反は1回再試行。可逆Compact key codec、引用本文の重複送信削減、API Schema／Promptのみの明示切替 | canonical復元、null・未知key・引用契約、自動分割、実Strata比較 |
+| E2 window再開 | 成功window・multi-passの成功focusと子分割計画をjob単位で保存。再開時は成功分を再利用 | sibling・focus失敗と再開、失敗した親入力の再送回避 |
+| E3 Adaptive Packer | 原文文字spanのtoken packing、表/list/postの密度補正、context全体の予算確認。互換model/revision/provider/codecの成功履歴から最大output/material比＋25%余裕でtargetを縮小し、参照AI IDと計画をjobへ固定 | Unicode全域coverage、予算、履歴参照、再開は固定計画を使用。LM Studio tokenizer経路はSDK mock検証。実機にloaded modelがないため実token経路の接続測定は未実施 |
+| E4 Knowledge Claim | 属性・数値・否定・時期を保つ保守的な一致集約、世代・support保存、Claim→Fragment→Evidence→Rawの追跡 | 既存Fragment不変、世代再生成、実評価DB複製で生成 |
+| E5 用途別View | LLMなし、query優先とfacet/type分散、本文・引用・文脈を含む全体予算、完全な省略manifest | Markdown／構造JSON両方の予算、context reserve、実評価DB複製で短い表示を出力 |
+| E6 増分Embedding | 実際の入力文字列・model/revision/前処理のcache key、変更分だけ推論、全vector確認後に検索世代を保存 | 無変更API呼出0、設定変更時miss、途中失敗時に旧vector維持 |
+| E7 意味集約・階層・圧縮 | 上限付きEmbedding候補と任意のLLM relation提案、Claim ID付き抽出的階層、1x/2x/3x/5xの抽出的context選択を実験コマンドとして追加 | 候補上限・出典・非破壊性を自動確認。意味統合の昇格は0。gold未作成のため正式採用は保留 |
+
+E7は評価用の足場である。実装はLLMLingua/RECOMPの学習済みモデルやRAPTORのLLM要約を導入したものではない。属性の異なる`same_claim`提案は`related`へ、時期の異なる`conflict`は`different_time`へ補正し、提案を保存する。曖昧な意味一致を正本へ昇格しない。
+
+### 12.1 使い方と既定値
+
+以下の`<snapshot-id>`等は実環境のIDへ置き換える。実運用設定と生成物はGit管理外へ保存する。
+
+```powershell
+# Compactと引用重複削減、成功window再開を有効化
+python -m cpc fragment --snapshot '<snapshot-id>' --entity '<entity-id>' `
+  --transport compact-keys-v1 --dedup-quotes --window-checkpoint
+# 再開は初回と同じ設定に --resume '<job-id>' を追加
+
+# 派生Claim、短いView、省略manifest（view.omitted.json）
+python -m cpc claims --entity '<entity-id>'
+python -m cpc view --entity '<entity-id>' --mode short --out .local/documents/view.md
+python -m cpc provenance claim '<claim-id>'
+python -m cpc embed --incremental
+
+# 実験経路。judgeは設定済みローカルLLMを使う追加推論
+python -m cpc claim-experiment --entity '<entity-id>' --max-pairs 20 --judge
+python -m cpc compression-experiment --entity '<entity-id>' --budget 12000
+```
+
+新しい抽出jobは出力上限時に即分割する。その他はopt-inで、未指定ならcanonical／480文字window／従来の全量`generate`を維持する。旧v4 jobの再開は元のretry・Provider条件を維持し、新設定への途中切替を拒否する。互換Providerは`CPC_LLM_STRUCTURED_MODE=api_schema`または`prompt_only`を記録する。LM Studio native経路はPromptのみであり、API Schema比較にはcompatible経路を使う。StrataはSchemaを受け取っても内部制約を保証しないため`prompt_and_validate`と記録する。
+
+Viewの初期予算はshort=4000、standard=12000、detailed=24000、context=12000。`--budget`で変更できる。既定の`utf8-upper-bound`は**UTF-8バイト数による保守的な推定単位で、実token数ではない**。contextモードは消費先の`--context-tokens`を必須とし、query・出力reserve・512単位の余裕を差し引く。消費側のsystem追加文等が大きい場合はその分を予算からさらに引く。
+
+正確なtoken経路は、任意依存を追加し、対象モデルをあらかじめLM Studioへロードして使用する。モデルの自動ロードは行わない。
+
+```powershell
+python -m pip install -e '.[token-counting]'
+python -m cpc fragment --snapshot '<snapshot-id>' --entity '<entity-id>' `
+  --packer token --token-counter lmstudio --material-tokens 2000 `
+  --context-tokens 16384 --window-checkpoint
+python -m cpc view --entity '<entity-id>' --token-counter lmstudio `
+  --model '<loaded-model-key>' --mode context --out .local/documents/context.md
+```
+
+token packingの実tokenizerは[LM Studioのtokenize／Prompt template API](https://lmstudio.ai/docs/python/tokenization)を使用し、loaded instanceのcontext上限も確認する。StrataへLM Studioの別モデルのtokenizerを流用しない。`--packer token`で推定counterを選ぶ場合は従来文字windowへ明示的にfallbackし、context確認も推定として記録する。実token pathの実データ測定、1000/2000/4000 token比較は今後の採用試験。
+
+### 12.2 Strataでの実測
+
+固定合成資料S03、Qwen3.8-Flash-Next IQ3_S、同じengine/context/projection設定、APIへSchemaを送る条件。各条件warmup 1回＋本測定3回。台帳全attemptを集計し、再試行込みの使用量を比較した。
+
+| 条件 | 総時間中央値（範囲、秒） | 入力token | 出力token | 時間短縮 |
+|---|---:|---:|---:|---:|
+| canonical | 17.71（17.66〜17.94） | 2971 | 1498 | control |
+| 引用重複削減 | 17.55（17.37〜17.71） | 2657 | 1498 | 0.9% |
+| Compact | 15.62（15.55〜16.83） | 3000 | 1357 | 11.8% |
+| Compact＋引用重複削減 | 14.98（14.55〜15.00） | 2686 | 1357 | 15.4% |
+
+16/16回でCPC Schema・引用検証成功、各6 Fragment。再試行・失敗0、SQLite integrity正常・外部キーエラー0。Compactは文字出力を2855→1698字に減らすが、token削減は1498→1357（約9.4%）。対応表の説明によりCompact単独の入力tokenは増えた。文字圧縮率を速度・token削減率と同一視しない。
+
+本測定はPrompt cacheが温まった条件で、実CaptureのCold処理や意味品質の改善を示さない。約15.4%短縮は初期目標20%に未達。旧速度試験のPromptのみ条件とは別runである。
+
+runner: `scripts/run_efficiency_preflight.py`。結果: Git管理外の`sample/efficiency-preflight/comparison.txt`、`comparison.json`、個別canonical Fragment、AI台帳。再集計は`python scripts/run_efficiency_preflight.py --summarize`。新測定は新しい`--out`を指定し、停止した場合だけ同じruntime・入力で`--resume`を使用する。共有サーバーがbusyなら推論を開始しない。
+
+### 12.3 既存実データでの派生表示確認
+
+`scripts/run_efficiency_derived.py --source .local/upgrade.sqlite`でSQLite backup APIによる複製へmigrationを適用し、既存5246 Fragmentを対象にClaimとViewを生成した。
+
+| Entity種別 | Fragment | Claim | 4000推定単位Viewに表示 | 省略 | 生成時間 |
+|---|---:|---:|---:|---:|---:|
+| Character | 524 | 508 | 4 | 504 | 0.19秒 |
+| Work | 4722 | 4465 | 4 | 4461 | 2.99秒 |
+
+UTF-8推定量は3098／3820、いずれも予算内。引用・文脈を含む完全なblockを選択するため、表示件数は少ない。全情報の代替ではなく短い入口として使い、省略manifestとClaim provenanceから全件へ戻れる。query・より大きい予算・実token counterの使用を検討する。人間の可読性や選択Recallは未評価。
+
+元DBのSHA256／更新日時と対象Fragmentの内容不変、移行後integrity正常・外部キーエラー0を確認。結果はGit管理外の`sample/efficiency-derived/`へ保存した。正本DBとRawに移行・書き換えは行っていない。
+
+### 12.4 移行・残る採用判定
+
+`003_efficiency.sql`はwindow/split、Claim/support、vector cacheを追加するmigration。旧テーブルを破壊せず、0.2 DB複製と旧読取を確認した。新CLIは指定DBを開くとmigrationを適用するため、正本へ適用する前にSQLite backupで復元用コピーを作る。戻す場合は追加tableをdropせず新オプションを無効にし、既存世代・`generate`を利用する。
+
+関連自動テストは90件成功、lint・差分チェックを実施。残る採用判定は開発2Capture／代表8Captureのcontrol比較、token packの実機測定、human gold・保留資料評価、意味relation／階層／圧縮の品質評価である。今回の合成資料の速度と契約成功から、これらを品質合格へ繰り上げない。

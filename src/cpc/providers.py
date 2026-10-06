@@ -7,6 +7,7 @@ import time
 import httpx
 
 from .domain import json_text, validate_vectors
+from .errors import OutputBudgetExceeded
 
 
 class CompatibleLLM:
@@ -20,11 +21,23 @@ class CompatibleLLM:
         max_tokens=3000,
         extra=None,
         transport=None,
+        structured_mode=None,
     ):
         self.model, self.revision = model, revision
         self.base_url = base_url.rstrip("/")
         self.max_tokens, self.extra = max_tokens, extra or {}
+        mode = structured_mode or (
+            "prompt_only"
+            if self.extra.get("response_format", {}).get("type") == "text"
+            else "api_schema"
+        )
+        if mode not in {"prompt_only", "api_schema"}:
+            raise ValueError("Unknown structured mode")
+        if structured_mode and "response_format" in self.extra:
+            raise ValueError("Use structured_mode without a response_format override")
         self.configuration = {
+            "structured_mode": mode,
+            "constraint_method": "unknown",
             "temperature": self.extra.get("temperature", 0),
             "max_tokens": self.extra.get("max_tokens", max_tokens),
             "reasoning_effort": self.extra.get("reasoning_effort"),
@@ -68,7 +81,7 @@ class CompatibleLLM:
                             },
                         }
                     }
-                    if schema
+                    if schema and self.configuration["structured_mode"] == "api_schema"
                     else {}
                 ),
                 **self.extra,
@@ -92,7 +105,7 @@ class CompatibleLLM:
         choice = body["choices"][0]
         self.last_output = choice["message"].get("content")
         if choice.get("finish_reason") == "length":
-            raise ValueError("LLM output truncated; increase CPC_LLM_MAX_TOKENS")
+            raise OutputBudgetExceeded("LLM output truncated; increase CPC_LLM_MAX_TOKENS")
         content = choice["message"].get("content")
         if not isinstance(content, str) or not content.strip():
             raise ValueError("LLM returned no content")
@@ -114,6 +127,7 @@ class StrataLLM(CompatibleLLM):
         self.extra = {**self.extra, "chat_template_kwargs": template}
         self.configuration["extra_parameters"]["chat_template_kwargs"] = template
         self.configuration["adapter"] = "strata-compatible-v1"
+        self.configuration["constraint_method"] = "prompt_and_validate"
 
     def _check_response(self, response, started):
         if response.status_code == 502:
@@ -133,7 +147,7 @@ class StrataLLM(CompatibleLLM):
                     "runtime_metadata": self.configuration["runtime_metadata"],
                 }
                 if "finish_reason=length" in message:
-                    raise ValueError("LLM output reached token budget")
+                    raise OutputBudgetExceeded("LLM output reached token budget")
                 raise ValueError(message)
         response.raise_for_status()
 
@@ -149,7 +163,10 @@ class LMStudioLLM(CompatibleLLM):
     """Native local adapter with explicit reasoning controls and no chat/tool persistence."""
 
     def __init__(self, *args, **kwargs):
+        kwargs["structured_mode"] = kwargs.get("structured_mode") or "prompt_only"
         super().__init__(*args, **kwargs)
+        if self.configuration["structured_mode"] != "prompt_only":
+            raise ValueError("Use the compatible adapter for LM Studio API Schema requests")
         permitted = {
             "temperature",
             "top_p",
@@ -208,7 +225,7 @@ class LMStudioLLM(CompatibleLLM):
         )
         self.last_output = content
         if stats.get("total_output_tokens", 0) >= budget:
-            raise ValueError("LLM output reached token budget")
+            raise OutputBudgetExceeded("LLM output reached token budget")
         if not content.strip():
             raise ValueError("LLM returned no content")
         return content
@@ -319,6 +336,7 @@ def llm_from_env(task_type=None):
         float(os.environ.get("CPC_API_TIMEOUT", "180")),
         int(os.environ.get("CPC_LLM_MAX_TOKENS", "3000")),
         extra,
+        structured_mode=os.environ.get("CPC_LLM_STRUCTURED_MODE"),
     )
 
 

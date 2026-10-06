@@ -10,6 +10,7 @@ from .domain import (
     SearchFilter,
     digest,
     json_text,
+    uid,
     validate_fragments,
     validate_vectors,
 )
@@ -25,6 +26,7 @@ class Application:
         self.repository, self.llm, self.embedder = repository, llm, embedder
         self.importer = WebCaptureImporter()
         self.reranker = reranker
+        self.vector_cache_scope = uid()
         self.registry = registry or ExtractorRegistry()
         self.prompt_dir = Path(prompt_dir) if prompt_dir else Path(__file__).with_name("prompts")
 
@@ -75,10 +77,11 @@ class Application:
             raise ValueError("Prompt must declare version on first line")
         return prompt, first[9:] + ":" + digest(prompt)
 
-    def call_llm(self, task, prompt_name, payload, response_schema=None):
+    def call_llm(self, task, prompt_name, payload, response_schema=None, prompt_suffix=""):
         if self.llm is None:
             raise ValueError("Real LLM provider required for this stage")
         prompt, version = self.prompt(prompt_name)
+        prompt += prompt_suffix
         schema = response_schema or json.loads(
             (self.prompt_dir / (prompt_name + ".schema.json")).read_text(encoding="utf-8")
         )
@@ -203,7 +206,7 @@ class Application:
             "ai_run": ai_id,
         }
 
-    def embed(self, filters=SearchFilter(), batch_size=16):
+    def embed(self, filters=SearchFilter(), batch_size=16, incremental=False):
         if self.embedder is None:
             raise ValueError("Real embedding provider required for this stage")
         if batch_size < 1:
@@ -214,19 +217,77 @@ class Application:
         # Build the requested generation before a single atomic promotion.
         vectors = []
         dimension = None
+        cache_items, reused, local_cache = [], 0, {}
         for start in range(0, len(rows), batch_size):
             batch = rows[start : start + batch_size]
-            output = self.embedder.embed([r["content"] for r in batch])
+            keys = [
+                digest(
+                    json_text(
+                        [
+                            self.embedder.model,
+                            self.embedder.revision,
+                            self.embedder.configuration,
+                            self.vector_cache_scope
+                            if self.embedder.revision == "unknown"
+                            else None,
+                            getattr(self.embedder, "document_prefix", "")
+                            + r["content"][
+                                : getattr(self.embedder, "max_chars", len(r["content"]))
+                            ],
+                        ]
+                    )
+                )
+                for r in batch
+            ]
+            output = [
+                (local_cache.get(k) or self.repository.cached_vector(k)) if incremental else None
+                for k in keys
+            ]
+            missing = [i for i, vector in enumerate(output) if vector is None]
+            if incremental:
+                unique = {}
+                for i in missing:
+                    unique.setdefault(keys[i], i)
+                missing = list(unique.values())
+            if missing:
+                fresh = self.embedder.embed([batch[i]["content"] for i in missing])
+                validate_vectors(fresh, len(missing))
+                for i, vector in zip(missing, fresh):
+                    output[i] = vector
+                    if incremental:
+                        local_cache[keys[i]] = vector
+                if incremental:
+                    output = [v if v is not None else local_cache[k] for k, v in zip(keys, output)]
+            reused += len(batch) - len(missing)
             size = validate_vectors(output, len(batch))
             if dimension is not None and dimension != size:
                 raise ValueError("Embedding dimension changed between batches")
             dimension = size
             vectors.extend(output)
+            if incremental:
+                cache_items.extend(
+                    (
+                        key,
+                        self.embedder.model,
+                        self.embedder.revision,
+                        self.embedder.configuration,
+                        size,
+                        json_text(vector),
+                    )
+                    for key, vector in zip(keys, output)
+                )
         space = EmbeddingSpace(
             self.embedder.model, self.embedder.revision, dimension, self.embedder.configuration
         )
+        if incremental:
+            self.repository.save_vector_cache(cache_items)
         self.repository.save_embeddings(space, rows, vectors)
-        return {"embedded": len(rows), "space": space.key, "dimension": dimension}
+        return {
+            "embedded": len(rows),
+            "space": space.key,
+            "dimension": dimension,
+            **({"reused": reused, "inferred": len(rows) - reused} if incremental else {}),
+        }
 
     def search(self, query, filters=SearchFilter(), limit=10, mode="hybrid"):
         return HybridSearch(self.repository, self.embedder, reranker=self.reranker).search(

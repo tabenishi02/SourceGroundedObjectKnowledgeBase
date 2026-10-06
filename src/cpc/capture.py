@@ -6,7 +6,10 @@ from copy import deepcopy
 
 from jsonschema import Draft202012Validator
 
+from .budget import TokenCounter, calibrate_packer, packed_windows
 from .domain import digest, json_text
+from .errors import OutputBudgetExceeded, is_output_budget
+from .transport import KEYS, compact_schema, decode, instructions
 
 STRATEGIES = {
     "single_pass": ("all",),
@@ -34,7 +37,15 @@ def extraction_windows(batch, window_chars=WINDOW_CHARS):
                 boundaries = list(re.finditer(r"[。！？.!?\n]", text[start:end]))
                 if boundaries and boundaries[-1].end() >= window_chars // 2:
                     end = start + boundaries[-1].end()
-            yield [{**evidence, "content": text[start:end]}]
+            origin = evidence.get("span_start", 0)
+            yield [
+                {
+                    **evidence,
+                    "content": text[start:end],
+                    "span_start": origin + start,
+                    "span_end": origin + end,
+                }
+            ]
             if end == len(text):
                 break
             start = end - overlap
@@ -123,20 +134,42 @@ class HighRecallCapture:
         self.app, self.repo = app, app.repository
 
     def extract_window(self, payload, allowed, schema, strategy, max_chars):
+        key = digest(json_text([payload, schema, strategy, max_chars]))
+        job_id = getattr(self, "checkpoint_job", None)
+        if job_id:
+            cached = self.repo.cached_window(job_id, key)
+            if cached:
+                return cached
+        children = self.repo.window_split(job_id, key) if job_id else None
+        result = (
+            self._extract_children(children, schema, strategy, max_chars)
+            if children
+            else self._execute_window(payload, allowed, schema, strategy, max_chars)
+        )
+        if job_id:
+            membership = [
+                {
+                    "evidence_id": e["id"],
+                    "content_hash": digest(e["content"]),
+                    "start": e.get("span_start", 0),
+                    "end": e.get("span_end", len(e["content"])),
+                }
+                for e in payload["evidence"]
+            ]
+            self.repo.save_window(job_id, key, membership, result, result[2])
+        return result
+
+    def _execute_window(self, payload, allowed, schema, strategy, max_chars):
         try:
             return self._extract_window(payload, allowed, schema, strategy, max_chars)
         except ValueError as error:
-            if str(error) not in {
-                "LLM output reached token budget",
-                "LLM output truncated; increase CPC_LLM_MAX_TOKENS",
-            }:
+            if not is_output_budget(error):
                 raise
             length = sum(len(e["content"]) for e in payload["evidence"])
             if length <= MIN_WINDOW_CHARS:
                 raise
             width = max(MIN_WINDOW_CHARS, min(WINDOW_CHARS, length) // 2)
-            combined = {"fragments": [], "entity_candidates": [], "assessments": []}
-            reasons, ai_id = {}, None
+            children = []
             for window in extraction_windows(payload["evidence"], width):
                 neighbors = [{**e, "content": e["content"][:width]} for e in payload["neighbors"]]
                 subpayload = {
@@ -146,22 +179,37 @@ class HighRecallCapture:
                     "target_evidence_ids": [e["id"] for e in window],
                 }
                 subpayload.pop("validation_error", None)
-                result, subreasons, ai_id = self.extract_window(
-                    subpayload,
-                    {e["id"]: e for e in window + neighbors},
-                    schema,
-                    strategy,
-                    max_chars,
-                )
-                combined["fragments"].extend(result["fragments"])
-                combined["entity_candidates"].extend(result["entity_candidates"])
-                reasons.update(subreasons)
-            return combined, reasons, ai_id
+                children.append(subpayload)
+            job_id = getattr(self, "checkpoint_job", None)
+            if job_id:
+                key = digest(json_text([payload, schema, strategy, max_chars]))
+                self.repo.window_split(job_id, key, children)
+            return self._extract_children(children, schema, strategy, max_chars)
+
+    def _extract_children(self, children, schema, strategy, max_chars):
+        combined = {"fragments": [], "entity_candidates": [], "assessments": []}
+        reasons, ai_id = {}, None
+        for payload in children:
+            allowed = {e["id"]: e for e in payload["evidence"] + payload["neighbors"]}
+            result, subreasons, ai_id = self.extract_window(
+                payload, allowed, schema, strategy, max_chars
+            )
+            combined["fragments"].extend(result["fragments"])
+            combined["entity_candidates"].extend(result["entity_candidates"])
+            reasons.update(subreasons)
+        return combined, reasons, ai_id
 
     def _extract_window(self, payload, allowed, schema, strategy, max_chars):
         ids = payload["target_evidence_ids"]
         choices = quote_choices(allowed)
-        payload = {**payload, "quote_choices": choices}
+        payload = {
+            **payload,
+            "quote_choices": {
+                key: {"evidence_id": value["evidence_id"]} for key, value in choices.items()
+            }
+            if getattr(self, "dedup_quotes", False)
+            else choices,
+        }
         response_schema = deepcopy(schema)
         assessments = response_schema["properties"]["assessments"]
         assessments.update(minItems=len(ids), maxItems=len(ids))
@@ -172,23 +220,48 @@ class HighRecallCapture:
         fragment_schema["properties"]["quote_id"] = {"type": "string", "enum": list(choices)}
         fragment_schema["required"].append("quote_id")
         fragment_schema["properties"]["evidence_ids"]["items"]["enum"] = list(allowed)
+        compact = getattr(self, "transport", "canonical") == "compact-keys-v1"
+        wire_schema = compact_schema(response_schema) if compact else response_schema
+        counter = getattr(self, "counter", None)
+        if counter:
+            prompt, _ = self.app.prompt("high_recall")
+            prompt += instructions() if compact else ""
+            prompt += "\nResponse JSON Schema (CPC instruction):\n" + json_text(wire_schema)
         combined = {"fragments": [], "entity_candidates": [], "assessments": []}
         reasons = {}
         ai_id = None
         for focus in STRATEGIES[strategy]:
+            self.app.last_ai_id = None
             pass_payload = {**payload, "focus": focus}
             if focus == "review_missing_claims":
                 if len(json_text(combined["fragments"])) > max_chars:
                     raise ValueError("Review input exceeds budget; reduce batch size")
                 pass_payload["existing_fragments"] = combined["fragments"]
+            pass_key = "pass-" + digest(json_text([pass_payload, wire_schema]))
+            job_id = getattr(self, "checkpoint_job", None)
+            cached = self.repo.cached_window(job_id, pass_key) if job_id else None
+            if cached:
+                value, pass_reasons, ai_id = cached
+                combined["fragments"].extend(value["fragments"])
+                combined["entity_candidates"].extend(value["entity_candidates"])
+                reasons.update(pass_reasons)
+                continue
             for attempt in range(2):
                 try:
+                    self.app.last_ai_id = None
+                    if counter:
+                        size = counter.request_tokens(prompt, pass_payload)
+                        if size + self.output_tokens + self.safety_margin > self.context_tokens:
+                            raise OutputBudgetExceeded("LLM output reached token budget")
                     ai_id, _, parsed = self.app.call_llm(
                         "high_recall_fragment",
                         "high_recall",
                         pass_payload,
-                        response_schema=response_schema,
+                        response_schema=wire_schema,
+                        prompt_suffix=instructions() if compact else "",
                     )
+                    if compact:
+                        parsed = decode(parsed, wire_schema)
                     parsed = resolve_quotes(parsed, choices, response_schema)
                     validated = validate_capture(parsed, ids, allowed, schema)
                     break
@@ -196,7 +269,9 @@ class HighRecallCapture:
                     ai_id = getattr(self.app, "last_ai_id", None)
                     if ai_id:
                         self.repo.finish_ai(ai_id, error=type(error).__name__)
-                    if attempt:
+                    if attempt or (
+                        is_output_budget(error) and not getattr(self, "legacy_retry", False)
+                    ):
                         raise
                     pass_payload["validation_error"] = str(error)[:300]
             combined["fragments"].extend({**f, "ai_run": ai_id} for f in validated["fragments"])
@@ -204,6 +279,22 @@ class HighRecallCapture:
             reasons.update(
                 {a["evidence_id"]: a["discard_reason"] for a in validated["assessments"]}
             )
+            if job_id:
+                pass_result = {
+                    **validated,
+                    "fragments": [{**f, "ai_run": ai_id} for f in validated["fragments"]],
+                }
+                self.repo.save_window(
+                    job_id,
+                    pass_key,
+                    payload["target_evidence_ids"],
+                    [
+                        pass_result,
+                        {a["evidence_id"]: a["discard_reason"] for a in validated["assessments"]},
+                        ai_id,
+                    ],
+                    ai_id,
+                )
         return combined, reasons, ai_id
 
     def run(
@@ -214,9 +305,45 @@ class HighRecallCapture:
         max_chars=6000,
         strategy="single_pass",
         resume=None,
+        transport="canonical",
+        dedup_quotes=False,
+        window_checkpoint=False,
+        packer="fixed",
+        token_counter="utf8-upper-bound",
+        material_tokens=2000,
+        context_tokens=16384,
+        output_tokens=None,
+        safety_margin=512,
     ):
         if strategy not in STRATEGIES or batch_size < 1 or max_chars < 1000:
             raise ValueError("Invalid capture strategy or batch budget")
+        if transport not in {"canonical", "compact-keys-v1"}:
+            raise ValueError("Unknown extraction transport")
+        self.transport, self.dedup_quotes = transport, dedup_quotes
+        if packer not in {"fixed", "token"}:
+            raise ValueError("Unknown extraction packer")
+        self.counter = (
+            TokenCounter(token_counter, getattr(self.app.llm, "model", None))
+            if packer == "token"
+            else None
+        )
+        self.output_tokens = (
+            output_tokens
+            if output_tokens is not None
+            else getattr(self.app.llm, "configuration", {}).get(
+                "max_tokens", getattr(self.app.llm, "max_tokens", 3000)
+            )
+        )
+        if min(material_tokens, context_tokens, self.output_tokens) < 1 or safety_margin < 0:
+            raise ValueError("Invalid token budget")
+        if packer == "token" and not window_checkpoint:
+            raise ValueError("Token packing requires window checkpoints")
+        self.context_tokens, self.safety_margin = context_tokens, safety_margin
+        if self.counter and self.counter.configuration.get("context_tokens"):
+            self.context_tokens = min(context_tokens, self.counter.configuration["context_tokens"])
+        configured_output = getattr(self.app.llm, "configuration", {}).get("max_tokens")
+        if output_tokens and configured_output and configured_output != output_tokens:
+            raise ValueError("Output reserve must equal provider output budget")
         snapshot = self.repo.snapshot(snapshot_id)
         if not snapshot or not snapshot["active_run"]:
             raise ValueError("Process snapshot first")
@@ -231,7 +358,17 @@ class HighRecallCapture:
             (self.app.prompt_dir / "high_recall.schema.json").read_text(encoding="utf-8")
         )
         configuration = {
-            "algorithm": "full-evidence-v4-adaptive-quote-selection",
+            "algorithm": "full-evidence-v5-immediate-split",
+            "transport": transport,
+            "transport_hash": digest(json_text(KEYS)) if transport == "compact-keys-v1" else None,
+            "dedup_quotes": dedup_quotes,
+            "window_checkpoint": window_checkpoint,
+            "packer": packer,
+            "material_tokens": material_tokens,
+            "context_tokens": self.context_tokens,
+            "output_tokens": self.output_tokens,
+            "safety_margin": safety_margin,
+            "token_counter": self.counter.configuration if self.counter else None,
             "window_chars": WINDOW_CHARS,
             "window_overlap": WINDOW_OVERLAP,
             "minimum_window_chars": MIN_WINDOW_CHARS,
@@ -245,8 +382,49 @@ class HighRecallCapture:
             "revision": self.app.llm.revision if self.app.llm else None,
             "provider": getattr(self.app.llm, "configuration", {}),
         }
+        if packer == "token":
+            if resume:
+                calibration = self.repo.extraction_job(resume)["configuration"].get("packing")
+                if not calibration:
+                    raise ValueError("Resume job has no frozen token packing plan")
+            else:
+                calibration = calibrate_packer(
+                    self.repo,
+                    self.counter,
+                    configuration["provider"],
+                    transport,
+                    material_tokens,
+                    self.output_tokens,
+                    configuration["model"],
+                    configuration["revision"],
+                )
+            configuration["packing"] = calibration
+            material_tokens = calibration["material_target"]
         if resume:
             job = self.repo.extraction_job(resume)
+            if job["configuration"].get("algorithm") == "full-evidence-v4-adaptive-quote-selection":
+                if (
+                    transport != "canonical"
+                    or dedup_quotes
+                    or window_checkpoint
+                    or packer != "fixed"
+                ):
+                    raise ValueError("Legacy job requires its original extraction options")
+                old_provider = job["configuration"]["provider"]
+                old_mode = (
+                    "prompt_only"
+                    if old_provider.get("adapter") == "lmstudio-native-v1"
+                    or (old_provider.get("response_format_override") or {}).get("type") == "text"
+                    else "api_schema"
+                )
+                if configuration["provider"].get("structured_mode", old_mode) != old_mode:
+                    raise ValueError("Legacy job requires its original structured output mode")
+                self.legacy_retry = True
+                configuration = {k: configuration.get(k) for k in job["configuration"]}
+                configuration["algorithm"] = job["configuration"]["algorithm"]
+                configuration["provider"] = {
+                    k: configuration["provider"].get(k) for k in job["configuration"]["provider"]
+                }
             if (
                 job["snapshot_id"] != snapshot_id
                 or job["entity_id"] != entity_id
@@ -262,6 +440,7 @@ class HighRecallCapture:
                 snapshot, entity_id, context["id"], configuration, annotated
             )
         job_id = job["id"]
+        self.checkpoint_job = job_id if window_checkpoint else None
         done = {
             a["evidence_id"]
             for a in self.repo.assessments(job_id)
@@ -316,7 +495,12 @@ class HighRecallCapture:
             ai_id = None
             try:
                 reasons = {}
-                for window in extraction_windows(batch):
+                windows = (
+                    packed_windows(batch, self.counter, material_tokens)
+                    if self.counter and self.counter.configuration["exact"]
+                    else extraction_windows(batch)
+                )
+                for window in windows:
                     window_ids = [e["id"] for e in window]
                     window_allowed = {e["id"]: e for e in window}
                     window_neighbors = [e for e in neighbors if e["id"] not in window_allowed]
@@ -347,8 +531,7 @@ class HighRecallCapture:
                 ]
                 self.repo.record_batch(job_id, key, ids, combined, ai_id)
             except Exception as error:
-                ai_id = getattr(self.app, "last_ai_id", None) or ai_id
-                if ai_id:
-                    self.repo.finish_ai(ai_id, error=type(error).__name__)
+                # Attempts mark their own failures; packing must not relabel prior success.
+                ai_id = getattr(self.app, "last_ai_id", None)
                 self.repo.record_batch(job_id, key, ids, ai_run=ai_id, error=type(error).__name__)
         return self.repo.promote_extraction(job_id)

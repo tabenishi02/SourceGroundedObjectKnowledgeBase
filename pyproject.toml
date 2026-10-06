@@ -12,6 +12,7 @@ dependencies = ["beautifulsoup4>=4.12,<5", "httpx>=0.27,<1", "jsonschema>=4.18,<
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "ruff>=0.9,<1"]
 local-embedding = ["sentence-transformers>=3,<6"]
+token-counting = ["lmstudio>=1,<2"]
 
 [project.scripts]
 cpc = "cpc.cli:main"

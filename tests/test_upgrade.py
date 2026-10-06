@@ -161,7 +161,7 @@ def test_output_budget_adaptively_splits_without_truncating_evidence(core, make_
     snapshot = app.import_path(make_bundle(html="<main><p>" + text + "</p></main>"))["snapshot"]
     app.process(snapshot)
     result = app.capture_fragments(snapshot, entity, batch_size=1)
-    assert result["status"] == "complete" and app.llm.rejected == 2
+    assert result["status"] == "complete" and app.llm.rejected == 1
     windows = [p["evidence"][0]["content"] for _, p in app.llm.calls]
     assert [len(w) for w in windows] == [240, 240, 120]
     assert windows[0] + windows[1][60:] + windows[2][60:] == text
@@ -371,7 +371,7 @@ def test_v1_migration_preserves_existing_records(tmp_path):
     assert repo.entity("legacy")["name"] == "旧世代"
     assert repo.one("PRAGMA integrity_check")["integrity_check"] == "ok"
     assert not repo.rows("PRAGMA foreign_key_check")
-    assert repo.one("SELECT count(*) n FROM schema_migrations")["n"] == 2
+    assert repo.one("SELECT count(*) n FROM schema_migrations")["n"] == 3
     repo.close()
 
 

@@ -65,10 +65,22 @@ def parser():
         default="single_pass",
     )
     fragment.add_argument("--resume")
+    fragment.add_argument(
+        "--transport", choices=["canonical", "compact-keys-v1"], default="canonical"
+    )
+    fragment.add_argument("--dedup-quotes", action="store_true")
+    fragment.add_argument("--window-checkpoint", action="store_true")
+    fragment.add_argument("--packer", choices=["fixed", "token"], default="fixed")
+    fragment.add_argument(
+        "--token-counter", choices=["utf8-upper-bound", "lmstudio"], default="utf8-upper-bound"
+    )
+    fragment.add_argument("--material-tokens", type=int, default=2000)
+    fragment.add_argument("--context-tokens", type=int, default=16384)
     fragment.add_argument("--legacy", action="store_true")
     embed = commands.add_parser("embed")
     add_filters(embed)
     embed.add_argument("--batch-size", type=int, default=16)
+    embed.add_argument("--incremental", action="store_true")
     search = commands.add_parser("search")
     search.add_argument("query")
     add_filters(search)
@@ -84,6 +96,31 @@ def parser():
     generate.add_argument("--batch-size", type=int, default=24)
     generate.add_argument("--max-chars", type=int, default=8000)
     generate.add_argument("--format", choices=["markdown", "json", "context"], default="markdown")
+    claims = commands.add_parser("claims")
+    claims.add_argument("--entity", required=True)
+    experiment = commands.add_parser("claim-experiment")
+    experiment.add_argument("--entity", required=True)
+    experiment.add_argument("--max-claims", type=int, default=200)
+    experiment.add_argument("--max-pairs", type=int, default=20)
+    experiment.add_argument("--judge", action="store_true")
+    compress = commands.add_parser("compression-experiment")
+    compress.add_argument("--entity", required=True)
+    compress.add_argument("--budget", type=int, default=12000)
+    compress.add_argument("--query")
+    view = commands.add_parser("view")
+    view.add_argument("--entity", required=True)
+    view.add_argument("--query")
+    view.add_argument(
+        "--mode", choices=["short", "standard", "detailed", "context"], default="short"
+    )
+    view.add_argument("--budget", type=int)
+    view.add_argument(
+        "--token-counter", choices=["utf8-upper-bound", "lmstudio"], default="utf8-upper-bound"
+    )
+    view.add_argument("--model", help="Loaded model for exact token counting")
+    view.add_argument("--context-tokens", type=int)
+    view.add_argument("--reserve-tokens", type=int, default=2048)
+    view.add_argument("--out", type=Path)
     context = commands.add_parser("context")
     context.add_argument("--snapshot", required=True)
     context.add_argument(
@@ -101,7 +138,7 @@ def parser():
     score = commands.add_parser("benchmark-score", help="Score semantic human/judge labels")
     score.add_argument("labels", type=Path)
     provenance = commands.add_parser("provenance")
-    provenance.add_argument("kind", choices=["evidence", "fragment", "document"])
+    provenance.add_argument("kind", choices=["evidence", "fragment", "claim", "document"])
     provenance.add_argument("id")
     commands.add_parser("status")
     commands.add_parser("snapshots")
@@ -132,12 +169,14 @@ def main(argv=None):
         llm = (
             llm_from_env("final" if args.command == "generate" else "fragment")
             if args.command in {"fragment", "benchmark"}
+            or (args.command == "claim-experiment" and args.judge)
             or (args.command == "generate" and (args.legacy or args.llm_order))
             else None
         )
         embedder = (
             embedder_from_env()
             if args.command == "embed"
+            or args.command == "claim-experiment"
             or (args.command == "generate" and args.legacy)
             or (args.command == "benchmark" and args.phase in {"retrieval", "all"})
             or (args.command == "search" and args.mode != "lexical")
@@ -198,10 +237,54 @@ def main(argv=None):
                     max_chars=args.max_chars,
                     strategy=args.strategy,
                     resume=args.resume,
+                    transport=args.transport,
+                    dedup_quotes=args.dedup_quotes,
+                    window_checkpoint=args.window_checkpoint,
+                    packer=args.packer,
+                    token_counter=args.token_counter,
+                    material_tokens=args.material_tokens,
+                    context_tokens=args.context_tokens,
                 )
                 failed = result["status"] != "complete"
         elif args.command == "embed":
-            result = app.embed(filters(args), args.batch_size)
+            result = app.embed(filters(args), args.batch_size, incremental=args.incremental)
+        elif args.command == "claims":
+            from .claims import build_claims
+
+            result = build_claims(repository, args.entity)
+        elif args.command == "claim-experiment":
+            from .experiments import claim_experiment
+
+            result = claim_experiment(app, args.entity, args.max_claims, args.max_pairs, args.judge)
+        elif args.command == "compression-experiment":
+            from .experiments import compression_experiment
+
+            result = compression_experiment(repository, args.entity, args.budget, query=args.query)
+        elif args.command == "view":
+            from .budget import TokenCounter
+            from .views import build_view
+
+            result = build_view(
+                repository,
+                args.entity,
+                args.budget,
+                TokenCounter(args.token_counter, args.model),
+                args.query,
+                args.mode,
+                args.context_tokens,
+                args.reserve_tokens,
+            )
+            if args.out:
+                export_markdown(args.out, result["markdown"], repository)
+                export_markdown(
+                    args.out.with_suffix(".omitted.json"),
+                    json.dumps(result["omission_manifest"], ensure_ascii=False, indent=2),
+                    repository,
+                    ".json",
+                )
+                for field in ("markdown", "structured", "ai_context", "citations"):
+                    result.pop(field, None)
+                result["path"] = str(args.out)
         elif args.command == "search":
             result = app.search(args.query, filters(args), args.limit, args.mode)
         elif args.command == "generate":

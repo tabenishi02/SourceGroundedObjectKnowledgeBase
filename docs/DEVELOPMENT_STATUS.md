@@ -14,6 +14,7 @@
 | 評価・比較出力 | 固定manifest、自動の契約検証、人間評価値の未付与表示、Evidence/Fragment/Final比較出力を実装 |
 | 速度予備試験 | 8モデル・3条件・ウォームアップと反復・終了時Qwen確認、checkpoint、CSV/日本語集計を実装。モデル対応reasoning設定を選択し、推論条件と本文/推論tokenを区別 |
 | Strata接続・追加試験 | L09 Qwen3.8-Flash-Next IQ3_Sを追加。専用Provider・接続設定、構造化出力エラー分類、固定入力のCPC検証とS01/S02/S03速度試験を実装・実機確認 |
+| 効率化・再設計 | 即時分割、可逆Compact、引用重複削減、window/focus再開、token/density pack、派生Claim、予算付きView、増分Embeddingを追加。意味relation・階層・圧縮は非破壊の実験経路 |
 
 ## 実データ評価
 
@@ -54,14 +55,14 @@ Strata追加run `360b4e04-ca63-4bd1-b9ed-d088862ab6a9`は12リクエストを完
 - [Knowledge Pipeline 効率化・再設計調査](KNOWLEDGE_PIPELINE_EFFICIENCY_REDESIGN.md): 現行CPCをGraphRAG、LightRAG、RAPTOR、Anthropic Contextual Retrieval、LLMLingua系、RECOMP、Lost in the Middleと比較。High RecallをEvidence層で保証しつつ、Adaptive Extraction、Compact Schema、Knowledge Claim層、用途別Token Budgetへ分離する案と追跡可能な出典を整理。
 - [クラウド費用試算](CLOUD_AI_COST_ESTIMATE.md): 同じ8件のtoken量を通常料金で処理するとSol約4345円、Opus約8690円（1 USD=150円の仮定、税別）。低価格モデルまたはローカル併用を比較する案。クラウド速度は未測定、外部送信・課金・Provider移行は未実施。
 
-効率化・再設計とクラウド利用は調査・提案段階。Strata接続と試験経路は実装済みだが、即時分割、コンパクトな出力、Adaptive Packer、Final短縮、変更分Embedding、クラウド経路の改善実装・比較評価はまだ行っていない。
+効率化は[実装・検証記録](KNOWLEDGE_PIPELINE_EFFICIENCY_REDESIGN.md#12-計画に基づく実装と確認2026-10-06)まで進んだ。固定S03の同一Strata比較ではCompact＋引用重複削減が17.71→14.98秒（15.4%短縮）。全16回でSchema・引用検証成功。実評価DBの複製でもClaim/View生成、元DB・Fragment不変と整合性を確認した。実token packはSDK mock検証まで、実機のloaded model不在で接続測定は未実施。human goldと実Capture再抽出の比較・採用判定は未完了。クラウド経路は未実装。
 
 ## 次の作業
 
-1. 出力上限時の即時分割とSchema制約付き生成を独立した変更として比較し、形式失敗・不要再生成を減らす。
-2. コンパクトなLLM出力、入力単位の調整、window checkpointを比較する。引用・全文coverage・Raw・DBの契約を維持する。
+1. 開発2Captureで旧controlとCompact／引用重複削減／window checkpointを比較し、実Captureの総時間と契約を確認する。
+2. loaded modelのtokenizerでAdaptive Packerを実機確認し、material 1000/2000/4000、output budget、Schema条件を比較する。
 3. 人間goldを作成し、代表Captureと未使用資料でモデル別の品質・総時間を比較する。予備速度だけで採用モデルを決めない。
-4. Finalの短い表示と参照形式、時間文脈を含む矛盾候補、変更分Embeddingを改善する。
+4. 実装済みの予算付きView・増分Embedding、実験relation／階層／圧縮を実資料のgoldで評価し、採用条件を決める。
 5. 多言語Embedding・学習済みReranker・Final並べ替えの実モデル比較を進める。未取得モデルや未実装adapterの条件を先に確認する。
 6. クラウド案を採用する場合は、送信対象と予算を明示した別試験を行う。現行benchmarkのローカル限定契約は維持する。
 
