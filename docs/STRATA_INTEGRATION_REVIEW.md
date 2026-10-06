@@ -5,6 +5,51 @@
 
 ## 結論
 
+### CPC用動作環境の追加（2026-10-06）
+
+比較候補に **L09: Strata / Qwen3.8-Flash-Next IQ3_S** を追加した。
+`StrataLLM`はCPCの通常経路で選択でき、HTTP 502の`structured_output_failed`を
+検証再試行へ渡す。`finish_reason=length`の場合のみ出力予算超過へ分類し、
+既存の適応分割を使用する。他のHTTP障害はHTTPエラーのまま保持する。
+
+リポジトリ直下の専用PowerShellセッションで、次の設定を読み込む。
+既にロード済みのサーバーを確認し、engine・context・control vectorを実測設定へ記録する。
+Embeddingの接続設定は別途必要で、StrataにはテキストEmbedding APIがない。
+
+```powershell
+. ./scripts/Use-Strata.ps1
+./.venv/Scripts/python.exe scripts/run_strata_preflight.py --trials 3
+Get-Content .local/strata-preflight/status.json
+```
+
+再実行時は`--out .local/strata-preflight-02`のように新しい出力先を指定する。
+既存結果の上書きは拒否する。
+
+このrunnerは既存予備試験の固定S03入力・Prompt・Schema・8192 token上限を使う。
+ウォームアップ1回と測定3回を逐次実行し、CPCの引用選択Schema・引用一致・全Evidence評価を検証する。
+総所要時間とengineのdecode速度を別々に記録し、入力ハッシュ・構成・生成JSON・復元Fragmentを
+Git管理外の`.local/strata-preflight/`に保存する。既存CPC DBやRawは変更しない。
+サーバーが他の要求を処理中なら停止する。S01/S02の速度試験、代表8Captureの主比較、
+人間goldによる品質評価はこの短い動作試験に含めない。
+
+実機結果: ウォームアップと測定3回のすべてで契約検証に成功し、毎回6件のFragmentを抽出した。
+engine=0.1.39、context=65536、control vector=`project:4-44`、projection有効。
+
+| 回 | 総所要時間 | engine decode速度 | CPC検証 | Fragment数 |
+|---|---:|---:|---|---:|
+| ウォームアップ | 31.45秒 | 55.4 tokens/s | 成功 | 6 |
+| 測定1 | 28.66秒 | 52.6 tokens/s | 成功 | 6 |
+| 測定2 | 27.09秒 | 56.3 tokens/s | 成功 | 6 |
+| 測定3 | 24.69秒 | 61.2 tokens/s | 成功 | 6 |
+| 測定中央値 | 27.09秒 | 56.3 tokens/s | 3/3成功 | 6 |
+
+固定入力ハッシュ: `cdf0973526880ce04becfe7aae40a1e9e7b50f0f275d7d125cbc8b27a80b21dd`。
+これは出力形式・引用・網羅性の動作確認であり、抽出内容の正確性や取りこぼしを人間goldで評価した結果ではない。
+測定は既にロード済みの同一モデルに対する逐次要求であり、後続回のキャッシュ効果を含む。
+詳細は`.local/strata-preflight/status.json`、生成結果は`fragments-0.json`〜`fragments-3.json`。
+
+以下は今回の実装前の調査記録である。エラー分類・専用runnerに関する課題は上記で対応した。
+
 このプロジェクトのLLMとして利用可能。既存の`CompatibleLLM`で通常のOpenAI互換接続ができ、架空資料による最小JSON抽出を実機で確認した。
 ただしCPCの全Schema・長い実ページ・中断再開まで確認したものではない。出力上限等のエラー処理と、既存プロジェクトとの資源共有を整えてから、別構成として実データ比較するのが妥当。速度改善や採用モデルの確定はまだ判断できない。
 

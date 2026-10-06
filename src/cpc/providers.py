@@ -74,7 +74,7 @@ class CompatibleLLM:
                 **self.extra,
             },
         )
-        response.raise_for_status()
+        self._check_response(response, started)
         body = response.json()
         usage = body.get("usage", {})
         elapsed = time.perf_counter() - started
@@ -87,6 +87,7 @@ class CompatibleLLM:
             "runtime_metadata": self.configuration["runtime_metadata"],
             "vram_bytes": None,
             "ram_bytes": None,
+            **self._response_metrics(body),
         }
         choice = body["choices"][0]
         self.last_output = choice["message"].get("content")
@@ -96,6 +97,52 @@ class CompatibleLLM:
         if not isinstance(content, str) or not content.strip():
             raise ValueError("LLM returned no content")
         return content
+
+    def _check_response(self, response, started):
+        response.raise_for_status()
+
+    def _response_metrics(self, body):
+        return {}
+
+
+class StrataLLM(CompatibleLLM):
+    """Shared Strata server; retain CPC validation and distinguish budget failures."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        template = {"enable_thinking": False, **self.extra.get("chat_template_kwargs", {})}
+        self.extra = {**self.extra, "chat_template_kwargs": template}
+        self.configuration["extra_parameters"]["chat_template_kwargs"] = template
+        self.configuration["adapter"] = "strata-compatible-v1"
+
+    def _check_response(self, response, started):
+        if response.status_code == 502:
+            try:
+                error = response.json().get("error", {})
+            except ValueError:
+                error = {}
+            if isinstance(error, dict) and "structured_output_failed" in (
+                error.get("code"),
+                error.get("type"),
+            ):
+                message = str(error.get("message", "Strata structured output failed"))
+                self.last_observation = {
+                    "duration_seconds": time.perf_counter() - started,
+                    "http_status": response.status_code,
+                    "error_code": "structured_output_failed",
+                    "runtime_metadata": self.configuration["runtime_metadata"],
+                }
+                if "finish_reason=length" in message:
+                    raise ValueError("LLM output reached token budget")
+                raise ValueError(message)
+        response.raise_for_status()
+
+    def _response_metrics(self, body):
+        timings = body.get("timings", {})
+        return {
+            "engine_tokens_per_second": timings.get("predicted_per_second"),
+            "timings": timings,
+        }
 
 
 class LMStudioLLM(CompatibleLLM):
@@ -259,7 +306,7 @@ def llm_from_env(task_type=None):
         extra.update(
             json.loads(os.environ.get("CPC_LLM_" + task_type.upper() + "_EXTRA_JSON", "{}"))
         )
-    provider = {"compatible": CompatibleLLM, "lmstudio": LMStudioLLM}.get(
+    provider = {"compatible": CompatibleLLM, "lmstudio": LMStudioLLM, "strata": StrataLLM}.get(
         os.environ.get("CPC_LLM_PROVIDER", "compatible")
     )
     if provider is None:
