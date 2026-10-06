@@ -1,0 +1,24 @@
+{
+  "channel": "human",
+  "run_id": "<benchmark-run-id>",
+  "case_id": "<case-id>",
+  "gold_claim_ids": ["synthetic-gold-1", "synthetic-gold-2"],
+  "fragments": [
+    {
+      "fragment_id": "<fragment-id>",
+      "supported": true,
+      "epistemic_correct": true,
+      "atomic": true,
+      "matched_gold_claim_ids": ["synthetic-gold-1"]
+    }
+  ],
+  "final": {
+    "information_coverage": null,
+    "unsupported_rate": null,
+    "epistemic_separation": null,
+    "structure": null,
+    "redundancy": null,
+    "conflict_retention": null,
+    "citation_correctness": null
+  }
+}

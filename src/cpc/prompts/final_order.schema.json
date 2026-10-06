@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "properties": {
+    "ordered_cluster_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "ordered_cluster_ids"
+  ],
+  "additionalProperties": false
+}
