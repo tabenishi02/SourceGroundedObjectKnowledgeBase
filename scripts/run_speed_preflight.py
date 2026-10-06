@@ -335,7 +335,20 @@ def summarize(state, output):
                 and r.get("ttft_seconds") is not None
             ]
             if not measured:
-                lines.append(model["name"] + ": CPC適合測定が不足、推定不可")
+                compatible = any(
+                    r["model_id"] == model["id"]
+                    and r["condition"] == "S03"
+                    and not r["warmup"]
+                    and not r.get("final_check")
+                    and r.get("cpc_valid") is True
+                    for r in rows
+                )
+                reason = (
+                    "CPC適合あり、推論設定・内訳がoff条件と異なるため同条件換算対象外"
+                    if compatible
+                    else "CPC適合測定が不足、推定不可"
+                )
+                lines.append(model["name"] + ": " + reason)
                 continue
             estimate = (
                 5.11

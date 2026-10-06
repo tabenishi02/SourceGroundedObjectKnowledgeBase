@@ -148,7 +148,7 @@ Reviewer比較は、上位抽出LLM単独と同じLLM＋Phi-4を同じ資料で�
 
 ## 予想される実行時間
 
-2026-10-06の[予備試験結果](MODEL_SPEED_PREFLIGHT_RESULTS.md)では、共通reasoning off条件で4/8モデルの速度を取得した。CPC形式に適合した3モデルの代表8Capture参考時間はQwen約5.1時間、Nemotron約10.6時間、Gemma 31B約15.2時間、合計約30.9時間。出力量・再試行差は未反映であり、8モデル全体の時間は未取得モデルの補足試験後に更新する。以下の全体時間は引き続き暫定見積もり。
+2026-10-06の[再予備試験結果](MODEL_SPEED_PREFLIGHT_RESULTS.md)では、モデル対応のreasoning条件で8/8モデルの速度を取得した。CPC形式適合は6モデル。推論offまたは設定省略で適合した4モデルの代表8Capture参考時間はQwen約5.1時間、Mistral Small約10.7時間、Nemotron約9.9時間、Gemma 31B約15.0時間、合計約40.7時間。GPT-OSS・Museは推論ありのため同条件換算対象外、Gemma 26B・MinistralはCPC形式不適合。出力量・再試行差は未反映であり、8モデル全体の時間は未確定。以下の全体時間は引き続き暫定見積もり。
 
 ### 見積もりの根拠
 
