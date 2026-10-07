@@ -66,6 +66,52 @@ def runtime():
         return {k: engine.json()["engine"].get(k) for k in RUNTIME_KEYS}
 
 
+def prepare_repair(out, commit):
+    """Record an explicit feedback-only recovery without rewriting archived sources."""
+    plan = read(out / "plan.json")
+    if runtime() != plan["runtime"]:
+        raise ValueError("Repair requires the original runtime")
+    revision = subprocess.check_output(
+        ["git", "rev-parse", "--verify", "--end-of-options", commit + "^{commit}"],
+        cwd=ROOT,
+        text=True,
+    ).strip()
+    changed = subprocess.check_output(
+        ["git", "diff", "--name-only", plan["after"], revision, "--", "src"],
+        cwd=ROOT,
+        text=True,
+    ).splitlines()
+    if changed != ["src/cpc/capture.py"]:
+        raise ValueError("Repair must only change extraction validation feedback")
+    destination = out / "repair-sources" / revision
+    destination.mkdir(parents=True, exist_ok=True)
+    archive = subprocess.check_output(["git", "archive", "--format=zip", revision, "src"], cwd=ROOT)
+    with zipfile.ZipFile(io.BytesIO(archive)) as bundle:
+        for item in bundle.infolist():
+            if destination.resolve() not in (destination / item.filename).resolve().parents:
+                raise ValueError("Repair archive path escaped output directory")
+            bundle.extract(item, destination)
+    number = len(plan.get("repairs", [])) + 1
+    write(out / f"plan-before-repair-{number}.json", plan)
+    completed = []
+    for path in (out / "after").glob("fragment-*-result.json"):
+        report = read(path)
+        if accepted(report):
+            completed.append(report["case"])
+        else:
+            shutil.copy2(path, path.with_name(path.stem + f"-before-repair-{number}.json"))
+    plan.setdefault("repairs", []).append(
+        {
+            "commit": revision,
+            "scope": "assessment_validation_feedback_only",
+            "retained_successful_cases": sorted(completed),
+        }
+    )
+    plan["after_repair_commit"] = revision
+    plan["after_repair_source"] = str(destination.relative_to(out))
+    write(out / "plan.json", plan)
+
+
 def prepare(source, out, after_commit=AFTER, reuse_before=None):
     if (out / "plan.json").exists():
         raise ValueError("Existing comparison requires --resume")
@@ -183,6 +229,23 @@ def worker(out, name, case_id):
     progress.setdefault(
         "first_ai_rowid", repo.one("SELECT coalesce(max(rowid),0) AS n FROM ai_runs")["n"]
     )
+    revision = plan.get("after_repair_commit", plan["after"]) if name == "after" else plan["before"]
+    history = progress.setdefault(
+        "source_history",
+        [
+            {
+                "commit": plan[name],
+                "first_ai_rowid": progress["first_ai_rowid"],
+            }
+        ],
+    )
+    if history[-1]["commit"] != revision:
+        history.append(
+            {
+                "commit": revision,
+                "first_ai_rowid": repo.one("SELECT coalesce(max(rowid),0) AS n FROM ai_runs")["n"],
+            }
+        )
     try:
         if runtime() != plan["runtime"]:
             raise ValueError("Runtime changed; use a new comparison")
@@ -250,6 +313,7 @@ def worker(out, name, case_id):
             and Path(case["raw_path"]).stat().st_mtime_ns == case["raw_mtime_ns"],
             "integrity": repo.one("PRAGMA integrity_check")["integrity_check"],
             "foreign_key_errors": len(repo.rows("PRAGMA foreign_key_check")),
+            "source_history": history,
         }
         write(directory / f"{case_id}-result.json", report)
         progress["seconds"] = report["seconds"]
@@ -305,7 +369,19 @@ def compare(out, plan):
                 ],
             },
         )
-    write(out / "comparison.json", {"cases": comparisons, "semantic_quality": "human_gold_missing"})
+    write(
+        out / "comparison.json",
+        {
+            "cases": comparisons,
+            "semantic_quality": "human_gold_missing",
+            "after_initial_commit": plan.get("after"),
+            "repairs": plan.get("repairs", []),
+        },
+    )
+    if plan.get("repairs"):
+        lines.append(
+            "変更後の結果は明示的な再試行診断修正を含む。成功済み結果を保持し、修正履歴と累積試行は台帳へ保存。"
+        )
     (out / "comparison.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -313,6 +389,10 @@ def run(args):
     out = args.out.resolve()
     if not args.resume:
         prepare(args.source, out, args.after_commit, args.reuse_before)
+    if args.repair_after_commit:
+        if not args.resume:
+            raise ValueError("Feedback repair requires --resume")
+        prepare_repair(out, args.repair_after_commit)
     plan = read(out / "plan.json")
     if args.prepare_only:
         return 0
@@ -329,7 +409,11 @@ def run(args):
                 write(out / "status.json", status)
                 env = {
                     **os.environ,
-                    "PYTHONPATH": str(out / name / "src"),
+                    "PYTHONPATH": str(
+                        out / plan["after_repair_source"] / "src"
+                        if name == "after" and plan.get("after_repair_source")
+                        else out / name / "src"
+                    ),
                     "PYTHONIOENCODING": "utf-8",
                 }
                 with (out / "worker.log").open("a", encoding="utf-8") as log:
@@ -380,6 +464,7 @@ if __name__ == "__main__":
     parser.add_argument("--case")
     parser.add_argument("--after-commit", default=AFTER)
     parser.add_argument("--reuse-before", type=Path)
+    parser.add_argument("--repair-after-commit")
     args = parser.parse_args()
     raise SystemExit(
         worker(args.out.resolve(), args.worker, args.case) if args.worker else run(args)

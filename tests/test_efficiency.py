@@ -49,6 +49,29 @@ def test_window_input_does_not_leak_unsliced_metadata_body(core):
     assert repo.evidence(snapshot) == before
 
 
+def test_assessment_retry_identifies_evidence_and_required_null(core):
+    app, repo, snapshot, entity = grounded(core)
+
+    class Contradictory(GroundedLLM):
+        def complete(self, prompt, payload, *, schema=None):
+            response = json.loads(super().complete(prompt, payload, schema=schema))
+            feedback = payload.get("validation_error", "")
+            cited = {e for f in response["fragments"] for e in f["evidence_ids"]}
+            for assessment in response["assessments"]:
+                if assessment["evidence_id"] in cited and not feedback:
+                    assessment["discard_reason"] = "metadata_only"
+            if feedback:
+                assert any(e in feedback for e in cited)
+                assert "null" in feedback and "Do not discard" in feedback
+            return json_text(response)
+
+    app.llm = Contradictory()
+    result = app.capture_fragments(snapshot, entity)
+    assert result["status"] == "complete"
+    assert any(p.get("validation_error") for _, p in app.llm.calls)
+    assert not repo.rows("PRAGMA foreign_key_check")
+
+
 def test_compact_roundtrip_rejects_unknown_and_preserves_null():
     canonical = {
         "type": "object",

@@ -11,6 +11,55 @@ comparison = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(comparison)
 
 
+def test_repair_preserves_sources_and_rejects_other_source_changes(tmp_path, monkeypatch):
+    import io
+    import zipfile
+
+    (tmp_path / "after/src").mkdir(parents=True)
+    original = tmp_path / "after/src/original.txt"
+    original.write_text("original")
+    plan = {"after": "old", "runtime": {"model": "test"}}
+    comparison.write(tmp_path / "plan.json", plan)
+    success = {
+        "case": "fragment-01",
+        "result": {"status": "complete"},
+        "raw_unchanged": True,
+        "integrity": "ok",
+        "foreign_key_errors": 0,
+    }
+    comparison.write(tmp_path / "after/fragment-01-result.json", success)
+    failure = {"case": "fragment-08", "result": {"status": "failed"}}
+    comparison.write(tmp_path / "after/fragment-08-result.json", failure)
+    archive = io.BytesIO()
+    with zipfile.ZipFile(archive, "w") as bundle:
+        bundle.writestr("src/cpc/capture.py", "repair")
+    changed = ["src/cpc/capture.py"]
+
+    def git(args, **kwargs):
+        if args[1] == "rev-parse":
+            return "new\n"
+        if args[1] == "diff":
+            return "\n".join(changed)
+        return archive.getvalue()
+
+    monkeypatch.setattr(comparison, "runtime", lambda: plan["runtime"])
+    monkeypatch.setattr(comparison.subprocess, "check_output", git)
+    comparison.prepare_repair(tmp_path, "new")
+    assert original.read_text() == "original"
+    assert comparison.read(tmp_path / "plan-before-repair-1.json") == plan
+    assert comparison.read(tmp_path / "after/fragment-01-result.json") == success
+    assert comparison.read(tmp_path / "after/fragment-08-result-before-repair-1.json") == failure
+    repaired = comparison.read(tmp_path / "plan.json")
+    assert repaired["repairs"][0]["retained_successful_cases"] == ["fragment-01"]
+    assert (
+        tmp_path / repaired["after_repair_source"] / "src/cpc/capture.py"
+    ).read_text() == "repair"
+    changed.append("src/cpc/schema.py")
+    with pytest.raises(ValueError, match="only change"):
+        comparison.prepare_repair(tmp_path, "other")
+    assert comparison.read(tmp_path / "plan.json") == repaired
+
+
 def row(job, statement="a"):
     return {
         "facet": "person",

@@ -107,9 +107,17 @@ def validate_capture(result, targets, allowed, schema):
         referenced.update(refs)
         fragment["content"] = fragment["resolved_statement"]
     for a in result["assessments"]:
-        if (a["evidence_id"] in referenced) == bool(a["discard_reason"]):
+        if a["evidence_id"] in referenced and a["discard_reason"] is not None:
             raise ValueError(
-                "Zero fragments require a reason; referenced evidence cannot be discarded"
+                f"Evidence {a['evidence_id']} is cited by generated fragments. "
+                "Set its assessments.discard_reason to null (Compact: a[].x=null). "
+                "Do not discard cited evidence or remove grounded claims to match the assessment."
+            )
+        if a["evidence_id"] not in referenced and a["discard_reason"] is None:
+            raise ValueError(
+                f"Evidence {a['evidence_id']} has no citing fragments. "
+                "Set its assessments.discard_reason (Compact: a[].x) to a valid non-null "
+                "reason supported by the input, or extract its grounded claims."
             )
     return result
 

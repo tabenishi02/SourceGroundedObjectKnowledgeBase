@@ -958,3 +958,21 @@ Get-Content sample/efficiency-capture-comparison-v2/status.json
 ```
 
 Metadata本文混入の防止・Evidence不変、比較集計、既存Upgradeを含む関連テストを実施した。全量再試験の完了と品質判定は結果確認後に記載する。
+
+### 12.7 Assessment矛盾の再試行修正（2026-10-07）
+
+V2は14/16ケース成功後、変更後fragment-08で停止した。197文字のwindowに対してFragmentを2件生成しながら、同じEvidenceを `metadata_only` として除外したことが原因。再試行には不整合なEvidence IDと、引用されるEvidenceの `discard_reason` は `null`（Compact: `a[].x=null`）であることを具体的に返す。Fragmentがない場合は、入力に基づく非nullの除外理由または根拠ある抽出を求める。Schema・引用検証・再試行回数は変更しない。
+
+保存済みの失敗応答を再生して検証エラーを発生させ、新しい診断を含む1回の実Strata要求で回復を確認した。2 Fragment、除外理由nullで厳密な検証に成功し、実要求は9.24秒・出力587 token。これは対象入力の回復確認であり、全Captureの品質評価ではない。
+
+今回は成功済み14ケースを保持し、変更後fragment-08の失敗windowと変更前fragment-08を再開する。`--repair-after-commit` は元runtimeの一致と、src内の変更がcapture.pyのみであることを確認し、修正版を別archiveへ保存する。元plan・失敗report・旧sourceは保持する。修正commit、成功済みケース、window再開前後のsource履歴、失敗を含む累積token・時間を記録する。成功済みケースを修正commitで再測定した結果とは扱わず、比較出力にも修正を含む運用評価であることを明記する。
+
+```powershell
+# 今回の診断修正を明示して再開。<fix-commit>を修正commitへ置換
+python scripts/run_efficiency_capture_comparison.py --resume `
+  --out sample/efficiency-capture-comparison-v2 --repair-after-commit '<fix-commit>'
+# 以後の中断は同じoutで通常の --resume
+Get-Content sample/efficiency-capture-comparison-v2/status.json
+```
+
+完了条件は16ケース成功・Raw不変・DB整合性正常・元DB不変。human goldによる意味品質の合格判定は別途必要。
