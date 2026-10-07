@@ -10,7 +10,7 @@ from cpc.domain import json_text
 from cpc.errors import OutputBudgetExceeded
 from cpc.experiments import claim_experiment, compression_experiment, hierarchy
 from cpc.transport import KEYS, compact_schema, decode, rename
-from cpc.views import build_view
+from cpc.views import build_view, order_claims
 
 
 class CompactLLM(GroundedLLM):
@@ -177,6 +177,50 @@ def test_claims_and_views_are_derived_and_budgeted(core):
     changed["id"] = "different-subject"
     changed["metadata"]["subject"] = "other"
     assert len(derive_claims(entity, [rows[0], changed])) == 2
+
+
+def test_overview_prioritizes_identity_traits_and_subject_over_incidental_claims():
+    def claim(identifier, facet, text, subject="Example"):
+        return {
+            "id": identifier,
+            "facet": facet,
+            "text": text,
+            "subject": subject,
+            "evidence_ids": ["evidence"],
+            "epistemic_type": "fact",
+            "evidence_strength": "direct_statement",
+        }
+
+    rows = [
+        claim("0", "skill", "Example card-specific skill"),
+        claim("1", "identity", "Another is a character", "Another"),
+        claim("2", "所属ユニット", "Example belongs to Unit"),
+        claim("3", "affiliation", "Example is also a member of Unit"),
+        claim("4", "personality", "Example is kind"),
+        claim("9", "identity", "Example is a character"),
+    ]
+    entity = {"name": "Example", "type": "Character"}
+    result = order_claims(rows, entity)
+    assert [c["id"] for c in result[:3]] == ["9", "2", "4"]
+    assert sorted(c["id"] for c in result) == sorted(c["id"] for c in rows)
+    assert order_claims(rows, entity, "card-specific")[0]["id"] == "0"
+
+
+def test_overview_does_not_promote_event_facets_with_core_words():
+    def claim(facet):
+        return {
+            "id": facet,
+            "facet": facet,
+            "text": "Example " + facet,
+            "subject": "Example",
+            "evidence_ids": ["e"],
+            "epistemic_type": "fact",
+            "evidence_strength": "direct_statement",
+        }
+
+    rows = [claim(f) for f in ("ユニット公開状況", "pixiv作品", "ジャンル", "作品概要")]
+    ordered = order_claims(rows, {"name": "Example", "type": "Work"})
+    assert [c["facet"] for c in ordered[:2]] == ["作品概要", "ジャンル"]
 
 
 def test_incremental_embeddings_reuse_and_invalidate_configuration(core):
