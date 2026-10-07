@@ -74,3 +74,68 @@ def test_failed_integrity_does_not_count_as_completed():
     assert comparison.accepted(report)
     report["raw_unchanged"] = False
     assert not comparison.accepted(report)
+
+
+def test_control_reuse_requires_matching_conditions(tmp_path, monkeypatch):
+    import io
+    import sqlite3
+    import zipfile
+
+    root = tmp_path / "repo"
+    (root / "benchmark").mkdir(parents=True)
+    raw = root / "capture.zip"
+    raw.write_bytes(b"synthetic capture")
+    source = root / "source.sqlite"
+    db = sqlite3.connect(source)
+    db.execute("CREATE TABLE snapshots(id TEXT,raw_path TEXT,active_run TEXT)")
+    db.execute("INSERT INTO snapshots VALUES(?,?,?)", ("snapshot", str(raw), "normalized"))
+    db.commit()
+    db.close()
+    case = {
+        "id": "fragment-01",
+        "task": "fragment",
+        "snapshot_id": "snapshot",
+        "entity_id": "entity",
+        "raw_sha256": comparison.checksum(raw),
+    }
+    comparison.write(
+        root / "benchmark/sample-v1.json",
+        {
+            "cases": [case],
+            "fragment_batch_size": 1,
+        },
+    )
+    old = tmp_path / "old"
+    (old / "before").mkdir(parents=True)
+    prior = sqlite3.connect(old / "before/captures.sqlite")
+    prior.execute("CREATE TABLE marker(value TEXT)")
+    prior.execute("INSERT INTO marker VALUES('preserved control')")
+    prior.commit()
+    prior.close()
+    comparison.write(old / "before/fragment-01-result.json", {"saved": True})
+    comparison.write(
+        old / "plan.json",
+        {
+            "before": comparison.BEFORE,
+            "runtime": {"model": "test"},
+            "batch_size": 1,
+            "output_tokens": 8192,
+            "cases": [{**case, "normalized_run": "normalized"}],
+        },
+    )
+    archive = io.BytesIO()
+    with zipfile.ZipFile(archive, "w") as bundle:
+        bundle.writestr("src/cpc/test.txt", "source")
+    monkeypatch.setattr(comparison, "ROOT", root)
+    monkeypatch.setattr(comparison, "runtime", lambda: {"model": "test"})
+    monkeypatch.setattr(comparison.subprocess, "check_output", lambda *a, **k: archive.getvalue())
+    out = tmp_path / "new"
+    comparison.prepare(source, out, "fixed-commit", old)
+    assert comparison.read(out / "plan.json")["after"] == "fixed-commit"
+    check = sqlite3.connect(out / "before/captures.sqlite")
+    assert check.execute("SELECT value FROM marker").fetchone()[0] == "preserved control"
+    check.close()
+    assert comparison.read(out / "before/fragment-01-result.json")["saved"]
+    monkeypatch.setattr(comparison, "runtime", lambda: {"model": "different"})
+    with pytest.raises(ValueError, match="control conditions differ"):
+        comparison.prepare(source, tmp_path / "rejected", "fixed-commit", old)

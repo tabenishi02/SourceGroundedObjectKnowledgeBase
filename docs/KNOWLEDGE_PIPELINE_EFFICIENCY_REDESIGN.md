@@ -928,3 +928,33 @@ Get-Content sample/efficiency-capture-comparison/worker.log -Tail 20
 ```
 
 処理は独立したhidden processで実行する。各Captureの前後が揃うたび、`sample/efficiency-capture-comparison/comparison.txt`／`comparison.json`／内容差分JSONへ反映する。現時点では起動段階であり、速度・内容比較の結論は結果確認後に記載する。旧Qwen全量約5.1時間と今回のStrata予備速度を参考にすると両条件で十数時間規模が目安だが、実データでの分割・再試行が異なるため未確定。成功条件は16ケース完了、Raw不変、DB整合性正常、元DB不変。失敗や未完了を速度向上・品質合格として扱わない。
+
+### 12.6 分割外本文の混入修正と再試験（2026-10-07）
+
+初回比較は変更後`fragment-07`の1バッチが最小windowでも出力上限に達し、13/16ケースで停止した。途中にサーバー中断もあり、復旧後のcache差と中断試行を台帳へ残した。
+
+原因はLLM入力の`metadata.content`に元のEvidence本文が残ることだった。対象本文84文字・隣接本文120文字のwindowでも、それぞれのmetadataに約1000文字の分割前本文が入り、実質的に分割が効いていなかった。失敗入力をPromptのみ・上限2048の診断条件でcanonical/Compactへ送ると、両方が上限へ到達した。保存した生成本文には、window外の曲名が候補Entityとして多数列挙されていた。Compactに限る不具合ではない。
+
+修正は**新jobのLLM入力からEvidence/neighborのmetadata.contentだけを除去**する。artifact・positions・section・分類は保持し、保存済みEvidence/Rawは変更しない。元本文の全域は引き続きwindowで処理する。引用selector・canonical保存Schema・検証基準は変更しない。algorithmは`full-evidence-v6-scoped-window-input`とし、v5の途中jobへ変更条件を混在させない。旧v4 jobの明示再開は元条件を維持する。
+
+同じ失敗入力について、修正後のAPI Schema・上限8192・同じStrataで確認した結果:
+
+| 形式 | CPC引用/Schema検証 | 出力token | 総応答時間 | Fragment |
+|---|---|---:|---:|---:|
+| canonical | 成功 | 1056 | 13.96秒 | 3 |
+| Compact | 成功 | 1196 | 16.21秒 | 4 |
+
+この表は回復確認であり、変更前2048・Promptのみの診断条件と速度の同条件比較を行ったものではない。形式適合は意味Recall/Precisionの合格を保証しない。診断本文・台帳はGit管理外の`sample/efficiency-failure-probe/`、修正確認は`sample/efficiency-failure-probe-fixed/`へ保存する。
+
+全量再試験は別ディレクトリ`sample/efficiency-capture-comparison-v2/`を使用する。修正後8Captureを全件再測定し、条件一致を確認した変更前の成功済み7Captureを再利用、変更前8件目も実行する。再利用時はmodel/runtime・dataset/normalized generation・batch・output budgetを照合し、条件不一致は拒否する。初回の失敗結果やAI台帳は保持し、修正版の結果で上書きしない。
+
+```powershell
+# <fix-commit>は修正コミットへ置換。新しい出力フォルダを使用
+python scripts/run_efficiency_capture_comparison.py --after-commit '<fix-commit>' `
+  --reuse-before sample/efficiency-capture-comparison `
+  --out sample/efficiency-capture-comparison-v2
+# 起動後は状態確認。失敗時は同じ --out と --resume で成功分を保持して再開
+Get-Content sample/efficiency-capture-comparison-v2/status.json
+```
+
+Metadata本文混入の防止・Evidence不変、比較集計、既存Upgradeを含む関連テストを実施した。全量再試験の完了と品質判定は結果確認後に記載する。

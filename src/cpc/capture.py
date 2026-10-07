@@ -202,6 +202,26 @@ class HighRecallCapture:
     def _extract_window(self, payload, allowed, schema, strategy, max_chars):
         ids = payload["target_evidence_ids"]
         choices = quote_choices(allowed)
+        # Evidence metadata also stores the complete source chunk. Sending it bypasses
+        # window splitting and duplicates background material under a second field.
+        if not getattr(self, "legacy_retry", False):
+            payload = {
+                **payload,
+                **{
+                    kind: [
+                        {
+                            **row,
+                            "metadata": {
+                                key: value
+                                for key, value in row.get("metadata", {}).items()
+                                if key != "content"
+                            },
+                        }
+                        for row in payload[kind]
+                    ]
+                    for kind in ("evidence", "neighbors")
+                },
+            }
         payload = {
             **payload,
             "quote_choices": {
@@ -358,7 +378,7 @@ class HighRecallCapture:
             (self.app.prompt_dir / "high_recall.schema.json").read_text(encoding="utf-8")
         )
         configuration = {
-            "algorithm": "full-evidence-v5-immediate-split",
+            "algorithm": "full-evidence-v6-scoped-window-input",
             "transport": transport,
             "transport_hash": digest(json_text(KEYS)) if transport == "compact-keys-v1" else None,
             "dedup_quotes": dedup_quotes,

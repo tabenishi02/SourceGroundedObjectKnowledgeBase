@@ -5,6 +5,7 @@ import hashlib
 import io
 import json
 import os
+import shutil
 import sqlite3
 import subprocess
 import sys
@@ -65,7 +66,7 @@ def runtime():
         return {k: engine.json()["engine"].get(k) for k in RUNTIME_KEYS}
 
 
-def prepare(source, out):
+def prepare(source, out, after_commit=AFTER, reuse_before=None):
     if (out / "plan.json").exists():
         raise ValueError("Existing comparison requires --resume")
     out.mkdir(parents=True, exist_ok=True)
@@ -85,7 +86,19 @@ def prepare(source, out):
                 raise ValueError("Raw Capture differs from the frozen manifest")
             case["raw_path"], case["raw_mtime_ns"] = str(raw.resolve()), raw.stat().st_mtime_ns
             case["normalized_run"] = snapshot["active_run"]
-        for name, commit in (("before", BEFORE), ("after", AFTER)):
+        old_plan = read(reuse_before / "plan.json") if reuse_before else None
+        if old_plan:
+            fields = ("id", "snapshot_id", "entity_id", "raw_sha256", "normalized_run")
+            if (
+                old_plan["before"] != BEFORE
+                or old_plan["runtime"] != frozen
+                or old_plan["batch_size"] != manifest["fragment_batch_size"]
+                or old_plan["output_tokens"] != 8192
+                or [[c[k] for k in fields] for c in old_plan["cases"]]
+                != [[c[k] for k in fields] for c in cases]
+            ):
+                raise ValueError("Existing control conditions differ; control reuse refused")
+        for name, commit in (("before", BEFORE), ("after", after_commit)):
             destination = out / name
             destination.mkdir(exist_ok=True)
             archive = subprocess.check_output(
@@ -99,7 +112,19 @@ def prepare(source, out):
                     bundle.extract(item, destination)
             copy = sqlite3.connect(destination / "captures.sqlite")
             try:
-                original.backup(copy)
+                if name == "before" and reuse_before:
+                    prior = sqlite3.connect(
+                        (reuse_before / "before/captures.sqlite").resolve().as_uri() + "?mode=ro",
+                        uri=True,
+                    )
+                    try:
+                        prior.backup(copy)
+                    finally:
+                        prior.close()
+                    for file in (reuse_before / "before").glob("fragment-*.json"):
+                        shutil.copy2(file, destination / file.name)
+                else:
+                    original.backup(copy)
             finally:
                 copy.close()
     finally:
@@ -108,7 +133,8 @@ def prepare(source, out):
         raise ValueError("Source DB changed while making comparison backups")
     plan = {
         "before": BEFORE,
-        "after": AFTER,
+        "after": after_commit,
+        "reused_control": str(reuse_before.resolve()) if reuse_before else None,
         "runtime": frozen,
         "cases": cases,
         "source": str(source.resolve()),
@@ -286,7 +312,7 @@ def compare(out, plan):
 def run(args):
     out = args.out.resolve()
     if not args.resume:
-        prepare(args.source, out)
+        prepare(args.source, out, args.after_commit, args.reuse_before)
     plan = read(out / "plan.json")
     if args.prepare_only:
         return 0
@@ -352,6 +378,8 @@ if __name__ == "__main__":
     parser.add_argument("--prepare-only", action="store_true")
     parser.add_argument("--worker", choices=["before", "after"])
     parser.add_argument("--case")
+    parser.add_argument("--after-commit", default=AFTER)
+    parser.add_argument("--reuse-before", type=Path)
     args = parser.parse_args()
     raise SystemExit(
         worker(args.out.resolve(), args.worker, args.case) if args.worker else run(args)

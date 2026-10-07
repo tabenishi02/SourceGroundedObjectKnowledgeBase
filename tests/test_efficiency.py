@@ -37,6 +37,18 @@ def test_compact_quote_dedup_keeps_canonical_storage(core):
     assert not repo.rows("PRAGMA foreign_key_check")
 
 
+def test_window_input_does_not_leak_unsliced_metadata_body(core):
+    app, repo, snapshot, entity = grounded(core)
+    before = copy.deepcopy(repo.evidence(snapshot))
+    assert any("content" in json.loads(e["metadata"]) for e in before)
+    result = app.capture_fragments(snapshot, entity, window_checkpoint=True)
+    assert result["status"] == "complete"
+    for _, payload in app.llm.calls:
+        for row in payload["evidence"] + payload["neighbors"]:
+            assert "content" not in row["metadata"]
+    assert repo.evidence(snapshot) == before
+
+
 def test_compact_roundtrip_rejects_unknown_and_preserves_null():
     canonical = {
         "type": "object",
