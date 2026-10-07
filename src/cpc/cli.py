@@ -95,7 +95,9 @@ def parser():
     generate.add_argument("--llm-order", action="store_true")
     generate.add_argument("--batch-size", type=int, default=24)
     generate.add_argument("--max-chars", type=int, default=8000)
-    generate.add_argument("--format", choices=["markdown", "json", "context"], default="markdown")
+    generate.add_argument(
+        "--format", choices=["markdown", "json", "context", "reading"], default="markdown"
+    )
     claims = commands.add_parser("claims")
     claims.add_argument("--entity", required=True)
     experiment = commands.add_parser("claim-experiment")
@@ -121,6 +123,13 @@ def parser():
     view.add_argument("--context-tokens", type=int)
     view.add_argument("--reserve-tokens", type=int, default=2048)
     view.add_argument("--out", type=Path)
+    view.add_argument("--supported-only", action="store_true")
+    review = commands.add_parser("support-review", help="Judge only selected View candidates")
+    review.add_argument("--entity", required=True)
+    review.add_argument("--query")
+    review.add_argument("--mode", choices=["short", "standard", "detailed"], default="short")
+    review.add_argument("--limit", type=int, default=10)
+    review.add_argument("--max-chars", type=int, default=16000)
     context = commands.add_parser("context")
     context.add_argument("--snapshot", required=True)
     context.add_argument(
@@ -168,7 +177,7 @@ def main(argv=None):
         repository = Repository(args.db)
         llm = (
             llm_from_env("final" if args.command == "generate" else "fragment")
-            if args.command in {"fragment", "benchmark"}
+            if args.command in {"fragment", "benchmark", "support-review"}
             or (args.command == "claim-experiment" and args.judge)
             or (args.command == "generate" and (args.legacy or args.llm_order))
             else None
@@ -273,6 +282,8 @@ def main(argv=None):
                 args.mode,
                 args.context_tokens,
                 args.reserve_tokens,
+                supported_only=args.supported_only,
+                prompt_dir=app.prompt_dir,
             )
             if args.out:
                 export_markdown(args.out, result["markdown"], repository)
@@ -282,12 +293,39 @@ def main(argv=None):
                     repository,
                     ".json",
                 )
-                for field in ("markdown", "structured", "ai_context", "citations"):
+                export_markdown(
+                    args.out.with_suffix(".audit.json"),
+                    json.dumps(result["audit_manifest"], ensure_ascii=False, indent=2),
+                    repository,
+                    ".json",
+                )
+                for field in (
+                    "markdown",
+                    "structured",
+                    "ai_context",
+                    "citations",
+                    "audit_manifest",
+                ):
                     result.pop(field, None)
                 result["path"] = str(args.out)
+        elif args.command == "support-review":
+            from .support import review_claim
+            from .views import build_view
+
+            if args.limit < 1:
+                raise ValueError("Support review limit must be positive")
+            candidates = build_view(
+                repository, args.entity, query=args.query, mode=args.mode, prompt_dir=app.prompt_dir
+            )
+            result = [
+                {"claim_id": c["id"], **review_claim(app, c, args.max_chars)}
+                for c in candidates["structured"]["claims"][: args.limit]
+            ]
         elif args.command == "search":
             result = app.search(args.query, filters(args), args.limit, args.mode)
         elif args.command == "generate":
+            if args.format == "reading" and (args.legacy or args.llm_order):
+                raise ValueError("Reading Final uses immutable source claims, not LLM ordering")
             result = (
                 app.generate(args.entity, args.query, args.limit)
                 if args.legacy
@@ -299,10 +337,17 @@ def main(argv=None):
                     query=args.query,
                 )
             )
+            if args.format == "reading":
+                from .reading import reading_final
+
+                result = {**result, **reading_final(repository, args.entity, app.prompt_dir)}
             if args.out:
-                key = {"markdown": "markdown", "json": "structured", "context": "ai_context"}[
-                    args.format
-                ]
+                key = {
+                    "markdown": "markdown",
+                    "json": "structured",
+                    "context": "ai_context",
+                    "reading": "markdown",
+                }[args.format]
                 value = result[key]
                 export_markdown(
                     args.out,
@@ -310,8 +355,17 @@ def main(argv=None):
                     if isinstance(value, dict)
                     else value,
                     repository,
-                    {"markdown": ".md", "json": ".json", "context": ".txt"}[args.format],
+                    {"markdown": ".md", "json": ".json", "context": ".txt", "reading": ".md"}[
+                        args.format
+                    ],
                 )
+                if args.format == "reading":
+                    export_markdown(
+                        args.out.with_suffix(".audit.json"),
+                        json.dumps(result.pop("audit_manifest"), ensure_ascii=False, indent=2),
+                        repository,
+                        ".json",
+                    )
                 for field in ("markdown", "structured", "ai_context"):
                     result.pop(field, None)
                 result["path"] = str(args.out)

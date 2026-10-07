@@ -36,6 +36,11 @@ class CompatibleLLM:
         if structured_mode and "response_format" in self.extra:
             raise ValueError("Use structured_mode without a response_format override")
         self.configuration = {
+            "retry_policy": {
+                "max_attempts": 3,
+                "http_statuses": [429, 503],
+                "exceptions": ["ConnectError", "ConnectTimeout"],
+            },
             "structured_mode": mode,
             "constraint_method": "unknown",
             "temperature": self.extra.get("temperature", 0),
@@ -56,11 +61,53 @@ class CompatibleLLM:
             headers={"Authorization": f"Bearer {api_key}"} if api_key else {},
         )
 
+    def _post(self, url, **kwargs):
+        """Retry only failures known to precede generation; never repeat read timeouts."""
+        self.attempt_observations = []
+        for attempt in range(3):
+            started = time.perf_counter()
+            try:
+                response = self.client.post(url, **kwargs)
+            except (httpx.ConnectError, httpx.ConnectTimeout) as error:
+                self.attempt_observations.append(
+                    {
+                        "attempt": attempt + 1,
+                        "failure": type(error).__name__,
+                        "duration_seconds": time.perf_counter() - started,
+                    }
+                )
+                self.last_observation = {"attempts": self.attempt_observations}
+                if attempt == 2:
+                    raise
+            except httpx.HTTPError as error:
+                self.attempt_observations.append(
+                    {
+                        "attempt": attempt + 1,
+                        "failure": type(error).__name__,
+                        "duration_seconds": time.perf_counter() - started,
+                    }
+                )
+                self.last_observation = {"attempts": self.attempt_observations}
+                raise
+            else:
+                self.attempt_observations.append(
+                    {
+                        "attempt": attempt + 1,
+                        "http_status": response.status_code,
+                        "duration_seconds": time.perf_counter() - started,
+                    }
+                )
+                self.last_observation = {"attempts": self.attempt_observations}
+                if response.status_code not in {429, 503} or attempt == 2:
+                    return response
+                response.close()
+            time.sleep(0.25 * (attempt + 1))
+
     def complete(self, prompt, payload, *, schema=None):
         started = time.perf_counter()
         self.last_observation = {}
         self.last_output = None
-        response = self.client.post(
+        response = self._post(
             self.base_url + "/chat/completions",
             json={
                 "model": self.model,
@@ -93,6 +140,7 @@ class CompatibleLLM:
         elapsed = time.perf_counter() - started
         tokens = usage.get("completion_tokens")
         self.last_observation = {
+            "attempts": self.attempt_observations,
             "duration_seconds": elapsed,
             "usage": usage,
             "tokens_per_second": tokens / elapsed if isinstance(tokens, int) and elapsed else None,
@@ -141,6 +189,7 @@ class StrataLLM(CompatibleLLM):
             ):
                 message = str(error.get("message", "Strata structured output failed"))
                 self.last_observation = {
+                    "attempts": self.attempt_observations,
                     "duration_seconds": time.perf_counter() - started,
                     "http_status": response.status_code,
                     "error_code": "structured_output_failed",
@@ -188,7 +237,7 @@ class LMStudioLLM(CompatibleLLM):
         self.last_output = None
         budget = self.extra.get("max_tokens", self.max_tokens)
         root = self.base_url.removesuffix("/v1")
-        response = self.client.post(
+        response = self._post(
             root + "/api/v1/chat",
             json={
                 "model": self.model,
@@ -210,6 +259,7 @@ class LMStudioLLM(CompatibleLLM):
         body = response.json()
         stats = body.get("stats", {})
         self.last_observation = {
+            "attempts": self.attempt_observations,
             "duration_seconds": time.perf_counter() - started,
             "usage": stats,
             "tokens_per_second": stats.get("tokens_per_second"),

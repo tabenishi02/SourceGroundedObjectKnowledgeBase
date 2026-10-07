@@ -6,6 +6,13 @@ import unicodedata
 from .budget import TokenCounter
 from .claims import build_claims
 from .domain import json_text
+from .support import attribution, audit_claim, latest_review, review_index
+
+OVERVIEW_SLOTS = {
+    "Character": {"definition", "affiliation", "personality"},
+    "Work": {"definition", "genre", "mechanism"},
+    "Concept": {"definition", "purpose", "特徴"},
+}
 
 
 def overview_priority(claim, entity):
@@ -69,6 +76,13 @@ def overview_priority(claim, entity):
         "提供元",
         "媒体",
         "platform",
+        "目的",
+        "用途",
+        "purpose",
+        "distinction",
+        "features",
+        "仕組み",
+        "mechanism",
         "性格",
         "personality",
         "人物像",
@@ -130,10 +144,21 @@ def overview_topic(claim):
         ("personality", {"性格", "personality", "人物像", "character_trait", "character_traits"}),
         ("genre", {"ジャンル", "ゲームジャンル", "ゲームジャンル・特徴", "genre"}),
         ("developer", {"開発元", "開発会社", "developer", "制作会社"}),
+        ("purpose", {"目的", "用途", "purpose"}),
+        ("mechanism", {"ゲームシステム", "仕組み", "mechanism", "中心的な体験"}),
+        ("特徴", {"特徴", "特徴・区別", "distinction", "features"}),
+        ("role", {"役割", "role", "立場"}),
     ):
         if facet in aliases:
             return topic
     return facet
+
+
+def overview_slot(claim, entity):
+    topic = overview_topic(claim)
+    if entity.get("type") == "Character" and topic in {"unit", "organization", "role"}:
+        return "affiliation"
+    return topic
 
 
 def order_claims(claims, entity, query=None):
@@ -199,6 +224,8 @@ def build_view(
     mode="short",
     context_tokens=None,
     reserve_tokens=2048,
+    supported_only=False,
+    prompt_dir=None,
 ):
     counter = counter or TokenCounter()
     budget = (
@@ -233,6 +260,37 @@ def build_view(
     }[mode]
     prefix = f"# {name}\n\n{purpose}\n\n> 出典に記載された主張の抜粋。真偽の確定は行いません。\n\n"
     selected, omitted, blocks, citations = [], [], [], {}
+    audit_manifest = {}
+    reviews = review_index(repo, prompt_dir)
+    required = OVERVIEW_SLOTS.get(entity.get("type"), {"definition", "purpose", "特徴"})
+    conflicts = {}
+    for claim in claims:
+        if claim.get("conflict_group"):
+            conflicts.setdefault(claim["conflict_group"], []).append(claim["id"])
+    if not query:
+        first = {}
+        for claim in ordered:
+            topic = overview_slot(claim, entity)
+            if topic in required and overview_priority(claim, entity) < 3:
+                first.setdefault(topic, claim)
+        priorities = list(first.values())
+        priority_ids = {c["id"] for c in priorities}
+        ordered = priorities + [c for c in ordered if c["id"] not in priority_ids]
+
+    def footer(selection):
+        missing = sorted(required - covered_slots(selection))
+        return (
+            f"Omitted claims: {len(claims) - len(selection)}. See omission manifest.\n"
+            + ("概要の不足項目: " + ", ".join(missing) + "\n" if not query and missing else "")
+            + "出典・引用・支持判定の詳細: audit manifest [S番号]。\n"
+        )
+
+    def covered_slots(selection):
+        return {
+            overview_slot(claims_by_id[i], entity)
+            for i in selection
+            if overview_priority(claims_by_id[i], entity) < 3
+        }
 
     def structure(selection):
         return {
@@ -243,20 +301,33 @@ def build_view(
         }
 
     for claim in ordered:
-        # One reference per source support; all support IDs remain in the claim generation.
-        refs = []
-        for fragment_id in claim["fragment_ids"]:
-            provenance = repo.provenance("fragment", fragment_id)
-            for evidence in provenance["evidence"]:
-                label = (
-                    f"{evidence['url']} / Snapshot {evidence['snapshot_id']} / "
-                    f"Evidence {evidence['evidence_id']}"
-                )
-                if label not in refs:
-                    refs.append(label)
+        if counter.count(json_text(structure(selected + [claim["id"]]))) > budget:
+            omitted.append({"claim_id": claim["id"], "reason": "output_budget"})
+            continue
+        audit = audit_claim(repo, claim)
+        review = latest_review(repo, audit, prompt_dir, reviews)
+        if supported_only and review["verdict"] != "supported":
+            omitted.append({"claim_id": claim["id"], "reason": "support_" + review["verdict"]})
+            continue
+        refs = [f"[S{len(selected) + 1}]"]
+        label = {
+            "supported": "機械判定で整合",
+            "unsupported": "支持不足",
+            "uncertain": "要確認",
+            "unreviewed": "支持未確認",
+        }[review["verdict"]]
+        alternatives = [
+            i for i in conflicts.get(claim.get("conflict_group"), []) if i != claim["id"]
+        ]
         block = (
             f"## {claim['facet']} [{claim['epistemic_type']}]\n"
             f"{claim['text']}\n"
+            + f"{attribution(claim)}／{label} {refs[0]}\n"
+            + (
+                "相違する主張あり。監査付録のalternative_claim_idsを参照。\n"
+                if alternatives
+                else ""
+            )
             + "Context: "
             + json_text(
                 {
@@ -271,12 +342,9 @@ def build_view(
                 }
             )
             + "\n"
-            + f"Claim `{claim['id']}`\n"
-            + "\n".join(refs)
             + "\n\n"
         )
-        footer = f"Omitted claims: {len(claims) - len(selected) - 1}. See omission manifest.\n"
-        proposed = prefix + "".join(blocks) + block + footer
+        proposed = prefix + "".join(blocks) + block + footer(selected + [claim["id"]])
         if (
             max(
                 counter.count(proposed),
@@ -286,24 +354,38 @@ def build_view(
         ):
             selected.append(claim["id"])
             blocks.append(block)
-            citations[claim["id"]] = refs
+            citations[claim["id"]] = list(
+                dict.fromkeys(
+                    f"{e['url']} / Snapshot {e['snapshot_id']} / Evidence {e['evidence_id']}"
+                    for support in audit["supports"]
+                    for e in support["evidence"]
+                )
+            )
+            audit_manifest[refs[0]] = {
+                "claim_id": claim["id"],
+                "audit": audit,
+                "review": review,
+                "alternative_claim_ids": alternatives,
+            }
         else:
             omitted.append({"claim_id": claim["id"], "reason": "output_budget"})
-    text = prefix + "".join(blocks) + f"Omitted claims: {len(omitted)}. See omission manifest.\n"
-    if not selected or counter.count(text) > budget:
+    text = prefix + "".join(blocks) + footer(selected)
+    if (not selected and not supported_only) or counter.count(text) > budget:
         raise ValueError("View budget cannot fit one complete grounded claim")
     representation = structure(selected)
     configuration = {
         "budget": budget,
         "query": query,
         "counter": counter.configuration,
-        "selection": "entity-overview-priority-v2",
+        "selection": "overview-slots-audited-v3",
         "mode": mode,
         "generation_id": source["generation_id"],
         "selected_claim_ids": selected,
         "context_tokens": context_tokens,
         "reserve_tokens": reserve_tokens,
         "omitted": omitted,
+        "supported_only": supported_only,
+        "missing_overview_slots": sorted(required - covered_slots(selected)),
     }
     ai_id = repo.begin_ai("knowledge_view", "cpc-extractive-renderer", "1", "", "1", configuration)
     repo.finish_ai(ai_id, json_text(representation))
@@ -334,4 +416,6 @@ def build_view(
         "omission_manifest": {"generation_id": source["generation_id"], "omitted": omitted},
         "configuration": configuration,
         "output_tokens": counter.count(text),
+        "audit_manifest": audit_manifest,
+        "missing_overview_slots": configuration["missing_overview_slots"],
     }

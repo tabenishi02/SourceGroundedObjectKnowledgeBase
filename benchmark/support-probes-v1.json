@@ -1,0 +1,11 @@
+[
+  {"id":"identity","quote":"対象Aは作品Xに登場する高校生のキャラクター。","text":"対象Aは作品Xに登場する高校生のキャラクター。","expected":"supported","epistemic_type":"fact"},
+  {"id":"negation","quote":"対象Aは初対面の勧誘を断った。","text":"対象Aは初対面の勧誘を断らなかった。","expected":"unsupported","epistemic_type":"fact"},
+  {"id":"wrong-subject","quote":"対象Bは穏やかな性格である。","text":"対象Aは穏やかな性格である。","expected":"unsupported","epistemic_type":"fact"},
+  {"id":"scope","quote":"対象Aはこの日だけ明るく振る舞った。","text":"対象Aは常に明るく振る舞う。","expected":"unsupported","epistemic_type":"fact"},
+  {"id":"time","quote":"対象Aは2020年に組織Yに所属していた。","text":"対象Aは2025年に組織Yに所属していた。","expected":"unsupported","epistemic_type":"fact"},
+  {"id":"opinion-to-fact","quote":"筆者は対象Aを頼りないと感じている。","text":"対象Aは客観的に頼りないことが証明されている。","expected":"unsupported","epistemic_type":"fact"},
+  {"id":"preserved-opinion","quote":"筆者は対象Aを頼りないと感じている。","text":"筆者は対象Aを頼りないと感じている。","expected":"supported","epistemic_type":"source_interpretation"},
+  {"id":"bare-list","quote":"- ユニットY","text":"対象AはユニットYに所属する。","expected":"uncertain","epistemic_type":"fact"},
+  {"id":"compound","quote":"対象Aは穏やかである。","text":"対象Aは穏やかで、組織Zの創設者である。","expected":"unsupported","epistemic_type":"fact"}
+]
