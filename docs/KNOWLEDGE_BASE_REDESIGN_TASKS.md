@@ -46,7 +46,7 @@ CPCは「外部世界のObject Knowledge」を担当する。ユーザー自身�
 
 # Phase A — 方針確定・既存資産棚卸し
 
-- [ ] **A-01 [P0] 再設計Decision Recordを作成する**
+- [x] **A-01 [P0] 再設計Decision Recordを作成する**
   - 旧Prototypeの問題点と再設計理由を記録する。
   - 「全Evidenceを生成LLMでFragment化する方式を標準パイプラインから外す」ことを明記する。
   - 「巨大Final DocumentをKnowledgeの正本としない」ことを明記する。
