@@ -560,6 +560,7 @@ SGOKB Rename Result
 
 - `git mv`でpackageを移動し、imports・distribution・CLI・環境変数・既定DB・structured-output名・Native Hostを更新した。互換aliasと旧prefix fallbackは提供していない。
 - 使用中venvから旧distributionをuninstallし、残った旧egg-infoを除去した。新配置にはvenvを再作成し、新distributionをeditable installした。両環境で旧package/CLI/distributionが提供されないことを確認した。
+- 旧venv内の追加依存`lmstudio==1.5.0`、`httpx-ws==0.9.0`、`msgspec==0.22.0`も新venvへ同版で導入した。両環境に共通するAnyIO 4.8.0との既存SDK import不整合（`AsyncContextManagerMixin`不足）を確認した。この依存不整合の修正は名称変更対象外であり、provider testsは8件成功している。
 - 実User/Machine environmentに旧prefixは存在しなかった。値をログに表示していない。
 - 名称を逆変換したPython ASTの比較で、28ファイルに名称以外の差分がないことを確認した。既存SQL migrationは不変。
 
