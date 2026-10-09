@@ -206,7 +206,7 @@ JavaScript propertyとしてのみ存在する入力値を、Captureのために
 標準保存先は以下とする。
 
 ```text
-Source Grounded Object Knowledge Base/
+SourceGroundedObjectKnowledgeBase/
 └─ extensions/
    └─ web-page-capture/
       └─ local-captures/

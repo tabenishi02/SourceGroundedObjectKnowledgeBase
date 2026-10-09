@@ -7,7 +7,7 @@ Chrome Extensionはセキュリティ上、Windows上の任意のフォルダへ
 本プロジェクトではCapture Bundleを次の場所へ保存する。
 
 ```text
-Source Grounded Object Knowledge Base/
+SourceGroundedObjectKnowledgeBase/
 └─ extensions/
    └─ web-page-capture/
       └─ local-captures/

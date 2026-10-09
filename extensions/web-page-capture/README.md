@@ -85,7 +85,7 @@ extensions/web-page-capture/local-captures/
 Capture Bundleの標準保存先は以下とします。
 
 ```text
-Source Grounded Object Knowledge Base/
+SourceGroundedObjectKnowledgeBase/
 └─ extensions/
    └─ web-page-capture/
       └─ local-captures/

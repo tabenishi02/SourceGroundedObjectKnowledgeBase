@@ -286,7 +286,7 @@ Google DriveはSGOKBとChatGPT間の交換場所として利用する。
 例:
 
 ```text
-Source Grounded Object Knowledge Base/
+SourceGroundedObjectKnowledgeBase/
 └─ exchange/
    └─ <object-id>/
       ├─ manifest.json

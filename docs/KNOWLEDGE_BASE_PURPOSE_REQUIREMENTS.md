@@ -9,7 +9,7 @@
   - `docs/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
   - `docs/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md`
   - `docs/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
-  - `CharacterPageCollector システム要件定義書 v0.2.md（Rename前の歴史資料）`
+  - `CharacterPageCollector システム要件定義書 v0.2.md`（Rename前の歴史資料）
 
 ## 1. 本書の位置づけ
 
