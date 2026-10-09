@@ -52,7 +52,7 @@ CPCは「外部世界のObject Knowledge」を担当する。ユーザー自身�
   - 「巨大Final DocumentをKnowledgeの正本としない」ことを明記する。
   - ChatGPT APIを標準処理に使用しない方針を明記する。
 
-- [ ] **A-02 [P0] 既存機能を Keep / Modify / Replace / Retire に分類する**
+- [x] **A-02 [P0] 既存機能を Keep / Modify / Replace / Retire に分類する**
   - Keep候補: Web Capture、Raw Import、Source/Snapshot、Evidence抽出、checksum、Provenance、SQLite、FTS、Embedding provider abstraction、Hybrid Search基盤。
   - Modify候補: Entity → Object、検索対象・Facet、CLI、評価基盤。
   - Replace候補: Fragment中心Knowledge Model、Final Document生成。
