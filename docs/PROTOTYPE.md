@@ -30,7 +30,7 @@ flowchart LR
   G --> D[Markdown + citation ledger]
 ```
 
-`src/cpc/application.py` がCLI/将来GUI共通のサービス、`domain.py` がSQLとHTTPに依存しない値・Protocol、`repository.py` がSQL、`providers.py` が外部モデル接続です。`extraction.py` にExtractor registry、`search.py` にVectorIndex/Rerankerの境界を設けました。既存拡張機能・Native HostへCPC依存を追加していません。
+`src/sgokb/application.py` がCLI/将来GUI共通のサービス、`domain.py` がSQLとHTTPに依存しない値・Protocol、`repository.py` がSQL、`providers.py` が外部モデル接続です。`extraction.py` にExtractor registry、`search.py` にVectorIndex/Rerankerの境界を設けました。既存拡張機能・Native HostへSGOKB依存を追加していません。
 
 ## 永続化とMigration
 
@@ -82,7 +82,7 @@ Entity TypeとFacetを自由文字列にし、WorkとCharacterを別固定テー
 
 Fragment入力はEntity名/aliasの出現、Section内のEntity名、paragraph/table/quote/post等の構造を併用して選び、既定6件/5000文字に制限します。関連イラスト・小説などのSectionは優先度を下げます。単純な名前の出現回数ではファン作品一覧が本文より優先されたためです。評価は3件/3000文字です。対象Entityに関係しない場合は空結果を許します。情報を網羅する抽出ではなく、根拠付きの少数Factを生成する暫定方式です。
 
-Promptと出力Schemaは `src/cpc/prompts/` の交換可能なファイルです。Prompt先頭versionに内容hashとSchema hashを加えて履歴に保存します。出力Schemaによる形式制約に加え、Coreが内容・facet・根拠IDを検証します。LLMが生成した未提供IDは保存しません。Prompt内でRaw本文を命令として扱わない旨を指示していますが、内容の事実性まで形式検証で保証できません。
+Promptと出力Schemaは `src/sgokb/prompts/` の交換可能なファイルです。Prompt先頭versionに内容hashとSchema hashを加えて履歴に保存します。出力Schemaによる形式制約に加え、Coreが内容・facet・根拠IDを検証します。LLMが生成した未提供IDは保存しません。Prompt内でRaw本文を命令として扱わない旨を指示していますが、内容の事実性まで形式検証で保証できません。
 
 AI ledgerはPrompt本文、実際のpayload・期待response schema、temperature/output上限/応答形式override等の設定、実出力、model/revision、時刻と成否を記録します。HTTP/parse/schema/storage失敗も区別し、無効な実出力も調査用に残します。資格情報はledgerへ保存しません。DB自体は実本文を含むのでGit管理外です。
 
@@ -116,6 +116,6 @@ Raw再取得は不要です。各段階のCLIを再実行し、Extractor/Chunk/P
 
 ## 設定と依存
 
-`CPC_DB`、`CPC_PROMPT_DIR`、`CPC_LLM_BASE_URL/MODEL/REVISION/API_KEY/MAX_TOKENS/EXTRA_JSON`、`CPC_EMBED_PROVIDER/BASE_URL/MODEL/REVISION/API_KEY/DOCUMENT_PREFIX/QUERY_PREFIX/MAX_CHARS`、`CPC_API_TIMEOUT` を環境変数で設定します。HTTP timeout既定180秒、LLM output上限3000 tokenです。追加APIパラメータは `CPC_LLM_EXTRA_JSON` で指定し、`CPC_LLM_FRAGMENT_EXTRA_JSON` / `CPC_LLM_FINAL_EXTRA_JSON` で段階別overrideできます。
+`SGOKB_DB`、`SGOKB_PROMPT_DIR`、`SGOKB_LLM_BASE_URL/MODEL/REVISION/API_KEY/MAX_TOKENS/EXTRA_JSON`、`SGOKB_EMBED_PROVIDER/BASE_URL/MODEL/REVISION/API_KEY/DOCUMENT_PREFIX/QUERY_PREFIX/MAX_CHARS`、`SGOKB_API_TIMEOUT` を環境変数で設定します。HTTP timeout既定180秒、LLM output上限3000 tokenです。追加APIパラメータは `SGOKB_LLM_EXTRA_JSON` で指定し、`SGOKB_LLM_FRAGMENT_EXTRA_JSON` / `SGOKB_LLM_FINAL_EXTRA_JSON` で段階別overrideできます。
 
 実行依存はBeautifulSoup（MIT）/httpx（BSD）とPython標準SQLiteです。開発用pytest/Ruff、任意のSentenceTransformersは別extraです。モデルは別途用意します。今回のgpt-oss/Nomicの選定は既存ローカルモデルを利用して外部転送を避け、Vertical Sliceを評価するためであり、推奨モデルの確定ではありません。[LM StudioのJSON Schema API仕様](https://lmstudio.ai/docs/developer/openai-compat/structured-output)に合わせています。

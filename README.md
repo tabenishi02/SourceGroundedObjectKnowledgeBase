@@ -1,10 +1,12 @@
-# CharacterPageCollector — 初回プロトタイプ
+# Source Grounded Object Knowledge Base (SGOKB)
 
 Web Capture Bundleを読み取り、構造化したEvidence、LLMによるFragment、Hybrid Searchを経て、出典付きのEntity文書を生成します。最終製品ではなく、実サンプルで処理を一周させるための暫定実装です。
 
 現在の実装・評価・残課題は[開発状況まとめ（2026-10-06）](docs/DEVELOPMENT_STATUS.md)を参照してください。Prototype Upgradeの実データ工程と8モデルの速度予備試験は終了しています。モデル別の実データ品質比較と速度改善の実装は未実施です。
 
-正本は[要件定義書 v0.2](CharacterPageCollector%20システム要件定義書%20v0.2.md)です。`docs/cpc-prototype-minimum-requirements` の更新をこのFeature Branchへ取り込んでいます。既存の[Web Page Capture拡張機能](extensions/web-page-capture/README.md)の取得・保存処理は独立したままです。
+Rename前のPrototype要件は[歴史資料: 要件定義書 v0.2](CharacterPageCollector%20システム要件定義書%20v0.2.md)です。`docs/cpc-prototype-minimum-requirements` はRename前の履歴ブランチです。既存の[Web Page Capture拡張機能](extensions/web-page-capture/README.md)の取得・保存処理は独立したままです。
+
+名称の正本は[Rename Decision](docs/SGOKB_RENAME_DECISION.md)、実施手順は[Rename Runbook](docs/SGOKB_RENAME_CODEX_HANDOFF.md)です。
 
 ## セットアップ
 
@@ -13,17 +15,17 @@ Python 3.10以上、SQLite 3.34以上のFTS5/trigram対応環境が必要です�
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e '.[dev]'
-.\.venv\Scripts\python.exe -m cpc --help
+.\.venv\Scripts\python.exe -m sgokb --help
 ```
 
-以下では `.venv` を有効化済みの `python` を使用します。有効化しない場合は `.\.venv\Scripts\python.exe` で置き換えてください。`cpc` コンソールコマンドも同じ処理を呼び出します。
+以下では `.venv` を有効化済みの `python` を使用します。有効化しない場合は `.\.venv\Scripts\python.exe` で置き換えてください。`sgokb` コンソールコマンドも同じ処理を呼び出します。
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
-python -m cpc import sample
-python -m cpc process
-python -m cpc status
-python -m cpc snapshots
+python -m sgokb import sample
+python -m sgokb process
+python -m sgokb status
+python -m sgokb snapshots
 ```
 
 原ZIPは読み取りだけです。DB・ログ・実データの派生物は既定で `.local/` に保存します。
@@ -34,48 +36,48 @@ LLMはJSON Schema出力が利用できるChat Completions互換API、Embedding�
 
 ```powershell
 lms server start
-lms load openai/gpt-oss-20b --context-length 8192 --identifier cpc-prototype-llm -y
-lms load text-embedding-nomic-embed-text-v1.5 --identifier cpc-prototype-embedding -y
+lms load openai/gpt-oss-20b --context-length 8192 --identifier sgokb-prototype-llm -y
+lms load text-embedding-nomic-embed-text-v1.5 --identifier sgokb-prototype-embedding -y
 
-$env:CPC_LLM_BASE_URL = 'http://127.0.0.1:1234/v1'
-$env:CPC_LLM_MODEL = 'cpc-prototype-llm'
-$env:CPC_LLM_REVISION = 'openai/gpt-oss-20b;GGUF-MXFP4;upstream-revision-unknown'
-$env:CPC_LLM_EXTRA_JSON = '{"reasoning_effort":"low"}'
-$env:CPC_LLM_FRAGMENT_EXTRA_JSON = '{"response_format":{"type":"text"}}'
-$env:CPC_EMBED_BASE_URL = 'http://127.0.0.1:1234/v1'
-$env:CPC_EMBED_MODEL = 'cpc-prototype-embedding'
-$env:CPC_EMBED_REVISION = 'nomic-ai/nomic-embed-text-v1.5;GGUF-Q4_K_M;upstream-revision-unknown'
-$env:CPC_EMBED_DOCUMENT_PREFIX = 'search_document: '
-$env:CPC_EMBED_QUERY_PREFIX = 'search_query: '
+$env:SGOKB_LLM_BASE_URL = 'http://127.0.0.1:1234/v1'
+$env:SGOKB_LLM_MODEL = 'sgokb-prototype-llm'
+$env:SGOKB_LLM_REVISION = 'openai/gpt-oss-20b;GGUF-MXFP4;upstream-revision-unknown'
+$env:SGOKB_LLM_EXTRA_JSON = '{"reasoning_effort":"low"}'
+$env:SGOKB_LLM_FRAGMENT_EXTRA_JSON = '{"response_format":{"type":"text"}}'
+$env:SGOKB_EMBED_BASE_URL = 'http://127.0.0.1:1234/v1'
+$env:SGOKB_EMBED_MODEL = 'sgokb-prototype-embedding'
+$env:SGOKB_EMBED_REVISION = 'nomic-ai/nomic-embed-text-v1.5;GGUF-Q4_K_M;upstream-revision-unknown'
+$env:SGOKB_EMBED_DOCUMENT_PREFIX = 'search_document: '
+$env:SGOKB_EMBED_QUERY_PREFIX = 'search_query: '
 ```
 
-このgpt-oss実機ではFragmentの制約付き出力が空配列に偏ったため、Fragment段階だけ `text` 応答へ切り替えています。Core側のJSON parse・Fragment内容・根拠ID検証は常に行います。Final段階はJSON Schema出力を使用します。別モデルでこの回避設定が不要なら `CPC_LLM_FRAGMENT_EXTRA_JSON` を解除してください。
+このgpt-oss実機ではFragmentの制約付き出力が空配列に偏ったため、Fragment段階だけ `text` 応答へ切り替えています。Core側のJSON parse・Fragment内容・根拠ID検証は常に行います。Final段階はJSON Schema出力を使用します。別モデルでこの回避設定が不要なら `SGOKB_LLM_FRAGMENT_EXTRA_JSON` を解除してください。
 
 既存モデルがある検証環境でNomic v1.5を暫定使用しました。これは英語モデルであり、日本語検索の最適選定ではありません。[モデルカード](https://huggingface.co/nomic-ai/nomic-embed-text-v1.5)のprefixを設定しています。日本語の意味検索品質は今後、多言語モデルで比較してください。モデル自体を同梱・自動ダウンロードしません。
 
-クラウドを選ぶ場合は `CPC_LLM_API_KEY` / `CPC_EMBED_API_KEY` を環境変数に設定します。選択した接続先にEvidence本文が送られるため、実データを扱える接続先を指定してください。`.env` はGit管理外ですが、自動読み込みは行いません。
+クラウドを選ぶ場合は `SGOKB_LLM_API_KEY` / `SGOKB_EMBED_API_KEY` を環境変数に設定します。選択した接続先にEvidence本文が送られるため、実データを扱える接続先を指定してください。`.env` はGit管理外ですが、自動読み込みは行いません。
 
-SentenceTransformersを使う場合は `pip install -e '.[local-embedding]'` の後、`CPC_EMBED_PROVIDER=sentence-transformers`、`CPC_EMBED_MODEL` にモデル名、`CPC_EMBED_REVISION` にrevisionを指定します。モデルキャッシュは `.local/models/` です。このアダプターの実モデル評価は今回のLM Studio評価とは別です。
+SentenceTransformersを使う場合は `pip install -e '.[local-embedding]'` の後、`SGOKB_EMBED_PROVIDER=sentence-transformers`、`SGOKB_EMBED_MODEL` にモデル名、`SGOKB_EMBED_REVISION` にrevisionを指定します。モデルキャッシュは `.local/models/` です。このアダプターの実モデル評価は今回のLM Studio評価とは別です。
 
 ## Entityから最終文書まで
 
 少数のEntityはCLIで登録します。評価スクリプトはサンプルのタイトルから対象Captureを選び、Work・Character各1件を登録するため、大量の手入力は不要です。名前・aliasは論理分類であり、Rawの物理名には使いません。
 
 ```powershell
-python -m cpc entity add Work 'アイドルマスター シャイニーカラーズ' --alias 'アイドルマスターシャイニーカラーズ'
-python -m cpc entity add Character '櫻木真乃'
-python -m cpc entity list
+python -m sgokb entity add Work 'アイドルマスター シャイニーカラーズ' --alias 'アイドルマスターシャイニーカラーズ'
+python -m sgokb entity add Character '櫻木真乃'
+python -m sgokb entity list
 
 # IDは上の出力から設定する
 $characterId = '<entity-id>'
 $workId = '<work-entity-id>'
 $snapshotId = '<snapshot-id>'
-python -m cpc entity relate $characterId appears_in $workId
-python -m cpc fragment --snapshot $snapshotId --entity $characterId
-python -m cpc embed
-python -m cpc search '櫻木真乃の性格' --entity $characterId
-python -m cpc generate --entity $characterId --out .local/documents/character.md
-python -m cpc provenance document '<document-id>'
+python -m sgokb entity relate $characterId appears_in $workId
+python -m sgokb fragment --snapshot $snapshotId --entity $characterId
+python -m sgokb embed
+python -m sgokb search '櫻木真乃の性格' --entity $characterId
+python -m sgokb generate --entity $characterId --out .local/documents/character.md
+python -m sgokb provenance document '<document-id>'
 ```
 
 `fragment` は入力EvidenceにあるIDだけを受理し、成功した根拠をEntityへ関連付けます。明示的にSnapshotの全Evidenceを対象Entityに関連付けたい場合は `entity link <entity-id> <snapshot-id>` を使用します。

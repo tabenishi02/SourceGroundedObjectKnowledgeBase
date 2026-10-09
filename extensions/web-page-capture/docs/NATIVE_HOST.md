@@ -7,7 +7,7 @@ Chrome Extensionはセキュリティ上、Windows上の任意のフォルダへ
 本プロジェクトではCapture Bundleを次の場所へ保存する。
 
 ```text
-CharacterPageCollector/
+Source Grounded Object Knowledge Base/
 └─ extensions/
    └─ web-page-capture/
       └─ local-captures/
@@ -24,7 +24,7 @@ Chrome ExtensionはChromeの中で動作する。
 そのため、
 
 ```text
-C:\...\CharacterPageCollector\extensions\web-page-capture\local-captures\
+C:\...\Source Grounded Object Knowledge Base\extensions\web-page-capture\local-captures\
 ```
 
 のようなWindows上の好きな場所へ直接書き込むことには制限がある。
@@ -74,7 +74,7 @@ Native Host
 file save
 ```
 
-Capture処理にTCP port、HTTP API、Firewall設定、常駐CPC Serverを要求しないことを利点とする。
+Capture処理にTCP port、HTTP API、Firewall設定、常駐SGOKB Serverを要求しないことを利点とする。
 
 ## 4. Native Hostの責務
 
@@ -102,11 +102,11 @@ Native Hostの責務は小さく保つ。
 - Fragment生成
 - LLM処理
 - Embedding
-- CPC DB操作
+- SGOKB DB操作
 - RAG
-- その他CharacterPageCollector本体の処理
+- その他Source Grounded Object Knowledge Base本体の処理
 
-Native Hostは**保存用Bridge**であり、CPC Coreではない。
+Native Hostは**保存用Bridge**であり、SGOKB Coreではない。
 
 ## 5. 通信プロトコル v1.0
 
@@ -180,11 +180,11 @@ Native Host executable/script path
 
 WindowsではNative Messaging Host manifestと現在ユーザーのRegistry登録を利用する。
 
-`native-host/Manage-NativeHost.ps1` でInstall/Uninstall/Status/Prepareを実行する。HKCUの `Software\Google\Chrome\NativeMessagingHosts\com.characterpagecollector.web_page_capture` に `.local/host-manifest.json` を登録する。allowed_originsは指定Extension IDだけでwildcardなし。HostもChromeから渡されたoriginをmanifestと比較する。実設定・絶対パス・生成Executableは `.local/` に置きGit管理しない。詳細はREADMEを参照。
+`native-host/Manage-NativeHost.ps1` でInstall/Uninstall/Status/Prepareを実行する。HKCUの `Software\Google\Chrome\NativeMessagingHosts\com.sgokb.web_page_capture` に `.local/host-manifest.json` を登録する。allowed_originsは指定Extension IDだけでwildcardなし。HostもChromeから渡されたoriginをmanifestと比較する。実設定・絶対パス・生成Executableは `.local/` に置きGit管理しない。詳細はREADMEを参照。
 
 ## 7. 実装言語
 
-Python 3.10以降の標準ライブラリを採用する。CPCの依存Packageや解析コードを取り込まない。
+Python 3.10以降の標準ライブラリを採用する。SGOKBの依存Packageや解析コードを取り込まない。
 
 既存のPython環境を再利用でき、ZIP/JSON/SHA-256/Native Messagingを外部依存なしで保守できることを選択理由とする。
 
@@ -257,7 +257,7 @@ Native Hostを導入してもWeb Page Captureの責務は変わらない。
 Web Page Capture
   = Webページ情報の取得 + Raw Captureの保存
 
-CharacterPageCollector
+Source Grounded Object Knowledge Base
   = Raw Captureの解析・整理・検索・生成
 ```
 

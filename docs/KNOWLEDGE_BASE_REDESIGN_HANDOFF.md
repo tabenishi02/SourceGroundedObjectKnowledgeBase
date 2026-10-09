@@ -1,10 +1,10 @@
-# CharacterPageCollector — Knowledge Base 再設計 引き継ぎ資料
+# Source Grounded Object Knowledge Base — Knowledge Base 再設計 引き継ぎ資料
 
 更新日: 2026-10-09
 
 ## 1. 本書の目的
 
-本書は、CharacterPageCollector（以下 CPC）の Knowledge Base 再設計について、これまでの議論で合意した背景・目的・採用方針・責務境界・技術方針を、別チャットへ引き継ぐための資料である。
+本書は、Source Grounded Object Knowledge Base（以下 SGOKB）の Knowledge Base 再設計について、これまでの議論で合意した背景・目的・採用方針・責務境界・技術方針を、別チャットへ引き継ぐための資料である。
 
 以降は `docs/KNOWLEDGE_BASE_REDESIGN_TASKS.md` の各 Phase を原則として個別チャットで実施する。各チャットは、本書とタスク文書を最初に確認し、既決事項を不用意に再検討しないこと。
 
@@ -32,19 +32,19 @@
 2. Fragmentを大量に作ること自体が目的化し、最終用途に対して過剰である。
 3. 巨大なFinal Documentは人間にもAIにも日常利用しにくい。
 4. 高性能なChatGPTを利用できるのに、API自動化へこだわることでローカルLLMに高度な意味理解を負わせていた。
-5. CPCの本来の目的は「文書を生成すること」ではなく、「対象について再利用可能な知識を蓄積すること」にある。
+5. SGOKBの本来の目的は「文書を生成すること」ではなく、「対象について再利用可能な知識を蓄積すること」にある。
 
 したがって、Prototypeの自動化率を高める方向ではなく、人間・通常プログラム・Embeddingモデル・ChatGPTの役割を明確に分離する方向へ再設計する。
 
 ---
 
-## 3. CPCで実現したい本質的な目的
+## 3. SGOKBで実現したい本質的な目的
 
-CPCの目的は、次のように捉える。
+SGOKBの目的は、次のように捉える。
 
 > 自分が関心を持って収集したキャラクター・作品・概念などを、Web上の根拠まで追跡可能な「意味のあるObject」として長期保存し、将来どのAIからでも検索・比較・参照・創作材料として利用できる、モデル非依存の外部知識記憶を構築する。
 
-CPCは単なるCharacter Document Generatorではなく、**Curated Semantic Object Knowledge Base** を目指す。
+SGOKBは単なるCharacter Document Generatorではなく、**Curated Semantic Object Knowledge Base** を目指す。
 
 主な利用例:
 
@@ -53,7 +53,7 @@ CPCは単なるCharacter Document Generatorではなく、**Curated Semantic Obj
 - 複数ConceptをAIへ渡して新しいCharacterや設定を創作する。
 - Character / Work / Concept間のRelationを辿る。
 - Semantic Facet単位で類似性を調べる。
-- UserPreferenceDiscoverySystem（UPDS）がCPC Knowledgeを利用し、ユーザー自身の潜在的嗜好・価値観を分析する。
+- UserPreferenceDiscoverySystem（UPDS）がSGOKB Knowledgeを利用し、ユーザー自身の潜在的嗜好・価値観を分析する。
 
 ---
 
@@ -101,17 +101,17 @@ ChatGPT / Local LLM / UPDS / Other Clients
 - Raw Source / Evidenceは一次資料として保持する。
 - Object KnowledgeはEvidenceから派生するが、Evidenceそのものとは分離する。
 - 高度な意味理解・統合は原則としてChatGPTへ任せる。
-- CPC内部の自動処理では、生成LLMを必須にしない。
+- SGOKB内部の自動処理では、生成LLMを必須にしない。
 - Embeddingは生成LLMとは別物として積極利用する。
 - Google Driveは交換場所であり、正本ではない。
 - 正本はローカルのObject Knowledge DBとする。
-- AI固有の仕様をCPC Coreへ持ち込まず、将来別AIへ交換可能にする。
+- AI固有の仕様をSGOKB Coreへ持ち込まず、将来別AIへ交換可能にする。
 
 ---
 
 ## 5. Object中心モデル
 
-CPCの中心概念は `Object` とする。
+SGOKBの中心概念は `Object` とする。
 
 初期Object Type:
 
@@ -252,7 +252,7 @@ ChatGPT Web/DesktopとGoogle Driveを利用し、人間が明示的に処理を�
 想定フロー:
 
 ```text
-CPC
+SGOKB
  ↓
 Evidence Package生成
  ↓
@@ -262,14 +262,14 @@ Google Driveへ配置
  ↓
 ChatGPTが定義済みSchemaでResultを生成
  ↓
-ResultをCPCへ戻す
+ResultをSGOKBへ戻す
  ↓
 Validation
  ↓
 DBへVersion追加
 ```
 
-1 Objectあたり「CPC側の自動処理」は概ね10分以内を目標とする。
+1 Objectあたり「SGOKB側の自動処理」は概ね10分以内を目標とする。
 
 人間がChatGPTを操作する時間は、この10分目標から除外する。
 
@@ -279,14 +279,14 @@ DBへVersion追加
 
 ## 9. Google Driveの役割
 
-Google DriveはCPCとChatGPT間の交換場所として利用する。
+Google DriveはSGOKBとChatGPT間の交換場所として利用する。
 
 正本にはしない。
 
 例:
 
 ```text
-CharacterPageCollector/
+Source Grounded Object Knowledge Base/
 └─ exchange/
    └─ <object-id>/
       ├─ manifest.json
@@ -324,7 +324,7 @@ Object
 └─ generation / provenance metadata
 ```
 
-ResultはそのままDBへ投入せず、CPC側で形式的Validationを行う。
+ResultはそのままDBへ投入せず、SGOKB側で形式的Validationを行う。
 
 Validation例:
 
@@ -375,7 +375,7 @@ Evidence Searchは監査・再分析用途として残す。
 
 Embeddingだけでは固有名詞に弱く、FTSだけでは意味的類似を拾えないため、FTS + Vectorを組み合わせる。
 
-CPC Prototypeに既存のLexical / Semantic / Hybrid Search基盤は再利用候補とする。
+SGOKB Prototypeに既存のLexical / Semantic / Hybrid Search基盤は再利用候補とする。
 
 ### Embedding
 
@@ -395,14 +395,14 @@ SQLiteを正本DBとし、sqlite-vec等をAdapter経由で利用する案を第�
 
 MCP ServerはAIそのものではない。
 
-CPC Knowledgeを、ChatGPT・ローカルLLM・Agent・UPDS等が標準化された方法で検索・取得するための **Knowledge Access Layer** とする。
+SGOKB Knowledgeを、ChatGPT・ローカルLLM・Agent・UPDS等が標準化された方法で検索・取得するための **Knowledge Access Layer** とする。
 
-MCPからDBテーブルを直接公開するのではなく、CPC Retrieval Coreを介する。
+MCPからDBテーブルを直接公開するのではなく、SGOKB Retrieval Coreを介する。
 
 ```text
 SQLite / Index
       ↓
-CPC Retrieval Core
+SGOKB Retrieval Core
       ├─ CLI
       ├─ Application
       └─ MCP Adapter
@@ -430,7 +430,7 @@ User
  ↓
 LLM
  ↓ MCP Tool call
-CPC
+SGOKB
  ↓
 Character Knowledge
  ↓
@@ -439,9 +439,9 @@ LLM Context
 LLMがRoleplay
 ```
 
-「検索・Context提供」はCPC、「推論・創作・説明」は利用側LLMの責務とする。
+「検索・Context提供」はSGOKB、「推論・創作・説明」は利用側LLMの責務とする。
 
-### AIからCPCへの書き込み
+### AIからSGOKBへの書き込み
 
 初期版MCPはRead / Search中心とする。
 
@@ -449,11 +449,11 @@ LLMがRoleplay
 
 ---
 
-## 14. CPCとUPDSの責務分割
+## 14. SGOKBとUPDSの責務分割
 
 両者は統合しない。
 
-### CPC = World / Object Knowledge Layer
+### SGOKB = World / Object Knowledge Layer
 
 問い:
 
@@ -470,7 +470,7 @@ LLMがRoleplay
 - Source / Evidence
 - Object Embedding
 
-CPCには「ユーザーがこれを好き」という意味を入れない。
+SGOKBには「ユーザーがこれを好き」という意味を入れない。
 
 ### UPDS = Personal Inference Layer
 
@@ -481,35 +481,35 @@ CPCには「ユーザーがこれを好き」という意味を入れない。
 所有するもの:
 
 - Selection Event
-- Semantic Observation（必要に応じてCPC Knowledgeを参照）
+- Semantic Observation（必要に応じてSGOKB Knowledgeを参照）
 - Cross-source / Cross-object Pattern
 - Preference Hypothesis
 - Alternative Explanation
 - User-oriented Evidence Set
 
-UPDSはCPCをKnowledge Providerとして利用可能とする。
+UPDSはSGOKBをKnowledge Providerとして利用可能とする。
 
-CPCはUPDSを知らなくても単独成立させる。
+SGOKBはUPDSを知らなくても単独成立させる。
 
 依存関係は原則一方向とする。
 
 ```text
-CPC
+SGOKB
  ↓ MCP
 UPDS
 ```
 
 ### Conceptの扱い
 
-Conceptそのものの定義・Relation・EmbeddingはCPCで管理する案を第一候補とする。
+Conceptそのものの定義・Relation・EmbeddingはSGOKBで管理する案を第一候補とする。
 
-UPDS側はCPC Concept IDを参照し、「ユーザーがConceptを好む可能性」のようなPreference Hypothesisを持つ。
+UPDS側はSGOKB Concept IDを参照し、「ユーザーがConceptを好む可能性」のようなPreference Hypothesisを持つ。
 
 詳細契約はPhase Cで確定する。
 
 ---
 
-## 15. 既存CPC資産の扱い
+## 15. 既存SGOKB資産の扱い
 
 全面作り直しを前提としない。
 
@@ -573,7 +573,7 @@ docs/
 候補code構造:
 
 ```text
-src/cpc/
+src/sgokb/
 ├─ domain/
 ├─ ingestion/
 ├─ storage/
@@ -621,7 +621,7 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 
 以下は、以後のPhaseで特別な理由なく覆さない。
 
-1. CPCの中心はDocumentではなくObject Knowledgeである。
+1. SGOKBの中心はDocumentではなくObject Knowledgeである。
 2. Character / Work / Conceptを初期Object Typeとする。
 3. Raw Source / Evidenceを保持し、Provenanceを維持する。
 4. SourceとObjectは多対多とする。
@@ -639,15 +639,15 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 16. Object / Facet / RelationからEvidenceへ遡れるようにする。
 17. MCPをKnowledge Access Layerとして提供する。
 18. MCPは推論・創作を担当せず、検索・Context提供を中心とする。
-19. CPCとUPDSは別プロジェクトとして維持する。
-20. CPCはWorld/Object Knowledge、UPDSはPersonal Inferenceを担当する。
-21. CPC → UPDSの一方向依存を基本とし、CPC単体で成立させる。
-22. ConceptそのものはCPC所有を第一候補とする。
+19. SGOKBとUPDSは別プロジェクトとして維持する。
+20. SGOKBはWorld/Object Knowledge、UPDSはPersonal Inferenceを担当する。
+21. SGOKB → UPDSの一方向依存を基本とし、SGOKB単体で成立させる。
+22. ConceptそのものはSGOKB所有を第一候補とする。
 23. SQLiteを正本DBとして維持する方向を基本とする。
 24. Vector専用DBやGraph DBを初期要件とはしない。
-25. 1 ObjectあたりのCPC自動処理は概ね10分以内を目標とし、人間操作時間は除外する。
+25. 1 ObjectあたりのSGOKB自動処理は概ね10分以内を目標とし、人間操作時間は除外する。
 26. 自動化率の最大化を目的にしない。
-27. 既存CPC資産を可能な限り再利用し、全面rewriteを前提としない。
+27. 既存SGOKB資産を可能な限り再利用し、全面rewriteを前提としない。
 28. 大規模Git移動は責務・Schema決定後に行う。
 
 ---
@@ -673,8 +673,8 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 - Similarityの定義・Facet weighting
 - MCP Tool / Resource / Promptの具体仕様
 - MCP transport / deployment方式
-- AIからCPCへのwrite機能を初期版に含めるか
-- ConceptのCPC/UPDS間の最終契約
+- AIからSGOKBへのwrite機能を初期版に含めるか
+- ConceptのSGOKB/UPDS間の最終契約
 - 既存Fragment / Final関連コードを残す範囲
 - DB migration方針
 - Repository最終フォルダ構造
@@ -704,7 +704,7 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 ## 21. 各新規チャットで使用する開始指示の基本形
 
 ```text
-CharacterPageCollectorのKnowledge Base再設計を続けます。
+Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
 
 まずGitHubリポジトリの以下を確認し、これまでの合意事項と現在のタスクを把握してください。
 - docs/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md

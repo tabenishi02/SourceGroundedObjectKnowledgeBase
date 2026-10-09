@@ -2,23 +2,23 @@
 
 更新日: 2026-10-06
 
-この文書は、Prototype 0.2 の実データ評価で顕在化した Fragment 数、LLM 呼び出し回数、出力 token 数、Final Document サイズの増大について、現在の CPC 実装と外部の RAG / Prompt Compression / Long Context 事例を比較し、次の設計見直し候補を整理するための調査・設計メモである。
+この文書は、Prototype 0.2 の実データ評価で顕在化した Fragment 数、LLM 呼び出し回数、出力 token 数、Final Document サイズの増大について、現在の SGOKB 実装と外部の RAG / Prompt Compression / Long Context 事例を比較し、次の設計見直し候補を整理するための調査・設計メモである。
 
 この文書に記載する数値は、次の3種類を区別する。
 
-1. **CPC 実測値**: 現在の Prototype Upgrade で実データを処理して得た値。
+1. **SGOKB 実測値**: 現在の Prototype Upgrade で実データを処理して得た値。
 2. **外部実装の設定値**: GraphRAG、LightRAG、RAPTOR 等のコードまたは公式文書にあるデフォルト値・実装値。
-3. **CPC 再設計案**: 外部事例と CPC 実測を踏まえた比較候補。未採用・未実測の値を含む。
+3. **SGOKB 再設計案**: 外部事例と SGOKB 実測を踏まえた比較候補。未採用・未実測の値を含む。
 
-外部事例の値は CPC にそのまま適用可能であることを意味しない。データ種別、モデル、Tokenizer、目的、出力 Schema が異なるため、CPC では固定評価データを用いて Recall / Precision / Unsupported / Atomicity / 所要時間を比較する。
+外部事例の値は SGOKB にそのまま適用可能であることを意味しない。データ種別、モデル、Tokenizer、目的、出力 Schema が異なるため、SGOKB では固定評価データを用いて Recall / Precision / Unsupported / Atomicity / 所要時間を比較する。
 
 ---
 
-## 1. 現在の CPC の状態
+## 1. 現在の SGOKB の状態
 
 ### 1.1 Evidence 生成
 
-現在の `src/cpc/extraction.py` は HTML を構造単位へ分解し、既定で次の文字数基準で Evidence を生成する。
+現在の `src/sgokb/extraction.py` は HTML を構造単位へ分解し、既定で次の文字数基準で Evidence を生成する。
 
 - chunk size: 1000 **characters**
 - overlap: 100 **characters**
@@ -27,14 +27,14 @@
 
 対応実装:
 
-- `src/cpc/extraction.py::chunks()`
-- `src/cpc/application.py::Application.process()`
+- `src/sgokb/extraction.py::chunks()`
+- `src/sgokb/application.py::Application.process()`
 
 現状は Tokenizer に依存しないという利点がある一方、日本語では「文字数」と LLM が消費する token 数が一致しないため、LLM 入力量の予算管理には直接利用できない。
 
 ### 1.2 Fragment 抽出
 
-現在の `src/cpc/capture.py` は High Recall を優先し、全 substantive Evidence を評価する。主な既定値は次のとおり。
+現在の `src/sgokb/capture.py` は High Recall を優先し、全 substantive Evidence を評価する。主な既定値は次のとおり。
 
 - `WINDOW_CHARS = 480`
 - `WINDOW_OVERLAP = 64`
@@ -49,30 +49,30 @@
 
 対応実装:
 
-- `src/cpc/capture.py::extraction_windows()`
-- `src/cpc/capture.py::HighRecallCapture.run()`
-- `src/cpc/capture.py::HighRecallCapture.extract_window()`
+- `src/sgokb/capture.py::extraction_windows()`
+- `src/sgokb/capture.py::HighRecallCapture.run()`
+- `src/sgokb/capture.py::HighRecallCapture.extract_window()`
 
 ### 1.3 LLM 出力上限
 
-`src/cpc/providers.py` では LLM 出力上限はモデル仕様から自動取得していない。`CPC_LLM_MAX_TOKENS` を API へ渡す方式で、環境変数を設定しない場合の Provider 既定値は 3000 tokens。
+`src/sgokb/providers.py` では LLM 出力上限はモデル仕様から自動取得していない。`SGOKB_LLM_MAX_TOKENS` を API へ渡す方式で、環境変数を設定しない場合の Provider 既定値は 3000 tokens。
 
 速度予備試験と代表8 Capture の比較条件では、モデル間条件を固定するため次を採用した。
 
 - context length: 既存8モデルのLM Studio条件は16384 tokens。追加したStrata L09は65536 tokens
-- CPC形式 S03 / 実データ抽出の最大出力予算: 8192 tokens
+- SGOKB形式 S03 / 実データ抽出の最大出力予算: 8192 tokens
 
-したがって、**8192 tokens はモデル固有の最大出力能力ではなく、CPC の比較・評価で設定した推論予算**である。再設計後も 8192 を当然の最適値として固定しない。
+したがって、**8192 tokens はモデル固有の最大出力能力ではなく、SGOKB の比較・評価で設定した推論予算**である。再設計後も 8192 を当然の最適値として固定しない。
 
 対応資料:
 
-- `src/cpc/providers.py`
+- `src/sgokb/providers.py`
 - `docs/MODEL_SPEED_PREFLIGHT_PLAN.md`
 - `docs/PROCESSING_BOTTLENECK_REVIEW.md`
 - `docs/STRATA_INTEGRATION_REVIEW.md`
 - `docs/MODEL_SPEED_PREFLIGHT_RESULTS.md`
 
-Strata接続と固定S01/S02/S03の追加速度試験は実装・実機確認済み。S03本測定3回の中央値は90.40 tokens/s・16.67秒、CPC契約適合3/3。既存Qwen3.8-27Bは120.09 tokens/s・12.11秒で、この予備試験ではStrataによる高速化を確認していない。runtime・context・量子化・projectionの構成差を含み、代表8CaptureのStrata品質・総時間は未評価。この接続追加を本書の再設計案の実装完了とは扱わない。
+Strata接続と固定S01/S02/S03の追加速度試験は実装・実機確認済み。S03本測定3回の中央値は90.40 tokens/s・16.67秒、SGOKB契約適合3/3。既存Qwen3.8-27Bは120.09 tokens/s・12.11秒で、この予備試験ではStrataによる高速化を確認していない。runtime・context・量子化・projectionの構成差を含み、代表8CaptureのStrata品質・総時間は未評価。この接続追加を本書の再設計案の実装完了とは扱わない。
 
 ### 1.4 実データで確認したボトルネック
 
@@ -101,7 +101,7 @@ Strata接続と固定S01/S02/S03の追加速度試験は実装・実機確認済
 
 ### 1.5 Final Document
 
-`src/cpc/final.py` の現在の cluster は非常に保守的で、次の属性とほぼ同一の claim text が一致した場合のみ同一 cluster とする。
+`src/sgokb/final.py` の現在の cluster は非常に保守的で、次の属性とほぼ同一の claim text が一致した場合のみ同一 cluster とする。
 
 - facet
 - epistemic_type
@@ -145,7 +145,7 @@ Raw Fragment を不可逆に統合しない点は設計意図に合う。しか�
 
 GraphRAG の公式 dataflow 文書は、chunk を大きくすると fidelity が下がる可能性がある一方、処理を大幅に高速化できると説明している。
 
-CPC への示唆:
+SGOKB への示唆:
 
 - 保管・抽出対象の単位を数百文字まで細分化することは必須ではない。
 - chunk size と最終検索 context budget を別々に管理する。
@@ -174,7 +174,7 @@ CPC への示唆:
 
 12,000 token の summary input に対して推奨 summary output が 600 token であるため、設定値だけを比較すれば最大約20:1の縮約を想定できる。ただしこれは「常に20倍圧縮される」という実測保証ではなく、入出力予算の上限・推奨値の比較である。
 
-CPC への示唆:
+SGOKB への示唆:
 
 - Extraction input、summary input、query context に別々の token budget を設ける。
 - Raw / Evidence を失わず、後段 representation だけを強く圧縮できる。
@@ -191,7 +191,7 @@ CPC への示唆:
 - 論文の collapsed-tree retrieval は **最大2000 tokens** を採用し、約 top-20 nodes に相当すると説明している。
 - 現在の reference implementation の `retrieve()` は `max_tokens=3500` を既定値としている。
 
-CPC への示唆:
+SGOKB への示唆:
 
 - 大量の知識を階層化して保持しても、最終利用時に全件を渡す必要はない。
 - Claim / Facet / Entity の階層 representation を用意し、用途に応じて数千〜数万 token の budget で展開する構造が候補になる。
@@ -211,11 +211,11 @@ CPC への示唆:
 - reranking では候補 top 150 から top 20 を選ぶ例を使用。
 - Contextual Embedding + BM25 + reranking で top-20 retrieval failure rate を 5.7% から 1.9% へ削減したと報告。
 
-CPC への示唆:
+SGOKB への示唆:
 
 - 抽出前に強く圧縮して文脈を失うのではなく、Evidence は十分な文脈を保つ。
 - 最終利用時に reranking / selection を行う。
-- `Page Context` を Evidence 自体へ重複コピーせず参照可能にしている CPC の方向性は維持できる。
+- `Page Context` を Evidence 自体へ重複コピーせず参照可能にしている SGOKB の方向性は維持できる。
 
 ### 2.5 LLMLingua / LongLLMLingua / LLMLingua-2
 
@@ -231,10 +231,10 @@ CPC への示唆:
 - LongLLMLingua: 約10k-token prompt を 2x〜6x 圧縮した条件で end-to-end latency を 1.4x〜2.6x 改善。NaturalQuestions では約4x fewer tokens の例も報告。
 - LLMLingua-2: compression ratio 2x〜5x で end-to-end latency 1.6x〜2.9x、既存 prompt compression 手法より 3x〜6x 高速と報告。
 
-CPC への示唆:
+SGOKB への示唆:
 
 - token 数を減らせば latency を大きく改善できる余地がある。
-- ただし CPC の Evidence → Fragment は根拠抽出工程であり、否定・条件・時期・原文引用の欠落が許されにくい。Token deletion 型 compression をこの段階の既定処理にはしない。
+- ただし SGOKB の Evidence → Fragment は根拠抽出工程であり、否定・条件・時期・原文引用の欠落が許されにくい。Token deletion 型 compression をこの段階の既定処理にはしない。
 - Prompt Compression は Retrieval 後の AI Context Renderer 等、Raw / Evidence / Fragment を失わない最終消費段で比較するのが安全。
 
 ### 2.6 RECOMP
@@ -249,7 +249,7 @@ CPC への示唆:
 - retrieved documents の **6%** まで圧縮しても minimal loss の条件を報告。単純比では約16.7x compression。
 - 不要な retrieved document については empty string を出力する selective augmentation も採用。
 
-CPC への示唆:
+SGOKB への示唆:
 
 - 「Evidence を保存すること」と「毎回 LLM へ Evidence を渡すこと」を分離する。
 - query / purpose に不要な Knowledge Claim を最終 context へ入れない設計が妥当。
@@ -265,19 +265,19 @@ CPC への示唆:
 - long-context 対応モデルでも、関連情報の位置によって性能が大きく変化することを報告。
 - 多くの条件で relevant information が input の先頭または末尾にある場合より、中間にある場合に性能が低下した。
 
-CPC への示唆:
+SGOKB への示唆:
 
 - モデルが大きな context window を持つことは、Knowledge Store 全体を context 上限まで投入すべき根拠にはならない。
 - relevant / diverse / source-balanced な情報を選び、明示的な context budget へ詰める方を優先して評価する。
 
 ---
 
-## 3. CPC と外部事例の比較
+## 3. SGOKB と外部事例の比較
 
-| 論点 | 現在の CPC | 外部事例の傾向 | 再設計上の判断 |
+| 論点 | 現在の SGOKB | 外部事例の傾向 | 再設計上の判断 |
 |---|---|---|---|
 | Evidence / chunk 単位 | 1000文字 + 100文字 overlap | GraphRAG / LightRAG は1200 token + 100 token | token 基準を比較する |
-| Fragment inference unit | 原則480文字、最小120文字 | 数百〜1200+ token、summary/extract はさらに大きい入力も利用 | CPC は小さすぎる可能性が高い |
+| Fragment inference unit | 原則480文字、最小120文字 | 数百〜1200+ token、summary/extract はさらに大きい入力も利用 | SGOKB は小さすぎる可能性が高い |
 | 固定 Prompt 費 | 小 window ごとに再送 | 大きい batch / caching / hierarchy を利用 | 固定費削減が重要 |
 | Output | 詳細 JSON を Fragment ごとに反復 | representation と保存 Schema を分離する例が多い | LLM transport Schema を compact 化 |
 | High Recall | 全 substantive Evidence を LLM 処理 | retrieval / hierarchy / selective augmentation を併用 | Evidence coverage と Fragment 大量生成を分離 |
@@ -467,9 +467,9 @@ support = [F101, F285, F397]
 
 ### P1: Final / AI Context Token Budget
 
-外部事例の 2k〜30k を参考にするが、CPC の初期比較値として次を仮置きする。
+外部事例の 2k〜30k を参考にするが、SGOKB の初期比較値として次を仮置きする。
 
-| 用途 | CPC比較候補 | 状態 |
+| 用途 | SGOKB比較候補 | 状態 |
 |---|---:|---|
 | Short Summary | 2000〜4000 tokens | 未評価 |
 | Standard Knowledge View | 12000 tokens | 未評価 |
@@ -477,7 +477,7 @@ support = [F101, F285, F397]
 | Detailed Knowledge View | 24000〜30000 tokens | 未評価 |
 | Audit Export | 原則無制限 | 現行全件出力を再利用可能 |
 
-これらはモデルの最大 context ではない。CPC が用途ごとに設ける **task context budget** である。
+これらはモデルの最大 context ではない。SGOKB が用途ごとに設ける **task context budget** である。
 
 Selection では relevance だけでなく、同一 claim の反復を抑え、facet / source / epistemic type の多様性を確保する。
 
@@ -504,7 +504,7 @@ LLMLingua 系や RECOMP 型 compression は、Evidence → Fragment の既定処
 理由:
 
 - Evidence 抽出時に token deletion を行うと、否定、時期、条件、固有名詞等を落とす危険がある。
-- CPC の正本は Raw / Evidence / Fragment であり、最終 Prompt は再生成可能である。
+- SGOKB の正本は Raw / Evidence / Fragment であり、最終 Prompt は再生成可能である。
 
 ---
 
@@ -515,7 +515,7 @@ LLMLingua 系や RECOMP 型 compression は、Evidence → Fragment の既定処
 ```text
 Model / Runtime output capability
         ↓
-CPC hard output cap
+SGOKB hard output cap
         ↓
 Task output budget
         ↓
@@ -650,7 +650,7 @@ Retrieval結果を固定し、
 
 ## 10. 設計上の暫定結論
 
-今回の調査から、CPC の High Recall 方針自体を撤回する根拠はない。一方で、High Recall を「全 Evidence を非常に小さな window へ分割し、大量の詳細 Fragment JSON を生成し、それをほぼ全件 Final に出力すること」と結び付ける必要もない。
+今回の調査から、SGOKB の High Recall 方針自体を撤回する根拠はない。一方で、High Recall を「全 Evidence を非常に小さな window へ分割し、大量の詳細 Fragment JSON を生成し、それをほぼ全件 Final に出力すること」と結び付ける必要もない。
 
 再設計の中心は次の分離とする。
 

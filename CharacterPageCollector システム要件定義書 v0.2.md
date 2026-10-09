@@ -1,5 +1,7 @@
 # CharacterPageCollector システム要件定義書 v0.2
 
+> **Archived / Historical** — Rename前のPrototype要件です。現行の名称と操作は[README](README.md)、Renameの正本は[Decision](docs/SGOKB_RENAME_DECISION.md)を参照してください。
+
 > **プロトタイプ実装方針**
 >
 > 本書は、CharacterPageCollectorの最終仕様を完全に固定するものではなく、まず一連の処理を実行可能なプロトタイプを構築するための**最低限の実装要件**を定義する。

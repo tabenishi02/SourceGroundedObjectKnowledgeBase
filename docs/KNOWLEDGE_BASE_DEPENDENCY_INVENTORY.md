@@ -1,9 +1,9 @@
-# CharacterPageCollector — 既存依存関係・DB移行棚卸し
+# Source Grounded Object Knowledge Base — 既存依存関係・DB移行棚卸し
 
 更新日: 2026-10-09
 
 - Task: `A-03 [P1] 既存DB・CLI・モジュール・テストの依存関係を棚卸しする`
-- Related Decision: `CPC-KB-001`
+- Related Decision: `SGOKB-KB-001`
 - Related:
   - `docs/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
   - `docs/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
@@ -17,7 +17,7 @@
 
 - SQLite schema / foreign key / search index / embedding
 - CLI command
-- `src/cpc` module
+- `src/sgokb` module
 - prompt / JSON Schema
 - `tests/`
 - `scripts/`
@@ -29,7 +29,7 @@
 
 ## 2. 結論
 
-既存CPCは、次の3層に分離して扱うのが安全である。
+既存SGOKBは、次の3層に分離して扱うのが安全である。
 
 ```text
 [再利用可能な基盤]
@@ -352,7 +352,7 @@ DB構造自体は汎用的だが、現行caseはFragment / Final前提が多い�
 
 ---
 
-## 10. `src/cpc` module依存関係
+## 10. `src/sgokb` module依存関係
 
 ### `importer.py` — Keep
 
@@ -570,17 +570,17 @@ AI部は`fragment → embed → generate`へ強く依存するため、新Vertic
 ### 必ず変更または隔離が必要
 
 ```text
-src/cpc/capture.py
-src/cpc/final.py
-src/cpc/knowledge_repository.py
-src/cpc/application.py
-src/cpc/repository.py
-src/cpc/domain.py
-src/cpc/search.py
-src/cpc/cli.py
-src/cpc/providers.py
-src/cpc/benchmark.py
-src/cpc/prompts/*
+src/sgokb/capture.py
+src/sgokb/final.py
+src/sgokb/knowledge_repository.py
+src/sgokb/application.py
+src/sgokb/repository.py
+src/sgokb/domain.py
+src/sgokb/search.py
+src/sgokb/cli.py
+src/sgokb/providers.py
+src/sgokb/benchmark.py
+src/sgokb/prompts/*
 
 tests/conftest.py
 tests/test_core.py
@@ -602,9 +602,9 @@ scripts/Use-Strata.ps1
 
 ```text
 extensions/web-page-capture/
-src/cpc/importer.py
-src/cpc/extraction.py
-src/cpc/context.py
+src/sgokb/importer.py
+src/sgokb/extraction.py
+src/sgokb/context.py
 scripts/inventory_samples.py
 ```
 

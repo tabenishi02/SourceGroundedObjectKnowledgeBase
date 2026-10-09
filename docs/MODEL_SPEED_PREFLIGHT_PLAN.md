@@ -1,5 +1,7 @@
 # LLM出力速度の予備試験計画
 
+> **Archived / Historical** — Rename前のPrototypeの記録です。旧名称・コマンド・パスは当時の事実を保持しており、現行操作は[README](../README.md)を参照してください。
+
 作成日・更新日: 2026-10-06。既存8モデルの再試験とStrata追加試験が終了した。[測定結果と制約](MODEL_SPEED_PREFLIGHT_RESULTS.md)を参照。以下の共通条件・手順は元のLM Studio試験を示し、Strataの構成差は追加条件として記録する。
 
 ## 目的

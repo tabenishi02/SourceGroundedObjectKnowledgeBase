@@ -1,8 +1,8 @@
-# CPC ローカルAI能力比較計画
+# SGOKB ローカルAI能力比較計画
 
 ## 1. 目的
 
-本書は、CharacterPageCollector（CPC）の文章処理能力を改善するために、**ローカルAIのみを使用してモデル・処理方式・検索構成を比較するためのベンチマーク計画**を定義する。
+本書は、Source Grounded Object Knowledge Base（SGOKB）の文章処理能力を改善するために、**ローカルAIのみを使用してモデル・処理方式・検索構成を比較するためのベンチマーク計画**を定義する。
 
 比較対象は次の3段階とする。
 
@@ -14,7 +14,7 @@
 
 本比較の目的は単純に「最も高性能なモデル」を選ぶことではない。
 
-CPCでは処理段階ごとに要求される能力が異なるため、
+SGOKBでは処理段階ごとに要求される能力が異なるため、
 
 - Fragmentでは高Recallで情報を取りこぼさない能力
 - Final Documentでは大量Fragmentを構造化・統合する能力
@@ -499,7 +499,7 @@ Meta     : meta/muse-glimmer
 
 # 8. 測定する実行性能
 
-品質だけでなく、CPCの日常運用可否を判断するため以下も記録する。
+品質だけでなく、SGOKBの日常運用可否を判断するため以下も記録する。
 
 - Model file size
 - Quantization
@@ -524,7 +524,7 @@ Runtimeが異なる場合は、品質比較と速度比較を分離して解釈�
 
 # 9. Fragment品質指標
 
-今後のCPCではFragmentを中心的な知識単位として扱うため、次を特に重視する。
+今後のSGOKBではFragmentを中心的な知識単位として扱うため、次を特に重視する。
 
 ## 9.1 Fragment Recall
 
@@ -714,7 +714,7 @@ A ... G
 
 # 15. 最終判断基準
 
-CPCでは単純なBenchmark Score 1位ではなく、用途別に判断する。
+SGOKBでは単純なBenchmark Score 1位ではなく、用途別に判断する。
 
 Fragment Extraction：
 
@@ -746,4 +746,4 @@ Recall@K
 
 最終的に、Fragment / Final / Retrievalで異なるモデルを採用してよい。
 
-CPC全体を1つのモデル系列へ統一すること自体を目標としない。
+SGOKB全体を1つのモデル系列へ統一すること自体を目標としない。

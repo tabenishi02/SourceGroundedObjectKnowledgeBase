@@ -1,5 +1,7 @@
 # CPCプロトタイプ追加設計観点
 
+> **Archived / Historical** — Rename前のPrototypeの記録です。旧名称・コマンド・パスは当時の事実を保持しており、現行操作は[README](../README.md)を参照してください。
+
 ## 1. 目的
 
 本書は、`docs/PROTOTYPE_CONTENT_REVIEW.md` で整理したEvidence / Fragment / Final Documentの改善方針に加え、初回プロトタイプの次段階で設計上意識すべき追加観点をまとめる。

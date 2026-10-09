@@ -1,9 +1,9 @@
-# CharacterPageCollector — 既存資産 Keep / Modify / Replace / Retire 分類
+# Source Grounded Object Knowledge Base — 既存資産 Keep / Modify / Replace / Retire 分類
 
 更新日: 2026-10-09
 
 - Task: `A-02 [P0] 既存機能を Keep / Modify / Replace / Retire に分類する`
-- Related Decision: `CPC-KB-001`
+- Related Decision: `SGOKB-KB-001`
 - Related:
   - `docs/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
   - `docs/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`
@@ -86,7 +86,7 @@
 
 **理由**
 
-再設計後も入力はWeb上の一次資料であり、取得工程はFragmentやFinal Documentの存在に依存しない。CPCの目的がObject Knowledge Baseへ変わっても、Sourceを再現可能な形で取得する責務は維持される。
+再設計後も入力はWeb上の一次資料であり、取得工程はFragmentやFinal Documentの存在に依存しない。SGOKBの目的がObject Knowledge Baseへ変わっても、Sourceを再現可能な形で取得する責務は維持される。
 
 **方針**
 
@@ -96,7 +96,7 @@
 
 **対象例**
 
-- `src/cpc/importer.py`
+- `src/sgokb/importer.py`
 - ZIP path traversal防止
 - 必須Artifact検証
 - checksum coverage検証
@@ -150,7 +150,7 @@ Keep。
 
 **対象例**
 
-- `src/cpc/extraction.py`
+- `src/sgokb/extraction.py`
 - `GenericExtractor`
 - `WikipediaExtractor`
 - `PixivExtractor`
@@ -417,7 +417,7 @@ Object Version / Semantic Facet / Relation / Evidence Linkを持つStructured Ob
 
 **対象**
 
-- `src/cpc/capture.py`
+- `src/sgokb/capture.py`
 - `HighRecallCapture`
 - 全Evidence assessment
 - batch / window分割
@@ -426,7 +426,7 @@ Object Version / Semantic Facet / Relation / Evidence Linkを持つStructured Ob
 
 **理由**
 
-これは「全Evidenceを生成LLMでFragment化する」旧標準Pipelineの中心実装であり、CPC-KB-001と直接衝突する。
+これは「全Evidenceを生成LLMでFragment化する」旧標準Pipelineの中心実装であり、SGOKB-KB-001と直接衝突する。
 
 **置換先**
 
@@ -496,7 +496,7 @@ Object Evidence Package → Human-in-the-loop ChatGPT → result.json → Import
 
 ### T-01 Fragment生成速度benchmarkを主要KPIとすること
 
-モデルtokens/s、Fragment生成時間、全Evidence Fragment化完了時間は歴史的Prototype比較として保存できるが、新CPCの主要性能指標から外す。
+モデルtokens/s、Fragment生成時間、全Evidence Fragment化完了時間は歴史的Prototype比較として保存できるが、新SGOKBの主要性能指標から外す。
 
 ### T-02 Fragment coverageをKnowledge品質の主要指標とすること
 
@@ -570,20 +570,20 @@ D-02で`docs/archive/prototype-0.2/`等への配置を検討する。
 | 主な資産 | 分類 | 注記 |
 |---|---|---|
 | `extensions/web-page-capture/` | Keep | 取得層として独立継続 |
-| `src/cpc/importer.py` | Keep | Raw Bundle reader / validation |
-| `src/cpc/extraction.py` | Keep | Evidence生成基盤。chunk等は調整可 |
-| `src/cpc/repository.py` | Modify | SQLite基盤はKeep、Entity/Fragment/Document部分を再構成 |
-| `src/cpc/knowledge_repository.py` | Replace/Modify | Fragment extraction部分はReplace、追跡・run管理パターンは再利用可 |
-| `src/cpc/domain.py` | Modify | Embedder等はKeep、SearchFilter/LLM/Fragment validationを再編 |
-| `src/cpc/context.py` | Modify | Source metadataとして再利用 |
-| `src/cpc/search.py` | Modify | engine骨格Keep、candidate schema変更 |
-| `src/cpc/providers.py` Embedding部分 | Keep | 新検索でも利用 |
-| `src/cpc/providers.py` Generative LLM部分 | Modify | optional/researchへ降格 |
-| `src/cpc/application.py` | Modify | application service境界維持、use case交換 |
-| `src/cpc/cli.py` | Modify | Object中心CLIへ全面再編 |
-| `src/cpc/capture.py` | Replace | High Recall Fragment pipeline |
-| `src/cpc/final.py` | Replace | Final Knowledge model。rendering部のみ転用候補 |
-| `src/cpc/benchmark.py` | Modify | Retrieval評価再利用、Fragment/Final phaseはRetire |
+| `src/sgokb/importer.py` | Keep | Raw Bundle reader / validation |
+| `src/sgokb/extraction.py` | Keep | Evidence生成基盤。chunk等は調整可 |
+| `src/sgokb/repository.py` | Modify | SQLite基盤はKeep、Entity/Fragment/Document部分を再構成 |
+| `src/sgokb/knowledge_repository.py` | Replace/Modify | Fragment extraction部分はReplace、追跡・run管理パターンは再利用可 |
+| `src/sgokb/domain.py` | Modify | Embedder等はKeep、SearchFilter/LLM/Fragment validationを再編 |
+| `src/sgokb/context.py` | Modify | Source metadataとして再利用 |
+| `src/sgokb/search.py` | Modify | engine骨格Keep、candidate schema変更 |
+| `src/sgokb/providers.py` Embedding部分 | Keep | 新検索でも利用 |
+| `src/sgokb/providers.py` Generative LLM部分 | Modify | optional/researchへ降格 |
+| `src/sgokb/application.py` | Modify | application service境界維持、use case交換 |
+| `src/sgokb/cli.py` | Modify | Object中心CLIへ全面再編 |
+| `src/sgokb/capture.py` | Replace | High Recall Fragment pipeline |
+| `src/sgokb/final.py` | Replace | Final Knowledge model。rendering部のみ転用候補 |
+| `src/sgokb/benchmark.py` | Modify | Retrieval評価再利用、Fragment/Final phaseはRetire |
 | `benchmark/`旧Fragment/Finalケース | Retire/Archive | 新goldとは分離して保存 |
 | Prototype速度・モデル比較docs | Retire/Archive | 歴史的評価として保持 |
 

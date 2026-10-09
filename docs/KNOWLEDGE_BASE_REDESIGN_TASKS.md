@@ -1,10 +1,10 @@
-# CharacterPageCollector — Knowledge Base 再設計タスク
+# Source Grounded Object Knowledge Base — Knowledge Base 再設計タスク
 
 更新日: 2026-10-09
 
 ## 1. 目的
 
-本書は、CharacterPageCollector（CPC）を、従来の「WebページをローカルLLMで細粒度にFragment化し、巨大な最終文書を自動生成するプロトタイプ」から、次の方針へ移行するための作業計画を定義する。
+本書は、Source Grounded Object Knowledge Base（SGOKB）を、従来の「WebページをローカルLLMで細粒度にFragment化し、巨大な最終文書を自動生成するプロトタイプ」から、次の方針へ移行するための作業計画を定義する。
 
 > Web上の情報をSource / Evidenceとして保持し、Character / Work / Concept等をObjectとして整理する。Objectに必要な根拠を検索・抽出してChatGPTへ渡し、ChatGPTが生成した構造化Object Dataを検証・版管理して正本DBへ保存する。保存済みKnowledgeは全文検索・意味検索・類似検索・Relation検索を提供し、MCP経由でChatGPT、ローカルLLM、UserPreferenceDiscoverySystem等から利用可能にする。
 
@@ -40,7 +40,7 @@ MCP
 ChatGPT / Local LLM / UPDS / Other Clients
 ```
 
-CPCは「外部世界のObject Knowledge」を担当する。ユーザー自身の嗜好・価値観・関心傾向の推論はUserPreferenceDiscoverySystem（UPDS）の責務とし、CPCには含めない。
+SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自身の嗜好・価値観・関心傾向の推論はUserPreferenceDiscoverySystem（UPDS）の責務とし、SGOKBには含めない。
 
 ---
 
@@ -68,8 +68,8 @@ CPCは「外部世界のObject Knowledge」を担当する。ユーザー自身�
 
 # Phase B — 要件定義の全面更新
 
-- [x] **B-01 [P0] CPCの目的を再定義する**
-  - CPCを「Curated Semantic Object Knowledge Base」として定義する。
+- [x] **B-01 [P0] SGOKBの目的を再定義する**
+  - SGOKBを「Curated Semantic Object Knowledge Base」として定義する。
   - 文書生成は目的ではなく派生表示とする。
 
 - [ ] **B-02 [P0] Object要件を定義する**
@@ -98,7 +98,7 @@ CPCは「外部世界のObject Knowledge」を担当する。ユーザー自身�
   - Evidence Searchを監査・再分析用途として残す。
 
 - [ ] **B-06 [P0] 人間工程と自動工程を要件として分離する**
-  - CPC自動処理の目標時間: 1 Objectあたり概ね10分以内。
+  - SGOKB自動処理の目標時間: 1 Objectあたり概ね10分以内。
   - Google Drive → ChatGPT → Result返却は手動工程として時間目標から除外する。
   - 人間の明示操作が必要な箇所をUI/CLI仕様に明記する。
 
@@ -113,21 +113,21 @@ CPCは「外部世界のObject Knowledge」を担当する。ユーザー自身�
 
 ---
 
-# Phase C — CPC / UPDS責務境界
+# Phase C — SGOKB / UPDS責務境界
 
-- [ ] **C-01 [P0] CPCをWorld/Object Knowledge Layerとして定義する**
+- [ ] **C-01 [P0] SGOKBをWorld/Object Knowledge Layerとして定義する**
   - Objectそのものの属性・意味・関係・根拠のみを扱う。
   - 「ユーザーが好む」等のユーザー推論を保存しない。
 
 - [ ] **C-02 [P0] UPDSをPersonal Inference Layerとして定義する**
   - Selection Event、Pattern、Preference HypothesisはUPDS所有とする。
-  - CPCはUPDSを知らなくても単独で成立させる。
+  - SGOKBはUPDSを知らなくても単独で成立させる。
 
 - [ ] **C-03 [P1] Conceptの所有境界を確定する**
-  - Conceptそのものの定義・Relation・EmbeddingはCPCで管理する案を第一候補とする。
-  - UPDSはCPC Concept IDを参照してPreference Evidenceを構築できるようにする。
+  - Conceptそのものの定義・Relation・EmbeddingはSGOKBで管理する案を第一候補とする。
+  - UPDSはSGOKB Concept IDを参照してPreference Evidenceを構築できるようにする。
 
-- [ ] **C-04 [P1] CPC→UPDS連携契約を定義する**
+- [ ] **C-04 [P1] SGOKB→UPDS連携契約を定義する**
   - Object IDの安定性。
   - Object / Facet / Relationの取得方式。
   - MCP経由を基本とし、DB直結を前提としない。
@@ -162,7 +162,7 @@ docs/
 │  ├─ RETRIEVAL.md
 │  ├─ GOOGLE_DRIVE_EXCHANGE.md
 │  ├─ MCP.md
-│  └─ CPC_UPDS_BOUNDARY.md
+│  └─ SGOKB_UPDS_BOUNDARY.md
 ├─ operations/
 │  ├─ OBJECT_WORKFLOW.md
 │  └─ MIGRATION.md
@@ -171,11 +171,11 @@ docs/
 └─ KNOWLEDGE_BASE_REDESIGN_TASKS.md
 ```
 
-- [ ] **D-04 [P0] `src/cpc`の責務別再編を設計する**
+- [ ] **D-04 [P0] `src/sgokb`の責務別再編を設計する**
   - 例:
 
 ```text
-src/cpc/
+src/sgokb/
 ├─ domain/        # Object / Relation / Facet / Version
 ├─ ingestion/     # Capture / Import / Normalize / Evidence
 ├─ storage/       # SQLite repository / migration
@@ -295,7 +295,7 @@ src/cpc/
 
 - [ ] **G-04 [P0] Google Driveへのexport方式を実装する**
   - 初期版はローカルexport → Drive同期フォルダでも可。
-  - CPC本体をGoogle Drive APIへ強く依存させるかは別途判断する。
+  - SGOKB本体をGoogle Drive APIへ強く依存させるかは別途判断する。
 
 - [ ] **G-05 [P1] Result受け取り運用を定義する**
   - `result.json`必須。
@@ -341,7 +341,7 @@ src/cpc/
   - 必要に応じRelation text representation。
 
 - [ ] **I-02 [P0] 多言語Embedding Modelを比較する**
-  - 日本語を含むCPC実データで評価する。
+  - 日本語を含むSGOKB実データで評価する。
   - BGE-M3等を候補とするが、実測で決定する。
   - model/revision/dimensionをIndex metadataへ記録する。
 
@@ -390,7 +390,7 @@ src/cpc/
   - `build_context` または同等機能。
 
 - [ ] **J-03 [P1] MCP Resourcesを定義する**
-  - 例: `cpc://object/<id>`。
+  - 例: `sgokb://object/<id>`。
   - ToolとResourceの責務重複を整理する。
 
 - [ ] **J-04 [P0] Context Builderを設計する**
@@ -407,26 +407,26 @@ src/cpc/
   - Semantic Search / Similarity Search。
   - Context長制御。
 
-**完了条件:** LLM/AgentがDB構造を知らずにCPC Knowledgeを取得できる。
+**完了条件:** LLM/AgentがDB構造を知らずにSGOKB Knowledgeを取得できる。
 
 ---
 
-# Phase K — CPC / UPDS連携試験
+# Phase K — SGOKB / UPDS連携試験
 
-- [ ] **K-01 [P1] UPDSからCPC Objectを参照する最小ユースケースを定義する**
+- [ ] **K-01 [P1] UPDSからSGOKB Objectを参照する最小ユースケースを定義する**
   - 「選択したCharacter群のvalues/personality/themesを取得する」等。
 
 - [ ] **K-02 [P1] Stable Object ID参照を検証する**
-  - CPC側version更新でUPDS Selection Event参照が壊れないこと。
+  - SGOKB側version更新でUPDS Selection Event参照が壊れないこと。
 
-- [ ] **K-03 [P1] CPCとUPDSのSemantic Indexを混同しないことを確認する**
-  - CPC: World/Object Knowledge。
+- [ ] **K-03 [P1] SGOKBとUPDSのSemantic Indexを混同しないことを確認する**
+  - SGOKB: World/Object Knowledge。
   - UPDS: Observation/Pattern/Preference Evidence。
 
 - [ ] **K-04 [P2] UPDS向けContext/Profileを追加するか評価する**
-  - CPC固有にUPDSロジックを埋め込まず、汎用Facet取得で不足する場合のみ追加する。
+  - SGOKB固有にUPDSロジックを埋め込まず、汎用Facet取得で不足する場合のみ追加する。
 
-**完了条件:** UPDSがCPC Knowledgeを再解析せず再利用でき、CPCはUPDSなしでも独立している。
+**完了条件:** UPDSがSGOKB Knowledgeを再解析せず再利用でき、SGOKBはUPDSなしでも独立している。
 
 ---
 
@@ -522,8 +522,8 @@ src/cpc/
 
 # Phase O — Documentation / Release / Git cleanup
 
-- [ ] **O-01 [P0] READMEを新CPCへ全面更新する**
-  - CPCの目的。
+- [ ] **O-01 [P0] READMEを新SGOKBへ全面更新する**
+  - SGOKBの目的。
   - 全体アーキテクチャ。
   - 1 Object標準フロー。
   - ChatGPT手動工程。
@@ -556,7 +556,7 @@ A  方針・棚卸し
 ↓
 B  要件
 ↓
-C  CPC/UPDS境界
+C  SGOKB/UPDS境界
 ↓
 D  Repository/Git構造方針
 ↓

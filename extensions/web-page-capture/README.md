@@ -1,12 +1,12 @@
 # Web Page Capture Extension
 
-CharacterPageCollector（CPC）向けのWebページ取得を担うChrome拡張機能用サブプロジェクトです。
+Source Grounded Object Knowledge Base（SGOKB）向けのWebページ取得を担うChrome拡張機能用サブプロジェクトです。
 
 ## 目的
 
-ユーザーがブラウザで内容を確認し、必要な展開操作やJavaScript実行が完了した時点のWebページ状態を、後からCharacterPageCollectorで再解析できるRaw Captureとして保存します。
+ユーザーがブラウザで内容を確認し、必要な展開操作やJavaScript実行が完了した時点のWebページ状態を、後からSource Grounded Object Knowledge Baseで再解析できるRaw Captureとして保存します。
 
-本機能の責務は**Webページ情報の収集とRaw Captureの保存だけ**です。CPC内部のSource分類、Extractor、Normalization、Evidence、Fragment、DB Schemaなどには依存しません。CPCの設計が将来変更されても、原則として同じWeb Captureを再利用できることを優先します。
+本機能の責務は**Webページ情報の収集とRaw Captureの保存だけ**です。SGOKB内部のSource分類、Extractor、Normalization、Evidence、Fragment、DB Schemaなどには依存しません。SGOKBの設計が将来変更されても、原則として同じWeb Captureを再利用できることを優先します。
 
 ## 基本方針
 
@@ -17,7 +17,7 @@ CharacterPageCollector（CPC）向けのWebページ取得を担うChrome拡張�
 - 取得できなかった情報もCapture結果として記録する。
 - Capture結果は `extensions/web-page-capture/local-captures/` に保存する。
 - 任意フォルダへの保存はChrome Extension単体では行わず、Native Messagingを利用したNative Hostに委譲する。
-- CPC localhost APIやCPC本体の起動をCaptureの前提条件にしない。
+- SGOKB localhost APIやSGOKB本体の起動をCaptureの前提条件にしない。
 - Cookie、認証Token、LocalStorage等の資格情報・ブラウザ状態は収集対象にしない。
 - Popup、Options画面、Side Panel等の常設UIは持たない。
 - 成功・失敗は通知のみでユーザーへ返す。
@@ -60,7 +60,7 @@ extensions/web-page-capture/local-captures/
 - Native Hostを通じた指定ローカルディレクトリへの保存
 - 成功 / 失敗通知
 
-### CharacterPageCollector側の責務
+### Source Grounded Object Knowledge Base側の責務
 
 以下は初期版だけでなく、**将来的にもWeb Page Capture Extensionの機能領域には含めません**。
 
@@ -76,16 +76,16 @@ extensions/web-page-capture/local-captures/
 - LLM処理
 - Embedding
 - RAG
-- CPC DB更新
+- SGOKB DB更新
 
-これらはCharacterPageCollector本体で行います。
+これらはSource Grounded Object Knowledge Base本体で行います。
 
 ## 保存先
 
 Capture Bundleの標準保存先は以下とします。
 
 ```text
-CharacterPageCollector/
+Source Grounded Object Knowledge Base/
 └─ extensions/
    └─ web-page-capture/
       └─ local-captures/
@@ -108,7 +108,7 @@ Native Host
 local-captures/
 ```
 
-Native Hostの責務は原則として**Capture Bundleを指定保存先へ書き込むことだけ**とし、CPCの解析処理は持たせません。
+Native Hostの責務は原則として**Capture Bundleを指定保存先へ書き込むことだけ**とし、SGOKBの解析処理は持たせません。
 
 ## UI方針
 
@@ -159,7 +159,7 @@ web-page-capture/
 └─ local-captures/        # Git管理外
 ```
 
-拡張機能はES ModulesのJavaScriptで実装し、ビルドは不要です。Python 3.10以降の標準ライブラリで保存Hostを実装し、Windows標準の.NET Framework C# compilerで小さな起動用Executableを生成します。CPC、localhost Server、管理者権限は不要です。Node.js 22.13以降とnpmは自動テスト時のみ必要です。jsdomはテスト専用依存です。
+拡張機能はES ModulesのJavaScriptで実装し、ビルドは不要です。Python 3.10以降の標準ライブラリで保存Hostを実装し、Windows標準の.NET Framework C# compilerで小さな起動用Executableを生成します。SGOKB、localhost Server、管理者権限は不要です。Node.js 22.13以降とnpmは自動テスト時のみ必要です。jsdomはテスト専用依存です。
 
 ## 導入・利用（Windows 11 / Chrome 116以降）
 
@@ -206,7 +206,7 @@ MHTMLは毎回取得を試み、失敗時もMain DOMが取得済みなら部分C
 
 DOMとMHTMLは順に取得するため完全に同時ではありません。取得中の動的変更、同一URLへの再読み込み、canvas等の描画状態は完全には再現できません。Raw DOMとMHTMLに既に埋め込まれた機密情報は保存され得るため、Bundleは公開しないでください。ブラウザの資格情報・ストレージAPIにはアクセスせず、フォームのproperty値を書き戻しません。
 
-## CPCとの境界
+## SGOKBとの境界
 
 ```text
 Chrome
@@ -223,7 +223,7 @@ local-captures/
   ↓
 ──────── 責務境界 ────────
   ↓
-CharacterPageCollector
+Source Grounded Object Knowledge Base
   ↓
 Importer
   ↓
@@ -236,4 +236,4 @@ Evidence
 Fragment
 ```
 
-CaptureはCPC本体が停止中でも成立する設計とします。
+CaptureはSGOKB本体が停止中でも成立する設計とします。

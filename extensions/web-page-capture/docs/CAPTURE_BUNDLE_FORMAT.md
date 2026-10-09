@@ -2,7 +2,7 @@
 
 ## 1. 目的
 
-1回のCapture結果を、後段のCharacterPageCollectorや他ツールから再利用できる自己完結した保存単位として扱う。
+1回のCapture結果を、後段のSource Grounded Object Knowledge Baseや他ツールから再利用できる自己完結した保存単位として扱う。
 
 名称は **Web Capture Bundle** とし、ファイル名は以下とする。
 

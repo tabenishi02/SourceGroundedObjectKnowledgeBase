@@ -9,15 +9,15 @@
 ```powershell
 # 既存DBを破壊しない別DBで準備。初回評価DBが必要。
 .venv/Scripts/python.exe scripts/run_upgrade_evaluation.py --phase prepare
-# CPC_LLM_MODEL等を設定後、SinglePass / MultiPass / Extract+Reviewを別runに記録。
-.venv/Scripts/python.exe -m cpc --db .local/upgrade.sqlite benchmark benchmark/sample-v1.json --phase fragment --strategy single_pass
-.venv/Scripts/python.exe -m cpc --db .local/upgrade.sqlite benchmark benchmark/sample-v1.json --phase fragment --strategy high_recall_multi_pass
-.venv/Scripts/python.exe -m cpc --db .local/upgrade.sqlite benchmark benchmark/sample-v1.json --phase fragment --strategy extract_review
-.venv/Scripts/python.exe -m cpc --db .local/upgrade.sqlite embed
-.venv/Scripts/python.exe -m cpc --db .local/upgrade.sqlite benchmark benchmark/sample-v1.json --phase retrieval
-.venv/Scripts/python.exe -m cpc --db .local/upgrade.sqlite benchmark benchmark/sample-v1.json --phase final
+# SGOKB_LLM_MODEL等を設定後、SinglePass / MultiPass / Extract+Reviewを別runに記録。
+.venv/Scripts/python.exe -m sgokb --db .local/upgrade.sqlite benchmark benchmark/sample-v1.json --phase fragment --strategy single_pass
+.venv/Scripts/python.exe -m sgokb --db .local/upgrade.sqlite benchmark benchmark/sample-v1.json --phase fragment --strategy high_recall_multi_pass
+.venv/Scripts/python.exe -m sgokb --db .local/upgrade.sqlite benchmark benchmark/sample-v1.json --phase fragment --strategy extract_review
+.venv/Scripts/python.exe -m sgokb --db .local/upgrade.sqlite embed
+.venv/Scripts/python.exe -m sgokb --db .local/upgrade.sqlite benchmark benchmark/sample-v1.json --phase retrieval
+.venv/Scripts/python.exe -m sgokb --db .local/upgrade.sqlite benchmark benchmark/sample-v1.json --phase final
 .venv/Scripts/python.exe scripts/export_upgrade_review.py
-.venv/Scripts/python.exe -m cpc benchmark-score .local/human-labels.json
+.venv/Scripts/python.exe -m sgokb benchmark-score .local/human-labels.json
 ```
 
 runは毎回UUIDを作り、旧runを上書きしない。`--resume <run-id>`は同じmanifest/hash/configurationで失敗・未処理caseだけ再開する。成功caseは再実行しない。datasetを編集した場合はbenchmark_versionも更新する。調整はvalidationを用い、testの採点結果で無断に調整しない。旧manifestをGit履歴に保持する。
@@ -26,11 +26,11 @@ Fragment方式3種類を実装した。Finalは既定のextractive hierarchyとc
 
 ## 記録
 
-LM Studio native APIを使う場合は`CPC_LLM_PROVIDER=lmstudio`と`CPC_LLM_EXTRA_JSON={"reasoning":"off"}`を指定する。[公式API](https://lmstudio.ai/docs/developer/rest/chat)のsystem_promptとinputを分け、store=false・integrations=[]で呼ぶ。JSON grammarを強制する互換APIとは異なり、Schemaはsystem命令と応答検証で適用する。Providerを変えたrunは別条件として扱う。native adapterは対応パラメータ以外を拒否する。
+LM Studio native APIを使う場合は`SGOKB_LLM_PROVIDER=lmstudio`と`SGOKB_LLM_EXTRA_JSON={"reasoning":"off"}`を指定する。[公式API](https://lmstudio.ai/docs/developer/rest/chat)のsystem_promptとinputを分け、store=false・integrations=[]で呼ぶ。JSON grammarを強制する互換APIとは異なり、Schemaはsystem命令と応答検証で適用する。Providerを変えたrunは別条件として扱う。native adapterは対応パラメータ以外を拒否する。
 
 benchmark runにモデル名/revision/configuration、Embedding model/revision/prefix/truncation、Reranker version、Prompt/Schema hash、dataset versionを記録する。Fragment jobにはNormalized IDとEvidence入力hash、AI runには実Prompt/Schema/input/output/実行日時を保持する。Provider応答からtoken数、秒数、tok/sを記録する。推論tokenと生成tokenの内訳はProviderが返すusageに依存する。
 
-`CPC_RUNTIME_METADATA_JSON`でGGUF filename、quantization、runtime/version、context_length、GPU/VRAM/RAM条件を明示できる。temperature、reasoning_effort、seedはProvider configurationへ保存する。特定値が取得できない場合はnull / unknownとし、CLI commitと推論runtime versionを同一視しない。モデル名が同じでもrevision/量子化/runtime/Prompt/Schemaが違えば別条件。実行時のVRAM/RAM使用量は未計測ならnullで、搭載容量と区別する。
+`SGOKB_RUNTIME_METADATA_JSON`でGGUF filename、quantization、runtime/version、context_length、GPU/VRAM/RAM条件を明示できる。temperature、reasoning_effort、seedはProvider configurationへ保存する。特定値が取得できない場合はnull / unknownとし、CLI commitと推論runtime versionを同一視しない。モデル名が同じでもrevision/量子化/runtime/Prompt/Schemaが違えば別条件。実行時のVRAM/RAM使用量は未計測ならnullで、搭載容量と区別する。
 
 ## Metricと判定経路
 

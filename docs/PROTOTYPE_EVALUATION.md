@@ -1,5 +1,7 @@
 # 初回プロトタイプ評価
 
+> **Archived / Historical** — Rename前のPrototypeの記録です。旧名称・コマンド・パスは当時の事実を保持しており、現行操作は[README](../README.md)を参照してください。
+
 この節以降の初回評価は履歴として保持する。現行設計は[Prototype Upgrade](PROTOTYPE_UPGRADE.md)、新しい比較の実行手順は[benchmark](../benchmark/README.md)を参照。
 
 ## Upgrade評価の進行状態（2026-10-06）

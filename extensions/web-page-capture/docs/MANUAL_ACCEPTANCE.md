@@ -8,7 +8,7 @@
 
 ## 準備
 
-READMEのLoad unpacked、Host Install、Statusを実行します。CPCとlocalhost Serverは停止した状態で試験します。Windows/Chrome通知を有効にします。
+READMEのLoad unpacked、Host Install、Statusを実行します。SGOKBとlocalhost Serverは停止した状態で試験します。Windows/Chrome通知を有効にします。
 
 `tests/fixtures/page.html` は人工Fixtureです。Chrome拡張機能詳細でファイルURLアクセスを有効にし、FixtureをChromeで開きます。ここだけ `example.invalid` のFrameを故意に取得不能にしています。静的/same-origin Frameも確認する場合は、Fixtureの一時コピーをGit管理外に置き、`srcdoc` FrameのDOMをChrome DevToolsで確認してください。
 

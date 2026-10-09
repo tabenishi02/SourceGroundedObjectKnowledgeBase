@@ -2,11 +2,11 @@
 
 ## 1. 位置づけ
 
-本機能はCharacterPageCollector（CPC）のWeb Browser Capture部分を独立させた取得コンポーネントとする。
+本機能はSource Grounded Object Knowledge Base（SGOKB）のWeb Browser Capture部分を独立させた取得コンポーネントとする。
 
-目的は「現在のCPCが必要とする情報を生成すること」ではなく、ユーザーが確認したWebページ状態を、将来のCPC設計変更後でも再解釈できるRaw Captureとして保存することである。
+目的は「現在のSGOKBが必要とする情報を生成すること」ではなく、ユーザーが確認したWebページ状態を、将来のSGOKB設計変更後でも再解釈できるRaw Captureとして保存することである。
 
-Web Page Capture側の責務は**取得と保存まで**とする。CPC固有のSource Type、site分類、Entity、Extractor、Normalization、Evidence、Fragment、Embedding、DB Schema等をCapture時に確定しない。
+Web Page Capture側の責務は**取得と保存まで**とする。SGOKB固有のSource Type、site分類、Entity、Extractor、Normalization、Evidence、Fragment、Embedding、DB Schema等をCapture時に確定しない。
 
 ## 2. 設計原則
 
@@ -15,16 +15,16 @@ Web Page Capture側の責務は**取得と保存まで**とする。CPC固有の
 | CAP-01 | ユーザーが右クリックメニューから明示的に保存したページだけを取得する。 |
 | CAP-02 | HTTP初期HTMLではなく、保存操作時点のRendered DOMを取得する。 |
 | CAP-03 | Raw Captureでは本文抽出や不要情報除去を行わない。 |
-| CAP-04 | CPC固有の分類・DB Schema・Extractorへ依存しない。 |
+| CAP-04 | SGOKB固有の分類・DB Schema・Extractorへ依存しない。 |
 | CAP-05 | 同一URLの複数Captureを別Captureとして保持する。 |
 | CAP-06 | Capture形式にExtension Versionとは独立したFormat Versionを持たせる。 |
 | CAP-07 | 一部取得不能の場合も失敗箇所を明示してCapture自体を保持できる。 |
-| CAP-08 | CPC localhost APIやCPC本体の起動をCaptureの前提条件としない。 |
+| CAP-08 | SGOKB localhost APIやSGOKB本体の起動をCaptureの前提条件としない。 |
 | CAP-09 | Cookie、認証Token等の認証情報は収集しない。 |
-| CAP-10 | Capture後の解析・加工・解釈はCPC本体へ委譲する。 |
+| CAP-10 | Capture後の解析・加工・解釈はSGOKB本体へ委譲する。 |
 | CAP-11 | Capture BundleはNative Host経由でプロジェクト内のlocal-capturesへ保存する。 |
 | CAP-12 | 常設UIを持たず、右クリックメニューと成功・失敗通知だけをユーザー接点とする。 |
-| CAP-13 | CPC本体の解析機能を将来もWeb Page Captureへ取り込まない。 |
+| CAP-13 | SGOKB本体の解析機能を将来もWeb Page Captureへ取り込まない。 |
 
 ## 3. 標準Captureフロー
 
@@ -51,7 +51,7 @@ extensions/web-page-capture/local-captures/ へ保存
         ↓
 成功 / 失敗通知
         ↓
-後日CPCがImporterで取り込む
+後日SGOKBがImporterで取り込む
 ```
 
 ## 4. ユーザーインターフェース
@@ -146,7 +146,7 @@ Raw段階では以下を削除しない。
 - related articles
 - UI element
 
-これらの不要情報除去はCPC側のExtractor / Normalization段階で行う。
+これらの不要情報除去はSGOKB側のExtractor / Normalization段階で行う。
 
 ## 7. Metadata
 
@@ -178,7 +178,7 @@ MHTMLはRendered DOMとは別の補助Archiveとして扱う。
 
 役割：
 
-- `dom/main.html`: CPCで直接再解析しやすいRaw DOM
+- `dom/main.html`: SGOKBで直接再解析しやすいRaw DOM
 - `archive/page.mhtml`: ページと関連Resourceを含む補助Archive
 
 MHTML単独を正本とはしない。
@@ -206,7 +206,7 @@ JavaScript propertyとしてのみ存在する入力値を、Captureのために
 標準保存先は以下とする。
 
 ```text
-CharacterPageCollector/
+Source Grounded Object Knowledge Base/
 └─ extensions/
    └─ web-page-capture/
       └─ local-captures/
@@ -249,15 +249,15 @@ Native Hostへ以下の責務を持たせない。
 - Source/Site判定
 - Entity判定
 - Normalization
-- CPC DB操作
+- SGOKB DB操作
 - LLM処理
-- その他CPC本体の処理
+- その他SGOKB本体の処理
 
 Native Hostは保存用の橋渡しに限定する。
 
 ### 11.4 localhostサーバーを採用しない
 
-CaptureのためにCPC localhost serverを常時起動する方式は採用しない。
+CaptureのためにSGOKB localhost serverを常時起動する方式は採用しない。
 
 Native Messagingを用いることで、TCP port、HTTP API、常駐Web ServerをCaptureの必須要件にしない。
 
@@ -314,9 +314,9 @@ CDP/debugger権限を利用するAdvanced Captureは、権限が強いため標�
 - LLM処理
 - Embedding
 - RAG
-- CPC DB登録・更新
+- SGOKB DB登録・更新
 
-これらはCharacterPageCollector本体の責務とする。
+これらはSource Grounded Object Knowledge Base本体の責務とする。
 
 ## 14. 初期実装範囲
 
@@ -367,7 +367,7 @@ Chrome公式仕様: [activeTab](https://developer.chrome.com/docs/extensions/dev
 - Native Hostの導入・更新手順簡略化
 - Capture Bundle検証機能
 
-CPC解析機能の追加は将来拡張に含めない。
+SGOKB解析機能の追加は将来拡張に含めない。
 
 ## 16. システム境界
 
@@ -399,7 +399,7 @@ extensions/web-page-capture/local-captures/
 ========== 責務境界 ==========
       │
       ▼
-CharacterPageCollector
+Source Grounded Object Knowledge Base
       │
       ├─ Import
       ├─ Source / Snapshot
@@ -407,5 +407,5 @@ CharacterPageCollector
       ├─ Normalization
       ├─ Evidence
       ├─ Fragment
-      └─ その他CPC処理
+      └─ その他SGOKB処理
 ```

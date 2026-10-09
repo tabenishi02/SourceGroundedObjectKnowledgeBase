@@ -1,17 +1,17 @@
-# CharacterPageCollector — Knowledge Base 再設計 Decision Record
+# Source Grounded Object Knowledge Base — Knowledge Base 再設計 Decision Record
 
 更新日: 2026-10-09
 
-- Decision ID: `CPC-KB-001`
+- Decision ID: `SGOKB-KB-001`
 - Status: Accepted
-- Scope: CharacterPageCollector Knowledge Base 再設計
+- Scope: Source Grounded Object Knowledge Base Knowledge Base 再設計
 - Related:
   - `docs/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`
   - `docs/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
 
 ## 1. Decisionの目的
 
-本書は、CharacterPageCollector（CPC）のKnowledge Base再設計について、「何を変更するか」だけでなく「なぜその判断を採用したか」を固定するDecision Recordである。
+本書は、Source Grounded Object Knowledge Base（SGOKB）のKnowledge Base再設計について、「何を変更するか」だけでなく「なぜその判断を採用したか」を固定するDecision Recordである。
 
 今後の要件定義・設計・実装では、本Decisionを再設計の前提として扱う。個別のデータモデル、DB schema、CLI、Google Drive交換形式、MCP仕様等の詳細は後続Phaseで決定し、本書では先行して固定しない。
 
@@ -81,11 +81,11 @@ Fragmentは最終用途へKnowledgeを届けるための中間表現であるが
 
 高性能なChatGPTを利用できる状況でも、APIによる完全自動化を前提とすると、ローカル生成LLMへ高度な意味理解・統合能力を要求する構成になりやすい。
 
-CPCの目的は自動化率を最大化することではなく、品質、処理時間、追跡可能性、保守性を満たしたKnowledge Baseを構築することである。
+SGOKBの目的は自動化率を最大化することではなく、品質、処理時間、追跡可能性、保守性を満たしたKnowledge Baseを構築することである。
 
-### 3.5 CPCの本来の目的と成果物がずれていた
+### 3.5 SGOKBの本来の目的と成果物がずれていた
 
-CPCの本質的な目的は「巨大なCharacter/Work文書を生成すること」ではなく、収集したWeb上の根拠から、再利用可能で追跡可能なObject Knowledgeを長期保存し、将来のAIから検索・比較・参照できるようにすることである。
+SGOKBの本質的な目的は「巨大なCharacter/Work文書を生成すること」ではなく、収集したWeb上の根拠から、再利用可能で追跡可能なObject Knowledgeを長期保存し、将来のAIから検索・比較・参照できるようにすることである。
 
 ---
 
@@ -119,12 +119,12 @@ Final Markdown等の長文Documentを、Knowledgeの唯一の正本として扱�
 
 ### D3. ChatGPT APIを標準処理に使用しない
 
-CPCの標準Knowledge生成フローは、ChatGPT APIによる自動呼び出しを必須としない。
+SGOKBの標準Knowledge生成フローは、ChatGPT APIによる自動呼び出しを必須としない。
 
 基本フローは次のHuman-in-the-loop方式とする。
 
 ```text
-CPC
+SGOKB
  ↓
 Object Evidence Package
  ↓
@@ -134,10 +134,10 @@ Google Drive等の交換領域
  ↓
 Structured Object Result
  ↓
-CPC Validation / Import / Versioning
+SGOKB Validation / Import / Versioning
 ```
 
-これにより、CPC Coreを特定のクラウドAI API、料金体系、API model名、認証方式へ強く依存させない。
+これにより、SGOKB Coreを特定のクラウドAI API、料金体系、API model名、認証方式へ強く依存させない。
 
 これは「ChatGPT APIを永久に禁止する」というDecisionではない。研究用途、任意機能、将来の別運用としてAPI adapterを追加する余地は残す。ただし、標準パイプラインと正本Knowledgeの成立条件にAPI利用を含めない。
 
@@ -150,7 +150,7 @@ CPC Validation / Import / Versioning
 - ChatGPT: 高度な意味理解、統合、構造化Object Result生成
 - 人間: 対象選択、ChatGPTへの明示依頼、必要なレビュー・判断
 
-CPC側の自動処理時間は1 Objectあたり概ね10分以内を目標とするが、Google Drive → ChatGPT → Result返却の人間工程はこの時間目標から除外する。
+SGOKB側の自動処理時間は1 Objectあたり概ね10分以内を目標とするが、Google Drive → ChatGPT → Result返却の人間工程はこの時間目標から除外する。
 
 ### D5. Source / EvidenceとProvenanceは維持する
 
@@ -211,7 +211,7 @@ MCP / CLI / Other Clients
 理由:
 
 - 自動化率の最大化は本プロジェクトの最優先要件ではない。
-- CPC Coreが特定APIの料金・model・認証・仕様変更へ依存する。
+- SGOKB Coreが特定APIの料金・model・認証・仕様変更へ依存する。
 - 人間が対象を選び、高性能なChatGPTへ明示的に処理を依頼する運用を許容すれば、Knowledge品質とシステム単純性を両立できる。
 
 API自体の利用可能性を否定するものではなく、将来optional adapterとして再評価可能とする。
@@ -234,7 +234,7 @@ API自体の利用可能性を否定するものではなく、将来optional ad
 - Knowledge正本を長文Documentから構造化Objectへ変更できる。
 - Object / Facet単位のSemantic Search・Similarity Searchを設計できる。
 - Source / EvidenceまでProvenanceを追跡しながら、LLMが利用しやすいKnowledgeを提供できる。
-- CPC Coreを特定の生成AI APIから独立させやすい。
+- SGOKB Coreを特定の生成AI APIから独立させやすい。
 - ChatGPT、ローカルLLM、UPDS、その他Clientへ同一Knowledgeを再利用しやすくなる。
 
 ### Trade-offs
@@ -261,7 +261,7 @@ API自体の利用可能性を否定するものではなく、将来optional ad
 - Google Drive交換ディレクトリ・同期方式
 - ChatGPT用instructions / result schemaの詳細
 - MCP Tool / Resource仕様
-- CPC / UPDS間の詳細契約
+- SGOKB / UPDS間の詳細契約
 - Repository / docs / source folderの物理再編
 
 A-01では、これらを先行決定しない。

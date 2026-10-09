@@ -1,5 +1,7 @@
 # 処理時間の原因調査と改善案
 
+> **Archived / Historical** — Rename前のPrototypeの記録です。旧名称・コマンド・パスは当時の事実を保持しており、現行操作は[README](../README.md)を参照してください。
+
 調査日: 2026-10-06。実装変更・追加推論は行わず、実データSQLiteを読み取り専用で調査した。
 対象はQwenの代表8Capture run `75838054-5cff-407b-9ae9-92c839134f0d`と[速度再試験](MODEL_SPEED_PREFLIGHT_RESULTS.md)。
 

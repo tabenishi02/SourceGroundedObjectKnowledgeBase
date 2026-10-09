@@ -1,5 +1,7 @@
 # Strataの利用可能性調査
 
+> **Archived / Historical** — Rename前のPrototypeの記録です。旧名称・コマンド・パスは当時の事実を保持しており、現行操作は[README](../README.md)を参照してください。
+
 調査日: 2026-10-06。対象は既存のStrata checkoutと分離されたStrata-data。Strataのファイル・設定・モデルを変更せず、起動・停止・アンロードを行わなかった。
 上流: [Niko1221/Strata](https://github.com/Niko1221/Strata)。これはQwen3.8-Flash-Nextのローカル推論環境で、クラウドAPI費用は発生しない。電力・メモリ・GPU等の資源は使用する。
 

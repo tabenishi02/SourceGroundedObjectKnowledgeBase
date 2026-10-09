@@ -51,13 +51,13 @@ Trafilatura等への本文置換は今回は採用しない。表・リスト・
 | atomic_claim | trueを要求する契約。意味上の原子性は人間/Judge評価が必要 |
 | epistemic_type | fact / source_interpretation / derived_interpretation / public_perception / promotional_claim |
 | evidence_strength | direct_statement / strong_inference / weak_inference。校正確率ではない |
-| asserted_by | official / creator / interviewee / article_author / community / anonymous_user / reviewer / cpc_llm / unknown等 |
+| asserted_by | official / creator / interviewee / article_author / community / anonymous_user / reviewer / sgokb_llm / unknown等 |
 | temporal_context | story_phase / valid_from / valid_to / work_context / temporal_note、各値はstringまたはnull |
 | evidence_ids | 1:N・N:1の引用を許す。未知IDは拒否 |
 | conflict_group | 同一論点の矛盾候補。不明はnull。両方の主張を残す |
 | context_id / ai_run / extraction_job | 生成時の条件と追跡情報 |
 
-1 Fragmentは一つの独立して評価できる主張。ただし因果・条件を壊す分割はしない。Sourceの考察とCPCが導いた考察を分離し、後者の主張主体はcpc_llmを要求する。公式の宣伝的主張、匿名投稿の事実主張の両方を許す。取得日時、記事公開日時、物語時期は別欄で扱う。
+1 Fragmentは一つの独立して評価できる主張。ただし因果・条件を壊す分割はしない。Sourceの考察とSGOKBが導いた考察を分離し、後者の主張主体はsgokb_llmを要求する。公式の宣伝的主張、匿名投稿の事実主張の両方を許す。取得日時、記事公開日時、物語時期は別欄で扱う。
 
 Entity候補は`entity_candidates`のunconfirmedとして保持し、Entityの自動統合は行わない。HighRecallで似たFragmentが増えてもRaw Fragmentを削除しない。
 
@@ -73,13 +73,13 @@ Entity候補は`entity_candidates`のunconfirmedとして保持し、Entityの�
 
 バッチごとの成功結果を保存し、失敗した新世代を既存の正常世代へ昇格しない。全Evidenceの判定が揃ってから一つのトランザクションで昇格する。意図的な全件0結果は完成世代として保存可能。`--resume`は同一条件で未処理・失敗バッチを再実行する。Raw変更やNormalized/Context/モデル/Prompt変更時は新しいJobを作る。
 
-応答Schemaには今回の対象ID集合と許可引用ID集合を動的に入れ、隣接資料をassessmentsへ混入させない。完全性・引用検証に失敗した場合はCPCの診断を添えて1回だけ再要求し、全試行のAI記録を保持する。再試行も失敗した場合はfailedに残し、データの自動補正や根拠検証の省略は行わない。
+応答Schemaには今回の対象ID集合と許可引用ID集合を動的に入れ、隣接資料をassessmentsへ混入させない。完全性・引用検証に失敗した場合はSGOKBの診断を添えて1回だけ再要求し、全試行のAI記録を保持する。再試行も失敗した場合はfailedに残し、データの自動補正や根拠検証の省略は行わない。
 
 SinglePassに加え、HighRecallMultiPass（事実・宣伝／考察・評判の2 pass）、Extract+Review（抽出＋漏れ確認）を比較可能。各方式は全Evidenceを処理する。追加passの結果も破壊的統合しない。review材料も予算を超えれば明示的に失敗し、batch縮小で再実行する。
 
 ### Prompt Injection
 
-CPCの外部PromptとSchemaだけをsystem命令として使う。ページ、Context、Evidence、Fragmentはuser JSON内の信頼できない資料。資料のrole指定・命令を処理手順として実行しない。Providerもsystem/userを分け、参照ID・Schema・連続引用を検証する。実LLMが注入に絶対従わないという保証とは区別し、代表的な注入への実機評価は継続する。
+SGOKBの外部PromptとSchemaだけをsystem命令として使う。ページ、Context、Evidence、Fragmentはuser JSON内の信頼できない資料。資料のrole指定・命令を処理手順として実行しない。Providerもsystem/userを分け、参照ID・Schema・連続引用を検証する。実LLMが注入に絶対従わないという保証とは区別し、代表的な注入への実機評価は継続する。
 
 ## Final Document
 
@@ -96,17 +96,17 @@ Facet / epistemic_type / 主張主体 / 根拠形式 / Temporal Contextごとに
 ## CLI
 
 ```powershell
-.venv/Scripts/python.exe -m cpc --db .local/cpc.sqlite process
-.venv/Scripts/python.exe -m cpc --db .local/cpc.sqlite context --snapshot <snapshot-id>
-.venv/Scripts/python.exe -m cpc --db .local/cpc.sqlite context --snapshot <snapshot-id> --override .local/context-patch.json
-.venv/Scripts/python.exe -m cpc --db .local/cpc.sqlite fragment --snapshot <snapshot-id> --entity <entity-id> --batch-size 1
-.venv/Scripts/python.exe -m cpc --db .local/cpc.sqlite coverage <job-id>
-.venv/Scripts/python.exe -m cpc --db .local/cpc.sqlite fragment --snapshot <snapshot-id> --entity <entity-id> --batch-size 1 --resume <job-id>
-.venv/Scripts/python.exe -m cpc --db .local/cpc.sqlite embed
-.venv/Scripts/python.exe -m cpc --db .local/cpc.sqlite generate --entity <entity-id> --out .local/final.md
-.venv/Scripts/python.exe -m cpc --db .local/cpc.sqlite generate --entity <entity-id> --format json --out .local/final.json
-.venv/Scripts/python.exe -m cpc --db .local/cpc.sqlite generate --entity <entity-id> --format context --out .local/final-context.txt
-.venv/Scripts/python.exe -m cpc --db .local/cpc.sqlite generate --entity <entity-id> --llm-order
+.venv/Scripts/python.exe -m sgokb --db .local/sgokb.sqlite process
+.venv/Scripts/python.exe -m sgokb --db .local/sgokb.sqlite context --snapshot <snapshot-id>
+.venv/Scripts/python.exe -m sgokb --db .local/sgokb.sqlite context --snapshot <snapshot-id> --override .local/context-patch.json
+.venv/Scripts/python.exe -m sgokb --db .local/sgokb.sqlite fragment --snapshot <snapshot-id> --entity <entity-id> --batch-size 1
+.venv/Scripts/python.exe -m sgokb --db .local/sgokb.sqlite coverage <job-id>
+.venv/Scripts/python.exe -m sgokb --db .local/sgokb.sqlite fragment --snapshot <snapshot-id> --entity <entity-id> --batch-size 1 --resume <job-id>
+.venv/Scripts/python.exe -m sgokb --db .local/sgokb.sqlite embed
+.venv/Scripts/python.exe -m sgokb --db .local/sgokb.sqlite generate --entity <entity-id> --out .local/final.md
+.venv/Scripts/python.exe -m sgokb --db .local/sgokb.sqlite generate --entity <entity-id> --format json --out .local/final.json
+.venv/Scripts/python.exe -m sgokb --db .local/sgokb.sqlite generate --entity <entity-id> --format context --out .local/final-context.txt
+.venv/Scripts/python.exe -m sgokb --db .local/sgokb.sqlite generate --entity <entity-id> --llm-order
 ```
 
 旧方式の比較用入口はfragment / generateの`--legacy`。初回と同一の実装で再現する場合は初回commitを別checkoutで使用する。既定generateにはLLMもEmbeddingも不要。`--llm-order`はLLMだけ必要。fragment、embed、hybrid/semantic検索はそれぞれ実Providerが必要。

@@ -1,5 +1,7 @@
 # CPCプロトタイプ文章構成レビュー
 
+> **Archived / Historical** — Rename前のPrototypeの記録です。旧名称・コマンド・パスは当時の事実を保持しており、現行操作は[README](../README.md)を参照してください。
+
 ## 1. 目的
 
 本書は、初回CPCプロトタイプで生成されたEvidence、Fragment、Final Documentを確認した結果から得られた、**文章構成・情報抽出品質に関する改善要求**を整理する。
