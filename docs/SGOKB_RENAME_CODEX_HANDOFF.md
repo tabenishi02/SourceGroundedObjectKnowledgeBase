@@ -602,3 +602,17 @@ Remove-Item -LiteralPath $legacyClone -Recurse -Force
 ```
 
 旧cloneの片付けまで含めた全作業の終了は、この最後の1手の後となる。
+
+
+### 最終完了記録（2026-10-09）
+
+上記「最後の手動作業」は完了済みである。ユーザーから旧clone `C:\codex\CharacterPageCollector` の削除完了報告を受領した。
+
+加えて、名称変更の最終整理として次を完了した。
+
+- `refactor/sgokb-project-rename` を `main` へfast-forward統合し、両refがcommit `602f078afd3dc06c1fc5cce058d5484338c2e469` で一致することを確認した。
+- GitHub Repository descriptionを、SGOKBの現在の目的を示す内容へ更新した。
+- remoteの `refactor/sgokb-project-rename` と `docs/sgokb-rename-handoff-v3` を削除した。
+- 新clone `C:\codex\SourceGroundedObjectKnowledgeBase` は `main` をcheckoutし、`origin/main` と同期した。
+
+以上をもって **SGOKB名称変更タスクは完了** とする。B-02以降の要件定義・再設計作業は別タスクとして継続する。
