@@ -1,13 +1,14 @@
 # SGOKB Object Type Refinement Tasks
 
-更新日: 2026-10-09
+更新日: 2026-10-10
 
 - Parent: `B-02 [P0] Object要件を定義する`
-- Status: Planned
+- Status: In Progress
 - Gate: 本タスク群を完了するまで `B-03 Source / Evidence要件` の詳細確定へ進まない
 - Related:
   - `docs/requirements/OBJECT_REQUIREMENTS.md`
   - `docs/requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md`
+  - `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
   - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
   - `docs/planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md`
 
@@ -145,12 +146,12 @@ Source: Interview Article
 
 ## B-02A [P0] 外部分類体系を正式調査する
 
-- [ ] Schema.orgの主要上位TypeとSGOKB関連subtypeを抽出する。
-- [ ] DBpedia Ontologyの主要cross-domain classを抽出する。
-- [ ] Wikidataのinstance/class/subclassモデルを整理する。
-- [ ] WordNet noun categoryをSGOKB観点で整理する。
-- [ ] Dublin Core等のResource Typeを調査し、Source typeとObject typeを分離する。
-- [ ] 共通して現れるカテゴリと、体系固有カテゴリを比較表にする。
+- [x] Schema.orgの主要上位TypeとSGOKB関連subtypeを抽出する。
+- [x] DBpedia Ontologyの主要cross-domain classを抽出する。
+- [x] Wikidataのinstance/class/subclassモデルを整理する。
+- [x] WordNet noun categoryをSGOKB観点で整理する。
+- [x] Dublin Core等のResource Typeを調査し、Source typeとObject typeを分離する。
+- [x] 共通して現れるカテゴリと、体系固有カテゴリを比較表にする。
 
 ### 成果物
 
@@ -158,9 +159,18 @@ Source: Interview Article
 
 ### 完了条件
 
-- 各体系の目的の違いが説明されている。
-- SGOKBへそのまま移植すべきでない分類も明記されている。
-- Object候補抽出の根拠として再利用可能な比較表がある。
+- [x] 各体系の目的の違いが説明されている。
+- [x] SGOKBへそのまま移植すべきでない分類も明記されている。
+- [x] Object候補抽出の根拠として再利用可能な比較表がある。
+
+### 結果概要
+
+- 単一の外部分類体系をSGOKBへそのまま採用しない。
+- Schema.orgは主要Web対象カテゴリ、DBpediaはcross-domain class、WikidataはIdentityとClassの分離、WordNetはConcept意味領域、DCMIはSource / Resource Type設計の参考として利用する。
+- B-02Bへ、Agent / CreativeWork / Place / Event / Artifact / Taxonomic / Concept / Action-Process / Time-Period系の候補母集団を引き継ぐ。
+- Source TypeとObject Typeは独立設計する。
+
+**Status: Complete (2026-10-10)**
 
 ---
 
@@ -285,7 +295,7 @@ Object
 ```text
 B-02 Object Identity要件（完了）
   ↓
-B-02A 外部分類体系調査
+B-02A 外部分類体系調査（完了）
   ↓
 B-02B Object候補整理
   ↓
