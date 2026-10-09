@@ -476,26 +476,26 @@ GitHub Repository Renameはtests通過・push完了後に行う。
 
 以下をすべて満たした時点でRename完了とする。
 
-- [ ] 正式名称が`Source Grounded Object Knowledge Base`、略称が`SGOKB`。
-- [ ] GitHub Repositoryが`SourceGroundedObjectKnowledgeBase`。
-- [ ] `src/sgokb`が正本packageであり`src/cpc`が存在しない。
-- [ ] distributionが`source-grounded-object-knowledge-base`。
-- [ ] `sgokb` CLIと`python -m sgokb`が動作する。
-- [ ] 旧`cpc` CLI/package互換aliasを提供していない。
-- [ ] active runtime environment prefixが`SGOKB_*`のみ。
-- [ ] default DBが`.local/sgokb.sqlite`。
-- [ ] 既存DBがある場合、内容・stable IDsを保持して安全に移行済み。
-- [ ] Native Hostが`com.sgokb.web_page_capture`。
-- [ ] 旧Native Host registry keyが残っていない。
-- [ ] Web Page CaptureからNative Messaging実Captureが成功する。
-- [ ] active docsがSGOKB表記へ更新済み。
-- [ ] historical docs以外の旧名称scan ERRORが0件。
-- [ ] Python tests成功。
-- [ ] Ruff / `git diff --check`成功。
-- [ ] Web Page Capture tests成功。
-- [ ] `origin`が新GitHub URL。
-- [ ] local working pathを移す場合、新pathで再検証済み。
-- [ ] Renameに無関係な再設計ロジック変更が混入していない。
+- [x] 正式名称が`Source Grounded Object Knowledge Base`、略称が`SGOKB`。
+- [x] GitHub Repositoryが`SourceGroundedObjectKnowledgeBase`。
+- [x] `src/sgokb`が正本packageであり`src/cpc`が存在しない。
+- [x] distributionが`source-grounded-object-knowledge-base`。
+- [x] `sgokb` CLIと`python -m sgokb`が動作する。
+- [x] 旧`cpc` CLI/package互換aliasを提供していない。
+- [x] active runtime environment prefixが`SGOKB_*`のみ。
+- [x] default DBが`.local/sgokb.sqlite`。
+- [x] 既存DBがある場合、内容・stable IDsを保持して安全に移行済み。
+- [x] Native Hostが`com.sgokb.web_page_capture`。
+- [x] 旧Native Host registry keyが残っていない。
+- [x] Web Page CaptureからNative Messaging実Captureが成功する。
+- [x] active docsがSGOKB表記へ更新済み。
+- [x] historical docs以外の旧名称scan ERRORが0件。
+- [x] Python tests成功。
+- [x] Ruff / `git diff --check`成功。
+- [x] Web Page Capture tests成功。
+- [x] `origin`が新GitHub URL。
+- [x] local working pathを移す場合、新pathで再検証済み。
+- [x] Renameに無関係な再設計ロジック変更が混入していない。
 
 ---
 
@@ -551,3 +551,53 @@ SGOKB Rename Result
 ```
 
 残作業がある場合、「完了」とせず、何が自動実行できなかったかと次の1手を具体的に記述する。
+
+## 9. 実施記録（2026-10-09）
+
+実装branch: `refactor/sgokb-project-rename`。R-00〜R-12の名称変更と新配置での受入確認を実施した。B-02以降には進んでいない。
+
+### Source / runtime
+
+- `git mv`でpackageを移動し、imports・distribution・CLI・環境変数・既定DB・structured-output名・Native Hostを更新した。互換aliasと旧prefix fallbackは提供していない。
+- 使用中venvから旧distributionをuninstallし、残った旧egg-infoを除去した。新配置にはvenvを再作成し、新distributionをeditable installした。両環境で旧package/CLI/distributionが提供されないことを確認した。
+- 実User/Machine environmentに旧prefixは存在しなかった。値をログに表示していない。
+- 名称を逆変換したPython ASTの比較で、28ファイルに名称以外の差分がないことを確認した。既存SQL migrationは不変。
+
+### Data / local placement
+
+- 旧既定DBは存在しなかった。新既定DBをstatusコマンドで作成・確認した。
+- Git管理外の約11.48 GB・4,374ファイルを新cloneへ移行した。既存20 SQLite DBはbackup APIで複製し、全table件数・全primary keyのdigest一致、`integrity_check=ok`、FK違反0件を確認した。
+- 新cloneのDBでは、旧clone配下の絶対Raw pathだけを新配置へ移した。永続ID・Raw・Fragment・Final等の内容は変更していない。主要DBの106 Raw参照は実ファイルのchecksumと一致した。
+- 既存SampleのRename前後比較では、1 Source / 1 Snapshot / 1 normalization / 57 Evidence / 1 Page Contextが一致し、Evidence本文・metadata、Capture由来Snapshot ID、Rawの不変を確認した。
+- 旧ローカルmainに存在する未push 11 commitsは、新cloneの`archive/pre-rename-local-main`に保全した。旧feature branchesもローカルに保全した。
+
+### Verification
+
+- 新配置で`python -m pytest -q`: **71 passed**。
+- `ruff check src tests scripts`、`ruff format --check src tests scripts`、`git diff --check`: **成功**。
+- `python -m sgokb --help`、`sgokb --help`、`python -m sgokb status`: **成功**。
+- Web Capture `npm test`: **8 passed**。Native Host Python tests: **22 passed / 8 subtests passed**。
+- 最終pathからChrome Extensionを読み込み、そのExtension IDでNative Hostを登録した。実ユーザーRegistryで新Hostの登録・manifest・launcherを確認し、旧keyを削除した。
+- Chrome 154で実DOM/MHTMLを本番context-menu handlerとNative Messagingを通して保存し、ZIP検証と別受入DBへのImport/Processに成功した。この自動確認では物理的な右クリックは未観測だった。
+- 続いてユーザーが普段使うChromeで新pathから再読込し、右クリックCaptureの成功を報告した。追加ZIPをHost/Importer双方で検証し、Main DOM/MHTMLの成功を確認した。
+- 旧名称scanは**ERROR 0件**。Rename説明・明示したHistorical資料・過去のbranch名だけをALLOWED-HISTORICALとした。FALSE POSITIVEは0件。分類一覧と実データ受入記録はGit管理外`.local/`に保持した。
+
+### Repository / external check
+
+- Repositoryを`tabenishi02/SourceGroundedObjectKnowledgeBase`へRenameした。Repository ID・default branchと既存branchのcommit SHAを保持し、originを新URLへ明示更新した。実装branchをpush済み。
+- 中間handoff / handoff-v2にはv3に未包含のcommitが0件だったため、両remote branchを削除した。
+- 旧path/identifierを参照するScheduled Taskと既知PowerShell profileはなかった。他RepositoryではUPDSの2文書に旧表示名、Backfill/Numpadの過去記録に旧名称があるが、今回の運用URL/path登録の参照ではない。別Repositoryの文書・履歴は変更していない。
+- VS Code / Codexの現在のworkspaceは旧cloneを使用中。ChatGPT Project表示名は確認・変更できていない。
+
+### 最後の手動作業
+
+新配置でのtests・データ移行・Native Host・ユーザー実Captureは確認済み。使用中workspaceの削除は実施しない。セッションを閉じ、新配置を開いた後で、別のPowerShellから次を実行する。
+
+```powershell
+Set-Location C:\codex
+$legacyClone = (Resolve-Path -LiteralPath 'C:\codex\CharacterPageCollector').Path
+if ($legacyClone -ne 'C:\codex\CharacterPageCollector') { throw 'Unexpected legacy clone path' }
+Remove-Item -LiteralPath $legacyClone -Recurse -Force
+```
+
+旧cloneの片付けまで含めた全作業の終了は、この最後の1手の後となる。
