@@ -5,8 +5,8 @@ import zipfile
 
 import pytest
 
-from cpc.application import Application
-from cpc.repository import Repository
+from sgokb.application import Application
+from sgokb.repository import Repository
 
 HTML = """<!DOCTYPE html><html><head><meta charset="shift_jis"><script>SECRET UI</script></head>
 <body><nav>REMOVE NAV</nav><main><h1>架空太郎</h1><p>架空太郎は勇敢で強い人物。</p>

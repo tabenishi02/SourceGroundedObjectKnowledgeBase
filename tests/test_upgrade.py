@@ -5,11 +5,11 @@ from pathlib import Path
 
 import pytest
 
-from cpc.benchmark import judgement_metrics, require_local, retrieval_metrics
-from cpc.capture import extraction_windows, quote_choices, resolve_quotes, validate_capture
-from cpc.domain import SearchFilter
-from cpc.final import cluster_fragments
-from cpc.repository import Repository
+from sgokb.benchmark import judgement_metrics, require_local, retrieval_metrics
+from sgokb.capture import extraction_windows, quote_choices, resolve_quotes, validate_capture
+from sgokb.domain import SearchFilter
+from sgokb.final import cluster_fragments
+from sgokb.repository import Repository
 
 TEMPORAL = {
     k: None for k in ("story_phase", "valid_from", "valid_to", "work_context", "temporal_note")
@@ -305,7 +305,7 @@ def test_non_destructive_clusters_and_numeric_conflict(core):
         )
     clusters = cluster_fragments(variants)
     assert len(clusters) == 2 and len(clusters[0]["fragment_ids"]) == 2
-    from cpc.final import conflicts
+    from sgokb.final import conflicts
 
     assert len(conflicts(clusters)[0]["alternatives"]) == 2
     assert repo.status()["fragments"] == result["fragments"]
@@ -341,7 +341,7 @@ def test_official_promotional_and_anonymous_factual_not_conflated(core):
 
 
 def test_noise_widgets_keep_body_structure_and_provenance():
-    from cpc.extraction import GenericExtractor
+    from sgokb.extraction import GenericExtractor
 
     html = (
         '<body><div class="site-header">NOISE</div><div id="content"><h1>主題</h1>'
@@ -359,7 +359,7 @@ def test_noise_widgets_keep_body_structure_and_provenance():
 def test_v1_migration_preserves_existing_records(tmp_path):
     path = tmp_path / "legacy.sqlite"
     db = sqlite3.connect(path)
-    sql = Path("src/cpc/migrations/001_initial.sql").read_text(encoding="utf-8")
+    sql = Path("src/sgokb/migrations/001_initial.sql").read_text(encoding="utf-8")
     db.executescript(
         sql + "CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY);"
         "INSERT INTO schema_migrations VALUES(1);"
@@ -413,7 +413,7 @@ def test_context_change_invalidates_resume(core):
 
 
 def test_benchmark_unique_runs_resume_and_missing_gold(core, tmp_path):
-    from cpc.benchmark import run_benchmark
+    from sgokb.benchmark import run_benchmark
 
     app, repo, snapshot, entity = grounded(core)
     manifest = {

@@ -14,8 +14,8 @@ from pathlib import Path
 
 import httpx
 
-from cpc.capture import quote_choices, resolve_quotes, validate_capture
-from cpc.domain import digest, json_text
+from sgokb.capture import quote_choices, resolve_quotes, validate_capture
+from sgokb.domain import digest, json_text
 
 MODELS = [
     ("L01", "qwen/qwen3.8-27b", "Qwen3.8-27B", "Qwen3.8-27B-Q4_K_M.gguf"),
@@ -68,7 +68,9 @@ def inputs():
         }
     ]
     allowed = {e["id"]: e for e in evidence}
-    schema = json.loads(Path("src/cpc/prompts/high_recall.schema.json").read_text(encoding="utf-8"))
+    schema = json.loads(
+        Path("src/sgokb/prompts/high_recall.schema.json").read_text(encoding="utf-8")
+    )
     response_schema = deepcopy(schema)
     assessment = response_schema["properties"]["assessments"]
     assessment.update(minItems=1, maxItems=1)
@@ -95,7 +97,7 @@ def inputs():
         "focus": "all",
         "quote_choices": choices,
     }
-    prompt = Path("src/cpc/prompts/high_recall.md").read_text(encoding="utf-8")
+    prompt = Path("src/sgokb/prompts/high_recall.md").read_text(encoding="utf-8")
     prompt += "\nResponse JSON Schema (CPC instruction):\n" + json_text(response_schema)
     common = (
         "日本語で資料に基づく詳しい説明を番号付きで続けてください。"

@@ -4,11 +4,11 @@ import sqlite3
 
 import pytest
 
-from cpc.cli import export_markdown, main
-from cpc.domain import SearchFilter, validate_fragments, validate_vectors
-from cpc.extraction import ExtractorRegistry, GenericExtractor, chunks
-from cpc.importer import WebCaptureImporter
-from cpc.search import merge_candidates
+from sgokb.cli import export_markdown, main
+from sgokb.domain import SearchFilter, validate_fragments, validate_vectors
+from sgokb.extraction import ExtractorRegistry, GenericExtractor, chunks
+from sgokb.importer import WebCaptureImporter
+from sgokb.search import merge_candidates
 
 
 def test_import_dedup_sources_snapshots_and_raw_unchanged(core, make_bundle):
@@ -318,7 +318,7 @@ def test_site_specific_roots():
 
 
 def test_migration_reopen_preserves_data(core):
-    from cpc.repository import Repository
+    from sgokb.repository import Repository
 
     _, repo, _, _, snapshot, *_ = core
     path = repo.db.execute("PRAGMA database_list").fetchone()[2]

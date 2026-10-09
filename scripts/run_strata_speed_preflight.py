@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 import httpx
 from run_speed_preflight import inputs, response_record, write_atomic
 
-from cpc.domain import digest, json_text
+from sgokb.domain import digest, json_text
 
 
 def request_body(condition):

@@ -8,11 +8,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from cpc.application import Application  # noqa: E402
-from cpc.cli import export_markdown  # noqa: E402
-from cpc.domain import SearchFilter, digest, now  # noqa: E402
-from cpc.providers import embedder_from_env, llm_from_env  # noqa: E402
-from cpc.repository import Repository  # noqa: E402
+from sgokb.application import Application  # noqa: E402
+from sgokb.cli import export_markdown  # noqa: E402
+from sgokb.domain import SearchFilter, digest, now  # noqa: E402
+from sgokb.providers import embedder_from_env, llm_from_env  # noqa: E402
+from sgokb.repository import Repository  # noqa: E402
 
 
 def write_report(path, report):

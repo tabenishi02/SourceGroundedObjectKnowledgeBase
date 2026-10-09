@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "character-page-collector"
+name = "source-grounded-object-knowledge-base"
 version = "0.2.0"
 description = "Raw Web Capture to provenance-aware entity documents (prototype)"
 requires-python = ">=3.10"
@@ -14,13 +14,13 @@ dev = ["pytest>=8,<10", "ruff>=0.9,<1"]
 local-embedding = ["sentence-transformers>=3,<6"]
 
 [project.scripts]
-cpc = "cpc.cli:main"
+sgokb = "sgokb.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-cpc = ["migrations/*.sql", "prompts/*.md", "prompts/*.json"]
+sgokb = ["migrations/*.sql", "prompts/*.md", "prompts/*.json"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

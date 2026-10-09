@@ -3,7 +3,7 @@ import json
 import httpx
 import pytest
 
-from cpc.providers import CompatibleEmbedder, CompatibleLLM
+from sgokb.providers import CompatibleEmbedder, CompatibleLLM
 
 
 @pytest.mark.parametrize(
@@ -17,7 +17,7 @@ from cpc.providers import CompatibleEmbedder, CompatibleLLM
     ],
 )
 def test_strata_structured_errors_enter_cpc_validation(message, budget):
-    from cpc.providers import StrataLLM
+    from sgokb.providers import StrataLLM
 
     provider = StrataLLM(
         "http://localhost/v1",
@@ -41,7 +41,7 @@ def test_strata_structured_errors_enter_cpc_validation(message, budget):
 
 
 def test_strata_does_not_convert_server_failures():
-    from cpc.providers import StrataLLM
+    from sgokb.providers import StrataLLM
 
     provider = StrataLLM(
         "http://localhost/v1",
@@ -55,7 +55,7 @@ def test_strata_does_not_convert_server_failures():
 
 
 def test_strata_configuration_and_decode_metrics(monkeypatch):
-    from cpc.providers import StrataLLM, llm_from_env
+    from sgokb.providers import StrataLLM, llm_from_env
 
     monkeypatch.setenv("CPC_LLM_PROVIDER", "strata")
     monkeypatch.setenv("CPC_LLM_MODEL", "test")
@@ -121,7 +121,7 @@ def test_truncated_llm_output_rejected():
 
 
 def test_native_lmstudio_reasoning_boundary_and_measurements():
-    from cpc.providers import LMStudioLLM
+    from sgokb.providers import LMStudioLLM
 
     requests = []
 
@@ -154,7 +154,7 @@ def test_native_lmstudio_reasoning_boundary_and_measurements():
 
 
 def test_native_token_budget_keeps_failed_response_for_diagnosis():
-    from cpc.providers import LMStudioLLM
+    from sgokb.providers import LMStudioLLM
 
     provider = LMStudioLLM(
         "http://127.0.0.1:1234/v1",

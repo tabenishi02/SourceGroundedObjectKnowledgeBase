@@ -9,9 +9,9 @@ from urllib.parse import urlparse
 import httpx
 from run_speed_preflight import inputs, write_atomic
 
-from cpc.capture import resolve_quotes, validate_capture
-from cpc.domain import digest, json_text
-from cpc.providers import StrataLLM
+from sgokb.capture import resolve_quotes, validate_capture
+from sgokb.domain import digest, json_text
+from sgokb.providers import StrataLLM
 
 
 def validate_result(content, condition):

@@ -6,10 +6,10 @@ import json
 import sqlite3
 from pathlib import Path
 
-from cpc.application import Application
-from cpc.benchmark import run_benchmark
-from cpc.providers import embedder_from_env, llm_from_env
-from cpc.repository import Repository
+from sgokb.application import Application
+from sgokb.benchmark import run_benchmark
+from sgokb.providers import embedder_from_env, llm_from_env
+from sgokb.repository import Repository
 
 
 def main():
