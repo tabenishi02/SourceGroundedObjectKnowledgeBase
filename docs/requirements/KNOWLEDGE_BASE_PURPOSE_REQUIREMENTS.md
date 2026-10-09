@@ -9,6 +9,7 @@
   - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
   - `docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md`
   - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
+  - `docs/requirements/OBJECT_REQUIREMENTS.md`
   - `docs/archive/prototype-0.2/CharacterPageCollector システム要件定義書 v0.2.md`（Rename前の歴史資料）
 
 ## 1. 本書の位置づけ
@@ -68,7 +69,7 @@ Semanticであることは、すべてのSourceを事前に生成LLMで細粒度
 
 Knowledgeの中心単位を、巨大DocumentではなくObjectとする。
 
-初期対象はCharacter / Work / Conceptを想定するが、Object typeの詳細要件と将来拡張方式はB-02で定義する。
+初期対象はCharacter / Work / Conceptを想定するが、Object typeの詳細要件と将来拡張方式は `docs/requirements/OBJECT_REQUIREMENTS.md` で定義する。
 
 Objectは、単なる名前付きフォルダではなく、属性、意味的Facet、他ObjectとのRelation、Version、Evidence参照等を持てる論理単位とする。
 

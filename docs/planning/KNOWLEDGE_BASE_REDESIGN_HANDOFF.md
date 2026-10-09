@@ -10,6 +10,10 @@
 
 本書は詳細設計書ではない。ここに記載した内容を「現時点で合意済みの要件・設計方針」とし、個別 Phase で未確定事項を具体化する。
 
+### 1.1 最新進捗 — B-02 Object要件
+
+B-02は完了済み。正本は `docs/requirements/OBJECT_REQUIREMENTS.md`。ObjectをSource / Document / Versionから独立した安定Identityとし、初期typeをCharacter / Work / Conceptとした。`object_id`はname・path・Source・Version等から独立させ、同名別Objectを許容する。Object lifecycleは`active` / `archived`を最低限とし、Knowledge未生成は`current_version`が空の状態として扱う。名称変更や同一Characterの複数Work登場ではObject IDを維持し、別continuity等の意味上別対象は別Objectにできる。Object typeは将来拡張可能とし、type固有KnowledgeはFacet等の拡張構造へ分離する。
+
 ---
 
 ## 2. 再設計に至った背景
@@ -132,7 +136,7 @@ SGOKBの中心概念は `Object` とする。
 - `updated_at`
 - `current_version`
 
-詳細SchemaはPhase Eで確定する。
+Objectの論理要件・Identity判断は `docs/requirements/OBJECT_REQUIREMENTS.md` で確定済み。SQL table構成、ID形式、type registry等の物理SchemaはPhase Eで確定する。
 
 ### SourceとObject
 
@@ -649,6 +653,14 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 26. 自動化率の最大化を目的にしない。
 27. 既存SGOKB資産を可能な限り再利用し、全面rewriteを前提としない。
 28. 大規模Git移動は責務・Schema決定後に行う。
+29. ObjectはSource / Document / Knowledge Versionから独立した安定Identityとする。
+30. `object_id`はname / alias / path / Source / Version / Project名等から独立させる。
+31. Objectの初期typeはCharacter / Work / Conceptとし、将来typeを拡張可能にする。
+32. name / aliasは一意でなく、同名別Objectを許容する。
+33. Object lifecycle statusは最低限active / archivedを持ち、Knowledge生成状態やconfidenceと分離する。
+34. Knowledge未生成Objectを許容し、`current_version`が空の状態を正常とする。
+35. 同一Characterの複数Work登場は原則1 Object + Relationとし、別continuity等は別Objectにできる。
+36. type固有Knowledgeは共通Object identityへ固定列として詰め込まず、Facet等の拡張構造へ分離する。
 
 ---
 
@@ -656,8 +668,8 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 
 以下は今後のPhaseで決定する。
 
-- Object共通Schemaの詳細
-- Object Type別Schema拡張方式
+- Object共通contractの物理DB schema・`object_id`形式
+- Object Type registry / type固有Facetの物理Schema拡張方式
 - Facetの正式一覧と拡張方式
 - Relation schema / relation type管理
 - Evidence Package形式・容量上限
@@ -733,7 +745,7 @@ X-YY [Priority] <Task名>
 - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
   - 再設計の全Phase / Task一覧。
 - `README.md`
-  - 現行Prototypeの概要。再設計完了までは旧実装の説明を含む。
+  - SGOKBの現行概要とDocumentation Indexへの入口。
 - `docs/archive/prototype-0.2/DEVELOPMENT_STATUS.md`
   - Prototype 0.2の実データ評価と現状。
 - `docs/archive/prototype-0.2/KNOWLEDGE_PIPELINE_EFFICIENCY_REDESIGN.md`
@@ -745,8 +757,8 @@ X-YY [Priority] <Task名>
 
 ## 23. 現在地点
 
-要件の概要整理と、再設計全体のPhase/Task分解まで完了したものとする。
+Phase Aの方針確定・既存資産棚卸し、B-01の目的再定義、B-02のObject要件定義まで完了している。
 
-まだ新Knowledge Baseの詳細要件・DB Schema・フォルダ構造・実装変更は確定していない。
+Objectの論理Identity・初期type・共通属性・lifecycle・Versionとの分離は `docs/requirements/OBJECT_REQUIREMENTS.md` を正本とする。物理DB Schema、Facet、Relation、Evidence Link等の詳細は後続Phaseで具体化する。
 
-次の作業は `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md` の **Phase A — 方針確定・既存資産棚卸し** から開始する。
+次の作業は **B-03 [P0] Source / Evidence要件を再確認する** とする。

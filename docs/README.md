@@ -5,14 +5,15 @@
 ## まず読む文書
 
 1. [目的要件](requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md) — SGOKBが何を実現するシステムか。
-2. [再設計Decision](decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md) — 旧Prototypeから何を変更し、なぜ変更するか。
-3. [再設計タスク](planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 現在の進捗と次に実施する作業。
-4. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — 別チャット・Codexへ引き継ぐための全体背景。
+2. [Object要件](requirements/OBJECT_REQUIREMENTS.md) — ObjectのIdentity、型、共通属性、Versionとの関係。
+3. [再設計Decision](decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md) — 旧Prototypeから何を変更し、なぜ変更するか。
+4. [再設計タスク](planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 現在の進捗と次に実施する作業。
+5. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — 別チャット・Codexへ引き継ぐための全体背景。
 
 ## 現行文書
 
 ### `requirements/`
-現在有効な要件を置く。B-02以降でObject / Source / Evidence / Result / Search / NFR要件をここへ追加する。
+現在有効な要件を置く。B-01の目的要件、B-02のObject要件を収録済み。B-03以降でSource / Evidence / Result / Search / NFR要件を追加する。
 
 ### `decisions/`
 現在も有効なArchitecture Decisionを置く。

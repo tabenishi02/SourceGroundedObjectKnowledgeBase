@@ -11,6 +11,7 @@ Web上のSource / Evidenceを根拠に、Character・Work・ConceptなどのObje
 ## Current documentation
 
 - [SGOKBの目的要件](docs/requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md)
+- [Object要件](docs/requirements/OBJECT_REQUIREMENTS.md)
 - [Knowledge Base再設計Decision](docs/decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md)
 - [再設計タスク / 現在の進捗](docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md)
 - [再設計引継ぎ資料](docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md)

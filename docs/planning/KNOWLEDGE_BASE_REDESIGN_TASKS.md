@@ -72,11 +72,12 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
   - SGOKBを「Curated Semantic Object Knowledge Base」として定義する。
   - 文書生成は目的ではなく派生表示とする。
 
-- [ ] **B-02 [P0] Object要件を定義する**
-  - 共通Object + `object_type` を基本とする。
-  - 初期型: `Character`, `Work`, `Concept`。
-  - 将来拡張型を固定列挙しすぎない。
-  - name / aliases / type / status / version等の共通属性を定義する。
+- [x] **B-02 [P0] Object要件を定義する**
+  - `docs/requirements/OBJECT_REQUIREMENTS.md` を正本とする。
+  - ObjectをSource / Document / Versionから独立した安定Identityとして定義した。
+  - 初期型を `Character`, `Work`, `Concept` とし、将来typeを拡張可能とした。
+  - `object_id` / `object_type` / name / aliases / status / current_version / timestampの共通概念を定義した。
+  - 同名別Object、名称変更、複数Work所属、Concept / UPDS境界のIdentity判断方針を定義した。
 
 - [ ] **B-03 [P0] Source / Evidence要件を再確認する**
   - SourceとObjectを多対多とする。
@@ -157,7 +158,8 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
 docs/
 ├─ README.md
 ├─ requirements/
-│  └─ KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md
+│  ├─ KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md
+│  └─ OBJECT_REQUIREMENTS.md
 ├─ decisions/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_DECISION.md
 │  └─ SGOKB_RENAME_DECISION.md
