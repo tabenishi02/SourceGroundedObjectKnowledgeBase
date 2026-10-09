@@ -12,10 +12,10 @@ quote_choicesはCoreが原文から作成した引用候補です。quote_idに�
 evidenceには長いEvidenceの一部分が提示される場合があります。今回は提示された部分だけから抽出し、他の部分や学習済み知識で補完しません。
 resolved_statementは独立して読める文にします。対象の名前は文脈から解決できる場合だけ補い、学習済み知識を加えません。
 subjectとfacetは自由な短い文字列。候補Entityはentity_candidatesに提示し、既存Entityを統合しません。
-epistemic_type: fact（記載された事実主張）、source_interpretation（資料の考察）、derived_interpretation（CPCが根拠から導いた考察）、public_perception（感想・評判）、promotional_claim（宣伝的主張）。
+epistemic_type: fact（記載された事実主張）、source_interpretation（資料の考察）、derived_interpretation（SGOKBが根拠から導いた考察）、public_perception（感想・評判）、promotional_claim（宣伝的主張）。
 公式資料にも宣伝があり、匿名投稿にも事実主張があります。publisher_typeからepistemic_typeを決めません。
 evidence_strengthは根拠の直接性でdirect_statement/strong_inference/weak_inference。真実の確率ではありません。
-asserted_byは主張主体: official/creator/interviewee/article_author/community/anonymous_user/reviewer/cpc_llm/unknown等。derived_interpretationならcpc_llm。
+asserted_byは主張主体: official/creator/interviewee/article_author/community/anonymous_user/reviewer/sgokb_llm/unknown等。derived_interpretationならsgokb_llm。
 temporal_contextは主張が指す物語時期・作品・期間です。不明な各欄はnull。取得日時や記事日時で物語時期を埋めません。
 矛盾した主張は両方保存し、わかる場合のみconflict_groupを同じ論点名にします。真偽を決定しません。
 assessmentsにはevidenceの全IDを一度ずつ記載してください。引用したEvidenceのdiscard_reasonはnull。

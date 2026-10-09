@@ -1,5 +1,5 @@
 {
-  "benchmark_version": "cpc-upgrade-sample-v1",
+  "benchmark_version": "sgokb-upgrade-sample-v1",
   "fragment_batch_size": 1,
   "baseline": "85b0b50",
   "gold_status": "unlabeled",

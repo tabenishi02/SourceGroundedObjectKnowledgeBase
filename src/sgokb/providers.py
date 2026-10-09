@@ -35,7 +35,7 @@ class CompatibleLLM:
                 for k in ("top_p", "top_k", "min_p", "repeat_penalty", "chat_template_kwargs")
                 if k in self.extra
             },
-            "runtime_metadata": json.loads(os.environ.get("CPC_RUNTIME_METADATA_JSON", "{}")),
+            "runtime_metadata": json.loads(os.environ.get("SGOKB_RUNTIME_METADATA_JSON", "{}")),
         }
         self.client = httpx.Client(
             timeout=timeout,
@@ -62,7 +62,7 @@ class CompatibleLLM:
                         "response_format": {
                             "type": "json_schema",
                             "json_schema": {
-                                "name": "cpc_response",
+                                "name": "sgokb_response",
                                 "strict": True,
                                 "schema": schema,
                             },
@@ -92,7 +92,7 @@ class CompatibleLLM:
         choice = body["choices"][0]
         self.last_output = choice["message"].get("content")
         if choice.get("finish_reason") == "length":
-            raise ValueError("LLM output truncated; increase CPC_LLM_MAX_TOKENS")
+            raise ValueError("LLM output truncated; increase SGOKB_LLM_MAX_TOKENS")
         content = choice["message"].get("content")
         if not isinstance(content, str) or not content.strip():
             raise ValueError("LLM returned no content")
@@ -106,7 +106,7 @@ class CompatibleLLM:
 
 
 class StrataLLM(CompatibleLLM):
-    """Shared Strata server; retain CPC validation and distinguish budget failures."""
+    """Shared Strata server; retain SGOKB validation and distinguish budget failures."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -298,47 +298,47 @@ class SentenceTransformerEmbedder:
 
 
 def llm_from_env(task_type=None):
-    model = os.environ.get("CPC_LLM_MODEL")
+    model = os.environ.get("SGOKB_LLM_MODEL")
     if not model:
-        raise ValueError("Set CPC_LLM_MODEL (real provider required)")
-    extra = json.loads(os.environ.get("CPC_LLM_EXTRA_JSON", "{}"))
+        raise ValueError("Set SGOKB_LLM_MODEL (real provider required)")
+    extra = json.loads(os.environ.get("SGOKB_LLM_EXTRA_JSON", "{}"))
     if task_type in {"fragment", "final"}:
         extra.update(
-            json.loads(os.environ.get("CPC_LLM_" + task_type.upper() + "_EXTRA_JSON", "{}"))
+            json.loads(os.environ.get("SGOKB_LLM_" + task_type.upper() + "_EXTRA_JSON", "{}"))
         )
     provider = {"compatible": CompatibleLLM, "lmstudio": LMStudioLLM, "strata": StrataLLM}.get(
-        os.environ.get("CPC_LLM_PROVIDER", "compatible")
+        os.environ.get("SGOKB_LLM_PROVIDER", "compatible")
     )
     if provider is None:
         raise ValueError("Unknown LLM provider")
     return provider(
-        os.environ.get("CPC_LLM_BASE_URL", "http://127.0.0.1:1234/v1"),
+        os.environ.get("SGOKB_LLM_BASE_URL", "http://127.0.0.1:1234/v1"),
         model,
-        os.environ.get("CPC_LLM_REVISION", "unknown"),
-        os.environ.get("CPC_LLM_API_KEY"),
-        float(os.environ.get("CPC_API_TIMEOUT", "180")),
-        int(os.environ.get("CPC_LLM_MAX_TOKENS", "3000")),
+        os.environ.get("SGOKB_LLM_REVISION", "unknown"),
+        os.environ.get("SGOKB_LLM_API_KEY"),
+        float(os.environ.get("SGOKB_API_TIMEOUT", "180")),
+        int(os.environ.get("SGOKB_LLM_MAX_TOKENS", "3000")),
         extra,
     )
 
 
 def embedder_from_env():
-    model = os.environ.get("CPC_EMBED_MODEL")
+    model = os.environ.get("SGOKB_EMBED_MODEL")
     if not model:
-        raise ValueError("Set CPC_EMBED_MODEL (real embedding provider required)")
+        raise ValueError("Set SGOKB_EMBED_MODEL (real embedding provider required)")
     options = {
-        "document_prefix": os.environ.get("CPC_EMBED_DOCUMENT_PREFIX", ""),
-        "query_prefix": os.environ.get("CPC_EMBED_QUERY_PREFIX", ""),
-        "max_chars": int(os.environ.get("CPC_EMBED_MAX_CHARS", "600")),
+        "document_prefix": os.environ.get("SGOKB_EMBED_DOCUMENT_PREFIX", ""),
+        "query_prefix": os.environ.get("SGOKB_EMBED_QUERY_PREFIX", ""),
+        "max_chars": int(os.environ.get("SGOKB_EMBED_MAX_CHARS", "600")),
     }
-    revision = os.environ.get("CPC_EMBED_REVISION", "unknown")
-    if os.environ.get("CPC_EMBED_PROVIDER", "compatible") == "sentence-transformers":
+    revision = os.environ.get("SGOKB_EMBED_REVISION", "unknown")
+    if os.environ.get("SGOKB_EMBED_PROVIDER", "compatible") == "sentence-transformers":
         return SentenceTransformerEmbedder(model, revision, **options)
     return CompatibleEmbedder(
-        os.environ.get("CPC_EMBED_BASE_URL", "http://127.0.0.1:1234/v1"),
+        os.environ.get("SGOKB_EMBED_BASE_URL", "http://127.0.0.1:1234/v1"),
         model,
         revision,
-        os.environ.get("CPC_EMBED_API_KEY"),
-        float(os.environ.get("CPC_API_TIMEOUT", "180")),
+        os.environ.get("SGOKB_EMBED_API_KEY"),
+        float(os.environ.get("SGOKB_API_TIMEOUT", "180")),
         **options,
     )

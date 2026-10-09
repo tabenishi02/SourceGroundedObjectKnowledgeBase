@@ -83,7 +83,7 @@ class Application:
             (self.prompt_dir / (prompt_name + ".schema.json")).read_text(encoding="utf-8")
         )
         # Text-only providers also need the complete contract, not merely its filename.
-        prompt += "\nResponse JSON Schema (CPC instruction):\n" + json_text(schema)
+        prompt += "\nResponse JSON Schema (SGOKB instruction):\n" + json_text(schema)
         version += ":" + digest(prompt)
         version += ":" + digest(json_text(schema))
         ai_id = self.repository.begin_ai(

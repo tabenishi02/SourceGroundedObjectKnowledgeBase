@@ -24,9 +24,9 @@ def filters(args):
 
 
 def parser():
-    root = argparse.ArgumentParser(description="CharacterPageCollector prototype")
-    root.add_argument("--db", default=os.environ.get("CPC_DB", ".local/cpc.sqlite"))
-    root.add_argument("--prompt-dir", default=os.environ.get("CPC_PROMPT_DIR"))
+    root = argparse.ArgumentParser(description="Source Grounded Object Knowledge Base prototype")
+    root.add_argument("--db", default=os.environ.get("SGOKB_DB", ".local/sgokb.sqlite"))
+    root.add_argument("--prompt-dir", default=os.environ.get("SGOKB_PROMPT_DIR"))
     commands = root.add_subparsers(dest="command", required=True)
     importer = commands.add_parser(
         "import", help="Read bundles recursively; originals stay unchanged"

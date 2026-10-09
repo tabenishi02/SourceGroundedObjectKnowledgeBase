@@ -57,7 +57,7 @@ def positions(soup):
             index = sum(isinstance(t, Tag) for t in current.previous_siblings)
             chain.append(f"{current.name}[{index}]")
             current = current.parent
-        tag["_cpc_position"] = "/" + "/".join(reversed(chain))
+        tag["_sgokb_position"] = "/" + "/".join(reversed(chain))
 
 
 class GenericExtractor:
@@ -126,7 +126,7 @@ class GenericExtractor:
                         kind,
                         value,
                         section.copy(),
-                        prefix + tag.get("_cpc_position", "/"),
+                        prefix + tag.get("_sgokb_position", "/"),
                         artifact,
                         {k: tag[k] for k in ("id", "datetime", "data-post-id") if k in tag},
                     )

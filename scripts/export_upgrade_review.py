@@ -58,7 +58,7 @@ def main():
     parser.add_argument("--baseline", default=".local/evaluation.sqlite")
     parser.add_argument("--upgrade", default=".local/upgrade.sqlite")
     parser.add_argument("--manifest", default="benchmark/sample-v1.json")
-    parser.add_argument("--out", type=Path, default=Path("sample/CPC_Upgrade_評価"))
+    parser.add_argument("--out", type=Path, default=Path("sample/SGOKB_Upgrade_評価"))
     args = parser.parse_args()
     sample = Path("sample").resolve()
     if sample not in args.out.resolve().parents:
@@ -68,7 +68,7 @@ def main():
     manifest = json.loads(Path(args.manifest).read_text(encoding="utf-8"))
     report = {"dataset": manifest["benchmark_version"], "snapshots": [], "documents": []}
     overview = [
-        "CPC Prototype Upgrade 比較",
+        "SGOKB Prototype Upgrade 比較",
         "",
         "内容の忠実性・分類・重要情報の網羅性は人間確認が必要です。",
         "件数と引用率は正しさや独立した裏付けの数を表しません。",

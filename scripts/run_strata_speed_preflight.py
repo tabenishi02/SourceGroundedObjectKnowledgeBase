@@ -54,7 +54,7 @@ def measure(body, elapsed, condition):
     row["finish_reason"] = choice.get("finish_reason")
     row["timings"] = body.get("timings", {})
     if choice.get("finish_reason") == "length":
-        row.update(status="budget_reached", cpc_valid=False if condition["id"] == "S03" else None)
+        row.update(status="budget_reached", sgokb_valid=False if condition["id"] == "S03" else None)
     return row
 
 
@@ -75,7 +75,7 @@ def summarize(state, baseline, out):
         "input_tokens",
         "reasoning_setting",
         "reasoning_tokens",
-        "cpc_valid",
+        "sgokb_valid",
         "error",
     ]
     with (out / "速度比較.csv").open("w", encoding="utf-8-sig", newline="") as file:
@@ -87,7 +87,7 @@ def summarize(state, baseline, out):
         f"Strata run: {state['run_id']} / 状態: {state['status']}",
         f"既存8モデル run: {baseline['run_id']}（再実行せず保存済み測定を使用）",
         "同一固定入力・Prompt・temperature=0・出力上限・各条件warmup1回+測定3回。",
-        "S01:300文字/1024token、S02:2000文字/1024token、S03:CPC抽出/8192token。",
+        "S01:300文字/1024token、S02:2000文字/1024token、S03:SGOKB抽出/8192token。",
         "LM Studio: Native API/context16384、Strata: 互換API/context65536/IQ3_S。",
         "Strata: enable_thinking=false、projection/engine/キャッシュ条件はruntime.json参照。",
         "S03は両runtimeともPrompt内Schema指定。Strata側response_format検証を追加しない。",
@@ -96,7 +96,7 @@ def summarize(state, baseline, out):
         "異なるruntime・context・量子化・tokenizerとキャッシュの構成比較。品質順位ではない。",
         "各値はwarmup/終了時確認を除く中央値。S01/S02の予算到達は速度測定として有効。",
         "",
-        "モデル | S01 tokens/s | S02 tokens/s | S03 tokens/s | S03文字/秒 | S03総秒 | CPC適合",
+        "モデル | S01 tokens/s | S02 tokens/s | S03 tokens/s | S03文字/秒 | S03総秒 | SGOKB適合",
     ]
     models = baseline["models"] + [{"id": "L09", "name": "Strata Qwen3.8-Flash-Next IQ3_S"}]
     for model in models:
@@ -121,7 +121,7 @@ def summarize(state, baseline, out):
         cells += [
             median("S03", "characters_per_second"),
             median("S03", "total_seconds"),
-            f"{sum(r.get('cpc_valid') is True for r in s03)}/{len(s03)}",
+            f"{sum(r.get('sgokb_valid') is True for r in s03)}/{len(s03)}",
         ]
         lines.append(" | ".join(cells))
     (out / "速度比較.txt").write_text("\n".join(lines) + "\n", encoding="utf-8-sig")

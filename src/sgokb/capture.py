@@ -90,9 +90,9 @@ def validate_capture(result, targets, allowed, schema):
             raise ValueError("original_text must quote supplied evidence verbatim")
         if (
             fragment["epistemic_type"] == "derived_interpretation"
-            and fragment["asserted_by"] != "cpc_llm"
+            and fragment["asserted_by"] != "sgokb_llm"
         ):
-            raise ValueError("Derived interpretations must identify cpc_llm as the claimant")
+            raise ValueError("Derived interpretations must identify sgokb_llm as the claimant")
         referenced.update(refs)
         fragment["content"] = fragment["resolved_statement"]
     for a in result["assessments"]:
@@ -128,7 +128,7 @@ class HighRecallCapture:
         except ValueError as error:
             if str(error) not in {
                 "LLM output reached token budget",
-                "LLM output truncated; increase CPC_LLM_MAX_TOKENS",
+                "LLM output truncated; increase SGOKB_LLM_MAX_TOKENS",
             }:
                 raise
             length = sum(len(e["content"]) for e in payload["evidence"])

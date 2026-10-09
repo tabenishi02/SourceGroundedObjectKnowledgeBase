@@ -1,4 +1,4 @@
-"""Detached, resumable local speed measurements; never writes the CPC database."""
+"""Detached, resumable local speed measurements; never writes the SGOKB database."""
 
 import argparse
 import csv
@@ -98,7 +98,7 @@ def inputs():
         "quote_choices": choices,
     }
     prompt = Path("src/sgokb/prompts/high_recall.md").read_text(encoding="utf-8")
-    prompt += "\nResponse JSON Schema (CPC instruction):\n" + json_text(response_schema)
+    prompt += "\nResponse JSON Schema (SGOKB instruction):\n" + json_text(response_schema)
     common = (
         "日本語で資料に基づく詳しい説明を番号付きで続けてください。"
         "各項目に資料中の具体的な情報を含め、合計四十項目以上を目指してください。"
@@ -199,7 +199,7 @@ def response_record(body, elapsed, condition, reasoning_setting="off"):
         "end_to_end_tokens_per_second": tokens / elapsed
         if tokens is not None and elapsed
         else None,
-        "cpc_valid": validity,
+        "sgokb_valid": validity,
     }
 
 
@@ -230,7 +230,7 @@ def summarize(state, output):
         "condition_variant",
         "characters",
         "characters_per_second",
-        "cpc_valid",
+        "sgokb_valid",
         "error",
     ]
     with (output / "速度比較.csv").open("w", encoding="utf-8-sig", newline="") as file:
@@ -289,7 +289,7 @@ def summarize(state, output):
                 "    状態: "
                 + ", ".join(r["status"] for r in selected)
                 + (
-                    f" / CPC適合 {sum(r.get('cpc_valid') is True for r in selected)}"
+                    f" / SGOKB適合 {sum(r.get('sgokb_valid') is True for r in selected)}"
                     f"/{len(selected)}"
                     if condition == "S03"
                     else ""
@@ -299,7 +299,7 @@ def summarize(state, output):
     lines += [
         "中央値[最小〜最大]。ウォームアップ・最後のQwen確認はCSVで別表示。",
         "3回は予備測定。速度順位だけで本試験の品質順位を決めません。",
-        "生応答・設定・statsは同じフォルダ内。CPCの既存DBは変更していません。",
+        "生応答・設定・statsは同じフォルダ内。SGOKBの既存DBは変更していません。",
     ]
     baseline = [
         r
@@ -308,7 +308,7 @@ def summarize(state, output):
         and r["condition"] == "S03"
         and not r["warmup"]
         and not r.get("final_check")
-        and r.get("cpc_valid") is True
+        and r.get("sgokb_valid") is True
         and r.get("tokens_per_second")
         and r.get("output_tokens")
         and r.get("ttft_seconds") is not None
@@ -330,7 +330,7 @@ def summarize(state, output):
                 and r["condition"] == "S03"
                 and not r["warmup"]
                 and not r.get("final_check")
-                and r.get("cpc_valid") is True
+                and r.get("sgokb_valid") is True
                 and r.get("reasoning_setting") in {"off", None}
                 and r.get("reasoning_tokens") == 0
                 and r.get("tokens_per_second")
@@ -342,13 +342,13 @@ def summarize(state, output):
                     and r["condition"] == "S03"
                     and not r["warmup"]
                     and not r.get("final_check")
-                    and r.get("cpc_valid") is True
+                    and r.get("sgokb_valid") is True
                     for r in rows
                 )
                 reason = (
-                    "CPC適合あり、推論設定・内訳がoff条件と異なるため同条件換算対象外"
+                    "SGOKB適合あり、推論設定・内訳がoff条件と異なるため同条件換算対象外"
                     if compatible
-                    else "CPC適合測定が不足、推定不可"
+                    else "SGOKB適合測定が不足、推定不可"
                 )
                 lines.append(model["name"] + ": " + reason)
                 continue
@@ -530,7 +530,7 @@ def main():
             model["status"] = "loading"
             state["current"] = model["id"] + " load"
             save()
-            identifier = f"cpc-speed-{state['run_id'][:8]}-{model['id']}"
+            identifier = f"sgokb-speed-{state['run_id'][:8]}-{model['id']}"
             start = time.perf_counter()
             try:
                 log = cli(
@@ -579,7 +579,7 @@ def main():
         # End-of-run Qwen check is separate from the three-trial summaries.
         qwen = state["models"][0]
         if qwen["status"] == "completed":
-            identifier = f"cpc-speed-{state['run_id'][:8]}-check"
+            identifier = f"sgokb-speed-{state['run_id'][:8]}-check"
             cli(
                 "load",
                 qwen["key"],

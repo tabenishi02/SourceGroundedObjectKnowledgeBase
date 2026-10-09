@@ -15,7 +15,7 @@ CATEGORIES = {
 LABELS = {
     "facts": "事実主張",
     "source_interpretations": "資料の考察",
-    "derived_interpretations": "CPCによる考察",
+    "derived_interpretations": "SGOKBによる考察",
     "public_perception": "感想・評判",
     "promotional_claims": "宣伝的主張",
     "unknown": "未分類（旧Schema）",
@@ -297,7 +297,7 @@ class StructuredFinal:
         # The final merge itself is a deterministic derived generation with a processing ledger.
         ai_id = self.repo.begin_ai(
             "structured_final",
-            "cpc-extractive-renderer",
+            "sgokb-extractive-renderer",
             "1",
             "",
             "1",

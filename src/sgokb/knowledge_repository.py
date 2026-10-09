@@ -171,7 +171,7 @@ class KnowledgeRepository:
         # A deterministic all-discard generation still needs a traceable processing ledger.
         ai_id = next((b["ai_run"] for b in batches if b["ai_run"]), None)
         if not ai_id:
-            ai_id = self.begin_ai("deterministic_discard", "cpc-rule-engine", "1", "", "1", {})
+            ai_id = self.begin_ai("deterministic_discard", "sgokb-rule-engine", "1", "", "1", {})
             self.finish_ai(ai_id, json_text({"fragments": []}))
         with self.db:
             ids, run_id = self._insert_fragment_generation(

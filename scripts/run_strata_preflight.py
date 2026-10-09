@@ -1,4 +1,4 @@
-"""CPC contract trial against an already running Strata server; no server changes."""
+"""SGOKB contract trial against an already running Strata server; no server changes."""
 
 import argparse
 import json
@@ -94,16 +94,16 @@ def run(base_url, out, trials):
                     result = validate_result(content, condition)
                     write_atomic(out / f"fragments-{index}.json", result)
                     record.update(
-                        status="completed", cpc_valid=True, fragments=len(result["fragments"])
+                        status="completed", sgokb_valid=True, fragments=len(result["fragments"])
                     )
                 except (ValueError, httpx.HTTPError) as exc:
-                    record.update(status="failed", cpc_valid=False, error=str(exc))
+                    record.update(status="failed", sgokb_valid=False, error=str(exc))
                 record["observation"] = provider.last_observation
                 report["records"].append(record)
                 write_atomic(out / "status.json", report)
             measured = report["records"][1:]
             report["status"] = (
-                "completed" if all(r["cpc_valid"] for r in report["records"]) else "failed"
+                "completed" if all(r["sgokb_valid"] for r in report["records"]) else "failed"
             )
             durations = [
                 r["observation"]["duration_seconds"]

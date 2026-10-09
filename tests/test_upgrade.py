@@ -266,7 +266,7 @@ def test_validation_atomicity_epistemic_strength_temporal_and_quotes(core):
     bad["fragments"][0]["epistemic_type"] = "derived_interpretation"
     with pytest.raises(ValueError, match="claimant"):
         validate_capture(bad, targets, allowed, schema)
-    bad["fragments"][0]["asserted_by"] = "cpc_llm"
+    bad["fragments"][0]["asserted_by"] = "sgokb_llm"
     assert validate_capture(bad, targets, allowed, schema)
 
 

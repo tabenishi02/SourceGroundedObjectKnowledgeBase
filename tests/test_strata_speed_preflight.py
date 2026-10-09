@@ -37,20 +37,20 @@ def test_decode_speed_is_separate_from_total_and_unknown_ttft():
     assert row["reasoning_tokens"] is None
 
 
-def test_budget_is_measurable_but_not_cpc_success():
+def test_budget_is_measurable_but_not_sgokb_success():
     row = speed.measure(response("{}", "length", 8192), 10, speed.inputs()[2])
-    assert row["status"] == "budget_reached" and row["cpc_valid"] is False
+    assert row["status"] == "budget_reached" and row["sgokb_valid"] is False
     assert row["tokens_per_second"] == 50
 
 
-def test_cpc_contract_validation_is_retained():
+def test_sgokb_contract_validation_is_retained():
     condition = speed.inputs()[2]
     result = {
         "assessments": [{"evidence_id": "speed-evidence-01", "discard_reason": "unrelated"}],
         "fragments": [],
         "entity_candidates": [],
     }
-    assert speed.measure(response(json.dumps(result)), 10, condition)["cpc_valid"] is True
+    assert speed.measure(response(json.dumps(result)), 10, condition)["sgokb_valid"] is True
     result["assessments"][0]["evidence_id"] = "unknown"
     row = speed.measure(response(json.dumps(result)), 10, condition)
-    assert row["status"] == "contract_failure" and row["cpc_valid"] is False
+    assert row["status"] == "contract_failure" and row["sgokb_valid"] is False
