@@ -12,7 +12,7 @@ import uuid
 import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
-HOST_NAME = "com.characterpagecollector.web_page_capture"
+HOST_NAME = "com.sgokb.web_page_capture"
 MAX_MESSAGE = 300 * 1024
 MAX_CHUNK = 192 * 1024
 MAX_BUNDLE = 512 * 1024 * 1024

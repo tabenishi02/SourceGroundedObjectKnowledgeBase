@@ -1,4 +1,4 @@
-export const HOST_NAME = "com.characterpagecollector.web_page_capture";
+export const HOST_NAME = "com.sgokb.web_page_capture";
 export const CHUNK_SIZE = 192 * 1024;
 export function nativeConnection() {
   const port = chrome.runtime.connectNative(HOST_NAME);

@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $localDir = Join-Path $projectRoot '.local'
 $manifestPath = Join-Path $localDir 'host-manifest.json'
-$keyPath = 'HKCU:\Software\Google\Chrome\NativeMessagingHosts\com.characterpagecollector.web_page_capture'
+$keyPath = 'HKCU:\Software\Google\Chrome\NativeMessagingHosts\com.sgokb.web_page_capture'
 if ($Action -eq 'Status') {
     $registered = Test-Path -LiteralPath $keyPath
     [pscustomobject]@{ Registered = $registered; ManifestExists = (Test-Path -LiteralPath $manifestPath); LauncherExists = (Test-Path -LiteralPath (Join-Path $localDir 'host.exe')) }
@@ -39,7 +39,7 @@ $sourcePath = Join-Path $localDir 'Launcher.cs'
 $exePath = Join-Path $localDir 'host.exe'
 & $compiler /nologo /target:exe "/out:$exePath" $sourcePath
 if ($LASTEXITCODE -ne 0) { throw 'Native Host launcherのコンパイルに失敗しました。' }
-$manifest = @{name = 'com.characterpagecollector.web_page_capture'; description = 'Web Page Capture storage bridge'; path = $exePath; type = 'stdio'; allowed_origins = @("chrome-extension://$ExtensionId/")}
+$manifest = @{name = 'com.sgokb.web_page_capture'; description = 'Web Page Capture storage bridge'; path = $exePath; type = 'stdio'; allowed_origins = @("chrome-extension://$ExtensionId/")}
 [IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
 if ($Action -eq 'Install') {
     New-Item -Path $keyPath -Force | Out-Null
