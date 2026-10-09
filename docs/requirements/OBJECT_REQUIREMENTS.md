@@ -499,4 +499,4 @@ B-02は次を満たした時点で完了とする。
 - ConceptとUPDS Personal Inferenceの境界がB-02レベルで明確である。
 - 物理schemaやFacet詳細を後続Taskへ適切に延期している。
 
-以上をB-03以降およびPhase Eの前提とする。
+以上をObject Identity要件の基準とする。なお、初期type `Character` / `Work` / `Concept` の分類粒度はB-02A〜B-02Dで追加検討し、必要であれば本書を改訂したうえでB-03以降およびPhase Eの前提とする。

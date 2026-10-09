@@ -8,7 +8,8 @@
 2. [Object要件](requirements/OBJECT_REQUIREMENTS.md) — ObjectのIdentity、型、共通属性、Versionとの関係。
 3. [再設計Decision](decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md) — 旧Prototypeから何を変更し、なぜ変更するか。
 4. [再設計タスク](planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 現在の進捗と次に実施する作業。
-5. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — 別チャット・Codexへ引き継ぐための全体背景。
+5. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — B-03前に実施するObject分類の詳細計画。
+6. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — 別チャット・Codexへ引き継ぐための全体背景。
 
 ## 現行文書
 

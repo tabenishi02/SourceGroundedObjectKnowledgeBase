@@ -10,9 +10,13 @@
 
 本書は詳細設計書ではない。ここに記載した内容を「現時点で合意済みの要件・設計方針」とし、個別 Phase で未確定事項を具体化する。
 
-### 1.1 最新進捗 — B-02 Object要件
+### 1.1 最新進捗 — B-02 Object要件 / Object Type Refinement
 
-B-02は完了済み。正本は `docs/requirements/OBJECT_REQUIREMENTS.md`。ObjectをSource / Document / Versionから独立した安定Identityとし、初期typeをCharacter / Work / Conceptとした。`object_id`はname・path・Source・Version等から独立させ、同名別Objectを許容する。Object lifecycleは`active` / `archived`を最低限とし、Knowledge未生成は`current_version`が空の状態として扱う。名称変更や同一Characterの複数Work登場ではObject IDを維持し、別continuity等の意味上別対象は別Objectにできる。Object typeは将来拡張可能とし、type固有KnowledgeはFacet等の拡張構造へ分離する。
+B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJECT_REQUIREMENTS.md`。ObjectをSource / Document / Versionから独立した安定Identityとし、`object_id`はname・path・Source・Version等から独立させる。
+
+その後、初期type `Character` / `Work` / `Concept` だけでは将来収集するWeb Sourceと対象Knowledgeの想定が不足し得るため、B-03前にObject分類を精緻化するB-02A〜B-02Dを追加した。詳細計画は `docs/planning/OBJECT_TYPE_REFINEMENT_TASKS.md` を正本とする。
+
+進行順は `B-02A 外部分類体系調査 → B-02B Object候補整理 → B-02C Type/Class階層設計 → B-02D Object/Facet/Relation境界 → B-03 Source/Evidence要件` とする。B-02A〜Dが完了するまでB-03の詳細確定へ進まない。
 
 ---
 
@@ -761,4 +765,4 @@ Phase Aの方針確定・既存資産棚卸し、B-01の目的再定義、B-02�
 
 Objectの論理Identity・初期type・共通属性・lifecycle・Versionとの分離は `docs/requirements/OBJECT_REQUIREMENTS.md` を正本とする。物理DB Schema、Facet、Relation、Evidence Link等の詳細は後続Phaseで具体化する。
 
-次の作業は **B-03 [P0] Source / Evidence要件を再確認する** とする。
+次の作業は **B-02A [P0] 外部分類体系を正式調査する** とする。B-02A〜B-02Dを完了後、B-03 Source / Evidence要件へ進む。
