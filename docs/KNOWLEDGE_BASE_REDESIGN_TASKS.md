@@ -58,7 +58,7 @@ CPCは「外部世界のObject Knowledge」を担当する。ユーザー自身�
   - Replace候補: Fragment中心Knowledge Model、Final Document生成。
   - Retire候補: 全Evidenceへの高コストLLM Fragment抽出を前提とする処理・benchmark。
 
-- [ ] **A-03 [P1] 既存DB・CLI・モジュール・テストの依存関係を棚卸しする**
+- [x] **A-03 [P1] 既存DB・CLI・モジュール・テストの依存関係を棚卸しする**
   - Fragment / Final Documentを削除した場合の影響範囲を一覧化する。
   - 既存実データDBの移行可否を確認する。
 
