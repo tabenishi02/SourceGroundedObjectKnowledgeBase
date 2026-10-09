@@ -9,6 +9,7 @@
   - `docs/requirements/OBJECT_REQUIREMENTS.md`
   - `docs/requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md`
   - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
+  - `docs/planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md`
 
 ## 1. 目的
 

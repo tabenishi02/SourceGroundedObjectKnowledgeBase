@@ -16,6 +16,8 @@ B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJEC
 
 その後、初期type `Character` / `Work` / `Concept` だけでは将来収集するWeb Sourceと対象Knowledgeの想定が不足し得るため、B-03前にObject分類を精緻化するB-02A〜B-02Dを追加した。詳細計画は `docs/planning/OBJECT_TYPE_REFINEMENT_TASKS.md` を正本とする。
 
+この追加議論の背景、外部分類体系の予備調査で得た示唆、既決事項・未決事項、次チャット開始手順は `docs/planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md` にまとめている。B-02A以降を別チャットで行う場合は同Handoffを最初に読む。
+
 進行順は `B-02A 外部分類体系調査 → B-02B Object候補整理 → B-02C Type/Class階層設計 → B-02D Object/Facet/Relation境界 → B-03 Source/Evidence要件` とする。B-02A〜Dが完了するまでB-03の詳細確定へ進まない。
 
 ---
