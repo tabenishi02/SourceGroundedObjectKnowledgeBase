@@ -1,6 +1,6 @@
 # クラウドAI利用の合理性と費用試算
 
-> **Archived / Historical** — Rename前のPrototypeの記録です。旧名称・コマンド・パスは当時の事実を保持しており、現行操作は[README](../README.md)を参照してください。
+> **Archived / Historical** — Rename前のPrototypeの記録です。旧名称・コマンド・パスは当時の事実を保持しており、現行操作は[README](../../../README.md)を参照してください。
 
 確認日: 2026-10-06。OpenAI Docsスキルで公式API料金を確認し、Anthropic公式料金と合わせて試算した。クラウドへ実データを送信せず、API利用・課金は行っていない。
 

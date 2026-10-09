@@ -22,7 +22,7 @@ SGOKBでは処理段階ごとに要求される能力が異なるため、
 
 を個別に測定し、最終的に適切な組み合わせを決定する。
 
-本書は `docs/PROTOTYPE_CONTENT_REVIEW.md` の改善方針を前提とする。
+本書は `docs/archive/prototype-0.2/PROTOTYPE_CONTENT_REVIEW.md` の改善方針を前提とする。
 
 ---
 

@@ -2,7 +2,7 @@
 
 更新日: 2026-10-09
 
-関連Decision: `docs/SGOKB_RENAME_DECISION.md`
+関連Decision: `docs/decisions/SGOKB_RENAME_DECISION.md`
 
 ## 1. 目的
 

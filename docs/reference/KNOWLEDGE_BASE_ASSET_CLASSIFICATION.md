@@ -5,9 +5,9 @@
 - Task: `A-02 [P0] 既存機能を Keep / Modify / Replace / Retire に分類する`
 - Related Decision: `SGOKB-KB-001`
 - Related:
-  - `docs/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
-  - `docs/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`
-  - `docs/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
+  - `docs/decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
+  - `docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`
+  - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
 
 ## 1. 目的
 

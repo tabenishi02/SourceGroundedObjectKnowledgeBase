@@ -1,6 +1,6 @@
 # CharacterPageCollector システム要件定義書 v0.2
 
-> **Archived / Historical** — Rename前のPrototype要件です。現行の名称と操作は[README](README.md)、Renameの正本は[Decision](docs/SGOKB_RENAME_DECISION.md)を参照してください。
+> **Archived / Historical** — Rename前のPrototype要件です。現行の名称と操作は[README](README.md)、Renameの正本は[Decision](../../decisions/SGOKB_RENAME_DECISION.md)を参照してください。
 
 > **プロトタイプ実装方針**
 >

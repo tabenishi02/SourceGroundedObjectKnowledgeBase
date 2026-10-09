@@ -67,10 +67,10 @@
 対応資料:
 
 - `src/sgokb/providers.py`
-- `docs/MODEL_SPEED_PREFLIGHT_PLAN.md`
-- `docs/PROCESSING_BOTTLENECK_REVIEW.md`
-- `docs/STRATA_INTEGRATION_REVIEW.md`
-- `docs/MODEL_SPEED_PREFLIGHT_RESULTS.md`
+- `docs/archive/prototype-0.2/MODEL_SPEED_PREFLIGHT_PLAN.md`
+- `docs/archive/prototype-0.2/PROCESSING_BOTTLENECK_REVIEW.md`
+- `docs/archive/prototype-0.2/STRATA_INTEGRATION_REVIEW.md`
+- `docs/archive/prototype-0.2/MODEL_SPEED_PREFLIGHT_RESULTS.md`
 
 Strata接続と固定S01/S02/S03の追加速度試験は実装・実機確認済み。S03本測定3回の中央値は90.40 tokens/s・16.67秒、SGOKB契約適合3/3。既存Qwen3.8-27Bは120.09 tokens/s・12.11秒で、この予備試験ではStrataによる高速化を確認していない。runtime・context・量子化・projectionの構成差を含み、代表8CaptureのStrata品質・総時間は未評価。この接続追加を本書の再設計案の実装完了とは扱わない。
 
@@ -95,7 +95,7 @@ Strata接続と固定S01/S02/S03の追加速度試験は実装・実機確認済
 | 同じ再試行でも8192 token到達 | 8 |
 | 本文240文字以下の呼び出し | 529 / 1038 |
 
-詳細は `docs/PROCESSING_BOTTLENECK_REVIEW.md` を正本とする。
+詳細は `docs/archive/prototype-0.2/PROCESSING_BOTTLENECK_REVIEW.md` を正本とする。
 
 ここから、現状の主因は DB や検索処理ではなく、**小さい本文 window に対して Prompt / Schema / Page Context / Entity / neighbors 等の固定情報を繰り返し送り、詳細な JSON を大量生成していること**と判断している。
 

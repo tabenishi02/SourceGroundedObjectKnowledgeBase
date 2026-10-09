@@ -6,8 +6,8 @@
 - Status: Accepted
 - Scope: Source Grounded Object Knowledge Base Knowledge Base 再設計
 - Related:
-  - `docs/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`
-  - `docs/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
+  - `docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`
+  - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
 
 ## 1. Decisionの目的
 

@@ -5,11 +5,11 @@
 - Task: `B-01 [P0] SGOKBの目的を再定義する`
 - Status: Accepted
 - Related:
-  - `docs/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
-  - `docs/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
-  - `docs/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md`
-  - `docs/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
-  - `CharacterPageCollector システム要件定義書 v0.2.md`（Rename前の歴史資料）
+  - `docs/decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
+  - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
+  - `docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md`
+  - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
+  - `docs/archive/prototype-0.2/CharacterPageCollector システム要件定義書 v0.2.md`（Rename前の歴史資料）
 
 ## 1. 本書の位置づけ
 

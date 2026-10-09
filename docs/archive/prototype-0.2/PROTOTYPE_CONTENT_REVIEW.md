@@ -1,6 +1,6 @@
 # CPCプロトタイプ文章構成レビュー
 
-> **Archived / Historical** — Rename前のPrototypeの記録です。旧名称・コマンド・パスは当時の事実を保持しており、現行操作は[README](../README.md)を参照してください。
+> **Archived / Historical** — Rename前のPrototypeの記録です。旧名称・コマンド・パスは当時の事実を保持しており、現行操作は[README](../../../README.md)を参照してください。
 
 ## 1. 目的
 
@@ -14,7 +14,7 @@
 
 本書は初回プロトタイプを否定するものではない。初回プロトタイプはVertical Slice成立を目的としており、本書はその実データ評価から得られた**次段階の設計改善方針**である。
 
-Codexが次の改善実装を行う際は、本書を既存の要件定義書・`docs/PROTOTYPE.md` と併せて参照すること。
+Codexが次の改善実装を行う際は、本書を既存の要件定義書・`docs/archive/prototype-0.2/PROTOTYPE.md` と併せて参照すること。
 
 ---
 

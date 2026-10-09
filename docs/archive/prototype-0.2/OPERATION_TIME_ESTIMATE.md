@@ -1,6 +1,6 @@
 # 実運用の処理時間見積もりと運用可能性
 
-> **Archived / Historical** — Rename前のPrototypeの記録です。旧名称・コマンド・パスは当時の事実を保持しており、現行操作は[README](../README.md)を参照してください。
+> **Archived / Historical** — Rename前のPrototypeの記録です。旧名称・コマンド・パスは当時の事実を保持しており、現行操作は[README](../../../README.md)を参照してください。
 
 評価日: 2026-10-06。[速度予備試験](MODEL_SPEED_PREFLIGHT_RESULTS.md)と、現行Prototypeの実データ評価を根拠にした。同じPCでモデルを逐次使用する前提。新しい推論・性能試験は実行していない。
 

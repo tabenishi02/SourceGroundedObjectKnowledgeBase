@@ -6,7 +6,7 @@
 
 本書は、Source Grounded Object Knowledge Base（以下 SGOKB）の Knowledge Base 再設計について、これまでの議論で合意した背景・目的・採用方針・責務境界・技術方針を、別チャットへ引き継ぐための資料である。
 
-以降は `docs/KNOWLEDGE_BASE_REDESIGN_TASKS.md` の各 Phase を原則として個別チャットで実施する。各チャットは、本書とタスク文書を最初に確認し、既決事項を不用意に再検討しないこと。
+以降は `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md` の各 Phase を原則として個別チャットで実施する。各チャットは、本書とタスク文書を最初に確認し、既決事項を不用意に再検討しないこと。
 
 本書は詳細設計書ではない。ここに記載した内容を「現時点で合意済みの要件・設計方針」とし、個別 Phase で未確定事項を具体化する。
 
@@ -688,7 +688,7 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 
 各Phaseを別チャットで実施する際は、次を原則とする。
 
-1. 最初に本書と `docs/KNOWLEDGE_BASE_REDESIGN_TASKS.md` を読む。
+1. 最初に本書と `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md` を読む。
 2. 対象Phaseと、それ以前のPhaseで確定済みの成果物を確認する。
 3. 既決事項を理由なく再検討しない。
 4. 対象Phaseの論点が大きい場合は、実装前に設計判断を文書化する。
@@ -707,8 +707,8 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
 
 まずGitHubリポジトリの以下を確認し、これまでの合意事項と現在のタスクを把握してください。
-- docs/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
-- docs/KNOWLEDGE_BASE_REDESIGN_TASKS.md
+- docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
+- docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
 
 既決事項は維持し、今回の対象Phaseに必要な範囲だけを具体化してください。
 
@@ -730,13 +730,13 @@ X-YY [Priority] <Task名>
 
 ## 22. 関連文書
 
-- `docs/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
+- `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
   - 再設計の全Phase / Task一覧。
 - `README.md`
   - 現行Prototypeの概要。再設計完了までは旧実装の説明を含む。
-- `docs/DEVELOPMENT_STATUS.md`
+- `docs/archive/prototype-0.2/DEVELOPMENT_STATUS.md`
   - Prototype 0.2の実データ評価と現状。
-- `docs/KNOWLEDGE_PIPELINE_EFFICIENCY_REDESIGN.md`
+- `docs/archive/prototype-0.2/KNOWLEDGE_PIPELINE_EFFICIENCY_REDESIGN.md`
   - Fragment/LLM処理肥大化を受けた外部RAG事例との比較調査。
 - `UserPreferenceDiscoverySystem/docs/PROJECT_CONCEPT.md`
   - UPDSの目的、Selection Event / Observation / Pattern / Preference Hypothesisの設計思想。
@@ -749,4 +749,4 @@ X-YY [Priority] <Task名>
 
 まだ新Knowledge Baseの詳細要件・DB Schema・フォルダ構造・実装変更は確定していない。
 
-次の作業は `docs/KNOWLEDGE_BASE_REDESIGN_TASKS.md` の **Phase A — 方針確定・既存資産棚卸し** から開始する。
+次の作業は `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md` の **Phase A — 方針確定・既存資産棚卸し** から開始する。

@@ -5,9 +5,9 @@
 - Task: `A-03 [P1] 既存DB・CLI・モジュール・テストの依存関係を棚卸しする`
 - Related Decision: `SGOKB-KB-001`
 - Related:
-  - `docs/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
-  - `docs/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
-  - `docs/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
+  - `docs/decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
+  - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
+  - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
 
 ## 1. 目的
 

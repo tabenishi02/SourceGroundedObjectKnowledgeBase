@@ -143,33 +143,36 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
   - 大規模移行は例: `feature/knowledge-base-redesign` で実施する。
   - サブ変更は必要に応じて短命branch + PRとし、巨大な未レビュー差分を避ける。
 
-- [ ] **D-02 [P0] 旧Prototype文書の扱いを決める**
-  - 削除せず、原則として `docs/archive/prototype-0.2/` へ移動する案を検討する。
-  - benchmark結果、評価結果、速度試験は「歴史的検証結果」として残す。
-  - READMEからは現行仕様と過去Prototypeを明確に分ける。
+- [x] **D-02 [P0] 旧Prototype文書の扱いを決める**
+  - 旧要件・Prototype設計・評価・速度/コスト/モデル比較資料を `docs/archive/prototype-0.2/` へ移動済み。
+  - benchmark結果、評価結果、速度試験は「歴史的検証結果」として保持する。
+  - `docs/README.md` とroot `README.md` から現行仕様と過去Prototypeを明確に分離する。
 
-- [ ] **D-03 [P0] 新しいdocs構造を決定する**
-  - 例:
+- [x] **D-03 [P0] 新しいdocs構造を決定する**
+  - 現行文書と歴史資料を物理的に分離する。
+  - `docs/README.md` を人間向けの正規入口とする。
+  - 現在の構成:
 
 ```text
 docs/
+├─ README.md
 ├─ requirements/
-│  ├─ SYSTEM_REQUIREMENTS.md
-│  └─ ACCEPTANCE_CRITERIA.md
-├─ design/
-│  ├─ ARCHITECTURE.md
-│  ├─ DATA_MODEL.md
-│  ├─ RETRIEVAL.md
-│  ├─ GOOGLE_DRIVE_EXCHANGE.md
-│  ├─ MCP.md
-│  └─ SGOKB_UPDS_BOUNDARY.md
-├─ operations/
-│  ├─ OBJECT_WORKFLOW.md
-│  └─ MIGRATION.md
-├─ archive/
-│  └─ prototype-0.2/
-└─ KNOWLEDGE_BASE_REDESIGN_TASKS.md
+│  └─ KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md
+├─ decisions/
+│  ├─ KNOWLEDGE_BASE_REDESIGN_DECISION.md
+│  └─ SGOKB_RENAME_DECISION.md
+├─ planning/
+│  ├─ KNOWLEDGE_BASE_REDESIGN_TASKS.md
+│  └─ KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
+├─ reference/
+│  ├─ KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md
+│  └─ KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md
+└─ archive/
+   ├─ prototype-0.2/
+   └─ rename-2026-10/
 ```
+
+  - 今後Phase E以降で確定するArchitecture / Data Model / Retrieval / MCP等は、確定時に現行カテゴリを追加する。
 
 - [ ] **D-04 [P0] `src/sgokb`の責務別再編を設計する**
   - 例:
