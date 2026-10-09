@@ -1,4 +1,4 @@
-"""Native Messaging storage bridge. No CPC imports or page interpretation."""
+"""Native Messaging storage bridge. No SGOKB imports or page interpretation."""
 import base64
 import hashlib
 import json
