@@ -68,7 +68,7 @@ CPCは「外部世界のObject Knowledge」を担当する。ユーザー自身�
 
 # Phase B — 要件定義の全面更新
 
-- [ ] **B-01 [P0] CPCの目的を再定義する**
+- [x] **B-01 [P0] CPCの目的を再定義する**
   - CPCを「Curated Semantic Object Knowledge Base」として定義する。
   - 文書生成は目的ではなく派生表示とする。
 
