@@ -1,6 +1,6 @@
 # Source Grounded Object Knowledge Base — Search / Retrieval要件
 
-更新日: 2026-10-10
+更新日: 2026-10-11
 
 - Task: `B-05 [P0] 検索要件を定義する`
 - Status: Accepted
@@ -13,6 +13,7 @@
   - `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
   - `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
   - `docs/decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
+  - `docs/reference/EMBEDDING_VECTOR_SEARCH_RESEARCH.md`
 - Next: `B-06 [P0] 人間工程と自動工程を要件として分離する`
 
 ---
@@ -294,17 +295,22 @@ values similarity
 motivation similarity
 ```
 
-### SEM-04 — Knowledge Statement個別Embeddingを初期必須としない
+### SEM-04 — Knowledge Statement個別Embeddingを標準要件とする
 
-StatementをSemantic candidate generationへ利用することは許容するが、すべてのStatementへ個別Embeddingを作成することをB-05の初期必須要件とはしない。
+accepted Object Knowledgeに含まれる**検索可能なKnowledge Statement**は、原則として個別Semantic Representationを生成可能とし、標準実装ではStatement-level Embeddingを生成する。
 
-理由:
+この変更は2026-10-11のEmbedding / Vector Search追加調査を反映したものである。Facet全体を1 Vectorへ集約すると、条件・例外・時間限定情報・少数派特徴等の細粒度Knowledgeが意味空間で薄まり、Semantic Searchから発見しにくくなる可能性があるためである。
 
-- 旧Fragmentと同様のIndex件数肥大化を避ける。
-- Object / Facet representationで主要ユースケースを満たせる可能性が高い。
-- Statement local IDはVersion間でPersistentとは限らない。
+Statement Embeddingは旧Fragment Pipelineを復活させるものではない。Knowledge Statementはaccepted Object Knowledge Version内ですでに構造化されたKnowledge単位であり、Search Representation / Embeddingはそこから決定論的に生成する派生Indexとする。
 
-実測で必要性が確認された場合にI-01 / I-07で追加評価する。
+次の管理情報はObject自身の意味Knowledgeではないため、通常Statement Semantic Indexへ混ぜない。
+
+- gap
+- insufficient evidence
+- unresolved reference
+- Registry proposal
+
+conflict中でもaccepted / grounded Statement自体は検索可能とし、conflict状態を結果detailで示せるようにする。
 
 ### SEM-05 — Embedding Spaceを混在させない
 
@@ -325,6 +331,39 @@ cosine similarity等のscoreはsemantic ranking signalであり、「同じ意�
 Embedding用text representationは再生成可能な派生物であり、Object Knowledgeの新しい正本にしない。
 
 Embedding textを変更してもObject Knowledge Versionを書き換える必要がない設計とする。
+
+### SEM-08 — Object / Facet / Statementのmulti-representation retrievalを採用する
+
+Semantic Retrievalでは、用途の異なる次の表現を併用できることを要件とする。
+
+```text
+Object overall representation
+  → Object全体の意味検索・Similarity
+
+Facet representation
+  → personality / values / themes等の観点別検索・Similarity
+
+Statement representation
+  → 細粒度Knowledge、条件、例外、時間限定情報の意味検索
+```
+
+Statement Embeddingを導入してもObject / Facet Embeddingを廃止しない。細粒度検索と全体・観点別Similarityは別の検索目的だからである。
+
+### SEM-09 — Statement Search Representationへ必要な文脈を付与可能にする
+
+Statement単体が代名詞・省略・短文等で意味検索に不十分な場合、Embedding入力にはObject / Facet / temporal scope等の必要な文脈を決定論的に付加できるようにする。
+
+Search Representationは正本Statementとは別の派生表現とし、representation builder version / content hashを追跡できるようにする。
+
+同一Embedding Space + 同一representation contentである場合にVector reuseを可能にしてよいが、Knowledge Versionごとのmembership / current-historical scopeは別に保持しなければならない。
+
+### SEM-10 — Vector backendを交換可能にする
+
+SQLiteをcanonical Knowledge Storeとして維持し、Vector検索backendは再構築可能なDerived Search Indexとして扱う。
+
+Phase Iでは`VectorIndexAdapter`相当の境界を定義し、SQLite拡張、embedded Vector DB、外部Vector service等をSGOKB Coreから交換可能にする。
+
+Vector backend固有のID / schema / APIをObject Knowledge正本へ持ち込まない。
 
 ---
 
@@ -1117,13 +1156,15 @@ Phase Iのgold評価でfusion / rerankingを決定する。
 
 ### I-01 Embedding対象
 
-最低限比較する。
+標準対象として設計する。
 
 - Object overall representation
 - Facet representation
-- Evidence
+- Knowledge Statement representation
+- Evidence representation
 - 必要ならRelation text representation
-- Statement embeddingは初期必須にせず、実測で追加判断
+
+Object / Facet / Statementは用途の異なるmulti-representationとして併用する。Statement Search Representationには必要に応じObject / Facet / temporal contextを決定論的に付加し、representation builder version / content hashを追跡する。
 
 ### I-02 Embedding Model
 
@@ -1131,17 +1172,23 @@ Phase Iのgold評価でfusion / rerankingを決定する。
 - multilingual / cross-lingual性能。
 - model / revision / dimension / preprocessing分離。
 
-### I-03 Vector storage
+### I-03 Vector storage / backend
 
-- Indexは再構築可能な派生物。
-- Embedding Space isolationを維持。
+- IndexはSQLite canonical Knowledgeから再構築可能な派生物とする。
+- Embedding Space isolationを維持する。
+- `VectorIndexAdapter`相当の交換境界を設ける。
+- SQLite系Float32 Exact / FlatをANN Recall基準として用意する。
+- sqlite-vec、sqlite-vector系、LanceDB ANN、Qdrant HNSW + groupingを同一gold / workloadで比較する。
+- backendはPhase Iの品質・速度・容量・運用実測前に固定しない。
 
 ### I-04 Hybrid Search
 
 - exact name / alias優先。
-- lexical + semantic candidate fusion。
+- lexical + Object / Facet / Statement semantic candidate fusion。
 - hard filter pre-application。
-- Object-level result aggregation。
+- Statement-level hitを通常結果へ直接並べず、`object_id`単位へ集約するObject Aggregatorを設ける。
+- 同一ObjectのStatement数を単純合計して無制限にboostしない。best hit / top-N capped contribution / Facet diversity等をgoldで比較する。
+- Object-level resultは代表Statement / matched Facet / channel / Version / groundingをdetailとして保持する。
 - explainable match channels。
 
 ### I-05 Similarity
@@ -1164,7 +1211,9 @@ Character / Work / Conceptだけでなく、初期Class Registryの広さを反�
 評価観点:
 
 - exact object lookup accuracy
-- Recall@K
+- Statement Recall@K
+- Object Recall@K
+- Exact baselineに対するANN Recall@K
 - MRR
 - nDCG
 - class / facet filter correctness
@@ -1189,7 +1238,7 @@ Tool名・response schemaはPhase Jで確定する。
 
 ### N-06 Retrieval品質評価
 
-単一aggregate scoreだけで採用判断せず、Lexical / Semantic / Hybrid / Similarity / Evidence Searchを別々に評価する。
+単一aggregate scoreだけで採用判断せず、Lexical / Semantic / Hybrid / Similarity / Evidence Searchを別々に評価する。Statement Embeddingあり / なしのfine-grained Recall差と、Exact baselineに対するANN Statement / Object Recallも評価する。
 
 ---
 
@@ -1224,9 +1273,11 @@ Tool名・response schemaはPhase Jで確定する。
 - Embedding model。
 - Object overall representationの具体的text builder。
 - Facet representationの具体的text builder。
-- Statement individual Embeddingを将来追加するか。
+- Statement Search Representationへ付与するcontextの具体構成。
 - Vector Index library / ANN parameter。
-- sqlite-vec採否。
+- sqlite-vec / sqlite-vector / LanceDB / Qdrant等の最終backend採否。
+- Statement → Object aggregation score式。
+- representation hash / Vector reuseの具体的physical schema。
 - score threshold。
 - top-k default値。
 - pagination実装方式。
@@ -1248,7 +1299,7 @@ Object Identity / current accepted KnowledgeとEvidenceについてLexical Searc
 
 ### Semantic Search
 
-Object overall / FacetとEvidenceについてSemantic Searchを必須とした。
+Object overall / Facet / accepted検索可能Knowledge StatementとEvidenceについてSemantic Searchを必須とした。
 
 ### Object Similarity
 
@@ -1268,7 +1319,7 @@ Lexical / Semantic、Source metadata、Object association、active/effective / h
 
 ### Search result granularity
 
-Knowledge Statementを内部match単位として利用可能にしつつ、通常Object Searchは1 Object = 1結果へ集約すると確定した。
+Knowledge Statementを標準のsemantic match単位として個別Embeddingしつつ、通常Object SearchはStatement-level hitをObject単位へ集約して1 Object = 1結果とすると確定した。
 
 ### current / historical
 
@@ -1280,7 +1331,7 @@ conflict中のgrounded Knowledgeは検索可能だがflagを保持し、gap / un
 
 ### Index lifecycle
 
-FTS / Vector等を再構築可能な派生物とし、Embedding Space分離・Version追跡を要件化した。
+FTS / Vector等を再構築可能な派生物とし、Embedding Space分離・Search Representation builder version / hash・Knowledge Version membership・Vector backend交換可能性を要件化した。
 
 ---
 
@@ -1288,7 +1339,7 @@ FTS / Vector等を再構築可能な派生物とし、Embedding Space分離・Ve
 
 SGOKBの通常検索では、**Objectを発見・取得する検索と、Source-grounded Evidenceを監査・再分析する検索を分離し、Object KnowledgeについてはLexical + SemanticのHybrid Retrievalを基本とする。**
 
-通常Object Searchは、Statement等を内部candidate / match単位として利用しても、結果を原則`1 Object = 1件`へ集約する。Object全体SimilarityとFacet Similarityを別機能として提供し、Relationは構造化Graph検索、Evidenceは独立したLexical / Semantic Searchとして扱う。
+通常Object Searchは、Object / Facet / Statementのmulti-representationをSemantic candidate generationへ利用し、accepted検索可能Statementには標準で個別Embeddingを生成する。一方、最終結果は原則`1 Object = 1件`へ集約し、matched Statement / Facetをdetailとして保持する。Object全体SimilarityとFacet Similarityを別機能として提供し、Relationは構造化Graph検索、Evidenceは独立したLexical / Semantic Searchとして扱う。
 
 通常検索はactive Object + current accepted Knowledge + active/effective Evidence generationを既定scopeとし、archived / historical / conflict audit / gap / unresolved等は明示的scopeへ分離する。
 
@@ -1296,4 +1347,4 @@ SGOKBの通常検索では、**Objectを発見・取得する検索と、Source-
 
 B-05は以上をもって完了とし、次のTaskは `B-06 [P0] 人間工程と自動工程を要件として分離する` とする。
 
-**Status: Complete (2026-10-10)**
+**Status: Complete / Statement Embedding amendment accepted (2026-10-11)**

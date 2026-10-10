@@ -1,6 +1,6 @@
 # Source Grounded Object Knowledge Base — Knowledge Base 再設計 引き継ぎ資料
 
-更新日: 2026-10-10
+更新日: 2026-10-11
 
 ## 1. 本書の目的
 
@@ -18,7 +18,7 @@ B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJEC
 
 B-02A〜B-02Dは2026-10-10時点で完了している。B-02Cでは`Primary Class + Additional Classes + hierarchical Class Registry`方式を採用し、B-02Dでは正式Class hierarchy、Object / Facet / Relation / value / Source境界、初期Class Registry seed集合、fallback条件を確定した。正本は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`である。
 
-Object Type Refinement series完了後、B-03 Source / Evidence要件、B-04 Object Result要件、B-05 Search / Retrieval要件も2026-10-10に完了した。Source / Evidenceの正本は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Object Resultの正本は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`、検索要件の正本は`docs/requirements/SEARCH_REQUIREMENTS.md`である。B-05ではHybrid Object Searchを通常経路とし、1 Object = 1結果、current accepted Knowledge既定、Object / Facet Similarity、Relation Search、Evidence Search、current / historical分離、Index lifecycle、filter / explainability要件を確定した。次に実施するのはB-06人間工程 / 自動工程の分離である。
+Object Type Refinement series完了後、B-03 Source / Evidence要件、B-04 Object Result要件、B-05 Search / Retrieval要件も2026-10-10に完了した。Source / Evidenceの正本は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Object Resultの正本は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`、検索要件の正本は`docs/requirements/SEARCH_REQUIREMENTS.md`である。B-05ではHybrid Object Searchを通常経路とし、1 Object = 1結果、current accepted Knowledge既定、Object / Facet Similarity、Relation Search、Evidence Search、current / historical分離、Index lifecycle、filter / explainability要件を確定した。2026-10-11の追加Embedding調査で、accepted検索可能Knowledge Statementの個別Embeddingを標準化し、Object / Facet / Statementのmulti-representation retrieval、VectorIndexAdapter、Statement → Object Aggregation、incremental Vector reuseを正式方針へ追加した。調査正本は`docs/reference/EMBEDDING_VECTOR_SEARCH_RESEARCH.md`。次に実施するのはB-06人間工程 / 自動工程の分離である。
 
 ---
 
@@ -379,19 +379,20 @@ B-05で検索要件を確定した。正本は`docs/requirements/SEARCH_REQUIREM
 
 - Object Identity Lookup、Object Lexical / Semantic / Hybrid Search、Object / Facet Similarity、Relation Search、Evidence Searchを別責務とする。
 - 通常free-text Object検索はHybridを基本とする。
-- 通常Object Searchは内部でStatement等をmatch単位に利用しても、結果を原則`1 Object = 1件`へ集約する。
+- accepted検索可能Knowledge Statementは標準で個別Embeddingし、Object / Facet / Statementのmulti-representationをSemantic candidate generationへ利用する。通常Object SearchはStatement-level hitを内部候補として扱い、結果を原則`1 Object = 1件`へ集約する。
 - exact name / alias等のIdentity matchをSemantic候補で埋没させない。
 - active Object + current accepted Knowledgeを通常既定scopeとし、archived / historicalは明示指定する。
 - Object overall similarityは同じPrimary Classを既定candidate scopeとし、cross-classは明示的に拡張する。
-- Facet similarityを正式要件とし、Facet欠落時にoverallへsilent fallbackしない。
+- Object / Facet / Statement representationを別用途として併用し、Facet similarityを正式要件とする。Facet欠落時にoverallへsilent fallbackしない。
 - Relation Searchは構造化1-hop traversalを必須とし、bounded multi-hopへ拡張可能とする。
 - EvidenceはObject Knowledgeとは別にLexical / Semantic Searchし、Source metadata、Object association、active/effective / historical generation、Provenance integrityでfilterできる。
 - conflict中のgrounded Statementは検索可能だが、gap / insufficient evidence / unresolved reference / Registry proposalは通常Semantic Searchへ混ぜない。
-- FTS / Vector Indexは再構築可能な派生物であり、Embedding Space / Knowledge Version / Evidence generationを追跡する。
+- FTS / Vector Indexは再構築可能な派生物であり、Embedding Space / representation builder version / Knowledge Version / Evidence generationを追跡する。Vector backendはAdapterで交換可能にする。
+- Statement-level hitのObject Aggregation、representation hashによるVector reuse、Exact / sqlite系 / LanceDB / Qdrant比較をPhase Iで実施し、実測前にbackendを固定しない。
 - search scoreはrelevance / similarity signalであり、truth / confidence / Source trustではない。
 - Object / Knowledge hitからgrounding Evidence / Sourceへ追跡できる。
 
-Phase IではEmbedding対象、model、Vector storage、Hybrid fusion、Similarity、rerankerを実測で具体化する。
+Phase IではObject / Facet / Statement / Evidence Search Representation、Embedding Provider / model、VectorIndexAdapter / backend、Object Aggregation、Hybrid fusion、Similarity、rerankerを実測で具体化する。
 
 ---
 
@@ -683,9 +684,12 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 56. 通常free-text Object検索はLexical + SemanticのHybridを基本とし、通常結果は原則1 Object = 1件へ集約する。
 57. active Object + current accepted Knowledgeを通常検索の既定scopeとし、historical / archivedは明示scopeへ分離する。
 58. Object overall similarityとFacet similarityを別機能とし、Facet欠落時にoverallへsilent fallbackしない。
-59. Relation Searchは構造化edge traversal、Evidence SearchはObject Knowledgeとは別のLexical / Semantic retrievalとして扱う。
-60. gap / insufficient evidence / unresolved reference / Registry proposalを通常Semantic Searchへ混ぜない。
-61. Search Index / Embeddingは正本ではなく再生成可能な派生物とし、search scoreをtruth / confidenceとして扱わない。
+59. accepted検索可能Knowledge Statementは標準で個別Embeddingし、Object / Facet / Statementのmulti-representation retrievalを行う。
+60. Statement-level hitはObject単位へ集約し、Statement数の単純合計でObjectを無制限boostしない。
+61. Relation Searchは構造化edge traversal、Evidence SearchはObject Knowledgeとは別のLexical / Semantic retrievalとして扱う。
+62. gap / insufficient evidence / unresolved reference / Registry proposalを通常Semantic Searchへ混ぜない。
+63. Search Representation / Embedding / Vector Indexは正本ではなく再生成可能な派生物とし、search scoreをtruth / confidenceとして扱わない。
+64. Vector backendはAdapterで交換可能にし、SQLite canonical Knowledgeから再構築可能にする。
 
 ---
 

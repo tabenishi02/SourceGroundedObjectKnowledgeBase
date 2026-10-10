@@ -1,6 +1,6 @@
 # Source Grounded Object Knowledge Base — Knowledge Base 再設計タスク
 
-更新日: 2026-10-10
+更新日: 2026-10-11
 
 ## 1. 目的
 
@@ -137,13 +137,14 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
   - Object Identity Lookup、Object Lexical / Semantic / Hybrid Search、Object / Facet Similarity、Relation Search、Evidence Searchを別責務として定義した。
   - 通常free-text Object検索はHybridを基本とし、exact name / alias等のIdentity matchをSemantic候補で埋没させない要件とした。
   - accepted current Object Knowledgeを通常検索の既定scopeとし、historical Versionは明示scopeへ分離した。
-  - Knowledge Statementを内部match / candidate単位として利用可能にしつつ、通常Object Searchは`1 Object = 1結果`へ集約すると確定した。
+  - Knowledge Statementをsemantic candidate単位として標準Embeddingしつつ、通常Object Searchは`1 Object = 1結果`へ集約すると確定した。2026-10-11の追加調査でObject / Facet / Statementのmulti-representation方針へ更新した。
   - Object overall similarityとFacet similarityを正式要件とし、Facet欠落時にoverallへsilent fallbackしない。
   - Relation Searchは構造化1-hop traversalを必須とし、bounded multi-hopへ拡張可能にした。
   - Evidence Lexical / Semantic Searchを維持し、Source分類、Object association、各種時刻、active/effective / historical generation、Provenance integrityでfilter可能とした。
   - conflict中のgrounded Statementは検索可能としつつ、gap / insufficient evidence / unresolved reference / Registry proposalを通常Semantic Searchから分離した。
   - Search Index / Embeddingを再生成可能な派生物とし、Embedding Space、Knowledge Version、Evidence generationを追跡する要件を定義した。
-  - Ranking scoreをtruth / confidence / Source trustとみなさず、match channel / Facet / Version / groundingを説明可能にした。
+  - Ranking scoreをtruth / confidence / Source trustとみなさず、match channel / Facet / Statement / Version / groundingを説明可能にした。
+  - Statement-level Embedding、Vector backend候補、Object Aggregation、incremental reuseの追加調査を`docs/reference/EMBEDDING_VECTOR_SEARCH_RESEARCH.md`へ整理し、B-05要件へ反映した。
   - 成果物: `docs/requirements/SEARCH_REQUIREMENTS.md`
 
 - [ ] **B-06 [P0] 人間工程と自動工程を要件として分離する**
@@ -288,6 +289,7 @@ src/sgokb/
   - 初期Registryへ登録済みでも専用Facetが未定義のClassを許容し、共通Object contractで保持できるようにする。
   - Facet Registry / Class-to-Facet profileとcommon Facetを設計する。
   - Facet内Knowledge Statement、Facet status、typed attribute key/valueの配置をB-04契約へ合わせて設計する。
+  - Object / Facet / Statement Search Representationを正本Knowledgeから分離し、representation builder version / content hash /対象Version membershipを追跡できる論理契約を設計する。
   - Statement / attribute / Relationのtemporal scopeをVersion作成時刻と分離して表現する方式を設計する。
 
 - [ ] **E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する**
@@ -305,6 +307,8 @@ src/sgokb/
   - B-04のfull snapshot Resultを次期Version候補として扱う。
   - package / base version preconditionとstale Result処理を定義する。
   - omission / deletion semantics、current切替、rollback、Diff境界を定義する。
+  - Version切替時にSearch Representation / Vector Indexをinvalid/updateする境界を定義する。
+  - 同一Embedding Space + representation hashによるVector reuseを許容しつつ、Version membershipとcurrent / historical scopeを分離して追跡する。
   - Persistent Version IDはSGOKB側で発行する。
 
 - [ ] **E-05 [P1] JSON Schemaを作成する**
@@ -437,31 +441,43 @@ src/sgokb/
 
 # Phase I — 意味検索・類似検索
 
-- [ ] **I-01 [P0] Embedding対象を再設計する**
-  - Evidence embedding。
+- [ ] **I-01 [P0] Search Representation / Embedding対象を設計する**
+  - Evidence representation / embedding。
   - Object overall representation / embedding。
   - Facet representation / embedding。
+  - accepted検索可能Knowledge Statementの個別representation / embeddingを標準対象とする。
   - 必要に応じRelation text representation。
-  - Knowledge Statement個別Embeddingは初期必須とせず、Object / Facet検索の実測で必要性を判断する。
-  - embedding対象ごとにObject Version / Facet / Evidence generation / representation versionを追跡する。
+  - Statement単体で文脈不足の場合、Object / Class / Facet / temporal scope等を付加するContextual Search Representation Builderを設計する。
+  - representation kind / Object Version / Facet / Statement membership / Evidence generation / builder version / content hashを追跡する。
+  - `gap` / `insufficient evidence` / `unresolved reference` / Registry proposalは通常Statement Semantic Indexへ入れない。
 
-- [ ] **I-02 [P0] 多言語Embedding Modelを比較する**
+- [ ] **I-02 [P0] Embedding Provider / 多言語Modelを比較する**
   - 日本語を含むSGOKB実データで評価する。
-  - BGE-M3等を候補とするが、実測で決定する。
-  - model/revision/dimensionをIndex metadataへ記録する。
+  - FastEmbed等のlocal provider adapterと、BGE-M3等のmodel候補を分離して評価する。
+  - Object / Facet / Statement / Evidenceで同一modelが最適かも確認する。
+  - model / revision / dimension / preprocessing / normalization / provider configurationをEmbedding Space metadataへ記録する。
+  - Vector backend比較時はEmbedding Spaceを固定し、model比較とbackend比較を混同しない。
 
-- [ ] **I-03 [P0] Vector storageを決定する**
-  - 第一候補: SQLite + sqlite-vec adapter。
-  - pre-v1依存リスクをadapterで隔離する。
-  - 専用Vector DBは必要性が確認されるまで導入しない。
+- [ ] **I-03 [P0] VectorIndexAdapterを設計しBackendを比較決定する**
+  - SQLiteをcanonical Knowledge Storeとし、Vector backendを再構築可能なDerived Search Indexとして分離する。
+  - `VectorIndexAdapter`相当の共通契約でupsert / search / filter / invalidate / rebuild / metadata取得を抽象化する。
+  - SQLite系Float32 Exact / FlatをANN Recallの基準にする。
+  - sqlite-vectorのFloat32 / quantized条件をbaseline候補として評価する。
+  - sqlite-vecをSQLite内軽量backend候補として評価する。
+  - LanceDB ANNをserver不要のembedded ANN候補として評価する。
+  - Qdrant HNSW + payload filter + Object groupingを高性能 / 高機能基準として評価する。
+  - Query latency、Statement/Object Recall@K、Exactに対するANN Recall、Index build/update/rebuild時間、RAM、disk size、Windows運用コストで比較する。
+  - 実測前に最終backendを固定しない。
 
-- [ ] **I-04 [P0] Hybrid SearchをObject Knowledge向けに再実装/改修する**
-  - FTS + vector。
-  - 通常Object検索は1 Object = 1結果へ集約し、matched Facet / Statement等をdetailとして保持する。
+- [ ] **I-04 [P0] Multi-representation Hybrid Search / Object Aggregationを実装する**
+  - FTS + Object / Facet / Statement vector searchを組み合わせる。
+  - Statement-level hitを内部candidateとして扱い、通常Object検索は1 Object = 1結果へ集約するObject Aggregatorを実装する。
+  - matched Statement / Facet / representative snippet / groundingをresult detailとして保持する。
+  - 同一Objectの多数Statement hitを単純合計して無制限boostしない。best hit / top-N capped contribution / Facet diversity等をgoldで比較する。
   - primary/additional/ancestor class / facet / version / temporal scope等のhard filterをcandidate生成前に適用可能にする。
   - exact name/aliasをSemantic Searchより優先できるようにする。
-  - current accepted Knowledgeを既定scopeとし、historical searchを明示的に分離する。
-  - fusion scoreのchannel / match reasonを説明可能にする。
+  - current accepted Knowledgeを既定scopeとし、historical Statement Vectorをsilent混合しない。
+  - lexical / Object / Facet / Statement各channelのfusionとmatch reasonを説明可能にする。
 
 - [ ] **I-05 [P0] `find_similar_objects`を実装する**
   - overall similarity。
@@ -470,15 +486,21 @@ src/sgokb/
   - missing Facetを0 similarityやoverallへsilent fallbackしない。
   - scoreとmatched facet / target Versionを返せる構造。
 
-- [ ] **I-06 [P1] Reranker導入を評価する**
+- [ ] **I-06 [P1] Reranker / second-stage retrievalを評価する**
   - 初期版MVPには必須としない。
-  - retrieval品質評価で必要性を判断する。
+  - FastEmbed等で利用可能なCross Encoderを含め候補を比較する。
+  - first-stageで取得できなかったObjectをrerankerは救えないため、Statement Recallを先に評価する。
+  - retrieval品質とlatencyの実測で導入を判断する。
 
-- [ ] **I-07 [P0] 検索品質goldを作成する**
+- [ ] **I-07 [P0] 検索品質gold / Backend benchmarkを作成する**
   - Character / Work / Conceptに加え、Person / Organization / Series / Place / EventとLater support Classの代表Queryを用意する。
+  - Facet全体では薄まりやすい細粒度Statement Query、条件・例外・時系列Queryを明示的に含める。
   - 日本語Queryとcross-lingual Queryを含める。
+  - Statement Embeddingあり / なしを比較し、細粒度Recall改善を確認する。
   - lexical / semantic / hybrid / overall similarity / facet similarity / Evidence Searchを比較する。
-  - exact lookup、Recall@K、MRR、nDCG、filter correctness、current/historical isolation、人間Similarity評価を記録する。
+  - Float32 Exact結果をANN backend評価のreferenceにする。
+  - exact lookup、Statement Recall@K、Object Recall@K、ANN Recall@K、MRR、nDCG、filter correctness、current/historical isolation、人間Similarity評価を記録する。
+  - latency / index size / build / incremental update / rebuildを同一workloadで測定する。
 
 **完了条件:** 「文字列が一致するObject」だけでなく、「意味・価値観・テーマ等が近いObject」を実用精度で取得できる。
 
@@ -599,7 +621,8 @@ src/sgokb/
 - [ ] **N-02 [P0] Integration Testを追加する**
   - Capture → Evidence → Package。
   - Result → Validate → Import → Version。
-  - Import → Embed → Search。
+  - Import → Object / Facet / Statement Embed → Index update → Search。
+  - 同一representation hashのVector reuseとVersion scope更新。
   - MCP → Retrieval Core。
 
 - [ ] **N-03 [P0] 実データVertical Sliceを作る**
@@ -615,19 +638,25 @@ src/sgokb/
 
 - [ ] **N-05 [P0] 1 Object自動処理時間を測定する**
   - ChatGPT手動操作時間を除外する。
-  - Package生成、Validation、Import、Embedding更新が目標時間内か確認する。
+  - Package生成、Validation、Import、Object / Facet / Statement Embedding増分更新、Vector Index更新が目標時間内か確認する。
 
-- [ ] **N-06 [P0] Retrieval品質を評価する**
+- [ ] **N-06 [P0] Retrieval / Vector Backend品質を評価する**
   - Lexical / Semantic / Hybrid / Similarity / Evidence Searchを別々に評価する。
+  - Statement Embeddingあり / なしのfine-grained Recall差を確認する。
+  - Exact baselineとANN backendのStatement / Object Recall@Kを比較する。
   - Recall@K / MRR / nDCG等を必要に応じ利用する。
   - exact name / alias lookup、Class / Facet filter、current / historical isolationも検証する。
+  - Statement → Object AggregationがStatement数の多いObjectを不当にboostしないことを検証する。
   - 類似検索は人間評価も併用する。
+  - backend別にlatency / RAM / disk / index build / incremental update / rebuildを比較する。
 
 - [ ] **N-07 [P1] Failure / Recovery試験を行う**
   - 不正JSON。
   - 存在しないEvidence ID。
   - schema version不一致。
-  - Embedding model変更。
+  - Embedding model / representation builder変更とfull re-embed。
+  - Vector Index消失・破損からSQLite正本によるfull rebuild。
+  - Vector backend交換。
   - MCP停止。
   - 部分Import失敗。
 
