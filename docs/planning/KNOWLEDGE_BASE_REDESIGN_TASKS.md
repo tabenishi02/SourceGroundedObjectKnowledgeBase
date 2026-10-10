@@ -75,25 +75,25 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
 - [x] **B-02 [P0] Object要件を定義する**
   - `docs/requirements/OBJECT_REQUIREMENTS.md` を正本とする。
   - ObjectをSource / Document / Versionから独立した安定Identityとして定義した。
-  - 初期型を `Character`, `Work`, `Concept` とし、将来typeを拡張可能とした。
-  - `object_id` / `object_type` / name / aliases / status / current_version / timestampの共通概念を定義した。
+  - 初期分類を `Character`, `Work`, `Concept` とし、B-02Cで拡張可能なClass Registryモデルへ精緻化した。
+  - `object_id` / name / aliases / status / current_version / timestampの共通概念を定義し、B-02Cで分類概念を`primary_class` / `additional_classes` / Class Registryへ精緻化した。
   - 同名別Object、名称変更、複数Work所属、Concept / UPDS境界のIdentity判断方針を定義した。
 
 ### B-02 Object Type Refinement — B-03前の必須精緻化
 
 詳細計画は `docs/planning/OBJECT_TYPE_REFINEMENT_TASKS.md` を正本とする。
 
-- [ ] **B-02A [P0] 外部分類体系を正式調査する**
+- [x] **B-02A [P0] 外部分類体系を正式調査する**
   - Schema.org / DBpedia / Wikidata / WordNet / Dublin Core等を比較する。
   - Object typeとSource typeを分離して整理する。
   - 成果物: `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
 
-- [ ] **B-02B [P0] SGOKB Object候補を網羅的に整理する**
+- [x] **B-02B [P0] SGOKB Object候補を網羅的に整理する**
   - Character / Person / Organization / Work / Series / Place / Event / Artifact / Species / Concept等を検討する。
   - 各候補について独立Object化の価値、想定Source、Relation、Facet、MVP必要性を整理する。
   - 成果物: `docs/requirements/OBJECT_TYPE_CANDIDATES.md`
 
-- [ ] **B-02C [P0] Object Type / Class階層を設計する**
+- [x] **B-02C [P0] Object Type / Class階層を設計する**
   - 1階層固定enumを避け、上位Typeとclass/subtypeを分ける方式等を比較する。
   - `instance of` / `subclass of`相当概念やType registryの要否を判断する。
   - 成果物: `docs/requirements/OBJECT_TYPE_MODEL.md`

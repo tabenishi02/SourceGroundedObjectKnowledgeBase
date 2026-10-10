@@ -1,6 +1,6 @@
 # Source Grounded Object Knowledge Base — Object要件
 
-更新日: 2026-10-09
+更新日: 2026-10-10
 
 - Task: `B-02 [P0] Object要件を定義する`
 - Status: Accepted
@@ -8,6 +8,7 @@
   - `docs/requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md`
   - `docs/decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
   - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
+  - `docs/requirements/OBJECT_TYPE_MODEL.md`
   - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
   - `docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md`
 
@@ -15,7 +16,7 @@
 
 本書は、SGOKBでKnowledgeを管理する中心単位である **Object** の要件を定義する。
 
-B-02では、Objectの意味、同一性、共通属性、Object type、ライフサイクル、Versionとの関係を要件として固定する。
+B-02では、Objectの意味、同一性、共通属性、Classification、ライフサイクル、Versionとの関係を要件として固定する。
 
 一方、次は後続Taskへ委ねる。
 
@@ -65,12 +66,13 @@ ObjectはKnowledgeの「入れ物」ではなく、Knowledgeを継続的に結�
 
 ## 3. 共通Object contract
 
-すべてのObject typeは、少なくとも次の共通概念を持つ。
+すべてのObjectは、Primary Classに関係なく少なくとも次の共通概念を持つ。
 
 | 属性 | 要件上の意味 |
 |---|---|
 | `object_id` | SGOKB内部でObjectを一意に識別する安定ID |
-| `object_type` | Objectの意味分類 |
+| `primary_class` | Class Registry上の主要Class。必須・1件 |
+| `additional_classes` | 補助的なClass membership。0件以上 |
 | `name` | 現在の代表表示名 |
 | `aliases` | 別名、表記揺れ、旧名、翻訳名等の0件以上の集合 |
 | `status` | Object自体のライフサイクル状態 |
@@ -102,7 +104,7 @@ Source追加、Knowledge再生成、名称変更、Document再出力等によっ
 - Source ID
 - フォルダ名 / ファイル名
 - Repository / Project名
-- `object_type`
+- `primary_class` / `additional_classes`等のClassification
 - Knowledge Version番号
 
 これにより、名称変更、型分類の訂正、Repository名変更等があってもObject参照を維持できるようにする。
@@ -144,37 +146,35 @@ alias自体もSGOKB全体で一意である必要はない。
 
 aliasの種類・言語コード等の詳細属性を保持するかはE-01で決定する。
 
-### OBJ-05 — 初期Object typeは`Character` / `Work` / `Concept`とする
+### OBJ-05 — 初期Primary Classは`Character` / `Work` / `Concept`とする
 
-初期実装では少なくとも次の3 typeを扱う。
+初期実装では少なくとも次の3 ClassをObjectへ直接割り当て可能とする。
 
 #### `Character`
 
-物語・作品等に登場するキャラクターを表す。
+物語・作品等に登場するキャラクターを表す。`Agent`系Classの下位Classとして扱う。
 
 #### `Work`
 
-作品、シリーズ、個別タイトル等、作品として独立してKnowledgeを蓄積する対象を表す。
+創作・著作・表現物として独立してKnowledgeを蓄積する対象を表す。`CreativeWork`系Classの下位Classとして扱う。
 
 #### `Concept`
 
 性質・思想・テーマ・概念等、Objectとして定義・比較・Relation付与する価値のある抽象対象を表す。
 
-これらは初期typeであり、SGOKBが永続的に3 typeだけへ限定されることを意味しない。
+これらは初期Primary Classであり、SGOKBが永続的に3 Classだけへ限定されることを意味しない。
 
-### OBJ-06 — `object_type`を拡張可能にする
+### OBJ-06 — ClassificationをClass Registryで拡張可能にする
 
-Object typeは共通Object contractの上に追加できなければならない。
+利用可能Classは、閉じた1階層enumではなくClass Registryで管理し、Class間に`subclass_of`相当の階層を持てなければならない。
 
-将来、例えばPerson / Organization / Place / Event等を追加する場合に、SGOKBのObject identityモデルそのものを作り直す構造を避ける。
+各Objectは1件の`primary_class`を必須とし、必要に応じて0件以上の`additional_classes`を持てる。将来Person / Organization / Place / Event等を追加する場合にも、Object identityモデルそのものを作り直してはならない。
 
-特に、初期3 typeをDBの変更困難な閉じたenumとして固定することを要件とはしない。
+Class hierarchy、multiple classification、`instance_of` / `subclass_of`相当概念の論理契約は`OBJECT_TYPE_MODEL.md`を正本とする。Class Registryの物理実装とvalidation詳細はE-01 / E-05で決定する。
 
-ただし、無制限な自由文字列として型の意味を曖昧にすることも避ける。利用可能typeの登録・validation方法はE-01 / E-05で決定する。
+### OBJ-07 — Class固有Knowledgeは共通Object identityから分離する
 
-### OBJ-07 — Object type固有Knowledgeは共通Object identityから分離する
-
-`Character`、`Work`、`Concept`で意味的に保持したい情報は異なるが、type固有項目をすべて共通Objectの固定属性として持たせてはならない。
+`Character`、`Work`、`Concept`等で意味的に保持したい情報は異なるが、Class固有項目をすべて共通Objectの固定属性として持たせてはならない。
 
 例えば次の情報はSemantic Facet等の拡張構造で表現する。
 
@@ -350,17 +350,17 @@ Relation、Evidence Link、MCP等の外部アクセス、将来のUPDS参照は�
 - `name`の訂正
 - alias追加・削除
 - `status`変更
-- `object_type`の分類訂正（意味対象自体が同一である場合）
+- `primary_class` / `additional_classes`の分類訂正（意味対象自体が同一である場合）
 
 一方、性格、テーマ、定義等の意味的Knowledgeの変更はObject Knowledge Versionとして扱う。
 
 Registry metadataの変更履歴をどの粒度で監査するかはE-01で決定する。
 
-### OBJ-20 — Object typeの追加が既存Object contractを壊してはならない
+### OBJ-20 — Class追加・再分類が既存Object contractを壊してはならない
 
-新しいObject typeを追加しても、既存のCharacter / Work / Conceptの`object_id`、Relation参照、Version参照、Source / Evidence参照を変更する必要がない構造とする。
+新しいClassをClass Registryへ追加しても、既存のCharacter / Work / Conceptの`object_id`、Relation参照、Version参照、Source / Evidence参照を変更する必要がない構造とする。
 
-新typeは共通Object contractを継承し、type固有Knowledgeを拡張構造で持つ。
+同一意味対象のPrimary Class変更やAdditional Class追加もObject Identityを変更する理由にしてはならない。Class固有Knowledgeは共通Object contractではなく拡張構造で持つ。
 
 ---
 
@@ -423,7 +423,8 @@ User -- tends_to_prefer --> 自己犠牲
 | 属性 | 必須性 | Mutable | 一意性 | 備考 |
 |---|---|---|---|---|
 | `object_id` | 必須 | 原則不可 | 全SGOKBで一意 | Identityの正本 |
-| `object_type` | 必須 | 訂正可能 | 非一意 | 初期型Character / Work / Concept |
+| `primary_class` | 必須 | 訂正可能 | 非一意 | 初期Class Character / Work / Concept |
+| `additional_classes` | 0件以上 | 可 | 非一意 | 補助Classification |
 | `name` | 必須 | 可 | 非一意 | 代表表示名 |
 | `aliases` | 0件以上 | 可 | 非一意 | 表記差・旧名等 |
 | `status` | 必須 | 可 | 非一意 | 新規登録時の既定値は`active` |
@@ -439,7 +440,7 @@ B-02では次を意図的に確定しない。
 
 - `object_id`の具体形式
 - SQL table / column / index
-- Object type registryの物理実装
+- Class Registry / Class hierarchyの物理実装
 - aliasのlanguage / category schema
 - Relation type一覧
 - Relationの方向・対称性
@@ -491,12 +492,12 @@ Stable Object Identity
 B-02は次を満たした時点で完了とする。
 
 - ObjectがSource / Document / Versionから独立した安定Identityとして定義されている。
-- 初期Object typeとしてCharacter / Work / Conceptが定義されている。
-- 将来Object typeを追加できる要件が定義されている。
-- `object_id` / `object_type` / `name` / `aliases` / `status` / `current_version` / timestampの共通概念が定義されている。
+- 初期Primary ClassとしてCharacter / Work / Conceptが定義されている。
+- 将来Classを追加でき、multiple classificationを扱える要件が定義されている。
+- `object_id` / `primary_class` / `additional_classes` / `name` / `aliases` / `status` / `current_version` / timestampの共通概念が定義されている。
 - 同名別Object、名称変更、複数Work所属等のIdentity判断方針が定義されている。
 - Object lifecycleとKnowledge Versionが分離されている。
 - ConceptとUPDS Personal Inferenceの境界がB-02レベルで明確である。
 - 物理schemaやFacet詳細を後続Taskへ適切に延期している。
 
-以上をObject Identity要件の基準とする。なお、初期type `Character` / `Work` / `Concept` の分類粒度はB-02A〜B-02Dで追加検討し、必要であれば本書を改訂したうえでB-03以降およびPhase Eの前提とする。
+以上をObject Identity要件の基準とする。B-02CでClassificationは`Primary Class + Additional Classes + hierarchical Class Registry`へ精緻化した。候補Classの具体的なObject / Facet / Relation境界はB-02Dで確定し、その結果をB-03以降およびPhase Eの前提とする。

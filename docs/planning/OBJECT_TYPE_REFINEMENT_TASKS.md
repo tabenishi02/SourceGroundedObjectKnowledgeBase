@@ -10,6 +10,7 @@
   - `docs/requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md`
   - `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
   - `docs/requirements/OBJECT_TYPE_CANDIDATES.md`
+  - `docs/requirements/OBJECT_TYPE_MODEL.md`
   - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
   - `docs/planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md`
 
@@ -227,13 +228,13 @@ Source: Interview Article
 
 ## B-02C [P0] Object Type / Class階層を設計する
 
-- [ ] broad `object_type` と細分類class/subtypeを分ける必要性を判断する。
-- [ ] 上位Type候補を決定する。
-- [ ] subtype / class hierarchyを決定する。
-- [ ] multiple classificationを許容するか判断する。
-- [ ] `instance of` / `subclass of`相当の概念をSGOKBへ導入するか判断する。
-- [ ] TypeをDB enumへ固定するか、registry方式等へするかの要件を整理する。
-- [ ] 新Type追加時に既存Object IDやSchemaを壊さないことを確認する。
+- [x] broad `object_type` と細分類class/subtypeを分ける必要性を判断する。
+- [x] 上位Type候補を決定する。
+- [x] subtype / class hierarchyを決定する。
+- [x] multiple classificationを許容するか判断する。
+- [x] `instance of` / `subclass of`相当の概念をSGOKBへ導入するか判断する。
+- [x] TypeをDB enumへ固定するか、registry方式等へするかの要件を整理する。
+- [x] 新Class追加時に既存Object IDやSchemaを壊さないことを確認する。
 
 ### 重要論点
 
@@ -259,10 +260,24 @@ Object
 
 ### 完了条件
 
-- SGOKBの分類方式を一文で説明できる。
-- 初期実装対象と将来拡張対象が分離されている。
-- Class追加によってObject Identityが変化しない。
-- E-01物理schema設計へ入力可能な論理契約になっている。
+- [x] SGOKBの分類方式を一文で説明できる。
+- [x] 初期実装対象と将来拡張対象が分離されている。
+- [x] Class追加によってObject Identityが変化しない。
+- [x] E-01物理schema設計へ入力可能な論理契約になっている。
+
+### 結果概要
+
+- 1階層固定enum、単純なbroad type + subtype、完全自由Class Graphを比較した。
+- `Primary Class + Additional Classes + hierarchical Class Registry`方式を採用した。
+- Primary Classを1件必須、Additional Classを0件以上としmultiple classificationを許容する。
+- broad typeは別必須fieldとして重複保持せず、Class hierarchyの祖先から導出する。
+- Object→Classを`instance_of`相当、Class→Classを`subclass_of`相当として通常のSemantic Relationと分離する。
+- Class hierarchyは複数親を許容するDAGとしcycleを禁止する。
+- Class Registry entry自体を通常Objectとして扱うことは要求しない。
+- 既存`object_type`概念は現行要件上`primary_class` / `additional_classes`へ精緻化した。
+- `Character` / `Work` / `Concept`をMVP Core、Person / Organization / Place / EventをHigh-priority compatibilityとした。
+
+**Status: Complete (2026-10-10)**
 
 ---
 
@@ -311,7 +326,7 @@ B-02A 外部分類体系調査（完了）
   ↓
 B-02B Object候補整理（完了）
   ↓
-B-02C Type / Class階層設計
+B-02C Type / Class階層設計（完了）
   ↓
 B-02D Object / Facet / Relation境界
   ↓
