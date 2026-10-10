@@ -15,7 +15,8 @@
   - `docs/decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
   - `docs/reference/EMBEDDING_VECTOR_SEARCH_RESEARCH.md`
 - B-06 result: `docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`
-- Next: `B-07 [P1] 非機能要件を更新する`
+- B-07 result: `docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md`
+- Next: `Phase C — SGOKB / UPDS責務境界`
 
 ---
 
@@ -1346,6 +1347,6 @@ SGOKBの通常検索では、**Objectを発見・取得する検索と、Source-
 
 検索scoreはrelevance / similarityの派生値であり、truth、confidence、Source trustを意味しない。Search Indexは正本ではなく、Object Knowledge / Evidenceから再生成可能な派生資産とする。
 
-B-05は以上をもって完了済みであり、B-06のWorkflow要件も`WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`として確定した。次のTaskは `B-07 [P1] 非機能要件を更新する` とする。
+B-05は以上をもって完了済みであり、B-06のWorkflow要件も`WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`として確定した。B-07非機能要件も`NON_FUNCTIONAL_REQUIREMENTS.md`として完了した。次はPhase Cへ進む。
 
 **Status: Complete / Statement Embedding amendment accepted (2026-10-11)**

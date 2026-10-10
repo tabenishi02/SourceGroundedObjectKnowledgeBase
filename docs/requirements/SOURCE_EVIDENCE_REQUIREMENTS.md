@@ -16,7 +16,8 @@
 - B-04 result: `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
 - B-05 result: `docs/requirements/SEARCH_REQUIREMENTS.md`
 - B-06 result: `docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`
-- Next: `B-07 [P1] 非機能要件を更新する`
+- B-07 result: `docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md`
+- Next: `Phase C — SGOKB / UPDS責務境界`
 
 ---
 
@@ -825,7 +826,7 @@ Raw Snapshotにはログイン後ページ、個人情報、著作物等が含�
 
 SourceをSGOKBへ保存したことだけを理由に、Google Drive / ChatGPT等の外部交換先へ自動exportしてはならない。
 
-外部exportのHuman Decision boundary、Package Buildとの分離、同期directoryへのwriteの扱いはB-06で`WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`として確定した。sensitivity / securityの詳細はB-07 / Phase Gで具体化する。
+外部exportのHuman Decision boundary、Package Buildとの分離、同期directoryへのwriteの扱いはB-06で`WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`として確定した。B-07ではlocal-only default、data minimization、`allow / review_required / blocked`相当のexport decision、secret保護を確定し、具体schema /判定ruleはPhase Gで実装する。
 
 ### SEC-02 — Browser資格情報をSource Knowledgeとして保存しない
 
@@ -1025,6 +1026,6 @@ EvidenceはObject Knowledgeの根拠であって、LLMによる解釈・要約�
 
 ObjectとSource / Evidenceは多対多で再利用し、Source更新・Extractor変更・Knowledge再生成が起きても過去Provenanceを保持する。
 
-B-03は以上をもって完了しており、B-04 Object Result要件、B-05 Search / Retrieval要件、B-06 Human / Automation Workflow要件も完了済みである。次のTaskは `B-07 [P1] 非機能要件を更新する` とする。
+B-03は以上をもって完了しており、B-04 Object Result要件、B-05 Search / Retrieval要件、B-06 Human / Automation Workflow要件も完了済みである。B-07非機能要件も`NON_FUNCTIONAL_REQUIREMENTS.md`として完了した。次はPhase Cへ進む。
 
 **Status: Complete (2026-10-10)**

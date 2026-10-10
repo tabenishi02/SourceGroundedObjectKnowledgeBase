@@ -18,6 +18,7 @@ Web上のSource / Evidenceを根拠に、Character・Work・ConceptなどのObje
 - [Object Result要件](docs/requirements/OBJECT_RESULT_REQUIREMENTS.md)
 - [Search / Retrieval要件](docs/requirements/SEARCH_REQUIREMENTS.md)
 - [人間工程 / 自動工程要件](docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md)
+- [非機能要件](docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md)
 - [Embedding / Vector Search技術調査](docs/reference/EMBEDDING_VECTOR_SEARCH_RESEARCH.md)
 - [Knowledge Base再設計Decision](docs/decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md)
 - [再設計タスク / 現在の進捗](docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md)

@@ -12,7 +12,8 @@
   - `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
   - `docs/requirements/SEARCH_REQUIREMENTS.md`
   - `docs/reference/EMBEDDING_VECTOR_SEARCH_RESEARCH.md`
-- Next: `B-07 [P1] 非機能要件を更新する`
+- B-07 result: `docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md`
+- Next: `Phase C — SGOKB / UPDS責務境界`
 
 ---
 
@@ -127,7 +128,7 @@ SGOKBで自動処理と呼ぶものは、ユーザー操作や明示的policyを
 - Markdown / context rendering
 - local MCP read
 
-外部ClientへKnowledgeを送信する場合のaccess / security policyはB-07 / Phase Jで具体化する。
+外部ClientへKnowledgeを送信する場合のlocal-only default、remote exposure、no-silent-egress等の非機能境界はB-07で確定済みであり、具体的authentication / scope / transportはPhase Jで設計する。
 
 ---
 
@@ -301,7 +302,7 @@ External Export前に少なくとも次を表示 / 検証可能にする。
 - external destination
 - sensitivity / export warning（該当する場合）
 
-具体的sensitivity classificationはB-07 / Phase Gで決定する。
+B-07ではexport decisionを`allow / review_required / blocked`相当で扱う論理要件を定義した。具体schema /判定ruleはPhase Gで決定する。
 
 ---
 
@@ -351,7 +352,7 @@ Embedding Provider、reranker、OCR、analysis等に外部cloud serviceを選択
 
 標準local providerと外部providerを同一privacy semanticsで扱わない。
 
-具体的provider permission / secret管理はB-07 / Phase Iで定義する。
+B-07ではlocal-only default、no-silent-cloud-fallback、secret非平文化を定義した。provider実装はPhase Iで具体化する。
 
 ### EXPWF-06 — export対象をPackage manifestから監査可能にする
 
@@ -527,7 +528,7 @@ Version commit後のEmbedding / Vector Index等は再生成可能な派生処理
 
 検索時に古いVectorを新current KnowledgeのVectorとしてsilent利用しない。
 
-具体的failure semanticsはB-07 / Phase I / Nで定義する。
+B-07ではstale / pending / failedの検出、canonical保全、Lexical fallback、full rebuild要件を定義した。Phase I / Nで実装・検証する。
 
 ### IMPWF-04 — deterministic / idempotentな派生更新を優先する
 
@@ -580,7 +581,7 @@ review後の修正をどのようにResult revision / manual edit provenanceと�
 
 1 Objectの標準Knowledge生成 / 更新workflowについて、**SGOKBが制御できるlocal automatic processingの合計を概ね10分以内**とすることを目標とする。
 
-これはB-07で最終的な非機能要件 / 測定条件へ具体化する。
+B-07で非機能要件 / 測定条件を`NON_FUNCTIONAL_REQUIREMENTS.md`として具体化済みである。
 
 ### PERF-02 — 10分目標へ含める処理
 
@@ -623,7 +624,7 @@ review後の修正をどのようにResult revision / manual edit provenanceと�
 - result.jsonを取得してincomingへ戻す人間操作時間
 - review-required Resultを人間が判断する時間
 
-Source ingestion性能は別途B-07 / Phase Nで測定可能とする。
+Source ingestion性能はB-07のObject workflow Acceptanceとは分離し、Phase Nで別metricとして測定可能とする。
 
 ### PERF-04 — 外部Service latencyをlocal benchmarkへ混ぜない
 
@@ -633,9 +634,9 @@ Source ingestion性能は別途B-07 / Phase Nで測定可能とする。
 
 ### PERF-05 — 10分は平均値だけで達成扱いにしない
 
-B-07 / N-05では、Object規模、Evidence数、Statement数等の代表workloadを定義し、少なくとも通常ケースと大きめケースを分けて測定する。
+B-07でObject規模、Evidence数、Statement数等のStandard / Large profileを定義済みであり、N-05で分離測定する。
 
-最終的にaverage / p95等どの指標をAcceptanceへ使うかはB-07で決定する。
+B-07ではStandard Objectのp95 10分をAcceptance targetとし、Large profileはp95 20分targetとして別集計する。
 
 ---
 
@@ -1023,6 +1024,6 @@ SGOKBの標準Workflowは、**人間が選定・外部送信・正本更新と�
 
 標準Knowledge生成ではGoogle Drive / ChatGPTを正式なHuman-in-the-loop工程として扱い、その人間・外部Service時間を1 ObjectあたりのSGOKB local automatic processing目標から分離する。
 
-B-06は以上をもって完了とし、次のTaskは `B-07 [P1] 非機能要件を更新する` とする。
+B-06は以上をもって完了とし、B-07非機能要件も完了したため、次はPhase Cへ進む。
 
 **Status: Complete (2026-10-11)**

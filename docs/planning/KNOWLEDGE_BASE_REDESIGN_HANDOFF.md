@@ -10,7 +10,7 @@
 
 本書は詳細設計書ではない。ここに記載した内容を「現時点で合意済みの要件・設計方針」とし、個別 Phase で未確定事項を具体化する。
 
-### 1.1 最新進捗 — B-02〜B-06 要件定義
+### 1.1 最新進捗 — Phase B要件定義完了（B-02〜B-07）
 
 B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJECT_REQUIREMENTS.md`。ObjectをSource / Document / Versionから独立した安定Identityとし、`object_id`はname・path・Source・Version等から独立させる。
 
@@ -18,7 +18,7 @@ B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJEC
 
 B-02A〜B-02Dは2026-10-10時点で完了している。B-02Cでは`Primary Class + Additional Classes + hierarchical Class Registry`方式を採用し、B-02Dでは正式Class hierarchy、Object / Facet / Relation / value / Source境界、初期Class Registry seed集合、fallback条件を確定した。正本は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`である。
 
-Object Type Refinement series完了後、B-03 Source / Evidence要件、B-04 Object Result要件、B-05 Search / Retrieval要件、B-06 Human / Automation Workflow要件まで完了した。Source / Evidenceの正本は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Object Resultの正本は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`、検索要件の正本は`docs/requirements/SEARCH_REQUIREMENTS.md`、Workflow責務境界の正本は`docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`である。B-05ではHybrid Object Searchを通常経路とし、2026-10-11の追加Embedding調査でaccepted検索可能Knowledge Statementの個別Embedding、Object / Facet / Statementのmulti-representation retrieval、VectorIndexAdapter、Statement → Object Aggregation、incremental Vector reuseを正式方針へ追加した。B-06ではSource / Object選定、External Export、authoritative Result Import、Registry変更を人間decision boundaryとし、その間のImport / Normalize / Evidence / Package Build / Validation / post-import Embedding・Index更新を自動化対象とした。次に実施するのはB-07非機能要件である。
+Object Type Refinement series完了後、B-03 Source / Evidence要件、B-04 Object Result要件、B-05 Search / Retrieval要件、B-06 Human / Automation Workflow要件、B-07 Non-functional Requirementsまで完了した。Source / Evidenceの正本は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Object Resultの正本は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`、検索要件の正本は`docs/requirements/SEARCH_REQUIREMENTS.md`、Workflow責務境界の正本は`docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`、非機能要件の正本は`docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md`である。B-07ではlocal-first、canonical / derived data分離、Provenance integrity、backup / restore、external egress security、failure recovery、Reference Environmentと性能Acceptanceを確定した。これによりPhase Bの要件定義更新は完了した。次に実施するのはPhase C — SGOKB / UPDS責務境界である。
 
 ---
 
@@ -414,7 +414,31 @@ B-06で標準WorkflowのHuman / Automation boundaryを確定した。正本は`d
 - accepted Version commit後のObject / Facet / Statement Embedding、Vector / Lexical Index、Markdown等の派生更新は自動化し、派生Index失敗で正本Knowledgeを失わない。
 - 10分目標にはPackage Build等のpre-analysis local segmentとValidation / Import / Embedding / Index等のpost-analysis local segmentを含め、人間操作・ChatGPT生成待ち・external network待ちは除外する。
 
-具体的CLI、state machine、Drive path、persistent export policy、review severity等はPhase G / H / MとB-07で具体化する。
+具体的CLI、state machine、Drive path、persistent export policy、review severity等はPhase G / H / Mで具体化する。非機能横断要件はB-07で確定済みである。
+
+---
+
+## 12.2 非機能要件
+
+B-07でSGOKBのlocal-first / integrity / recovery / performance契約を確定した。正本は`docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md`とする。
+
+主要決定:
+
+- SQLite、Raw、Object Knowledge Version、Evidence / Provenanceを優先保全対象とし、Search Representation、Embedding、Vector Index、Markdown、Package等をrebuildable derived layerとして分離する。
+- Internet / ChatGPT / Google Drive / MCP / Vector backendが利用不能でも、canonical DBと利用可能なlocal read / Lexical機能を維持する。
+- Vector Index failure時はstale / failedを検出し、古いVectorをcurrentとしてsilent利用しない。可能な場合はLexicalへgraceful degradationする。
+- local provider failure時にexternal cloud providerへsilent fallbackしない。
+- accepted Object Knowledge Versionを論理immutableとし、process interruptionでincomplete Versionを`current_version`が指さないtransaction / recoveryを要求する。
+- Raw / Evidence / Version / accepted Result provenanceは参照中に自動purgeしない。Hard deleteはdependency preview / warning / auditを伴う管理操作とする。
+- canonical backupの初期目標はRPO 24時間、同等環境でのcanonical restore RTO 4時間。default retention基準はdaily 7世代 + weekly 4世代以上とする。
+- local-onlyをsecurity defaultとし、外部送信ではdata minimizationと`allow / review_required / blocked`相当のexport decisionを扱う。credential / secretをPackageやstandard logへ含めない。
+- Primary supported environmentはWindows 11。Docker / always-on serverをCore必須にしない。
+- Reference Workstationはi5-13600KF / 128 GB RAM / RTX 4090 24 GB。Standard Objectのlocal automated segmentはp95 10分以内、Large Objectは別profileでp95 20分targetとする。
+- interactive warm queryの初期p95 targetはexact lookup 250 ms、Lexical 1 s、Semantic / Hybrid / Similarity 3 s、1-hop Relation 1 sとする。
+- benchmarkはcommit、schema、hardware、workload、Embedding Space、backend、cold / warm、retry等を記録する。
+- Phase Nではoffline、crash、disk full、broken provenance、Index loss / rebuild、backup restore、egress、secret redaction、provider failureをAcceptanceとして検証する。
+
+これによりPhase Bの要件定義更新は完了した。以降のPhaseはB-01〜B-07を入力契約として具体化する。
 
 ---
 
@@ -721,6 +745,18 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 71. accepted Version commit後のSearch Representation / Object・Facet・Statement Embedding / Index / derived renderingは自動更新対象とする。
 72. 派生Index更新失敗でaccepted Knowledgeを破壊せず、stale / pending / failedを検出してretry / rebuild可能にする。
 73. 外部Embedding / reranker等へtextを送る場合もExternal Processingとして明示的なdata egress policyの対象とする。
+74. SGOKB Coreはlocal-firstとし、Internet / cloud serviceをcanonical data閲覧の成立条件にしない。
+75. SQLite / Raw / Version / Evidence / Provenanceをcanonical / provenance-bearing dataとして優先保全し、Search Representation / Embedding / Vector Index / Markdown / Packageを再生成可能なderived layerとする。
+76. Derived subsystem障害でaccepted Knowledgeをrollback /破壊せず、stale / failedを検出してLexical等へgraceful degradationする。
+77. local provider failureからexternal providerへsilent fallbackしない。
+78. accepted Object Knowledge Versionは論理immutableとし、Hard deleteよりArchive / Version追加を優先する。
+79. canonical backupはRPO 24時間、同等環境でのcanonical restoreはRTO 4時間を初期目標とし、daily 7世代 + weekly 4世代以上をdefault retention基準とする。
+80. 外部送信はlocal-only default、data minimization、`allow / review_required / blocked`相当のexport decision、secret保護を適用する。
+81. remote MCP / service exposureはdefault無効とし、loopback外ではexplicit enable + authentication / scopeを要求する。
+82. Primary supported environmentはWindows 11とし、Docker / always-on serverをCore必須にしない。
+83. Reference Workstationはi5-13600KF / 128 GB RAM / RTX 4090 24 GBとし、Standard Object local automationはp95 10分以内をAcceptance targetとする。
+84. Large Objectはp95 20分targetで別集計し、interactive warm retrievalはLexical p95 1秒、Semantic / Hybrid / Similarity p95 3秒等を初期目標とする。
+85. Phase Nでoffline / crash / disk full / backup restore / broken provenance / Index rebuild / no-silent-cloud-fallback / egress boundaryをFailure Recovery Acceptanceとして検証する。
 
 ---
 
@@ -735,7 +771,7 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 - Evidence Packageの具体的形式・容量上限（Store / Package責務境界はB-03で確定済み）
 - ChatGPTへ渡すinstructions / prompt
 - Google Driveの具体的なフォルダ・同期方式
-- External Exportのpersistent policy schema / sensitivity classification / credential管理
+- External Exportのpersistent policy物理schema / export decision判定rule / credential backend
 - Result JSON Schemaの物理field配置・syntax（論理contractはB-04で確定済み）
 - Import / Validationの具体state machine / review severity / stale rebase方式（Human boundaryはB-06で確定済み）
 - Version lifecycle
@@ -751,7 +787,6 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 - 既存Fragment / Final関連コードを残す範囲
 - DB migration方針
 - Repository最終フォルダ構造
-- 1 Object 10分Acceptanceの具体hardware / dataset / percentile条件
 - Release version境界
 
 未確定事項を、既決事項と混同しないこと。
@@ -808,6 +843,8 @@ X-YY [Priority] <Task名>
   - 再設計の全Phase / Task一覧。
 - `docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`
   - Human Decision / local automation / external export / Result Import / 10分計測境界。
+- `docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md`
+  - local-first、canonical / derived data、integrity、backup / restore、security、failure recovery、performance Acceptance。
 - `README.md`
   - SGOKBの現行概要とDocumentation Indexへの入口。
 - `docs/archive/prototype-0.2/DEVELOPMENT_STATUS.md`
@@ -821,8 +858,8 @@ X-YY [Priority] <Task名>
 
 ## 23. 現在地点
 
-Phase A、B-01、B-02 Object Identity要件、B-02A〜B-02D Object Type Refinement、B-03 Source / Evidence要件、B-04 Object Result要件、B-05 Search / Retrieval要件、B-06 Human / Automation Workflow要件まで完了している。
+Phase AおよびPhase B（B-01〜B-07）は完了している。
 
-Object Identityと共通属性の正本は`docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelは`docs/requirements/OBJECT_TYPE_MODEL.md`、具体的Class hierarchyとObject / Facet / Relation / value境界は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`、Source / Snapshot / Evidence / Provenance契約は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Structured Object Result / Evidence grounding / Version候補契約は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`、Object / Facet / Statement / Relation / Evidence検索契約は`docs/requirements/SEARCH_REQUIREMENTS.md`、Human Decision / local automation / external export / authoritative Import境界は`docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`を正本とする。
+Object Identityと共通属性の正本は`docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelは`docs/requirements/OBJECT_TYPE_MODEL.md`、具体的Class hierarchyとObject / Facet / Relation / value境界は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`、Source / Snapshot / Evidence / Provenance契約は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Structured Object Result / Evidence grounding / Version候補契約は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`、Object / Facet / Statement / Relation / Evidence検索契約は`docs/requirements/SEARCH_REQUIREMENTS.md`、Human Decision / local automation / external export / authoritative Import境界は`docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`、local-first / integrity / backup / security / recovery / performance契約は`docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md`を正本とする。
 
-次の作業は **B-07 [P1] 非機能要件を更新する** である。B-03〜B-06で確定したSource / Evidence、Object Result、Search / Retrieval、Human / Automation Workflow契約を入力として、offline / performance / integrity / backup / security / external data egress / failure recovery等の非機能要件を定義する。
+次の作業は **Phase C — SGOKB / UPDS責務境界** である。まずC-01でSGOKBをWorld/Object Knowledge Layerとして確定し、C-02〜C-04でUPDSとの所有・参照・MCP連携境界を定義する。

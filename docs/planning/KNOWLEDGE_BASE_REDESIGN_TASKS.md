@@ -159,17 +159,18 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
   - 10分目標へ含むpre-analysis / post-analysis local segmentと、除外するhuman / external network時間を定義した。
   - 成果物: `docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`
 
-- [ ] **B-07 [P1] 非機能要件を更新する**
-  - オフライン継続利用と、外部AI / cloud service停止時のgraceful degradation。
-  - Source / Knowledge / Search Representation / Indexの再生成可能性。
-  - Raw / Snapshot / Evidence / Result artifact / PackageのProvenance integrityを検証可能にする。
-  - 破壊的更新を避けるVersioning。
-  - retention / backup / hard deleteでも参照中EvidenceのProvenanceを不用意に破壊しない。
-  - Embedding model / Representation Builder / Vector backend変更時のIndex分離・再構築。
-  - External Processing / data egressのsecurity / privacy / credential要件。
-  - Background job失敗、Index stale / pending / failed時のretry / recovery / graceful degradation。
-  - 1 Object local automatic processing 10分目標のbenchmark hardware / workload / percentile条件。
-  - MCPが停止しても正本DBが利用可能であること。
+- [x] **B-07 [P1] 非機能要件を更新する**
+  - local-firstを標準とし、Internet / ChatGPT / Drive / MCP / Vector backend停止時にもcanonical dataと利用可能なlocal read機能を維持する要件を定義した。
+  - SQLite / Raw / Version / Evidence / Provenanceを保全対象とし、Search Representation / Embedding / Vector Index / Markdown / Packageを再生成可能なderived layerとして分離した。
+  - crash consistency、transaction、idempotent retry、broken provenance isolation、stale Index検出とLexical fallbackを定義した。
+  - accepted Knowledge Versionを論理immutableとし、Archive優先、参照中Evidence / Raw / Result provenanceを通常retentionで自動削除しないことを定義した。
+  - canonical backupはRPO 24時間、同等環境でのcanonical restoreはRTO 4時間を初期目標とし、daily 7世代 + weekly 4世代以上をdefault retention基準とした。
+  - local-only default、data minimization、`allow / review_required / blocked`相当のexport decision、secret非平文化、log redaction、no-silent-cloud-fallbackを定義した。
+  - Embedding Space / Representation Builder / Vector backend generationを分離し、SQLite正本からVector Indexをfull rebuild可能とした。
+  - Primary environmentをWindows 11とし、現行Reference Workstation（i5-13600KF / 128 GB RAM / RTX 4090 24 GB）でStandard Objectのlocal automated segmentをp95 10分以内とした。
+  - Large Objectは別profileでp95 20分target、interactive warm searchはLexical p95 1秒、Semantic / Hybrid / Similarity p95 3秒等の初期目標を定義した。
+  - Phase Nへoffline / crash / disk full / backup restore / egress / Index rebuild / provider failure等のAcceptanceを引き継いだ。
+  - 成果物: `docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md`
 
 **完了条件:** 既存の要件定義書を新方針で置換または新版化し、旧Prototype要件との差分が説明可能である。
 
@@ -227,7 +228,8 @@ docs/
 │  ├─ SOURCE_EVIDENCE_REQUIREMENTS.md
 │  ├─ OBJECT_RESULT_REQUIREMENTS.md
 │  ├─ SEARCH_REQUIREMENTS.md
-│  └─ WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md
+│  ├─ WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md
+│  └─ NON_FUNCTIONAL_REQUIREMENTS.md
 ├─ decisions/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_DECISION.md
 │  └─ SGOKB_RENAME_DECISION.md
@@ -266,7 +268,8 @@ src/sgokb/
   - 「move only」と「behavior change」を別commit/PRに分割する。
 
 - [ ] **D-06 [P1] `.local/` / generated / Google Drive exchangeデータのGit除外方針を更新する**
-  - Object package、result、DB、vector index、生Sourceを誤commitしない。
+  - Object package、result、DB、vector index、生Source、backup generationを誤commitしない。
+  - canonical / backup / transient / index directoryを物理的に区別できる配置とする。
   - Schema、sample、fixtureのみGit管理する。
 
 - [ ] **D-07 [P1] 旧branch / PR / tag / releaseの整理ルールを決める**
@@ -321,6 +324,8 @@ src/sgokb/
   - Version切替時にSearch Representation / Vector Indexをinvalid/updateする境界を定義する。
   - 同一Embedding Space + representation hashによるVector reuseを許容しつつ、Version membershipとcurrent / historical scopeを分離して追跡する。
   - Persistent Version IDはSGOKB側で発行する。
+  - accepted Versionを論理immutableとし、Version commit / current切替とpost-import derived jobをfailure domainとして分離する。
+  - process interruption時にincomplete Versionをcurrentが指さないtransaction / recovery contractを定義する。
 
 - [ ] **E-05 [P1] JSON Schemaを作成する**
   - 共通Object Result schema。
@@ -410,6 +415,7 @@ src/sgokb/
   - Package Buildはまずlocal stagingへ生成し、External Exportと分離する。
   - 初期版は明示export → Drive同期フォルダでも可。同期対象directoryへのwriteもExternal Exportとして扱う。
   - export前にpackage identity / target Object / file・Evidence scope / warning / destinationをpreflight表示可能にする。
+  - B-07の`allow / review_required / blocked`相当export decisionを扱い、credential / secretを標準Packageへ含めない。
   - SGOKB本体をGoogle Drive APIへ強く依存させるかは別途判断する。
 
 - [ ] **G-05 [P1] Result受け取り運用を定義する**
@@ -443,6 +449,8 @@ src/sgokb/
   - Import run / timestamp / source package / original Result artifact provenanceを記録する。
   - Persistent Version IDをSGOKB側で発行し、同一Resultの重複Import候補を検出する。
   - Registry proposalをObject Knowledge Importの副作用として自動適用しない。
+  - process interruption / retryに対してtransaction-safeかつidempotentにし、incomplete Versionをcurrentへ昇格させない。
+  - canonical commit後のEmbedding / Index等はpending / ready / failed / stale相当の独立derived jobとして扱う。
 
 - [ ] **H-03 [P1] Markdown Rendererを実装する**
   - DB/JSONから人間向けObject文書を生成する。
@@ -487,6 +495,8 @@ src/sgokb/
   - Qdrant HNSW + payload filter + Object groupingを高性能 / 高機能基準として評価する。
   - Query latency、Statement/Object Recall@K、Exactに対するANN Recall、Index build/update/rebuild時間、RAM、disk size、Windows運用コストで比較する。
   - 実測前に最終backendを固定しない。
+  - Vector backend停止 / Index消失時もcanonical read / Lexical Searchを継続し、SQLite正本からfull rebuildできることを必須とする。
+  - local provider失敗時にexternal providerへsilent fallbackしない。
 
 - [ ] **I-04 [P0] Multi-representation Hybrid Search / Object Aggregationを実装する**
   - FTS + Object / Facet / Statement vector searchを組み合わせる。
@@ -560,6 +570,8 @@ src/sgokb/
   - 複数Object取得。
   - Semantic Search / Similarity Search。
   - Context長制御。
+  - MCP停止時にcanonical DB / CLIが継続利用できること。
+  - loopback外へ公開する場合はexplicit enable + authentication / scopeを要求する。
 
 **完了条件:** LLM/AgentがDB構造を知らずにSGOKB Knowledgeを取得できる。
 
@@ -623,6 +635,7 @@ src/sgokb/
   - `similar`
   - `render`
   - `mcp serve` 等。
+  - integrity / derived-index / backup / background-job status確認と、rebuild / restore補助操作を設計する。
 
 - [ ] **M-02 [P1] 旧CLIとの互換性を決定する**
   - deprecated warning期間を設けるか、Prototypeとして明示的に切るか判断する。
@@ -661,7 +674,8 @@ src/sgokb/
   - B-06で定義したpre-analysis local segment + post-analysis local segmentを計測対象とする。
   - Source探索 / Capture network、Package human review、Drive sync、ChatGPT操作 /生成待ち、Result返却、review-required判断等のhuman / external時間を分離記録する。
   - Package生成、Validation、Import、Object / Facet / Statement Embedding増分更新、Vector Index更新が目標時間内か確認する。
-  - 通常Objectと大きめObjectを分け、B-07で確定するpercentile条件で評価する。
+  - B-07 Reference WorkstationでStandard Objectをp95 10分以内、Large profileを別集計でp95 20分targetとして評価する。
+  - cold / warm、model load、storage、retry、Git commit、Embedding Space / backend等のbenchmark metadataを記録する。
 
 - [ ] **N-06 [P0] Retrieval / Vector Backend品質を評価する**
   - Lexical / Semantic / Hybrid / Similarity / Evidence Searchを別々に評価する。
@@ -685,7 +699,13 @@ src/sgokb/
   - Package Build後、External Export未承認の状態で外部送信されないこと。
   - Derived Index更新失敗後も正本Knowledgeを保持し、stale状態を検出できること。
   - MCP停止。
-  - 部分Import失敗。
+  - 部分Import失敗 / process killとtransaction recovery。
+  - disk full / partial file。
+  - Raw欠損 / checksum mismatch / broken provenance isolation。
+  - Internet / external service停止時のoffline / graceful degradation。
+  - local provider failure時にcloudへsilent fallbackしないこと。
+  - backup generation /別path restore / integrity validation / RPO・RTO確認。
+  - external exportの`blocked` itemとcredential / log redaction。
 
 **完了条件:** 新しい目的に対する受入条件を満たし、Prototype時代の「Schema適合=品質合格」という評価誤認を避けられる。
 
@@ -702,6 +722,7 @@ src/sgokb/
 
 - [ ] **O-02 [P0] 現行設計書を更新する**
   - Architecture / Data Model / Retrieval / Exchange / MCP / UPDS Boundary。
+  - Offline / Backup / Restore / Retention / Security / External Egress / Failure Recovery / Benchmark条件。
 
 - [ ] **O-03 [P1] Prototype文書へArchived/Legacy表示を追加する**
   - 現行仕様と誤認されないようにする。
@@ -775,7 +796,7 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-最優先は **A-01〜A-03 → B-01〜B-07 → C-01〜C-04** とする。
+Phase AとPhase B（B-01〜B-07）は完了した。次の最優先は **C-01〜C-04 — SGOKB / UPDS責務境界** とする。
 
 実装変更を先に始めると、旧PrototypeのEntity / Fragment / Final Document概念を新設計へ引きずる可能性がある。まず目的・責務・データ境界を確定し、その後 **E-01 Object schema** を起点として実装を再構成する。
 

@@ -14,7 +14,8 @@
   - `docs/decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
 - B-05 result: `docs/requirements/SEARCH_REQUIREMENTS.md`
 - B-06 result: `docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`
-- Next: `B-07 [P1] 非機能要件を更新する`
+- B-07 result: `docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md`
+- Next: `Phase C — SGOKB / UPDS責務境界`
 
 ---
 
@@ -1197,6 +1198,6 @@ ResultはJSONを機械向け交換正本とし、summary / structured attribute 
 
 Resultから確定Knowledgeへ進むには、Schema、Object binding、Package/base Version、Evidence、Facet、Relation等のValidationを必須とし、AI出力を直接正本へ昇格させない。
 
-B-04は以上をもって完了とし、B-05 Search / Retrieval要件、B-06 Human / Automation Workflow要件も完了済みである。次のTaskは `B-07 [P1] 非機能要件を更新する` とする。
+B-04は以上をもって完了とし、B-05 Search / Retrieval要件、B-06 Human / Automation Workflow要件も完了済みである。B-07非機能要件も`NON_FUNCTIONAL_REQUIREMENTS.md`として完了した。次はPhase Cへ進む。
 
 **Status: Complete (2026-10-10)**
