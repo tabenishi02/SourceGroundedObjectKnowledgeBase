@@ -127,7 +127,7 @@ Sourceと取得時点Snapshotを分離し、Raw hashと処理世代を保持す�
 
 **方針**
 
-概念としてKeep。列追加や命名調整はあり得るが、履歴を失う置換は行わない。
+Source / Snapshot / Artifact / Normalized Run / Evidenceの概念と履歴はKeepする。ただしB-03により`Source = URL UNIQUE`と単一`source_type`は現行要件ではなくなったため、`sources`の物理schemaはModify対象とする。既存`source_id` / Snapshot / Evidence履歴を失う置換は行わない。
 
 ### K-04 checksum / content hash / Raw不変性
 
@@ -282,7 +282,7 @@ Entityという抽象概念自体は新Objectに近く、完全廃棄する必�
 
 **変更方針**
 
-Source/Evidence retrievalの補助metadataとして再利用する。ただしObject候補自動生成のための情報と、Sourceそのもののmetadataを分離する。
+Source/Evidence retrievalの補助metadataとして再利用する。ただしObject候補自動生成のための情報と、Sourceそのもののmetadataを分離する。B-03では単一`source_type`を正本分類とせず、Source本体のresource type / media type / document genre / publisher kind / provider / page purpose等と、Source↔Object association上のsubject relationshipへ分離し、observed / deterministic / inferred / overrideの由来を保持することを要件化した。
 
 ### M-03 Search candidate model
 
@@ -537,7 +537,7 @@ D-02で`docs/archive/prototype-0.2/`等への配置を検討する。
 | Table | 分類 | 方針 |
 |---|---|---|
 | `schema_migrations` | Keep | migration基盤として継続 |
-| `sources` | Keep | Source正本として継続 |
+| `sources` | Modify | Source概念・既存IDは維持。`url UNIQUE`と単一`source_type`前提をB-03要件へ適合させる |
 | `snapshots` | Keep | 取得世代・Raw参照として継続 |
 | `artifacts` | Keep | Capture artifact整合性保持 |
 | `normalized_runs` | Keep | Evidence再生成可能性を保持 |

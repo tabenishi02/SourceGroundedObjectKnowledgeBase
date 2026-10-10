@@ -18,7 +18,7 @@ B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJEC
 
 B-02A〜B-02Dは2026-10-10時点で完了している。B-02Cでは`Primary Class + Additional Classes + hierarchical Class Registry`方式を採用し、B-02Dでは正式Class hierarchy、Object / Facet / Relation / value / Source境界、初期Class Registry seed集合、fallback条件を確定した。正本は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`である。
 
-Object Type Refinement seriesは完了したため、次に実施するのはB-03 Source / Evidence要件である。専用Handoff `docs/planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md` はB-02A〜Dの完了事項とB-03への入力をまとめた資料として保持する。
+Object Type Refinement series完了後、B-03 Source / Evidence要件も2026-10-10に完了した。正本は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`である。Source IdentityをURLから独立させ、Source / Snapshot / Raw Artifact / Normalized Run / Evidenceを分離し、Source分類を直交軸へ分解した。Evidenceは単一Snapshotへ遡れる意味非改変の検索・引用単位とし、LLM生成内容を一次Evidenceへ昇格させない。次に実施するのはB-04 Object Result要件である。
 
 ---
 
@@ -673,6 +673,12 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 37. B-02Dで正式採用したObject Classは、原則として通常データ投入前に初期Class Registryへ登録する。
 38. Class Registryへの包含とClass固有Facet / UI / validation / search等の専用機能実装優先度を分離する。
 39. Class未登録を理由に、意味的に異なる`Concept` / `Work` / `Character`等へObjectを自動fallbackさせない。
+40. Source IdentityはURL / title / path / content hashから独立させ、URL等はlocatorとして扱う。
+41. Source / Snapshot / Raw Artifact / Normalized Run / Evidenceを別責務とし、過去世代のProvenanceを保持する。
+42. Source classificationは単一`source_type`へ混在させず、Source本体のresource type / media type / document genre / publisher kind / provider / page purpose等と、Source↔Object association上のsubject relationshipへ分離する。
+43. Evidenceは単一Snapshotへ必ず遡れる意味非改変の検索・引用単位とし、LLM summary / synthesis / inferenceを一次Evidenceへ自動昇格させない。
+44. Evidence StoreとObject Evidence Packageを分離し、PackageをSource of truthとしない。
+45. Capture / Importしたこと自体をGoogle Drive / ChatGPT等への外部export許可とはみなさない。
 
 ---
 
@@ -684,7 +690,7 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 - Class Registry / Class hierarchy / Object-Class membership / Class固有Facetの物理Schema拡張方式
 - Facetの正式一覧と拡張方式
 - Relation schema / relation type管理
-- Evidence Package形式・容量上限
+- Evidence Packageの具体的形式・容量上限（Store / Package責務境界はB-03で確定済み）
 - ChatGPTへ渡すinstructions / prompt
 - Google Driveの具体的なフォルダ・同期方式
 - Result JSON Schema
@@ -769,8 +775,8 @@ X-YY [Priority] <Task名>
 
 ## 23. 現在地点
 
-Phase A、B-01、B-02 Object Identity要件、B-02A〜B-02D Object Type Refinementまで完了している。
+Phase A、B-01、B-02 Object Identity要件、B-02A〜B-02D Object Type Refinement、B-03 Source / Evidence要件まで完了している。
 
-Object Identityと共通属性の正本は`docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelは`docs/requirements/OBJECT_TYPE_MODEL.md`、具体的Class hierarchyとObject / Facet / Relation / value境界は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`を正本とする。
+Object Identityと共通属性の正本は`docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelは`docs/requirements/OBJECT_TYPE_MODEL.md`、具体的Class hierarchyとObject / Facet / Relation / value境界は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`、Source / Snapshot / Evidence / Provenance契約は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`を正本とする。
 
-次の作業は **B-03 [P0] Source / Evidence要件を再確認する** である。B-02Dで整理したClass family別Source coverageを入力として、Source Type / Evidence / Provenance境界を確定する。
+次の作業は **B-04 [P0] Object Result要件を定義する** である。B-03で確定したEvidence grounding契約を入力として、Structured Result / Facet / Relation / Evidence参照 / generation provenanceを定義する。

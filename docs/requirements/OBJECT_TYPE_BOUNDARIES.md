@@ -10,7 +10,8 @@
   - `docs/requirements/OBJECT_TYPE_CANDIDATES.md`
   - `docs/requirements/OBJECT_TYPE_MODEL.md`
   - `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
-- Next: `B-03 [P0] Source / Evidence要件を再確認する`
+- B-03 result: `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
+- Next: `B-04 [P0] Object Result要件を定義する`
 
 ---
 
@@ -543,7 +544,7 @@ Source recordは「Evidenceをどの資料から取得したか」を表し、Ob
 | Software | 収集Tool | Software自体をKnowledge対象ならSoftware |
 | Event | Resource記述上のEvent | 出来事そのものを管理するならEvent |
 
-Source Typeのmedia type / document genre / capture formatの詳細はB-03で決定する。
+Sourceのresource type / media type / document genre / publisher kind / subject relationship / capture境界はB-03で確定済みであり、`SOURCE_EVIDENCE_REQUIREMENTS.md`を正本とする。
 
 ---
 
@@ -685,7 +686,7 @@ B-03では少なくとも次のClass familyを根拠としてSource / Evidence�
 - Material / Phenomenon: scientific / technical / government / reference source
 - Language / WritingSystem: dictionary / grammar / linguistic / official setting source
 
-B-03では、Source typeとmedia type / document genre / authority / capture formatをClass hierarchyから独立して定義する。
+B-03ではこのcoverageを入力としてSource分類をClass hierarchyから独立させ、resource type / media type / document genre / publisher kind / subject relationship / provider / page purpose等へ分離した。詳細は`SOURCE_EVIDENCE_REQUIREMENTS.md`を参照する。
 
 ---
 
@@ -723,6 +724,6 @@ SGOKBでは、**「何について長期Knowledgeを持つか」をObject、「�
 
 B-02DによりObject分類精緻化B-02A〜B-02Dは完了する。
 
-次のタスクは `B-03 [P0] Source / Evidence要件を再確認する` とする。
+B-03 Source / Evidence要件は完了済みである。次のタスクは `B-04 [P0] Object Result要件を定義する` とする。
 
 **Status: Complete (2026-10-10)**

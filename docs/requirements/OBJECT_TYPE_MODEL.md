@@ -10,7 +10,8 @@
   - `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
   - `docs/requirements/OBJECT_TYPE_CANDIDATES.md`
 - B-02D result: `docs/requirements/OBJECT_TYPE_BOUNDARIES.md`
-- Next: `B-03 [P0] Source / Evidence要件を再確認する`
+- B-03 result: `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
+- Next: `B-04 [P0] Object Result要件を定義する`
 
 ---
 

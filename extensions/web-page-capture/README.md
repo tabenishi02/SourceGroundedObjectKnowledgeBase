@@ -227,13 +227,13 @@ Source Grounded Object Knowledge Base
   ↓
 Importer
   ↓
-Source / Snapshot
+Source / Snapshot / Raw Artifact
   ↓
 Extractor / Normalization
   ↓
 Evidence
   ↓
-Fragment
+Object Evidence Retrieval / Package
 ```
 
 CaptureはSGOKB本体が停止中でも成立する設計とします。

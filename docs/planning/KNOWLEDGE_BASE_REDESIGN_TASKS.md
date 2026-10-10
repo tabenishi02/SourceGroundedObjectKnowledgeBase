@@ -1,6 +1,6 @@
 # Source Grounded Object Knowledge Base — Knowledge Base 再設計タスク
 
-更新日: 2026-10-09
+更新日: 2026-10-10
 
 ## 1. 目的
 
@@ -109,10 +109,16 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
 
 **Gate:** B-02A〜B-02Dは完了。Object分類境界が確定したためB-03へ進行可能。
 
-- [ ] **B-03 [P0] Source / Evidence要件を再確認する**
-  - SourceとObjectを多対多とする。
-  - Raw / normalized / evidenceのProvenanceを保持する。
-  - LLM解析結果と一次資料を混同しない。
+- [x] **B-03 [P0] Source / Evidence要件を再確認する**
+  - Source / Snapshot / Raw Artifact / Normalized Run / Evidenceを別責務として定義した。
+  - Source IdentityをURL・path・title・content hashから独立させ、0件以上のlocatorを持てる要件とした。
+  - SourceとObjectを多対多とし、candidate / confirmed / excludedの関連状態を論理要件として分離した。
+  - 旧`source_type`単一軸を、Source本体のresource type / media type / document genre / publisher kind / provider / page purpose等と、Source↔Object association上のsubject relationshipへ分離した。
+  - Evidenceを単一Snapshotへ必ず遡れる意味非改変の検索・引用単位とし、LLM summary / synthesis / inferenceを一次Evidenceへ昇格させない。
+  - Object Knowledge → Evidence → Normalized Run → Snapshot → Raw Artifact → SourceのProvenance chainを定義した。
+  - Source間の依存関係、重複・矛盾、Snapshot時間変化、Evidence lifecycle、Evidence StoreとPackageの境界を定義した。
+  - B-04 / B-05 / E-03 / Phase Fへ必要な引き継ぎ条件を定義した。
+  - 成果物: `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
 
 - [ ] **B-04 [P0] Object Result要件を定義する**
   - JSONを機械向け正本とする。
@@ -127,16 +133,21 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
   - Facet単位Similarity Searchを設計対象とする。
   - Relation Search必須。
   - Evidence Searchを監査・再分析用途として残す。
+  - Evidence検索ではSourceのresource/media/genre/publisher、publication/capture date、Object association等のfilterを検討する。
+  - historical generationとactive/effective Evidenceを区別して検索できる要件を定義する。
 
 - [ ] **B-06 [P0] 人間工程と自動工程を要件として分離する**
   - SGOKB自動処理の目標時間: 1 Objectあたり概ね10分以内。
   - Google Drive → ChatGPT → Result返却は手動工程として時間目標から除外する。
   - 人間の明示操作が必要な箇所をUI/CLI仕様に明記する。
+  - SourceをCapture / Importしたことと、外部AI / Google Driveへexportする許可を分離する。
 
 - [ ] **B-07 [P1] 非機能要件を更新する**
   - オフライン継続利用。
   - Source/Knowledgeの再生成可能性。
+  - Raw / Snapshot / EvidenceのProvenance integrityを検証可能にする。
   - 破壊的更新を避けるVersioning。
+  - retention / backup / hard deleteでも参照中EvidenceのProvenanceを不用意に破壊しない。
   - Embedding model変更時のIndex分離・再構築。
   - MCPが停止しても正本DBが利用可能であること。
 
@@ -189,7 +200,11 @@ docs/
 ├─ README.md
 ├─ requirements/
 │  ├─ KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md
-│  └─ OBJECT_REQUIREMENTS.md
+│  ├─ OBJECT_REQUIREMENTS.md
+│  ├─ OBJECT_TYPE_CANDIDATES.md
+│  ├─ OBJECT_TYPE_MODEL.md
+│  ├─ OBJECT_TYPE_BOUNDARIES.md
+│  └─ SOURCE_EVIDENCE_REQUIREMENTS.md
 ├─ decisions/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_DECISION.md
 │  └─ SGOKB_RENAME_DECISION.md
@@ -258,9 +273,13 @@ src/sgokb/
   - Class固有FacetをDB列へ固定しすぎない。
   - 初期Registryへ登録済みでも専用Facetが未定義のClassを許容し、共通Object contractで保持できるようにする。
 
-- [ ] **E-03 [P0] Evidence Link / Provenance schemaを設計する**
-  - Object/Facet/RelationからSource/Evidenceまで遡れるようにする。
-  - ChatGPT出力が存在しないSource IDを参照できないValidationを定義する。
+- [ ] **E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する**
+  - Source Identityと0..N locator、Snapshot、Raw Artifact、Normalized Run、Evidenceの物理schemaをB-03要件から設計する。
+  - 既存`url UNIQUE`前提を解消し、既存`source_id` / `snapshot_id` / `evidence_id`を可能な限り維持するmigration契約を定義する。
+  - resource type / media type / document genre / publisher kind等のSource分類と、Source↔Objectごとのsubject relationshipを物理的に分離する。
+  - Object/Facet/Relationから具体的Evidence IDを経由してRaw / Sourceまで遡れるようにする。
+  - Evidence generation / location / extraction mode / content hash / provenance integrityを表現する。
+  - ChatGPT出力が存在しないEvidence / Source IDを参照できないValidationを定義する。
 
 - [ ] **E-04 [P0] Versioningを設計する**
   - Final Object Dataは上書きではなくVersion追加を基本とする。
@@ -281,24 +300,32 @@ src/sgokb/
 # Phase F — Source / Evidenceパイプラインの簡略化
 
 - [ ] **F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する**
-  - Raw Sourceを正本Evidenceとして維持する。
-  - 既存Provenanceを壊さない。
+  - B-03 / E-03で定義したSource Identity / locator / Snapshot / Raw Artifact / Normalized Run / Evidence契約へ既存pipelineを接続する。
+  - Raw Artifactを原資料として維持し、EvidenceをRawと同一視しない。
+  - 既存`source_id` / `snapshot_id` / `evidence_id`とProvenanceを可能な限り維持する。
+  - 旧`source_type` / Page Context metadataを新分類軸へbest-effort mappingまたはlegacy保持する。
+  - 最新Snapshotを無条件にeffectiveとしないselection policyを設計する。
 
 - [ ] **F-02 [P0] 標準パイプラインからFragment生成を外す**
   - `fragment`を必須工程から除外する。
   - 互換・研究用途として残すか完全廃止するかを決定する。
 
 - [ ] **F-03 [P0] Object Evidence Retrievalを実装する**
-  - name / alias / metadata / FTS / embeddingを組み合わせる。
+  - name / alias / explicit association / Source metadata / FTS / embeddingを組み合わせる。
   - 高Recall優先とし、最終的な意味判断はChatGPTへ渡す。
+  - Evidence選択理由（explicit link / name / alias / FTS / semantic / manual等）を追跡可能にする。
 
 - [ ] **F-04 [P1] Evidence Selectionのtoken/size budgetを設計する**
+  - Evidence granularityはsection / paragraph / table / post等のSource構造を優先し、固定文字数だけで決めない。
   - 1 Objectで無制限に全Evidenceを出力しない。
   - Source多様性と関連性を維持しつつPackageを構築する。
+  - chunk overlap /近接Evidenceの扱いを設計する。
   - 切り捨て理由を追跡可能にする。
 
 - [ ] **F-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する**
+  - Source↔Object associationのcandidate / confirmed / excludedを扱えるようにする。
   - 自動検索候補 + 人間による追加/除外を許可する。
+  - Objectごとのsubject relationship等のassociation metadataを扱えるようにする。
 
 **完了条件:** 生成LLMなしでObjectに関連するEvidence Packageを作成できる。
 

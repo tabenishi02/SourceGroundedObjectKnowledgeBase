@@ -199,7 +199,7 @@ Source / Evidenceは次の役割を持つ。
 
 このため、Source / EvidenceをObject Knowledge内部へ埋め込んで消失させたり、要約のみ残してRawを破棄したりしない。
 
-詳細要件はB-03で定義する。
+詳細要件はB-03で定義済みであり、`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`を正本とする。
 
 ---
 
@@ -311,7 +311,7 @@ SGOKBが目的を達成している状態は、単に「Documentを生成でき�
 以下は後続タスクへ委ねる。
 
 - Object共通属性・Object type・ID設計: B-02
-- Source / Evidence詳細要件: B-03
+- Source / Evidence詳細要件: B-03で完了。`SOURCE_EVIDENCE_REQUIREMENTS.md`を正本とする
 - Structured Object Result / JSON / Markdown契約: B-04
 - Lexical / Semantic / Similarity / Relation検索要件: B-05
 - 人間工程と自動工程の詳細: B-06

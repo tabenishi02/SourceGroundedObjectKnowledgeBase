@@ -5,7 +5,8 @@
 - Scope: B-02 Object分類精緻化
 - Status: Complete
 - Completed: B-02A / B-02B / B-02C / B-02D
-- Next task: `B-03 [P0] Source / Evidence要件を再確認する`
+- B-03 result: `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
+- Downstream next task: `B-04 [P0] Object Result要件を定義する`
 - Primary references:
   - `docs/requirements/OBJECT_REQUIREMENTS.md`
   - `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
@@ -72,7 +73,7 @@ Class Registry包含とClass固有Facet / UI / validation / search等の実装�
 
 適切なClassがない場合はClass追加review / stagingへ送る。物理workflowはE-01 / E-05で決定する。
 
-## 6. B-03への入力
+## 6. B-03へ引き継いだ入力と反映結果
 
 B-03ではClass family別に必要Source coverageを検討する。
 
@@ -88,7 +89,7 @@ B-03ではClass family別に必要Source coverageを検討する。
 - Material / Phenomenon: scientific / technical / government source
 - Language / WritingSystem: dictionary / grammar / linguistic / setting source
 
-Source type / media type / document genre / authority / capture formatはB-03でObject Class hierarchyから独立して定義する。
+B-03ではこの入力を反映し、Source IdentityをURLから独立させ、Source classificationをresource type / media type / document genre / publisher kind / subject relationship / provider / page purpose等へ分解した。またEvidenceを単一Snapshotへ遡れる意味非改変の検索・引用単位として確定した。正本は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`とする。
 
 ## 7. Phase Eへの入力
 
@@ -113,7 +114,8 @@ B-02B Object候補整理           Complete
 B-02C Classification model     Complete
 B-02D Boundary確定             Complete
   ↓
-B-03 Source / Evidence要件      Next
+B-03 Source / Evidence要件      Complete
+B-04 Object Result要件             Next
 ```
 
 Object Type Refinement seriesは完了した。

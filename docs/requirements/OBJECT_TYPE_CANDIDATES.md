@@ -804,7 +804,7 @@ Object候補から逆算すると、B-03では少なくとも次のSource / Reso
 - Video / audio
 - Store / distribution listing
 
-ただし、これらをそのままSource Type enumにするか、media typeとdocument genreを分離するかはB-03で決定する。
+B-03ではこれらを固定Source Type enumへまとめず、Source本体のresource type / media type / document genre / publisher kind / provider / page purpose等と、Source↔Object association上のsubject relationshipへ分離した。正本は`SOURCE_EVIDENCE_REQUIREMENTS.md`とする。
 
 ---
 

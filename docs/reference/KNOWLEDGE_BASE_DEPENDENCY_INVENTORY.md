@@ -78,7 +78,9 @@ sources
 
 依存される側。`snapshots.source_id`、`evidence.source_id`から参照される。
 
-**判断:** Keep。
+**判断:** Source Identity概念と既存IDはKeep、物理schemaはModify。
+
+B-03により、現行`url TEXT NOT NULL UNIQUE`はSource Identityの論理契約ではなくなった。URL / canonical URL等は0件以上のlocatorとして扱い、同一SourceのURL変更や非Web Sourceを表現できるschemaへ移行する。単一`source_type`も現行正本分類ではなく、resource type / media type / document genre / publisher kind等のSource軸へ分解し、subject relationshipはSource↔Object association側へ分離する。
 
 ### `snapshots`
 
@@ -631,7 +633,7 @@ scripts/inventory_samples.py
 
 | 現行データ | 移行判断 | 方針 |
 |---|---|---|
-| Source | 移行 | ID維持 |
+| Source | 移行 | ID維持。現URLはlocatorへ移し、旧`source_type`は新分類軸へbest-effort mappingまたはlegacy保持 |
 | Snapshot | 移行 | ID / Raw path / hash維持 |
 | Artifact | 移行 | そのまま保持 |
 | Normalized Run | 移行 | 世代履歴保持 |
