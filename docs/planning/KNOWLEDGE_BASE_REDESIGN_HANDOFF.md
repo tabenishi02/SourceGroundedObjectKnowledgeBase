@@ -10,7 +10,7 @@
 
 本書は詳細設計書ではない。ここに記載した内容を「現時点で合意済みの要件・設計方針」とし、個別 Phase で未確定事項を具体化する。
 
-### 1.1 最新進捗 — B-02 Object要件 / Object Type Refinement
+### 1.1 最新進捗 — B-02〜B-04 要件定義
 
 B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJECT_REQUIREMENTS.md`。ObjectをSource / Document / Versionから独立した安定Identityとし、`object_id`はname・path・Source・Version等から独立させる。
 
@@ -18,7 +18,7 @@ B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJEC
 
 B-02A〜B-02Dは2026-10-10時点で完了している。B-02Cでは`Primary Class + Additional Classes + hierarchical Class Registry`方式を採用し、B-02Dでは正式Class hierarchy、Object / Facet / Relation / value / Source境界、初期Class Registry seed集合、fallback条件を確定した。正本は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`である。
 
-Object Type Refinement series完了後、B-03 Source / Evidence要件も2026-10-10に完了した。正本は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`である。Source IdentityをURLから独立させ、Source / Snapshot / Raw Artifact / Normalized Run / Evidenceを分離し、Source分類を直交軸へ分解した。Evidenceは単一Snapshotへ遡れる意味非改変の検索・引用単位とし、LLM生成内容を一次Evidenceへ昇格させない。次に実施するのはB-04 Object Result要件である。
+Object Type Refinement series完了後、B-03 Source / Evidence要件、B-04 Object Result要件も2026-10-10に完了した。Source / Evidenceの正本は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Object Resultの正本は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`である。B-04ではResultを1 Object単位のEvidence-groundedな次期Knowledge Version候補とし、JSON交換正本、Package/base Version binding、Knowledge Statement、Facet / attribute / Relation、Evidence role、conflict / gap、unresolved reference、generation provenance、full snapshot Version semanticsを定義した。次に実施するのはB-05検索要件である。
 
 ---
 
@@ -679,6 +679,16 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 43. Evidenceは単一Snapshotへ必ず遡れる意味非改変の検索・引用単位とし、LLM summary / synthesis / inferenceを一次Evidenceへ自動昇格させない。
 44. Evidence StoreとObject Evidence Packageを分離し、PackageをSource of truthとしない。
 45. Capture / Importしたこと自体をGoogle Drive / ChatGPT等への外部export許可とはみなさない。
+46. Object Resultは1 Object単位のEvidence-groundedな次期Object Knowledge Version候補であり、AI出力を直接正本へ昇格させない。
+47. Structured JSONを機械向け交換正本とし、Import後はローカルObject Knowledge Versionを永続正本、Markdownを派生表示とする。
+48. Resultはtarget Object / Evidence Package / base Versionへbindし、stale Resultをsilent overwriteしない。
+49. Knowledge StatementはResult / Version内部のgrounding単位であり、旧Fragmentのような全Evidence大量抽出対象・coverage KPIにはしない。
+50. Statement / structured attribute / Relationは原則Evidence IDへgroundingし、標準workflowでは入力Package membershipまでValidationする。
+51. derivationは`direct_statement` / `synthesis` / `interpretation` / `reported_view`相当を区別し、`reported_view`はattributionを保持する。数値confidenceを必須にしない。
+52. conflict / insufficient evidence / gap、unresolved Object reference、Registry proposalを確定Knowledgeから分離する。
+53. 初期標準Resultはfull Knowledge snapshotとし、Persistent Version IDはSGOKB Importer側で発行する。
+54. Schema / ID / grounding Validation成功は意味品質・真実性の保証を意味しない。
+55. Knowledge記述言語とEvidence原文言語を区別し、時間依存するStatement / attribute / Relationには必要に応じてtemporal scopeを持てるようにする。
 
 ---
 
@@ -693,7 +703,7 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 - Evidence Packageの具体的形式・容量上限（Store / Package責務境界はB-03で確定済み）
 - ChatGPTへ渡すinstructions / prompt
 - Google Driveの具体的なフォルダ・同期方式
-- Result JSON Schema
+- Result JSON Schemaの物理field配置・syntax（論理contractはB-04で確定済み）
 - Import / Validation規則
 - Version lifecycle
 - Object更新時の全体再生成 / 差分更新方針
@@ -775,8 +785,8 @@ X-YY [Priority] <Task名>
 
 ## 23. 現在地点
 
-Phase A、B-01、B-02 Object Identity要件、B-02A〜B-02D Object Type Refinement、B-03 Source / Evidence要件まで完了している。
+Phase A、B-01、B-02 Object Identity要件、B-02A〜B-02D Object Type Refinement、B-03 Source / Evidence要件、B-04 Object Result要件まで完了している。
 
-Object Identityと共通属性の正本は`docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelは`docs/requirements/OBJECT_TYPE_MODEL.md`、具体的Class hierarchyとObject / Facet / Relation / value境界は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`、Source / Snapshot / Evidence / Provenance契約は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`を正本とする。
+Object Identityと共通属性の正本は`docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelは`docs/requirements/OBJECT_TYPE_MODEL.md`、具体的Class hierarchyとObject / Facet / Relation / value境界は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`、Source / Snapshot / Evidence / Provenance契約は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Structured Object Result / Evidence grounding / Version候補契約は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`を正本とする。
 
-次の作業は **B-04 [P0] Object Result要件を定義する** である。B-03で確定したEvidence grounding契約を入力として、Structured Result / Facet / Relation / Evidence参照 / generation provenanceを定義する。
+次の作業は **B-05 [P0] 検索要件を定義する** である。B-04で確定したaccepted Object Knowledgeのsummary / Facet / attribute / Relation / Evidence grounding / current・historical Version境界を入力として、Lexical / Semantic / Similarity / Relation / Evidence Search要件を定義する。

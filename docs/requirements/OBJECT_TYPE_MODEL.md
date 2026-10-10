@@ -11,7 +11,8 @@
   - `docs/requirements/OBJECT_TYPE_CANDIDATES.md`
 - B-02D result: `docs/requirements/OBJECT_TYPE_BOUNDARIES.md`
 - B-03 result: `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
-- Next: `B-04 [P0] Object Result要件を定義する`
+- B-04 result: `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
+- Next: `B-05 [P0] 検索要件を定義する`
 
 ---
 

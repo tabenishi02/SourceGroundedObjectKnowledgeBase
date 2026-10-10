@@ -13,7 +13,8 @@
   - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
   - `docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md`
   - `extensions/web-page-capture/docs/CAPTURE_BUNDLE_FORMAT.md`
-- Next: `B-04 [P0] Object Result要件を定義する`
+- B-04 result: `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
+- Next: `B-05 [P0] 検索要件を定義する`
 
 ---
 
@@ -1022,6 +1023,6 @@ EvidenceはObject Knowledgeの根拠であって、LLMによる解釈・要約�
 
 ObjectとSource / Evidenceは多対多で再利用し、Source更新・Extractor変更・Knowledge再生成が起きても過去Provenanceを保持する。
 
-B-03は以上をもって完了とし、次のTaskは `B-04 [P0] Object Result要件を定義する` とする。
+B-03は以上をもって完了しており、B-04 Object Result要件も`OBJECT_RESULT_REQUIREMENTS.md`として完了した。次のTaskは `B-05 [P0] 検索要件を定義する` とする。
 
 **Status: Complete (2026-10-10)**

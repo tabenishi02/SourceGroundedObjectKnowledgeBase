@@ -120,11 +120,18 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
   - B-04 / B-05 / E-03 / Phase Fへ必要な引き継ぎ条件を定義した。
   - 成果物: `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
 
-- [ ] **B-04 [P0] Object Result要件を定義する**
-  - JSONを機械向け正本とする。
-  - MarkdownはJSONから生成可能な派生表示とする。
-  - Primary Class / Additional Classに応じたFacetを定義可能にする。
-  - Relation、Evidence参照、生成来歴を保持する。
+- [x] **B-04 [P0] Object Result要件を定義する**
+  - Object Resultを1 Object単位のEvidence-groundedな「次期Object Knowledge Version候補」と定義し、AI出力を直接正本へ昇格させない。
+  - Structured JSONを機械向け交換正本とし、Import後はローカルObject Knowledge Versionを永続正本、Markdownを派生表示とする。
+  - Resultをtarget Object / Evidence Package / base Knowledge Versionへbindし、stale Resultを検出可能にする。
+  - summary / structured attribute / Facet / Relationを構造化し、Knowledge StatementをResult内部のgrounding単位として定義した。
+  - `direct_statement` / `synthesis` / `interpretation` / `reported_view`相当のderivation kindを定義し、数値confidenceを必須としない。`reported_view`はattributionを保持する。
+  - Knowledge記述言語とEvidence原文言語を区別し、時間依存Knowledgeには必要に応じてtemporal scopeを持てる要件とした。
+  - Statement / attribute / Relationを具体的Evidence IDへgroundingし、標準workflowではPackage membershipもValidationする。
+  - conflict / insufficient evidence / gap、unresolved Object reference、Registry proposalを確定Knowledgeから分離した。
+  - Resultは原則full Knowledge snapshotとし、Version IDはImporter側で発行する。
+  - Schema適合と意味品質を分離し、Validatorが意味内容を推測修復しない要件を定義した。
+  - 成果物: `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
 
 - [ ] **B-05 [P0] 検索要件を定義する**
   - Lexical Search必須。
@@ -133,8 +140,11 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
   - Facet単位Similarity Searchを設計対象とする。
   - Relation Search必須。
   - Evidence Searchを監査・再分析用途として残す。
+  - accepted Object Knowledge Versionのsummary / Facet / structured attribute / Relationを検索対象として整理する。
+  - Knowledge Statementを独立検索単位へするかは、旧Fragment肥大化を再発させない観点で判断する。
+  - conflict / gap / unresolved metadataを通常Knowledge検索へ混ぜるか分離するか決定する。
   - Evidence検索ではSourceのresource/media/genre/publisher、publication/capture date、Object association等のfilterを検討する。
-  - historical generationとactive/effective Evidenceを区別して検索できる要件を定義する。
+  - current / historical Object Knowledge Versionと、historical / active/effective Evidence generationを区別して検索できる要件を定義する。
 
 - [ ] **B-06 [P0] 人間工程と自動工程を要件として分離する**
   - SGOKB自動処理の目標時間: 1 Objectあたり概ね10分以内。
@@ -204,7 +214,8 @@ docs/
 │  ├─ OBJECT_TYPE_CANDIDATES.md
 │  ├─ OBJECT_TYPE_MODEL.md
 │  ├─ OBJECT_TYPE_BOUNDARIES.md
-│  └─ SOURCE_EVIDENCE_REQUIREMENTS.md
+│  ├─ SOURCE_EVIDENCE_REQUIREMENTS.md
+│  └─ OBJECT_RESULT_REQUIREMENTS.md
 ├─ decisions/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_DECISION.md
 │  └─ SGOKB_RENAME_DECISION.md
@@ -265,6 +276,8 @@ src/sgokb/
   - B-02Dで正式採用したClassを、本番Object投入前に初期Registryへ決定論的にseedする方式。
   - Class Registry包含とClass固有extension実装の有無を独立して管理する方式。
   - 未登録Classが必要なObjectを、意味的に不正確な汎用Classへ自動fallbackさせないstaging / review方針。
+  - Object Registry metadataとObject Knowledge Version dataを分離し、Result内Registry proposalを通常Knowledge Importの副作用として自動適用しない。
+  - Relation Type vocabulary / RegistryをObject Class Registryと分離して管理できる物理契約。
 
 - [ ] **E-02 [P0] Semantic Facet schemaを設計する**
   - Character例: overall / personality / values / motivation / behavior / relationships / role / themes。
@@ -272,6 +285,9 @@ src/sgokb/
   - Concept例: definition / properties / implications / related_concepts / examples。
   - Class固有FacetをDB列へ固定しすぎない。
   - 初期Registryへ登録済みでも専用Facetが未定義のClassを許容し、共通Object contractで保持できるようにする。
+  - Facet Registry / Class-to-Facet profileとcommon Facetを設計する。
+  - Facet内Knowledge Statement、Facet status、typed attribute key/valueの配置をB-04契約へ合わせて設計する。
+  - Statement / attribute / Relationのtemporal scopeをVersion作成時刻と分離して表現する方式を設計する。
 
 - [ ] **E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する**
   - Source Identityと0..N locator、Snapshot、Raw Artifact、Normalized Run、Evidenceの物理schemaをB-03要件から設計する。
@@ -280,11 +296,15 @@ src/sgokb/
   - Object/Facet/Relationから具体的Evidence IDを経由してRaw / Sourceまで遡れるようにする。
   - Evidence generation / location / extraction mode / content hash / provenance integrityを表現する。
   - ChatGPT出力が存在しないEvidence / Source IDを参照できないValidationを定義する。
+  - Knowledge Statement / structured attribute / RelationからEvidenceへのLinkと、`supports` / `contradicts` / `contextualizes`等のEvidence roleを表現する。
+  - 標準ResultのEvidence referenceが入力Package manifestに含まれることをValidation可能にする。
 
 - [ ] **E-04 [P0] Versioningを設計する**
   - Final Object Dataは上書きではなくVersion追加を基本とする。
-  - `current_version`を明示する。
-  - rollback可能にする。
+  - B-04のfull snapshot Resultを次期Version候補として扱う。
+  - package / base version preconditionとstale Result処理を定義する。
+  - omission / deletion semantics、current切替、rollback、Diff境界を定義する。
+  - Persistent Version IDはSGOKB側で発行する。
 
 - [ ] **E-05 [P1] JSON Schemaを作成する**
   - 共通Object Result schema。
@@ -292,6 +312,9 @@ src/sgokb/
   - Primary / Additional ClassがClass Registryに存在することをValidationする。
   - 専用extension未実装のClassでも共通schemaを利用可能とし、別Classへの自動fallbackを要求しない。
   - ChatGPTへ渡す出力契約とImport Validatorで同一Schemaを利用する。
+  - Object Result Envelope、package/base Version binding、generation provenanceをSchema化する。
+  - Knowledge Statement / derivation kind / reported-view attribution / Evidence role、Knowledge language / temporal scope、Facet / attribute / Relation、conflict / gap、unresolved reference / Registry proposalを表現する。
+  - partial / insufficient evidence状態を処理失敗と区別する。
 
 **完了条件:** ChatGPT出力、DB、検索、MCPの共通契約となるObject schemaが確定している。
 
@@ -334,6 +357,8 @@ src/sgokb/
 # Phase G — Google Drive / ChatGPT交換ワークフロー
 
 - [ ] **G-01 [P0] Object Evidence Package formatを確定する**
+  - 更新Packageではcurrent Knowledgeを評価・carry-forwardできるよう、現Versionが参照するEvidenceを必要に応じて含める。
+  - Package外Evidenceを標準Resultが引用しないB-04契約とtoken budgetを両立させる。
   - 例:
 
 ```text
@@ -353,6 +378,7 @@ src/sgokb/
   - included sources/evidence IDs。
   - extraction timestamp。
   - expected result schema version。
+  - package identity / manifest hash / base Object Knowledge Version等、Result bindingに必要なprecondition。
 
 - [ ] **G-03 [P0] ChatGPT用`instructions.md`を設計する**
   - Primary Class / ancestor Class別の分析目的。
@@ -360,6 +386,9 @@ src/sgokb/
   - Evidence ID参照ルール。
   - Relation生成ルール。
   - 不明情報を創作しないルール。
+  - `direct_statement` / `synthesis` / `interpretation` / `reported_view`相当のderivation区分。
+  - Package外Evidence IDや未知Object IDを創作しないルール。
+  - Evidence不足・矛盾・unresolved referenceを構造化して返すルール。
 
 - [ ] **G-04 [P0] Google Driveへのexport方式を実装する**
   - 初期版はローカルexport → Drive同期フォルダでも可。
@@ -377,16 +406,20 @@ src/sgokb/
 # Phase H — Result Validation / Import / Rendering
 
 - [ ] **H-01 [P0] Result JSON Validatorを実装する**
-  - JSON Schema validation。
-  - object_id一致。
-  - Source/Evidence ID存在確認。
+  - Syntax / Schema、Binding / Precondition、Referential、Grounding / Provenance、Domain Contract Validationを分離する。
+  - object_id / package / base Version一致。
+  - Source/Evidence ID存在確認 + Package membership確認。
+  - Facet / attribute / Relation Type contractを確認する。
   - Relation target存在確認または未解決参照として明示管理。
   - 不正field / schema version拒否。
+  - Validatorが意味内容や未知IDを推測修復しない。
 
 - [ ] **H-02 [P0] Object Version Importを実装する**
   - Validation成功後のみDBへcommitする。
   - 既存currentを破壊しない。
-  - Import run / timestamp / source packageを記録する。
+  - Import run / timestamp / source package / original Result artifact provenanceを記録する。
+  - Persistent Version IDをSGOKB側で発行し、同一Resultの重複Import候補を検出する。
+  - Registry proposalをObject Knowledge Importの副作用として自動適用しない。
 
 - [ ] **H-03 [P1] Markdown Rendererを実装する**
   - DB/JSONから人間向けObject文書を生成する。
@@ -395,6 +428,7 @@ src/sgokb/
 - [ ] **H-04 [P1] Diff / Review表示を実装する**
   - v1→v2の属性・Facet・Relation差分を確認できるようにする。
   - 手動承認を採用する場合の状態遷移を定義する。
+  - full snapshotで消えるStatement / attribute / Relation、conflict、Registry proposal、stale baseを目立たせる。
 
 **完了条件:** ChatGPT出力を壊れた状態で正本DBへ登録できず、過去versionへ戻れる。
 

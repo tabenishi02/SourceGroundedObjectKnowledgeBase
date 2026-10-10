@@ -6,7 +6,8 @@
 - Status: Complete
 - Completed: B-02A / B-02B / B-02C / B-02D
 - B-03 result: `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
-- Downstream next task: `B-04 [P0] Object Result要件を定義する`
+- B-04 result: `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
+- Downstream next task: `B-05 [P0] 検索要件を定義する`
 - Primary references:
   - `docs/requirements/OBJECT_REQUIREMENTS.md`
   - `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
@@ -115,7 +116,8 @@ B-02C Classification model     Complete
 B-02D Boundary確定             Complete
   ↓
 B-03 Source / Evidence要件      Complete
-B-04 Object Result要件             Next
+B-04 Object Result要件              Complete
+B-05 Search要件                     Next
 ```
 
 Object Type Refinement seriesは完了した。

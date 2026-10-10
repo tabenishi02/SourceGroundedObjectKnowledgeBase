@@ -22,7 +22,7 @@ B-02では、Objectの意味、同一性、共通属性、Classification、ラ�
 一方、次は後続Taskへ委ねる。
 
 - Source / Evidenceとの詳細な関連付け: B-03で完了。`SOURCE_EVIDENCE_REQUIREMENTS.md`を正本とする
-- Structured Object Result / Facet / Relation / Evidence参照の交換形式: B-04
+- Structured Object Result / Facet / Relation / Evidence参照の交換形式: B-04で完了。`OBJECT_RESULT_REQUIREMENTS.md`を正本とする
 - 検索・類似検索: B-05
 - 物理DB schema / migration: E-01以降
 - Facet schema: E-02
@@ -279,7 +279,7 @@ ObjectとSource / Evidenceの詳細な多対多契約はB-03で確定済みで�
 
 Object間の意味的な所属・派生・登場・関連はRelationとして表現できる構造を前提とする。
 
-Relation type、方向、Evidence参照等の詳細はB-04 / E-03で定義する。
+RelationのResult上の方向・Object ID参照・Evidence grounding等の論理契約はB-04で定義済みであり、Relation Type RegistryとEvidence Linkの物理schemaはE-01 / E-03で定義する。
 
 ### OBJ-14 — 同一性は名前ではなく「同じ意味対象を指すか」で判断する
 
@@ -509,4 +509,4 @@ B-02は次を満たした時点で完了とする。
 - ConceptとUPDS Personal Inferenceの境界がB-02レベルで明確である。
 - 物理schemaやFacet詳細を後続Taskへ適切に延期している。
 
-以上をObject Identity要件の基準とする。B-02CでClassificationは`Primary Class + Additional Classes + hierarchical Class Registry`へ精緻化し、B-02Dで正式Class hierarchy、Object / Facet / Relation / value境界、初期Registry seed集合、fallback条件を`OBJECT_TYPE_BOUNDARIES.md`として確定した。B-03ではSource / Snapshot / Evidence / Provenance契約を`SOURCE_EVIDENCE_REQUIREMENTS.md`として確定した。B-04以降およびPhase E-Fはこれらの境界を前提とする。
+以上をObject Identity要件の基準とする。B-02CでClassificationは`Primary Class + Additional Classes + hierarchical Class Registry`へ精緻化し、B-02Dで正式Class hierarchy、Object / Facet / Relation / value境界、初期Registry seed集合、fallback条件を`OBJECT_TYPE_BOUNDARIES.md`として確定した。B-03ではSource / Snapshot / Evidence / Provenance契約を`SOURCE_EVIDENCE_REQUIREMENTS.md`、B-04ではStructured Object Result / Evidence grounding / Version候補契約を`OBJECT_RESULT_REQUIREMENTS.md`として確定した。B-05以降およびPhase E-Fはこれらの境界を前提とする。

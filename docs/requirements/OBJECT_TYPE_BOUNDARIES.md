@@ -11,7 +11,8 @@
   - `docs/requirements/OBJECT_TYPE_MODEL.md`
   - `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
 - B-03 result: `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
-- Next: `B-04 [P0] Object Result要件を定義する`
+- B-04 result: `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
+- Next: `B-05 [P0] 検索要件を定義する`
 
 ---
 
@@ -724,6 +725,6 @@ SGOKBでは、**「何について長期Knowledgeを持つか」をObject、「�
 
 B-02DによりObject分類精緻化B-02A〜B-02Dは完了する。
 
-B-03 Source / Evidence要件は完了済みである。次のタスクは `B-04 [P0] Object Result要件を定義する` とする。
+B-03 Source / Evidence要件、B-04 Object Result要件は完了済みである。次のタスクは `B-05 [P0] 検索要件を定義する` とする。
 
 **Status: Complete (2026-10-10)**

@@ -152,7 +152,7 @@ SGOKBはAI専用の不可視データストアにはしない。
 
 機械向けの構造化Knowledgeを正本としつつ、人間が確認できる派生表示やProvenance表示を提供できる構造とする。
 
-具体的なJSON / Markdown形式はB-04以降で定義する。
+Object Resultの論理契約はB-04で`OBJECT_RESULT_REQUIREMENTS.md`として定義済みであり、最終JSON SchemaとMarkdown RendererはE-05 / H-03で具体化する。
 
 ---
 
@@ -312,7 +312,7 @@ SGOKBが目的を達成している状態は、単に「Documentを生成でき�
 
 - Object共通属性・Object type・ID設計: B-02
 - Source / Evidence詳細要件: B-03で完了。`SOURCE_EVIDENCE_REQUIREMENTS.md`を正本とする
-- Structured Object Result / JSON / Markdown契約: B-04
+- Structured Object Result / JSON / Markdown契約: B-04で完了。`OBJECT_RESULT_REQUIREMENTS.md`を正本とする
 - Lexical / Semantic / Similarity / Relation検索要件: B-05
 - 人間工程と自動工程の詳細: B-06
 - 性能・オフライン・Versioning等の非機能要件: B-07
