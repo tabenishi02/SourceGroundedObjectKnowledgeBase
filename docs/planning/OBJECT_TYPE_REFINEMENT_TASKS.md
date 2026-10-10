@@ -211,14 +211,14 @@ Source: Interview Article
 - [x] 関連するSource種別
 - [x] 主なRelation候補
 - [x] 主なFacet候補
-- [x] MVP必要性
+- [x] 実装優先度（後にClass Registry包含とは分離）
 
 ### 結果概要
 
 - Candidate Familyを Agent / CreativeWork / Place / Event / Artifact / Taxonomic / Concept-Abstract / Action-Process / Time に加え、System-Software / Substance-Material / Natural Phenomenon / Languageまで拡張した。
 - 各候補を、安定Identity・複数Source・他Object参照・検索比較価値・Version・独立Evidenceの6観点で評価した。
-- `Character` / `Work` / `Concept` はMVP Core候補を維持する。
-- `Person` / `Organization` / `Series` / `Place` / `Event` は将来追加可能性が高く、初期schemaが拡張を妨げないことが望ましい。
+- `Character` / `Work` / `Concept` はClass固有機能のCore優先候補、`Person` / `Organization` / `Series` / `Place` / `Event` はHigh優先候補として評価した。
+- B-02C後、Core / High / FutureはClass Registryへの包含時期ではなく、Class固有機能の実装優先度として扱う。B-02Dで正式Classとして採用されたものは原則として初期Registry対象とする。
 - Role / Trait / Feeling / Motivation / State / Action / Date等はObject化すると過剰になりやすく、B-02DでClass / Facet / Relation / valueとの境界を重点判断する。
 - Article / Dataset / Image / Video等はObject roleとSource roleを分離して扱う。
 
@@ -261,7 +261,7 @@ Object
 ### 完了条件
 
 - [x] SGOKBの分類方式を一文で説明できる。
-- [x] 初期実装対象と将来拡張対象が分離されている。
+- [x] 初期Class Registryの包含範囲と、Class固有機能の実装優先度が分離されている。
 - [x] Class追加によってObject Identityが変化しない。
 - [x] E-01物理schema設計へ入力可能な論理契約になっている。
 
@@ -275,7 +275,9 @@ Object
 - Class hierarchyは複数親を許容するDAGとしcycleを禁止する。
 - Class Registry entry自体を通常Objectとして扱うことは要求しない。
 - 既存`object_type`概念は現行要件上`primary_class` / `additional_classes`へ精緻化した。
-- `Character` / `Work` / `Concept`をMVP Core、Person / Organization / Place / EventをHigh-priority compatibilityとした。
+- B-02Dで正式なObject Classとして採用したClassは、原則として初期Class Registryへすべて登録する方針とした。
+- `Character` / `Work` / `Concept`等の優先度はClass固有Facet / UI / validation等の専用機能実装優先度として扱い、Registry包含とは分離した。
+- Class未登録を理由に`Concept`等の汎用Classへ意味的に不正確なfallbackを行わない方針とした。
 
 **Status: Complete (2026-10-10)**
 
@@ -291,6 +293,9 @@ Object
   - SGOKB Object対象外
 - [ ] 同じ語が文脈によって複数役割になり得るケースを整理する。
 - [ ] Character / Work / Conceptの既存要件を新分類モデルへ再マッピングする。
+- [ ] Object subtype / Classとして正式採用した候補を、初期Class Registry対象として一覧化する。
+- [ ] Class Registryへの包含とは別に、Class固有Facet / UI / validation / search等の専用機能実装優先度を記録する。
+- [ ] 未登録Classが必要になった場合に、既存の広いClassへfallback可能な条件と、意味的丸め込みとして禁止する条件を定義する。
 - [ ] Source typeとの境界をB-03へ引き継ぐ。
 - [ ] UPDS Personal Inferenceとの境界をPhase Cへ引き継ぐ。
 
@@ -313,6 +318,8 @@ Object
 
 - 主要候補に「なぜObjectか / なぜObjectでないか」の説明がある。
 - Type / Class / Facet / Relationの責務重複が解消されている。
+- 初期Class RegistryへseedするClass集合が確定している。
+- Class Registry包含とClass固有機能の実装優先度が明確に分離されている。
 - B-03で収集対象Sourceを設計する際に、対象Objectの種類が十分想定されている。
 
 ---
@@ -363,9 +370,9 @@ B-02A〜B-02Dを完了した時点で、次を満たすこと。
 
 - SGOKBが扱い得る主要対象カテゴリを、既存分類体系を根拠に説明できる。
 - Object分類が1階層固定enumへ過度に依存していない。
-- 初期実装Typeと将来拡張候補を区別できる。
+- B-02Dで正式採用したObject Classを初期Registryへ原則すべて登録する方針と、Class固有機能の実装優先度を区別できる。
 - Object / Class / Facet / Relation / Source typeの境界が説明できる。
-- Object typeごとに、どのようなWeb Sourceを収集する可能性があるかを列挙できる。
+- Object Class / 対象カテゴリごとに、どのようなWeb Sourceを収集する可能性があるかを列挙できる。
 - B-03 Source / Evidence要件を設計するための入力が揃っている。
 
 以上を満たした後、B-03へ進む。

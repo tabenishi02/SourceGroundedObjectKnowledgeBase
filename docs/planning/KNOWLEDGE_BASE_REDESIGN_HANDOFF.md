@@ -1,6 +1,6 @@
 # Source Grounded Object Knowledge Base — Knowledge Base 再設計 引き継ぎ資料
 
-更新日: 2026-10-09
+更新日: 2026-10-10
 
 ## 1. 本書の目的
 
@@ -14,11 +14,13 @@
 
 B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJECT_REQUIREMENTS.md`。ObjectをSource / Document / Versionから独立した安定Identityとし、`object_id`はname・path・Source・Version等から独立させる。
 
-その後、初期type `Character` / `Work` / `Concept` だけでは将来収集するWeb Sourceと対象Knowledgeの想定が不足し得るため、B-03前にObject分類を精緻化するB-02A〜B-02Dを追加した。詳細計画は `docs/planning/OBJECT_TYPE_REFINEMENT_TASKS.md` を正本とする。
+その後、初期分類 `Character` / `Work` / `Concept` だけでは将来収集するWeb Sourceと対象Knowledgeの想定が不足し得るため、B-03前にObject分類を精緻化するB-02A〜B-02Dを追加した。詳細計画は `docs/planning/OBJECT_TYPE_REFINEMENT_TASKS.md` を正本とする。
 
-この追加議論の背景、外部分類体系の予備調査で得た示唆、既決事項・未決事項、次チャット開始手順は `docs/planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md` にまとめている。B-02A以降を別チャットで行う場合は同Handoffを最初に読む。
+B-02A〜B-02Cは2026-10-10時点で完了している。B-02Cでは`Primary Class + Additional Classes + hierarchical Class Registry`方式を採用した。さらに、B-02Dで正式なObject Classとして採用したClassは、専用機能の実装優先度にかかわらず原則として初期Class Registryへ登録する方針を追加した。
 
-進行順は `B-02A 外部分類体系調査 → B-02B Object候補整理 → B-02C Type/Class階層設計 → B-02D Object/Facet/Relation境界 → B-03 Source/Evidence要件` とする。B-02A〜Dが完了するまでB-03の詳細確定へ進まない。
+この追加議論の最新の既決事項・未決事項、次チャット開始手順は `docs/planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md` にまとめている。次に実施するのはB-02Dである。
+
+進行順は `B-02A 外部分類体系調査（完了） → B-02B Object候補整理（完了） → B-02C Type/Class階層設計（完了） → B-02D Object/Facet/Relation境界 → B-03 Source/Evidence要件` とする。B-02Dが完了するまでB-03の詳細確定へ進まない。
 
 ---
 
@@ -123,18 +125,21 @@ ChatGPT / Local LLM / UPDS / Other Clients
 
 SGOKBの中心概念は `Object` とする。
 
-初期Object Type:
+Object IdentityとClassificationは分離する。Classificationは次を正本概念とする。
 
-- `Character`
-- `Work`
-- `Concept`
+- `primary_class`: 必須1件
+- `additional_classes`: 0件以上
+- hierarchical Class Registry
 
-将来、Person / Organization / Place等を追加できるよう、共通Object + `object_type` を基本とする。
+`Character` / `Work` / `Concept`は主要ユースケースの基準Classとして維持するが、初期Class Registryをこの3 Classだけへ限定しない。B-02Dで正式なObject Classとして採用されたClassは、原則として通常のObjectデータ投入前にRegistryへ登録する。
+
+Class Registryへの包含とClass固有Facet / UI / validation / search等の専用機能実装優先度は別軸とする。専用機能が未実装でも、共通Object contractで正しいClassを保持できなければならない。
 
 最低限の共通属性候補:
 
 - `object_id`
-- `object_type`
+- `primary_class`
+- `additional_classes`
 - `name`
 - `aliases`
 - `status`
@@ -142,7 +147,7 @@ SGOKBの中心概念は `Object` とする。
 - `updated_at`
 - `current_version`
 
-Objectの論理要件・Identity判断は `docs/requirements/OBJECT_REQUIREMENTS.md` で確定済み。SQL table構成、ID形式、type registry等の物理SchemaはPhase Eで確定する。
+Objectの論理要件・Identity判断は `docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelは`docs/requirements/OBJECT_TYPE_MODEL.md`を正本とする。SQL table構成、Class Registryの物理Schema、seed方式はPhase Eで確定する。
 
 ### SourceとObject
 
@@ -660,13 +665,16 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 27. 既存SGOKB資産を可能な限り再利用し、全面rewriteを前提としない。
 28. 大規模Git移動は責務・Schema決定後に行う。
 29. ObjectはSource / Document / Knowledge Versionから独立した安定Identityとする。
-30. `object_id`はname / alias / path / Source / Version / Project名等から独立させる。
-31. Objectの初期typeはCharacter / Work / Conceptとし、将来typeを拡張可能にする。
+30. `object_id`はname / alias / path / Source / Version / Project名 / Classification等から独立させる。
+31. Classificationは`primary_class` 1件 + `additional_classes` 0件以上 + hierarchical Class Registryを正本概念とする。
 32. name / aliasは一意でなく、同名別Objectを許容する。
 33. Object lifecycle statusは最低限active / archivedを持ち、Knowledge生成状態やconfidenceと分離する。
 34. Knowledge未生成Objectを許容し、`current_version`が空の状態を正常とする。
 35. 同一Characterの複数Work登場は原則1 Object + Relationとし、別continuity等は別Objectにできる。
-36. type固有Knowledgeは共通Object identityへ固定列として詰め込まず、Facet等の拡張構造へ分離する。
+36. Class固有Knowledgeは共通Object identityへ固定列として詰め込まず、Facet等の拡張構造へ分離する。
+37. B-02Dで正式採用したObject Classは、原則として通常データ投入前に初期Class Registryへ登録する。
+38. Class Registryへの包含とClass固有Facet / UI / validation / search等の専用機能実装優先度を分離する。
+39. Class未登録を理由に、意味的に異なる`Concept` / `Work` / `Character`等へObjectを自動fallbackさせない。
 
 ---
 
@@ -675,7 +683,7 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 以下は今後のPhaseで決定する。
 
 - Object共通contractの物理DB schema・`object_id`形式
-- Object Type registry / type固有Facetの物理Schema拡張方式
+- Class Registry / Class hierarchy / Object-Class membership / Class固有Facetの物理Schema拡張方式
 - Facetの正式一覧と拡張方式
 - Relation schema / relation type管理
 - Evidence Package形式・容量上限
@@ -763,8 +771,8 @@ X-YY [Priority] <Task名>
 
 ## 23. 現在地点
 
-Phase Aの方針確定・既存資産棚卸し、B-01の目的再定義、B-02のObject要件定義まで完了している。
+Phase A、B-01、B-02 Object Identity要件、B-02A外部分類体系調査、B-02B Object候補整理、B-02C Type / Class階層設計まで完了している。
 
-Objectの論理Identity・初期type・共通属性・lifecycle・Versionとの分離は `docs/requirements/OBJECT_REQUIREMENTS.md` を正本とする。物理DB Schema、Facet、Relation、Evidence Link等の詳細は後続Phaseで具体化する。
+Object Identityと共通属性の正本は`docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelの正本は`docs/requirements/OBJECT_TYPE_MODEL.md`とする。B-02Cでは`Primary Class + Additional Classes + hierarchical Class Registry`を採用し、B-02Dで正式採用したClassは原則として初期Registryへ登録する方針まで確定した。
 
-次の作業は **B-02A [P0] 外部分類体系を正式調査する** とする。B-02A〜B-02Dを完了後、B-03 Source / Evidence要件へ進む。
+次の作業は **B-02D [P0] Object / Facet / Relation / 対象外の境界を確定する** である。B-02Dで正式Class一覧、初期Registry seed集合、専用機能優先度、fallback境界を確定した後、B-03 Source / Evidence要件へ進む。

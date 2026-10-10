@@ -146,9 +146,11 @@ alias自体もSGOKB全体で一意である必要はない。
 
 aliasの種類・言語コード等の詳細属性を保持するかはE-01で決定する。
 
-### OBJ-05 — 初期Primary Classは`Character` / `Work` / `Concept`とする
+### OBJ-05 — 初期Class RegistryはB-02Dで採用したClassを原則すべて含む
 
-初期実装では少なくとも次の3 ClassをObjectへ直接割り当て可能とする。
+初期Class Registryは、利用頻度の高い少数Classだけに限定しない。B-02Dで正式なObject Classとして採用されたClassは、原則として通常のObjectデータを蓄積し始める前に登録し、Primary ClassまたはAdditional Classとして利用可能にする。
+
+`Character` / `Work` / `Concept`は、既存要件との互換性と主要ユースケースのため必ず初期Registryへ含め、専用Facet等の実装優先度も高くする。
 
 #### `Character`
 
@@ -162,15 +164,17 @@ aliasの種類・言語コード等の詳細属性を保持するかはE-01で�
 
 性質・思想・テーマ・概念等、Objectとして定義・比較・Relation付与する価値のある抽象対象を表す。
 
-これらは初期Primary Classであり、SGOKBが永続的に3 Classだけへ限定されることを意味しない。
+ただし、Character / Work / Conceptだけを先にRegistryへ登録し、それ以外の既知Classを後回しにすることを基本方針とはしない。Class Registryへの包含と、Class固有Facet / UI / validation / search等の専用機能実装優先度は分離する。
 
 ### OBJ-06 — ClassificationをClass Registryで拡張可能にする
 
 利用可能Classは、閉じた1階層enumではなくClass Registryで管理し、Class間に`subclass_of`相当の階層を持てなければならない。
 
-各Objectは1件の`primary_class`を必須とし、必要に応じて0件以上の`additional_classes`を持てる。将来Person / Organization / Place / Event等を追加する場合にも、Object identityモデルそのものを作り直してはならない。
+各Objectは1件の`primary_class`を必須とし、必要に応じて0件以上の`additional_classes`を持てる。初期Registry確定後に新しい知識領域が発生した場合も、新Classを追加してObject identityモデルそのものを作り直してはならない。
 
-Class hierarchy、multiple classification、`instance_of` / `subclass_of`相当概念の論理契約は`OBJECT_TYPE_MODEL.md`を正本とする。Class Registryの物理実装とvalidation詳細はE-01 / E-05で決定する。
+既知の正式Classが未登録であることを理由として、意味的に異なる`Concept` / `Work` / `Character`等へObjectを自動的に丸め込んではならない。必要ClassをRegistryへ追加・review・stagingする方式を優先する。
+
+Class hierarchy、multiple classification、初期Registry包含方針、`instance_of` / `subclass_of`相当概念の論理契約は`OBJECT_TYPE_MODEL.md`を正本とする。Class Registryの物理実装とvalidation詳細はE-01 / E-05で決定する。
 
 ### OBJ-07 — Class固有Knowledgeは共通Object identityから分離する
 
@@ -423,7 +427,7 @@ User -- tends_to_prefer --> 自己犠牲
 | 属性 | 必須性 | Mutable | 一意性 | 備考 |
 |---|---|---|---|---|
 | `object_id` | 必須 | 原則不可 | 全SGOKBで一意 | Identityの正本 |
-| `primary_class` | 必須 | 訂正可能 | 非一意 | 初期Class Character / Work / Concept |
+| `primary_class` | 必須 | 訂正可能 | 非一意 | B-02Dで採用されClass Registryへ登録されたClassから選択 |
 | `additional_classes` | 0件以上 | 可 | 非一意 | 補助Classification |
 | `name` | 必須 | 可 | 非一意 | 代表表示名 |
 | `aliases` | 0件以上 | 可 | 非一意 | 表記差・旧名等 |
@@ -492,8 +496,9 @@ Stable Object Identity
 B-02は次を満たした時点で完了とする。
 
 - ObjectがSource / Document / Versionから独立した安定Identityとして定義されている。
-- 初期Primary ClassとしてCharacter / Work / Conceptが定義されている。
-- 将来Classを追加でき、multiple classificationを扱える要件が定義されている。
+- Character / Work / Conceptを含め、B-02Dで正式採用したObject Classを初期Class Registryへ原則登録する方針が定義されている。
+- Class Registry包含とClass固有機能の実装優先度が分離されている。
+- 稼働後もClassを追加でき、multiple classificationを扱える要件が定義されている。
 - `object_id` / `primary_class` / `additional_classes` / `name` / `aliases` / `status` / `current_version` / timestampの共通概念が定義されている。
 - 同名別Object、名称変更、複数Work所属等のIdentity判断方針が定義されている。
 - Object lifecycleとKnowledge Versionが分離されている。

@@ -75,7 +75,7 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
 - [x] **B-02 [P0] Object要件を定義する**
   - `docs/requirements/OBJECT_REQUIREMENTS.md` を正本とする。
   - ObjectをSource / Document / Versionから独立した安定Identityとして定義した。
-  - 初期分類を `Character`, `Work`, `Concept` とし、B-02Cで拡張可能なClass Registryモデルへ精緻化した。
+  - `Character`, `Work`, `Concept`を主要ユースケースの基準Classとし、B-02Cで`Primary Class + Additional Classes + hierarchical Class Registry`へ精緻化した。B-02Dで正式採用したClassは原則として初期Registryへ広く登録する。
   - `object_id` / name / aliases / status / current_version / timestampの共通概念を定義し、B-02Cで分類概念を`primary_class` / `additional_classes` / Class Registryへ精緻化した。
   - 同名別Object、名称変更、複数Work所属、Concept / UPDS境界のIdentity判断方針を定義した。
 
@@ -90,17 +90,20 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
 
 - [x] **B-02B [P0] SGOKB Object候補を網羅的に整理する**
   - Character / Person / Organization / Work / Series / Place / Event / Artifact / Species / Concept等を検討する。
-  - 各候補について独立Object化の価値、想定Source、Relation、Facet、MVP必要性を整理する。
+  - 各候補について独立Object化の価値、想定Source、Relation、Facet、Class固有機能の実装優先度を整理する。
   - 成果物: `docs/requirements/OBJECT_TYPE_CANDIDATES.md`
 
 - [x] **B-02C [P0] Object Type / Class階層を設計する**
   - 1階層固定enumを避け、上位Typeとclass/subtypeを分ける方式等を比較する。
   - `instance of` / `subclass of`相当概念やType registryの要否を判断する。
+  - B-02Dで正式採用したObject Classは原則として初期Class Registryへ登録し、Class固有機能の実装優先度とは分離する。
   - 成果物: `docs/requirements/OBJECT_TYPE_MODEL.md`
 
 - [ ] **B-02D [P0] Object / Facet / Relation / 対象外の境界を確定する**
   - 全候補を上位Object Type / subtype・Class / Facet / Relation / 対象外へ分類する。
   - Character / Work / Conceptの既存要件を新分類モデルへ再マッピングする。
+  - 正式採用Classの初期Registry集合を確定し、Class固有機能の実装優先度を別軸で記録する。
+  - 汎用Classへの意味的に不正確なfallbackを防ぐ境界ルールを決める。
   - 成果物: `docs/requirements/OBJECT_TYPE_BOUNDARIES.md`
 
 **Gate:** B-02A〜B-02Dを完了し、収集対象Objectの種類と分類境界を十分想定できるまでB-03の詳細確定へ進まない。
@@ -113,7 +116,7 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
 - [ ] **B-04 [P0] Object Result要件を定義する**
   - JSONを機械向け正本とする。
   - MarkdownはJSONから生成可能な派生表示とする。
-  - Object type別Facetを定義可能にする。
+  - Primary Class / Additional Classに応じたFacetを定義可能にする。
   - Relation、Evidence参照、生成来歴を保持する。
 
 - [ ] **B-05 [P0] 検索要件を定義する**
@@ -242,13 +245,17 @@ src/sgokb/
   - `object_aliases`
   - `object_versions`
   - `object_relations`
-  - type別schema拡張方式。
+  - Class Registry / Class hierarchy / Object-Class membershipの物理schema。
+  - B-02Dで正式採用したClassを、本番Object投入前に初期Registryへ決定論的にseedする方式。
+  - Class Registry包含とClass固有extension実装の有無を独立して管理する方式。
+  - 未登録Classが必要なObjectを、意味的に不正確な汎用Classへ自動fallbackさせないstaging / review方針。
 
 - [ ] **E-02 [P0] Semantic Facet schemaを設計する**
   - Character例: overall / personality / values / motivation / behavior / relationships / role / themes。
   - Work例: overall / themes / worldview / narrative / tone / characters / relationships。
   - Concept例: definition / properties / implications / related_concepts / examples。
-  - type固有FacetをDB列へ固定しすぎない。
+  - Class固有FacetをDB列へ固定しすぎない。
+  - 初期Registryへ登録済みでも専用Facetが未定義のClassを許容し、共通Object contractで保持できるようにする。
 
 - [ ] **E-03 [P0] Evidence Link / Provenance schemaを設計する**
   - Object/Facet/RelationからSource/Evidenceまで遡れるようにする。
@@ -261,7 +268,9 @@ src/sgokb/
 
 - [ ] **E-05 [P1] JSON Schemaを作成する**
   - 共通Object Result schema。
-  - type別extension schema。
+  - Class別extension schema。
+  - Primary / Additional ClassがClass Registryに存在することをValidationする。
+  - 専用extension未実装のClassでも共通schemaを利用可能とし、別Classへの自動fallbackを要求しない。
   - ChatGPTへ渡す出力契約とImport Validatorで同一Schemaを利用する。
 
 **完了条件:** ChatGPT出力、DB、検索、MCPの共通契約となるObject schemaが確定している。

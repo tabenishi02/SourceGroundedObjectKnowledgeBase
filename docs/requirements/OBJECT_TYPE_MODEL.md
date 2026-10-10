@@ -310,32 +310,32 @@ B subclass_of A
 
 ---
 
-### 6.2 初期Hierarchy Scaffold
+### 6.2 Initial Registry Scaffold
 
 B-02Bの候補Familyを基に、Class Registryが少なくとも次の上位領域を表現可能な構造とする。
 
 ```text
 ObjectClass  # 概念上のroot。Objectへ直接割当しない
 ├─ Agent
-│  ├─ Character      [Core]
-│  ├─ Person         [High]
-│  └─ Organization   [High]
+│  ├─ Character
+│  ├─ Person
+│  └─ Organization
 ├─ CreativeWork
-│  └─ Work           [Core]
-├─ Place             [High]
-├─ Event             [High]
-├─ Artifact          [Future]
-├─ Taxon             [Future]
-├─ Concept           [Core]
-├─ Process           [Future / Boundary]
-├─ TemporalEntity    [Future]
-├─ System            [Future]
-├─ Material          [Future]
-├─ Phenomenon        [Future / Boundary]
-└─ Language          [Future]
+│  └─ Work
+├─ Place
+├─ Event
+├─ Artifact
+├─ Taxon
+├─ Concept
+├─ Process           # Object/Class境界はB-02Dで確定
+├─ TemporalEntity
+├─ System
+├─ Material
+├─ Phenomenon        # Object/Class境界はB-02Dで確定
+└─ Language
 ```
 
-このScaffoldは「どの分類領域を表現できる必要があるか」を定める。
+このScaffoldは実装優先順位ではなく、「初期Class Registryで分類可能にすべき領域」の候補を示す。B-02Dで正式なObject Classとして採用されたClassは、利用頻度や専用機能の完成度にかかわらず、原則として初期Class Registryへ登録する。
 
 次の候補の具体的配置はB-02Dで確定する。
 
@@ -449,54 +449,70 @@ Character
 
 ---
 
-## 9. Initial / Future Classification
+## 9. Initial Registry Coverage / Specialized Support
 
-### 9.1 MVP Core
+### 9.1 初期Class Registryは採用Classを原則すべて含む
 
-初期実装でObjectへ直接割り当て可能なClassとして、既存要件との互換上、最低限次を必須とする。
+B-02Dで正式なObject Classとして採用されたClassは、原則として通常のObjectデータを蓄積し始める前にClass Registryへ登録し、Primary ClassまたはAdditional Classとして利用可能にする。
+
+この方針の目的は、Class未実装を理由として初期Objectを少数の広いClassへ集中させないことである。
+
+例えば、本来`Ability`として分類すべき対象を、`Ability` Classが未登録であるという理由だけで一時的に`Concept`へ蓄積すると、次の問題が生じる。
+
+- `Concept`が「抽象概念」以外の意味まで持つcatch-all Classになる。
+- 後から`Ability`を追加しても既存Objectの再分類が必要になる。
+- 初期Classだけが大量のObjectを持ち、後発Classが狭い意味幅と少数データに偏る。
+- 検索、Facet、統計、Embedding評価に歴史的な分類偏りが残る。
+
+したがって、**既に設計上認識しておりB-02Dで採用したClassを、利用頻度が低いという理由だけでFuture ClassとしてRegistry登録から除外しない。**
+
+ただし、Schema.orgやWikidata等の外部Classを無制限に取り込むことは意味しない。初期Registry対象は、SGOKBの用途に照らしてB-02Dで正式採用したClassに限定する。
+
+---
+
+### 9.2 Class Registry包含と専用機能の実装優先度を分離する
+
+Classが初期Registryに存在することと、そのClass専用のFacet、UI、検索、validation、renderer等が初期段階で完成していることは別要件とする。
+
+初期の専用機能は、具体的な利用実績がある次のClassを優先してよい。
 
 - `Character`
 - `Work`
 - `Concept`
 
-対応する上位Classは次のように扱う。
+次いでPerson / Organization / Series / Place / Event等の専用機能を優先することもできる。
+
+一方、B-02Dで採用されたArtifact / Product / Taxon / Ability / Era / Software / Material / Phenomenon / Language等は、専用Facetが未整備でも共通Object contractを利用して正しいClassで登録できなければならない。
+
+したがって、以後の文書で`Core` / `High` / `Future`等を使用する場合、それは**専用機能の実装優先度**を意味し、Class Registryへの包含可否を意味しない。
+
+---
+
+### 9.3 Generic Classへの暫定丸め込みを避ける
+
+必要なClassがClass Registryに存在しない場合、実装都合だけを理由に意味的に異なる`Concept` / `Work` / `Character`等へ自動的に丸め込んではならない。
+
+新しいClassが必要であることが判明した場合は、原則として次の順序を取る。
 
 ```text
-Character subclass_of Agent
-Work      subclass_of CreativeWork
-Concept   root classification family
+必要Classを識別
+  ↓
+Class Registryへの追加または設計レビュー
+  ↓
+正しいClassでObject登録
 ```
 
----
+既存の上位Classへ一時的に登録できるのは、その上位Class自体が対象の意味分類として正しく、後の再分類を前提としなくても意味を損なわない場合に限る。
 
-### 9.2 High-priority compatibility
-
-初期専用Facetをすべて実装する必要はないが、Classification modelは少なくとも次の追加を破壊的変更なしで許容する。
-
-- `Person`
-- `Organization`
-- `Place`
-- `Event`
-
-`Series`については独立Object化価値が高いが、Workとの境界をB-02Dで確定してからClass placementをAcceptedとする。
+物理的なstaging / pending-class状態を用意するかはE-01 / E-05で決定する。
 
 ---
 
-### 9.3 Future
+### 9.4 稼働後のClass追加は引き続き許容する
 
-次の領域は初期実装必須ではないが、Class Registryへ追加可能でなければならない。
+初期Registryを広く用意しても、将来未知の領域や新しい要件が発生するためClass追加自体は禁止しない。
 
-- Artifact / Product
-- Species / Race / Taxon
-- Ability / Skill
-- Era / Period
-- Software / Service / Rule System
-- Material / Substance
-- Phenomenon
-- Language / Writing System
-- その他B-02Bで列挙した候補
-
-新Class追加は既存Object ID、Relation、Knowledge Version、Evidence Linkを変更する理由にならない。
+新Class追加時も、既存Object ID、Relation、Knowledge Version、Evidence Linkを変更する理由にはならない。必要な場合のみ既存Objectを明示的に再分類し、その変更を監査可能にする。
 
 ---
 
@@ -514,6 +530,9 @@ Concept   root classification family
 8. archived Classを新規Objectへ割り当てない。
 9. ObjectのClass変更で`object_id`を変更しない。
 10. Class追加時に既存Objectの再採番を要求しない。
+11. B-02Dで初期Registry対象として採用されたClassが、本番Object投入前に登録済みであることを検証できる。
+12. 専用FacetやUIが未実装であることを理由に、そのClassを別の汎用Classへ自動変換しない。
+13. Class固有extensionが未実装でも、共通Object contractだけで正しいClass membershipを保持できる。
 
 具体的なJSON validation / DB constraintはE-01 / E-05で決定する。
 
@@ -590,6 +609,9 @@ Class Registry
 - ancestor classを検索可能にする。
 - Class registryとObject registryを別責務として扱える。
 - Source Type registryとは別に管理できる。
+- B-02Dで採用した初期Class集合を、通常のObjectデータ投入前に決定論的にseedできる。
+- Classごとの専用Facet / UI / extensionの実装有無と、Class Registryへの登録有無を独立して管理できる。
+- 未登録Classが必要になった際、意味的に不正確な汎用Classへ自動fallbackせず、追加・review・stagingのいずれかへ誘導できる。
 
 ---
 
@@ -609,6 +631,9 @@ B-02Dでは、本モデルを前提として各候補を具体的に配置する
 8. Era / Period / Timeline / ContinuityをTemporalEntityへ置く条件をどう定めるか。
 9. Software / Service / Rule SystemのPrimary ClassとAdditional Classの使い方。
 10. Source TypeとObject Classが同名になる場合の境界。
+11. 正式なObject Classとして採用したClassを、初期Class Registry対象として一覧化する。
+12. Class Registryへの包含とは別に、Class固有Facet / UI / validation / search等の専用機能実装優先度を整理する。
+13. 既存の広いClassへ一時的にfallback可能な条件と、意味的な丸め込みとして禁止する条件を明示する。
 
 ---
 
@@ -632,11 +657,11 @@ B-02Cでは次を採用しない。
 
 > SGOKBは、Object IdentityからClassificationを分離し、1つのPrimary Classと0件以上のAdditional ClassをClass Registryから割り当て、Class間の階層を`subclass_of`相当で管理する。
 
-### 初期実装対象と将来拡張対象が分離されている
+### 初期Registry対象と専用機能優先度が分離されている
 
-- Core: Character / Work / Concept
-- High compatibility: Person / Organization / Place / Event
-- Future: B-02Bで整理したその他候補
+- B-02Dで正式採用したObject Classは、原則として初期Class Registryへ登録する。
+- Character / Work / Concept等は専用機能の実装優先度を高くできるが、他ClassをRegistryから除外する根拠にはしない。
+- 将来新しく発見されたClassは追加可能とするが、既知Classを意図的に後回しにして汎用Classへ集中させない。
 
 ### Class追加によってObject Identityが変化しない
 
@@ -652,8 +677,8 @@ Primary Class、Additional Class、Class Registry、Class hierarchy、validation
 
 B-02Cでは、SGOKBのObject分類を単純な`object_type` enumから、**Primary Class + Additional Classes + hierarchical Class Registry**へ精緻化する。
 
-これにより、Character / Work / ConceptというMVPを単純に保ちながら、Person / Organization / Place / Eventおよび将来のSoftware / Artifact / Species / Ability等を、Object Identityを破壊せず追加できる。
+これにより、Character / Work / Conceptを主要ユースケースとして優先的に機能強化しつつ、B-02Dで正式採用したClassは初期Registryへ広く登録し、データ蓄積開始時点から適切な意味分類を使用できる。
 
-また、multiple classificationを許容しつつPrimary Classを必須とすることで、柔軟性とMVPで必要な決定性の両方を確保する。
+また、multiple classificationを許容しつつPrimary Classを必須とすることで柔軟性と決定性を両立し、Class固有機能の実装優先度とClass Registryの包含範囲を分離する。これにより、初期の少数Classへデータと意味が過度に集中することを防ぐ。
 
 **Status: Complete (2026-10-10)**

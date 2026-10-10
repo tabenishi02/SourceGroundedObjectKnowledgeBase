@@ -9,7 +9,7 @@
   - `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
   - `docs/requirements/OBJECT_REQUIREMENTS.md`
 - Next:
-  - `B-02C [P0] Object Type / Class階層を設計する`
+  - `B-02C [P0] Object Type / Class階層を設計する`（完了）
   - `B-02D [P0] Object / Facet / Relation / 対象外の境界を確定する`
 
 ## 1. 目的
@@ -23,7 +23,7 @@ B-02Aで調査したSchema.org、DBpedia、Wikidata、WordNet、DCMI等の分類
 1. 将来必要になり得る対象カテゴリを候補として残す。
 2. 各候補について独立Object化の価値を比較可能にする。
 3. 想定Source、Relation、Facetを先に列挙し、後続設計の漏れを防ぐ。
-4. MVPで必須の対象と、将来拡張候補を区別する。
+4. Class Registryへの包含候補と、Class固有機能の実装優先度を区別して後続設計へ渡す。
 5. B-02C / B-02DでType / Class / Facet / Relation / 対象外を判断するための入力を作る。
 
 ---
@@ -51,12 +51,16 @@ B-02Aで調査したSchema.org、DBpedia、Wikidata、WordNet、DCMI等の分類
 
 この評価はB-02B時点の予備評価であり、B-02Dの最終分類ではない。
 
-### 2.3 MVP必要性
+### 2.3 当初の実装優先度評価
 
-- **Core**: 現在のSGOKB目的を成立させるため初期実装で必要。
-- **High**: 初期利用範囲の拡大に価値が高い。Schemaが無理なく対応できるよう考慮すべき。
-- **Future**: 将来追加できることを保証すれば初期実装は不要。
-- **Boundary**: Objectとして実装するか自体をB-02Dで判断する。
+B-02Bでは候補比較のため`Core` / `High` / `Future` / `Boundary`を付与した。B-02C後、この評価は**Class Registryへの包含時期ではなく、Class固有機能の実装優先度を示す予備評価**として解釈する。
+
+- **Core**: 専用Facet / UI / validation等を初期から優先的に整備する価値が高い。
+- **High**: 早期に専用機能を整備する価値が高い。
+- **Future**: 専用機能は後段でもよい。ただしB-02Dで正式Classとして採用された場合は原則として初期Class Registryへ登録する。
+- **Boundary**: Object / Classとして採用するか自体をB-02Dで判断するため、採用確定までは初期Registry対象としない。
+
+したがって、`Future`は「Classそのものを後から追加する」という意味ではない。
 
 ---
 
@@ -81,7 +85,7 @@ Object Candidate
 └─ Language / Term / Symbolic System
 ```
 
-これは確定した上位Type階層ではない。B-02Cで統合・分割・階層化する。
+これはB-02B時点の候補母集団である。B-02CでClassification modelへ整理済みであり、各候補の最終配置はB-02Dで確定する。
 
 ---
 
@@ -96,7 +100,7 @@ Object Candidate
 - **Source例:** 公式Character紹介、公式設定資料、作品本文、インタビュー、百科事典、Wiki、レビュー・解説。
 - **Relation候補:** `appears_in`, `member_of`, `related_to`, `family_of`, `rival_of`, `embodies`, `uses`。
 - **Facet候補:** personality, values, motivation, behavior, relationships, role, background, appearance, abilities, themes。
-- **MVP:** **Core**。既存要件で確定済み。
+- **実装優先度:** **Core**。既存要件で確定済み。
 - **後続論点:** Personと共通上位Typeを持つか。別continuityのIdentity境界。
 
 ## 4.2 Person
@@ -108,7 +112,7 @@ Object Candidate
 - **Source例:** 公式プロフィール、インタビュー、所属組織ページ、百科事典、論文著者情報。
 - **Relation候補:** `created`, `performed`, `member_of`, `works_for`, `influenced`, `related_to`。
 - **Facet候補:** biography, career, roles, works, public_statements, expertise。
-- **MVP:** **High**。Character/Work中心MVPに必須ではないがSource理解に有用。
+- **実装優先度:** **High**。Character/Work中心MVPに必須ではないがSource理解に有用。
 - **後続論点:** Characterと同じAgent系に置くか。
 
 ## 4.3 Organization
@@ -119,7 +123,7 @@ Object Candidate
 - **Source例:** 公式About、会社情報、作品Credits、百科事典、公式設定ページ。
 - **Relation候補:** `employs`, `publishes`, `produces`, `owns`, `member`, `affiliated_with`。
 - **Facet候補:** purpose, history, structure, activities, members, works, culture。
-- **MVP:** **High**。
+- **実装優先度:** **High**。
 - **後続論点:** 実在・架空Organizationを同一Class配下にするか。
 
 ## 4.4 Group / Team / Unit
@@ -130,7 +134,7 @@ Object Candidate
 - **Source例:** 公式ユニット紹介、チームページ、作品設定、Wikipedia等。
 - **Relation候補:** `has_member`, `belongs_to`, `competes_with`, `part_of`, `appears_in`。
 - **Facet候補:** identity, purpose, membership, dynamics, history, achievements。
-- **MVP:** **Future / High**。
+- **実装優先度:** **Future / High**。
 - **後続論点:** Organization subtypeか別Classか。
 
 ## 4.5 Faction
@@ -141,7 +145,7 @@ Object Candidate
 - **Source例:** 公式Lore、設定資料、百科事典、解説記事。
 - **Relation候補:** `has_member`, `opposes`, `allied_with`, `part_of`, `controls`。
 - **Facet候補:** ideology, goals, structure, history, territory, conflicts。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 - **後続論点:** Organization / Group subtypeか、Concept的Ideologyとの境界。
 
 ## 4.6 Role / Occupation / Title
@@ -152,7 +156,7 @@ Object Candidate
 - **Source例:** 職業解説、組織規程、設定資料。
 - **Relation候補:** `has_role`, `position_in`, `succeeds`。
 - **Facet候補:** definition, responsibilities, authority, requirements。
-- **MVP:** **Boundary**。
+- **実装優先度:** **Boundary**。
 - **後続論点:** Class、Concept、Relation valueのいずれに置くか。
 
 ---
@@ -167,7 +171,7 @@ Object Candidate
 - **Source例:** 公式作品ページ、出版社・配給元、Store listing、百科事典、レビュー、インタビュー。
 - **Relation候補:** `created_by`, `published_by`, `adaptation_of`, `part_of_series`, `features`, `influenced_by`。
 - **Facet候補:** summary, themes, worldview, narrative, tone, characters, reception, production。
-- **MVP:** **Core**。既存要件で確定済み。
+- **実装優先度:** **Core**。既存要件で確定済み。
 - **後続論点:** media subtypeの表現方法。
 
 ## 5.2 Series
@@ -178,7 +182,7 @@ Object Candidate
 - **Source例:** 公式シリーズポータル、出版社シリーズページ、百科事典。
 - **Relation候補:** `has_part`, `includes_work`, `spin_off`, `adapted_as`。
 - **Facet候補:** overall_identity, chronology, themes, continuity, installments, evolution。
-- **MVP:** **High**。既存OBJ-16と整合。
+- **実装優先度:** **High**。既存OBJ-16と整合。
 - **後続論点:** Work subtypeか上位/別Classか。
 
 ## 5.3 Franchise / IP
@@ -189,7 +193,7 @@ Object Candidate
 - **Source例:** 公式ポータル、権利者ページ、企業資料、百科事典。
 - **Relation候補:** `includes_series`, `includes_work`, `owned_by`, `licensed_to`。
 - **Facet候補:** identity, scope, history, media_mix, ownership, continuity_groups。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 - **後続論点:** Seriesとの意味境界。
 
 ## 5.4 Episode / Chapter / Installment
@@ -200,7 +204,7 @@ Object Candidate
 - **Source例:** 公式episode list、配信ページ、目次、あらすじページ、Wiki。
 - **Relation候補:** `part_of`, `precedes`, `follows`, `features`, `contains_event`。
 - **Facet候補:** summary, events, characters, themes, location, chronology。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 - **後続論点:** Object化閾値。単なる構造要素として保持する場合との境界。
 
 ## 5.5 Season / Volume / Arc
@@ -210,7 +214,7 @@ Object Candidate
 - **Source例:** 公式season/volumeページ、目次、配信一覧、設定資料。
 - **Relation候補:** `part_of`, `has_part`, `precedes`, `covers_arc`。
 - **Facet候補:** scope, chronology, themes, cast, major_events。
-- **MVP:** **Boundary / Future**。
+- **実装優先度:** **Boundary / Future**。
 - **後続論点:** Class、Object、単なるordering metadataの境界。
 
 ## 5.6 Adaptation / Edition / Version
@@ -220,7 +224,7 @@ Object Candidate
 - **Source例:** 公式製品ページ、版情報、出版社、Store、比較記事。
 - **Relation候補:** `adaptation_of`, `remake_of`, `edition_of`, `based_on`。
 - **Facet候補:** changes, medium, production, scope, reception。
-- **MVP:** **High / Future**。
+- **実装優先度:** **High / Future**。
 - **後続論点:** Object IdentityとWork Versionの区別。Knowledge Versionと作品版を混同しない。
 
 ---
@@ -235,7 +239,7 @@ Object Candidate
 - **Source例:** 公式自治体・施設ページ、地理資料、百科事典、地図説明。
 - **Relation候補:** `located_in`, `contains`, `origin_of`, `event_at`, `associated_with`。
 - **Facet候補:** geography, history, culture, function, notable_features。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 
 ## 6.2 Fictional Place / Setting
 
@@ -245,7 +249,7 @@ Object Candidate
 - **Source例:** 公式world guide、設定資料、作品本文、Wiki。
 - **Relation候補:** `appears_in`, `located_in`, `home_of`, `event_at`, `controlled_by`。
 - **Facet候補:** geography, society, culture, history, atmosphere, rules。
-- **MVP:** **High / Future**。
+- **実装優先度:** **High / Future**。
 - **後続論点:** Real Placeと共通Place配下にするか。
 
 ## 6.3 Setting / World
@@ -255,7 +259,7 @@ Object Candidate
 - **Source例:** 公式設定集、world guide、シリーズポータル。
 - **Relation候補:** `setting_of`, `contains_place`, `contains_faction`, `continuity_of`。
 - **Facet候補:** laws, cosmology, society, history, geography, technology/magic。
-- **MVP:** **Boundary**。
+- **実装優先度:** **Boundary**。
 
 ---
 
@@ -269,7 +273,7 @@ Object Candidate
 - **Source例:** 公式記録、報道、百科事典、イベント公式ページ。
 - **Relation候補:** `occurred_at`, `participant`, `caused_by`, `resulted_in`, `part_of`。
 - **Facet候補:** chronology, participants, causes, outcomes, significance, location。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 
 ## 7.2 Fictional Event
 
@@ -279,7 +283,7 @@ Object Candidate
 - **Source例:** 作品本文、公式timeline、設定資料、Wiki。
 - **Relation候補:** `occurs_in`, `participant`, `causes`, `affects`, `precedes`。
 - **Facet候補:** chronology, cause, participants, outcome, significance。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 
 ## 7.3 Release / Publication / Production Event
 
@@ -288,7 +292,7 @@ Object Candidate
 - **Source例:** 公式告知、ニュース、release notes。
 - **Relation候補:** `releases`, `publishes`, `launch_of`, `held_at`。
 - **Facet候補:** date, participants, venue, scope。
-- **MVP:** **Boundary**。
+- **実装優先度:** **Boundary**。
 
 ---
 
@@ -302,7 +306,7 @@ Object Candidate
 - **Source例:** 公式商品/設定ページ、博物館資料、作品設定、百科事典。
 - **Relation候補:** `owned_by`, `used_by`, `created_by`, `appears_in`, `located_at`。
 - **Facet候補:** appearance, function, history, capabilities, provenance。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 
 ## 8.2 Product / Product Model
 
@@ -311,7 +315,7 @@ Object Candidate
 - **Source例:** メーカー公式、仕様書、販売ページ、レビュー。
 - **Relation候補:** `manufactured_by`, `model_of`, `successor_of`, `compatible_with`。
 - **Facet候補:** specifications, design, use, variants, reception。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 
 ## 8.3 Generic Item Type / Equipment Class
 
@@ -320,7 +324,7 @@ Object Candidate
 - **Source例:** 辞典、技術資料、分類資料。
 - **Relation候補:** `instance_of`, `used_for`, `related_to`。
 - **Facet候補:** definition, properties, usage, variants。
-- **MVP:** **Boundary**。
+- **実装優先度:** **Boundary**。
 
 ---
 
@@ -333,7 +337,7 @@ Object Candidate
 - **Source例:** taxonomy database、学術資料、図鑑、公式設定資料。
 - **Relation候補:** `subclass_of`, `habitat`, `related_taxon`, `member`, `appears_in`。
 - **Facet候補:** classification, morphology, ecology, behavior, distribution, traits。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 
 ## 9.2 Fictional Species / Race
 
@@ -342,7 +346,7 @@ Object Candidate
 - **Source例:** 公式world guide、設定資料、Wiki。
 - **Relation候補:** `member`, `origin`, `related_to`, `inhabits`, `appears_in`。
 - **Facet候補:** biology, culture, abilities, society, history。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 - **後続論点:** Taxon、Class、Conceptのどれとして扱うか。
 
 ## 9.3 Named Animal / Creature Individual
@@ -352,7 +356,7 @@ Object Candidate
 - **Source例:** 公式プロフィール、動物園/研究機関ページ、作品設定。
 - **Relation候補:** `species`, `owner`, `appears_in`, `lives_at`。
 - **Facet候補:** biography, traits, behavior, relationships。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 - **後続論点:** Agent配下かBiological配下か、複数classificationの要否。
 
 ---
@@ -367,7 +371,7 @@ Object Candidate
 - **Source例:** 辞典、論文、評論、作品分析、公式インタビュー。
 - **Relation候補:** `related_to`, `opposite_of`, `broader_than`, `embodied_by`, `theme_of`。
 - **Facet候補:** definition, properties, implications, examples, related_concepts, interpretations。
-- **MVP:** **Core**。既存要件で確定済み。
+- **実装優先度:** **Core**。既存要件で確定済み。
 
 ## 10.2 Theme / Motif
 
@@ -376,7 +380,7 @@ Object Candidate
 - **Source例:** 評論、作者インタビュー、研究、解説。
 - **Relation候補:** `theme_of`, `embodied_by`, `contrasts_with`, `related_to`。
 - **Facet候補:** definition, manifestations, interpretations, examples。
-- **MVP:** **High**。Concept subtype候補。
+- **実装優先度:** **High**。Concept subtype候補。
 
 ## 10.3 Ideology / Doctrine / Philosophy
 
@@ -385,7 +389,7 @@ Object Candidate
 - **Source例:** 原典、辞典、学術資料、解説。
 - **Relation候補:** `influences`, `opposed_to`, `held_by`, `derived_from`。
 - **Facet候補:** principles, history, values, implications, variants。
-- **MVP:** **Future / High**。Concept subtype候補。
+- **実装優先度:** **Future / High**。Concept subtype候補。
 
 ## 10.4 Attribute / Trait
 
@@ -395,7 +399,7 @@ Object Candidate
 - **Source例:** 辞典、心理学資料、専門資料。
 - **Relation候補:** `attribute_of`, `opposite_of`, `correlated_with`。
 - **Facet候補:** definition, dimensions, examples, implications。
-- **MVP:** **Boundary**。
+- **実装優先度:** **Boundary**。
 
 ## 10.5 Feeling / Emotion
 
@@ -405,7 +409,7 @@ Object Candidate
 - **Source例:** 心理学資料、辞典、評論。
 - **Relation候補:** `caused_by`, `contrasts_with`, `experienced_by`, `related_to`。
 - **Facet候補:** definition, triggers, expression, effects, related_emotions。
-- **MVP:** **Boundary**。
+- **実装優先度:** **Boundary**。
 
 ## 10.6 Motivation / Goal
 
@@ -415,7 +419,7 @@ Object Candidate
 - **Source例:** 心理学資料、評論、作品分析。
 - **Relation候補:** `motivates`, `goal_of`, `related_to`。
 - **Facet候補:** definition, causes, behavioral_effects, examples。
-- **MVP:** **Boundary**。
+- **実装優先度:** **Boundary**。
 
 ## 10.7 State / Condition
 
@@ -423,7 +427,7 @@ Object Candidate
 - **代表例:** 孤立、混乱、戦争状態、覚醒状態。
 - **独立Object化価値:** **低〜中**。一般にはFacet valueだが、定義・Relationを蓄積する対象ならConcept Object候補。
 - **Source例:** 辞典、専門資料、作品設定。
-- **MVP:** **Boundary**。
+- **実装優先度:** **Boundary**。
 
 ## 10.8 Natural / Social Phenomenon
 
@@ -433,7 +437,7 @@ Object Candidate
 - **Source例:** 科学資料、政府統計、論文、百科事典。
 - **Relation候補:** `caused_by`, `affects`, `occurs_at`, `related_to`。
 - **Facet候補:** mechanism, causes, effects, examples, measurement。
-- **MVP:** **Future**。Conceptまたは別Class候補。
+- **実装優先度:** **Future**。Conceptまたは別Class候補。
 
 ---
 
@@ -447,7 +451,7 @@ Object Candidate
 - **Source例:** 公式能力紹介、設定資料、作品本文、攻略資料。
 - **Relation候補:** `possessed_by`, `used_by`, `derived_from`, `countered_by`, `part_of_system`。
 - **Facet候補:** definition, mechanism, limits, effects, variants, users。
-- **MVP:** **Future / Boundary**。
+- **実装優先度:** **Future / Boundary**。
 
 ## 11.2 Skill / Technique
 
@@ -456,7 +460,7 @@ Object Candidate
 - **Source例:** 技術資料、設定資料、攻略資料。
 - **Relation候補:** `used_by`, `requires`, `part_of`, `derived_from`。
 - **Facet候補:** procedure, requirements, effects, mastery, variants。
-- **MVP:** **Boundary**。
+- **実装優先度:** **Boundary**。
 
 ## 11.3 Action / Activity
 
@@ -466,7 +470,7 @@ Object Candidate
 - **Source例:** 辞典、手順書、専門資料。
 - **Relation候補:** `performed_by`, `uses`, `occurs_at`。
 - **Facet候補:** definition, participants, procedure, purpose。
-- **MVP:** **Boundary**。
+- **実装優先度:** **Boundary**。
 
 ## 11.4 Process
 
@@ -476,7 +480,7 @@ Object Candidate
 - **Source例:** 教科書、技術資料、論文、規格。
 - **Relation候補:** `has_stage`, `causes`, `requires`, `produces`。
 - **Facet候補:** stages, inputs, outputs, mechanism, conditions。
-- **MVP:** **Future / Boundary**。
+- **実装優先度:** **Future / Boundary**。
 
 ---
 
@@ -490,14 +494,14 @@ Object Candidate
 - **Source例:** 歴史資料、年表、百科事典、公式timeline。
 - **Relation候補:** `precedes`, `follows`, `contains_event`, `period_of`, `associated_with`。
 - **Facet候補:** start/end, characteristics, events, culture, transitions。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 
 ## 12.2 Date / Time Interval
 
 - **定義:** 単なる日時・期間値。
 - **独立Object化価値:** **低**。通常は属性値で十分。
 - **Source例:** metadata、timeline。
-- **MVP:** **Boundary / 非Object有力**。
+- **実装優先度:** **Boundary / 非Object有力**。
 - **後続論点:** named periodのみObject化する閾値。
 
 ## 12.3 Timeline / Continuity
@@ -507,7 +511,7 @@ Object Candidate
 - **Source例:** 公式timeline、設定資料、シリーズ解説。
 - **Relation候補:** `contains_event`, `contains_work`, `branch_of`, `parallel_to`。
 - **Facet候補:** scope, chronology, divergence, included_works。
-- **MVP:** **Boundary / Future**。
+- **実装優先度:** **Boundary / Future**。
 
 ---
 
@@ -520,7 +524,7 @@ Object Candidate
 - **Source例:** 公式Documentation、GitHub、release notes、製品ページ。
 - **Relation候補:** `developed_by`, `depends_on`, `implements`, `compatible_with`, `successor_of`。
 - **Facet候補:** purpose, architecture, features, compatibility, history。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 - **後続論点:** CreativeWork / Product / Artifactとのmultiple classification。
 
 ## 13.2 Service
@@ -531,7 +535,7 @@ Object Candidate
 - **Source例:** 公式サービスページ、規約、documentation。
 - **Relation候補:** `provided_by`, `uses`, `available_in`, `integrates_with`。
 - **Facet候補:** purpose, features, access, policy, history。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 
 ## 13.3 Rule System / Magic System / Game Mechanic
 
@@ -541,7 +545,7 @@ Object Candidate
 - **Source例:** 公式rulebook、manual、設定資料、攻略資料。
 - **Relation候補:** `governs`, `contains_ability`, `used_in`, `applies_to`。
 - **Facet候補:** rules, components, constraints, exceptions, interactions。
-- **MVP:** **Future / Boundary**。
+- **実装優先度:** **Future / Boundary**。
 - **後続論点:** Concept subtypeかSystem系Objectか。
 
 ---
@@ -556,13 +560,13 @@ Object Candidate
 - **Source例:** 技術資料、科学DB、設定資料。
 - **Relation候補:** `composed_of`, `used_to_make`, `reacts_with`, `found_at`。
 - **Facet候補:** properties, composition, uses, origin, behavior。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 
 ## 14.2 Food / Drug / Consumable Category
 
 - **定義:** 摂取物・薬品等の一般カテゴリまたは固有製品。
 - **独立Object化価値:** **低〜中**。個別製品ならProduct、一般概念ならMaterial/Conceptに寄る。
-- **MVP:** **Boundary / Future**。
+- **実装優先度:** **Boundary / Future**。
 
 ---
 
@@ -576,7 +580,7 @@ Object Candidate
 - **Source例:** 気象機関、研究資料、百科事典。
 - **Relation候補:** `causes`, `occurs_at`, `instance_of`, `affects`。
 - **Facet候補:** mechanism, conditions, effects, measurement, examples。
-- **MVP:** **Future / Boundary**。
+- **実装優先度:** **Future / Boundary**。
 - **後続論点:** Phenomenon classとEvent instanceの分離。
 
 ---
@@ -590,7 +594,7 @@ Object Candidate
 - **Source例:** 言語資料、辞書、文法書、公式設定。
 - **Relation候補:** `spoken_by`, `derived_from`, `related_to`, `used_in`。
 - **Facet候補:** grammar, vocabulary, history, speakers, writing_system。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 
 ## 16.2 Term / Defined Concept
 
@@ -599,7 +603,7 @@ Object Candidate
 - **Source例:** glossary、規格、辞典。
 - **Relation候補:** `denotes`, `synonym_of`, `broader_than`。
 - **Facet候補:** definition, usage, etymology, scope。
-- **MVP:** **Boundary**。
+- **実装優先度:** **Boundary**。
 
 ## 16.3 Writing System / Symbolic System
 
@@ -608,7 +612,7 @@ Object Candidate
 - **Source例:** 標準資料、学術資料、辞典。
 - **Relation候補:** `used_by`, `represents`, `derived_from`。
 - **Facet候補:** structure, symbols, history, usage。
-- **MVP:** **Future**。
+- **実装優先度:** **Future**。
 
 ---
 
@@ -693,21 +697,29 @@ Object Typeとして固定すると過剰設計になりやすく、Class / Conc
 
 ---
 
-# 19. MVP候補
+# 19. Class Registry初期登録方針と専用機能優先度
 
-現時点ではMVPのObject対象を無制限に増やさない。
+B-02C後の方針では、初期Class Registryの包含範囲と、Class固有機能の実装優先度を分離する。
 
-## Core
+## 初期Class Registry
 
-既存要件との互換上、初期MVPで必須とする。
+B-02Dで正式なObject Classとして採用された候補は、原則として初期Class Registryへ登録する。これは、初期に少数の広いClassへデータが集中し、そのClassが過度に広い意味を持つことを防ぐためである。
+
+例えばArtifact / Product / Species / Race / Ability / Skill / Era / Period / Software / Service / Material / Language / Phenomenon等も、B-02DでObject Classとして採用されたなら「Futureだから未登録」とはせず、通常データ投入前から適切な分類先として利用可能にする。
+
+一方、B-02DでFacet / Relation / scalar value / 対象外と判定された候補はClass Registryへ登録しない。
+
+## 専用機能の実装優先度
+
+当初の`Core` / `High` / `Future`評価は、今後はClass固有Facet、UI、validation、検索最適化等の実装優先度として利用する。
+
+### Core support priority
 
 - Character
 - Work
 - Concept
 
-## High-priority compatibility
-
-初期実装で全ての専用Facetを実装しなくても、将来追加時にObject Identity / Relation / Source Link設計を壊さないことを優先する。
+### High support priority
 
 - Person
 - Organization
@@ -715,9 +727,7 @@ Object Typeとして固定すると過剰設計になりやすく、Class / Conc
 - Place
 - Event
 
-## Future
-
-初期MVP後に需要に応じてClass / subtypeを追加できる構造を要求する。
+### Later specialized support
 
 - Franchise
 - Episode / Chapter / Season
@@ -730,13 +740,13 @@ Object Typeとして固定すると過剰設計になりやすく、Class / Conc
 - Language
 - Natural Phenomenon
 
-このMVP分類は実装対象の最終決定ではない。B-02Cで分類方式、B-02Dで境界を確定した後に必要なら更新する。
+この優先度が低くても、B-02DでClassとして採用されたものは初期Class Registryから除外しない。共通Object contractだけで正しいClassificationを保持できることを優先する。
 
 ---
 
-# 20. B-02Cへ渡す主要論点
+# 20. B-02Cへ渡した主要論点（完了）
 
-B-02Bの候補整理から、Type/Classモデルでは少なくとも次を判断する必要がある。
+B-02BからB-02Cへ渡した論点は次のとおりであり、Classification modelとしての回答は`OBJECT_TYPE_MODEL.md`で確定済みである。
 
 1. `Agent` のような上位Typeを設け、Character / Person / Organization等をsubtype/classにするか。
 2. `CreativeWork` のような上位Typeを設け、Work / Series / Episode等を階層化するか。
@@ -801,12 +811,12 @@ Object候補から逆算すると、B-03では少なくとも次のSource / Reso
 
 B-02Bの結論は次のとおりである。
 
-1. 現行 `Character` / `Work` / `Concept` は引き続きCore候補とする。
-2. 将来候補としてAgent、CreativeWork、Place、Event、Artifact、Taxonomic、Concept/Abstract、Action/Process、Timeに加え、System/Software、Substance/Material、Natural Phenomenon、Language等まで検討母集団を拡張する。
+1. `Character` / `Work` / `Concept` は専用機能のCore優先対象として維持するが、初期Class Registryをこの3 Classへ限定しない。
+2. Agent、CreativeWork、Place、Event、Artifact、Taxonomic、Concept/Abstract、Action/Process、Time、System/Software、Substance/Material、Natural Phenomenon、Language等まで検討母集団を拡張した。
 3. Object候補は「Web上にTypeがある」ことだけで採用せず、安定Identity、複数Source、参照価値、検索比較価値、Version、Evidenceの6観点で評価する。
-4. `Person`, `Organization`, `Series`, `Place`, `Event` は特に将来追加可能性が高く、初期物理schemaがこれらの追加を妨げないことが望ましい。
+4. B-02Dで正式なObject Classとして採用された候補は、当初のCore / High / Future評価にかかわらず、原則として初期Class Registryへ登録する。
 5. `Role`, `Trait`, `Feeling`, `Motivation`, `State`, `Action`, `Date`等はObject化すると過剰になりやすく、B-02DでFacet / Relation / Class / valueとの境界を重点確認する。
 6. Article / Dataset / Image / Video等はObjectになり得る場合もあるが、Evidence取得元としてのSource roleと明確に分離する。
-7. 次のB-02Cでは、本候補群を1階層enumへ並べるのではなく、上位Type + Class/subtype、またはClass membership方式を比較して論理分類モデルを決定する。
+7. B-02Cでは`Primary Class + Additional Classes + hierarchical Class Registry`方式を採用し、Class Registry包含とClass固有機能の実装優先度を分離した。
 
 **Status: Complete (2026-10-10)**

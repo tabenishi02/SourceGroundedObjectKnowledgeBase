@@ -1,501 +1,281 @@
 # SGOKB Object Type Refinement Handoff
 
-更新日: 2026-10-09
+更新日: 2026-10-10
 
-- Scope: B-02 Object要件完了後に追加されたObject Type精緻化作業
-- Current next task: `B-02A [P0] 外部分類体系を正式調査する`
-- Gate: `B-02A`〜`B-02D`完了まで`B-03 Source / Evidence要件`の詳細確定へ進まない
+- Scope: B-02 Object分類精緻化
+- Current next task: `B-02D [P0] Object / Facet / Relation / 対象外の境界を確定する`
+- Gate: `B-02D`完了まで`B-03 Source / Evidence要件`の詳細確定へ進まない
+- Status:
+  - B-02A: Complete
+  - B-02B: Complete
+  - B-02C: Complete
+  - B-02D: Next
 - Primary references:
   - `docs/requirements/OBJECT_REQUIREMENTS.md`
+  - `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
+  - `docs/requirements/OBJECT_TYPE_CANDIDATES.md`
+  - `docs/requirements/OBJECT_TYPE_MODEL.md`
   - `docs/planning/OBJECT_TYPE_REFINEMENT_TASKS.md`
   - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
-  - `docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`
 
 ## 1. 本書の目的
 
-本書は、B-02 Object要件の完了後に行ったObject Typeに関する追加議論を、別チャットへ正確に引き継ぐための専用Handoffである。
+本書は、B-02A〜B-02Cで確定したObject分類方針と、B-02Dへ引き継ぐ未決事項を別チャットへ正確に渡すための専用Handoffである。
 
-全体アーキテクチャやPrototype再設計の背景は`KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`を正本とし、本書ではObject分類の議論だけを集中的に扱う。
-
-次チャットでは、本書と`OBJECT_TYPE_REFINEMENT_TASKS.md`を確認したうえで、B-02Aから作業を継続する。
+旧版HandoffはB-02A開始前の状態を前提としていたため、2026-10-10時点の決定へ全面更新した。
 
 ---
 
-## 2. この追加検討が始まった理由
+## 2. 変更してはならないIdentity原則
 
-B-02ではObjectをSource / Document / Knowledge Versionから独立した安定Identityとして定義し、初期Object typeとして`Character` / `Work` / `Concept`を置いた。
+ObjectはSource / Document / Knowledge Version / file path / project nameから独立した安定Identityである。
 
-その後、ユーザーから次の問題提起があった。
+`object_id`はClassificationからも独立し、Primary ClassやAdditional Classの訂正・追加だけを理由に変更しない。
 
-> 必要なObject typeを事前に想定することは、今後どのようなWebページを収集するかの検討につながり、要件を細分化・精緻化できる。その結果、設計漏れのリスクを下げられるのではないか。
+同名Objectを許容し、名称一致だけで自動mergeしない。
 
-この観点を採用した。
-
-Object typeは単なるDB分類ではなく、少なくとも次へ影響する。
-
-- 収集すべきWeb Sourceの種類
-- Objectごとに必要なSource coverage
-- SourceとObjectの関連付け
-- Semantic Facetの種類
-- Object間Relation
-- 検索・比較・類似検索の単位
-- Google Drive / ChatGPTへ渡すObject Evidence Package
-- MCPで取得するKnowledgeの単位
-- 将来のUPDSから参照する対象
-
-したがって、B-03 Source / Evidence要件へ進む前にObject分類の検討範囲を広げることにした。
+Object Knowledge VersionとObject registry metadataは別ライフサイクルとして扱う。
 
 ---
 
-## 3. B-02で既に確定していること
+## 3. B-02Aの決定
 
-Object Type精緻化によって、B-02で確定したIdentity要件を不用意に崩してはならない。
+Schema.org、DBpedia、Wikidata、WordNet、DCMIを調査し、単一の外部分類体系をそのまま採用しないことを決めた。
 
-### 3.1 ObjectのIdentity
+利用する主な示唆は次のとおり。
 
-Objectは、長期的にKnowledgeを結び付ける安定した意味上のIdentityである。
+- Schema.org: Web上で独立対象になりやすい主要カテゴリの漏れ防止
+- DBpedia: cross-domain class hierarchy
+- Wikidata: IdentityとClassの分離、`instance of` / `subclass of`
+- WordNet: Concept / State / Process / Feeling等の意味領域
+- DCMI: 主にSource / Resource Type設計
 
-`object_id`は少なくとも次から独立する。
-
-- name / aliases
-- URL
-- Source ID
-- file / folder path
-- Repository / Project名
-- Knowledge Version
-- AI model / Prompt / Document
-
-### 3.2 Identityと分類は分離する
-
-Objectの分類が後から変更・精緻化されても、意味対象自体が同一なら`object_id`は維持する。
-
-したがって、B-02CでType/Classモデルを変更しても、Object Identityを再発行することを前提にしない。
-
-### 3.3 Versionとの分離
-
-Object IdentityとObject Knowledge Versionは別ライフサイクルを持つ。
-
-Knowledge未生成のObjectも正常状態として許容する。
-
-### 3.4 同名Object
-
-name / aliasはIdentityではなく、同名の別Objectを許容する。名称一致だけで自動mergeしない。
-
-### 3.5 初期3 typeの位置づけ
-
-`Character` / `Work` / `Concept`は、B-02時点の初期分類として採用した。
-
-ただし、その後の議論により、この3種類を最終的な上位`object_type`として固定することは未確定となった。
-
-B-02A〜B-02Dで分類粒度を再検討し、必要なら`OBJECT_REQUIREMENTS.md`を改訂する。
+Source TypeとObject Classは別責務とする。
 
 ---
 
-## 4. ユーザーが求めている分類検討の方向
+## 4. B-02Bの決定
 
-ユーザーは、SGOKB独自の思いつきだけでObject typeを決めるのではなく、既存の実用的な分類体系を参考にすることを希望している。
-
-特に次の2種類を検討対象とする。
-
-1. Web上のEntity / Resource分類
-2. 言葉・概念・意味の分類
-
-目的は外部分類体系をそのままコピーすることではない。
-
-既存体系で繰り返し現れる基本カテゴリを利用してSGOKBの見落としを減らし、SGOKBの用途に合わせて簡略化・再構成する。
-
----
-
-## 5. 予備調査で参照した外部分類体系
-
-ここでの内容はB-02Aの正式成果物ではなく、B-02Aを立ち上げる根拠となった予備調査である。
-
-### 5.1 Schema.org
-
-参照観点:
-
-- Web上で記述される`Thing`のtype hierarchy
-- Person / Organization / CreativeWork / Event / Place / Product等
-- WebPage等のSource側概念と、そのページが説明するEntityを分離する考え方
-
-重要な示唆:
-
-- `WebPage`, `Article`, `ProfilePage`等をObject typeと混同しない。
-- 「ページの形式」と「ページが説明する対象」は別の分類軸である。
-
-参考:
-- https://schema.org/docs/full.html
-- https://schema.org/Thing
-
-### 5.2 DBpedia Ontology
-
-参照観点:
-
-- Wikipedia由来のcross-domain class hierarchy
-- Person / Place / Work / Organisation / Species等
-- FictionalCharacterのようなdomain-specific class
-
-重要な示唆:
-
-- `Character`, `Person`, `Organization`を完全に無関係な1階層typeとして置く以外に、より上位classを持つ設計を検討できる。
-
-参考:
-- https://www.dbpedia.org/resources/ontology/
-
-### 5.3 Wikidata
-
-参照観点:
-
-- EntityそのものとClassを分離するモデル
-- `instance of` / `subclass of`
-- 大量の具体Classをcore enumへ固定しない考え方
-
-重要な示唆:
-
-- SGOKBでも`object_type`を巨大な固定enumにする必要はない可能性が高い。
-- Object Identityとclassification membershipを分離する設計を比較すべき。
-
-参考:
-- https://www.wikidata.org/wiki/Help:Data_model
-- https://www.wikidata.org/wiki/Help:Basic_membership_properties/en
-
-### 5.4 WordNet
-
-参照観点:
-
-名詞の意味分類として、person / group / location / artifact / event / cognition / attribute / feeling / motive / relation / state / process等を持つ。
-
-重要な示唆:
-
-- `Concept`内部にはTheme / Attribute / Value / Motive / Feeling / State等の異なる意味カテゴリが存在し得る。
-- それらすべてを上位Object Typeにするのではなく、Concept subtype/classやFacetとの境界を検討すべき。
-
-参考:
-- https://wordnet.princeton.edu/documentation/lexnames5wn
-
-### 5.5 Dublin Core / DCMI Type Vocabulary
-
-参照観点:
-
-- Collection / Dataset / Event / Image / InteractiveResource / Service / Software / Sound / Text等のResource Type
-
-重要な示唆:
-
-- SGOKBでは主にSource / Resource type検討の参考になる。
-- Object typeとSource typeは分離すべき。
-
-参考:
-- https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#section-7
-
----
-
-## 6. 予備調査から得た重要な仮説
-
-以下は有力な方向性だが、B-02A〜B-02Dの正式検討前に確定事項として扱わない。
-
-### 6.1 1階層固定enumは避ける方向が有力
-
-次のような単純な1階層列挙は将来肥大化する可能性がある。
+SGOKBで扱い得る候補をCharacter / Work / Conceptだけに限定せず、少なくとも次のFamilyまで拡張して評価した。
 
 ```text
-Character
-Work
-Concept
-Person
-Organization
-Place
+Agent / Actor
+Creative Work / Media
+Place / Setting
 Event
-Artifact
-Species
-...
+Artifact / Item / Product
+Biological / Taxonomic
+Concept / Abstract
+Action / Process / Ability
+Time / Period
+System / Service / Software
+Substance / Material
+Natural Phenomenon
+Language / Term / Symbolic System
 ```
 
-代わりに、少なくとも次のモデルを比較する。
+独立Object化価値は、Identity、複数Source、他Object参照、検索比較価値、Version、独立Evidenceの6観点で判断する。
 
-```text
-案A: 現在のobject_typeを拡張する
-
-案B: broad object_type + subtype/class
-
-案C: Objectは単一Identityとし、class membershipを別に持つ
-```
-
-採用方式はB-02Cで決定する。
-
-### 6.2 上位カテゴリ候補
-
-予備調査では、次のカテゴリは複数の既存体系に現れ、SGOKBでも検討価値が高いと判断した。
-
-- Agent相当
-  - Character
-  - Person
-  - Organization / Group / Faction
-- CreativeWork相当
-  - Work
-  - Series / Franchise
-  - Episode / Chapter
-- Place / Setting
-- Event
-- Artifact / Item / Product
-- Concept
-- Species / Race
-
-追加検討候補:
-
-- Action / Process / Ability
-- Time / Period
-
-これらを最終`object_type`とすることはまだ決めていない。
-
-### 6.3 Objectとする判断基準
-
-独立Object候補について、少なくとも次を評価する。
-
-- 独立したIdentityを持つか
-- 複数SourceからKnowledgeを蓄積する価値があるか
-- 他Objectから参照されるか
-- それ自体を検索・比較したいか
-- 独自Versionを持つ価値があるか
-- Source / Evidenceを独立して関連付けたいか
-
-複数条件を満たすほど独立Object化の価値が高い。
+B-02Bで付与したCore / High / Futureは、B-02C後はClass Registryへの包含時期ではなく、Class固有機能の実装優先度を示す予備評価として扱う。
 
 ---
 
-## 7. Object / Facet / Relationを分ける考え方
+## 5. B-02Cで採用したClassification model
 
-分類作業では、概念を何でもObject typeへ昇格させない。
+SGOKBは次の方式を採用する。
 
-例:
+> Object IdentityとClassificationを分離し、各Objectに1つのPrimary Classを必須で割り当て、0件以上のAdditional Classを許容する。Classはhierarchical Class Registryで管理する。
 
-```text
-「櫻木真乃」
-→ Object候補
+主要ルール:
 
-「Character」
-→ Type / Class候補
-
-「性格」
-→ Facet候補
-
-「283プロダクションに所属する」
-→ Relation候補
-
-「明るい」
-→ Knowledge value候補
-```
-
-特に判断が必要な境界例:
-
-- Series / FranchiseはWork subtypeか独立上位Typeか
-- FactionはOrganization subtypeか
-- FictionalPlace / RealPlaceを同じPlace配下にするか
-- Abilityは独立ObjectかCharacter FacetかRelationか
-- Theme / Motivation / Feeling / StateはConcept classかFacet valueか
-- Species / RaceはObjectかClassか
-- Episode / ChapterはCreativeWork Objectか構造要素か
-
-これらはB-02Dで最終的に整理する。
+1. `Character / Work / Concept / ...`を固定enumへ並べ続けない。
+2. Primary Classは必須1件、Additional Classは0件以上。
+3. Class hierarchyは複数親を許容するDAGとしcycleを禁止する。
+4. Object→Classは`instance_of`相当。
+5. Class→Classは`subclass_of`相当。
+6. Classification edgeは通常のSemantic Relationと分離する。
+7. Class Registry entryを通常のKnowledge Objectとして扱うことは要求しない。
+8. broad typeをObjectへ重複保存せず、Class ancestryから導出する。
+9. Class変更・追加でも同一意味対象なら`object_id`を維持する。
 
 ---
 
-## 8. Source typeとの分離
+## 6. 2026-10-10追加決定 — 初期Class Registryを広く用意する
 
-今回の議論で重要になった原則の1つが次である。
+Classの初期登録方針を次のように変更した。
 
-```text
-Source Type
-= 何を取得したか / どのような資料か
+> **B-02Dで正式なObject Classとして採用されたClassは、利用頻度や専用機能の完成度にかかわらず、原則として初期Class Registryへ登録する。**
 
-Object Type / Class
-= その資料が何について述べているか
-```
+理由は、少数Classだけで運用開始すると、本来別Classへ分類すべきObjectが`Concept`等の広いClassへ集中し、そのClassの意味幅と件数が歴史的に肥大化するためである。
 
-例:
+後からClassを追加しても、既存データの再分類コストと分類分布の偏りが残る可能性がある。
+
+したがって次を分離する。
 
 ```text
-Source: Interview Article
-  ├─ Person Object
-  ├─ Character Object
-  └─ Work Object
+初期Class Registryへの包含
+  ≠
+Class固有Facet / UI / validation / search等の専用機能実装優先度
 ```
 
-Source type候補:
+Character / Work / Conceptは主要ユースケースとして専用機能を優先してよい。一方、Artifact / Taxon / Ability / Era / Software / Material / Language等も、B-02DでClassとして採用されれば初期Registryへ登録する。
 
-- WebPage
-- Article
-- Interview
-- Profile
-- Wiki / Encyclopedia page
-- Dataset
-- Image
-- Video
-- InteractiveResource
-
-この一覧自体はB-03で正式決定する。
-
-B-02AではObject分類とSource分類を混同しないための境界として整理する。
+この方針は外部Ontologyの全Classを取り込むことを意味しない。対象はSGOKB自身がB-02Dで正式採用したClassに限定する。
 
 ---
 
-## 9. 現在の正式タスク構成
+## 7. Generic Classへのfallback方針
+
+必要Classが未登録であるという実装上の理由だけで、意味的に異なる`Concept` / `Work` / `Character`等へObjectを丸め込まない。
+
+原則:
 
 ```text
-B-02 Object Identity要件            完了
+必要Classを識別
   ↓
-B-02A 外部分類体系を正式調査       未着手
+Class Registryへ追加 / review / staging
   ↓
-B-02B SGOKB Object候補整理          未着手
+正しいClassでObject登録
+```
+
+既存上位Classへの一時登録を許すのは、その上位Class自体が対象を正しく表し、後の再分類を前提としなくても意味を損なわない場合に限る。
+
+stagingやpending-classの物理方式はE-01 / E-05で決定する。
+
+---
+
+## 8. B-02Dで決めること
+
+B-02DではB-02Bの全候補を、Object Class / Facet / Relation / value / SGOKB Object対象外へ具体的に配置する。
+
+重点境界:
+
+- Character vs Person
+- Organization vs Group / Faction
+- Work vs Series / Franchise / Episode / Chapter / Arc
+- Place vs Setting / World
+- Event Object vs Work metadata / Source Type
+- Named Artifact vs Product vs generic Item Class
+- Species / Race vs Class
+- Concept vs Theme / Trait / Feeling / Motivation / State
+- Ability / Skill vs Character Facet
+- Action / Process vs Concept / Relation
+- Era / Period vs scalar time value
+- System / Mechanic vs Concept
+- Dataset / Article / Image / VideoのObject roleとSource role
+- Role / Occupation / TitleのClass / Concept / Relation value境界
+
+さらに今回の方針変更により、B-02Dは次も必須成果とする。
+
+1. 正式採用したObject Classの一覧。
+2. そのうち初期Class Registryへseedする集合。原則は正式採用Classすべて。
+3. Registry包含とは別のClass固有機能実装優先度。
+4. 既存の広いClassへのfallbackを許す条件 / 禁止する条件。
+
+---
+
+## 9. Phase Eへの影響
+
+E-01ではClass Registry、Class hierarchy、Object-Class membershipを物理schemaへ落とし込む。
+
+通常のObjectデータ投入前に、B-02Dで採用した初期Class集合を決定論的にseedできなければならない。
+
+E-02では、専用Facetが未定義のClassでも共通Object contractで保持できるようにする。
+
+E-05では、Primary / Additional ClassのRegistry存在確認を行い、専用extension未実装を理由に別Classへ自動fallbackさせない。
+
+---
+
+## 10. 現在の進行順
+
+```text
+B-02 Object Identity要件              完了
   ↓
-B-02C Object Type / Class階層設計   未着手
+B-02A 外部分類体系調査               完了
   ↓
-B-02D Object / Facet / Relation境界 未着手
+B-02B Object候補整理                  完了
+  ↓
+B-02C Type / Class hierarchy          完了
+  ↓
+B-02D Object / Facet / Relation境界   次に実施
   ↓
 B-03 Source / Evidence要件
 ```
 
-### B-02A 成果物
-
-`docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
-
-### B-02B 成果物
-
-`docs/requirements/OBJECT_TYPE_CANDIDATES.md`
-
-### B-02C 成果物
-
-`docs/requirements/OBJECT_TYPE_MODEL.md`
-
-### B-02D 成果物
-
-`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`
-
-必要であればB-02Dで`OBJECT_REQUIREMENTS.md`を改訂する。
-
 ---
 
-## 10. B-02Aで実施すべきこと
+## 11. B-02Dの成果物
 
-次チャットではB-02Aだけを対象とする。
+主成果物:
 
-最低限、次を行う。
+- `docs/requirements/OBJECT_TYPE_BOUNDARIES.md`
 
-1. Schema.orgの主要上位TypeとSGOKB関連subtypeを正式に確認する。
-2. DBpedia Ontologyの主要cross-domain classを確認する。
-3. WikidataのEntity / Class / instance / subclassモデルを整理する。
-4. WordNet noun categoryをSGOKB用途の観点で整理する。
-5. Dublin Core等のResource Typeを確認し、Source typeとObject typeの境界を整理する。
-6. 各体系の目的の違いを明記する。
-7. 各体系に共通して現れるカテゴリを比較表にする。
-8. SGOKBへそのまま採用すべきでない分類も記録する。
-9. B-02Bで利用できるObject候補抽出ルールを作る。
-
-Web上の現在の公式資料を確認し、一次資料を優先する。
-
-B-02AではSGOKBの最終Object Type一覧を確定しない。最終分類決定はB-02B〜Dで行う。
-
----
-
-## 11. B-02Aで変更してよい文書
-
-最低限:
-
-- 新規 `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
-- `docs/planning/OBJECT_TYPE_REFINEMENT_TASKS.md` のB-02A状態
-- `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md` のB-02A状態
-- `docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md` の現在地点
-- 本Handoffの現在地点
-
-必要な場合のみ:
+必要に応じて更新:
 
 - `docs/requirements/OBJECT_REQUIREMENTS.md`
-
-ただし、B-02Aは調査Taskなので、Object Identity要件を理由なく変更しない。
-
----
-
-## 12. この時点で決めないこと
-
-次をB-02Aで先回りして確定しない。
-
-- SQL table / column
-- UUID / ULID等の`object_id`形式
-- Type registryの物理schema
-- Facet table schema
-- Relation table schema
-- JSON Schema
-- Search scoring
-- Embedding model
-- MCP Tool schema
-- Source / Evidenceの詳細schema
-- Google Drive交換形式
-
-Object分類の論理要件を先に固める。
+- `docs/requirements/OBJECT_TYPE_MODEL.md`
+- `docs/requirements/OBJECT_TYPE_CANDIDATES.md`
+- `docs/planning/OBJECT_TYPE_REFINEMENT_TASKS.md`
+- `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
 
 ---
 
-## 13. 次チャットが読む順序
+## 12. 次チャットが読む順序
 
-1. `docs/planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md`（本書）
+1. `docs/planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md`
 2. `docs/planning/OBJECT_TYPE_REFINEMENT_TASKS.md`
-3. `docs/requirements/OBJECT_REQUIREMENTS.md`
-4. `docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`
-5. `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
-
-必要に応じて:
-
-- `docs/requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md`
-- `docs/decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
+3. `docs/requirements/OBJECT_TYPE_MODEL.md`
+4. `docs/requirements/OBJECT_TYPE_CANDIDATES.md`
+5. `docs/requirements/OBJECT_REQUIREMENTS.md`
+6. `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
 
 ---
 
-## 14. 次チャット開始用プロンプト
+## 13. 次チャット開始用プロンプト
 
 ```text
-Source Grounded Object Knowledge Base（SGOKB）のKnowledge Base再設計を続けます。
+Source Grounded Object Knowledge Base（SGOKB）のObject分類設計を続けます。
 
 今回実施するタスクは、
-B-02A [P0] 外部分類体系を正式調査する
+B-02D [P0] Object / Facet / Relation / 対象外の境界を確定する
 です。
 
-最初にGitHubリポジトリの以下の文書を確認し、ここまでの決定事項とObject Type精緻化の目的を把握してください。
+最初に以下を確認し、B-02A〜B-02Cの決定と最新の初期Class Registry方針を把握してください。
 
 - docs/planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md
 - docs/planning/OBJECT_TYPE_REFINEMENT_TASKS.md
+- docs/requirements/OBJECT_TYPE_MODEL.md
+- docs/requirements/OBJECT_TYPE_CANDIDATES.md
 - docs/requirements/OBJECT_REQUIREMENTS.md
-- docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
-- docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
+- docs/reference/OBJECT_CLASSIFICATION_SURVEY.md
 
-B-02で確定したObject Identity要件は維持してください。
+特に、B-02Dで正式なObject Classとして採用したClassは、利用頻度や専用機能の実装優先度にかかわらず、原則として初期Class Registryへ登録する方針を維持してください。
 
-Schema.org、DBpedia Ontology、Wikidata、WordNet、Dublin Core / DCMI Type Vocabulary等の現在の公式資料を調査し、それぞれの分類体系の目的、主要分類、階層構造、SGOKBへ応用できる考え方、応用すべきでない部分を整理してください。
+B-02Bの全候補をObject Class / Facet / Relation / value / 対象外へ分類し、なぜその配置にするか説明してください。
 
-特に以下を重視してください。
-- Object typeとSource typeを混同しないこと
-- 1階層の固定enumを前提にしないこと
-- 各体系に共通して現れる基本カテゴリを抽出すること
-- Object / Class / Facet / Relationの違いを意識すること
-- B-02BのObject候補整理に再利用できる比較表を作ること
+また、次を別々に確定してください。
+1. 正式採用Object Class一覧とClass hierarchy。
+2. 初期Class RegistryへseedするClass集合。
+3. Class固有Facet / UI / validation / search等の実装優先度。
+4. 未登録Classが必要な場合のfallback / review / stagingルール。
 
-成果物として、
-docs/reference/OBJECT_CLASSIFICATION_SURVEY.md
-を作成してください。
-
-必要な関連ドキュメントの更新、リンク確認、Git反映まで実施してください。
-B-02Aでは最終Object Type一覧や物理DB Schemaまでは確定しないでください。
+成果物として `docs/requirements/OBJECT_TYPE_BOUNDARIES.md` を作成し、必要な関連文書を同期してください。
 ```
 
 ---
 
-## 15. 現在地点
+## 14. 現在地点
 
 - SGOKB Rename: 完了
 - 旧Prototype docs整理: 完了
-- A-01〜A-03: 完了
+- Phase A: 完了
 - B-01: 完了
-- B-02 Object Identity要件: 完了
-- Object Type refinement task series: 作成済み
-- B-02A: 次に実施
+- B-02 Object Identity: 完了
+- B-02A: 完了
+- B-02B: 完了
+- B-02C: 完了
+- 初期Class Registry方針変更: 反映済み
+- B-02D: 次に実施
 - B-03: Gateにより保留
 
 この状態を次チャットへの開始点とする。
