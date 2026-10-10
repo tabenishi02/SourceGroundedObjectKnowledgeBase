@@ -9,7 +9,8 @@
   - `docs/requirements/OBJECT_REQUIREMENTS.md`
   - `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
   - `docs/requirements/OBJECT_TYPE_CANDIDATES.md`
-- Next: `B-02D [P0] Object / Facet / Relation / 対象外の境界を確定する`
+- B-02D result: `docs/requirements/OBJECT_TYPE_BOUNDARIES.md`
+- Next: `B-03 [P0] Source / Evidence要件を再確認する`
 
 ---
 
@@ -205,7 +206,7 @@ Additional Classは、Primary Classだけでは表現できない重要な分類
 ```text
 Object: Software X
 primary_class = Software
-additional_classes = [CreativeWork]
+additional_classes = [Work, Product]  # 該当する場合
 ```
 
 あるいは将来、fictional / artificial / product等のClassを追加した場合に複数Classで表現できる。
@@ -252,7 +253,7 @@ Classは**Class Registry**で管理する。
 | `name` | 人間向けClass名 |
 | `description` | Classの意味・適用条件 |
 | `parent_classes` | 0件以上の上位Class参照 |
-| `assignable` | Objectへ直接割当可能か |
+| `assignment_policy` | `structural` / `primary_eligible` / `additional_only` の論理区分 |
 | `status` | active / archived等のClass lifecycle |
 
 具体的column名・ID形式はE-01で決定する。
@@ -292,9 +293,9 @@ Class自体について独立したKnowledgeを蓄積したい場合は、必要
 Class hierarchyは単純な1本のtreeへ限定せず、必要に応じて複数の親Classを許容する。
 
 ```text
-Software
-├─ subclass_of → System
-└─ subclass_of → CreativeWork   # 必要と判断した場合
+Character
+├─ subclass_of → Agent
+└─ subclass_of → FictionalEntity
 ```
 
 ただし、循環は許可しない。
@@ -310,48 +311,20 @@ B subclass_of A
 
 ---
 
-### 6.2 Initial Registry Scaffold
+### 6.2 B-02D確定Hierarchyとの関係
 
-B-02Bの候補Familyを基に、Class Registryが少なくとも次の上位領域を表現可能な構造とする。
+B-02CではClass hierarchyの構造要件だけを定義し、具体的Class配置はB-02Dへ委ねた。
 
-```text
-ObjectClass  # 概念上のroot。Objectへ直接割当しない
-├─ Agent
-│  ├─ Character
-│  ├─ Person
-│  └─ Organization
-├─ CreativeWork
-│  └─ Work
-├─ Place
-├─ Event
-├─ Artifact
-├─ Taxon
-├─ Concept
-├─ Process           # Object/Class境界はB-02Dで確定
-├─ TemporalEntity
-├─ System
-├─ Material
-├─ Phenomenon        # Object/Class境界はB-02Dで確定
-└─ Language
-```
+B-02Dで正式な初期Class Registry seed集合を確定したため、具体的なClass hierarchy、Structural / Primary-eligible / Additional-only区分、候補ごとの配置は `OBJECT_TYPE_BOUNDARIES.md` を正本とする。
 
-このScaffoldは実装優先順位ではなく、「初期Class Registryで分類可能にすべき領域」の候補を示す。B-02Dで正式なObject Classとして採用されたClassは、利用頻度や専用機能の完成度にかかわらず、原則として初期Class Registryへ登録する。
+B-02Cで定義した次の構造原則は引き続き有効である。
 
-次の候補の具体的配置はB-02Dで確定する。
-
-- Group / Team / Faction
-- Series / Franchise / Episode / Chapter / Arc
-- FictionalPlace / Setting / World
-- Named Artifact / Product / generic Item
-- Species / Race
-- Theme / Trait / Feeling / Motivation / State
-- Ability / Skill / Action / Process
-- Era / Period / Timeline / Continuity
-- Software / Service / Rule System
-- Natural Phenomenon
-- Term / Writing System
-
-B-02Cでは、これらを無理に固定するよりも、B-02DでObject / Class / Facet / Relation境界を確認してから配置する。
+- hierarchyはDAGでありcycleを禁止する。
+- broad typeをObjectへ重複保持しない。
+- Primary Classは1件必須、Additional Classは0件以上。
+- ClassificationとSemantic Relationを分離する。
+- Class Registryへの包含とClass固有機能の実装優先度を分離する。
+- 正式採用Classは原則として通常データ投入前に初期Registryへseedする。
 
 ---
 
@@ -420,10 +393,10 @@ SGOKBではmultiple classificationを許容する。
 
 理由は、B-02Bで次のような対象が単一分類だけでは不自然になる可能性が確認されたためである。
 
-- Software: System / CreativeWork / Productの観点を持ち得る。
-- Fictional organization: Organizationでありfictionalという横断分類を持ち得る。
-- Character: Characterに加えてArtificialIntelligence等のClassを持ち得る。
-- Named artifact: Artifactであると同時にProductやWeapon等のClassを持ち得る。
+- Software: Primary=`Software`に加え、該当する場合は`Work` / `Product`等をAdditional Classとして持ち得る。
+- Fictional organization: Primary=`Organization`、Additional=`FictionalEntity`を持ち得る。
+- Team / Faction: 制度的Organizationでもある場合、Primary=`Team` / `Faction`、Additional=`Organization`を持ち得る。
+- Artifact: 市販Productでもある場合、Primary=`Artifact`、Additional=`Product`を持ち得る。
 
 ただし、Primary Classは常に1つに限定し、Additional Classは補助分類として扱う。
 
@@ -522,17 +495,18 @@ Class Registryへの追加または設計レビュー
 
 1. Primary Classは必須である。
 2. Primary ClassはClass Registryに存在する。
-3. Primary Classはactiveかつassignableである。
+3. Primary Classはactiveかつ`primary_eligible`である。
 4. Additional Classは0件以上である。
-5. Additional ClassはClass Registryに存在する。
-6. 同一ClassをPrimary / Additionalへ重複登録しない。
-7. Class hierarchyにcycleを作らない。
-8. archived Classを新規Objectへ割り当てない。
-9. ObjectのClass変更で`object_id`を変更しない。
-10. Class追加時に既存Objectの再採番を要求しない。
-11. B-02Dで初期Registry対象として採用されたClassが、本番Object投入前に登録済みであることを検証できる。
-12. 専用FacetやUIが未実装であることを理由に、そのClassを別の汎用Classへ自動変換しない。
-13. Class固有extensionが未実装でも、共通Object contractだけで正しいClass membershipを保持できる。
+5. Additional ClassはClass Registryに存在し、activeである。
+6. Additional Classは`primary_eligible`または`additional_only`であり、`structural` Classを直接membershipとして割り当てない。
+7. 同一ClassをPrimary / Additionalへ重複登録しない。
+8. Class hierarchyにcycleを作らない。
+9. archived Classを新規Objectへ割り当てない。
+10. ObjectのClass変更で`object_id`を変更しない。
+11. Class追加時に既存Objectの再採番を要求しない。
+12. B-02Dで初期Registry対象として採用されたClassが、本番Object投入前に登録済みであることを検証できる。
+13. 専用FacetやUIが未実装であることを理由に、そのClassを別の汎用Classへ自動変換しない。
+14. Class固有extensionが未実装でも、共通Object contractだけで正しいClass membershipを保持できる。
 
 具体的なJSON validation / DB constraintはE-01 / E-05で決定する。
 
@@ -596,7 +570,7 @@ Object
 Class Registry
   stable class identity
   human-readable metadata
-  assignable flag
+  assignment policy (structural / primary_eligible / additional_only)
   lifecycle status
   zero-or-more parent Class references
 ```
@@ -609,31 +583,29 @@ Class Registry
 - ancestor classを検索可能にする。
 - Class registryとObject registryを別責務として扱える。
 - Source Type registryとは別に管理できる。
+- `structural` / `primary_eligible` / `additional_only`を区別し、Primary / Additional assignmentをvalidationできる。
 - B-02Dで採用した初期Class集合を、通常のObjectデータ投入前に決定論的にseedできる。
 - Classごとの専用Facet / UI / extensionの実装有無と、Class Registryへの登録有無を独立して管理できる。
 - 未登録Classが必要になった際、意味的に不正確な汎用Classへ自動fallbackせず、追加・review・stagingのいずれかへ誘導できる。
 
 ---
 
-## 14. B-02Dへ渡す論点
+## 14. B-02D確定事項
 
-B-02Dでは、本モデルを前提として各候補を具体的に配置する。
+B-02Dで次を確定した。
 
-特に次を判断する。
+1. B-02B候補のObject / Class / Facet / Relation / value / Source側境界。
+2. 正式なClass hierarchyと初期Class Registry seed集合。
+3. Character / Work / Conceptの新Classification modelへの再マッピング。
+4. Series / Franchise / WorkComponent、Organization / Group / Team / Faction等の具体配置。
+5. Taxon ObjectとClass Registry taxonomyの分離。
+6. Theme / Trait / Emotion / Motivation / Role等のConcept系ObjectとFacet valueの使い分け。
+7. Ability / Skill ObjectとCharacter abilities Facetの併用境界。
+8. Date / Time Interval等をscalar valueとする境界。
+9. Source TypeとObject Classを別record・別責務とする境界。
+10. generic fallbackの許可 / 禁止条件とreview / staging原則。
 
-1. Group / Team / FactionをOrganization系Classへ置くか。
-2. Series / Franchise / Episode / Chapter / ArcをCreativeWork系Classとしてどう配置するか。
-3. FictionalPlace / Setting / WorldをPlace系へ統合するか。
-4. Product / generic Item / Named ArtifactをArtifact系へどう分離するか。
-5. Species / RaceをTaxon Classとして扱うか、Classそのものとして扱うか。
-6. Theme / Trait / Feeling / Motivation / StateをConcept Class、Facet、valueのどこへ置くか。
-7. Ability / Skill / Action / ProcessをProcess系Objectにする条件をどう定めるか。
-8. Era / Period / Timeline / ContinuityをTemporalEntityへ置く条件をどう定めるか。
-9. Software / Service / Rule SystemのPrimary ClassとAdditional Classの使い方。
-10. Source TypeとObject Classが同名になる場合の境界。
-11. 正式なObject Classとして採用したClassを、初期Class Registry対象として一覧化する。
-12. Class Registryへの包含とは別に、Class固有Facet / UI / validation / search等の専用機能実装優先度を整理する。
-13. 既存の広いClassへ一時的にfallback可能な条件と、意味的な丸め込みとして禁止する条件を明示する。
+詳細は `OBJECT_TYPE_BOUNDARIES.md` を正本とする。
 
 ---
 

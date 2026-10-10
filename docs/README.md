@@ -5,17 +5,18 @@
 ## まず読む文書
 
 1. [目的要件](requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md) — SGOKBが何を実現するシステムか。
-2. [Object要件](requirements/OBJECT_REQUIREMENTS.md) — ObjectのIdentity、型、共通属性、Versionとの関係。
-3. [再設計Decision](decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md) — 旧Prototypeから何を変更し、なぜ変更するか。
-4. [再設計タスク](planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 現在の進捗と次に実施する作業。
-5. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — B-03前に実施するObject分類の詳細計画。
-6. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — B-02A以降を別チャットで継続するための専用Handoff。
-7. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — 別チャット・Codexへ引き継ぐための全体背景。
+2. [Object要件](requirements/OBJECT_REQUIREMENTS.md) — ObjectのIdentity、共通属性、Versionとの関係。
+3. [Object分類境界](requirements/OBJECT_TYPE_BOUNDARIES.md) — 正式Class hierarchyとObject / Facet / Relation / value境界。
+4. [再設計Decision](decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md) — 旧Prototypeから何を変更し、なぜ変更するか。
+5. [再設計タスク](planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 現在の進捗と次に実施する作業。
+6. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+7. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03への入力をまとめた専用Handoff。
+8. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — 別チャット・Codexへ引き継ぐための全体背景。
 
 ## 現行文書
 
 ### `requirements/`
-現在有効な要件を置く。B-01の目的要件、B-02のObject要件を収録済み。B-03以降でSource / Evidence / Result / Search / NFR要件を追加する。
+現在有効な要件を置く。B-01の目的要件、B-02のObject要件、B-02A〜Dで確定したObject分類モデル・境界を収録済み。B-03以降でSource / Evidence / Result / Search / NFR要件を追加する。
 
 ### `decisions/`
 現在も有効なArchitecture Decisionを置く。

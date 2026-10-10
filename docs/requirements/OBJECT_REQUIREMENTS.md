@@ -9,6 +9,7 @@
   - `docs/decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
   - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
   - `docs/requirements/OBJECT_TYPE_MODEL.md`
+  - `docs/requirements/OBJECT_TYPE_BOUNDARIES.md`
   - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
   - `docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md`
 
@@ -174,7 +175,7 @@ aliasの種類・言語コード等の詳細属性を保持するかはE-01で�
 
 既知の正式Classが未登録であることを理由として、意味的に異なる`Concept` / `Work` / `Character`等へObjectを自動的に丸め込んではならない。必要ClassをRegistryへ追加・review・stagingする方式を優先する。
 
-Class hierarchy、multiple classification、初期Registry包含方針、`instance_of` / `subclass_of`相当概念の論理契約は`OBJECT_TYPE_MODEL.md`を正本とする。Class Registryの物理実装とvalidation詳細はE-01 / E-05で決定する。
+Class hierarchy、multiple classification、初期Registry包含方針、`instance_of` / `subclass_of`相当概念の論理契約は`OBJECT_TYPE_MODEL.md`を正本とする。具体的Class hierarchyと`Structural` / `Primary-eligible` / `Additional-only`境界は`OBJECT_TYPE_BOUNDARIES.md`を正本とする。Class Registryの物理実装とvalidation詳細はE-01 / E-05で決定する。
 
 ### OBJ-07 — Class固有Knowledgeは共通Object identityから分離する
 
@@ -305,25 +306,28 @@ Characterは、特定Work配下の物理子要素としてIdentity化しない�
 
 どこまでを「同一Character」とみなすかを自動推論のみで確定してはならない。
 
-### OBJ-16 — Workの親子・シリーズ構造も別Object + Relationで表現する
+### OBJ-16 — CreativeWork構造はClass + Relationで表現する
 
-シリーズ、派生作品、個別タイトル等がそれぞれ独立してKnowledgeを持つ価値がある場合、それぞれを別Work Objectとして登録できなければならない。
+B-02Dでは`Work` / `Series` / `Franchise` / `Episode` / `Chapter` / `Volume` / `Season` / `Arc`等をClass Registry上で区別する。SeriesやFranchiseを単なるWork属性へ押し込まない。
+
+個別Object間の包含・派生・順序はRelationで表現し、Class hierarchyだけで作品構造を表現しない。
 
 例:
 
 ```text
-Work Object: シリーズ
-  ↓ relation
-Work Object: 派生作品A
-  ↓ relation
-Work Object: 個別タイトルB
+Series Object
+  ├─ includes → Work Object A
+  └─ includes → Work Object B
+
+Work Object B
+  └─ has_part → Episode Object
 ```
 
-親Workの`object_id`を子WorkのIDへ埋め込む等、階層変更によってIDが変わる設計を採用してはならない。
+親Objectの`object_id`を子ObjectのIDへ埋め込む等、構造変更によってIDが変わる設計を採用してはならない。詳細境界は`OBJECT_TYPE_BOUNDARIES.md`を正本とする。
 
-### OBJ-17 — Conceptは外部世界の意味対象として扱う
+### OBJ-17 — Concept系Objectは外部世界の意味対象として扱う
 
-Concept Objectは、作品横断で参照・比較・Relation付与できる抽象概念を表す。
+ConceptおよびTheme / Ideology / Trait / Emotion / Motivation / StateConcept / RoleConcept / ArtifactTypeConcept等のConcept系Objectは、作品横断で参照・比較・Relation付与できる抽象概念を表す。
 
 例:
 
@@ -448,7 +452,7 @@ B-02では次を意図的に確定しない。
 - aliasのlanguage / category schema
 - Relation type一覧
 - Relationの方向・対称性
-- Facet一覧とtype別必須Facet
+- Facet一覧とClass別必須Facet
 - Object Result JSON形式
 - Evidence Link schema
 - merge / split / redirectの具体アルゴリズム
@@ -505,4 +509,4 @@ B-02は次を満たした時点で完了とする。
 - ConceptとUPDS Personal Inferenceの境界がB-02レベルで明確である。
 - 物理schemaやFacet詳細を後続Taskへ適切に延期している。
 
-以上をObject Identity要件の基準とする。B-02CでClassificationは`Primary Class + Additional Classes + hierarchical Class Registry`へ精緻化した。候補Classの具体的なObject / Facet / Relation境界はB-02Dで確定し、その結果をB-03以降およびPhase Eの前提とする。
+以上をObject Identity要件の基準とする。B-02CでClassificationは`Primary Class + Additional Classes + hierarchical Class Registry`へ精緻化し、B-02Dで正式Class hierarchy、Object / Facet / Relation / value境界、初期Registry seed集合、fallback条件を`OBJECT_TYPE_BOUNDARIES.md`として確定した。B-03以降およびPhase Eはこの境界を前提とする。

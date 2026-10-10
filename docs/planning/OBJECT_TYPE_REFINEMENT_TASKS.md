@@ -3,8 +3,8 @@
 更新日: 2026-10-10
 
 - Parent: `B-02 [P0] Object要件を定義する`
-- Status: In Progress
-- Gate: 本タスク群を完了するまで `B-03 Source / Evidence要件` の詳細確定へ進まない
+- Status: Complete (2026-10-10)
+- Gate: Complete — B-03へ進行可能
 - Related:
   - `docs/requirements/OBJECT_REQUIREMENTS.md`
   - `docs/requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md`
@@ -16,7 +16,7 @@
 
 ## 1. 目的
 
-B-02ではObjectを安定Identityとして定義し、初期Object typeとして `Character` / `Work` / `Concept` を置いた。
+B-02当初はObjectを安定Identityとして定義し、暫定的な初期分類として `Character` / `Work` / `Concept` を置いた。その後B-02C / B-02DでClass Registry方式へ精緻化した。
 
 しかし、SGOKBが将来どのようなWeb資料を収集し、どの対象をKnowledgeとして独立管理するかを精緻化するには、Object type候補をより広く検討する必要がある。
 
@@ -285,42 +285,43 @@ Object
 
 ## B-02D [P0] Object / Facet / Relation / 対象外の境界を確定する
 
-- [ ] B-02Bの全候補を次のいずれかへ分類する。
-  - 上位Object Type
-  - Object subtype / Class
-  - Facet
-  - Relation
-  - SGOKB Object対象外
-- [ ] 同じ語が文脈によって複数役割になり得るケースを整理する。
-- [ ] Character / Work / Conceptの既存要件を新分類モデルへ再マッピングする。
-- [ ] Object subtype / Classとして正式採用した候補を、初期Class Registry対象として一覧化する。
-- [ ] Class Registryへの包含とは別に、Class固有Facet / UI / validation / search等の専用機能実装優先度を記録する。
-- [ ] 未登録Classが必要になった場合に、既存の広いClassへfallback可能な条件と、意味的丸め込みとして禁止する条件を定義する。
-- [ ] Source typeとの境界をB-03へ引き継ぐ。
-- [ ] UPDS Personal Inferenceとの境界をPhase Cへ引き継ぐ。
+- [x] B-02Bの全候補をObject Class / Facet / Relation / value / Source側 / 対象外へ分類する。
+- [x] 同じ語が文脈によって複数役割になり得るケースを整理する。
+- [x] Character / Work / Conceptの既存要件を新分類モデルへ再マッピングする。
+- [x] Object Classとして正式採用した候補を初期Class Registry seed集合として確定する。
+- [x] Class Registryへの包含とは別に、Class固有Facet / UI / validation / search等の専用機能実装優先度を記録する。
+- [x] 未登録Classが必要になった場合のfallback / review / staging境界を定義する。
+- [x] Source typeとの境界をB-03へ引き継ぐ。
+- [x] UPDS Personal Inferenceとの境界をPhase Cへ引き継ぐ。
 
-### 重点例
+### 主な決定
 
-- Series / FranchiseはWork subtypeか独立上位Typeか。
-- FactionはOrganization subtypeか。
-- FictionalPlaceとRealPlaceは同一Place class配下か。
-- AbilityはObjectかCharacter FacetかRelationか。
-- Theme / Motivation / Feeling / StateはConcept classかFacet valueか。
-- Species / RaceはObjectかClassそのものか。
-- Episode / ChapterはCreativeWork Objectか単なる構造要素か。
+- Agent配下にCharacter / Person / Organization / Group / Creatureを置き、Team / FactionをGroup配下へ配置した。OrganizationとGroupは兄弟Classとする。
+- CreativeWork配下にWork / Series / Franchise / WorkComponent系を配置し、SeriesをWork属性として扱わない。
+- Fictional / RealはPrimary Class二重体系にせず、横断`FictionalEntity`分類を利用する。
+- Taxon / Species / FictionalRaceはKnowledge Objectとして扱い、Class Registryの`subclass_of`とtaxonomic relationを分離する。
+- Theme / Trait / Emotion / Motivation / Role等はConcept系Objectとして独立管理できる一方、Object固有記述ではFacet valueとしても利用できる。
+- named Ability / SkillはObject + Relation、単純な能力説明はFacetで保持できる。
+- Date / Time Interval、通常のrelease date等はscalar metadataとする。
+- Settingは原則Work Facet、独立した世界はWorld / Place Objectとする。
+- Termは原則name / alias / lexical metadataとし、専用Term Classは初期採用しない。
+- Food / Drug専用Class、ReleaseEvent専用Classは初期採用しない。
 
 ### 成果物
 
 - `docs/requirements/OBJECT_TYPE_BOUNDARIES.md`
-- 必要に応じ `docs/requirements/OBJECT_REQUIREMENTS.md` を改訂
+- `docs/requirements/OBJECT_REQUIREMENTS.md` 同期更新
+- `docs/requirements/OBJECT_TYPE_MODEL.md` 同期更新
 
 ### 完了条件
 
-- 主要候補に「なぜObjectか / なぜObjectでないか」の説明がある。
-- Type / Class / Facet / Relationの責務重複が解消されている。
-- 初期Class RegistryへseedするClass集合が確定している。
-- Class Registry包含とClass固有機能の実装優先度が明確に分離されている。
-- B-03で収集対象Sourceを設計する際に、対象Objectの種類が十分想定されている。
+- [x] 主要候補に「なぜObjectか / なぜObjectでないか」の説明がある。
+- [x] Type / Class / Facet / Relationの責務重複が解消されている。
+- [x] 初期Class RegistryへseedするClass集合が確定している。
+- [x] Class Registry包含とClass固有機能の実装優先度が明確に分離されている。
+- [x] B-03で収集対象Sourceを設計するためのClass familyとSource候補が整理されている。
+
+**Status: Complete (2026-10-10)**
 
 ---
 
@@ -335,9 +336,9 @@ B-02B Object候補整理（完了）
   ↓
 B-02C Type / Class階層設計（完了）
   ↓
-B-02D Object / Facet / Relation境界
+B-02D Object / Facet / Relation境界（完了）
   ↓
-B-03 Source / Evidence要件
+B-03 Source / Evidence要件（次）
 ```
 
 原則として順番に実施する。
@@ -375,4 +376,4 @@ B-02A〜B-02Dを完了した時点で、次を満たすこと。
 - Object Class / 対象カテゴリごとに、どのようなWeb Sourceを収集する可能性があるかを列挙できる。
 - B-03 Source / Evidence要件を設計するための入力が揃っている。
 
-以上を満たした後、B-03へ進む。
+以上を満たしたため、Object Type Refinement task seriesは完了とし、B-03へ進む。

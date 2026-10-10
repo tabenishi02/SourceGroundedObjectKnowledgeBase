@@ -268,7 +268,7 @@ FTSとSemantic Searchを組み合わせる設計は新方針と一致する。
 
 **変更後**
 
-共通Object + `object_type` を中心とするObject modelへ移行する。Object Version、Facet、Relation、Evidence Linkを扱えるようにする。
+共通Object + `primary_class` / `additional_classes` + Class Registryを中心とするObject modelへ移行する。Object Version、Facet、Relation、Evidence Linkを扱えるようにする。
 
 **理由**
 
@@ -303,7 +303,7 @@ Hybrid Search engine自体は再利用できるが、Fragmentを主要検索単�
 
 ### M-04 SearchFilter / Facet / Object filters
 
-`SearchFilter.entity` をObject中心へ変更し、object_type、facet、source等のfilterを新Schemaに合わせる。
+`SearchFilter.entity` をObject中心へ変更し、Primary / Additional / ancestor Class、facet、source等のfilterを新Schemaに合わせる。
 
 ### M-05 Embedding対象
 

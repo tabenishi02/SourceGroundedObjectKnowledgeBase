@@ -99,14 +99,15 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
   - B-02Dで正式採用したObject Classは原則として初期Class Registryへ登録し、Class固有機能の実装優先度とは分離する。
   - 成果物: `docs/requirements/OBJECT_TYPE_MODEL.md`
 
-- [ ] **B-02D [P0] Object / Facet / Relation / 対象外の境界を確定する**
+- [x] **B-02D [P0] Object / Facet / Relation / 対象外の境界を確定する**
   - 全候補を上位Object Type / subtype・Class / Facet / Relation / 対象外へ分類する。
   - Character / Work / Conceptの既存要件を新分類モデルへ再マッピングする。
   - 正式採用Classの初期Registry集合を確定し、Class固有機能の実装優先度を別軸で記録する。
   - 汎用Classへの意味的に不正確なfallbackを防ぐ境界ルールを決める。
+  - 正式Class hierarchy、初期Registry seed集合、Facet / Relation / value境界、fallback ruleを確定した。
   - 成果物: `docs/requirements/OBJECT_TYPE_BOUNDARIES.md`
 
-**Gate:** B-02A〜B-02Dを完了し、収集対象Objectの種類と分類境界を十分想定できるまでB-03の詳細確定へ進まない。
+**Gate:** B-02A〜B-02Dは完了。Object分類境界が確定したためB-03へ進行可能。
 
 - [ ] **B-03 [P0] Source / Evidence要件を再確認する**
   - SourceとObjectを多対多とする。
@@ -320,14 +321,14 @@ src/sgokb/
 ```
 
 - [ ] **G-02 [P0] `manifest.json` schemaを定義する**
-  - object_id / type / name / aliases。
+  - object_id / primary_class / additional_classes / name / aliases。
   - package version。
   - included sources/evidence IDs。
   - extraction timestamp。
   - expected result schema version。
 
 - [ ] **G-03 [P0] ChatGPT用`instructions.md`を設計する**
-  - Object type別の分析目的。
+  - Primary Class / ancestor Class別の分析目的。
   - Fact / synthesis / interpretationの区別。
   - Evidence ID参照ルール。
   - Relation生成ルール。
@@ -392,7 +393,7 @@ src/sgokb/
 
 - [ ] **I-04 [P0] Hybrid SearchをObject Knowledge向けに再実装/改修する**
   - FTS + vector。
-  - type / facet / source等のfilter。
+  - primary/additional/ancestor class / facet / source等のfilter。
   - exact name/aliasをSemantic Searchより優先できるようにする。
 
 - [ ] **I-05 [P0] `find_similar_objects`を実装する**

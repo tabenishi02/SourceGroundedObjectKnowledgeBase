@@ -16,11 +16,9 @@ B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJEC
 
 その後、初期分類 `Character` / `Work` / `Concept` だけでは将来収集するWeb Sourceと対象Knowledgeの想定が不足し得るため、B-03前にObject分類を精緻化するB-02A〜B-02Dを追加した。詳細計画は `docs/planning/OBJECT_TYPE_REFINEMENT_TASKS.md` を正本とする。
 
-B-02A〜B-02Cは2026-10-10時点で完了している。B-02Cでは`Primary Class + Additional Classes + hierarchical Class Registry`方式を採用した。さらに、B-02Dで正式なObject Classとして採用したClassは、専用機能の実装優先度にかかわらず原則として初期Class Registryへ登録する方針を追加した。
+B-02A〜B-02Dは2026-10-10時点で完了している。B-02Cでは`Primary Class + Additional Classes + hierarchical Class Registry`方式を採用し、B-02Dでは正式Class hierarchy、Object / Facet / Relation / value / Source境界、初期Class Registry seed集合、fallback条件を確定した。正本は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`である。
 
-この追加議論の最新の既決事項・未決事項、次チャット開始手順は `docs/planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md` にまとめている。次に実施するのはB-02Dである。
-
-進行順は `B-02A 外部分類体系調査（完了） → B-02B Object候補整理（完了） → B-02C Type/Class階層設計（完了） → B-02D Object/Facet/Relation境界 → B-03 Source/Evidence要件` とする。B-02Dが完了するまでB-03の詳細確定へ進まない。
+Object Type Refinement seriesは完了したため、次に実施するのはB-03 Source / Evidence要件である。専用Handoff `docs/planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md` はB-02A〜Dの完了事項とB-03への入力をまとめた資料として保持する。
 
 ---
 
@@ -637,7 +635,7 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 以下は、以後のPhaseで特別な理由なく覆さない。
 
 1. SGOKBの中心はDocumentではなくObject Knowledgeである。
-2. Character / Work / Conceptを初期Object Typeとする。
+2. Object ClassificationはPrimary Class + Additional Classes + hierarchical Class Registryとし、具体境界は`OBJECT_TYPE_BOUNDARIES.md`を正本とする。
 3. Raw Source / Evidenceを保持し、Provenanceを維持する。
 4. SourceとObjectは多対多とする。
 5. 全Evidenceの生成LLM Fragment化を標準パイプラインから外す。
@@ -771,8 +769,8 @@ X-YY [Priority] <Task名>
 
 ## 23. 現在地点
 
-Phase A、B-01、B-02 Object Identity要件、B-02A外部分類体系調査、B-02B Object候補整理、B-02C Type / Class階層設計まで完了している。
+Phase A、B-01、B-02 Object Identity要件、B-02A〜B-02D Object Type Refinementまで完了している。
 
-Object Identityと共通属性の正本は`docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelの正本は`docs/requirements/OBJECT_TYPE_MODEL.md`とする。B-02Cでは`Primary Class + Additional Classes + hierarchical Class Registry`を採用し、B-02Dで正式採用したClassは原則として初期Registryへ登録する方針まで確定した。
+Object Identityと共通属性の正本は`docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelは`docs/requirements/OBJECT_TYPE_MODEL.md`、具体的Class hierarchyとObject / Facet / Relation / value境界は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`を正本とする。
 
-次の作業は **B-02D [P0] Object / Facet / Relation / 対象外の境界を確定する** である。B-02Dで正式Class一覧、初期Registry seed集合、専用機能優先度、fallback境界を確定した後、B-03 Source / Evidence要件へ進む。
+次の作業は **B-03 [P0] Source / Evidence要件を再確認する** である。B-02Dで整理したClass family別Source coverageを入力として、Source Type / Evidence / Provenance境界を確定する。

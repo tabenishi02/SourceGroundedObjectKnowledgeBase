@@ -8,9 +8,10 @@
 - Input:
   - `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
   - `docs/requirements/OBJECT_REQUIREMENTS.md`
+- B-02D result: `docs/requirements/OBJECT_TYPE_BOUNDARIES.md`
 - Next:
   - `B-02C [P0] Object Type / Class階層を設計する`（完了）
-  - `B-02D [P0] Object / Facet / Relation / 対象外の境界を確定する`
+  - `B-02D [P0] Object / Facet / Relation / 対象外の境界を確定する`（完了）
 
 ## 1. 目的
 
@@ -49,7 +50,7 @@ B-02Aで調査したSchema.org、DBpedia、Wikidata、WordNet、DCMI等の分類
 - **中**: 対象によって独立Object化の価値が高いが、Facet / Relation / Classとの境界判断が必要。
 - **低**: 一般には独立ObjectよりFacet value、Relation、Class、Source metadata等が適する。ただし例外はあり得る。
 
-この評価はB-02B時点の予備評価であり、B-02Dの最終分類ではない。
+この評価はB-02B時点の予備評価である。最終配置はB-02D成果物`OBJECT_TYPE_BOUNDARIES.md`を正本とする。
 
 ### 2.3 当初の実装優先度評価
 
@@ -761,9 +762,9 @@ B-02BからB-02Cへ渡した論点は次のとおりであり、Classification m
 
 ---
 
-# 21. B-02Dへ渡す主要境界論点
+# 21. B-02Dで確定した主要境界論点
 
-B-02Dでは特に次を明示判断する。
+以下の論点はB-02Dで確定済みである。詳細判断は`OBJECT_TYPE_BOUNDARIES.md`を参照する。
 
 - Character vs Person
 - Organization vs Group vs Faction
