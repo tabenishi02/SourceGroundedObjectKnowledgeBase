@@ -881,16 +881,19 @@ source_type = official / wiki / news_article / social_post / ...
 新:
 
 ```text
-resource_type
-media_type
-document_genre
-publisher_kind
-subject_relationship
-site/provider
-page_purpose
+Source本体:
+  resource_type
+  media_type
+  document_genre
+  publisher_kind
+  site/provider
+  page_purpose
+
+Source↔Object association:
+  subject_relationship
 ```
 
-という直交軸へ論理的に分解する。
+Source本体の分類軸と、特定Objectとの関係に依存するassociation metadataへ論理的に分離する。
 
 旧`source_type`はmigration時のlegacy metadataとして保持・best-effort mapping可能とするが、現行要件の正本概念にはしない。
 
@@ -950,7 +953,7 @@ B-03時点では物理migrationを実施しないが、後続migrationでは次�
 - source / genre / publisher / date / Object association等でfilter可能な要件を検討すること。
 - historical Evidenceとactive/effective generationを区別して検索可能にすること。
 
-### E-03 Evidence Link / Provenance schema
+### E-03 Source / Evidence / Evidence Link / Provenance schema
 
 - Object Version / Facet / RelationからEvidenceへのLink。
 - Linkの用途・support relation・生成来歴。
