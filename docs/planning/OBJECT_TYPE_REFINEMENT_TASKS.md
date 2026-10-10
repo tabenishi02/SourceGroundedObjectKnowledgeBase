@@ -9,6 +9,7 @@
   - `docs/requirements/OBJECT_REQUIREMENTS.md`
   - `docs/requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md`
   - `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
+  - `docs/requirements/OBJECT_TYPE_CANDIDATES.md`
   - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
   - `docs/planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md`
 
@@ -176,8 +177,8 @@ Source: Interview Article
 
 ## B-02B [P0] SGOKB Object候補を網羅的に整理する
 
-- [ ] B-02Aを基にObject候補を可能な限り列挙する。
-- [ ] 少なくとも以下を検討対象に含める。
+- [x] B-02Aを基にObject候補を可能な限り列挙する。
+- [x] 少なくとも以下を検討対象に含める。
   - Character
   - Person
   - Organization / Group / Faction
@@ -191,9 +192,9 @@ Source: Interview Article
   - Concept
   - Action / Process / Ability
   - Time / Period
-- [ ] 各候補について想定ユースケースを記述する。
-- [ ] 各候補について収集対象となり得るWebページ例を記述する。
-- [ ] 「独立Objectにする価値」の判断基準で評価する。
+- [x] 各候補について想定ユースケースを記述する。
+- [x] 各候補について収集対象となり得るWebページ例を記述する。
+- [x] 「独立Objectにする価値」の判断基準で評価する。
 
 ### 成果物
 
@@ -203,13 +204,24 @@ Source: Interview Article
 
 各候補について最低限、次が整理されている。
 
-- 定義
-- 代表例
-- 独立Object化の価値
-- 関連するSource種別
-- 主なRelation候補
-- 主なFacet候補
-- MVP必要性
+- [x] 定義
+- [x] 代表例
+- [x] 独立Object化の価値
+- [x] 関連するSource種別
+- [x] 主なRelation候補
+- [x] 主なFacet候補
+- [x] MVP必要性
+
+### 結果概要
+
+- Candidate Familyを Agent / CreativeWork / Place / Event / Artifact / Taxonomic / Concept-Abstract / Action-Process / Time に加え、System-Software / Substance-Material / Natural Phenomenon / Languageまで拡張した。
+- 各候補を、安定Identity・複数Source・他Object参照・検索比較価値・Version・独立Evidenceの6観点で評価した。
+- `Character` / `Work` / `Concept` はMVP Core候補を維持する。
+- `Person` / `Organization` / `Series` / `Place` / `Event` は将来追加可能性が高く、初期schemaが拡張を妨げないことが望ましい。
+- Role / Trait / Feeling / Motivation / State / Action / Date等はObject化すると過剰になりやすく、B-02DでClass / Facet / Relation / valueとの境界を重点判断する。
+- Article / Dataset / Image / Video等はObject roleとSource roleを分離して扱う。
+
+**Status: Complete (2026-10-10)**
 
 ---
 
@@ -297,7 +309,7 @@ B-02 Object Identity要件（完了）
   ↓
 B-02A 外部分類体系調査（完了）
   ↓
-B-02B Object候補整理
+B-02B Object候補整理（完了）
   ↓
 B-02C Type / Class階層設計
   ↓
