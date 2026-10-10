@@ -10,7 +10,7 @@
 
 本書は詳細設計書ではない。ここに記載した内容を「現時点で合意済みの要件・設計方針」とし、個別 Phase で未確定事項を具体化する。
 
-### 1.1 最新進捗 — B-02〜B-05 要件定義
+### 1.1 最新進捗 — B-02〜B-06 要件定義
 
 B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJECT_REQUIREMENTS.md`。ObjectをSource / Document / Versionから独立した安定Identityとし、`object_id`はname・path・Source・Version等から独立させる。
 
@@ -18,7 +18,7 @@ B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJEC
 
 B-02A〜B-02Dは2026-10-10時点で完了している。B-02Cでは`Primary Class + Additional Classes + hierarchical Class Registry`方式を採用し、B-02Dでは正式Class hierarchy、Object / Facet / Relation / value / Source境界、初期Class Registry seed集合、fallback条件を確定した。正本は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`である。
 
-Object Type Refinement series完了後、B-03 Source / Evidence要件、B-04 Object Result要件、B-05 Search / Retrieval要件も2026-10-10に完了した。Source / Evidenceの正本は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Object Resultの正本は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`、検索要件の正本は`docs/requirements/SEARCH_REQUIREMENTS.md`である。B-05ではHybrid Object Searchを通常経路とし、1 Object = 1結果、current accepted Knowledge既定、Object / Facet Similarity、Relation Search、Evidence Search、current / historical分離、Index lifecycle、filter / explainability要件を確定した。2026-10-11の追加Embedding調査で、accepted検索可能Knowledge Statementの個別Embeddingを標準化し、Object / Facet / Statementのmulti-representation retrieval、VectorIndexAdapter、Statement → Object Aggregation、incremental Vector reuseを正式方針へ追加した。調査正本は`docs/reference/EMBEDDING_VECTOR_SEARCH_RESEARCH.md`。次に実施するのはB-06人間工程 / 自動工程の分離である。
+Object Type Refinement series完了後、B-03 Source / Evidence要件、B-04 Object Result要件、B-05 Search / Retrieval要件、B-06 Human / Automation Workflow要件まで完了した。Source / Evidenceの正本は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Object Resultの正本は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`、検索要件の正本は`docs/requirements/SEARCH_REQUIREMENTS.md`、Workflow責務境界の正本は`docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`である。B-05ではHybrid Object Searchを通常経路とし、2026-10-11の追加Embedding調査でaccepted検索可能Knowledge Statementの個別Embedding、Object / Facet / Statementのmulti-representation retrieval、VectorIndexAdapter、Statement → Object Aggregation、incremental Vector reuseを正式方針へ追加した。B-06ではSource / Object選定、External Export、authoritative Result Import、Registry変更を人間decision boundaryとし、その間のImport / Normalize / Evidence / Package Build / Validation / post-import Embedding・Index更新を自動化対象とした。次に実施するのはB-07非機能要件である。
 
 ---
 
@@ -396,6 +396,28 @@ Phase IではObject / Facet / Statement / Evidence Search Representation、Embed
 
 ---
 
+## 12.1 人間工程 / 自動工程の責務境界
+
+B-06で標準WorkflowのHuman / Automation boundaryを確定した。正本は`docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`とする。
+
+主要決定:
+
+- 「自動」は無人で何でも進める意味ではなく、人間が開始した後に次のdecision boundaryまでlocal処理を継続する意味とする。
+- Source採用、Persistent Object Identity確定、External Export、authoritative Result Import、Registry proposal適用を人間の明示decisionとする。
+- Capture済みBundleのImport / Normalize / Evidence生成、Package Build、Result machine Validation、Import後のSearch Representation / Embedding / Index更新は自動処理へ寄せる。
+- Package Buildはlocal staging、Package Exportはexternal data egressとして分離する。Drive同期directoryへのwriteもExternal Exportとみなす。
+- Capture / Importした事実をGoogle Drive / ChatGPT / 外部API等への送信許可とみなさない。
+- 外部Embedding / reranker等へKnowledge textを送る場合もExternal Processingとして扱う。
+- Google Drive → ChatGPT → result.json返却は正式なHuman-in-the-loop工程とし、1 Object local automatic processingの10分目標から除外する。
+- Result Validation成功を自動Import許可とみなさない。normal Resultはexplicit Importを人間control pointとするが、全Statementの逐語reviewは必須にしない。
+- stale Resultは通常Importをblockし、partial / limited Resultはreview-requiredを既定とする。Registry proposalはKnowledge Importと分離してreviewする。
+- accepted Version commit後のObject / Facet / Statement Embedding、Vector / Lexical Index、Markdown等の派生更新は自動化し、派生Index失敗で正本Knowledgeを失わない。
+- 10分目標にはPackage Build等のpre-analysis local segmentとValidation / Import / Embedding / Index等のpost-analysis local segmentを含め、人間操作・ChatGPT生成待ち・external network待ちは除外する。
+
+具体的CLI、state machine、Drive path、persistent export policy、review severity等はPhase G / H / MとB-07で具体化する。
+
+---
+
 ## 13. MCPの役割
 
 MCP ServerはAIそのものではない。
@@ -613,7 +635,7 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
  → result.json
  → Validation / Import
  → Object DB
- → Facet Embedding
+ → Object / Facet / Statement Embedding
  → Semantic / Similarity Search
  → MCP get_object
 ```
@@ -690,6 +712,15 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 62. gap / insufficient evidence / unresolved reference / Registry proposalを通常Semantic Searchへ混ぜない。
 63. Search Representation / Embedding / Vector Indexは正本ではなく再生成可能な派生物とし、search scoreをtruth / confidenceとして扱わない。
 64. Vector backendはAdapterで交換可能にし、SQLite canonical Knowledgeから再構築可能にする。
+65. SGOKBの自動処理は、人間が開始した後に次のdecision boundaryまでlocal処理を継続する意味とし、無制限な無人判断とは区別する。
+66. Source採用、Persistent Object Identity確定、External Export、authoritative Result Import、Registry変更はHuman Decision boundaryとする。
+67. Package Buildはlocal staging、Package Exportはexternal data egressとして分離し、Capture / Importを外部送信許可とみなさない。
+68. Google Drive / ChatGPT標準Knowledge生成は正式なHuman-in-the-loop工程とし、人間操作・ChatGPT待ち・external network待ちは1 Object local automatic processing 10分目標から除外する。
+69. Result Validation成功とImportを分離し、normal Resultはexplicit Importを要求する一方、全Statement逐語reviewを必須にしない。staleはblock、partial / limitedはreview-requiredを既定とする。
+70. Registry proposal / unresolved referenceはKnowledge Importの副作用として自動適用・自動Object化しない。
+71. accepted Version commit後のSearch Representation / Object・Facet・Statement Embedding / Index / derived renderingは自動更新対象とする。
+72. 派生Index更新失敗でaccepted Knowledgeを破壊せず、stale / pending / failedを検出してretry / rebuild可能にする。
+73. 外部Embedding / reranker等へtextを送る場合もExternal Processingとして明示的なdata egress policyの対象とする。
 
 ---
 
@@ -704,8 +735,9 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 - Evidence Packageの具体的形式・容量上限（Store / Package責務境界はB-03で確定済み）
 - ChatGPTへ渡すinstructions / prompt
 - Google Driveの具体的なフォルダ・同期方式
+- External Exportのpersistent policy schema / sensitivity classification / credential管理
 - Result JSON Schemaの物理field配置・syntax（論理contractはB-04で確定済み）
-- Import / Validation規則
+- Import / Validationの具体state machine / review severity / stale rebase方式（Human boundaryはB-06で確定済み）
 - Version lifecycle
 - Object更新時の全体再生成 / 差分更新方針
 - Embeddingモデル
@@ -719,6 +751,7 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 - 既存Fragment / Final関連コードを残す範囲
 - DB migration方針
 - Repository最終フォルダ構造
+- 1 Object 10分Acceptanceの具体hardware / dataset / percentile条件
 - Release version境界
 
 未確定事項を、既決事項と混同しないこと。
@@ -773,6 +806,8 @@ X-YY [Priority] <Task名>
 
 - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
   - 再設計の全Phase / Task一覧。
+- `docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`
+  - Human Decision / local automation / external export / Result Import / 10分計測境界。
 - `README.md`
   - SGOKBの現行概要とDocumentation Indexへの入口。
 - `docs/archive/prototype-0.2/DEVELOPMENT_STATUS.md`
@@ -786,8 +821,8 @@ X-YY [Priority] <Task名>
 
 ## 23. 現在地点
 
-Phase A、B-01、B-02 Object Identity要件、B-02A〜B-02D Object Type Refinement、B-03 Source / Evidence要件、B-04 Object Result要件、B-05 Search / Retrieval要件まで完了している。
+Phase A、B-01、B-02 Object Identity要件、B-02A〜B-02D Object Type Refinement、B-03 Source / Evidence要件、B-04 Object Result要件、B-05 Search / Retrieval要件、B-06 Human / Automation Workflow要件まで完了している。
 
-Object Identityと共通属性の正本は`docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelは`docs/requirements/OBJECT_TYPE_MODEL.md`、具体的Class hierarchyとObject / Facet / Relation / value境界は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`、Source / Snapshot / Evidence / Provenance契約は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Structured Object Result / Evidence grounding / Version候補契約は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`、Object / Facet / Relation / Evidence検索契約は`docs/requirements/SEARCH_REQUIREMENTS.md`を正本とする。
+Object Identityと共通属性の正本は`docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelは`docs/requirements/OBJECT_TYPE_MODEL.md`、具体的Class hierarchyとObject / Facet / Relation / value境界は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`、Source / Snapshot / Evidence / Provenance契約は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Structured Object Result / Evidence grounding / Version候補契約は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`、Object / Facet / Statement / Relation / Evidence検索契約は`docs/requirements/SEARCH_REQUIREMENTS.md`、Human Decision / local automation / external export / authoritative Import境界は`docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`を正本とする。
 
-次の作業は **B-06 [P0] 人間工程と自動工程を要件として分離する** である。B-03〜B-05で確定したSource / Evidence、Object Result、Search / Retrieval契約を入力として、どこまでを自動処理し、どこで人間の明示操作・review・external export許可を要求するかを定義する。
+次の作業は **B-07 [P1] 非機能要件を更新する** である。B-03〜B-06で確定したSource / Evidence、Object Result、Search / Retrieval、Human / Automation Workflow契約を入力として、offline / performance / integrity / backup / security / external data egress / failure recovery等の非機能要件を定義する。

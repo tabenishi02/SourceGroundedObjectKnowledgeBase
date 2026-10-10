@@ -147,19 +147,28 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
   - Statement-level Embedding、Vector backend候補、Object Aggregation、incremental reuseの追加調査を`docs/reference/EMBEDDING_VECTOR_SEARCH_RESEARCH.md`へ整理し、B-05要件へ反映した。
   - 成果物: `docs/requirements/SEARCH_REQUIREMENTS.md`
 
-- [ ] **B-06 [P0] 人間工程と自動工程を要件として分離する**
-  - SGOKB自動処理の目標時間: 1 Objectあたり概ね10分以内。
-  - Google Drive → ChatGPT → Result返却は手動工程として時間目標から除外する。
-  - 人間の明示操作が必要な箇所をUI/CLI仕様に明記する。
-  - SourceをCapture / Importしたことと、外部AI / Google Driveへexportする許可を分離する。
+- [x] **B-06 [P0] 人間工程と自動工程を要件として分離する**
+  - Human Decision / Human-triggered Automation / Local Automatic Maintenance / External Human-in-the-loopの4責務へWorkflowを分離した。
+  - Source採用・Persistent Object Identity確定・External Export・authoritative Result Import・Registry変更を人間decision boundaryとした。
+  - Capture済みBundleのImport / Normalize / Evidence、Package Build、Result machine Validation、明示Import後のVersion / Embedding / Index更新を自動化対象とした。
+  - Package Buildをlocal staging、Package Exportをexternal data egressとして別操作にし、Google Drive同期directoryへのwriteもExternal Exportとして扱う。
+  - Capture / Importしたこと自体をGoogle Drive / ChatGPT /外部API等へのexport permissionとみなさない。
+  - external Embedding / reranker等へKnowledge textを送る場合もExternal Processingとして扱う。
+  - standard ChatGPT workflowはDrive → ChatGPT → result.json返却を正式な手動工程とし、その時間を1 Object自動処理10分目標から除外した。
+  - Validation成功と正本Importを分離し、normal Resultはexplicit Importを人間control point、stale / partial / Registry proposal等はreview-requiredとした。
+  - 10分目標へ含むpre-analysis / post-analysis local segmentと、除外するhuman / external network時間を定義した。
+  - 成果物: `docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`
 
 - [ ] **B-07 [P1] 非機能要件を更新する**
-  - オフライン継続利用。
-  - Source/Knowledgeの再生成可能性。
-  - Raw / Snapshot / EvidenceのProvenance integrityを検証可能にする。
+  - オフライン継続利用と、外部AI / cloud service停止時のgraceful degradation。
+  - Source / Knowledge / Search Representation / Indexの再生成可能性。
+  - Raw / Snapshot / Evidence / Result artifact / PackageのProvenance integrityを検証可能にする。
   - 破壊的更新を避けるVersioning。
   - retention / backup / hard deleteでも参照中EvidenceのProvenanceを不用意に破壊しない。
-  - Embedding model変更時のIndex分離・再構築。
+  - Embedding model / Representation Builder / Vector backend変更時のIndex分離・再構築。
+  - External Processing / data egressのsecurity / privacy / credential要件。
+  - Background job失敗、Index stale / pending / failed時のretry / recovery / graceful degradation。
+  - 1 Object local automatic processing 10分目標のbenchmark hardware / workload / percentile条件。
   - MCPが停止しても正本DBが利用可能であること。
 
 **完了条件:** 既存の要件定義書を新方針で置換または新版化し、旧Prototype要件との差分が説明可能である。
@@ -217,7 +226,8 @@ docs/
 │  ├─ OBJECT_TYPE_BOUNDARIES.md
 │  ├─ SOURCE_EVIDENCE_REQUIREMENTS.md
 │  ├─ OBJECT_RESULT_REQUIREMENTS.md
-│  └─ SEARCH_REQUIREMENTS.md
+│  ├─ SEARCH_REQUIREMENTS.md
+│  └─ WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md
 ├─ decisions/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_DECISION.md
 │  └─ SGOKB_RENAME_DECISION.md
@@ -225,6 +235,7 @@ docs/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_TASKS.md
 │  └─ KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
 ├─ reference/
+│  ├─ EMBEDDING_VECTOR_SEARCH_RESEARCH.md
 │  ├─ KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md
 │  └─ KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md
 └─ archive/
@@ -395,14 +406,18 @@ src/sgokb/
   - Package外Evidence IDや未知Object IDを創作しないルール。
   - Evidence不足・矛盾・unresolved referenceを構造化して返すルール。
 
-- [ ] **G-04 [P0] Google Driveへのexport方式を実装する**
-  - 初期版はローカルexport → Drive同期フォルダでも可。
+- [ ] **G-04 [P0] Local Package staging / Google Drive export方式を実装する**
+  - Package Buildはまずlocal stagingへ生成し、External Exportと分離する。
+  - 初期版は明示export → Drive同期フォルダでも可。同期対象directoryへのwriteもExternal Exportとして扱う。
+  - export前にpackage identity / target Object / file・Evidence scope / warning / destinationをpreflight表示可能にする。
   - SGOKB本体をGoogle Drive APIへ強く依存させるかは別途判断する。
 
 - [ ] **G-05 [P1] Result受け取り運用を定義する**
   - `result.json`必須。
   - MarkdownをChatGPTに作らせる場合も正本にはしない。
-  - 手動配置場所とimportコマンドを定義する。
+  - 手動配置場所とvalidation triggerを定義する。
+  - Result検出 / Validationは自動化可能だが、検出だけを理由にauthoritative Importしない。
+  - Google Drive / ChatGPT手動工程の開始・返却・失敗時運用を1 Object単位で定義する。
 
 **完了条件:** APIを利用せず、ユーザーがChatGPTとの手動工程を介して1 Objectを往復できる。
 
@@ -420,6 +435,9 @@ src/sgokb/
   - Validatorが意味内容や未知IDを推測修復しない。
 
 - [ ] **H-02 [P0] Object Version Importを実装する**
+  - Validation成功後も標準ではexplicit Import operationを要求し、Result検出だけでsilent commitしない。
+  - normal ResultではImport開始後のVersion発行 / current切替 /派生Index更新を追加confirmationへ過剰分割しない。
+  - stale Resultは通常Importをblockし、partial / limited Resultはreview-requiredを既定とする。
   - Validation成功後のみDBへcommitする。
   - 既存currentを破壊しない。
   - Import run / timestamp / source package / original Result artifact provenanceを記録する。
@@ -432,6 +450,7 @@ src/sgokb/
 
 - [ ] **H-04 [P1] Diff / Review表示を実装する**
   - v1→v2の属性・Facet・Relation差分を確認できるようにする。
+  - stale / partial / destructive omission / Registry proposal / Identity ambiguity等のreview-required reasonを表示する。
   - 手動承認を採用する場合の状態遷移を定義する。
   - full snapshotで消えるStatement / attribute / Relation、conflict、Registry proposal、stale baseを目立たせる。
 
@@ -595,9 +614,11 @@ src/sgokb/
 - [ ] **M-01 [P0] 新しいObject中心CLIを設計する**
   - `object add/list/show`
   - `object relate`
-  - `package build`
-  - `package export`
-  - `result validate/import`
+  - `package build`（local derived artifact）
+  - `package export`（external side effect）
+  - `result validate`
+  - `result import`（authoritative write）
+  - Registry proposal review / apply相当操作
   - `search`
   - `similar`
   - `render`
@@ -637,8 +658,10 @@ src/sgokb/
   3. Concept A/Bを取得し、ローカルLLMが両概念を組み合わせたCharacter創作に利用できる。
 
 - [ ] **N-05 [P0] 1 Object自動処理時間を測定する**
-  - ChatGPT手動操作時間を除外する。
+  - B-06で定義したpre-analysis local segment + post-analysis local segmentを計測対象とする。
+  - Source探索 / Capture network、Package human review、Drive sync、ChatGPT操作 /生成待ち、Result返却、review-required判断等のhuman / external時間を分離記録する。
   - Package生成、Validation、Import、Object / Facet / Statement Embedding増分更新、Vector Index更新が目標時間内か確認する。
+  - 通常Objectと大きめObjectを分け、B-07で確定するpercentile条件で評価する。
 
 - [ ] **N-06 [P0] Retrieval / Vector Backend品質を評価する**
   - Lexical / Semantic / Hybrid / Similarity / Evidence Searchを別々に評価する。
@@ -657,6 +680,10 @@ src/sgokb/
   - Embedding model / representation builder変更とfull re-embed。
   - Vector Index消失・破損からSQLite正本によるfull rebuild。
   - Vector backend交換。
+  - Result検出後にImport未承認の状態を保持できること。
+  - stale / partial Resultがsilent current promotionされないこと。
+  - Package Build後、External Export未承認の状態で外部送信されないこと。
+  - Derived Index更新失敗後も正本Knowledgeを保持し、stale状態を検出できること。
   - MCP停止。
   - 部分Import失敗。
 
@@ -737,7 +764,7 @@ O  Documentation / Release / Cleanup
  → ChatGPT手動処理
  → result.json import
  → Object DB
- → Facet embedding
+ → Object / Facet / Statement embedding
  → semantic/similarity search
  → MCP get_object
 ```

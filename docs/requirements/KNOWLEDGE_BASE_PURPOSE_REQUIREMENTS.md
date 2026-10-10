@@ -314,7 +314,7 @@ SGOKBが目的を達成している状態は、単に「Documentを生成でき�
 - Source / Evidence詳細要件: B-03で完了。`SOURCE_EVIDENCE_REQUIREMENTS.md`を正本とする
 - Structured Object Result / JSON / Markdown契約: B-04で完了。`OBJECT_RESULT_REQUIREMENTS.md`を正本とする
 - Lexical / Semantic / Similarity / Relation / Evidence検索要件: B-05で完了。`SEARCH_REQUIREMENTS.md`を正本とする
-- 人間工程と自動工程の詳細: B-06
+- 人間工程と自動工程の詳細: B-06で完了。`WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`を正本とする
 - 性能・オフライン・Versioning等の非機能要件: B-07
 - SGOKB / UPDS詳細責務境界: Phase C
 - Repository / docs / source directory構成: Phase D

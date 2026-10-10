@@ -13,7 +13,8 @@
 - B-03 result: `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
 - B-04 result: `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
 - B-05 result: `docs/requirements/SEARCH_REQUIREMENTS.md`
-- Next: `B-06 [P0] 人間工程と自動工程を要件として分離する`
+- B-06 result: `docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`
+- Next: `B-07 [P1] 非機能要件を更新する`
 
 ---
 
@@ -726,6 +727,6 @@ SGOKBでは、**「何について長期Knowledgeを持つか」をObject、「�
 
 B-02DによりObject分類精緻化B-02A〜B-02Dは完了する。
 
-B-03 Source / Evidence要件、B-04 Object Result要件は完了済みである。次のタスクは `B-05 [P0] 検索要件を定義する` とする。
+B-03 Source / Evidence要件、B-04 Object Result要件、B-05 Search / Retrieval要件、B-06 Human / Automation Workflow要件まで完了済みである。次のタスクは `B-07 [P1] 非機能要件を更新する` とする。
 
 **Status: Complete (2026-10-10)**

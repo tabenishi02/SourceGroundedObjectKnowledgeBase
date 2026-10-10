@@ -13,7 +13,8 @@
   - `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
   - `docs/decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
 - B-05 result: `docs/requirements/SEARCH_REQUIREMENTS.md`
-- Next: `B-06 [P0] 人間工程と自動工程を要件として分離する`
+- B-06 result: `docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`
+- Next: `B-07 [P1] 非機能要件を更新する`
 
 ---
 
@@ -868,9 +869,9 @@ Prototype時代の「Schema適合 = Knowledge品質合格」という誤認を�
 
 ### STA-02 — partial ResultのImport policyを明示する
 
-partial ResultをKnowledge VersionとしてImportできるかはH-02 / B-06でworkflowとして決定する。
+B-06ではpartial / limited Resultを標準でreview-requiredとし、normal Resultと同一の無警告Importを行わないことを確定した。人間が明示acceptした場合のVersion Import / current promotionは許容する。
 
-少なくともpartialであることを失ってnormal Resultとして扱わない。
+具体的state / UI / transaction semanticsはH-02 / H-04で決定する。少なくともpartialであることを失ってnormal Resultとして扱わない。
 
 ### STA-03 — processing failureとKnowledge gapを分離する
 
@@ -1196,6 +1197,6 @@ ResultはJSONを機械向け交換正本とし、summary / structured attribute 
 
 Resultから確定Knowledgeへ進むには、Schema、Object binding、Package/base Version、Evidence、Facet、Relation等のValidationを必須とし、AI出力を直接正本へ昇格させない。
 
-B-04は以上をもって完了とし、B-05 Search / Retrieval要件も完了済みである。次のTaskは `B-06 [P0] 人間工程と自動工程を要件として分離する` とする。
+B-04は以上をもって完了とし、B-05 Search / Retrieval要件、B-06 Human / Automation Workflow要件も完了済みである。次のTaskは `B-07 [P1] 非機能要件を更新する` とする。
 
 **Status: Complete (2026-10-10)**

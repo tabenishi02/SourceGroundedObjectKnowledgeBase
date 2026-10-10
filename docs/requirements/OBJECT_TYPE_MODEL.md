@@ -13,7 +13,8 @@
 - B-03 result: `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
 - B-04 result: `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
 - B-05 result: `docs/requirements/SEARCH_REQUIREMENTS.md`
-- Next: `B-06 [P0] 人間工程と自動工程を要件として分離する`
+- B-06 result: `docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`
+- Next: `B-07 [P1] 非機能要件を更新する`
 
 ---
 
