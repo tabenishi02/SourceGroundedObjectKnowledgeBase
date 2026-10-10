@@ -178,9 +178,13 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
 
 # Phase C — SGOKB / UPDS責務境界
 
-- [ ] **C-01 [P0] SGOKBをWorld/Object Knowledge Layerとして定義する**
-  - Objectそのものの属性・意味・関係・根拠のみを扱う。
-  - 「ユーザーが好む」等のユーザー推論を保存しない。
+- [x] **C-01 [P0] SGOKBをWorld/Object Knowledge Layerとして定義する**
+  - SGOKBを、ObjectそのもののIdentity・分類・属性・意味・Semantic Facet・Relation・Knowledge Statement・Source / Evidence・Provenance・Version・検索表現を所有するWorld / Object Knowledge Layerとして正式定義した。
+  - 第三者の主観的見解はattributionとEvidenceを保持するObject Knowledgeとして扱えるが、「ユーザーが好む」「なぜ選ぶ」等のPersonal Inferenceは保存しない。
+  - Curation / workflow metadataは必要に応じて保持できるが、Capture・登録・検索・閲覧等の行動をPreferenceへ意味変換しない。
+  - Object / Facet / Statement Embedding、Similarity、Search rankingをUser Preference scoreとして解釈しない。
+  - Conceptのプロジェクト間所有契約はC-03、SGOKB → UPDS連携契約はC-04へ残した。
+  - 成果物: `docs/requirements/SGOKB_WORLD_OBJECT_KNOWLEDGE_REQUIREMENTS.md`
 
 - [ ] **C-02 [P0] UPDSをPersonal Inference Layerとして定義する**
   - Selection Event、Pattern、Preference HypothesisはUPDS所有とする。
@@ -221,6 +225,7 @@ docs/
 ├─ README.md
 ├─ requirements/
 │  ├─ KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md
+│  ├─ SGOKB_WORLD_OBJECT_KNOWLEDGE_REQUIREMENTS.md
 │  ├─ OBJECT_REQUIREMENTS.md
 │  ├─ OBJECT_TYPE_CANDIDATES.md
 │  ├─ OBJECT_TYPE_MODEL.md
@@ -796,7 +801,7 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase AとPhase B（B-01〜B-07）は完了した。次の最優先は **C-01〜C-04 — SGOKB / UPDS責務境界** とする。
+Phase AとPhase B（B-01〜B-07）、およびPhase CのC-01は完了した。次の最優先は **C-02 [P0] UPDSをPersonal Inference Layerとして定義する** とし、その後C-03 Concept所有境界、C-04 SGOKB→UPDS連携契約を確定する。
 
 実装変更を先に始めると、旧PrototypeのEntity / Fragment / Final Document概念を新設計へ引きずる可能性がある。まず目的・責務・データ境界を確定し、その後 **E-01 Object schema** を起点として実装を再構成する。
 
