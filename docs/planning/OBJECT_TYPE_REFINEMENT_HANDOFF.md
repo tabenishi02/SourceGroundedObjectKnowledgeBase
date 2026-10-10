@@ -7,7 +7,8 @@
 - Completed: B-02A / B-02B / B-02C / B-02D
 - B-03 result: `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
 - B-04 result: `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
-- Downstream next task: `B-05 [P0] 検索要件を定義する`
+- B-05 result: `docs/requirements/SEARCH_REQUIREMENTS.md`
+- Downstream next task: `B-06 [P0] 人間工程と自動工程を要件として分離する`
 - Primary references:
   - `docs/requirements/OBJECT_REQUIREMENTS.md`
   - `docs/reference/OBJECT_CLASSIFICATION_SURVEY.md`
@@ -117,7 +118,8 @@ B-02D Boundary確定             Complete
   ↓
 B-03 Source / Evidence要件      Complete
 B-04 Object Result要件              Complete
-B-05 Search要件                     Next
+B-05 Search要件                     Complete
+B-06 Workflow要件                   Next
 ```
 
 Object Type Refinement seriesは完了した。

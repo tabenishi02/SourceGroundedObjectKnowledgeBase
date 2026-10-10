@@ -10,7 +10,7 @@
 
 本書は詳細設計書ではない。ここに記載した内容を「現時点で合意済みの要件・設計方針」とし、個別 Phase で未確定事項を具体化する。
 
-### 1.1 最新進捗 — B-02〜B-04 要件定義
+### 1.1 最新進捗 — B-02〜B-05 要件定義
 
 B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJECT_REQUIREMENTS.md`。ObjectをSource / Document / Versionから独立した安定Identityとし、`object_id`はname・path・Source・Version等から独立させる。
 
@@ -18,7 +18,7 @@ B-02のObject Identity要件は完了済み。正本は `docs/requirements/OBJEC
 
 B-02A〜B-02Dは2026-10-10時点で完了している。B-02Cでは`Primary Class + Additional Classes + hierarchical Class Registry`方式を採用し、B-02Dでは正式Class hierarchy、Object / Facet / Relation / value / Source境界、初期Class Registry seed集合、fallback条件を確定した。正本は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`である。
 
-Object Type Refinement series完了後、B-03 Source / Evidence要件、B-04 Object Result要件も2026-10-10に完了した。Source / Evidenceの正本は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Object Resultの正本は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`である。B-04ではResultを1 Object単位のEvidence-groundedな次期Knowledge Version候補とし、JSON交換正本、Package/base Version binding、Knowledge Statement、Facet / attribute / Relation、Evidence role、conflict / gap、unresolved reference、generation provenance、full snapshot Version semanticsを定義した。次に実施するのはB-05検索要件である。
+Object Type Refinement series完了後、B-03 Source / Evidence要件、B-04 Object Result要件、B-05 Search / Retrieval要件も2026-10-10に完了した。Source / Evidenceの正本は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Object Resultの正本は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`、検索要件の正本は`docs/requirements/SEARCH_REQUIREMENTS.md`である。B-05ではHybrid Object Searchを通常経路とし、1 Object = 1結果、current accepted Knowledge既定、Object / Facet Similarity、Relation Search、Evidence Search、current / historical分離、Index lifecycle、filter / explainability要件を確定した。次に実施するのはB-06人間工程 / 自動工程の分離である。
 
 ---
 
@@ -373,34 +373,25 @@ ChatGPTの出力も絶対的事実ではなく、Evidenceから作られた派�
 
 ## 12. 検索要件
 
-以下は必須とする。
+B-05で検索要件を確定した。正本は`docs/requirements/SEARCH_REQUIREMENTS.md`とする。
 
-- Lexical Search
-- Semantic Search
-- Object Similarity Search
-- Relation Search
+主要決定:
 
-Facet単位のSimilarity Searchも設計対象とする。
+- Object Identity Lookup、Object Lexical / Semantic / Hybrid Search、Object / Facet Similarity、Relation Search、Evidence Searchを別責務とする。
+- 通常free-text Object検索はHybridを基本とする。
+- 通常Object Searchは内部でStatement等をmatch単位に利用しても、結果を原則`1 Object = 1件`へ集約する。
+- exact name / alias等のIdentity matchをSemantic候補で埋没させない。
+- active Object + current accepted Knowledgeを通常既定scopeとし、archived / historicalは明示指定する。
+- Object overall similarityは同じPrimary Classを既定candidate scopeとし、cross-classは明示的に拡張する。
+- Facet similarityを正式要件とし、Facet欠落時にoverallへsilent fallbackしない。
+- Relation Searchは構造化1-hop traversalを必須とし、bounded multi-hopへ拡張可能とする。
+- EvidenceはObject Knowledgeとは別にLexical / Semantic Searchし、Source metadata、Object association、active/effective / historical generation、Provenance integrityでfilterできる。
+- conflict中のgrounded Statementは検索可能だが、gap / insufficient evidence / unresolved reference / Registry proposalは通常Semantic Searchへ混ぜない。
+- FTS / Vector Indexは再構築可能な派生物であり、Embedding Space / Knowledge Version / Evidence generationを追跡する。
+- search scoreはrelevance / similarity signalであり、truth / confidence / Source trustではない。
+- Object / Knowledge hitからgrounding Evidence / Sourceへ追跡できる。
 
-Evidence Searchは監査・再分析用途として残す。
-
-### Hybrid Search
-
-Embeddingだけでは固有名詞に弱く、FTSだけでは意味的類似を拾えないため、FTS + Vectorを組み合わせる。
-
-SGOKB Prototypeに既存のLexical / Semantic / Hybrid Search基盤は再利用候補とする。
-
-### Embedding
-
-ローカル生成LLMとは分離する。
-
-Embedding専用モデルを使用し、日本語を含む多言語性能を評価して選定する。
-
-BGE-M3等は候補であり、現時点で採用確定ではない。
-
-Vector専用DBの導入を必須とはしない。
-
-SQLiteを正本DBとし、sqlite-vec等をAdapter経由で利用する案を第一候補とするが、具体的ライブラリはPhase Iで評価・決定する。
+Phase IではEmbedding対象、model、Vector storage、Hybrid fusion、Similarity、rerankerを実測で具体化する。
 
 ---
 
@@ -689,6 +680,12 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 53. 初期標準Resultはfull Knowledge snapshotとし、Persistent Version IDはSGOKB Importer側で発行する。
 54. Schema / ID / grounding Validation成功は意味品質・真実性の保証を意味しない。
 55. Knowledge記述言語とEvidence原文言語を区別し、時間依存するStatement / attribute / Relationには必要に応じてtemporal scopeを持てるようにする。
+56. 通常free-text Object検索はLexical + SemanticのHybridを基本とし、通常結果は原則1 Object = 1件へ集約する。
+57. active Object + current accepted Knowledgeを通常検索の既定scopeとし、historical / archivedは明示scopeへ分離する。
+58. Object overall similarityとFacet similarityを別機能とし、Facet欠落時にoverallへsilent fallbackしない。
+59. Relation Searchは構造化edge traversal、Evidence SearchはObject Knowledgeとは別のLexical / Semantic retrievalとして扱う。
+60. gap / insufficient evidence / unresolved reference / Registry proposalを通常Semantic Searchへ混ぜない。
+61. Search Index / Embeddingは正本ではなく再生成可能な派生物とし、search scoreをtruth / confidenceとして扱わない。
 
 ---
 
@@ -709,8 +706,8 @@ Prototypeの過去評価・benchmark・設計文書は、原則削除せずarchi
 - Object更新時の全体再生成 / 差分更新方針
 - Embeddingモデル
 - Vector index実装（sqlite-vec等）
-- Hybrid scoring / reranking
-- Similarityの定義・Facet weighting
+- Hybrid fusion / rerankingの具体アルゴリズム・weight
+- Object / Facet semantic representationの具体的構築方式・Facet weighting
 - MCP Tool / Resource / Promptの具体仕様
 - MCP transport / deployment方式
 - AIからSGOKBへのwrite機能を初期版に含めるか
@@ -785,8 +782,8 @@ X-YY [Priority] <Task名>
 
 ## 23. 現在地点
 
-Phase A、B-01、B-02 Object Identity要件、B-02A〜B-02D Object Type Refinement、B-03 Source / Evidence要件、B-04 Object Result要件まで完了している。
+Phase A、B-01、B-02 Object Identity要件、B-02A〜B-02D Object Type Refinement、B-03 Source / Evidence要件、B-04 Object Result要件、B-05 Search / Retrieval要件まで完了している。
 
-Object Identityと共通属性の正本は`docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelは`docs/requirements/OBJECT_TYPE_MODEL.md`、具体的Class hierarchyとObject / Facet / Relation / value境界は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`、Source / Snapshot / Evidence / Provenance契約は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Structured Object Result / Evidence grounding / Version候補契約は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`を正本とする。
+Object Identityと共通属性の正本は`docs/requirements/OBJECT_REQUIREMENTS.md`、Classification modelは`docs/requirements/OBJECT_TYPE_MODEL.md`、具体的Class hierarchyとObject / Facet / Relation / value境界は`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`、Source / Snapshot / Evidence / Provenance契約は`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`、Structured Object Result / Evidence grounding / Version候補契約は`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`、Object / Facet / Relation / Evidence検索契約は`docs/requirements/SEARCH_REQUIREMENTS.md`を正本とする。
 
-次の作業は **B-05 [P0] 検索要件を定義する** である。B-04で確定したaccepted Object Knowledgeのsummary / Facet / attribute / Relation / Evidence grounding / current・historical Version境界を入力として、Lexical / Semantic / Similarity / Relation / Evidence Search要件を定義する。
+次の作業は **B-06 [P0] 人間工程と自動工程を要件として分離する** である。B-03〜B-05で確定したSource / Evidence、Object Result、Search / Retrieval契約を入力として、どこまでを自動処理し、どこで人間の明示操作・review・external export許可を要求するかを定義する。

@@ -112,7 +112,7 @@ SGOKBは、Character / Work / Concept等をObjectとして管理し、Objectご�
 
 SGOKBは、保存済みKnowledgeを全文投入することを前提とせず、用途に応じて必要なObject、Facet、Relation、Evidence等を取得できる検索・アクセス基盤を提供しなければならない。
 
-具体的な検索要件はB-05で定義する。
+具体的な検索要件はB-05で定義済みであり、`docs/requirements/SEARCH_REQUIREMENTS.md`を正本とする。
 
 ### PUR-05 — 検索・比較・再利用を可能にする
 
@@ -313,7 +313,7 @@ SGOKBが目的を達成している状態は、単に「Documentを生成でき�
 - Object共通属性・Object type・ID設計: B-02
 - Source / Evidence詳細要件: B-03で完了。`SOURCE_EVIDENCE_REQUIREMENTS.md`を正本とする
 - Structured Object Result / JSON / Markdown契約: B-04で完了。`OBJECT_RESULT_REQUIREMENTS.md`を正本とする
-- Lexical / Semantic / Similarity / Relation検索要件: B-05
+- Lexical / Semantic / Similarity / Relation / Evidence検索要件: B-05で完了。`SEARCH_REQUIREMENTS.md`を正本とする
 - 人間工程と自動工程の詳細: B-06
 - 性能・オフライン・Versioning等の非機能要件: B-07
 - SGOKB / UPDS詳細責務境界: Phase C

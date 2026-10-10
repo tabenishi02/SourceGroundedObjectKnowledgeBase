@@ -133,18 +133,18 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
   - Schema適合と意味品質を分離し、Validatorが意味内容を推測修復しない要件を定義した。
   - 成果物: `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
 
-- [ ] **B-05 [P0] 検索要件を定義する**
-  - Lexical Search必須。
-  - Semantic Search必須。
-  - Object Similarity Search必須。
-  - Facet単位Similarity Searchを設計対象とする。
-  - Relation Search必須。
-  - Evidence Searchを監査・再分析用途として残す。
-  - accepted Object Knowledge Versionのsummary / Facet / structured attribute / Relationを検索対象として整理する。
-  - Knowledge Statementを独立検索単位へするかは、旧Fragment肥大化を再発させない観点で判断する。
-  - conflict / gap / unresolved metadataを通常Knowledge検索へ混ぜるか分離するか決定する。
-  - Evidence検索ではSourceのresource/media/genre/publisher、publication/capture date、Object association等のfilterを検討する。
-  - current / historical Object Knowledge Versionと、historical / active/effective Evidence generationを区別して検索できる要件を定義する。
+- [x] **B-05 [P0] 検索要件を定義する**
+  - Object Identity Lookup、Object Lexical / Semantic / Hybrid Search、Object / Facet Similarity、Relation Search、Evidence Searchを別責務として定義した。
+  - 通常free-text Object検索はHybridを基本とし、exact name / alias等のIdentity matchをSemantic候補で埋没させない要件とした。
+  - accepted current Object Knowledgeを通常検索の既定scopeとし、historical Versionは明示scopeへ分離した。
+  - Knowledge Statementを内部match / candidate単位として利用可能にしつつ、通常Object Searchは`1 Object = 1結果`へ集約すると確定した。
+  - Object overall similarityとFacet similarityを正式要件とし、Facet欠落時にoverallへsilent fallbackしない。
+  - Relation Searchは構造化1-hop traversalを必須とし、bounded multi-hopへ拡張可能にした。
+  - Evidence Lexical / Semantic Searchを維持し、Source分類、Object association、各種時刻、active/effective / historical generation、Provenance integrityでfilter可能とした。
+  - conflict中のgrounded Statementは検索可能としつつ、gap / insufficient evidence / unresolved reference / Registry proposalを通常Semantic Searchから分離した。
+  - Search Index / Embeddingを再生成可能な派生物とし、Embedding Space、Knowledge Version、Evidence generationを追跡する要件を定義した。
+  - Ranking scoreをtruth / confidence / Source trustとみなさず、match channel / Facet / Version / groundingを説明可能にした。
+  - 成果物: `docs/requirements/SEARCH_REQUIREMENTS.md`
 
 - [ ] **B-06 [P0] 人間工程と自動工程を要件として分離する**
   - SGOKB自動処理の目標時間: 1 Objectあたり概ね10分以内。
@@ -215,7 +215,8 @@ docs/
 │  ├─ OBJECT_TYPE_MODEL.md
 │  ├─ OBJECT_TYPE_BOUNDARIES.md
 │  ├─ SOURCE_EVIDENCE_REQUIREMENTS.md
-│  └─ OBJECT_RESULT_REQUIREMENTS.md
+│  ├─ OBJECT_RESULT_REQUIREMENTS.md
+│  └─ SEARCH_REQUIREMENTS.md
 ├─ decisions/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_DECISION.md
 │  └─ SGOKB_RENAME_DECISION.md
@@ -438,9 +439,11 @@ src/sgokb/
 
 - [ ] **I-01 [P0] Embedding対象を再設計する**
   - Evidence embedding。
-  - Object overall embedding。
-  - Facet embedding。
+  - Object overall representation / embedding。
+  - Facet representation / embedding。
   - 必要に応じRelation text representation。
+  - Knowledge Statement個別Embeddingは初期必須とせず、Object / Facet検索の実測で必要性を判断する。
+  - embedding対象ごとにObject Version / Facet / Evidence generation / representation versionを追跡する。
 
 - [ ] **I-02 [P0] 多言語Embedding Modelを比較する**
   - 日本語を含むSGOKB実データで評価する。
@@ -454,21 +457,28 @@ src/sgokb/
 
 - [ ] **I-04 [P0] Hybrid SearchをObject Knowledge向けに再実装/改修する**
   - FTS + vector。
-  - primary/additional/ancestor class / facet / source等のfilter。
+  - 通常Object検索は1 Object = 1結果へ集約し、matched Facet / Statement等をdetailとして保持する。
+  - primary/additional/ancestor class / facet / version / temporal scope等のhard filterをcandidate生成前に適用可能にする。
   - exact name/aliasをSemantic Searchより優先できるようにする。
+  - current accepted Knowledgeを既定scopeとし、historical searchを明示的に分離する。
+  - fusion scoreのchannel / match reasonを説明可能にする。
 
 - [ ] **I-05 [P0] `find_similar_objects`を実装する**
   - overall similarity。
+  - 既定candidate scopeは同じPrimary Classとし、cross-classは明示拡張とする。
   - facet指定similarity。
-  - scoreとmatched facetを返せる構造。
+  - missing Facetを0 similarityやoverallへsilent fallbackしない。
+  - scoreとmatched facet / target Versionを返せる構造。
 
 - [ ] **I-06 [P1] Reranker導入を評価する**
   - 初期版MVPには必須としない。
   - retrieval品質評価で必要性を判断する。
 
 - [ ] **I-07 [P0] 検索品質goldを作成する**
-  - Character / Work / Conceptごとに日本語Queryを用意する。
-  - lexical / semantic / hybrid / similarityを比較する。
+  - Character / Work / Conceptに加え、Person / Organization / Series / Place / EventとLater support Classの代表Queryを用意する。
+  - 日本語Queryとcross-lingual Queryを含める。
+  - lexical / semantic / hybrid / overall similarity / facet similarity / Evidence Searchを比較する。
+  - exact lookup、Recall@K、MRR、nDCG、filter correctness、current/historical isolation、人間Similarity評価を記録する。
 
 **完了条件:** 「文字列が一致するObject」だけでなく、「意味・価値観・テーマ等が近いObject」を実用精度で取得できる。
 
@@ -484,6 +494,7 @@ src/sgokb/
   - `search_objects`
   - `semantic_search_objects`
   - `find_similar_objects`
+  - Facet similarity相当の検索機能
   - `get_object`
   - `get_objects`
   - `get_object_relations`
@@ -607,7 +618,9 @@ src/sgokb/
   - Package生成、Validation、Import、Embedding更新が目標時間内か確認する。
 
 - [ ] **N-06 [P0] Retrieval品質を評価する**
+  - Lexical / Semantic / Hybrid / Similarity / Evidence Searchを別々に評価する。
   - Recall@K / MRR / nDCG等を必要に応じ利用する。
+  - exact name / alias lookup、Class / Facet filter、current / historical isolationも検証する。
   - 類似検索は人間評価も併用する。
 
 - [ ] **N-07 [P1] Failure / Recovery試験を行う**
