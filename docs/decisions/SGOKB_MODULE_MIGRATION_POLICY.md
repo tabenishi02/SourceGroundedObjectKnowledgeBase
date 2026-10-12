@@ -337,15 +337,18 @@ package-data変更はprompt moveと同じstructural PRで実施する。
 
 ### Wave 2 — Phase F-01前後
 
+**Implementation status: Complete (2026-10-12, Phase F preparation).**
+
 目的: Keep対象のingestion基盤を正規配置へ移す。
 
 - `importer.py` → `ingestion/importer.py`
 - `extraction.py` → `ingestion/extraction.py`
 - `context.py` → `ingestion/context.py`
 - root compatibility shim
-- tests / scriptsの現行系importをcanonical pathへ更新
+- production code /対象testの現行系importをcanonical pathへ更新
+- old / canonical import identityをcompatibility testで固定
 
-Source schema適応やEvidence behavior変更とは別PRにする。
+Source schema適応やEvidence behavior変更はこのstructural moveへ混在させず、F-01へ分離した。Phase F開始時点の差分と実装順序は`docs/planning/PHASE_F_PREPARATION.md`を参照する。
 
 ### Wave 3 — Phase E/Fのstorage再構成
 
