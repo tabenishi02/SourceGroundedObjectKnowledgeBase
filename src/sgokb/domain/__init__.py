@@ -20,6 +20,18 @@ from ._prototype import (
     validate_fragments,
     validate_vectors,
 )
+from .knowledge import (
+    AttributeDefinitionRecord,
+    AttributeStatus,
+    AttributeValueType,
+    DerivationKind,
+    FacetDefinitionRecord,
+    FacetStatus,
+    KnowledgeStatementRecord,
+    SearchRepresentationKind,
+    SearchRepresentationRecord,
+    TemporalScopeRecord,
+)
 from .object import (
     AssignmentPolicy,
     ClassProposalStatus,
@@ -34,6 +46,16 @@ from .object import (
 )
 
 __all__ = [
+    "AttributeDefinitionRecord",
+    "AttributeStatus",
+    "AttributeValueType",
+    "DerivationKind",
+    "FacetDefinitionRecord",
+    "FacetStatus",
+    "KnowledgeStatementRecord",
+    "SearchRepresentationKind",
+    "SearchRepresentationRecord",
+    "TemporalScopeRecord",
     "AssignmentPolicy",
     "Block",
     "Bundle",
