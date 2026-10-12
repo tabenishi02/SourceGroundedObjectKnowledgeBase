@@ -1,4 +1,4 @@
-"""Persistence for Phase G Package staging/export audit metadata."""
+"""Persistence for Phase G Package exchange and Result receipt audit metadata."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ def _json(value: object) -> str:
 
 
 class PackageExchangeAuditRepository:
-    """Append-safe audit metadata for local Package staging and external exports."""
+    """Append-safe audit metadata for Package staging/export and Result receipt."""
 
     def __init__(self, db: sqlite3.Connection):
         self.db = db
@@ -60,7 +60,13 @@ class PackageExchangeAuditRepository:
                     """UPDATE package_exchange_records
                        SET staged_path=?,preflight_disposition=?,preflight_json=?,staged_at=?
                        WHERE package_id=?""",
-                    (staged_path, str(preflight["disposition"]), _json(dict(preflight)), _now(), package_id),
+                    (
+                        staged_path,
+                        str(preflight["disposition"]),
+                        _json(dict(preflight)),
+                        _now(),
+                        package_id,
+                    ),
                 )
             else:
                 self.db.execute(
@@ -120,3 +126,99 @@ class PackageExchangeAuditRepository:
             (package_id,),
         ).fetchall()
         return tuple(dict(row) for row in rows)
+
+    def result_receipt_by_hash(self, package_id: str, result_sha256: str) -> dict | None:
+        row = self.db.execute(
+            """SELECT * FROM package_result_receipts
+               WHERE package_id=? AND result_sha256=?""",
+            (package_id, result_sha256),
+        ).fetchone()
+        return self._receipt(row) if row else None
+
+    def record_result_receipt(
+        self,
+        package_id: str,
+        result_sha256: str,
+        byte_count: int,
+        storage_ref: str,
+        intake_state: str,
+        intake_findings: list[str] | tuple[str, ...],
+        *,
+        parsed_schema_version: str | None = None,
+        parsed_result_status: str | None = None,
+        parsed_target_object_id: str | None = None,
+        parsed_binding_package_id: str | None = None,
+        parsed_manifest_sha256: str | None = None,
+        parsed_base_version_id: str | None = None,
+    ) -> str:
+        if self.package_record(package_id) is None:
+            raise ValueError("Result receipt requires a staged/audited Package")
+        if intake_state not in {"ready_for_validation", "needs_review"}:
+            raise ValueError("Invalid Result intake state")
+        existing = self.result_receipt_by_hash(package_id, result_sha256)
+        if existing:
+            return str(existing["id"])
+
+        receipt_id = new_persistent_id()
+        timestamp = _now()
+        with self.db:
+            self.db.execute(
+                """INSERT INTO package_result_receipts
+                   (id,package_id,result_sha256,byte_count,storage_ref,intake_state,
+                    intake_findings_json,parsed_schema_version,parsed_result_status,
+                    parsed_target_object_id,parsed_binding_package_id,
+                    parsed_manifest_sha256,parsed_base_version_id,validation_state,
+                    validation_requested_at,received_at)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,'pending',?,?)""",
+                (
+                    receipt_id,
+                    package_id,
+                    result_sha256,
+                    byte_count,
+                    storage_ref,
+                    intake_state,
+                    _json(list(intake_findings)),
+                    parsed_schema_version,
+                    parsed_result_status,
+                    parsed_target_object_id,
+                    parsed_binding_package_id,
+                    parsed_manifest_sha256,
+                    parsed_base_version_id,
+                    timestamp,
+                    timestamp,
+                ),
+            )
+        return receipt_id
+
+    def result_receipt(self, receipt_id: str) -> dict | None:
+        row = self.db.execute(
+            "SELECT * FROM package_result_receipts WHERE id=?", (receipt_id,)
+        ).fetchone()
+        return self._receipt(row) if row else None
+
+    def result_receipts(self, package_id: str | None = None) -> tuple[dict, ...]:
+        if package_id is None:
+            rows = self.db.execute(
+                "SELECT * FROM package_result_receipts ORDER BY received_at,id"
+            ).fetchall()
+        else:
+            rows = self.db.execute(
+                """SELECT * FROM package_result_receipts
+                   WHERE package_id=? ORDER BY received_at,id""",
+                (package_id,),
+            ).fetchall()
+        return tuple(self._receipt(row) for row in rows)
+
+    def pending_result_receipts(self) -> tuple[dict, ...]:
+        rows = self.db.execute(
+            """SELECT * FROM package_result_receipts
+               WHERE validation_state='pending'
+               ORDER BY validation_requested_at,id"""
+        ).fetchall()
+        return tuple(self._receipt(row) for row in rows)
+
+    @staticmethod
+    def _receipt(row: sqlite3.Row | dict) -> dict:
+        result = dict(row)
+        result["intake_findings"] = json.loads(result.pop("intake_findings_json"))
+        return result
