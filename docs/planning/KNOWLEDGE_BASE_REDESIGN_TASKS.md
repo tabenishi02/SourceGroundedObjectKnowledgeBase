@@ -466,12 +466,13 @@ docs/
 
 **Phase F開始準備（2026-10-12）:** Phase Eを再監査しE-01〜E-05の未完了Taskが0件であることを確認した。D-05 Wave 2として`importer.py / extraction.py / context.py`を`src/sgokb/ingestion/`へstructural-onlyで移動し、旧top-level pathはcompatibility shimとして保持した。既存Prototype ingestionとE-03 canonical Source / Evidence contractのgap、Source resolution / effective Snapshot・Run selection、F-01実装順序を`docs/planning/PHASE_F_PREPARATION.md`へ整理した。behavior / schema適応はF-01へ分離している。
 
-- [ ] **F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する**
+- [x] **F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する**
   - B-03 / E-03で定義したSource Identity / locator / Snapshot / Raw Artifact / Normalized Run / Evidence契約へ既存pipelineを接続する。
   - Raw Artifactを原資料として維持し、EvidenceをRawと同一視しない。
   - 既存`source_id` / `snapshot_id` / `evidence_id`とProvenanceを可能な限り維持する。
   - 旧`source_type` / Page Context metadataを新分類軸へbest-effort mappingまたはlegacy保持する。
   - 最新Snapshotを無条件にeffectiveとしないselection policyを設計する。
+  - **完了（2026-10-12）:** `Application.import_source_path()` / `process_source_snapshot()`としてlegacy pathと分離したcanonical ingestion use caseを実装した。URL/canonical URLはIdentityではなくresolution signalとして扱い、曖昧一致をrejectする。`capture_id`をSnapshot IDとして維持し、Bundle内全Raw Artifact、Normalization Run、Evidence、DOM/heading/block-order locationをcanonical `SourceRepository`へ保存する。Migration 008でappend-only `source_selection_events`を追加し、最初のusable Snapshot / successful Runのみ自動選択、後続世代はmanual selectionなしにeffectiveへ昇格しない方針を確定した。failed generationはeffectiveへ昇格しない。旧`import_path()` / `process()`は変更せず、dual-writeもしない。設計正本: `docs/design/SOURCE_INGESTION_PIPELINE.md`。
 
 - [ ] **F-02 [P0] 標準パイプラインからFragment生成を外す**
   - `fragment`を必須工程から除外する。
@@ -920,8 +921,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）、Phase E（E-01〜E-05）は完了した。Phase E再監査でも未完了Taskは0件だった。E-05で`sgokb.object-result/1.0`のcanonical Object Result JSON Schemaとruntime contract specializationを確定し、Phase F開始準備としてD-05 Wave 2のingestion package移動も完了した。次の最優先は **F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）、Phase E（E-01〜E-05）とF-01は完了した。F-01でcanonical Capture / Import / Normalize / Evidence経路とeffective Snapshot / Run selectionを実装した。次の最優先は **F-02 [P0] 標準パイプラインからFragment生成を外す** とする。
 
 Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 
-E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomy、E-03ではMigration 006でSource / Evidence / Evidence Link / Provenance、E-04ではMigration 007でVersion lifecycle / stale / current promotion / rollback / derived-state boundaryを物理反映した。E-05ではMigrationを追加せず、`src/sgokb/exchange/schemas/object-result-v1.schema.json`と`ObjectResultContract`でObject Result exchange contractを確定した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、`docs/design/VERSIONING_SCHEMA.md`、`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。次はPhase Fへ移行し、F-01で既存ingestion pipelineをcanonical Source / Evidence schemaへ接続する。
+E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomy、E-03ではMigration 006でSource / Evidence / Evidence Link / Provenance、E-04ではMigration 007でVersion lifecycle / stale / current promotion / rollback / derived-state boundaryを物理反映した。E-05ではMigrationを追加せず、`src/sgokb/exchange/schemas/object-result-v1.schema.json`と`ObjectResultContract`でObject Result exchange contractを確定した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、`docs/design/VERSIONING_SCHEMA.md`、`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。F-01で既存ingestion pipelineのcanonical Source / Evidence schema接続は完了した。次はF-02でFragment生成を標準パイプラインから外す。

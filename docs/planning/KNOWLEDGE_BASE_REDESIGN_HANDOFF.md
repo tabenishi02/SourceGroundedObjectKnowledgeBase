@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / C / D / Eは完了。E-05で`sgokb.object-result/1.0`のDraft 2020-12 canonical Object Result Schema、runtime Class/Facet specialization、Evidence-grounded Knowledge exchange contractを追加済み。次の未完了TaskはF-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A / B / C / D / EとF-01は完了。F-01で生成LLMなしのcanonical Capture → Source / Snapshot / Raw Artifact → Normalization Run → Evidence経路とeffective generation selectionを実装済み。次の未完了TaskはF-02 [P0] 標準パイプラインからFragment生成を外す。再設計の正規統合作業基盤は`integration/knowledge-base-redesign`。**
 
 Phase D / E / F移行資料:
 
@@ -469,7 +469,7 @@ Phase F開始準備としてD-05 Wave 2も完了した。`importer.py / extracti
 
 ### Phase F〜H
 
-- F-01 canonical Capture / Import / Normalize / Evidence接続
+- F-01 canonical Capture / Import / Normalize / Evidence接続 — Complete
 - Evidence Retrieval / Package具体実装
 - Drive交換形式
 - Validation / Import state machine
@@ -545,28 +545,25 @@ Phase内のTaskを確認し、必要な調査・設計・実装・テスト・�
 Phase完了時には、決定事項、実施内容、未決事項、次Phaseへの引き継ぎを報告してください。
 ```
 
-Phase Fを開始する場合:
+Phase Fを継続する場合:
 
 ```text
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
-Phase A〜Eは完了しています。
+Phase A〜EとF-01は完了しています。
 
 再設計の正規作業基盤はintegration/knowledge-base-redesignです。
 まず以下を確認してください。
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
+- docs/planning/PHASE_F_PREPARATION.md
+- docs/design/SOURCE_INGESTION_PIPELINE.md
 - docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md
-- docs/requirements/OBJECT_RESULT_REQUIREMENTS.md
 - docs/design/SOURCE_EVIDENCE_SCHEMA.md
-- docs/design/VERSIONING_SCHEMA.md
-- docs/design/OBJECT_RESULT_JSON_SCHEMA.md
-- docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md
-- docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
 
 今回実施するTask:
-F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する
+F-02 [P0] 標準パイプラインからFragment生成を外す
 
-Phase Eは完了しています。既存`importer.py` / `extraction.py` / `context.py` / `repository.py`のCapture → Normalize → Evidence経路を調査し、E-03のcanonical Source / locator / Snapshot / Raw Artifact / Normalization Run / Evidence contractへ接続してください。既存source_id / snapshot_id / evidence_id / Raw provenanceを可能な限り維持し、旧`source_type` / Page Context metadataは新分類軸へbest-effort mappingまたはlegacy保持してください。最新Snapshotを無条件にeffectiveとせずselection policyを明示し、D-05 Wave 2のingestion module moveはbehavior changeと分離して実施してください。
+F-01で生成LLMを使わないcanonical Capture → Source / Snapshot / Raw Artifact → Normalization Run → Evidence経路が成立しました。旧`Application.import_path()` / `process()`はlegacy compatibilityとして分離されています。F-02ではcanonical pathを標準処理として成立させるためFragment生成を必須工程から外し、Fragment / Final系をPhase Lまでどこまでlegacy / research compatibilityとして残すかを決定してください。F-01のcanonical provenanceとeffective selectionを破壊しないでください。
 ```
 
 ---
@@ -605,6 +602,7 @@ Phase Eは完了しています。既存`importer.py` / `extraction.py` / `conte
 - `docs/design/FACET_TAXONOMY_SURVEY.md`
 - `docs/design/FACET_VOCABULARY_REVIEW.md`
 - `docs/design/SOURCE_EVIDENCE_SCHEMA.md`
+- `docs/design/SOURCE_INGESTION_PIPELINE.md`
 - `docs/design/VERSIONING_SCHEMA.md`
 - `docs/design/OBJECT_RESULT_JSON_SCHEMA.md`
 - `docs/reference/CLASS_FACET_GOLD_CASES.md`
@@ -618,10 +616,10 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 ## 14. 現在地点
 
-Phase A、Phase B、Phase C、Phase D、Phase Eは完了している。Phase E再監査でも未完了Taskは0件だった。
+Phase A、Phase B、Phase C、Phase D、Phase EとF-01は完了している。
 
-**次の作業はF-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する。**
+**次の作業はF-02 [P0] 標準パイプラインからFragment生成を外す。**
 
-E-02A〜E-02CでFacet taxonomy hardening、E-03でcanonical Source / Evidence / Provenance、E-04でObject Knowledge Version lifecycle、E-05でObject Result JSON Schemaを完成させた。Phase F開始準備としてD-05 Wave 2も完了し、Importer / Extractor / Page Contextは`src/sgokb/ingestion/`へ正規配置済みである。
+F-01で`Application.import_source_path()` / `process_source_snapshot()`によるcanonical Capture → Source / Snapshot / Raw Artifact → Normalization Run → Evidence経路を実装した。Migration 008のappend-only selection eventにより、latest timestampではなく明示的なeffective Snapshot / Runを選択する。初回usable generationのみ自動選択し、後続generationはmanual selectionなしに自動昇格しない。Source resolutionではURL / canonical URLをIdentityではなくsignalとして扱い、曖昧一致をrejectする。旧Prototype ingestionはdual-writeせずcompatibility pathとして維持する。詳細は`docs/design/SOURCE_INGESTION_PIPELINE.md`を正本とする。
 
-再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase DでRepository / Git / module / runtime data / history cleanupの境界、Phase EでObject Knowledge Data ModelとObject Result exchange contractを確定した。Phase Fの開始条件、canonical ingestion gap matrix、F-01実装順序は`docs/planning/PHASE_F_PREPARATION.md`を正本とする。
+再設計の正規作業基盤は`integration/knowledge-base-redesign`である。F-02ではcanonical pathからFragment generation依存を除き、旧Fragment / Final系のlegacy / research compatibility範囲を確定する。

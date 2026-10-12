@@ -28,6 +28,8 @@ def make_bundle(tmp_path):
         capture_id=None,
         version="1.0",
         timestamp="2026-01-01T00:00:00.000Z",
+        completeness="partial",
+        warnings=None,
         mutate=None,
         extra=None,
     ):
@@ -43,8 +45,8 @@ def make_bundle(tmp_path):
                 k: "success"
                 for k in ("main_dom", "metadata", "structured_data", "frames", "shadow_dom")
             },
-            "completeness": "partial",
-            "warnings": [],
+            "completeness": completeness,
+            "warnings": list(warnings or []),
         }
         manifest["components"]["mhtml"] = "failed"
         artifacts = {
