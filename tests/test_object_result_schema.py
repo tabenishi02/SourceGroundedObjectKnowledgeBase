@@ -4,8 +4,10 @@ import pytest
 
 from sgokb.domain import AttributeValueType
 from sgokb.exchange import (
+    INSTRUCTIONS_VERSION,
     OBJECT_RESULT_SCHEMA_ID,
     OBJECT_RESULT_SCHEMA_VERSION,
+    PACKAGE_SCHEMA_VERSION,
     ClassExtensionContract,
     ObjectResultContract,
     ObjectResultValidationError,
@@ -58,7 +60,7 @@ def _contract(repo, *, with_extension=False):
             attribute_value_types={attribute_id: AttributeValueType.TEXT},
             relation_type_ids=frozenset({relation_type_id}),
             package_id="package-e05",
-            package_schema_version="sgokb.evidence-package/1.0",
+            package_schema_version=PACKAGE_SCHEMA_VERSION,
             manifest_sha256="a" * 64,
             base_version_id=None,
             class_extensions=extension_map,
@@ -100,13 +102,13 @@ def _result(contract, attribute_id, relation_type_id):
         },
         "binding": {
             "package_id": "package-e05",
-            "package_schema_version": "sgokb.evidence-package/1.0",
+            "package_schema_version": contract.package_schema_version,
             "manifest_sha256": "a" * 64,
             "package_created_at": "2026-10-12T10:00:00Z",
             "base_version_id": None,
         },
         "generation": {
-            "instructions_version": "object-analysis/1.0",
+            "instructions_version": INSTRUCTIONS_VERSION,
             "generator_kind": "interactive_ai",
             "application": "ChatGPT",
             "generated_at": "2026-10-12T10:05:00Z",
@@ -372,7 +374,7 @@ def test_result_without_dedicated_extension_works_for_other_registered_class(rep
         additional_class_ids=(),
         facet_ids=tuple(facet.facet_id for facet in facets),
         package_id="package-e05",
-        package_schema_version="sgokb.evidence-package/1.0",
+        package_schema_version=PACKAGE_SCHEMA_VERSION,
         manifest_sha256="a" * 64,
         base_version_id=None,
     )
