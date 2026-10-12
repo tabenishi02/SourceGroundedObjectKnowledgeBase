@@ -8,7 +8,7 @@ import os
 import sys
 from pathlib import Path
 
-from .exchange.package_transfer import PackageTransferService, _load_manifest
+from .exchange.package_transfer import PackageTransferService
 from .repository import Repository
 from .storage import PackageExchangeAuditRepository
 
@@ -41,6 +41,10 @@ def parser() -> argparse.ArgumentParser:
     return root
 
 
+def _manifest(path: Path) -> dict:
+    return json.loads((path / "manifest.json").read_text(encoding="utf-8"))
+
+
 def main(argv=None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
@@ -57,7 +61,7 @@ def main(argv=None) -> int:
         audit = PackageExchangeAuditRepository(repository.db)
         if args.action == "stage":
             staged = service.stage_from_directory(args.source, args.staging_root)
-            manifest = _load_manifest(Path(staged.path))
+            manifest = _manifest(Path(staged.path))
             audit.record_staged(manifest, staged.path, staged.preflight.to_dict())
             result = staged.to_dict()
         else:
@@ -66,7 +70,7 @@ def main(argv=None) -> int:
                 args.destination,
                 acknowledge_review=args.acknowledge_review,
             )
-            manifest = _load_manifest(Path(args.package).resolve())
+            manifest = _manifest(Path(args.package).resolve())
             event_id = audit.record_export(
                 exported.package_id,
                 exported.manifest_sha256,
