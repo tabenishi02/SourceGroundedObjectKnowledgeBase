@@ -6,7 +6,7 @@ Web上のSource / Evidenceを根拠に、Character・Work・ConceptなどのObje
 
 現在は旧PrototypeからObject中心Knowledge Baseへの再設計中です。旧Prototypeのコードは移行元として残っていますが、Fragment大量生成や巨大Final Documentを中心とする方式は現行の最終設計ではありません。
 
-Phase A〜EとPhase FのF-01〜F-03は完了しています。現在の標準pipelineはWeb Captureからcanonical Evidenceまでを生成LLMなしで処理し、Object Evidence RetrievalもFragmentを介さずcanonical Evidenceを直接対象とします。旧Fragment / Final系はlegacy / research compatibilityへ分離済みです。次Taskは`F-04 [P1] Evidence Selectionのtoken/size budgetを設計する`です。
+Phase A〜EとPhase FのF-01〜F-04は完了しています。現在の標準pipelineはWeb Captureからcanonical Evidenceまでを生成LLMなしで処理し、Object Evidence Retrievalからbounded Evidence SelectionまでFragmentを介さずcanonical Evidenceを直接扱います。旧Fragment / Final系はlegacy / research compatibilityへ分離済みです。次Taskは`F-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する`です。
 
 現在の設計判断・要件・作業状況は **[Documentation Index](docs/README.md)** を入口として確認してください。
 

@@ -3,11 +3,11 @@
 更新日: 2026-10-12
 
 - Target: `Phase F — Source / Evidenceパイプラインの簡略化`
-- Status: Ready
+- Status: In progress — F-01〜F-04 complete
 - Active redesign branch: `integration/knowledge-base-redesign`
 - Phase E status: Complete — E-01〜E-05
 - Structural prerequisite: D-05 Wave 2 complete — ingestion modules moved to `src/sgokb/ingestion/`
-- Next task: `F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する`
+- Next task: `F-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する`
 
 ## 1. 目的
 
@@ -561,9 +561,9 @@ Object Evidence Retrievalはcanonical Evidenceを対象とし、次をselection 
 
 ### F-04
 
-現行`chunks(size=1000, overlap=100)`を最終budgetとして固定しない。
+**Implementation status: Complete (2026-10-12).**
 
-Source構造優先のEvidence granularityを維持しつつ、Package token/size budget、近接Evidence、overlap、truncation理由を設計する。
+現行`chunks(size=1000, overlap=100)`を最終budgetとして固定せず、`EvidenceBudget` / `EvidencePackageSelector`を実装した。推定token / UTF-8 byte / item数をhard limitとし、Source diversity pass後にF-03 relevance順で残余budgetを埋める。manual includeはprotected、duplicate / near-duplicate /高overlap chunkはPackage-local suppressionとし、近接Evidenceは`structure_group`で追跡する。非採用candidateにはbudget / duplicate理由を保持する。設計正本は`docs/design/EVIDENCE_SELECTION_BUDGET.md`。
 
 ### F-05
 
@@ -637,9 +637,9 @@ D-05 Wave 2として importer / extraction / context の ingestion package移動
 - extensions/web-page-capture/docs/CAPTURE_BUNDLE_FORMAT.md
 
 今回実施するTask:
-F-04 [P1] Evidence Selectionのtoken/size budgetを設計する
+F-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する
 
-F-01〜F-03は完了しています。F-03のObject Evidence Retrieval候補を入力とし、Packageへ採用するEvidence量をtoken / byte budgetで制御してください。Source構造を優先したgranularity、Source diversity、chunk overlap /近接Evidence、near-duplicate、truncation reasonを扱い、selection reasonとProvenanceを失わないでください。
+F-01〜F-04は完了しています。F-05では`source_object_associations`のcandidate / confirmed / excludedとsubject relationshipをoperatorが安全に追加・変更・除外できる操作面を設計・実装してください。F-03 retrievalとF-04 bounded selectionの契約を維持し、Source associationとKnowledge Evidence Linkを混同しないでください。
 ```
 
 ## 20. 結論
@@ -648,6 +648,6 @@ Phase Eには未完了Taskはない。
 
 Phase F開始前のstructural prerequisiteとしてD-05 Wave 2も完了し、Importer / Extractor / Page Contextは`src/sgokb/ingestion/`へ正規配置された。旧top-level pathはcompatibility shimとして維持している。
 
-F-01でcanonical ingestion、F-02でstandard / legacy境界、F-03でObject Evidence Retrievalまで完了した。F-03はeffective Snapshot / Runを通常scopeとし、association / name / alias / Source metadata / FTS / semantic / manual signalとselection reasonを実装済みである。
+F-01でcanonical ingestion、F-02でstandard / legacy境界、F-03でObject Evidence Retrieval、F-04でbounded Evidence Selectionまで完了した。F-04はtoken / byte / item hard budget、Source diversity、duplicate / overlap処理、omission reasonを実装済みである。
 
-**Next: `F-04 [P1] Evidence Selectionのtoken/size budgetを設計する`**
+**Next: `F-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する`**

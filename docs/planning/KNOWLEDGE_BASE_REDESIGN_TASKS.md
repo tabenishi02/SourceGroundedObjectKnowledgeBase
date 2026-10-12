@@ -485,12 +485,13 @@ docs/
   - Evidence選択理由（explicit link / name / alias / FTS / semantic / manual等）を追跡可能にする。
   - **完了（2026-10-12）:** `ObjectEvidenceRetriever`と`Application.retrieve_object_evidence()`を追加し、Fragmentを介さずcanonical `evidence_records`を直接検索する標準Retrievalを実装した。既定scopeはF-01で選択されたeffective Snapshot / Runのみ。`confirmed / candidate / excluded` Source↔Object association、Object name / alias、effective Source metadata、Migration 009のcanonical Evidence FTS、明示設定されたEmbedderによるsemantic cosine、manual include / excludeを統合する。各候補は複数のselection reasonと補助scoreを保持し、ranking scoreをtruth / confidenceとして扱わない。Generative LLMは呼ばない。semanticはPhase Iまでのon-demand baselineとし、永続Vector Indexは先取りしない。設計正本: `docs/design/OBJECT_EVIDENCE_RETRIEVAL.md`。
 
-- [ ] **F-04 [P1] Evidence Selectionのtoken/size budgetを設計する**
+- [x] **F-04 [P1] Evidence Selectionのtoken/size budgetを設計する**
   - Evidence granularityはsection / paragraph / table / post等のSource構造を優先し、固定文字数だけで決めない。
   - 1 Objectで無制限に全Evidenceを出力しない。
   - Source多様性と関連性を維持しつつPackageを構築する。
   - chunk overlap /近接Evidenceの扱いを設計する。
   - 切り捨て理由を追跡可能にする。
+  - **完了（2026-10-12）:** `EvidenceBudget` / `EvidencePackageSelector`と`Application.select_object_evidence()`を実装した。推定token / UTF-8 byte / item数をhard limitとし、初期defaultは12,000 estimated tokens / 65,536 bytes / 64 Evidenceとする。manual includeはprotectedとしてsilent omissionせず、Source diversity pass後にF-03 relevance順で残余budgetを充填する。canonical Evidenceは再chunkせず、Source構造由来の`structure_group`と近接Evidence関係を保持する。exact duplicate、同一Sourceのnear-duplicate、高overlap chunkはPackage-localに抑制し、budget / duplicateによる非採用理由をEvidence単位で記録する。F-03 selection reasonとProvenanceは保持する。設計正本: `docs/design/EVIDENCE_SELECTION_BUDGET.md`。
 
 - [ ] **F-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する**
   - Source↔Object associationのcandidate / confirmed / excludedを扱えるようにする。
@@ -923,8 +924,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）、Phase E（E-01〜E-05）とF-01〜F-03は完了した。F-01でcanonical Capture / Import / Normalize / Evidence経路とeffective Snapshot / Run selectionを実装し、F-02でFragment / Finalをlegacy / research compatibilityへ分離、F-03でcanonical Evidenceを直接対象とするObject Evidence Retrievalを実装した。次の最優先は **F-04 [P1] Evidence Selectionのtoken/size budgetを設計する** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）、Phase E（E-01〜E-05）とF-01〜F-04は完了した。F-01でcanonical Capture / Import / Normalize / Evidence経路とeffective Snapshot / Run selectionを実装し、F-02でFragment / Finalをlegacy / research compatibilityへ分離、F-03でcanonical Evidenceを直接対象とするObject Evidence Retrievalを実装した。次の最優先は **F-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する** とする。
 
 Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 
-E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomy、E-03ではMigration 006でSource / Evidence / Evidence Link / Provenance、E-04ではMigration 007でVersion lifecycle / stale / current promotion / rollback / derived-state boundaryを物理反映した。E-05ではMigrationを追加せず、`src/sgokb/exchange/schemas/object-result-v1.schema.json`と`ObjectResultContract`でObject Result exchange contractを確定した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、`docs/design/VERSIONING_SCHEMA.md`、`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。F-01で既存ingestion pipelineのcanonical Source / Evidence schema接続、F-02で標準pipelineからのFragment生成除外、F-03でcanonical Evidenceを直接対象とするObject Evidence Retrievalまで完了した。次はF-04でEvidence Packageへ渡す候補のtoken / size budget、Source diversity、近接Evidence、truncation理由を設計する。
+E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomy、E-03ではMigration 006でSource / Evidence / Evidence Link / Provenance、E-04ではMigration 007でVersion lifecycle / stale / current promotion / rollback / derived-state boundaryを物理反映した。E-05ではMigrationを追加せず、`src/sgokb/exchange/schemas/object-result-v1.schema.json`と`ObjectResultContract`でObject Result exchange contractを確定した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、`docs/design/VERSIONING_SCHEMA.md`、`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。F-01で既存ingestion pipelineのcanonical Source / Evidence schema接続、F-02で標準pipelineからのFragment生成除外、F-03でcanonical Evidenceを直接対象とするObject Evidence Retrieval、F-04でtoken / byte / item hard budget、Source diversity、近接Evidence grouping、duplicate suppression、omission reasonを持つbounded Evidence Selectionまで完了した。次はF-05でSource↔Object associationと明示Evidence操作を日常運用から扱うUI/CLIを設計する。

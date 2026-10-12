@@ -24,7 +24,7 @@ from .ingestion import (
     chunks,
     classify,
 )
-from .retrieval import ObjectEvidenceRetriever
+from .retrieval import EvidenceBudget, EvidencePackageSelector, ObjectEvidenceRetriever
 from .search import HybridSearch
 
 
@@ -518,6 +518,47 @@ class Application:
         return dict(
             result,
             candidates=[asdict(candidate) for candidate in result["candidates"]],
+        )
+
+    def select_object_evidence(
+        self,
+        object_id,
+        *,
+        max_estimated_tokens=12000,
+        max_bytes=65536,
+        max_items=64,
+        max_candidates=500,
+        semantic=None,
+        semantic_batch_size=32,
+        manual_include=(),
+        manual_exclude=(),
+    ):
+        """Build a bounded Evidence selection from the canonical F-03 candidate set."""
+        retrieval = ObjectEvidenceRetriever(self.repository, self.embedder).retrieve(
+            object_id,
+            max_candidates=max_candidates,
+            semantic=semantic,
+            semantic_batch_size=semantic_batch_size,
+            manual_include=manual_include,
+            manual_exclude=manual_exclude,
+        )
+        budget = EvidenceBudget(
+            max_estimated_tokens=max_estimated_tokens,
+            max_bytes=max_bytes,
+            max_items=max_items,
+        )
+        result = EvidencePackageSelector(budget).select(
+            retrieval,
+            protected_evidence_ids=manual_include,
+        )
+        return dict(
+            result,
+            controls={
+                "manual_include": list(dict.fromkeys(manual_include)),
+                "manual_exclude": list(dict.fromkeys(manual_exclude)),
+            },
+            selected=[asdict(item) for item in result["selected"]],
+            omitted=[asdict(item) for item in result["omitted"]],
         )
 
     def legacy_capture_fragments(self, snapshot_id, entity_id, **options):

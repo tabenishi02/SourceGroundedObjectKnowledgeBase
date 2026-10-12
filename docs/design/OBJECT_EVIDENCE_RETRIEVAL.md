@@ -185,4 +185,4 @@ F-03完了時に次を満たす。
 10. Evidence Provenanceを維持する。
 11. Generative LLM / Fragment / Final Documentを呼ばない。
 
-次TaskはF-04 `Evidence Selectionのtoken/size budgetを設計する` とする。
+F-04で`EvidencePackageSelector`としてbudgeted selectionを実装済みである。詳細は`docs/design/EVIDENCE_SELECTION_BUDGET.md`を正本とする。次TaskはF-05 `ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する` とする。
