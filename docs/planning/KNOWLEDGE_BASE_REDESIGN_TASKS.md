@@ -464,6 +464,8 @@ docs/
 
 # Phase F — Source / Evidenceパイプラインの簡略化
 
+**Phase F開始準備（2026-10-12）:** Phase Eを再監査しE-01〜E-05の未完了Taskが0件であることを確認した。D-05 Wave 2として`importer.py / extraction.py / context.py`を`src/sgokb/ingestion/`へstructural-onlyで移動し、旧top-level pathはcompatibility shimとして保持した。既存Prototype ingestionとE-03 canonical Source / Evidence contractのgap、Source resolution / effective Snapshot・Run selection、F-01実装順序を`docs/planning/PHASE_F_PREPARATION.md`へ整理した。behavior / schema適応はF-01へ分離している。
+
 - [ ] **F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する**
   - B-03 / E-03で定義したSource Identity / locator / Snapshot / Raw Artifact / Normalized Run / Evidence契約へ既存pipelineを接続する。
   - Raw Artifactを原資料として維持し、EvidenceをRawと同一視しない。
@@ -918,7 +920,7 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）、Phase E（E-01〜E-05）は完了した。E-05で`sgokb.object-result/1.0`のcanonical Object Result JSON Schemaとruntime contract specializationを確定し、ChatGPT出力からH-01/H-02へ接続できる交換契約を完成させた。次の最優先は **F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）、Phase E（E-01〜E-05）は完了した。Phase E再監査でも未完了Taskは0件だった。E-05で`sgokb.object-result/1.0`のcanonical Object Result JSON Schemaとruntime contract specializationを確定し、Phase F開始準備としてD-05 Wave 2のingestion package移動も完了した。次の最優先は **F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する** とする。
 
 Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 

@@ -826,14 +826,9 @@ E-03でSQLite / storage layerが保証する主なinvariantは次である。
 
 `docs/design/VERSIONING_SCHEMA.md`を正本としてMigration 007を追加し、candidate / accepted / abandoned lifecycle、base / Classification stale判定、Evidence Linkを含むaccepted Version contentのimmutability、current promotion / rollback、transaction / recovery、derived-state failure domainを確定した。
 
-### E-05 — Object Result JSON Schema
+### E-05 — Complete
 
-- Evidence reference JSON shape
-- Evidence role field
-- Package / base Version binding
-- Source referenceを含む場合のfield shape
-- `reported_view` attribution
-- Class / Facet / Attribute / Relation referential validation
+`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`を正本として、Evidence reference + role、Package / base Version / Classification binding、`reported_view` attribution、Class / Facet / Attribute / RelationのResult参照契約を`sgokb.object-result/1.0`へ反映した。`collect_evidence_ids()`によりH-01から本章のEvidence存在 / Package membership / Provenance validation primitiveへ接続できる。
 
 ### Phase F
 
@@ -914,4 +909,4 @@ Source IdentityはURLから分離され、Source classificationとObjectごと�
 
 旧Prototype Source/Evidence tableは破壊せず共存させたため、既存IDとRaw履歴を保ったPhase L migrationが可能である。
 
-E-04も完了し、次Taskは **`E-05 [P1] JSON Schemaを作成する`** とする。
+E-04 / E-05も完了し、Phase Eに未完了Taskはない。次Taskは **`F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する`** とする。Phase F開始条件と既存ingestionとの差分は`docs/planning/PHASE_F_PREPARATION.md`を参照する。

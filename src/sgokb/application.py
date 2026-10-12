@@ -4,7 +4,6 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from .context import analyze
 from .domain import (
     EmbeddingSpace,
     SearchFilter,
@@ -13,8 +12,14 @@ from .domain import (
     validate_fragments,
     validate_vectors,
 )
-from .extraction import NORMALIZATION_VERSION, ExtractorRegistry, chunks
-from .importer import WebCaptureImporter, classify
+from .ingestion import (
+    NORMALIZATION_VERSION,
+    ExtractorRegistry,
+    WebCaptureImporter,
+    analyze,
+    chunks,
+    classify,
+)
 from .search import HybridSearch
 
 

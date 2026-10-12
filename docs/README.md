@@ -24,19 +24,20 @@
 18. [Runtime Data / Git Exclusion Policy](decisions/SGOKB_RUNTIME_DATA_GIT_POLICY.md) — canonical / generated / exchange / backup / secretの物理配置とGit管理境界。
 19. [Git History Cleanup Policy](decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md) — branch / PR / tag / releaseの保持・救済・cleanup規則。
 20. [再設計タスク](planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 現在の進捗と次に実施する作業。
-21. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — Phase A〜Dの確定事項と後続Phaseへの全体Handoff。
+21. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — Phase A〜Eの確定事項と後続Phaseへの全体Handoff。
 22. [Phase D Preparation](planning/PHASE_D_PREPARATION.md) — Phase D完了記録とPhase Eへの引継ぎ。
-23. [Phase E Preparation](planning/PHASE_E_PREPARATION.md) — Phase D完了監査、domain package conversion、現行Prototype DB baseline、Phase E開始条件。
-24. [Object Schema Design](design/OBJECT_SCHEMA.md) — E-01で確定したObject / Class / Version / Relationの物理schema。
-25. [Semantic Facet Schema Design](design/SEMANTIC_FACET_SCHEMA.md) — E-02で確定したFacet / Statement / Attribute / Temporal Scope / Search Representation schema。
-26. [Facet Taxonomy Survey](design/FACET_TAXONOMY_SURVEY.md) — E-02Aで全62 Classの意味境界・Facet候補・非Facet境界・代表例/反例を横断整理したsurvey。
-27. [Facet Vocabulary Review](design/FACET_VOCABULARY_REVIEW.md) — E-02Bで近義Facetを横断統合し、既存18 + 新規37 = 55 Facetのfreeze候補とprofile inheritance方針を整理した設計レビュー。
-28. [Class / Facet Gold Cases](reference/CLASS_FACET_GOLD_CASES.md) — E-02Cで全62 Classと25 boundary caseをgold化し、55 Facet taxonomyをfreezeした回帰基準。
-29. [Source / Evidence Schema Design](design/SOURCE_EVIDENCE_SCHEMA.md) — E-03で確定したSource Identity / locator / Snapshot / Raw / Normalization / Evidence / Evidence Link / Provenanceの物理schema。
-30. [Versioning Schema Design](design/VERSIONING_SCHEMA.md) — E-04で確定したfull snapshot Version lifecycle、stale判定、accepted immutability、current promotion / rollback、derived-state boundary。
-31. [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md) — E-05で確定した`sgokb.object-result/1.0`、Package/Class/Facet binding、Evidence-grounded Result exchange contract。
-32. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
-33. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
+23. [Phase E Preparation](planning/PHASE_E_PREPARATION.md) — Phase D完了監査、domain package conversion、現行Prototype DB baseline、Phase E開始条件と完了記録。
+24. [Phase F Preparation](planning/PHASE_F_PREPARATION.md) — Phase E完了監査、ingestion package移動、既存Pipelineとcanonical Source/Evidenceの差分、F-01開始条件。
+25. [Object Schema Design](design/OBJECT_SCHEMA.md) — E-01で確定したObject / Class / Version / Relationの物理schema。
+26. [Semantic Facet Schema Design](design/SEMANTIC_FACET_SCHEMA.md) — E-02で確定したFacet / Statement / Attribute / Temporal Scope / Search Representation schema。
+27. [Facet Taxonomy Survey](design/FACET_TAXONOMY_SURVEY.md) — E-02Aで全62 Classの意味境界・Facet候補・非Facet境界・代表例/反例を横断整理したsurvey。
+28. [Facet Vocabulary Review](design/FACET_VOCABULARY_REVIEW.md) — E-02Bで近義Facetを横断統合し、既存18 + 新規37 = 55 Facetのfreeze候補とprofile inheritance方針を整理した設計レビュー。
+29. [Class / Facet Gold Cases](reference/CLASS_FACET_GOLD_CASES.md) — E-02Cで全62 Classと25 boundary caseをgold化し、55 Facet taxonomyをfreezeした回帰基準。
+30. [Source / Evidence Schema Design](design/SOURCE_EVIDENCE_SCHEMA.md) — E-03で確定したSource Identity / locator / Snapshot / Raw / Normalization / Evidence / Evidence Link / Provenanceの物理schema。
+31. [Versioning Schema Design](design/VERSIONING_SCHEMA.md) — E-04で確定したfull snapshot Version lifecycle、stale判定、accepted immutability、current promotion / rollback、derived-state boundary。
+32. [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md) — E-05で確定した`sgokb.object-result/1.0`、Package/Class/Facet binding、Evidence-grounded Result exchange contract。
+33. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+34. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
 
 ## 現行文書
 
@@ -67,7 +68,7 @@ Phase E以降で確定した物理Architecture / Data Model設計を置く。
 - [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase E（E-01〜E-05）は完了している。Migration 005でFacet taxonomy、Migration 006でcanonical Source / Evidence / Evidence Link / Provenance schema、Migration 007でVersion lifecycle / stale / accepted immutability / current promotionを反映し、E-05で`sgokb.object-result/1.0`のcanonical JSON Schemaを追加した。次TaskはF-01の既存Capture / Import / Normalize / Evidence接続とする。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase E（E-01〜E-05）は完了している。Migration 005でFacet taxonomy、Migration 006でcanonical Source / Evidence / Evidence Link / Provenance schema、Migration 007でVersion lifecycle / stale / accepted immutability / current promotionを反映し、E-05で`sgokb.object-result/1.0`のcanonical JSON Schemaを追加した。Phase F開始準備ではD-05 Wave 2としてImporter / Extractor / Page Contextを`src/sgokb/ingestion/`へ移動し、legacy shimを保持した。詳細は[Phase F Preparation](planning/PHASE_F_PREPARATION.md)を正本とする。次TaskはF-01の既存Capture / Import / Normalize / Evidence接続とする。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果とgold corpusを置く。

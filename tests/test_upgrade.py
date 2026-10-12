@@ -341,7 +341,7 @@ def test_official_promotional_and_anonymous_factual_not_conflated(core):
 
 
 def test_noise_widgets_keep_body_structure_and_provenance():
-    from sgokb.extraction import GenericExtractor
+    from sgokb.ingestion.extraction import GenericExtractor
 
     html = (
         '<body><div class="site-header">NOISE</div><div id="content"><h1>主題</h1>'

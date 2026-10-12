@@ -3,8 +3,8 @@
 import json
 from collections import Counter
 
-from .context import VERSION, effective_context
 from .domain import digest, json_text, now, uid
+from .ingestion.context import VERSION, effective_context
 
 
 class KnowledgeRepository:

@@ -650,17 +650,16 @@ Version lifecycle operationを担当する。
 
 ## 18. E-04で意図的に決めない事項
 
-### E-05 / H-01
+### E-05 — Complete
 
-- Object Result最終JSON Schema。
-- Package ID / manifest hash field。
-- Result schema version。
-- Classification snapshotのexchange field。
-- Facet profile completeness validation。
-- Package Evidence membership integration。
-- reported-view attribution。
-- conflict / gap / unresolved reference / Registry proposal shape。
-- partial Result schema。
+`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`で`sgokb.object-result/1.0`のObject Result最終JSON Schemaを確定した。Package / base Version / Classification binding、Facet profile completeness、Evidence reference、reported-view attribution、conflict / gap / unresolved reference / Registry proposal、partial / insufficient evidenceのexchange shapeをSchema化済みである。
+
+### H-01
+
+- Schema validation後のObject / Class / Facet / Attribute / Relation Type実在確認。
+- Package manifestとのbinding / hash / Evidence membership照合。
+- E-03 storage primitiveを利用したEvidence Provenance integrity確認。
+- schema適合と意味品質を分離したResult Validator orchestration。
 
 ### H-02
 
@@ -750,4 +749,4 @@ E-04により、SGOKBのObject Knowledgeは**full immutable Version snapshot + e
 
 accepted VersionはStatement / Attribute / Relation / temporal scope / Evidence Link / Classification snapshotを含めてimmutableとなり、canonical acceptanceとcurrent切替は1 SQLite transactionで行う。一方、Search Representation / Embedding / Vector Index / renderingは独立したderived failure domainとし、失敗してもcanonical Knowledgeを失わない。
 
-次Taskは **`E-05 [P1] JSON Schemaを作成する`** とする。
+E-05も完了し、Phase Eに未完了Taskはない。次Taskは **`F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する`** とする。Phase F開始準備は`docs/planning/PHASE_F_PREPARATION.md`を正本とする。

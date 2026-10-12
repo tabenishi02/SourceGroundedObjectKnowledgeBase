@@ -429,9 +429,10 @@ Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます�
 Phase A〜Eは完了しています。
 
 再設計の正規作業基盤はintegration/knowledge-base-redesignです。
-D-05 Wave 1のdomain package conversionも完了済みです。
+D-05 Wave 1のdomain package conversionとWave 2のingestion package移動も完了済みです。
 
 まず以下を確認してください。
+- docs/planning/PHASE_F_PREPARATION.md
 - docs/planning/PHASE_E_PREPARATION.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
@@ -451,7 +452,7 @@ D-05 Wave 1のdomain package conversionも完了済みです。
 今回実施するタスク:
 F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する
 
-Phase EはE-05まで完了しています。`docs/design/SOURCE_EVIDENCE_SCHEMA.md`と`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`を主要入力として、既存Capture / Import / Normalize / Evidence経路をcanonical Source / locator / Snapshot / Raw Artifact / Normalization Run / Evidence schemaへ接続してください。既存IDとProvenanceを可能な限り維持し、D-05 Wave 2のmodule moveとbehavior changeを分離してください。
+Phase EはE-05まで完了しています。Phase F開始準備とD-05 Wave 2のingestion package移動も完了済みです。まず`docs/planning/PHASE_F_PREPARATION.md`を読み、そこで整理したSource resolution / effective Snapshot・Run selection / canonical field mapping / legacy coexistence方針に従って、既存Capture / Import / Normalize / Evidence経路をcanonical Source / locator / Snapshot / Raw Artifact / Normalization Run / Evidence schemaへ接続してください。
 ```
 
 ---
@@ -462,4 +463,6 @@ Phase Dには残Taskはない。
 
 D-05でPhase E開始前に要求されていたdomain package conversionも完了したため、Repository / Git / physical module boundaryの観点からPhase Eへ移行可能である。
 
-E-01 / E-02 core schema / E-02A / E-02B / E-02C / E-03 / E-04 / E-05は完了した。Facet taxonomyはMigration 005、Source / Evidence / Evidence Link / Provenance schemaはMigration 006、Version lifecycleはMigration 007へ反映済みで、E-05はMigration追加なしで`sgokb.object-result/1.0`のcanonical JSON Schemaとruntime contract specializationを追加した。E-05の設計正本は`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`。Phase Eを完了し、次Taskは`F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する`。
+E-01 / E-02 core schema / E-02A / E-02B / E-02C / E-03 / E-04 / E-05は完了した。Facet taxonomyはMigration 005、Source / Evidence / Evidence Link / Provenance schemaはMigration 006、Version lifecycleはMigration 007へ反映済みで、E-05はMigration追加なしで`sgokb.object-result/1.0`のcanonical JSON Schemaとruntime contract specializationを追加した。Phase E完了後の再監査でも未完了Taskは0件だった。
+
+Phase F開始準備としてD-05 Wave 2の`importer / extraction / context -> ingestion/`移動も完了した。以降の開始条件・gap analysis・F-01実装順序は`docs/planning/PHASE_F_PREPARATION.md`を正本とする。次Taskは`F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する`。

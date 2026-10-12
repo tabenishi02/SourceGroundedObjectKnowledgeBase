@@ -16,10 +16,11 @@ Task master:
 
 > **Phase A / B / C / D / Eは完了。E-05で`sgokb.object-result/1.0`のDraft 2020-12 canonical Object Result Schema、runtime Class/Facet specialization、Evidence-grounded Knowledge exchange contractを追加済み。次の未完了TaskはF-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
 
-Phase D / E移行資料:
+Phase D / E / F移行資料:
 
 - `docs/planning/PHASE_D_PREPARATION.md`
 - `docs/planning/PHASE_E_PREPARATION.md`
+- `docs/planning/PHASE_F_PREPARATION.md`
 
 ---
 
@@ -462,10 +463,13 @@ Phase Eは完了した。Object / Class / Version / Relation骨格、Semantic Fa
 - E-04: Complete — `docs/design/VERSIONING_SCHEMA.md` / Migration 007
 - E-05: Complete — `docs/design/OBJECT_RESULT_JSON_SCHEMA.md` / `src/sgokb/exchange/schemas/object-result-v1.schema.json`
 
-E-02A〜E-02Cで55 Facet taxonomyとClass profile、E-03でSource / Evidence / Provenance、E-04でimmutable Version lifecycle、E-05でObject Result wire contractを確定した。E-05では`sgokb.object-result/1.0`を単一canonical Schemaとし、Package / Classification / effective Facet profileをruntime specializationする方式を採用した。Phase Eに未完了Taskはない。次はPhase Fで既存Capture / Import / Normalize / Evidence pipelineを新canonical schemaへ接続する。
+E-02A〜E-02Cで55 Facet taxonomyとClass profile、E-03でSource / Evidence / Provenance、E-04でimmutable Version lifecycle、E-05でObject Result wire contractを確定した。E-05では`sgokb.object-result/1.0`を単一canonical Schemaとし、Package / Classification / effective Facet profileをruntime specializationする方式を採用した。Phase Eに未完了Taskはない。
+
+Phase F開始準備としてD-05 Wave 2も完了した。`importer.py / extraction.py / context.py`は`src/sgokb/ingestion/`へ移動し、旧top-level pathはlogicを持たないcompatibility shimとして維持する。Source IdentityをURLと同一視する旧`Repository.import_bundle()`、legacy `active_run`、Page Contextから新classification/metadataへのmapping等の差分は`docs/planning/PHASE_F_PREPARATION.md`へ整理済みであり、behavior変更はF-01へ分離している。
 
 ### Phase F〜H
 
+- F-01 canonical Capture / Import / Normalize / Evidence接続
 - Evidence Retrieval / Package具体実装
 - Drive交換形式
 - Validation / Import state machine
@@ -597,6 +601,7 @@ Phase Eは完了しています。既存`importer.py` / `extraction.py` / `conte
 - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
 - `docs/planning/PHASE_D_PREPARATION.md`
 - `docs/planning/PHASE_E_PREPARATION.md`
+- `docs/planning/PHASE_F_PREPARATION.md`
 - `docs/design/FACET_TAXONOMY_SURVEY.md`
 - `docs/design/FACET_VOCABULARY_REVIEW.md`
 - `docs/design/SOURCE_EVIDENCE_SCHEMA.md`
@@ -613,10 +618,10 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 ## 14. 現在地点
 
-Phase A、Phase B、Phase C、Phase Dは完了している。
+Phase A、Phase B、Phase C、Phase D、Phase Eは完了している。Phase E再監査でも未完了Taskは0件だった。
 
 **次の作業はF-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する。**
 
-E-02A〜E-02CでFacet taxonomy hardening、E-03でcanonical Source / Evidence / Provenance、E-04でObject Knowledge Version lifecycle、E-05でObject Result JSON Schemaを完成させた。Phase Eは完了しており、次はPhase Fで既存ingestion pathをcanonical Source / Evidence modelへ接続する。
+E-02A〜E-02CでFacet taxonomy hardening、E-03でcanonical Source / Evidence / Provenance、E-04でObject Knowledge Version lifecycle、E-05でObject Result JSON Schemaを完成させた。Phase F開始準備としてD-05 Wave 2も完了し、Importer / Extractor / Page Contextは`src/sgokb/ingestion/`へ正規配置済みである。
 
-再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase DでRepository / Git / module / runtime data / history cleanupの境界、Phase EでObject Knowledge Data ModelとObject Result exchange contractを確定した。Phase Fでは既存ingestion pipelineをこのcanonical modelへ接続する。
+再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase DでRepository / Git / module / runtime data / history cleanupの境界、Phase EでObject Knowledge Data ModelとObject Result exchange contractを確定した。Phase Fの開始条件、canonical ingestion gap matrix、F-01実装順序は`docs/planning/PHASE_F_PREPARATION.md`を正本とする。

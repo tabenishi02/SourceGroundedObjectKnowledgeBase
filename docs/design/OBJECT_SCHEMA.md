@@ -365,11 +365,11 @@ E-01でSQLiteが直接保証する主なinvariantは次である。
 
 `docs/design/VERSIONING_SCHEMA.md`を正本としてMigration 007を追加し、candidate / accepted / abandoned lifecycle、full snapshot、base / Classification stale判定、accepted immutability、current promotion / rollback、derived-state failure domainを確定した。
 
-### E-05
+### E-05 — Complete
 
-- Object Result JSON Schema
-- Registry proposal exchange shape
-- Class / Relation / Facet referential validation
+`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`を正本として、`sgokb.object-result/1.0`のDraft 2020-12 canonical Object Result Schemaを確定した。Registry proposal exchange shape、Class / Relation / Facet / Attributeの参照契約、Package / base Version / Classification binding、Evidence-grounded Knowledge、partial / insufficient evidence等のResult状態を共通Schemaへ反映した。
+
+E-05完了によりPhase EのObject Knowledge data modelは完結した。次の実装段階はPhase Fで既存Capture / Import / Normalize / Evidence pipelineをcanonical Source / Evidence modelへ接続する。
 
 ---
 

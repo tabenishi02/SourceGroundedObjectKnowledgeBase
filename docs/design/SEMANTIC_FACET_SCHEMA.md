@@ -431,14 +431,9 @@ E-02の物理schemaはCompleteだが、Facet taxonomyの意味設計は次の追
 
 `docs/design/VERSIONING_SCHEMA.md`を正本としてMigration 007を追加し、candidate / accepted / abandoned lifecycle、full snapshot omission boundary、base / Classification stale判定、accepted Version content immutability、current promotion / rollback、Search / Embedding等のderived-state transaction境界を確定した。
 
-### E-05
+### E-05 — Complete
 
-- Object Result JSON Schema
-- Class extension schema
-- Facet profile / Attribute key validation
-- reported-view attributionの交換形式
-- Knowledge language / temporal field formatの最終validation
-- partial / insufficient evidence Result status
+`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`を正本として、`sgokb.object-result/1.0`のcanonical Result Schemaを確定した。effective Facet profileをruntime contractへ特殊化し、full snapshotで対象Facetを全件明示する。Attribute / Relation / Statement、reported-view attribution、language / temporal scope、partial / insufficient evidence等の交換形式とvalidation境界も確定済みである。
 
 ### Phase I
 
@@ -510,4 +505,4 @@ E-02実装では次をtest対象とする。
 - Migration 004 / 005適用後の既存回帰
 - 62 Class + 25 boundary gold fixture coverage / profile inheritance整合
 
-E-02A / E-02B / E-02C / E-03 / E-04は完了した。Facet taxonomyはMigration 005、Source / Evidence / Evidence Link / ProvenanceはMigration 006、Version lifecycleはMigration 007へ反映済み。次Taskは `E-05 [P1] JSON Schemaを作成する` とする。
+E-02A / E-02B / E-02C / E-03 / E-04 / E-05は完了した。Facet taxonomyはMigration 005、Source / Evidence / Evidence Link / ProvenanceはMigration 006、Version lifecycleはMigration 007へ反映し、Object Result exchange contractは`sgokb.object-result/1.0`として確定した。Phase Eに未完了Taskはなく、次Taskは `F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する` とする。
