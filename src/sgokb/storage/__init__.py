@@ -1,8 +1,15 @@
 """Canonical persistence layer for SGOKB."""
 
+from .exchange_repository import PackageExchangeAuditRepository
 from .object_repository import ObjectRepository
 from .semantic_repository import SemanticRepository
 from .source_repository import SourceRepository
 from .version_repository import VersionRepository
 
-__all__ = ["ObjectRepository", "SemanticRepository", "SourceRepository", "VersionRepository"]
+__all__ = [
+    "ObjectRepository",
+    "PackageExchangeAuditRepository",
+    "SemanticRepository",
+    "SourceRepository",
+    "VersionRepository",
+]
