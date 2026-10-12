@@ -1,0 +1,561 @@
+"""Canonical Source / Evidence persistence for Phase E / E-03."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import sqlite3
+from datetime import datetime, timezone
+from typing import Iterable
+
+from sgokb.domain.object import new_persistent_id
+from sgokb.domain.source import (
+    AssociationStatus,
+    EvidenceExtractionMode,
+    EvidenceLinkRecord,
+    EvidenceProvenance,
+    EvidenceRecord,
+    EvidenceRole,
+    EvidenceTargetKind,
+    LocatorStatus,
+    MetadataOrigin,
+    NormalizationStatus,
+    SnapshotCompleteness,
+    SourceLocatorRecord,
+    SourceRecord,
+    SourceSnapshotRecord,
+    SourceStatus,
+)
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _json(value: object) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def _digest(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+class SourceRepository:
+    """Persistence for canonical Source identity, Evidence, and provenance links."""
+
+    def __init__(self, db: sqlite3.Connection):
+        self.db = db
+
+    @staticmethod
+    def _source_record(row: sqlite3.Row | dict) -> SourceRecord:
+        return SourceRecord(
+            source_id=row["id"],
+            label=row["label"],
+            status=SourceStatus(row["status"]),
+            created_at=row["created_at"],
+            updated_at=row["updated_at"],
+        )
+
+    @staticmethod
+    def _locator_record(row: sqlite3.Row | dict) -> SourceLocatorRecord:
+        return SourceLocatorRecord(
+            locator_id=row["id"],
+            source_id=row["source_id"],
+            kind=row["kind"],
+            value=row["value"],
+            is_preferred=bool(row["is_preferred"]),
+            status=LocatorStatus(row["status"]),
+        )
+
+    @staticmethod
+    def _snapshot_record(row: sqlite3.Row | dict) -> SourceSnapshotRecord:
+        return SourceSnapshotRecord(
+            snapshot_id=row["id"],
+            source_id=row["source_id"],
+            observed_locator_id=row["observed_locator_id"],
+            captured_at=row["captured_at"],
+            imported_at=row["imported_at"],
+            capture_method=row["capture_method"],
+            completeness=SnapshotCompleteness(row["completeness"]),
+            title=row["title"],
+        )
+
+    @staticmethod
+    def _evidence_record(row: sqlite3.Row | dict) -> EvidenceRecord:
+        return EvidenceRecord(
+            evidence_id=row["id"],
+            run_id=row["run_id"],
+            snapshot_id=row["snapshot_id"],
+            source_id=row["source_id"],
+            ordinal=row["ordinal"],
+            content=row["content"],
+            content_hash=row["content_hash"],
+            extraction_mode=EvidenceExtractionMode(row["extraction_mode"]),
+            language=row["language"],
+        )
+
+    def create_source(self, label: str | None = None, *, source_id: str | None = None) -> str:
+        source_id = source_id or new_persistent_id()
+        timestamp = _now()
+        with self.db:
+            self.db.execute(
+                "INSERT INTO source_records VALUES(?,?,?,?,?)",
+                (
+                    source_id,
+                    label.strip() if label else None,
+                    SourceStatus.ACTIVE.value,
+                    timestamp,
+                    timestamp,
+                ),
+            )
+        return source_id
+
+    def source_by_id(self, source_id: str) -> SourceRecord:
+        row = self.db.execute("SELECT * FROM source_records WHERE id=?", (source_id,)).fetchone()
+        if not row:
+            raise ValueError("Unknown source ID")
+        return self._source_record(row)
+
+    def add_locator(
+        self,
+        source_id: str,
+        kind: str,
+        value: str,
+        *,
+        preferred: bool = False,
+        locator_id: str | None = None,
+    ) -> str:
+        kind, value = kind.strip(), value.strip()
+        if not kind or not value:
+            raise ValueError("Locator kind and value are required")
+        locator_id = locator_id or new_persistent_id()
+        with self.db:
+            self.db.execute(
+                "INSERT INTO source_locators VALUES(?,?,?,?,?,?,?,NULL)",
+                (
+                    locator_id,
+                    source_id,
+                    kind,
+                    value,
+                    int(preferred),
+                    LocatorStatus.ACTIVE.value,
+                    _now(),
+                ),
+            )
+        return locator_id
+
+    def locators(self, source_id: str) -> tuple[SourceLocatorRecord, ...]:
+        rows = self.db.execute(
+            "SELECT * FROM source_locators WHERE source_id=? ORDER BY rowid", (source_id,)
+        ).fetchall()
+        return tuple(self._locator_record(row) for row in rows)
+
+    def create_snapshot(
+        self,
+        source_id: str,
+        captured_at: str,
+        capture_method: str,
+        *,
+        observed_locator_id: str | None = None,
+        imported_at: str | None = None,
+        capture_tool: str | None = None,
+        capture_version: str | None = None,
+        completeness: SnapshotCompleteness | str = SnapshotCompleteness.COMPLETE,
+        title: str | None = None,
+        manifest: object | None = None,
+        metadata: object | None = None,
+        warnings: object | None = None,
+        snapshot_id: str | None = None,
+    ) -> str:
+        capture_method = capture_method.strip()
+        if not capture_method:
+            raise ValueError("Capture method is required")
+        completeness = SnapshotCompleteness(completeness)
+        snapshot_id = snapshot_id or new_persistent_id()
+        timestamp = _now()
+        with self.db:
+            self.db.execute(
+                """INSERT INTO source_snapshots
+                   (id,source_id,observed_locator_id,captured_at,imported_at,capture_method,
+                    capture_tool,capture_version,completeness,title,manifest_json,metadata_json,
+                    warnings_json,created_at)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    snapshot_id,
+                    source_id,
+                    observed_locator_id,
+                    captured_at,
+                    imported_at or timestamp,
+                    capture_method,
+                    capture_tool,
+                    capture_version,
+                    completeness.value,
+                    title,
+                    _json(manifest or {}),
+                    _json(metadata or {}),
+                    _json(warnings or []),
+                    timestamp,
+                ),
+            )
+        return snapshot_id
+
+    def snapshot_by_id(self, snapshot_id: str) -> SourceSnapshotRecord:
+        row = self.db.execute(
+            "SELECT * FROM source_snapshots WHERE id=?", (snapshot_id,)
+        ).fetchone()
+        if not row:
+            raise ValueError("Unknown source snapshot ID")
+        return self._snapshot_record(row)
+
+    def add_classification(
+        self,
+        source_id: str,
+        axis: str,
+        value: str,
+        origin: MetadataOrigin | str,
+        *,
+        snapshot_id: str | None = None,
+    ) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Classification value is required")
+        classification_id = new_persistent_id()
+        with self.db:
+            self.db.execute(
+                "INSERT INTO source_classifications VALUES(?,?,?,?,?,?,?)",
+                (
+                    classification_id,
+                    source_id,
+                    axis,
+                    value,
+                    MetadataOrigin(origin).value,
+                    snapshot_id,
+                    _now(),
+                ),
+            )
+        return classification_id
+
+    def add_metadata(
+        self,
+        source_id: str,
+        key: str,
+        value: object,
+        origin: MetadataOrigin | str,
+        *,
+        snapshot_id: str | None = None,
+    ) -> str:
+        key = key.strip()
+        if not key:
+            raise ValueError("Metadata key is required")
+        metadata_id = new_persistent_id()
+        with self.db:
+            self.db.execute(
+                "INSERT INTO source_metadata_values VALUES(?,?,?,?,?,?,?)",
+                (
+                    metadata_id,
+                    source_id,
+                    key,
+                    _json(value),
+                    MetadataOrigin(origin).value,
+                    snapshot_id,
+                    _now(),
+                ),
+            )
+        return metadata_id
+
+    def add_raw_artifact(
+        self,
+        snapshot_id: str,
+        artifact_kind: str,
+        storage_ref: str,
+        sha256: str,
+        byte_count: int,
+        *,
+        logical_path: str | None = None,
+        media_type: str | None = None,
+        artifact_id: str | None = None,
+    ) -> str:
+        artifact_id = artifact_id or new_persistent_id()
+        with self.db:
+            self.db.execute(
+                "INSERT INTO raw_artifacts VALUES(?,?,?,?,?,?,?,?,?)",
+                (
+                    artifact_id,
+                    snapshot_id,
+                    artifact_kind,
+                    logical_path,
+                    storage_ref,
+                    media_type,
+                    sha256,
+                    byte_count,
+                    _now(),
+                ),
+            )
+        return artifact_id
+
+    def create_normalization_run(
+        self,
+        snapshot_id: str,
+        extractor_key: str,
+        extractor_version: str,
+        artifact_ids: Iterable[str],
+        *,
+        configuration: object | None = None,
+        output: object | None = None,
+        status: NormalizationStatus | str = NormalizationStatus.COMPLETE,
+        run_id: str | None = None,
+    ) -> str:
+        artifact_ids = tuple(dict.fromkeys(artifact_ids))
+        if not artifact_ids:
+            raise ValueError("Normalization run requires at least one Raw Artifact")
+        run_id = run_id or new_persistent_id()
+        with self.db:
+            self.db.execute(
+                "INSERT INTO normalization_runs VALUES(?,?,?,?,?,?,?,?)",
+                (
+                    run_id,
+                    snapshot_id,
+                    extractor_key.strip(),
+                    extractor_version.strip(),
+                    _json(configuration or {}),
+                    _json(output or {}),
+                    NormalizationStatus(status).value,
+                    _now(),
+                ),
+            )
+            self.db.executemany(
+                "INSERT INTO normalization_run_artifacts VALUES(?,?,'input')",
+                [(run_id, artifact_id) for artifact_id in artifact_ids],
+            )
+        return run_id
+
+    def add_evidence(
+        self,
+        run_id: str,
+        content: str,
+        extraction_mode: EvidenceExtractionMode | str,
+        *,
+        ordinal: int | None = None,
+        language: str | None = None,
+        metadata: object | None = None,
+        evidence_id: str | None = None,
+    ) -> str:
+        if not content:
+            raise ValueError("Evidence content is required")
+        parent = self.db.execute(
+            """SELECT n.snapshot_id,s.source_id FROM normalization_runs n
+               JOIN source_snapshots s ON s.id=n.snapshot_id WHERE n.id=?""",
+            (run_id,),
+        ).fetchone()
+        if not parent:
+            raise ValueError("Unknown normalization run ID")
+        if ordinal is None:
+            row = self.db.execute(
+                "SELECT coalesce(max(ordinal),-1)+1 AS next FROM evidence_records WHERE run_id=?",
+                (run_id,),
+            ).fetchone()
+            ordinal = row["next"]
+        evidence_id = evidence_id or new_persistent_id()
+        with self.db:
+            self.db.execute(
+                """INSERT INTO evidence_records
+                   (id,run_id,snapshot_id,source_id,ordinal,content,content_hash,
+                    extraction_mode,language,metadata_json,created_at)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    evidence_id,
+                    run_id,
+                    parent["snapshot_id"],
+                    parent["source_id"],
+                    ordinal,
+                    content,
+                    _digest(content),
+                    EvidenceExtractionMode(extraction_mode).value,
+                    language,
+                    _json(metadata or {}),
+                    _now(),
+                ),
+            )
+        return evidence_id
+
+    def evidence_by_id(self, evidence_id: str) -> EvidenceRecord:
+        row = self.db.execute(
+            "SELECT * FROM evidence_records WHERE id=?", (evidence_id,)
+        ).fetchone()
+        if not row:
+            raise ValueError("Unknown evidence ID")
+        return self._evidence_record(row)
+
+    def add_evidence_location(
+        self, evidence_id: str, kind: str, value: object, *, ordinal: int = 0
+    ) -> str:
+        location_id = new_persistent_id()
+        with self.db:
+            self.db.execute(
+                "INSERT INTO evidence_locations VALUES(?,?,?,?,?,?)",
+                (location_id, evidence_id, ordinal, kind, _json(value), _now()),
+            )
+        return location_id
+
+    def associate_object(
+        self,
+        source_id: str,
+        object_id: str,
+        status: AssociationStatus | str,
+        *,
+        subject_relationship: str | None = None,
+        origin_kind: str = "manual",
+        note: str | None = None,
+    ) -> None:
+        status = AssociationStatus(status)
+        timestamp = _now()
+        with self.db:
+            self.db.execute(
+                """INSERT INTO source_object_associations
+                   VALUES(?,?,?,?,?,?,?,?)
+                   ON CONFLICT(source_id,object_id) DO UPDATE SET
+                     status=excluded.status,
+                     subject_relationship=excluded.subject_relationship,
+                     origin_kind=excluded.origin_kind,
+                     note=excluded.note,
+                     updated_at=excluded.updated_at""",
+                (
+                    source_id,
+                    object_id,
+                    status.value,
+                    subject_relationship,
+                    origin_kind,
+                    note,
+                    timestamp,
+                    timestamp,
+                ),
+            )
+
+    def relate_sources(
+        self,
+        subject_source_id: str,
+        relation_key: str,
+        object_source_id: str,
+        *,
+        origin_kind: str = "manual",
+        note: str | None = None,
+    ) -> str:
+        relation_type = self.db.execute(
+            "SELECT id FROM source_relation_types WHERE key=? AND status='active'", (relation_key,)
+        ).fetchone()
+        if not relation_type:
+            raise ValueError("Unknown or inactive Source relation type")
+        relation_id = new_persistent_id()
+        with self.db:
+            self.db.execute(
+                "INSERT INTO source_relations VALUES(?,?,?,?,?,?,?)",
+                (
+                    relation_id,
+                    subject_source_id,
+                    relation_type["id"],
+                    object_source_id,
+                    origin_kind,
+                    note,
+                    _now(),
+                ),
+            )
+        return relation_id
+
+    def link_evidence(
+        self,
+        version_id: str,
+        target_kind: EvidenceTargetKind | str,
+        target_id: str,
+        evidence_id: str,
+        role: EvidenceRole | str = EvidenceRole.SUPPORTS,
+        *,
+        origin_kind: str = "result_import",
+        origin_ref: str | None = None,
+    ) -> str:
+        target_kind = EvidenceTargetKind(target_kind)
+        role = EvidenceRole(role)
+        role_row = self.db.execute(
+            "SELECT id FROM evidence_roles WHERE key=? AND status='active'", (role.value,)
+        ).fetchone()
+        if not role_row:
+            raise ValueError("Unknown or inactive Evidence role")
+        link_id = new_persistent_id()
+        with self.db:
+            self.db.execute(
+                "INSERT INTO evidence_links VALUES(?,?,?,?,?,?,?,?,?)",
+                (
+                    link_id,
+                    version_id,
+                    target_kind.value,
+                    target_id,
+                    evidence_id,
+                    role_row["id"],
+                    origin_kind,
+                    origin_ref,
+                    _now(),
+                ),
+            )
+        return link_id
+
+    def evidence_provenance(self, evidence_id: str) -> EvidenceProvenance:
+        evidence = self.evidence_by_id(evidence_id)
+        snapshot = self.snapshot_by_id(evidence.snapshot_id)
+        source = self.source_by_id(evidence.source_id)
+        artifact_ids = tuple(
+            row["artifact_id"]
+            for row in self.db.execute(
+                """SELECT artifact_id FROM normalization_run_artifacts
+                   WHERE run_id=? ORDER BY artifact_id""",
+                (evidence.run_id,),
+            )
+        )
+        if not artifact_ids:
+            raise ValueError("Evidence provenance has no Raw Artifact")
+        return EvidenceProvenance(evidence, snapshot, source, artifact_ids)
+
+    def validate_source_references(self, source_ids: Iterable[str]) -> tuple[str, ...]:
+        requested = tuple(dict.fromkeys(source_ids))
+        for source_id in requested:
+            self.source_by_id(source_id)
+        return requested
+
+    def validate_evidence_references(
+        self,
+        evidence_ids: Iterable[str],
+        *,
+        package_evidence_ids: Iterable[str] | None = None,
+    ) -> tuple[str, ...]:
+        requested = tuple(dict.fromkeys(evidence_ids))
+        if not requested:
+            raise ValueError("At least one Evidence reference is required")
+        package = set(package_evidence_ids) if package_evidence_ids is not None else None
+        for evidence_id in requested:
+            if package is not None and evidence_id not in package:
+                raise ValueError(f"Evidence {evidence_id} is outside the input Package")
+            self.evidence_provenance(evidence_id)
+        return requested
+
+    def evidence_links_for_target(
+        self, version_id: str, target_kind: EvidenceTargetKind | str, target_id: str
+    ) -> tuple[EvidenceLinkRecord, ...]:
+        target_kind = EvidenceTargetKind(target_kind)
+        rows = self.db.execute(
+            """SELECT l.*,r.key AS role_key FROM evidence_links l
+               JOIN evidence_roles r ON r.id=l.role_id
+               WHERE l.version_id=? AND l.target_kind=? AND l.target_id=?
+               ORDER BY l.rowid""",
+            (version_id, target_kind.value, target_id),
+        ).fetchall()
+        return tuple(
+            EvidenceLinkRecord(
+                link_id=row["id"],
+                version_id=row["version_id"],
+                target_kind=EvidenceTargetKind(row["target_kind"]),
+                target_id=row["target_id"],
+                evidence_id=row["evidence_id"],
+                role=EvidenceRole(row["role_key"]),
+                origin_kind=row["origin_kind"],
+                origin_ref=row["origin_ref"],
+            )
+            for row in rows
+        )

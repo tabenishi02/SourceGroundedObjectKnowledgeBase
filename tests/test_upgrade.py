@@ -371,7 +371,7 @@ def test_v1_migration_preserves_existing_records(tmp_path):
     assert repo.entity("legacy")["name"] == "旧世代"
     assert repo.one("PRAGMA integrity_check")["integrity_check"] == "ok"
     assert not repo.rows("PRAGMA foreign_key_check")
-    assert repo.one("SELECT count(*) n FROM schema_migrations")["n"] == 5
+    assert repo.one("SELECT count(*) n FROM schema_migrations")["n"] == 6
     repo.close()
 
 

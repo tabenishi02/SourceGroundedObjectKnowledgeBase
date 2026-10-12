@@ -423,12 +423,9 @@ E-02の物理schemaはCompleteだが、Facet taxonomyの意味設計は次の追
 
 ## 14. E-03以降へ残す事項
 
-### E-03
+### E-03 — Complete
 
-- Statement / attribute / Relation → Evidence Link
-- Evidence role (`supports / contradicts / contextualizes`等)
-- Source / Snapshot / Raw Artifact / Normalized Run / Evidenceの新物理schema
-- Provenance integrity
+`docs/design/SOURCE_EVIDENCE_SCHEMA.md`を正本としてMigration 006を追加し、Statement / attribute / Relation → Evidence Link、`supports / contradicts / contextualizes` Evidence role、canonical Source / Snapshot / Raw Artifact / Normalization Run / Evidence、Provenance integrityを確定した。Facet自体への直接Evidence一覧は持たせず、Facet内Statementをgrounding単位とする。
 
 ### E-04
 
@@ -518,4 +515,4 @@ E-02実装では次をtest対象とする。
 - Migration 004 / 005適用後の既存回帰
 - 62 Class + 25 boundary gold fixture coverage / profile inheritance整合
 
-E-02A / E-02B / E-02Cは完了した。Facet taxonomyは55 FacetでfreezeしMigration 005へ反映済み。次Taskは `E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する` とする。
+E-02A / E-02B / E-02CとE-03は完了した。Facet taxonomyはMigration 005、Source / Evidence / Evidence Link / ProvenanceはMigration 006へ反映済み。次Taskは `E-04 [P0] Versioningを設計する` とする。

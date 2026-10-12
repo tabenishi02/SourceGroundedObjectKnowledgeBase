@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / C / DとPhase EのE-01 / E-02 / E-02A / E-02B / E-02Cは完了。全62 Class + 25 boundary caseをgold化し、55 Facet taxonomyをfreeze、Migration 005でRegistry / profileへ反映済み。次の未完了TaskはE-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A / B / C / DとPhase EのE-01 / E-02 / E-02A / E-02B / E-02C / E-03は完了。Migration 006でcanonical Source / Evidence / Evidence Link / Provenance schemaを追加済み。次の未完了TaskはE-04 [P0] Versioningを設計する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
 
 Phase D / E移行資料:
 
@@ -458,11 +458,11 @@ E-01 / E-02 core schemaは完了し、Object / Class / Version / Relation骨格�
 - E-02A: Complete — `docs/design/FACET_TAXONOMY_SURVEY.md`
 - E-02B: Complete — `docs/design/FACET_VOCABULARY_REVIEW.md`
 - E-02C: Complete — `docs/reference/CLASS_FACET_GOLD_CASES.md` / `tests/fixtures/class_facet_gold_cases.json`
-- E-03: Source / Evidence / Evidence Link / Provenance schema
+- E-03: Complete — `docs/design/SOURCE_EVIDENCE_SCHEMA.md` / Migration 006
 - E-04: Version lifecycle / stale / rollback / current promotion
 - E-05: Object Result JSON Schemaの物理field
 
-E-02A〜E-02Cは完了した。55 Facet taxonomyとClass profileはMigration 005へ反映済みであり、E-05 / H-01ではこのgold fixtureをprofile validationの基準として再利用する。
+E-02A〜E-02Cは完了した。55 Facet taxonomyとClass profileはMigration 005へ反映済みである。E-03も完了し、Source Identity / locator / Snapshot / Raw / Normalization / Evidence / Evidence Link / Provenance contractをMigration 006へ反映した。E-04ではこのEvidence groundingを保持したVersion lifecycleを確定する。
 
 ### Phase F〜H
 
@@ -560,9 +560,9 @@ Phase A〜Dは完了しています。
 - docs/decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md
 
 今回実施するTask:
-E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する
+E-04 [P0] Versioningを設計する
 
-E-02A〜E-02Cは完了し、55 Facet taxonomyはMigration 005へ反映済みです。`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`を正本入力として、Source Identity + locator、Snapshot、Raw Artifact、Normalized Run、Evidence、Source↔Object association、Knowledge Statement / Attribute / Relation→Evidence Link、Evidence role、Provenance integrityを物理schemaへ落とし込んでください。既存`001_initial.sql`〜`005_facet_taxonomy_freeze.sql`は書き換えず、次のadditive migrationを使用してください。
+E-01〜E-03は完了しています。`docs/design/OBJECT_SCHEMA.md`、`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`と`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`を主要入力として、Object Knowledge Versionのcandidate / accepted lifecycle、accepted immutability、base version / stale Result、full snapshot omission semantics、current promotion / rollback、Diff境界、Evidence Linkを含むVersion contentのimmutability、transaction / recovery、derived Search Representation invalidation境界を物理schema・domain contract・storage・migration testへ落とし込んでください。既存Migration 001〜006は書き換えず、次のadditive migrationを使用してください。
 ```
 
 ---
@@ -599,6 +599,7 @@ E-02A〜E-02Cは完了し、55 Facet taxonomyはMigration 005へ反映済みで�
 - `docs/planning/PHASE_E_PREPARATION.md`
 - `docs/design/FACET_TAXONOMY_SURVEY.md`
 - `docs/design/FACET_VOCABULARY_REVIEW.md`
+- `docs/design/SOURCE_EVIDENCE_SCHEMA.md`
 - `docs/reference/CLASS_FACET_GOLD_CASES.md`
 - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
 - `docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md`
@@ -612,8 +613,8 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 Phase A、Phase B、Phase C、Phase Dは完了している。
 
-**次の作業はE-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する。**
+**次の作業はE-04 [P0] Versioningを設計する。**
 
-E-02A〜E-02Cで全62 Classのtaxonomy survey、55 Facet vocabulary統合、62 Class + 25 boundary caseのgold corpusを完了した。Facet taxonomyはMigration 005で物理Registryへ反映済みであり、次はSource / Evidence / Provenance設計へ進む。
+E-02A〜E-02CでFacet taxonomy hardeningを完了し、E-03でcanonical Source / Evidence / Provenance schemaをMigration 006へ反映した。次はE-04でObject Knowledge Version lifecycleを設計する。
 
 再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase DでRepository / Git / module / runtime data / history cleanupの境界は確定した。Phase EではObject / Class / Relation / Versionを中心とする物理Data Modelへ進む。
