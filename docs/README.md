@@ -28,8 +28,9 @@
 22. [Phase D Preparation](planning/PHASE_D_PREPARATION.md) — Phase D完了記録とPhase Eへの引継ぎ。
 23. [Phase E Preparation](planning/PHASE_E_PREPARATION.md) — Phase D完了監査、domain package conversion、現行Prototype DB baseline、Phase E開始条件。
 24. [Object Schema Design](design/OBJECT_SCHEMA.md) — E-01で確定したObject / Class / Version / Relationの物理schema。
-25. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
-26. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
+25. [Semantic Facet Schema Design](design/SEMANTIC_FACET_SCHEMA.md) — E-02で確定したFacet / Statement / Attribute / Temporal Scope / Search Representation schema。
+26. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+27. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
 
 ## 現行文書
 
@@ -52,9 +53,10 @@
 Phase E以降で確定した物理Architecture / Data Model設計を置く。
 
 - [Object Schema Design](design/OBJECT_SCHEMA.md)
+- [Semantic Facet Schema Design](design/SEMANTIC_FACET_SCHEMA.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase EのE-01は完了しており、次TaskはE-02である。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase EのE-01 / E-02は完了しており、次TaskはE-03である。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果を置く。通常は最初から読む必要はない。
