@@ -387,7 +387,9 @@ Application / Result Validator:
 
 E-02の物理schemaはCompleteだが、Facet taxonomyの意味設計は次の追加Taskでhardeningする。
 
-### E-02A — 全Class Facet taxonomy survey
+### E-02A — 全Class Facet taxonomy survey — Complete
+
+成果物: `docs/design/FACET_TAXONOMY_SURVEY.md`
 
 - E-01 initial Registryの全62 Classを対象とする。
 - Classごとの意味定義、include / exclude、想定Knowledge、Facet候補を整理する。
@@ -510,4 +512,4 @@ E-02実装では次をtest対象とする。
 - builder version / content hash追跡
 - Migration 004適用後の既存回帰
 
-E-02 core実装完了後の次Taskは `E-02A [P0] 全ClassのFacet taxonomy surveyを実施する` とする。E-02A〜E-02C完了後にE-03へ進む。
+E-02Aは全62 Classのsurveyを完了した。次Taskは `E-02B [P0] Facet vocabularyを横断統合する` とする。E-02B / E-02C完了後にE-03へ進む。

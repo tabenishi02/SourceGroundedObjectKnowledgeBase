@@ -3,11 +3,11 @@
 更新日: 2026-10-12
 
 - Target: `Phase E — Object Knowledgeデータモデル`
-- Status: E-01 / E-02 Core Complete / E-02A Ready / E-03 Queued
+- Status: E-01 / E-02 Core / E-02A Complete / E-02B Ready / E-03 Queued
 - Active redesign branch: `integration/knowledge-base-redesign`
 - Phase D status: Complete — D-01〜D-07
 - Structural prerequisite: Complete — `domain.py -> domain/` package conversion
-- Next task: `E-02A [P0] 全ClassのFacet taxonomy surveyを実施する`
+- Next task: `E-02B [P0] Facet vocabularyを横断統合する`
 
 ## 1. 目的
 
@@ -85,7 +85,7 @@ Phase Eは、SGOKBのcanonical Object Knowledge Storeを支える物理データ
 ```text
 E-01  Object schema
 E-02  Semantic Facet schema（core schema完了）
-E-02A 全62 Class Facet taxonomy survey
+E-02A 全62 Class Facet taxonomy survey（完了）
 E-02B Facet vocabulary横断統合
 E-02C Class / Facet境界gold cases
 E-03  Source / Evidence / Evidence Link / Provenance schema
@@ -442,13 +442,14 @@ D-05 Wave 1のdomain package conversionも完了済みです。
 - docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md
 - docs/design/OBJECT_SCHEMA.md
 - docs/design/SEMANTIC_FACET_SCHEMA.md
+- docs/design/FACET_TAXONOMY_SURVEY.md
 - docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md
 - docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
 
 今回実施するタスク:
-E-02A [P0] 全ClassのFacet taxonomy surveyを実施する
+E-02B [P0] Facet vocabularyを横断統合する
 
-E-01 / E-02 core schemaは完了しています。`docs/design/OBJECT_SCHEMA.md`、`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`を正本として維持してください。初期Registryの全62 Classについて、Classの意味境界、含めるもの/含めないもの、想定Knowledge、専用Facet候補、Object / Facet / Attribute / Relation / Statement境界、representative examples / counterexamplesを横断的に整理してください。物理schemaやRegistry seedを直ちに変更せず、まずsurvey結果を`docs/design/FACET_TAXONOMY_SURVEY.md`へまとめ、E-02BのFacet vocabulary統合へ引き渡してください。
+E-02Aは完了しています。`docs/design/FACET_TAXONOMY_SURVEY.md`を主要入力として、62 Classに列挙したFacet候補を横断比較してください。shared / class-specific / inherited Facetを区別し、近義Facetの乱立を避けるstable vocabularyを設計してください。初期18 Facet seedの維持・追加・名称整理、Class-to-Facet profileの配置、Structural Classを継承点として使う範囲、必要なMigration / Registry変更案を`docs/design/FACET_VOCABULARY_REVIEW.md`へまとめてください。
 ```
 
 ---
@@ -459,4 +460,4 @@ Phase Dには残Taskはない。
 
 D-05でPhase E開始前に要求されていたdomain package conversionも完了したため、Repository / Git / physical module boundaryの観点からPhase Eへ移行可能である。
 
-E-01 / E-02 core schemaは完了した。E-02の設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`。設計レビューでE-02A〜E-02Cを追加し、全62 ClassのFacet taxonomy / vocabulary / boundary gold casesを先に検証する。次Taskは`E-02A [P0] 全ClassのFacet taxonomy surveyを実施する`。
+E-01 / E-02 core schema / E-02Aは完了した。E-02の設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、E-02Aのsurvey正本は`docs/design/FACET_TAXONOMY_SURVEY.md`。全62 Classのcoverageは62/62、欠落0、重複0を確認済み。次Taskは`E-02B [P0] Facet vocabularyを横断統合する`。

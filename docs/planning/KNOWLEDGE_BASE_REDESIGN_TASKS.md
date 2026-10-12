@@ -360,13 +360,16 @@ docs/
   - Object / Facet / Statement Search Representationを正本Knowledgeから分離し、representation builder version / content hash /対象Version membershipを追跡できる論理契約を設計する。
   - Statement / attribute / Relationのtemporal scopeをVersion作成時刻と分離して表現する方式を設計する。
 
-- [ ] **E-02A [P0] 全ClassのFacet taxonomy surveyを実施する**
+- [x] **E-02A [P0] 全ClassのFacet taxonomy surveyを実施する**
   - E-01で初期Registryへ登録した全62 Classを対象に、Classごとの意味境界を横断確認する。
   - 各Classについて「含めるもの / 含めないもの / 想定Knowledge / representative examples / counterexamples」を整理する。
   - 各Classの専用Facet候補と、common Facetだけで十分なClassを区別する。
   - KnowledgeをFacetへ置くべきか、独立Object / typed attribute / Relation / Statementへ置くべきかの境界を明記する。
   - `overall`を未設計Knowledgeの恒久的な逃げ場にせず、専用Facet不足によるClass意味幅の膨張を検出する。
   - 成果物: `docs/design/FACET_TAXONOMY_SURVEY.md`
+  - Migration 003の62 Classとsurvey rowを機械比較し、62/62、欠落0、重複0を確認した。
+  - Structural / Additional-only Classも省略せず、直接profile不要またはfamily-level inheritance候補として明示した。
+  - 近義Facet候補、Relation / Attributeへ出す情報、E-02C gold case論点をE-02B / E-02Cへ引き渡した。
 
 - [ ] **E-02B [P0] Facet vocabularyを横断統合する**
   - E-02Aで列挙したFacet候補をClass横断で比較し、`purpose / function / role / usage / application`等の近義語乱立を検出する。
@@ -877,8 +880,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01 / E-02本体は完了した。設計レビューによりFacet taxonomyの事前検証を追加し、次の最優先は **E-02A [P0] 全ClassのFacet taxonomy surveyを実施する** とする。E-02A〜E-02Cで全62 Classの意味境界・Facet vocabulary・gold casesを検証した後、E-03へ進む。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01 / E-02本体 / E-02Aは完了した。E-02AでMigration 003の全62 Classについて意味境界・Facet候補・Object / Attribute / Relation境界・representative / counterexampleを`docs/design/FACET_TAXONOMY_SURVEY.md`へ整理した。次の最優先は **E-02B [P0] Facet vocabularyを横断統合する** とする。E-02B / E-02C完了後にE-03へ進む。
 
 Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 
-E-01ではD-04で確定した`domain / storage`責務境界を維持し、Migration 003、Object domain contract、`storage/ObjectRepository`、62 Class seed、DB integrity constraintを実装した。設計正本は`docs/design/OBJECT_SCHEMA.md`とする。E-02ではMigration 004、Facet Registry、Class-to-Facet profile、Knowledge Statement、typed attribute、temporal scope、Object / Facet / Statement Search Representation membershipを実装した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`とする。E-02A〜E-02Cでは、この汎用schemaを変更前提にせず、全62 Classを横断してFacet taxonomyと意味境界を事前検証し、必要なRegistry変更だけを明示的に提案・適用する。その後E-03でKnowledge骨格をEvidence / Provenanceへ接続する。
+E-01ではD-04で確定した`domain / storage`責務境界を維持し、Migration 003、Object domain contract、`storage/ObjectRepository`、62 Class seed、DB integrity constraintを実装した。設計正本は`docs/design/OBJECT_SCHEMA.md`とする。E-02ではMigration 004、Facet Registry、Class-to-Facet profile、Knowledge Statement、typed attribute、temporal scope、Object / Facet / Statement Search Representation membershipを実装した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`とする。E-02Aではこの汎用schemaを変更せず、全62 ClassのFacet taxonomy surveyを完了した。E-02Bでは`FACET_TAXONOMY_SURVEY.md`の候補を横断比較し、shared / inherited / class-specific vocabularyを最小限へ統合する。E-02Cでgold casesを固定した後、E-03でKnowledge骨格をEvidence / Provenanceへ接続する。
