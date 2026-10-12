@@ -505,6 +505,8 @@ docs/
 
 # Phase G — Google Drive / ChatGPT交換ワークフロー
 
+**Phase G開始準備（2026-10-12）:** Phase FのF-01〜F-05がすべて完了し、integration統合後のfull regressionは159 passed。`src/sgokb/exchange/`にはObject Result contractのみ存在し、Package Builder / manifest schema / instructions renderer / staging-export / incoming workflowは未実装であることを確認した。current Versionのfull read/serialize APIとVersion単位Evidence Link取得もG-01の主要gapとして整理した。開始条件・推奨実装順・test観点は`docs/planning/PHASE_G_PREPARATION.md`を正本とする。
+
 - [ ] **G-01 [P0] Object Evidence Package formatを確定する**
   - 更新Packageではcurrent Knowledgeを評価・carry-forwardできるよう、現Versionが参照するEvidenceを必要に応じて含める。
   - Package外Evidenceを標準Resultが引用しないB-04契約とtoken budgetを両立させる。

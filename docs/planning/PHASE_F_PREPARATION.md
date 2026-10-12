@@ -652,4 +652,6 @@ Phase F開始前のstructural prerequisiteとしてD-05 Wave 2も完了し、Imp
 
 F-01でcanonical ingestion、F-02でstandard / legacy境界、F-03でObject Evidence Retrieval、F-04でbounded Evidence Selection、F-05でoperator association / Evidence override CLIまで完了した。Phase Fの完了条件である「生成LLMなしでObjectに関連するEvidence Package入力集合を構築できること」を満たした。
 
+Phase G開始条件・既存gap・実装順は`docs/planning/PHASE_G_PREPARATION.md`へ整理済みである。
+
 **Next: `G-01 [P0] Object Evidence Package formatを確定する`**

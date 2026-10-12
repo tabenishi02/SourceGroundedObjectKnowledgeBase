@@ -16,11 +16,12 @@ Task master:
 
 > **Phase A / B / C / D / E / F（F-01〜F-05）は完了。canonical EvidenceをFragmentなしでretrieval / bounded selectionし、Source↔Object associationとEvidence manual overrideをoperator CLIから維持できる。次の未完了TaskはG-01 [P0] Object Evidence Package formatを確定する。再設計の正規統合作業基盤は`integration/knowledge-base-redesign`。**
 
-Phase D / E / F移行資料:
+Phase D / E / F / G移行資料:
 
 - `docs/planning/PHASE_D_PREPARATION.md`
 - `docs/planning/PHASE_E_PREPARATION.md`
 - `docs/planning/PHASE_F_PREPARATION.md`
+- `docs/planning/PHASE_G_PREPARATION.md`
 
 ---
 
@@ -605,6 +606,7 @@ F-03〜F-05でcanonical Evidence retrieval、bounded selection、operator associ
 - `docs/planning/PHASE_D_PREPARATION.md`
 - `docs/planning/PHASE_E_PREPARATION.md`
 - `docs/planning/PHASE_F_PREPARATION.md`
+- `docs/planning/PHASE_G_PREPARATION.md`
 - `docs/design/FACET_TAXONOMY_SURVEY.md`
 - `docs/design/FACET_VOCABULARY_REVIEW.md`
 - `docs/design/SOURCE_EVIDENCE_SCHEMA.md`
@@ -638,4 +640,4 @@ F-04では`EvidencePackageSelector`によりestimated token / byte / item hard b
 
 F-05では`source_object_associations`をApplication / CLIへ接続し、`association list/suggest/set/clear`と`evidence candidates/select`を実装した。自動suggestionはread-only、Evidence include / excludeはPackage単位のoverride、Knowledge `evidence_links`は別責務とした。設計正本は`docs/design/OPERATOR_ASSOCIATION_CONTROLS.md`である。
 
-再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase Fは完了し、G-01ではObject Evidence Package formatへ進む。
+再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase Fは完了し、`docs/planning/PHASE_G_PREPARATION.md`でPhase Gの開始gap・実装順・Definition of Readyを整理済みである。G-01ではObject Evidence Package formatへ進む。
