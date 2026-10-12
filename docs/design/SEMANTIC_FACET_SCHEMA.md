@@ -396,12 +396,16 @@ E-02の物理schemaはCompleteだが、Facet taxonomyの意味設計は次の追
 - Facetへ置く情報とObject / Attribute / Relation / Statementへ置く情報の境界を明示する。
 - representative examples / counterexamplesでClass意味幅を検証する。
 
-### E-02B — Facet vocabulary横断統合
+### E-02B — Facet vocabulary横断統合 — Complete
 
-- Classごとの候補Facetを横断比較する。
-- shared / class-specific / inherited Facetを区別する。
-- 近義語によるFacet ID乱立を避ける。
-- cross-class Facet similarityの意味整合を確認する。
+成果物: `docs/design/FACET_VOCABULARY_REVIEW.md`
+
+- 初期18 Facetを全件維持し、既存stable ID / keyを変更しない。
+- E-02A候補を横断統合し、E-02C向けfreeze候補を既存18 + 新規37 = 55 Facetへ整理した。
+- shared / class-specific / inherited profileを区別し、Group / WorkComponent / Capability / Process / TemporalEntity / System / Material / Phenomenon / SymbolicSystem等の自然なancestor profile候補を整理した。
+- `purpose / function / usage`等、意味差が検索・比較上重要な近義語は別Facetとして維持する。
+- Relation / Attributeへ置くべき候補はFacet Definitionへ昇格させない。
+- Registry / profileの物理変更はE-02Cのgold case通過後に新規additive migrationで適用する。
 
 ### E-02C — Class / Facet境界gold cases
 
@@ -512,4 +516,4 @@ E-02実装では次をtest対象とする。
 - builder version / content hash追跡
 - Migration 004適用後の既存回帰
 
-E-02Aは全62 Classのsurveyを完了した。次Taskは `E-02B [P0] Facet vocabularyを横断統合する` とする。E-02B / E-02C完了後にE-03へ進む。
+E-02A / E-02Bは完了した。次Taskは `E-02C [P0] Class / Facet境界gold casesを作成する` とする。E-02C完了後にFacet taxonomyをfreezeし、E-03へ進む。

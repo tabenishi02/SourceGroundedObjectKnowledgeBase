@@ -30,8 +30,9 @@
 24. [Object Schema Design](design/OBJECT_SCHEMA.md) — E-01で確定したObject / Class / Version / Relationの物理schema。
 25. [Semantic Facet Schema Design](design/SEMANTIC_FACET_SCHEMA.md) — E-02で確定したFacet / Statement / Attribute / Temporal Scope / Search Representation schema。
 26. [Facet Taxonomy Survey](design/FACET_TAXONOMY_SURVEY.md) — E-02Aで全62 Classの意味境界・Facet候補・非Facet境界・代表例/反例を横断整理したsurvey。
-27. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
-28. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
+27. [Facet Vocabulary Review](design/FACET_VOCABULARY_REVIEW.md) — E-02Bで近義Facetを横断統合し、既存18 + 新規37 = 55 Facetのfreeze候補とprofile inheritance方針を整理した設計レビュー。
+28. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+29. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
 
 ## 現行文書
 
@@ -56,9 +57,10 @@ Phase E以降で確定した物理Architecture / Data Model設計を置く。
 - [Object Schema Design](design/OBJECT_SCHEMA.md)
 - [Semantic Facet Schema Design](design/SEMANTIC_FACET_SCHEMA.md)
 - [Facet Taxonomy Survey](design/FACET_TAXONOMY_SURVEY.md)
+- [Facet Vocabulary Review](design/FACET_VOCABULARY_REVIEW.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase EのE-01 / E-02 core schema / E-02Aは完了している。E-02Aでは全62 ClassのFacet taxonomy surveyを完了し、coverage 62/62を確認した。次TaskはE-02BのFacet vocabulary横断統合、その後E-02Cのboundary gold casesとする。E-02B〜E-02C完了後にE-03へ進む。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase EのE-01 / E-02 core schema / E-02A / E-02Bは完了している。E-02Aで全62 ClassのFacet taxonomy survey、E-02Bで55 Facetのfreeze候補とprofile inheritance方針を確定した。次TaskはE-02CのClass / Facet boundary gold casesとする。E-02C完了後にE-03へ進む。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果を置く。通常は最初から読む必要はない。
