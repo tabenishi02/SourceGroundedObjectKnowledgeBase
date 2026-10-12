@@ -6,7 +6,7 @@ from pathlib import Path
 
 from .domain import digest, json_text, now, uid
 from .knowledge_repository import KnowledgeRepository
-from .storage import ObjectRepository, SemanticRepository, SourceRepository
+from .storage import ObjectRepository, SemanticRepository, SourceRepository, VersionRepository
 
 
 class Repository(KnowledgeRepository):
@@ -22,6 +22,7 @@ class Repository(KnowledgeRepository):
         self.object_store = ObjectRepository(self.db)
         self.semantic_store = SemanticRepository(self.db)
         self.source_store = SourceRepository(self.db)
+        self.version_store = VersionRepository(self.db)
 
     def close(self):
         self.db.close()

@@ -33,8 +33,9 @@
 27. [Facet Vocabulary Review](design/FACET_VOCABULARY_REVIEW.md) — E-02Bで近義Facetを横断統合し、既存18 + 新規37 = 55 Facetのfreeze候補とprofile inheritance方針を整理した設計レビュー。
 28. [Class / Facet Gold Cases](reference/CLASS_FACET_GOLD_CASES.md) — E-02Cで全62 Classと25 boundary caseをgold化し、55 Facet taxonomyをfreezeした回帰基準。
 29. [Source / Evidence Schema Design](design/SOURCE_EVIDENCE_SCHEMA.md) — E-03で確定したSource Identity / locator / Snapshot / Raw / Normalization / Evidence / Evidence Link / Provenanceの物理schema。
-30. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
-31. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
+30. [Versioning Schema Design](design/VERSIONING_SCHEMA.md) — E-04で確定したfull snapshot Version lifecycle、stale判定、accepted immutability、current promotion / rollback、derived-state boundary。
+31. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+32. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
 
 ## 現行文書
 
@@ -61,9 +62,10 @@ Phase E以降で確定した物理Architecture / Data Model設計を置く。
 - [Facet Taxonomy Survey](design/FACET_TAXONOMY_SURVEY.md)
 - [Facet Vocabulary Review](design/FACET_VOCABULARY_REVIEW.md)
 - [Source / Evidence Schema Design](design/SOURCE_EVIDENCE_SCHEMA.md)
+- [Versioning Schema Design](design/VERSIONING_SCHEMA.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase EのE-01 / E-02 core schema / E-02A / E-02B / E-02C / E-03は完了している。Migration 005でFacet taxonomy、Migration 006でcanonical Source / Evidence / Evidence Link / Provenance schemaを反映した。次TaskはE-04のVersioning設計とする。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase EのE-01 / E-02 core schema / E-02A / E-02B / E-02C / E-03 / E-04は完了している。Migration 005でFacet taxonomy、Migration 006でcanonical Source / Evidence / Evidence Link / Provenance schema、Migration 007でVersion lifecycle / stale / accepted immutability / current promotionを反映した。次TaskはE-05のObject Result JSON Schema設計とする。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果とgold corpusを置く。

@@ -418,7 +418,7 @@ docs/
   - Facet自体へEvidence一覧を直接bindせず、Facet内Knowledge Statementをgrounding単位とする契約を確定した。
   - Source / Evidence ID存在確認と、将来Package manifestのEvidence集合を入力してPackage外参照を拒否できるstorage validation primitiveを追加した。
 
-- [ ] **E-04 [P0] Versioningを設計する**
+- [x] **E-04 [P0] Versioningを設計する**
   - Final Object Dataは上書きではなくVersion追加を基本とする。
   - B-04のfull snapshot Resultを次期Version候補として扱う。
   - package / base version preconditionとstale Result処理を定義する。
@@ -428,6 +428,16 @@ docs/
   - Persistent Version IDはSGOKB側で発行する。
   - accepted Versionを論理immutableとし、Version commit / current切替とpost-import derived jobをfailure domainとして分離する。
   - process interruption時にincomplete Versionをcurrentが指さないtransaction / recovery contractを定義する。
+  - 成果物: `docs/design/VERSIONING_SCHEMA.md`。
+  - Migration 007で`candidate / accepted / abandoned` lifecycle、base Version、Version Classification snapshot、append-only Version event、derived state trackingをadditiveに追加した。
+  - `accepted`と`current`を分離し、historical Versionもacceptedのまま保持する。rollbackは過去accepted Versionへcurrent pointerを戻すだけで、Version content / lifecycleを変更しない契約とした。
+  - 標準Versionをfull snapshotへ固定し、`version_number`をObject内の作成順序、`base_version_id`をlineage / stale preconditionとした。rollback後は例として`v4 / base=v1`のbranchを許容する。
+  - candidate作成時のPrimary / Additional Class snapshotを保存し、baseまたはClassificationがaccept前に変化したcandidateをstaleとして拒否する。
+  - accepted / abandoned後はStatement / Attribute / Relation / Facet / temporal scope / Evidence Link / Classification snapshotをDB triggerでimmutableにした。
+  - acceptance時に`content` FacetのStatement存在と、Statement / known Attribute / RelationのEvidence Linkを必須とした。Package membership等のResult-level validationはE-05 / H-01へ分離した。
+  - candidate acceptance + current promotion + derived target state更新を1 SQLite transactionとし、Embedding / Vector / rendering実処理を別failure domainへ分離した。
+  - `object_derived_states`のrevision tokenで古いworkerのlate completionが新current stateを上書きしない契約を追加した。
+  - pre-E-04 `object_versions`はMigration 007適用時にacceptedとしてbackfillし、既存current pointer / Version IDを維持するupgrade contractを確認した。
 
 - [ ] **E-05 [P1] JSON Schemaを作成する**
   - 共通Object Result schema。
@@ -899,8 +909,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01 / E-02本体 / E-02A / E-02B / E-02C / E-03も完了した。E-03でcanonical Source / locator / Snapshot / Raw Artifact / Normalization Run / Evidence / Evidence Link / Provenance schemaをMigration 006へ反映した。次の最優先は **E-04 [P0] Versioningを設計する** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01 / E-02本体 / E-02A / E-02B / E-02C / E-03 / E-04も完了した。E-04でfull immutable Version snapshot、candidate / accepted / abandoned lifecycle、stale判定、current promotion / rollback、derived failure-domain contractをMigration 007へ反映した。次の最優先は **E-05 [P1] JSON Schemaを作成する** とする。
 
 Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 
-E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomyを物理反映した。E-03ではMigration 006でSource / Evidence / Evidence Link / Provenanceを追加した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。次はE-04でVersion lifecycle / stale / current promotion / rollbackを確定する。
+E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomy、E-03ではMigration 006でSource / Evidence / Evidence Link / Provenance、E-04ではMigration 007でVersion lifecycle / stale / current promotion / rollback / derived-state boundaryを物理反映した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、`docs/design/VERSIONING_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。次はE-05でObject Result JSON Schemaを確定する。

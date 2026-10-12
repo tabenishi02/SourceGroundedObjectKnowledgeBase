@@ -822,14 +822,9 @@ E-03でSQLite / storage layerが保証する主なinvariantは次である。
 
 ## 22. E-04以降へ残す事項
 
-### E-04 — Versioning
+### E-04 — Complete
 
-- candidate / accepted lifecycle
-- accepted Version immutability
-- current promotion / rollback
-- stale Result
-- Evidence Linkを含むVersion contentのimmutability boundary
-- import transaction / recovery
+`docs/design/VERSIONING_SCHEMA.md`を正本としてMigration 007を追加し、candidate / accepted / abandoned lifecycle、base / Classification stale判定、Evidence Linkを含むaccepted Version contentのimmutability、current promotion / rollback、transaction / recovery、derived-state failure domainを確定した。
 
 ### E-05 — Object Result JSON Schema
 
@@ -919,4 +914,4 @@ Source IdentityはURLから分離され、Source classificationとObjectごと�
 
 旧Prototype Source/Evidence tableは破壊せず共存させたため、既存IDとRaw履歴を保ったPhase L migrationが可能である。
 
-次Taskは **`E-04 [P0] Versioningを設計する`** とする。
+E-04も完了し、次Taskは **`E-05 [P1] JSON Schemaを作成する`** とする。

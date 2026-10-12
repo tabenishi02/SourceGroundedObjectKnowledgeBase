@@ -3,11 +3,11 @@
 更新日: 2026-10-12
 
 - Target: `Phase E — Object Knowledgeデータモデル`
-- Status: E-01 / E-02 Core / E-02A / E-02B / E-02C / E-03 Complete / E-04 Ready
+- Status: E-01 / E-02 Core / E-02A / E-02B / E-02C / E-03 / E-04 Complete / E-05 Ready
 - Active redesign branch: `integration/knowledge-base-redesign`
 - Phase D status: Complete — D-01〜D-07
 - Structural prerequisite: Complete — `domain.py -> domain/` package conversion
-- Next task: `E-04 [P0] Versioningを設計する`
+- Next task: `E-05 [P1] JSON Schemaを作成する`
 
 ## 1. 目的
 
@@ -89,7 +89,7 @@ E-02A 全62 Class Facet taxonomy survey（完了）
 E-02B Facet vocabulary横断統合（完了）
 E-02C Class / Facet境界gold cases（完了）
 E-03  Source / Evidence / Evidence Link / Provenance schema（完了）
-E-04  Versioning
+E-04  Versioning（完了）
 E-05  Object Result JSON Schema
 ```
 
@@ -449,9 +449,9 @@ D-05 Wave 1のdomain package conversionも完了済みです。
 - docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
 
 今回実施するタスク:
-E-04 [P0] Versioningを設計する
+E-05 [P1] JSON Schemaを作成する
 
-E-01〜E-03は完了しています。`docs/design/SOURCE_EVIDENCE_SCHEMA.md`でEvidence groundingまで物理化済みです。Object Resultのfull snapshot / base version契約を前提に、candidate / accepted Version lifecycle、accepted immutability、stale判定、omission / deletion semantics、current promotion / rollback / Diff、Evidence Linkを含むVersion contentのimmutability、transaction / recovery、derived Search Representation更新境界を設計・実装してください。既存migrationは書き換えず、次のadditive migrationを使用してください。
+E-01〜E-04は完了しています。`docs/design/VERSIONING_SCHEMA.md`でfull snapshot Version lifecycle / stale / accepted immutability / current promotionまで物理化済みです。`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`を中心に、Object Result Envelope、target / Package / base Version / Classification binding、generation provenance、summary / Statement / Facet / typed Attribute / Relation、Evidence reference + role、temporal scope、reported-view attribution、conflict / gap、unresolved reference / Registry proposal、partial / insufficient evidence状態を共通JSON Schemaと必要なClass extensionへ落とし込んでください。E-03 / E-04のvalidation boundaryを再利用し、Result validationだけでauthoritative Importやcurrent promotionを行わないでください。
 ```
 
 ---
@@ -462,4 +462,4 @@ Phase Dには残Taskはない。
 
 D-05でPhase E開始前に要求されていたdomain package conversionも完了したため、Repository / Git / physical module boundaryの観点からPhase Eへ移行可能である。
 
-E-01 / E-02 core schema / E-02A / E-02B / E-02C / E-03は完了した。Facet taxonomyはMigration 005、Source / Evidence / Evidence Link / Provenance schemaはMigration 006へ反映済み。E-03の設計正本は`docs/design/SOURCE_EVIDENCE_SCHEMA.md`。次Taskは`E-04 [P0] Versioningを設計する`。
+E-01 / E-02 core schema / E-02A / E-02B / E-02C / E-03 / E-04は完了した。Facet taxonomyはMigration 005、Source / Evidence / Evidence Link / Provenance schemaはMigration 006、Version lifecycleはMigration 007へ反映済み。E-04の設計正本は`docs/design/VERSIONING_SCHEMA.md`。次Taskは`E-05 [P1] JSON Schemaを作成する`。

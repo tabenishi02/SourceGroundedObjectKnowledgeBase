@@ -361,14 +361,9 @@ E-01でSQLiteが直接保証する主なinvariantは次である。
 
 `docs/design/SOURCE_EVIDENCE_SCHEMA.md`を正本として、canonical Source Identity / locator / Snapshot / Raw Artifact / Normalization Run / Evidence、Source↔Object association、Statement / attribute / Relation -> Evidence Link、Evidence role、Provenance integrityをMigration 006で確定した。
 
-### E-04
+### E-04 — Complete
 
-- Object Version full lifecycle
-- accepted Version immutability
-- stale Result
-- current promotion / rollback / Diff
-- transaction / recovery
-- derived index invalidation
+`docs/design/VERSIONING_SCHEMA.md`を正本としてMigration 007を追加し、candidate / accepted / abandoned lifecycle、full snapshot、base / Classification stale判定、accepted immutability、current promotion / rollback、derived-state failure domainを確定した。
 
 ### E-05
 
