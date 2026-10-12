@@ -1,5 +1,15 @@
 """Structured exchange contracts for SGOKB Evidence Packages and Object Results."""
 
+from .instructions import (
+    INSTRUCTIONS_VERSION,
+    AnalysisAttributeProfile,
+    AnalysisClassProfile,
+    AnalysisFacetProfile,
+    AnalysisRelationProfile,
+    ObjectAnalysisInstructionContext,
+    load_object_analysis_template,
+    render_object_analysis_instructions,
+)
 from .object_result import (
     OBJECT_RESULT_SCHEMA_ID,
     OBJECT_RESULT_SCHEMA_VERSION,
@@ -25,12 +35,18 @@ from .package_manifest import (
 )
 
 __all__ = [
+    "INSTRUCTIONS_VERSION",
     "MANIFEST_CANONICALIZATION",
     "OBJECT_RESULT_SCHEMA_ID",
     "OBJECT_RESULT_SCHEMA_VERSION",
     "PACKAGE_SCHEMA_ID",
     "PACKAGE_SCHEMA_VERSION",
+    "AnalysisAttributeProfile",
+    "AnalysisClassProfile",
+    "AnalysisFacetProfile",
+    "AnalysisRelationProfile",
     "ClassExtensionContract",
+    "ObjectAnalysisInstructionContext",
     "ObjectResultContract",
     "ObjectResultValidationError",
     "ResultValidationIssue",
@@ -38,9 +54,11 @@ __all__ = [
     "calculate_manifest_sha256",
     "canonical_manifest_bytes",
     "collect_evidence_ids",
+    "load_object_analysis_template",
     "load_object_result_schema",
     "load_package_manifest_schema",
     "new_package_id",
+    "render_object_analysis_instructions",
     "validate_object_result",
     "validate_package_manifest",
     "with_manifest_sha256",
