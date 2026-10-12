@@ -3,9 +3,9 @@
 更新日: 2026-10-12
 
 - Target: `Phase D — Repository / Git / フォルダ構造再編`
-- Status: In progress — D-01〜D-04 complete
+- Status: In progress — D-01〜D-05 complete
 - Active redesign branch: `integration/knowledge-base-redesign`
-- Next task: `D-05 [P1] 既存モジュール移動方針を決める`
+- Next task: `D-06 [P1] local/generated/exchangeのGit除外方針を更新する`
 
 ## 1. 目的
 
@@ -61,8 +61,8 @@ D-01 [P0] 再設計用長期ブランチ戦略を決定する        完了
 D-02 [P0] 旧Prototype文書の扱いを決める            完了
 D-03 [P0] 新しいdocs構造を決定する                 完了
 D-04 [P0] src/sgokbの責務別再編を設計する          完了
-D-05 [P1] 既存モジュール移動方針を決める           未完了 ← 次
-D-06 [P1] local/generated/exchangeのGit除外方針     未完了
+D-05 [P1] 既存モジュール移動方針を決める           完了
+D-06 [P1] local/generated/exchangeのGit除外方針     未完了 ← 次
 D-07 [P1] 旧branch / PR / tag / release整理ルール   未完了
 ```
 
@@ -150,9 +150,12 @@ src/sgokb/
 
 既存`repository.py / domain.py / providers.py`は複数責務を持つため単純moveではなくsplit対象とする。`capture.py / final.py / knowledge_repository.py`の旧Fragment / Final責務は新標準layerへ混ぜず、replacement完了までlegacy境界として扱う。
 
-D-05ではこの設計を変更せず、move-onlyとbehavior changeを分離できる具体的な移動・split・compatibility順序を決定する。
+D-05ではD-04の責務構造を維持し、moduleをdirect move / package conversion / split / legacyの4分類へ整理した。旧top-level importは一時的な明示re-export shimで互換維持し、新規codeはcanonical pathのみを使用する。実移動はPhase E〜Lでstructural PRとbehavior PRを分離して段階実施する。
 
-正本: `docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`
+正本:
+
+- `docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`
+- `docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md`
 
 ---
 
@@ -195,24 +198,23 @@ Phase Dへ移行する条件を次とする。
 
 ## 10. Phase D継続時の指示文
 
-別チャットでD-05から開始する場合は、次を使用できる。
+別チャットでD-06から開始する場合は、次を使用できる。
 
 ```text
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
-Phase A〜Cは完了し、Phase DはD-01〜D-04まで完了しています。
+Phase A〜Cは完了し、Phase DはD-01〜D-05まで完了しています。
 
 再設計の正規作業基盤はintegration/knowledge-base-redesignです。
 まず以下を確認してください。
 - docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md
 - docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md
+- docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
 - docs/planning/PHASE_D_PREPARATION.md
-- docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md
-- docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md
 
 今回実施するタスク:
-D-05 [P1] 既存モジュール移動方針を決める
+D-06 [P1] .local / generated / Google Drive exchangeデータのGit除外方針を更新する
 
-D-04で確定した責務境界と既存module mappingを前提に、move-onlyとbehavior changeを分離できる具体的な移動・split・compatibility順序を決定してください。Phase EのDB schemaや大規模behavior changeはまだ実施しないでください。
+D-04 / D-05で確定したcode責務・段階移行方針とruntime data配置を混同せず、canonical DB、Raw Source、generated index、Evidence Package / Result、backup、secret等の物理配置とGit管理対象/除外対象を決定してください。Schema / sample / fixture等、意図的にGit管理する資産との境界も明記してください。
 ```

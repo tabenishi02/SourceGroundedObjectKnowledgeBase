@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / Cは完了。Phase DはD-01〜D-04まで完了。次の未完了TaskはD-05 [P1] 既存モジュール移動方針を決める。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A / B / Cは完了。Phase DはD-01〜D-05まで完了。次の未完了TaskはD-06 [P1] `.local/` / generated / Google Drive exchangeデータのGit除外方針を更新する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
 
 Phase D専用資料:
 
@@ -353,8 +353,8 @@ D-01 [P0] 長期ブランチ戦略                         完了
 D-02 [P0] 旧Prototype文書の扱い                   完了
 D-03 [P0] docs構造                                完了
 D-04 [P0] src/sgokb責務別再編                     完了
-D-05 [P1] 既存module移動方針                      未完了 ← 次
-D-06 [P1] .local/generated/exchange Git除外方針   未完了
+D-05 [P1] 既存module移動方針                      完了
+D-06 [P1] .local/generated/exchange Git除外方針   未完了 ← 次
 D-07 [P1] branch / PR / tag / release整理ルール   未完了
 ```
 
@@ -396,7 +396,12 @@ src/sgokb/
 
 `domain`は外部I/Oを持たない最内層、`application`はcapability間の調停、`cli / mcp`はadapterとする。現行`repository.py / domain.py / providers.py`は複数責務を持つため単純moveではなくsplit対象である。`capture.py / final.py / knowledge_repository.py`の旧Fragment / Final責務は新標準layerへ混ぜず、replacement完了までlegacy境界として扱う。
 
-正本: `docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`
+D-05で移動方針も確定した。moduleをdirect move / package conversion / split / legacyへ分類し、旧top-level importは必要期間だけ明示re-export shimで互換維持する。実移動はPhase E〜Lでstructural PRとbehavior PRを分離して段階実施する。
+
+正本:
+
+- `docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`
+- `docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md`
 
 ---
 
@@ -430,9 +435,8 @@ src/sgokb/
 
 ### Phase D
 
-D-01のbranch / PR / merge戦略とD-04の`src/sgokb`責務別構造は確定済み。残る主要未確定事項:
+D-01のbranch / PR / merge戦略、D-04の`src/sgokb`責務別構造、D-05のmodule move / split / compatibility順序は確定済み。残る主要未確定事項:
 
-- module move / split / compatibility順序
 - generated / local / exchangeのGit除外
 - branch / tag / release整理ルール
 
@@ -523,22 +527,21 @@ Phase Dを続ける場合:
 
 ```text
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
-Phase A〜Cは完了し、Phase DはD-01〜D-04まで完了しています。
+Phase A〜Cは完了し、Phase DはD-01〜D-05まで完了しています。
 
 再設計の正規作業基盤はintegration/knowledge-base-redesignです。
 まず以下を確認してください。
 - docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md
 - docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md
+- docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
 - docs/planning/PHASE_D_PREPARATION.md
-- docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md
-- docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md
 
 今回実施するTask:
-D-05 [P1] 既存モジュール移動方針を決める
+D-06 [P1] .local / generated / Google Drive exchangeデータのGit除外方針を更新する
 
-D-04で確定した責務境界と既存module mappingを前提に、move-onlyとbehavior changeを分離できる具体的な移動・split・compatibility順序を決定してください。まだ大規模なbehavior changeやPhase EのDB schema実装は行わないでください。
+canonical DB / Raw / generated index / exchange package / result / backup / secret等のruntime data配置とGit管理境界を決定してください。D-04 / D-05で確定したcode responsibilityやmodule migration policyは維持してください。
 ```
 
 ---
@@ -567,6 +570,7 @@ D-04で確定した責務境界と既存module mappingを前提に、move-only�
 
 - `docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md`
 - `docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`
+- `docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md`
 - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
 - `docs/planning/PHASE_D_PREPARATION.md`
 - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
@@ -579,8 +583,8 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 ## 14. 現在地点
 
-Phase A、Phase B、Phase Cは完了している。Phase DはD-01〜D-04まで完了している。
+Phase A、Phase B、Phase Cは完了している。Phase DはD-01〜D-05まで完了している。
 
-**次の作業はD-05 [P1] 既存モジュール移動方針を決める。**
+**次の作業はD-06 [P1] `.local/` / generated / Google Drive exchangeデータのGit除外方針を更新する。**
 
-再設計の正規作業基盤は`integration/knowledge-base-redesign`である。D-04で責務別module構造と依存方向は確定済みであり、D-05ではその設計を前提に安全なmove / split順序を決める。
+再設計の正規作業基盤は`integration/knowledge-base-redesign`である。D-04で責務別module構造、D-05で段階的move / split / compatibility方針は確定済みであり、D-06ではruntime dataの物理配置とGit管理境界を決める。
