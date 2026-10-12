@@ -18,11 +18,12 @@
 12. [非機能要件](requirements/NON_FUNCTIONAL_REQUIREMENTS.md) — local-first、integrity、backup / restore、security、failure recovery、性能Acceptance。
 13. [Embedding / Vector Search技術調査](reference/EMBEDDING_VECTOR_SEARCH_RESEARCH.md) — Statement-level Embedding、Vector backend、Object aggregation、既存ライブラリ比較の設計入力。
 14. [再設計Decision](decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md) — 旧Prototypeから何を変更し、なぜ変更するか。
-15. [再設計タスク](planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 現在の進捗と次に実施する作業。
-16. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — Phase A〜Cの確定事項と後続Phaseへの全体Handoff。
-17. [Phase D Preparation](planning/PHASE_D_PREPARATION.md) — Phase D開始条件、Git現況、D-01への入力と禁止事項。
-18. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
-19. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
+15. [再設計Branch Strategy](decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md) — `main` / integration / task branch、PR、同期、最終merge方針。
+16. [再設計タスク](planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 現在の進捗と次に実施する作業。
+17. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — Phase A〜Dの確定事項と後続Phaseへの全体Handoff。
+18. [Phase D Preparation](planning/PHASE_D_PREPARATION.md) — Phase D開始条件、D-01決定結果、D-04への引継ぎ。
+19. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+20. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
 
 ## 現行文書
 
@@ -33,10 +34,11 @@
 現在も有効なArchitecture Decisionを置く。
 
 - [Knowledge Base再設計Decision](decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md)
+- [Knowledge Base再設計Branch Strategy](decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md)
 - [SGOKB名称変更Decision](decisions/SGOKB_RENAME_DECISION.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。現在はPhase Dへの移行準備まで完了しており、次TaskはD-01である。
+進行中の計画・タスク・引継ぎ資料を置く。現在はPhase DのD-01 / D-02 / D-03まで完了しており、次TaskはD-04である。再設計の正規作業基盤は`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果を置く。通常は最初から読む必要はない。

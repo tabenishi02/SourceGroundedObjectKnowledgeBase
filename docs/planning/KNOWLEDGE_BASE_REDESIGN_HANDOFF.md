@@ -14,9 +14,9 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / Cは完了。次はPhase D。最初の未完了TaskはD-01 [P0] 再設計用長期ブランチ戦略を決定する。**
+> **Phase A / B / Cは完了。Phase DはD-01 / D-02 / D-03まで完了。次の未完了TaskはD-04 [P0] `src/sgokb`の責務別再編を設計する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
 
-Phase D開始前の専用資料:
+Phase D専用資料:
 
 - `docs/planning/PHASE_D_PREPARATION.md`
 
@@ -323,19 +323,22 @@ C-04では意味契約を確定した。具体的なDB schemaはPhase E、MCP To
 
 ## 7. Phase D開始時のRepository / Git状態
 
-2026-10-12のPhase D準備確認時点:
+2026-10-12のD-01実施時にGit状態を再確認した。
 
-- GitHub branch: `main`のみ
+- D-01開始直前のGitHub branch: `main`のみ
+- D-01開始直前の`main` head: `7ab2093655687878e1406fd97d88c648b5ffd27d`
 - open PR: 0件
 - `main` branch protection: `protected: false`
-- Phase DのD-02 / D-03は既に完了
-- 次の未完了Task: D-01
+- D-01で長期integration branchを`integration/knowledge-base-redesign`と確定し、D-01文書反映commitを起点として作成する。
+- Phase DのD-01 / D-02 / D-03は完了。
+- 次の未完了Task: D-04。
 
-詳細・開始条件:
+正本:
 
+- `docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md`
 - `docs/planning/PHASE_D_PREPARATION.md`
 
-この状態は時間とともに変化し得るため、D-01開始時に再確認する。
+D-04以降の再設計では、明示的な理由がない限り`main`ではなく`integration/knowledge-base-redesign`を作業基盤とする。
 
 ---
 
@@ -346,14 +349,25 @@ Phase Dの目的は、Phase A〜Cで確定した論理境界を、将来の実�
 現在のTask状態:
 
 ```text
-D-01 [P0] 長期ブランチ戦略                         未完了 ← 次
+D-01 [P0] 長期ブランチ戦略                         完了
 D-02 [P0] 旧Prototype文書の扱い                   完了
 D-03 [P0] docs構造                                完了
-D-04 [P0] src/sgokb責務別再編                     未完了
+D-04 [P0] src/sgokb責務別再編                     未完了 ← 次
 D-05 [P1] 既存module移動方針                      未完了
 D-06 [P1] .local/generated/exchange Git除外方針   未完了
 D-07 [P1] branch / PR / tag / release整理ルール   未完了
 ```
+
+D-01で確定したGit運用:
+
+- `main` = stable baseline。
+- `integration/knowledge-base-redesign` = D-04以降〜O-04までの再設計integration branch。
+- code / migration / move / schema変更 = 原則`task/<task-id>-<slug>`からintegrationへのPR。
+- move / renameとbehavior changeを別PRへ分離する。
+- `main`のfixはintegrationへ速やかにmergeして乖離を抑える。
+- branch protectionはD-01では変更せず、CI整備後かつ遅くともO-04前に再評価する。
+
+正本: `docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md`
 
 Phase Dで守る原則:
 
@@ -413,7 +427,8 @@ src/sgokb/
 
 ### Phase D
 
-- 長期branch / PR / merge戦略
+D-01のbranch / PR / merge戦略は確定済み。残る主要未確定事項:
+
 - `src/sgokb`最終責務別構造
 - module move順序
 - generated / local / exchangeのGit除外
@@ -502,22 +517,25 @@ Phase内のTaskを確認し、必要な調査・設計・実装・テスト・�
 Phase完了時には、決定事項、実施内容、未決事項、次Phaseへの引き継ぎを報告してください。
 ```
 
-Phase Dを開始する場合:
+Phase Dを続ける場合:
 
 ```text
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
-Phase A〜Cは完了しています。
+Phase A〜Cは完了し、Phase DはD-01 / D-02 / D-03まで完了しています。
 
+再設計の正規作業基盤はintegration/knowledge-base-redesignです。
 まず以下を確認してください。
+- docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
 - docs/planning/PHASE_D_PREPARATION.md
+- docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md
+- docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md
 
 今回実施するTask:
-D-01 [P0] 再設計用長期ブランチ戦略を決定する
+D-04 [P0] src/sgokbの責務別再編を設計する
 
-現在のGit状態を再確認したうえで、mainを動作可能な基準点として維持しつつ、Phase D以降の大規模再設計を安全に進めるbranch / PR / merge方針を決定し、ドキュメントへ反映してください。
-まだD-04以降の大量ファイル移動やbehavior changeは実施しないでください。
+既存src/sgokbのmoduleと依存方向を棚卸しし、再利用可能な責務を確認したうえで、Phase B / Cの要件境界に沿う責務別module構造を設計してください。Phase EのDB schemaを先取りせず、大量moveやbehavior changeはまだ実施しないでください。
 ```
 
 ---
@@ -544,6 +562,7 @@ D-01 [P0] 再設計用長期ブランチ戦略を決定する
 
 ### Planning / reference
 
+- `docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md`
 - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
 - `docs/planning/PHASE_D_PREPARATION.md`
 - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
@@ -556,8 +575,8 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 ## 14. 現在地点
 
-Phase A、Phase B、Phase Cは完了している。
+Phase A、Phase B、Phase Cは完了している。Phase DはD-01 / D-02 / D-03まで完了している。
 
-**次の作業はPhase D — Repository / Git / フォルダ構造再編。最初のTaskはD-01 [P0] 再設計用長期ブランチ戦略を決定する。**
+**次の作業はD-04 [P0] `src/sgokb`の責務別再編を設計する。**
 
-D-02 / D-03は既に完了している。D-01完了後は、Task masterの順序と依存関係を確認しながらD-04以降へ進む。
+再設計の正規作業基盤は`integration/knowledge-base-redesign`である。D-04では既存moduleと依存方向を棚卸しし、まだ大量moveやbehavior changeを実施しない。

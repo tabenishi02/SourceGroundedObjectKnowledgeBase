@@ -228,10 +228,16 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
 
 # Phase D — Repository / Git / フォルダ構造再編
 
-- [ ] **D-01 [P0] 再設計用長期ブランチ戦略を決定する**
-  - `main`は動作可能な基準点として保持する。
-  - 大規模移行は例: `feature/knowledge-base-redesign` で実施する。
-  - サブ変更は必要に応じて短命branch + PRとし、巨大な未レビュー差分を避ける。
+- [x] **D-01 [P0] 再設計用長期ブランチ戦略を決定する**
+  - `main`を動作可能なstable baselineとして保持する。
+  - 長期integration branchを`integration/knowledge-base-redesign`と確定した。
+  - D-04以降の再設計はintegration branchを正規作業基盤とし、Phase OのO-04で`main`へ統合する。
+  - code / migration / module move / schema等は原則`task/<task-id>-<slug>`短命branch + PRでintegrationへ統合する。
+  - 小規模docs-only進捗更新はintegrationへ直接commit可能とし、設計Decision変更はPRを優先する。
+  - `main`に再設計外fixが入った場合は速やかにintegrationへmergeし、長期branchの乖離を抑える。
+  - move / renameとbehavior changeは別PRへ分離する。
+  - D-01ではbranch protectionを変更せず、CI整備後かつ遅くともO-04前に再評価する。
+  - 成果物: `docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md`
 
 - [x] **D-02 [P0] 旧Prototype文書の扱いを決める**
   - 旧要件・Prototype設計・評価・速度/コスト/モデル比較資料を `docs/archive/prototype-0.2/` へ移動済み。
@@ -263,10 +269,12 @@ docs/
 │  └─ NON_FUNCTIONAL_REQUIREMENTS.md
 ├─ decisions/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_DECISION.md
+│  ├─ KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md
 │  └─ SGOKB_RENAME_DECISION.md
 ├─ planning/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_TASKS.md
-│  └─ KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
+│  ├─ KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
+│  └─ PHASE_D_PREPARATION.md
 ├─ reference/
 │  ├─ EMBEDDING_VECTOR_SEARCH_RESEARCH.md
 │  ├─ KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md
@@ -827,8 +835,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）は完了した。次の未完了PhaseはPhase Dであり、次の最優先は **D-01 [P0] 再設計用長期ブランチ戦略を決定する** とする。D-02 / D-03は既に完了しているため、その後はD-04以降のRepository / module再編設計へ進む。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）は完了した。Phase DではD-01 / D-02 / D-03が完了しており、次の最優先は **D-04 [P0] `src/sgokb`の責務別再編を設計する** とする。
 
-実装変更を先に始めると、旧PrototypeのEntity / Fragment / Final Document概念を新設計へ引きずる可能性がある。Phase Cまでで目的・責務・データ境界は確定したため、Phase DでRepository / Git構造方針を揃え、その後 **E-01 Object schema** を起点として実装を再構成する。
+D-01で`main`をstable baseline、`integration/knowledge-base-redesign`を再設計の長期integration branchと確定した。D-04以降の再設計作業は原則integration branchを正規作業基盤とし、code / migration / module move等は短命task branch + PRで段階統合する。詳細は`docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md`を正本とする。
 
-Git上の物理的な大量移動やbehavior changeは、D-01 / D-04 / D-05で方針を確定してから実施する。
+D-04では既存`src/sgokb`の責務と依存方向を棚卸しし、Phase EのDB schemaを先取りせずに責務別配置を設計する。大量moveやbehavior changeはD-04 / D-05の設計確定前に実施しない。

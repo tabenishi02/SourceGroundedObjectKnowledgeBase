@@ -3,14 +3,15 @@
 更新日: 2026-10-12
 
 - Target: `Phase D — Repository / Git / フォルダ構造再編`
-- Status: Ready to start
-- Next task: `D-01 [P0] 再設計用長期ブランチ戦略を決定する`
+- Status: In progress — D-01 / D-02 / D-03 complete
+- Active redesign branch: `integration/knowledge-base-redesign`
+- Next task: `D-04 [P0] src/sgokbの責務別再編を設計する`
 
 ## 1. 目的
 
 本書は、Phase C完了後にPhase Dへ安全に移行するための開始条件・現行Git状態・入力文書・禁止事項を整理する。
 
-Phase Dの設計判断そのものは本書では先取りしない。特に、長期branchの作成、`src/sgokb`の大量move、既存moduleのrename、不要branch削除等は、それぞれD-01 / D-04 / D-05 / D-07で決定してから実施する。
+Phase Dの設計判断は対応Taskで確定してから実施する。D-01の長期branch戦略は確定済みであり、`src/sgokb`の大量move、既存moduleのrename、不要branch削除等は、それぞれD-04 / D-05 / D-07の決定前に先行実施しない。
 
 ---
 
@@ -36,16 +37,18 @@ Phase Cの正本成果物:
 
 ## 3. Phase D開始時のGit現況
 
-2026-10-12時点のGitHub上の確認結果:
+Phase D準備時点では`main`のみ、open PR 0件、`main` branch protectionは`protected: false`だった。
+
+D-01開始時に再確認した結果:
 
 - branch: `main`のみ
-- current `main` head at preparation check: `44dd9a703e354023ff476e2a488aeddb603feba4`
+- `main` head before D-01 docs update: `7ab2093655687878e1406fd97d88c648b5ffd27d`
 - open Pull Request: 0件
 - `main` branch protection: GitHub API上 `protected: false`
 
-したがってD-01開始時点では、未統合feature branchやopen PRを先に救済・整理する必要はない。
+未統合feature branchやopen PRの救済は不要だった。D-01では、Decision文書を`main`へ反映したcommitを起点として`integration/knowledge-base-redesign`を作成する方針を採用した。
 
-ただし、この状態はD-01実施時に再確認する。特に`main` headやbranch protectionは時間とともに変化し得るため、本書のSHAを将来の固定前提にしてはならない。
+以降、`main`はstable baseline、integration branchは再設計の正規作業基盤とする。
 
 ---
 
@@ -54,10 +57,10 @@ Phase Cの正本成果物:
 `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`を正本とする。
 
 ```text
-D-01 [P0] 再設計用長期ブランチ戦略を決定する        未完了 ← 次
+D-01 [P0] 再設計用長期ブランチ戦略を決定する        完了
 D-02 [P0] 旧Prototype文書の扱いを決める            完了
 D-03 [P0] 新しいdocs構造を決定する                 完了
-D-04 [P0] src/sgokbの責務別再編を設計する          未完了
+D-04 [P0] src/sgokbの責務別再編を設計する          未完了 ← 次
 D-05 [P1] 既存モジュール移動方針を決める           未完了
 D-06 [P1] local/generated/exchangeのGit除外方針     未完了
 D-07 [P1] 旧branch / PR / tag / release整理ルール   未完了
@@ -67,20 +70,21 @@ D-02 / D-03をやり直さず、既決事項をD-04以降の入力として利�
 
 ---
 
-## 5. D-01で決定すべき事項
+## 5. D-01で決定した事項
 
-D-01では少なくとも次を決定する。
+D-01では次を確定した。
 
-1. 大規模再設計を`main`直上で進めるか、長期integration branchを設けるか。
-2. 長期branchを設ける場合の名称・作成起点・merge条件。
-3. D-04以降のsubtaskを短命branch + PRへ分割する基準。
-4. docs-only変更とcode/migration変更でbranch運用を分けるか。
-5. `main`を常時動作可能基準点として維持するための最低条件。
-6. branch protectionを今回の再設計範囲で扱うか、GitHub運用上の別Taskとするか。
-7. 長期branchへ変更が蓄積し過ぎることを防ぐ同期・review方針。
-8. Phase E開始時にどのbranchを正規実装基盤とするか。
+1. `main`直上で大規模再設計を進めず、長期integration branchを設ける。
+2. branch名は`integration/knowledge-base-redesign`とする。
+3. D-01文書反映commitをbranch作成起点とし、O-04で`main`へ統合する。
+4. code / migration / module move / schema等は原則`task/<task-id>-<slug>`短命branch + PRでintegrationへ統合する。
+5. 小規模docs-only進捗更新はintegrationへ直接commit可能とし、Decision変更はPRを優先する。
+6. `main`はstable baselineとして維持し、再設計外fixが入った場合は速やかにintegrationへmergeする。
+7. branch protectionはD-01では変更せず、CI整備後かつ遅くともO-04前に再評価する。
+8. Phase E開始時の正規実装基盤は`integration/knowledge-base-redesign`とする。
+9. move / renameとbehavior changeは別PRへ分離する。
 
-D-01では「例として`feature/knowledge-base-redesign`」という既存Task記述を、そのまま確定名称とみなさない。
+正本: `docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md`
 
 ---
 
@@ -188,20 +192,23 @@ Phase Dへ移行する条件を次とする。
 
 ## 10. Phase D開始時の指示文
 
-別チャットでD-01から開始する場合は、次を使用できる。
+別チャットでD-04から開始する場合は、次を使用できる。
 
 ```text
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
-Phase A〜Cは完了しています。
+Phase A〜Cは完了し、Phase DはD-01 / D-02 / D-03まで完了しています。
 
-まず以下を確認し、既決事項と現在のRepository / Git状態を把握してください。
+再設計の正規作業基盤はintegration/knowledge-base-redesignです。
+まず以下を確認してください。
+- docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
 - docs/planning/PHASE_D_PREPARATION.md
+- docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md
+- docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md
 
 今回実施するタスク:
-D-01 [P0] 再設計用長期ブランチ戦略を決定する
+D-04 [P0] src/sgokbの責務別再編を設計する
 
-現在のGit状態を再確認したうえで、mainを動作可能な基準点として維持しつつ、Phase D以降の大規模再設計を安全に進めるbranch / PR / merge方針を決定し、ドキュメントへ反映してください。
-まだD-04以降の大量ファイル移動やbehavior changeは実施しないでください。
+既存src/sgokbのmoduleと依存方向を棚卸しし、再利用可能な責務を確認したうえで、Phase B / Cの要件境界に沿う責務別module構造を設計してください。Phase EのDB schemaを先取りせず、大量moveやbehavior changeはまだ実施しないでください。
 ```
