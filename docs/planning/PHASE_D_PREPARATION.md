@@ -3,15 +3,15 @@
 更新日: 2026-10-12
 
 - Target: `Phase D — Repository / Git / フォルダ構造再編`
-- Status: In progress — D-01 / D-02 / D-03 complete
+- Status: In progress — D-01〜D-04 complete
 - Active redesign branch: `integration/knowledge-base-redesign`
-- Next task: `D-04 [P0] src/sgokbの責務別再編を設計する`
+- Next task: `D-05 [P1] 既存モジュール移動方針を決める`
 
 ## 1. 目的
 
 本書は、Phase C完了後にPhase Dへ安全に移行するための開始条件・現行Git状態・入力文書・禁止事項を整理する。
 
-Phase Dの設計判断は対応Taskで確定してから実施する。D-01の長期branch戦略は確定済みであり、`src/sgokb`の大量move、既存moduleのrename、不要branch削除等は、それぞれD-04 / D-05 / D-07の決定前に先行実施しない。
+Phase Dの設計判断は対応Taskで確定してから実施する。D-01の長期branch戦略とD-04の`src/sgokb`責務別構造は確定済みであり、実ファイルの大量move、既存moduleのrename、不要branch削除等は、それぞれD-05 / D-07の決定前に先行実施しない。
 
 ---
 
@@ -60,8 +60,8 @@ D-01開始時に再確認した結果:
 D-01 [P0] 再設計用長期ブランチ戦略を決定する        完了
 D-02 [P0] 旧Prototype文書の扱いを決める            完了
 D-03 [P0] 新しいdocs構造を決定する                 完了
-D-04 [P0] src/sgokbの責務別再編を設計する          未完了 ← 次
-D-05 [P1] 既存モジュール移動方針を決める           未完了
+D-04 [P0] src/sgokbの責務別再編を設計する          完了
+D-05 [P1] 既存モジュール移動方針を決める           未完了 ← 次
 D-06 [P1] local/generated/exchangeのGit除外方針     未完了
 D-07 [P1] 旧branch / PR / tag / release整理ルール   未完了
 ```
@@ -130,26 +130,29 @@ Object / Version / Relation / Facet等の具体的な本番DB schemaはPhase E�
 
 ---
 
-## 7. D-04以降への設計入力
+## 7. D-04決定結果 / D-05への設計入力
 
-現時点の責務別code構造候補:
+D-04で次の責務別構造を確定した。
 
 ```text
 src/sgokb/
-├─ domain/        # Object / Relation / Facet / Version
-├─ ingestion/     # Capture / Import / Normalize / Evidence
-├─ storage/       # SQLite repository / migration
-├─ retrieval/     # FTS / vector / hybrid / similarity
-├─ exchange/      # Evidence Package / Result Import
-├─ rendering/     # JSON -> Markdown等
-├─ mcp/           # MCP adapter
-├─ cli/           # CLI adapter
-└─ application/   # use cases / orchestration
+├─ domain/
+├─ ingestion/
+├─ storage/
+├─ retrieval/
+├─ exchange/
+├─ rendering/
+├─ application/
+├─ cli/
+├─ mcp/
+└─ _legacy/   # Phase Lまでの一時隔離領域
 ```
 
-これはD-04で検証・確定する候補であり、まだ確定済み物理構造ではない。
+既存`repository.py / domain.py / providers.py`は複数責務を持つため単純moveではなくsplit対象とする。`capture.py / final.py / knowledge_repository.py`の旧Fragment / Final責務は新標準layerへ混ぜず、replacement完了までlegacy境界として扱う。
 
-D-04では既存`src/sgokb`実装を実際に棚卸しし、単純な理想構造への全面moveではなく、再利用可能なmoduleと依存方向を確認してから配置を決める。
+D-05ではこの設計を変更せず、move-onlyとbehavior changeを分離できる具体的な移動・split・compatibility順序を決定する。
+
+正本: `docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`
 
 ---
 
@@ -190,17 +193,18 @@ Phase Dへ移行する条件を次とする。
 
 ---
 
-## 10. Phase D開始時の指示文
+## 10. Phase D継続時の指示文
 
-別チャットでD-04から開始する場合は、次を使用できる。
+別チャットでD-05から開始する場合は、次を使用できる。
 
 ```text
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
-Phase A〜Cは完了し、Phase DはD-01 / D-02 / D-03まで完了しています。
+Phase A〜Cは完了し、Phase DはD-01〜D-04まで完了しています。
 
 再設計の正規作業基盤はintegration/knowledge-base-redesignです。
 まず以下を確認してください。
 - docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md
+- docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
 - docs/planning/PHASE_D_PREPARATION.md
@@ -208,7 +212,7 @@ Phase A〜Cは完了し、Phase DはD-01 / D-02 / D-03まで完了していま�
 - docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md
 
 今回実施するタスク:
-D-04 [P0] src/sgokbの責務別再編を設計する
+D-05 [P1] 既存モジュール移動方針を決める
 
-既存src/sgokbのmoduleと依存方向を棚卸しし、再利用可能な責務を確認したうえで、Phase B / Cの要件境界に沿う責務別module構造を設計してください。Phase EのDB schemaを先取りせず、大量moveやbehavior changeはまだ実施しないでください。
+D-04で確定した責務境界と既存module mappingを前提に、move-onlyとbehavior changeを分離できる具体的な移動・split・compatibility順序を決定してください。Phase EのDB schemaや大規模behavior changeはまだ実施しないでください。
 ```

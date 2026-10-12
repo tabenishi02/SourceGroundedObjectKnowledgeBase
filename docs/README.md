@@ -19,11 +19,12 @@
 13. [Embedding / Vector Search技術調査](reference/EMBEDDING_VECTOR_SEARCH_RESEARCH.md) — Statement-level Embedding、Vector backend、Object aggregation、既存ライブラリ比較の設計入力。
 14. [再設計Decision](decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md) — 旧Prototypeから何を変更し、なぜ変更するか。
 15. [再設計Branch Strategy](decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md) — `main` / integration / task branch、PR、同期、最終merge方針。
-16. [再設計タスク](planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 現在の進捗と次に実施する作業。
-17. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — Phase A〜Dの確定事項と後続Phaseへの全体Handoff。
-18. [Phase D Preparation](planning/PHASE_D_PREPARATION.md) — Phase D開始条件、D-01決定結果、D-04への引継ぎ。
-19. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
-20. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
+16. [Module Responsibility Design](decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md) — `src/sgokb`の責務別構造、依存方向、既存module mapping。
+17. [再設計タスク](planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 現在の進捗と次に実施する作業。
+18. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — Phase A〜Dの確定事項と後続Phaseへの全体Handoff。
+19. [Phase D Preparation](planning/PHASE_D_PREPARATION.md) — Phase D開始条件、D-01/D-04決定結果、D-05への引継ぎ。
+20. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+21. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
 
 ## 現行文書
 
@@ -35,10 +36,11 @@
 
 - [Knowledge Base再設計Decision](decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md)
 - [Knowledge Base再設計Branch Strategy](decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md)
+- [SGOKB Module Responsibility Design](decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md)
 - [SGOKB名称変更Decision](decisions/SGOKB_RENAME_DECISION.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。現在はPhase DのD-01 / D-02 / D-03まで完了しており、次TaskはD-04である。再設計の正規作業基盤は`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。現在はPhase DのD-01〜D-04まで完了しており、次TaskはD-05である。再設計の正規作業基盤は`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果を置く。通常は最初から読む必要はない。
