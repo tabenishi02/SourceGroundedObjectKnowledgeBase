@@ -26,9 +26,10 @@
 20. [再設計タスク](planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 現在の進捗と次に実施する作業。
 21. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — Phase A〜Dの確定事項と後続Phaseへの全体Handoff。
 22. [Phase D Preparation](planning/PHASE_D_PREPARATION.md) — Phase D完了記録とPhase Eへの引継ぎ。
-23. [Phase E Preparation](planning/PHASE_E_PREPARATION.md) — Phase D完了監査、domain package conversion、現行Prototype DB baseline、E-01開始条件。
-24. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
-25. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
+23. [Phase E Preparation](planning/PHASE_E_PREPARATION.md) — Phase D完了監査、domain package conversion、現行Prototype DB baseline、Phase E開始条件。
+24. [Object Schema Design](design/OBJECT_SCHEMA.md) — E-01で確定したObject / Class / Version / Relationの物理schema。
+25. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+26. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
 
 ## 現行文書
 
@@ -46,8 +47,14 @@
 - [SGOKB Git History / Branch / PR / Tag / Release Cleanup Policy](decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md)
 - [SGOKB名称変更Decision](decisions/SGOKB_RENAME_DECISION.md)
 
+### `design/`
+
+Phase E以降で確定した物理Architecture / Data Model設計を置く。
+
+- [Object Schema Design](design/OBJECT_SCHEMA.md)
+
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）は完了しており、次TaskはPhase EのE-01である。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase EのE-01は完了しており、次TaskはE-02である。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果を置く。通常は最初から読む必要はない。

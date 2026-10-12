@@ -3,11 +3,11 @@
 更新日: 2026-10-12
 
 - Target: `Phase E — Object Knowledgeデータモデル`
-- Status: Ready
+- Status: E-01 Complete / E-02 Ready
 - Active redesign branch: `integration/knowledge-base-redesign`
 - Phase D status: Complete — D-01〜D-07
 - Structural prerequisite: Complete — `domain.py -> domain/` package conversion
-- Next task: `E-01 [P0] Object schemaを設計する`
+- Next task: `E-02 [P0] Semantic Facet schemaを設計する`
 
 ## 1. 目的
 
@@ -438,11 +438,9 @@ D-05 Wave 1のdomain package conversionも完了済みです。
 - docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
 
 今回実施するタスク:
-E-01 [P0] Object schemaを設計する
+E-02 [P0] Semantic Facet schemaを設計する
 
-Stable Object Identity、Class Registry、Class hierarchy、Primary / Additional Class membership、Object lifecycle、current Knowledge Version参照、Relation Type Registry / Object Relationの物理骨格を設計してください。
-
-既存entities tableの単純renameではなく新Object要件を満たすschemaとし、旧Prototype dataの実migrationはPhase Lへ分離してください。E-02以降のFacet / Evidence / Version state machine / JSON Schema詳細は不必要に先取りしないでください。
+E-01は`docs/design/OBJECT_SCHEMA.md`を正本として完了しています。E-01で確定したObject / Class / Version / Relation骨格を維持し、Facet Registry、Class-to-Facet profile、Knowledge Statement、typed attribute、temporal scope、Search Representation membershipを設計してください。Evidence Link詳細はE-03、Version state machineはE-04、JSON Schema最終形はE-05へ残してください。
 ```
 
 ---
@@ -453,4 +451,4 @@ Phase Dには残Taskはない。
 
 D-05でPhase E開始前に要求されていたdomain package conversionも完了したため、Repository / Git / physical module boundaryの観点からPhase Eへ移行可能である。
 
-次Taskは`E-01 [P0] Object schemaを設計する`。
+E-01は`docs/design/OBJECT_SCHEMA.md`を正本として完了した。次Taskは`E-02 [P0] Semantic Facet schemaを設計する`。

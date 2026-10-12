@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .domain import digest, json_text, now, uid
 from .knowledge_repository import KnowledgeRepository
+from .storage import ObjectRepository
 
 
 class Repository(KnowledgeRepository):
@@ -18,6 +19,7 @@ class Repository(KnowledgeRepository):
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.execute("PRAGMA busy_timeout=5000")
         self.migrate()
+        self.object_store = ObjectRepository(self.db)
 
     def close(self):
         self.db.close()
