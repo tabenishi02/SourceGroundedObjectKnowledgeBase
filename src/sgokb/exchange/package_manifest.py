@@ -176,6 +176,17 @@ def _semantic_issues(manifest: Mapping[str, Any]) -> list[str]:
         for item in by_role.get("evidence", [])
         if isinstance(item.get("path"), str)
     }
+    generation_file_paths = [
+        generation.get("file_path")
+        for generation in generations
+        if isinstance(generation, Mapping)
+    ]
+    if len(generation_file_paths) != len(set(generation_file_paths)):
+        issues.append("source_generations must use one distinct file per Source generation")
+    if evidence_file_paths != set(generation_file_paths):
+        issues.append("Evidence files[] must exactly match source_generations file paths")
+
+    included_id_set = set(item_ids)
     for item in items:
         if not isinstance(item, Mapping):
             continue
@@ -190,20 +201,70 @@ def _semantic_issues(manifest: Mapping[str, Any]) -> list[str]:
             issues.append(f"source_generation mapping mismatch for Evidence: {evidence_id}")
         if item.get("file_path") not in evidence_file_paths:
             issues.append(f"Evidence file missing from files[]: {item.get('file_path')}")
+        related = item.get("related_selected_evidence_ids") or ()
+        if evidence_id in related:
+            issues.append(f"Evidence cannot relate to itself: {evidence_id}")
+        unknown_related = set(related) - included_id_set
+        if unknown_related:
+            issues.append(f"related Evidence is outside Package membership: {evidence_id}")
 
-    if set(generation_membership) != set(item_ids):
+    if set(generation_membership) != included_id_set:
         issues.append("source_generations Evidence membership must equal evidence.items")
+
+    expected_media_types = {
+        "instructions": "text/markdown",
+        "current_object": "application/json",
+        "result_schema": "application/json",
+        "evidence": "text/markdown",
+    }
+    for item in files:
+        if not isinstance(item, Mapping):
+            continue
+        role = item.get("role")
+        expected_media_type = expected_media_types.get(role)
+        if expected_media_type is not None and item.get("media_type") != expected_media_type:
+            issues.append(f"invalid media_type for {role}: {item.get('path')}")
 
     selection = manifest.get("selection", {})
     if isinstance(selection, Mapping):
-        if selection.get("selected_count") != len(items):
+        selected_count = selection.get("selected_count")
+        omitted_count = selection.get("omitted_count")
+        candidate_count = selection.get("candidate_count")
+        if selected_count != len(items):
             issues.append("selection.selected_count must equal Evidence item count")
+        if (
+            isinstance(candidate_count, int)
+            and isinstance(selected_count, int)
+            and isinstance(omitted_count, int)
+            and candidate_count != selected_count + omitted_count
+        ):
+            issues.append("selection candidate_count must equal selected_count + omitted_count")
         usage = selection.get("usage", {})
+        budget = selection.get("budget", {})
         if isinstance(usage, Mapping):
             if usage.get("items") != len(items):
                 issues.append("selection.usage.items must equal Evidence item count")
             if usage.get("sources") != len(set(item_sources)):
                 issues.append("selection.usage.sources must equal included Source count")
+        if isinstance(usage, Mapping) and isinstance(budget, Mapping):
+            if (
+                isinstance(usage.get("estimated_tokens"), int)
+                and isinstance(budget.get("max_estimated_tokens"), int)
+                and usage["estimated_tokens"] > budget["max_estimated_tokens"]
+            ):
+                issues.append("selection token usage exceeds budget")
+            if (
+                isinstance(usage.get("bytes"), int)
+                and isinstance(budget.get("max_bytes"), int)
+                and usage["bytes"] > budget["max_bytes"]
+            ):
+                issues.append("selection byte usage exceeds budget")
+            if (
+                isinstance(usage.get("items"), int)
+                and isinstance(budget.get("max_items"), int)
+                and usage["items"] > budget["max_items"]
+            ):
+                issues.append("selection item usage exceeds budget")
 
     preflight = manifest.get("export_preflight", {})
     if isinstance(preflight, Mapping):
