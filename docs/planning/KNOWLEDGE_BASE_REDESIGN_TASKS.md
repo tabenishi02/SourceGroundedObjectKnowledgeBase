@@ -308,10 +308,16 @@ docs/
   - Phase E〜Lへまたがる移動Waveとstructural PR検証Gateを確定した。
   - 成果物: `docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md`
 
-- [ ] **D-06 [P1] `.local/` / generated / Google Drive exchangeデータのGit除外方針を更新する**
-  - Object package、result、DB、vector index、生Source、backup generationを誤commitしない。
-  - canonical / backup / transient / index directoryを物理的に区別できる配置とする。
-  - Schema、sample、fixtureのみGit管理する。
+- [x] **D-06 [P1] `.local/` / generated / Google Drive exchangeデータのGit除外方針を更新する**
+  - `.local/`をGit管理外runtime rootとし、`canonical/`と`transient/`を意味上分離した。
+  - `/generated/`をSearch Representation / Embedding / Vector Index / rendering等のrebuildable derived専用rootとしてGit ignoreした。
+  - `/exchange/`をlocal Package staging / Result incoming等のGit管理外rootとし、Google Drive同期directoryは原則Repository外pathとした。
+  - `/backups/`を誤commit防止でignoreする一方、production backupの唯一の保存先にはせず、Repository外 / 別deviceへ配置可能にする方針を確定した。
+  - root `sample/`は実験・評価local corpusとしてignore維持し、Git管理するsynthetic fixtureは`tests/fixtures/` / `examples/`等へ分離する。
+  - `.env.*`, `.secrets/`, local config / credential file、SQLite journalを追加保護した。
+  - D-06時点でruntime-like tracked fileが存在しないことを確認し、既存dataの`git rm --cached`は不要と判断した。
+  - 成果物: `docs/decisions/SGOKB_RUNTIME_DATA_GIT_POLICY.md`
+  - root `.gitignore`を本方針へ更新した。
 
 - [ ] **D-07 [P1] 旧branch / PR / tag / releaseの整理ルールを決める**
   - 再設計開始前の未統合branchが存在する場合は、必要commitを救済してからclose/archiveする。
@@ -838,8 +844,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）は完了した。Phase DではD-01〜D-05が完了しており、次の最優先は **D-06 [P1] `.local/` / generated / Google Drive exchangeデータのGit除外方針を更新する** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）は完了した。Phase DではD-01〜D-06が完了しており、次の最優先は **D-07 [P1] 旧branch / PR / tag / releaseの整理ルールを決める** とする。
 
-D-04で`src/sgokb`の正規責務構造を確定し、D-05でそこへ安全に移行するmove / split / compatibility / PR順序を確定した。実ファイルは一括移動せず、Phase E〜Lの実装時にstructural PRとbehavior PRを分離して段階移行する。詳細は`docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`と`docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md`を正本とする。
+D-04で`src/sgokb`の正規責務構造、D-05でmove / split / compatibility / PR順序、D-06でruntime dataの物理配置とGit exclusion boundaryを確定した。Runtime dataはGit historyへ入れず、Google Drive exchangeもRepository外のExternal Export boundaryとして扱う。
 
-D-06ではcode配置とは別に、canonical DB / Raw / generated index / exchange package / result / backup等のruntime data配置とGit除外を確定する。
+D-07では再設計開始後に増えたtask branch / PRを含め、branch cleanup、Prototype tag保持、新Release境界の整理ルールを確定する。
