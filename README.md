@@ -6,7 +6,7 @@ Web上のSource / Evidenceを根拠に、Character・Work・ConceptなどのObje
 
 現在は旧PrototypeからObject中心Knowledge Baseへの再設計中です。旧Prototypeのコードは移行元として残っていますが、Fragment大量生成や巨大Final Documentを中心とする方式は現行の最終設計ではありません。
 
-Phase A〜EとPhase FのF-01〜F-04は完了しています。現在の標準pipelineはWeb Captureからcanonical Evidenceまでを生成LLMなしで処理し、Object Evidence Retrievalからbounded Evidence SelectionまでFragmentを介さずcanonical Evidenceを直接扱います。旧Fragment / Final系はlegacy / research compatibilityへ分離済みです。次Taskは`F-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する`です。
+Phase A〜EとPhase F（F-01〜F-05）は完了しています。現在の標準pipelineはWeb Captureからcanonical Evidenceまでを生成LLMなしで処理し、Object Evidence Retrieval、bounded Evidence Selection、Source↔Object association / Evidence overrideのoperator CLIまでFragmentを介さずcanonical Evidenceを直接扱います。旧Fragment / Final系はlegacy / research compatibilityへ分離済みです。次Taskは`G-01 [P0] Object Evidence Package formatを確定する`です。
 
 現在の設計判断・要件・作業状況は **[Documentation Index](docs/README.md)** を入口として確認してください。
 
@@ -31,6 +31,7 @@ Phase A〜EとPhase FのF-01〜F-04は完了しています。現在の標準pip
 - [再設計引継ぎ資料](docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md)
 - [Phase D Preparation](docs/planning/PHASE_D_PREPARATION.md)
 - [Standard Pipeline / Legacy Fragment Boundary](docs/design/STANDARD_PIPELINE_BOUNDARY.md)
+- [Operator Association / Evidence Selection Controls](docs/design/OPERATOR_ASSOCIATION_CONTROLS.md)
 - [既存資産分類](docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md)
 - [既存依存関係調査](docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md)
 

@@ -38,10 +38,11 @@
 32. [Standard Pipeline / Legacy Fragment Boundary](design/STANDARD_PIPELINE_BOUNDARY.md) — F-02で確定した標準Evidence pipelineと旧Fragment / Finalのlegacy・research境界。
 33. [Object Evidence Retrieval](design/OBJECT_EVIDENCE_RETRIEVAL.md) — F-03で実装したeffective Evidence scope、association / name / alias / metadata / FTS / semantic / manual signal統合とselection reason契約。
 34. [Evidence Selection Budget](design/EVIDENCE_SELECTION_BUDGET.md) — F-04で確定したtoken / byte / item hard budget、Source diversity、duplicate / overlap処理、omission reason契約。
-35. [Versioning Schema Design](design/VERSIONING_SCHEMA.md) — E-04で確定したfull snapshot Version lifecycle、stale判定、accepted immutability、current promotion / rollback、derived-state boundary。
-36. [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md) — E-05で確定した`sgokb.object-result/1.0`、Package/Class/Facet binding、Evidence-grounded Result exchange contract。
-37. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
-38. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
+35. [Operator Association / Evidence Selection Controls](design/OPERATOR_ASSOCIATION_CONTROLS.md) — F-05で確定したSource↔Object association、read-only suggestion、Evidence manual include / exclude、canonical CLI境界。
+36. [Versioning Schema Design](design/VERSIONING_SCHEMA.md) — E-04で確定したfull snapshot Version lifecycle、stale判定、accepted immutability、current promotion / rollback、derived-state boundary。
+37. [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md) — E-05で確定した`sgokb.object-result/1.0`、Package/Class/Facet binding、Evidence-grounded Result exchange contract。
+38. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+39. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
 
 ## 現行文書
 
@@ -72,11 +73,12 @@ Phase E以降で確定した物理Architecture / Data Model設計を置く。
 - [Standard Pipeline / Legacy Fragment Boundary](design/STANDARD_PIPELINE_BOUNDARY.md)
 - [Object Evidence Retrieval](design/OBJECT_EVIDENCE_RETRIEVAL.md)
 - [Evidence Selection Budget](design/EVIDENCE_SELECTION_BUDGET.md)
+- [Operator Association / Evidence Selection Controls](design/OPERATOR_ASSOCIATION_CONTROLS.md)
 - [Versioning Schema Design](design/VERSIONING_SCHEMA.md)
 - [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase E（E-01〜E-05）、F-01〜F-04は完了している。Migration 005でFacet taxonomy、Migration 006でcanonical Source / Evidence / Evidence Link / Provenance schema、Migration 007でVersion lifecycle、Migration 008でeffective Snapshot / Run selection event、Migration 009でcanonical Evidence FTSを反映した。F-01で生成LLMなしのcanonical Capture → Evidence経路、F-02でstandard / legacy境界、F-03でFragmentを介さないObject Evidence Retrieval、F-04でbounded Evidence Selectionを実装した。詳細は[Source Ingestion Pipeline](design/SOURCE_INGESTION_PIPELINE.md)、[Standard Pipeline / Legacy Fragment Boundary](design/STANDARD_PIPELINE_BOUNDARY.md)、[Object Evidence Retrieval](design/OBJECT_EVIDENCE_RETRIEVAL.md)、[Evidence Selection Budget](design/EVIDENCE_SELECTION_BUDGET.md)を正本とする。次TaskはF-05の明示link UI/CLI設計とする。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）、Phase E（E-01〜E-05）、Phase F（F-01〜F-05）は完了している。Migration 005でFacet taxonomy、Migration 006でcanonical Source / Evidence / Evidence Link / Provenance schema、Migration 007でVersion lifecycle、Migration 008でeffective Snapshot / Run selection event、Migration 009でcanonical Evidence FTSを反映した。F-01で生成LLMなしのcanonical Capture → Evidence経路、F-02でstandard / legacy境界、F-03でFragmentを介さないObject Evidence Retrieval、F-04でbounded Evidence Selection、F-05でSource↔Object associationとEvidence manual overrideのoperator CLIを実装した。詳細は[Source Ingestion Pipeline](design/SOURCE_INGESTION_PIPELINE.md)、[Standard Pipeline / Legacy Fragment Boundary](design/STANDARD_PIPELINE_BOUNDARY.md)、[Object Evidence Retrieval](design/OBJECT_EVIDENCE_RETRIEVAL.md)、[Evidence Selection Budget](design/EVIDENCE_SELECTION_BUDGET.md)、[Operator Association / Evidence Selection Controls](design/OPERATOR_ASSOCIATION_CONTROLS.md)を正本とする。次TaskはG-01のObject Evidence Package format確定とする。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果とgold corpusを置く。

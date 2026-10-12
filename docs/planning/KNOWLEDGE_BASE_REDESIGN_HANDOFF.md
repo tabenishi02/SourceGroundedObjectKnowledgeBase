@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / C / D / EとF-01〜F-04は完了。canonical EvidenceをFragmentなしで高Recall retrievalし、token / byte / item budget内へSource diversityとselection reasonを保ったまま選択できる。次の未完了TaskはF-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する。再設計の正規統合作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A / B / C / D / E / F（F-01〜F-05）は完了。canonical EvidenceをFragmentなしでretrieval / bounded selectionし、Source↔Object associationとEvidence manual overrideをoperator CLIから維持できる。次の未完了TaskはG-01 [P0] Object Evidence Package formatを確定する。再設計の正規統合作業基盤は`integration/knowledge-base-redesign`。**
 
 Phase D / E / F移行資料:
 
@@ -473,8 +473,8 @@ Phase F開始準備としてD-05 Wave 2も完了した。`importer.py / extracti
 - F-02 standard pipeline / legacy Fragment境界 — Complete
 - F-03 Object Evidence Retrieval — Complete
 - F-04 Evidence Selection token / size budget — Complete
-- F-05 explicit Source/Object/Evidence operation UI/CLI — Next
-- Evidence Package具体実装
+- F-05 explicit Source/Object/Evidence operation UI/CLI — Complete
+- G-01 Evidence Package format — Next
 - Drive交換形式
 - Validation / Import state machine
 - Diff / Review表示
@@ -549,27 +549,27 @@ Phase内のTaskを確認し、必要な調査・設計・実装・テスト・�
 Phase完了時には、決定事項、実施内容、未決事項、次Phaseへの引き継ぎを報告してください。
 ```
 
-Phase Fを継続する場合:
+Phase Gへ移行する場合:
 
 ```text
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
-Phase A〜EとF-01〜F-04は完了しています。
+Phase A〜F（F-01〜F-05）は完了しています。
 
 再設計の正規作業基盤はintegration/knowledge-base-redesignです。
 まず以下を確認してください。
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
 - docs/planning/PHASE_F_PREPARATION.md
-- docs/design/SOURCE_INGESTION_PIPELINE.md
-- docs/design/STANDARD_PIPELINE_BOUNDARY.md
 - docs/design/OBJECT_EVIDENCE_RETRIEVAL.md
-- docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md
-- docs/design/SOURCE_EVIDENCE_SCHEMA.md
+- docs/design/EVIDENCE_SELECTION_BUDGET.md
+- docs/design/OPERATOR_ASSOCIATION_CONTROLS.md
+- docs/requirements/OBJECT_RESULT_REQUIREMENTS.md
+- docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md
 
 今回実施するTask:
-F-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する
+G-01 [P0] Object Evidence Package formatを確定する
 
-F-03でcanonical Object Evidence Retrieval、F-04でbounded Evidence Selectionまで成立しました。F-05では既存`source_object_associations`のcandidate / confirmed / excluded、subject relationship、manual include / excludeをoperatorが日常運用から安全に維持できるUI/CLIを設計・実装してください。Source associationとKnowledge Evidence Linkは混同せず、F-03/F-04のretrieval・selection contractを維持してください。
+F-03〜F-05でcanonical Evidence retrieval、bounded selection、operator association / manual Evidence overrideまで成立しました。G-01ではこれらの出力を入力として、current Knowledge carry-forward、Evidence/Source provenance、selection controlsを失わないObject Evidence Packageの物理formatを確定してください。Packageはderived local artifactでありcanonical Source of truthにはしないでください。
 ```
 
 ---
@@ -612,6 +612,7 @@ F-03でcanonical Object Evidence Retrieval、F-04でbounded Evidence Selection�
 - `docs/design/STANDARD_PIPELINE_BOUNDARY.md`
 - `docs/design/OBJECT_EVIDENCE_RETRIEVAL.md`
 - `docs/design/EVIDENCE_SELECTION_BUDGET.md`
+- `docs/design/OPERATOR_ASSOCIATION_CONTROLS.md`
 - `docs/design/VERSIONING_SCHEMA.md`
 - `docs/design/OBJECT_RESULT_JSON_SCHEMA.md`
 - `docs/reference/CLASS_FACET_GOLD_CASES.md`
@@ -625,9 +626,9 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 ## 14. 現在地点
 
-Phase A、Phase B、Phase C、Phase D、Phase EとF-01〜F-04は完了している。
+Phase A、Phase B、Phase C、Phase D、Phase E、Phase F（F-01〜F-05）は完了している。
 
-**次の作業はF-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する。**
+**次の作業はG-01 [P0] Object Evidence Package formatを確定する。**
 
 F-01でcanonical Capture → Source / Snapshot / Raw Artifact → Normalization Run → Evidence経路を実装し、F-02でその経路を標準pipelineとして固定した。標準CLIの`import` / `process` / `status` / `snapshots`はcanonical側を使用し、Fragment / Final /旧benchmarkは`legacy-*`へ明示した。旧API・旧command名はPhase Lまでcompatibility shim / aliasとして残すが、新standard codeからは利用しない。物理隔離・archive・削除判断はPhase Lへ残す。詳細は`docs/design/SOURCE_INGESTION_PIPELINE.md`と`docs/design/STANDARD_PIPELINE_BOUNDARY.md`を正本とする。
 
@@ -635,4 +636,6 @@ F-03ではMigration 009のcanonical Evidence FTSと`ObjectEvidenceRetriever`を�
 
 F-04では`EvidencePackageSelector`によりestimated token / byte / item hard budget、Source diversity pass、relevance fill、duplicate / overlap suppression、omission reason追跡を実装した。manual includeはprotectedとしてsilent omissionしない。設計正本は`docs/design/EVIDENCE_SELECTION_BUDGET.md`である。
 
-再設計の正規作業基盤は`integration/knowledge-base-redesign`である。F-05ではassociation storageとoperator操作面を接続する。
+F-05では`source_object_associations`をApplication / CLIへ接続し、`association list/suggest/set/clear`と`evidence candidates/select`を実装した。自動suggestionはread-only、Evidence include / excludeはPackage単位のoverride、Knowledge `evidence_links`は別責務とした。設計正本は`docs/design/OPERATOR_ASSOCIATION_CONTROLS.md`である。
+
+再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase Fは完了し、G-01ではObject Evidence Package formatへ進む。
