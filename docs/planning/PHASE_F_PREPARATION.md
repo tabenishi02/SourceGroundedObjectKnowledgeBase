@@ -538,9 +538,11 @@ F-02で標準pipelineからFragment generationを外す前に、Capture → cano
 
 ### F-02
 
-canonical Evidence path成立後、標準処理からFragment generationを外す。
+**Implementation status: Complete (2026-10-12).**
 
-旧`capture.py` / Fragment tableを直ちに削除せず、Phase Lまでlegacy / research compatibilityとして隔離可能にする。
+canonical Evidence path成立後、標準処理からFragment generationを外した。標準CLIの`import` / `process`はcanonical Source / Evidence pathを利用し、Fragment / Final /旧benchmarkは`legacy-*`として明示した。
+
+旧`capture.py` / Fragment tableは直ちに削除せず、Phase Lまでlegacy / research compatibilityとして保持する。物理`_legacy/`移動はbehavior変更と分離し、Phase Lで実施判断する。正本は`docs/design/STANDARD_PIPELINE_BOUNDARY.md`。
 
 ### F-03
 

@@ -6,7 +6,7 @@ Web上のSource / Evidenceを根拠に、Character・Work・ConceptなどのObje
 
 現在は旧PrototypeからObject中心Knowledge Baseへの再設計中です。旧Prototypeのコードは移行元として残っていますが、Fragment大量生成や巨大Final Documentを中心とする方式は現行の最終設計ではありません。
 
-Phase A〜Cは完了しています。現在はPhase D — Repository / Git / フォルダ構造再編へ移行する段階で、次Taskは`D-01 [P0] 再設計用長期ブランチ戦略を決定する`です。
+Phase A〜EとPhase FのF-01〜F-02は完了しています。現在の標準pipelineはWeb Captureからcanonical Evidenceまでを生成LLMなしで処理し、旧Fragment / Final系はlegacy / research compatibilityへ分離しています。次Taskは`F-03 [P0] Object Evidence Retrievalを実装する`です。
 
 現在の設計判断・要件・作業状況は **[Documentation Index](docs/README.md)** を入口として確認してください。
 
@@ -30,6 +30,7 @@ Phase A〜Cは完了しています。現在はPhase D — Repository / Git / �
 - [再設計タスク / 現在の進捗](docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md)
 - [再設計引継ぎ資料](docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md)
 - [Phase D Preparation](docs/planning/PHASE_D_PREPARATION.md)
+- [Standard Pipeline / Legacy Fragment Boundary](docs/design/STANDARD_PIPELINE_BOUNDARY.md)
 - [既存資産分類](docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md)
 - [既存依存関係調査](docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md)
 

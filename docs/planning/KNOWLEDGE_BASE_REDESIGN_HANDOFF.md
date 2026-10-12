@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / C / D / EとF-01は完了。F-01で生成LLMなしのcanonical Capture → Source / Snapshot / Raw Artifact → Normalization Run → Evidence経路とeffective generation selectionを実装済み。次の未完了TaskはF-02 [P0] 標準パイプラインからFragment生成を外す。再設計の正規統合作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A / B / C / D / EとF-01〜F-02は完了。標準経路はcanonical Source / Snapshot / Raw Artifact → Normalization Run → Evidenceで停止し、Fragment / Finalはlegacy / research compatibilityへ分離済み。次の未完了TaskはF-03 [P0] Object Evidence Retrievalを実装する。再設計の正規統合作業基盤は`integration/knowledge-base-redesign`。**
 
 Phase D / E / F移行資料:
 
@@ -470,7 +470,9 @@ Phase F開始準備としてD-05 Wave 2も完了した。`importer.py / extracti
 ### Phase F〜H
 
 - F-01 canonical Capture / Import / Normalize / Evidence接続 — Complete
-- Evidence Retrieval / Package具体実装
+- F-02 standard pipeline / legacy Fragment境界 — Complete
+- F-03 Object Evidence Retrieval — Next
+- Evidence Package具体実装
 - Drive交換形式
 - Validation / Import state machine
 - Diff / Review表示
@@ -549,7 +551,7 @@ Phase Fを継続する場合:
 
 ```text
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
-Phase A〜EとF-01は完了しています。
+Phase A〜EとF-01〜F-02は完了しています。
 
 再設計の正規作業基盤はintegration/knowledge-base-redesignです。
 まず以下を確認してください。
@@ -557,13 +559,14 @@ Phase A〜EとF-01は完了しています。
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
 - docs/planning/PHASE_F_PREPARATION.md
 - docs/design/SOURCE_INGESTION_PIPELINE.md
+- docs/design/STANDARD_PIPELINE_BOUNDARY.md
 - docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md
 - docs/design/SOURCE_EVIDENCE_SCHEMA.md
 
 今回実施するTask:
-F-02 [P0] 標準パイプラインからFragment生成を外す
+F-03 [P0] Object Evidence Retrievalを実装する
 
-F-01で生成LLMを使わないcanonical Capture → Source / Snapshot / Raw Artifact → Normalization Run → Evidence経路が成立しました。旧`Application.import_path()` / `process()`はlegacy compatibilityとして分離されています。F-02ではcanonical pathを標準処理として成立させるためFragment生成を必須工程から外し、Fragment / Final系をPhase Lまでどこまでlegacy / research compatibilityとして残すかを決定してください。F-01のcanonical provenanceとeffective selectionを破壊しないでください。
+F-01でcanonical Capture → Evidence経路、F-02でstandard pipeline / legacy Fragment境界が確定しました。Fragmentをretrieval中間層へ戻さず、canonical `evidence_records`を直接候補集合として扱ってください。name / alias / explicit Source↔Object association / Source metadata / lexical / semantic / manual includeをselection signalとして利用し、選択理由を追跡可能にしてください。
 ```
 
 ---
@@ -603,6 +606,7 @@ F-01で生成LLMを使わないcanonical Capture → Source / Snapshot / Raw Art
 - `docs/design/FACET_VOCABULARY_REVIEW.md`
 - `docs/design/SOURCE_EVIDENCE_SCHEMA.md`
 - `docs/design/SOURCE_INGESTION_PIPELINE.md`
+- `docs/design/STANDARD_PIPELINE_BOUNDARY.md`
 - `docs/design/VERSIONING_SCHEMA.md`
 - `docs/design/OBJECT_RESULT_JSON_SCHEMA.md`
 - `docs/reference/CLASS_FACET_GOLD_CASES.md`
@@ -616,10 +620,10 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 ## 14. 現在地点
 
-Phase A、Phase B、Phase C、Phase D、Phase EとF-01は完了している。
+Phase A、Phase B、Phase C、Phase D、Phase EとF-01〜F-02は完了している。
 
-**次の作業はF-02 [P0] 標準パイプラインからFragment生成を外す。**
+**次の作業はF-03 [P0] Object Evidence Retrievalを実装する。**
 
-F-01で`Application.import_source_path()` / `process_source_snapshot()`によるcanonical Capture → Source / Snapshot / Raw Artifact → Normalization Run → Evidence経路を実装した。Migration 008のappend-only selection eventにより、latest timestampではなく明示的なeffective Snapshot / Runを選択する。初回usable generationのみ自動選択し、後続generationはmanual selectionなしに自動昇格しない。Source resolutionではURL / canonical URLをIdentityではなくsignalとして扱い、曖昧一致をrejectする。旧Prototype ingestionはdual-writeせずcompatibility pathとして維持する。詳細は`docs/design/SOURCE_INGESTION_PIPELINE.md`を正本とする。
+F-01でcanonical Capture → Source / Snapshot / Raw Artifact → Normalization Run → Evidence経路を実装し、F-02でその経路を標準pipelineとして固定した。標準CLIの`import` / `process` / `status` / `snapshots`はcanonical側を使用し、Fragment / Final /旧benchmarkは`legacy-*`へ明示した。旧API・旧command名はPhase Lまでcompatibility shim / aliasとして残すが、新standard codeからは利用しない。物理隔離・archive・削除判断はPhase Lへ残す。詳細は`docs/design/SOURCE_INGESTION_PIPELINE.md`と`docs/design/STANDARD_PIPELINE_BOUNDARY.md`を正本とする。
 
-再設計の正規作業基盤は`integration/knowledge-base-redesign`である。F-02ではcanonical pathからFragment generation依存を除き、旧Fragment / Final系のlegacy / research compatibility範囲を確定する。
+再設計の正規作業基盤は`integration/knowledge-base-redesign`である。F-03ではFragmentを中間層にせずcanonical Evidenceを直接対象としてObject Evidence Retrievalを実装する。

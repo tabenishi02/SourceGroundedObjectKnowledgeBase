@@ -134,7 +134,7 @@ def run_benchmark(
                 raise ValueError("Benchmark raw dataset hash differs")
             if case["task"] == "fragment":
                 previous = json.loads(checkpoint["result"]) if checkpoint["result"] else {}
-                result = app.capture_fragments(
+                result = app.legacy_capture_fragments(
                     snapshot["id"],
                     case["entity_id"],
                     strategy=strategy,
@@ -185,7 +185,9 @@ def run_benchmark(
                     },
                 )
             elif case["task"] == "final":
-                result = app.build_document(case["entity_id"], use_llm=case.get("llm_order", False))
+                result = app.legacy_build_document(
+                    case["entity_id"], use_llm=case.get("llm_order", False)
+                )
                 rep = result["structured"]
                 repo.benchmark_case(
                     run_id,

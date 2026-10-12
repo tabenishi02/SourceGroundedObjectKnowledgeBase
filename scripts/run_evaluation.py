@@ -133,7 +133,9 @@ def evaluate(args):
                     continue
                 result = {"snapshot": snapshot["id"], "entity": entity_id, "site": snapshot["site"]}
                 try:
-                    result.update(app.fragment(snapshot["id"], entity_id, limit=3, max_chars=3000))
+                    result.update(
+                        app.legacy_fragment(snapshot["id"], entity_id, limit=3, max_chars=3000)
+                    )
                     result["status"] = "success" if result["fragments"] else "empty"
                 except Exception as error:
                     result.update(status="failed", error=type(error).__name__, reason=str(error))
@@ -156,7 +158,7 @@ def evaluate(args):
                             ),
                         }
                     )
-                    generated = app.generate(entity_id, limit=5)
+                    generated = app.legacy_generate(entity_id, limit=5)
                     output = Path(".local/documents") / (generated["document_id"] + ".md")
                     export_markdown(output, generated.pop("markdown"), repo)
                     result.update(generated, path=str(output), status="success")

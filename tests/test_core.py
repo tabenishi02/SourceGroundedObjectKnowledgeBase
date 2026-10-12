@@ -267,7 +267,17 @@ def test_vector_validation(vectors):
 
 def test_cli_and_raw_export_guard(core, capsys):
     _, repo, _, _, _, _, path = core
-    assert main(["--db", str(repo.db.execute("PRAGMA database_list").fetchone()[2]), "status"]) == 0
+    assert (
+        main(
+            [
+                "--db",
+                str(repo.db.execute("PRAGMA database_list").fetchone()[2]),
+                "status",
+                "--legacy",
+            ]
+        )
+        == 0
+    )
     assert json.loads(capsys.readouterr().out)["snapshots"] == 1
     with pytest.raises(ValueError, match="Raw"):
         export_markdown(path, "DO NOT WRITE", repo)

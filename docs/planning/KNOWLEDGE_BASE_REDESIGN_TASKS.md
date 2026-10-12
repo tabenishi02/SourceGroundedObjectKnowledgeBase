@@ -474,9 +474,10 @@ docs/
   - 最新Snapshotを無条件にeffectiveとしないselection policyを設計する。
   - **完了（2026-10-12）:** `Application.import_source_path()` / `process_source_snapshot()`としてlegacy pathと分離したcanonical ingestion use caseを実装した。URL/canonical URLはIdentityではなくresolution signalとして扱い、曖昧一致をrejectする。`capture_id`をSnapshot IDとして維持し、Bundle内全Raw Artifact、Normalization Run、Evidence、DOM/heading/block-order locationをcanonical `SourceRepository`へ保存する。Migration 008でappend-only `source_selection_events`を追加し、最初のusable Snapshot / successful Runのみ自動選択、後続世代はmanual selectionなしにeffectiveへ昇格しない方針を確定した。failed generationはeffectiveへ昇格しない。旧`import_path()` / `process()`は変更せず、dual-writeもしない。設計正本: `docs/design/SOURCE_INGESTION_PIPELINE.md`。
 
-- [ ] **F-02 [P0] 標準パイプラインからFragment生成を外す**
+- [x] **F-02 [P0] 標準パイプラインからFragment生成を外す**
   - `fragment`を必須工程から除外する。
   - 互換・研究用途として残すか完全廃止するかを決定する。
+  - **完了（2026-10-12）:** canonical標準経路をSource / Snapshot / Raw Artifact → Normalization Run → Evidenceで停止するよう固定した。CLIの`import` / `process` / `status` / `snapshots`はcanonical側を標準動作とし、旧Prototype経路は`--legacy`でのみ選択する。Fragment / Final /旧benchmarkは`legacy-fragment` / `legacy-generate` / `legacy-benchmark`へ明示し、旧command名はPhase Lまでcompatibility aliasとして保持する。`Application`にも`legacy_*` APIを追加し、旧method名はshimとして維持する。標準処理ではFragment・`ai_runs`・旧Final artifactを生成しない。物理`_legacy/`移動や削除はModule Migration PolicyどおりPhase Lへ残す。設計正本: `docs/design/STANDARD_PIPELINE_BOUNDARY.md`。
 
 - [ ] **F-03 [P0] Object Evidence Retrievalを実装する**
   - name / alias / explicit association / Source metadata / FTS / embeddingを組み合わせる。
@@ -921,8 +922,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）、Phase E（E-01〜E-05）とF-01は完了した。F-01でcanonical Capture / Import / Normalize / Evidence経路とeffective Snapshot / Run selectionを実装した。次の最優先は **F-02 [P0] 標準パイプラインからFragment生成を外す** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）、Phase E（E-01〜E-05）とF-01〜F-02は完了した。F-01でcanonical Capture / Import / Normalize / Evidence経路とeffective Snapshot / Run selectionを実装し、F-02でFragment / Finalをlegacy / research compatibilityへ分離した。次の最優先は **F-03 [P0] Object Evidence Retrievalを実装する** とする。
 
 Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 
-E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomy、E-03ではMigration 006でSource / Evidence / Evidence Link / Provenance、E-04ではMigration 007でVersion lifecycle / stale / current promotion / rollback / derived-state boundaryを物理反映した。E-05ではMigrationを追加せず、`src/sgokb/exchange/schemas/object-result-v1.schema.json`と`ObjectResultContract`でObject Result exchange contractを確定した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、`docs/design/VERSIONING_SCHEMA.md`、`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。F-01で既存ingestion pipelineのcanonical Source / Evidence schema接続は完了した。次はF-02でFragment生成を標準パイプラインから外す。
+E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomy、E-03ではMigration 006でSource / Evidence / Evidence Link / Provenance、E-04ではMigration 007でVersion lifecycle / stale / current promotion / rollback / derived-state boundaryを物理反映した。E-05ではMigrationを追加せず、`src/sgokb/exchange/schemas/object-result-v1.schema.json`と`ObjectResultContract`でObject Result exchange contractを確定した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、`docs/design/VERSIONING_SCHEMA.md`、`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。F-01で既存ingestion pipelineのcanonical Source / Evidence schema接続、F-02で標準pipelineからのFragment生成除外は完了した。次はF-03でcanonical Evidenceを直接対象とするObject Evidence Retrievalを実装する。
