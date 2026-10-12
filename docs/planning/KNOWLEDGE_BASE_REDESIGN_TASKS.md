@@ -319,10 +319,15 @@ docs/
   - 成果物: `docs/decisions/SGOKB_RUNTIME_DATA_GIT_POLICY.md`
   - root `.gitignore`を本方針へ更新した。
 
-- [ ] **D-07 [P1] 旧branch / PR / tag / releaseの整理ルールを決める**
-  - 再設計開始前の未統合branchが存在する場合は、必要commitを救済してからclose/archiveする。
-  - Prototype tagは履歴として保持する。
-  - 再設計完了時に新しいversion境界を設定する。
+- [x] **D-07 [P1] 旧branch / PR / tag / releaseの整理ルールを決める**
+  - local / remote branch、PR #1〜#9、tag、GitHub Releaseを実査した。PR #1〜#9はすべてmerged、open PR 0件、tag 0件、Release 0件だった。
+  - squash mergeでは`git branch --merged`だけを削除判定に使用せず、GitHub PRのmerged状態・head SHA・base・merge後追加commit有無を確認する方針とした。
+  - merge済み短命task branchは検証後にlocal / remoteから早期削除できる方針とし、D-04〜D-06 branchをcleanup対象とした。
+  - `feature/cpc-prototype` / `feature/cpc-prototype-upgrade`はintegrationにunique commit 0を確認し、local cleanup対象とした。
+  - `archive/pre-rename-local-main`には未統合unique commit 11件があるため削除せず、historical archiveとしてremoteにも保全する方針とした。
+  - existing tag / Releaseはimmutable historyとして保持し、D-07時点では存在しないためretroactive tag / Releaseを作成しない。
+  - 新SGOKBのversion / tag / Release境界はO-06で確定し、integration途中から正式Releaseを作らない。
+  - 成果物: `docs/decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md`
 
 **完了条件:** 新旧資産の配置ルールとGit移行手順が決まり、移動による履歴消失・誤削除を防げる。
 
@@ -844,8 +849,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）は完了した。Phase DではD-01〜D-06が完了しており、次の最優先は **D-07 [P1] 旧branch / PR / tag / releaseの整理ルールを決める** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。次の最優先は **E-01 [P0] Object schemaを設計する** とする。
 
-D-04で`src/sgokb`の正規責務構造、D-05でmove / split / compatibility / PR順序、D-06でruntime dataの物理配置とGit exclusion boundaryを確定した。Runtime dataはGit historyへ入れず、Google Drive exchangeもRepository外のExternal Export boundaryとして扱う。
+Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 
-D-07では再設計開始後に増えたtask branch / PRを含め、branch cleanup、Prototype tag保持、新Release境界の整理ルールを確定する。
+Phase EではD-04で確定した`domain / storage`責務境界を維持しつつ、B-02〜B-04要件を物理Object schemaへ落とし込む。D-05に従い、E-01のschema/domain behavior変更より先に必要な`domain.py -> domain/` structural conversionを別PRとして扱う。

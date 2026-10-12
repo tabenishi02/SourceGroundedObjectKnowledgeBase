@@ -454,4 +454,4 @@ D-06では次を行う。
 - [x] 既存tracked runtime dataがないことを確認した。
 - [x] runtime dataの実移動やexternal exportを行っていない。
 
-次Taskは`D-07 [P1] 旧branch / PR / tag / releaseの整理ルールを決める`とする。
+D-07は完了済み。Phase D完了後の次Taskは`E-01 [P0] Object schemaを設計する`とする。
