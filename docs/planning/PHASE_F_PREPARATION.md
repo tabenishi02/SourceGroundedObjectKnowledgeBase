@@ -546,16 +546,18 @@ canonical Evidence path成立後、標準処理からFragment generationを外�
 
 ### F-03
 
-Object Evidence Retrievalではcanonical Evidenceを対象とし、
+**Implementation status: Complete (2026-10-12).**
+
+Object Evidence Retrievalはcanonical Evidenceを対象とし、次をselection signalとして実装した。
 
 - name / alias
-- explicit Source↔Object association
-- Source metadata
-- lexical
-- semantic
-- manual include
+- explicit Source↔Object association（confirmed / candidate、excludedは自動候補除外）
+- effective Source metadata
+- canonical Evidence FTS（Migration 009）
+- semantic cosine（明示Embedder設定時のみ。Phase Iまでのon-demand baseline）
+- manual include / exclude
 
-をselection signalとして利用する。
+通常scopeはeffective Snapshot / Runのみとし、候補ごとにselection reasonを複数保持する。設計正本は`docs/design/OBJECT_EVIDENCE_RETRIEVAL.md`。
 
 ### F-04
 
@@ -635,9 +637,9 @@ D-05 Wave 2として importer / extraction / context の ingestion package移動
 - extensions/web-page-capture/docs/CAPTURE_BUNDLE_FORMAT.md
 
 今回実施するTask:
-F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する
+F-04 [P1] Evidence Selectionのtoken/size budgetを設計する
 
-旧Prototype tableへの常時dual-writeを標準にせず、新canonical ingestion use caseをE-03 SourceRepositoryへ接続してください。Source IdentityをURLと同一視せず、capture_idのSnapshot ID維持、Raw Artifact全件追跡、Normalization Run → Evidence → Evidence Location provenance、Source classification / metadata origin、effective Snapshot / Run selectionを実装してください。既存legacy dataの意味migrationはPhase Lへ残し、F-01では新規canonical pathとlegacy compatibility pathを分離してください。
+F-01〜F-03は完了しています。F-03のObject Evidence Retrieval候補を入力とし、Packageへ採用するEvidence量をtoken / byte budgetで制御してください。Source構造を優先したgranularity、Source diversity、chunk overlap /近接Evidence、near-duplicate、truncation reasonを扱い、selection reasonとProvenanceを失わないでください。
 ```
 
 ## 20. 結論
@@ -646,6 +648,6 @@ Phase Eには未完了Taskはない。
 
 Phase F開始前のstructural prerequisiteとしてD-05 Wave 2も完了し、Importer / Extractor / Page Contextは`src/sgokb/ingestion/`へ正規配置された。旧top-level pathはcompatibility shimとして維持している。
 
-F-01では既存Web Capture / Extractor資産を捨てず、E-03で既に実装済みのcanonical `SourceRepository`へapplication-level orchestrationを接続する。最大の設計論点はSource resolutionとeffective Snapshot / Run selectionであり、URL一致やlatest timestampをsilent identity/current判定に使用しない。
+F-01でcanonical ingestion、F-02でstandard / legacy境界、F-03でObject Evidence Retrievalまで完了した。F-03はeffective Snapshot / Runを通常scopeとし、association / name / alias / Source metadata / FTS / semantic / manual signalとselection reasonを実装済みである。
 
-**Next: `F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する`**
+**Next: `F-04 [P1] Evidence Selectionのtoken/size budgetを設計する`**
