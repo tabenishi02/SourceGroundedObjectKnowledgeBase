@@ -559,7 +559,7 @@ docs/
 
 # Phase H — Result Validation / Import / Rendering
 
-- [ ] **H-01 [P0] Result JSON Validatorを実装する**
+- [x] **H-01 [P0] Result JSON Validatorを実装する**
   - Syntax / Schema、Binding / Precondition、Referential、Grounding / Provenance、Domain Contract Validationを分離する。
   - object_id / package / base Version一致。
   - Source/Evidence ID存在確認 + Package membership確認。
@@ -567,6 +567,8 @@ docs/
   - Relation target存在確認または未解決参照として明示管理。
   - 不正field / schema version拒否。
   - Validatorが意味内容や未知IDを推測修復しない。
+  - `ResultValidationService`でG-05 immutable receiptを検証し、`pending -> running -> valid/invalid/error`を監査保存する。
+  - `docs/design/RESULT_VALIDATION.md`をH-01設計・実装正本とする。
 
 - [ ] **H-02 [P0] Object Version Importを実装する**
   - Validation成功後も標準ではexplicit Import operationを要求し、Result検出だけでsilent commitしない。

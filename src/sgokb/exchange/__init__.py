@@ -53,6 +53,17 @@ from .result_receipt import (
     ResultReceipt,
     ResultReceiptService,
 )
+from .result_validation import (
+    ARTIFACT_SYNTAX,
+    BINDING_PRECONDITION,
+    DOMAIN_CONTRACT,
+    GROUNDING_PROVENANCE,
+    REFERENTIAL,
+    STATIC_SCHEMA,
+    ResultValidationFinding,
+    ResultValidationReport,
+    ResultValidationService,
+)
 
 __all__ = [
     "DEFAULT_BUILD_ROOT",
@@ -82,7 +93,16 @@ __all__ = [
     "PackageTransferService",
     "ResultReceipt",
     "ResultReceiptService",
+    "ResultValidationFinding",
     "ResultValidationIssue",
+    "ResultValidationReport",
+    "ResultValidationService",
+    "ARTIFACT_SYNTAX",
+    "BINDING_PRECONDITION",
+    "DOMAIN_CONTRACT",
+    "GROUNDING_PROVENANCE",
+    "REFERENTIAL",
+    "STATIC_SCHEMA",
     "build_object_result_schema",
     "calculate_manifest_sha256",
     "canonical_manifest_bytes",

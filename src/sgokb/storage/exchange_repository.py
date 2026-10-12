@@ -218,8 +218,56 @@ class PackageExchangeAuditRepository:
         ).fetchall()
         return tuple(self._receipt(row) for row in rows)
 
+    def start_result_validation(self, receipt_id: str, *, force: bool = False) -> bool:
+        row = self.db.execute(
+            "SELECT validation_state FROM package_result_receipts WHERE id=?", (receipt_id,)
+        ).fetchone()
+        if not row:
+            raise ValueError("Unknown Result receipt ID")
+        state = row["validation_state"]
+        if state == "running" and not force:
+            raise ValueError("Result validation is already running")
+        if state in {"valid", "invalid", "error"} and not force:
+            return False
+        with self.db:
+            self.db.execute(
+                """UPDATE package_result_receipts
+                   SET validation_state='running',validation_started_at=?,
+                       validation_completed_at=NULL,validation_findings_json='[]'
+                   WHERE id=?""",
+                (_now(), receipt_id),
+            )
+        return True
+
+    def complete_result_validation(
+        self,
+        receipt_id: str,
+        validation_state: str,
+        findings: list[dict] | tuple[dict, ...],
+        *,
+        completed_at: str | None = None,
+    ) -> None:
+        if validation_state not in {"valid", "invalid", "error"}:
+            raise ValueError("Invalid terminal Result validation state")
+        row = self.db.execute(
+            "SELECT validation_state FROM package_result_receipts WHERE id=?", (receipt_id,)
+        ).fetchone()
+        if not row:
+            raise ValueError("Unknown Result receipt ID")
+        if row["validation_state"] != "running":
+            raise ValueError("Result validation must be running before completion")
+        with self.db:
+            self.db.execute(
+                """UPDATE package_result_receipts
+                   SET validation_state=?,validation_completed_at=?,validation_findings_json=?
+                   WHERE id=?""",
+                (validation_state, completed_at or _now(), _json(list(findings)), receipt_id),
+            )
+
     @staticmethod
     def _receipt(row: sqlite3.Row | dict) -> dict:
         result = dict(row)
         result["intake_findings"] = json.loads(result.pop("intake_findings_json"))
+        validation_findings = result.pop("validation_findings_json", "[]")
+        result["validation_findings"] = json.loads(validation_findings)
         return result
