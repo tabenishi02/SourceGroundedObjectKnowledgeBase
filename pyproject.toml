@@ -20,7 +20,12 @@ sgokb = "sgokb.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-sgokb = ["migrations/*.sql", "prompts/*.md", "prompts/*.json"]
+sgokb = [
+  "migrations/*.sql",
+  "prompts/*.md",
+  "prompts/*.json",
+  "exchange/schemas/*.json",
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

@@ -176,4 +176,4 @@ E-02CでE-02Bの55語彙を覆す矛盾は見つからなかった。したが�
 
 ## 8. 結論
 
-E-02A〜E-02Cにより、Class Registryの広さとFacet vocabularyの統制を分離しつつ、`overall`への過剰集約とClassごとの局所Facet乱立の両方を防ぐ基準が成立した。**Facet taxonomy hardening、E-03 Source / Evidence / Evidence Link / Provenance schema、E-04 Versioning schemaは完了している。現在の次TaskはE-05 Object Result JSON Schema設計である。**
+E-02A〜E-02Cにより、Class Registryの広さとFacet vocabularyの統制を分離しつつ、`overall`への過剰集約とClassごとの局所Facet乱立の両方を防ぐ基準が成立した。**Facet taxonomy hardening、E-03 Source / Evidence / Evidence Link / Provenance、E-04 Versioning、E-05 Object Result JSON Schemaまで完了し、Phase Eは完了している。現在の次TaskはF-01で既存Capture / Import / Normalize / Evidenceを新設計へ接続することである。**
