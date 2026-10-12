@@ -80,6 +80,23 @@ class PackageBuildReadRepository:
             )
         }
 
+        attributions: dict[str, dict] = {}
+        for row in self.db.execute(
+            "SELECT * FROM knowledge_statement_attributions WHERE statement_id IN "
+            "(SELECT id FROM knowledge_statements WHERE version_id=?)",
+            (version_id,),
+        ):
+            value = {"kind": row["kind"]}
+            for key in ("source_id", "object_id", "label"):
+                if row[key] is not None:
+                    value[key] = row[key]
+            attributions[row["statement_id"]] = value
+
+        metadata = self.db.execute(
+            "SELECT default_language FROM object_version_result_metadata WHERE version_id=?",
+            (version_id,),
+        ).fetchone()
+
         links: dict[tuple[str, str], list[dict]] = defaultdict(list)
         for row in self.db.execute(
             """SELECT l.target_kind,l.target_id,l.evidence_id,r.key AS role
@@ -125,6 +142,8 @@ class PackageBuildReadRepository:
                 "temporal_scope": scopes.get(row["temporal_scope_id"]),
                 "evidence": links.get(("statement", row["id"]), []),
             }
+            if row["id"] in attributions:
+                statement["attribution"] = attributions[row["id"]]
             if row["facet_id"] is None:
                 summary_statements.append(statement)
             else:
@@ -180,6 +199,15 @@ class PackageBuildReadRepository:
                 }
             )
 
+        knowledge = {
+            "summary_statements": summary_statements,
+            "facets": list(facet_map.values()),
+            "attributes": attributes,
+            "relations": relations,
+        }
+        if metadata is not None:
+            knowledge["default_language"] = metadata["default_language"]
+
         return {
             "object_id": object_id,
             "version_id": version_id,
@@ -189,12 +217,7 @@ class PackageBuildReadRepository:
                 "primary_class_id": version["primary_class_id"],
                 "additional_class_ids": additional,
             },
-            "knowledge": {
-                "summary_statements": summary_statements,
-                "facets": list(facet_map.values()),
-                "attributes": attributes,
-                "relations": relations,
-            },
+            "knowledge": knowledge,
         }
 
     @staticmethod

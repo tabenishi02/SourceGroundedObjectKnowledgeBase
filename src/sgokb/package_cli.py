@@ -10,6 +10,7 @@ from pathlib import Path
 
 from .exchange.package_builder import DEFAULT_BUILD_ROOT, ObjectEvidencePackageBuilder
 from .exchange.package_transfer import PackageTransferService
+from .exchange.result_import import ObjectVersionImportService
 from .exchange.result_receipt import DEFAULT_INCOMING_ROOT, ResultReceiptService
 from .exchange.result_validation import ResultValidationService
 from .repository import Repository
@@ -90,6 +91,18 @@ def parser() -> argparse.ArgumentParser:
     validate_result.add_argument("receipt_id")
     validate_result.add_argument("--incoming-root", type=Path, default=incoming_default)
     validate_result.add_argument("--force", action="store_true")
+
+    import_result = actions.add_parser(
+        "import-result",
+        help="Explicitly import one H-01-valid Result receipt as a new accepted Object Version",
+    )
+    import_result.add_argument("receipt_id")
+    import_result.add_argument("--incoming-root", type=Path, default=incoming_default)
+    import_result.add_argument(
+        "--acknowledge-review",
+        action="store_true",
+        help="Explicitly approve review-required Result findings for this import",
+    )
     return root
 
 
@@ -169,6 +182,16 @@ def main(argv=None) -> int:
                 force=args.force,
             )
             result = report.to_dict()
+        elif args.action == "import-result":
+            result = (
+                ObjectVersionImportService(repository, audit)
+                .import_receipt(
+                    args.receipt_id,
+                    incoming_root=args.incoming_root,
+                    acknowledge_review=args.acknowledge_review,
+                )
+                .to_dict()
+            )
         else:
             result = list(audit.pending_result_receipts())
 

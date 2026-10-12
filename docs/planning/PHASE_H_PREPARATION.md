@@ -5,8 +5,8 @@
 - Status: In Progress
 - Completed phase: Phase G — Google Drive / ChatGPT交換ワークフロー
 - Next phase: Phase H — Result Validation / Import / Rendering
-- Completed task: `H-01 [P0] Result JSON Validatorを実装する`
-- Next task: `H-02 [P0] Object Version Importを実装する`
+- Completed tasks: `H-01 [P0] Result JSON Validator`, `H-02 [P0] Object Version Import`
+- Next task: `H-03 [P1] Markdown Rendererを実装する`
 - Working branch: `integration/knowledge-base-redesign`
 
 ---
@@ -367,8 +367,18 @@ H-01正本:
 - `src/sgokb/migrations/012_result_validation.sql`
 - `tests/test_result_validation.py`
 
+H-02では`ObjectVersionImportService`、`ResultImportRepository`、Migration 013、`sgokb-package import-result`を追加した。H-01 valid receiptだけを入力とし、Version ID発行、canonical Knowledge / Evidence Link / attribution / Result metadata保存、accepted/current promotion、derived pending化を1 SQLite transactionで実行する。
+
+H-02正本:
+
+- `docs/design/OBJECT_VERSION_IMPORT.md`
+- `src/sgokb/exchange/result_import.py`
+- `src/sgokb/storage/result_import_repository.py`
+- `src/sgokb/migrations/013_object_version_import.sql`
+- `tests/test_object_version_import.py`
+
 次に実施するTask:
 
 ```text
-H-02 [P0] Object Version Importを実装する
+H-03 [P1] Markdown Rendererを実装する
 ```
