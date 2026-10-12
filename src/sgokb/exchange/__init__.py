@@ -33,6 +33,13 @@ from .package_manifest import (
     validate_package_manifest,
     with_manifest_sha256,
 )
+from .package_transfer import (
+    PackageExportResult,
+    PackagePreflight,
+    PackageStageResult,
+    PackageTransferService,
+    inspect_package,
+)
 
 __all__ = [
     "INSTRUCTIONS_VERSION",
@@ -49,11 +56,16 @@ __all__ = [
     "ObjectAnalysisInstructionContext",
     "ObjectResultContract",
     "ObjectResultValidationError",
+    "PackageExportResult",
+    "PackagePreflight",
+    "PackageStageResult",
+    "PackageTransferService",
     "ResultValidationIssue",
     "build_object_result_schema",
     "calculate_manifest_sha256",
     "canonical_manifest_bytes",
     "collect_evidence_ids",
+    "inspect_package",
     "load_object_analysis_template",
     "load_object_result_schema",
     "load_package_manifest_schema",
