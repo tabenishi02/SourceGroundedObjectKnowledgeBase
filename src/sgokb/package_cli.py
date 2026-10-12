@@ -1,4 +1,4 @@
-"""Dedicated Phase G CLI for local Package staging and explicit external export."""
+"""Dedicated Phase G CLI for Package transfer and Result receipt."""
 
 from __future__ import annotations
 
@@ -9,12 +9,13 @@ import sys
 from pathlib import Path
 
 from .exchange.package_transfer import PackageTransferService
+from .exchange.result_receipt import DEFAULT_INCOMING_ROOT, ResultReceiptService
 from .repository import Repository
 from .storage import PackageExchangeAuditRepository
 
 
 def parser() -> argparse.ArgumentParser:
-    root = argparse.ArgumentParser(description="SGOKB Object Evidence Package transfer")
+    root = argparse.ArgumentParser(description="SGOKB Object Evidence Package exchange")
     root.add_argument("--db", default=os.environ.get("SGOKB_DB", ".local/sgokb.sqlite"))
     actions = root.add_subparsers(dest="action", required=True)
 
@@ -38,6 +39,29 @@ def parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Explicitly approve a review_required Package for this export",
     )
+
+    incoming_default = Path(os.environ.get("SGOKB_EXCHANGE_INCOMING", DEFAULT_INCOMING_ROOT))
+    detect = actions.add_parser(
+        "detect",
+        help="List manually returned drop/<package_id>/result.json files without receiving them",
+    )
+    detect.add_argument("--incoming-root", type=Path, default=incoming_default)
+
+    receive = actions.add_parser(
+        "receive",
+        help="Copy one result.json into an immutable local receipt and request validation",
+    )
+    receive.add_argument("result", type=Path)
+    receive.add_argument("--package-id", required=True)
+    receive.add_argument("--incoming-root", type=Path, default=incoming_default)
+
+    receipts = actions.add_parser("receipts", help="List received Result artifacts")
+    receipts.add_argument("--package-id")
+
+    actions.add_parser(
+        "pending-validation",
+        help="List Result receipts waiting for the Phase H validator",
+    )
     return root
 
 
@@ -49,23 +73,25 @@ def main(argv=None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     args = parser().parse_args(argv)
-    service = PackageTransferService()
+    transfer = PackageTransferService()
     repository = None
     try:
         if args.action == "preflight":
-            result = service.preflight(args.package, args.destination).to_dict()
+            result = transfer.preflight(args.package, args.destination).to_dict()
             print(json.dumps(result, ensure_ascii=False, indent=2))
             return 1 if result["disposition"] == "blocked" else 0
 
         repository = Repository(args.db)
         audit = PackageExchangeAuditRepository(repository.db)
+        receipt_service = ResultReceiptService(audit)
+
         if args.action == "stage":
-            staged = service.stage_from_directory(args.source, args.staging_root)
+            staged = transfer.stage_from_directory(args.source, args.staging_root)
             manifest = _manifest(Path(staged.path))
             audit.record_staged(manifest, staged.path, staged.preflight.to_dict())
             result = staged.to_dict()
-        else:
-            exported = service.export(
+        elif args.action == "export":
+            exported = transfer.export(
                 args.package,
                 args.destination,
                 acknowledge_review=args.acknowledge_review,
@@ -81,6 +107,19 @@ def main(argv=None) -> int:
             )
             result = exported.to_dict()
             result["audit_event_id"] = event_id
+        elif args.action == "detect":
+            result = [item.to_dict() for item in receipt_service.detect(args.incoming_root)]
+        elif args.action == "receive":
+            result = receipt_service.receive(
+                args.result,
+                args.package_id,
+                args.incoming_root,
+            ).to_dict()
+        elif args.action == "receipts":
+            result = list(audit.result_receipts(args.package_id))
+        else:
+            result = list(audit.pending_result_receipts())
+
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
