@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / C / DとPhase EのE-01 / E-02 core schema / E-02A / E-02Bは完了。全62 Classのsurveyに続き、Facet候補を既存18 + 新規37 = 55 Facetのfreeze候補へ横断統合し、shared / inherited / class-specific profile方針を`docs/design/FACET_VOCABULARY_REVIEW.md`へ整理済み。次の未完了TaskはE-02C [P0] Class / Facet境界gold casesを作成する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A / B / C / DとPhase EのE-01 / E-02 / E-02A / E-02B / E-02Cは完了。全62 Class + 25 boundary caseをgold化し、55 Facet taxonomyをfreeze、Migration 005でRegistry / profileへ反映済み。次の未完了TaskはE-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
 
 Phase D / E移行資料:
 
@@ -457,12 +457,12 @@ E-01 / E-02 core schemaは完了し、Object / Class / Version / Relation骨格�
 - E-02: Core Complete — `docs/design/SEMANTIC_FACET_SCHEMA.md`
 - E-02A: Complete — `docs/design/FACET_TAXONOMY_SURVEY.md`
 - E-02B: Complete — `docs/design/FACET_VOCABULARY_REVIEW.md`
-- E-02C: Class / Facet境界gold cases
+- E-02C: Complete — `docs/reference/CLASS_FACET_GOLD_CASES.md` / `tests/fixtures/class_facet_gold_cases.json`
 - E-03: Source / Evidence / Evidence Link / Provenance schema
 - E-04: Version lifecycle / stale / rollback / current promotion
 - E-05: Object Result JSON Schemaの物理field
 
-E-02A〜E-02Cでは全Class向け機能実装を先行させず、意味境界・Facet候補・語彙再利用・gold testを事前設計する。E-05のClass別extension / Facet profile validationをfreezeする前に完了させる。
+E-02A〜E-02Cは完了した。55 Facet taxonomyとClass profileはMigration 005へ反映済みであり、E-05 / H-01ではこのgold fixtureをprofile validationの基準として再利用する。
 
 ### Phase F〜H
 
@@ -560,9 +560,9 @@ Phase A〜Dは完了しています。
 - docs/decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md
 
 今回実施するTask:
-E-02C [P0] Class / Facet境界gold casesを作成する
+E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する
 
-E-02A / E-02Bは完了しています。`docs/design/FACET_TAXONOMY_SURVEY.md`と`docs/design/FACET_VOCABULARY_REVIEW.md`を主要入力として、全62 Classのpositive / negative例と代表KnowledgeのFacet / Object / Attribute / Relation / Statement期待配置をgold case化してください。55 Facet freeze候補、ancestor profile inheritance、`overall` fallback禁止、Relation / Attribute境界、近義Facet境界を具体例で検証し、`docs/reference/CLASS_FACET_GOLD_CASES.md`へまとめてください。必要なら機械可読fixtureも追加してください。
+E-02A〜E-02Cは完了し、55 Facet taxonomyはMigration 005へ反映済みです。`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`を正本入力として、Source Identity + locator、Snapshot、Raw Artifact、Normalized Run、Evidence、Source↔Object association、Knowledge Statement / Attribute / Relation→Evidence Link、Evidence role、Provenance integrityを物理schemaへ落とし込んでください。既存`001_initial.sql`〜`005_facet_taxonomy_freeze.sql`は書き換えず、次のadditive migrationを使用してください。
 ```
 
 ---
@@ -599,6 +599,7 @@ E-02A / E-02Bは完了しています。`docs/design/FACET_TAXONOMY_SURVEY.md`�
 - `docs/planning/PHASE_E_PREPARATION.md`
 - `docs/design/FACET_TAXONOMY_SURVEY.md`
 - `docs/design/FACET_VOCABULARY_REVIEW.md`
+- `docs/reference/CLASS_FACET_GOLD_CASES.md`
 - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
 - `docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md`
 - `README.md`
@@ -611,8 +612,8 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 Phase A、Phase B、Phase C、Phase Dは完了している。
 
-**次の作業はE-02C [P0] Class / Facet境界gold casesを作成する。**
+**次の作業はE-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する。**
 
-E-02Aで全62 Classのtaxonomy survey、E-02Bで55 Facetのfreeze候補とprofile inheritance方針を確定した。E-02Cで具体例によるboundary regression corpusを固定し、Facet taxonomyをfreezeした後、E-03のSource / Evidence / Provenance設計へ戻る。
+E-02A〜E-02Cで全62 Classのtaxonomy survey、55 Facet vocabulary統合、62 Class + 25 boundary caseのgold corpusを完了した。Facet taxonomyはMigration 005で物理Registryへ反映済みであり、次はSource / Evidence / Provenance設計へ進む。
 
 再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase DでRepository / Git / module / runtime data / history cleanupの境界は確定した。Phase EではObject / Class / Relation / Versionを中心とする物理Data Modelへ進む。

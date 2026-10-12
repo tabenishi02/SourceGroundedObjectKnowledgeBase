@@ -3,11 +3,11 @@
 更新日: 2026-10-12
 
 - Target: `Phase E — Object Knowledgeデータモデル`
-- Status: E-01 / E-02 Core / E-02A / E-02B Complete / E-02C Ready / E-03 Queued
+- Status: E-01 / E-02 Core / E-02A / E-02B / E-02C Complete / E-03 Ready
 - Active redesign branch: `integration/knowledge-base-redesign`
 - Phase D status: Complete — D-01〜D-07
 - Structural prerequisite: Complete — `domain.py -> domain/` package conversion
-- Next task: `E-02C [P0] Class / Facet境界gold casesを作成する`
+- Next task: `E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する`
 
 ## 1. 目的
 
@@ -87,7 +87,7 @@ E-01  Object schema
 E-02  Semantic Facet schema（core schema完了）
 E-02A 全62 Class Facet taxonomy survey（完了）
 E-02B Facet vocabulary横断統合（完了）
-E-02C Class / Facet境界gold cases
+E-02C Class / Facet境界gold cases（完了）
 E-03  Source / Evidence / Evidence Link / Provenance schema
 E-04  Versioning
 E-05  Object Result JSON Schema
@@ -448,9 +448,9 @@ D-05 Wave 1のdomain package conversionも完了済みです。
 - docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
 
 今回実施するタスク:
-E-02C [P0] Class / Facet境界gold casesを作成する
+E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する
 
-E-02A / E-02Bは完了しています。`docs/design/FACET_TAXONOMY_SURVEY.md`と`docs/design/FACET_VOCABULARY_REVIEW.md`を主要入力として、全62 Classのpositive / negative Class例と代表Knowledgeの期待配置をgold case化してください。55 Facetのfreeze候補、shared / inherited / class-specific profile、Relation / Attributeへ出す境界、`overall` fallback禁止を具体例で検証し、`docs/reference/CLASS_FACET_GOLD_CASES.md`へまとめてください。
+E-02A〜E-02Cは完了し、55 Facet taxonomyは`src/sgokb/migrations/005_facet_taxonomy_freeze.sql`へ反映済みです。`docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`を中心に、Source / locator / Snapshot / Raw Artifact / Normalized Run / Evidence / Source↔Object association / Evidence Link / Provenanceの物理schema、domain contract、storage責務、migration testを設計・実装してください。既存migrationは書き換えず、次のadditive migrationを使用してください。
 ```
 
 ---
@@ -461,4 +461,4 @@ Phase Dには残Taskはない。
 
 D-05でPhase E開始前に要求されていたdomain package conversionも完了したため、Repository / Git / physical module boundaryの観点からPhase Eへ移行可能である。
 
-E-01 / E-02 core schema / E-02A / E-02Bは完了した。E-02の設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、E-02Aのsurvey正本は`docs/design/FACET_TAXONOMY_SURVEY.md`、E-02Bのvocabulary正本は`docs/design/FACET_VOCABULARY_REVIEW.md`。55 Facetのfreeze候補をE-02Cでgold case検証する。次Taskは`E-02C [P0] Class / Facet境界gold casesを作成する`。
+E-01 / E-02 core schema / E-02A / E-02B / E-02Cは完了した。E-02の設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、E-02Aのsurvey正本は`docs/design/FACET_TAXONOMY_SURVEY.md`、E-02Bのvocabulary正本は`docs/design/FACET_VOCABULARY_REVIEW.md`、E-02Cのgold正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`。55 Facet taxonomyはMigration 005へ反映済み。次Taskは`E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する`。
