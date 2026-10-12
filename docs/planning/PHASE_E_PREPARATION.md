@@ -3,11 +3,11 @@
 更新日: 2026-10-12
 
 - Target: `Phase E — Object Knowledgeデータモデル`
-- Status: E-01 / E-02 Complete / E-03 Ready
+- Status: E-01 / E-02 Core Complete / E-02A Ready / E-03 Queued
 - Active redesign branch: `integration/knowledge-base-redesign`
 - Phase D status: Complete — D-01〜D-07
 - Structural prerequisite: Complete — `domain.py -> domain/` package conversion
-- Next task: `E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する`
+- Next task: `E-02A [P0] 全ClassのFacet taxonomy surveyを実施する`
 
 ## 1. 目的
 
@@ -83,12 +83,17 @@ Phase Eは、SGOKBのcanonical Object Knowledge Storeを支える物理データ
 対象:
 
 ```text
-E-01 Object schema
-E-02 Semantic Facet schema
-E-03 Source / Evidence / Evidence Link / Provenance schema
-E-04 Versioning
-E-05 Object Result JSON Schema
+E-01  Object schema
+E-02  Semantic Facet schema（core schema完了）
+E-02A 全62 Class Facet taxonomy survey
+E-02B Facet vocabulary横断統合
+E-02C Class / Facet境界gold cases
+E-03  Source / Evidence / Evidence Link / Provenance schema
+E-04  Versioning
+E-05  Object Result JSON Schema
 ```
+
+E-02A〜E-02Cは、E-02で完成した汎用物理schemaを作り直すためではなく、全Classの意味境界とFacet語彙を本格実装前に検証するhardening taskである。Class-specific implementationを全て先行実装することは要求しない。
 
 Phase E完了時には、ChatGPT Result、SQLite canonical store、Search、MCPが共有できるObject modelの物理契約が確定している必要がある。
 
@@ -441,9 +446,9 @@ D-05 Wave 1のdomain package conversionも完了済みです。
 - docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
 
 今回実施するタスク:
-E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する
+E-02A [P0] 全ClassのFacet taxonomy surveyを実施する
 
-E-01 / E-02は完了しています。`docs/design/OBJECT_SCHEMA.md`と`docs/design/SEMANTIC_FACET_SCHEMA.md`を正本として維持し、Source Identity、0..N locator、Snapshot、Raw Artifact、Normalized Run、Evidence、Source↔Object association、Statement / attribute / Relation→Evidence Link、Evidence role、Provenance integrityの物理schemaを設計してください。Version state machineはE-04、JSON Schema最終形はE-05へ残してください。
+E-01 / E-02 core schemaは完了しています。`docs/design/OBJECT_SCHEMA.md`、`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`を正本として維持してください。初期Registryの全62 Classについて、Classの意味境界、含めるもの/含めないもの、想定Knowledge、専用Facet候補、Object / Facet / Attribute / Relation / Statement境界、representative examples / counterexamplesを横断的に整理してください。物理schemaやRegistry seedを直ちに変更せず、まずsurvey結果を`docs/design/FACET_TAXONOMY_SURVEY.md`へまとめ、E-02BのFacet vocabulary統合へ引き渡してください。
 ```
 
 ---
@@ -454,4 +459,4 @@ Phase Dには残Taskはない。
 
 D-05でPhase E開始前に要求されていたdomain package conversionも完了したため、Repository / Git / physical module boundaryの観点からPhase Eへ移行可能である。
 
-E-01 / E-02は完了した。E-02の設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`。次Taskは`E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する`。
+E-01 / E-02 core schemaは完了した。E-02の設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`。設計レビューでE-02A〜E-02Cを追加し、全62 ClassのFacet taxonomy / vocabulary / boundary gold casesを先に検証する。次Taskは`E-02A [P0] 全ClassのFacet taxonomy surveyを実施する`。

@@ -360,6 +360,32 @@ docs/
   - Object / Facet / Statement Search Representationを正本Knowledgeから分離し、representation builder version / content hash /対象Version membershipを追跡できる論理契約を設計する。
   - Statement / attribute / Relationのtemporal scopeをVersion作成時刻と分離して表現する方式を設計する。
 
+- [ ] **E-02A [P0] 全ClassのFacet taxonomy surveyを実施する**
+  - E-01で初期Registryへ登録した全62 Classを対象に、Classごとの意味境界を横断確認する。
+  - 各Classについて「含めるもの / 含めないもの / 想定Knowledge / representative examples / counterexamples」を整理する。
+  - 各Classの専用Facet候補と、common Facetだけで十分なClassを区別する。
+  - KnowledgeをFacetへ置くべきか、独立Object / typed attribute / Relation / Statementへ置くべきかの境界を明記する。
+  - `overall`を未設計Knowledgeの恒久的な逃げ場にせず、専用Facet不足によるClass意味幅の膨張を検出する。
+  - 成果物: `docs/design/FACET_TAXONOMY_SURVEY.md`
+
+- [ ] **E-02B [P0] Facet vocabularyを横断統合する**
+  - E-02Aで列挙したFacet候補をClass横断で比較し、`purpose / function / role / usage / application`等の近義語乱立を検出する。
+  - shared Facet / Class-specific Facet / ancestorから継承するFacetを区別する。
+  - 同一意味を複数Facet IDへ分裂させない命名・再利用ルールを確定する。
+  - cross-class Facet similarityで比較価値のあるFacetを可能な範囲で共通Registry entryへ統合する。
+  - 初期18 Facet seedの維持・追加・名称整理を検証し、必要なRegistry変更案を確定する。
+  - 成果物: `docs/design/FACET_VOCABULARY_REVIEW.md`
+
+- [ ] **E-02C [P0] Class / Facet境界gold casesを作成する**
+  - 全62 Classについて少なくともpositive / negative Class例を用意し、Class意味境界を試験可能にする。
+  - 代表KnowledgeについてFacet / Object / Attribute / Relation / Statementの期待配置をgold caseとして記録する。
+  - ancestor profile inheritance、専用profileなしClass、cross-class shared Facet、意味的に不正確なfallback禁止を含める。
+  - E-05 Result Validator、I-07検索品質gold、N-01/N-02 testへ再利用可能な形式にする。
+  - Facet taxonomy変更時にgold casesでregressionを検出できるようにする。
+  - 成果物: `docs/reference/CLASS_FACET_GOLD_CASES.md`（必要に応じて`tests/fixtures/`へ機械可読fixtureを追加）
+
+**E-02 follow-up Gate:** E-02本体の物理schema実装は完了済みとするが、Facet taxonomyの設計freezeはE-02A〜E-02C完了後とする。E-03のSource / Evidence設計とは概念上独立しているものの、E-05のClass別extension / Facet profile validationを確定する前にE-02A〜E-02Cを完了する。
+
 - [ ] **E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する**
   - Source Identityと0..N locator、Snapshot、Raw Artifact、Normalized Run、Evidenceの物理schemaをB-03要件から設計する。
   - 既存`url UNIQUE`前提を解消し、既存`source_id` / `snapshot_id` / `evidence_id`を可能な限り維持するmigration契約を定義する。
@@ -851,8 +877,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01 / E-02は完了した。次の最優先は **E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01 / E-02本体は完了した。設計レビューによりFacet taxonomyの事前検証を追加し、次の最優先は **E-02A [P0] 全ClassのFacet taxonomy surveyを実施する** とする。E-02A〜E-02Cで全62 Classの意味境界・Facet vocabulary・gold casesを検証した後、E-03へ進む。
 
 Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 
-E-01ではD-04で確定した`domain / storage`責務境界を維持し、Migration 003、Object domain contract、`storage/ObjectRepository`、62 Class seed、DB integrity constraintを実装した。設計正本は`docs/design/OBJECT_SCHEMA.md`とする。E-02ではMigration 004、Facet Registry、Class-to-Facet profile、Knowledge Statement、typed attribute、temporal scope、Object / Facet / Statement Search Representation membershipを実装した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`とする。E-03ではこのKnowledge骨格をEvidence / Provenanceへ接続する。
+E-01ではD-04で確定した`domain / storage`責務境界を維持し、Migration 003、Object domain contract、`storage/ObjectRepository`、62 Class seed、DB integrity constraintを実装した。設計正本は`docs/design/OBJECT_SCHEMA.md`とする。E-02ではMigration 004、Facet Registry、Class-to-Facet profile、Knowledge Statement、typed attribute、temporal scope、Object / Facet / Statement Search Representation membershipを実装した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`とする。E-02A〜E-02Cでは、この汎用schemaを変更前提にせず、全62 Classを横断してFacet taxonomyと意味境界を事前検証し、必要なRegistry変更だけを明示的に提案・適用する。その後E-03でKnowledge骨格をEvidence / Provenanceへ接続する。

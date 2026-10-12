@@ -56,7 +56,7 @@ Phase E以降で確定した物理Architecture / Data Model設計を置く。
 - [Semantic Facet Schema Design](design/SEMANTIC_FACET_SCHEMA.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase EのE-01 / E-02は完了しており、次TaskはE-03である。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase EのE-01 / E-02 core schemaは完了している。設計レビューでE-02A〜E-02C（全62 ClassのFacet taxonomy survey / vocabulary統合 / boundary gold cases）を追加し、次TaskはE-02Aとする。E-02A〜E-02C完了後にE-03へ進む。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果を置く。通常は最初から読む必要はない。

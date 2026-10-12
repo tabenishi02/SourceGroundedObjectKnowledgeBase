@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / C / DとPhase EのE-01 / E-02は完了。Object / Class / Version / Relation骨格に加え、Facet / Statement / typed attribute / temporal scope / Search Representation membershipを実装済み。次の未完了TaskはE-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A / B / C / DとPhase EのE-01 / E-02 core schemaは完了。Object / Class / Version / Relation骨格に加え、Facet / Statement / typed attribute / temporal scope / Search Representation membershipを実装済み。設計レビューによりE-02A〜E-02C（全62 ClassのFacet taxonomy / vocabulary / boundary gold cases）を追加した。次の未完了TaskはE-02A [P0] 全ClassのFacet taxonomy survey。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
 
 Phase D / E移行資料:
 
@@ -452,12 +452,17 @@ Phase D由来で後続へ残る事項は、O-05での最終branch cleanupとO-06
 
 ### Phase E
 
-E-01 / E-02は完了し、Object / Class / Version / Relation骨格とSemantic Facet / Statement / Attribute / Temporal Scope / Search Representation schemaを確定した。残る主な未確定事項は次である。
+E-01 / E-02 core schemaは完了し、Object / Class / Version / Relation骨格とSemantic Facet / Statement / Attribute / Temporal Scope / Search Representation schemaを確定した。その後の設計レビューで、Class意味幅の膨張防止と試験詳細化のためFacet taxonomy hardening taskを追加した。残る主な未確定事項は次である。
 
-- E-02: Complete — `docs/design/SEMANTIC_FACET_SCHEMA.md`
+- E-02: Core Complete — `docs/design/SEMANTIC_FACET_SCHEMA.md`
+- E-02A: 全62 Class Facet taxonomy survey
+- E-02B: Facet vocabulary横断統合
+- E-02C: Class / Facet境界gold cases
 - E-03: Source / Evidence / Evidence Link / Provenance schema
 - E-04: Version lifecycle / stale / rollback / current promotion
 - E-05: Object Result JSON Schemaの物理field
+
+E-02A〜E-02Cでは全Class向け機能実装を先行させず、意味境界・Facet候補・語彙再利用・gold testを事前設計する。E-05のClass別extension / Facet profile validationをfreezeする前に完了させる。
 
 ### Phase F〜H
 
@@ -555,9 +560,9 @@ Phase A〜Dは完了しています。
 - docs/decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md
 
 今回実施するTask:
-E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する
+E-02A [P0] 全ClassのFacet taxonomy surveyを実施する
 
-E-01 / E-02で確定した`docs/design/OBJECT_SCHEMA.md`と`docs/design/SEMANTIC_FACET_SCHEMA.md`を維持し、Source Identity、0..N locator、Snapshot、Raw Artifact、Normalized Run、Evidence、Source↔Object association、Statement / attribute / Relation→Evidence Link、Evidence role、Provenance integrityの物理schemaを設計してください。Version state machineはE-04、Result JSON Schema最終形はE-05へ残してください。
+E-01 / E-02 core schemaで確定した`docs/design/OBJECT_SCHEMA.md`と`docs/design/SEMANTIC_FACET_SCHEMA.md`を維持し、`docs/requirements/OBJECT_TYPE_BOUNDARIES.md`の初期62 Classを横断調査してください。各Classについて意味定義、含めるもの/含めないもの、想定Knowledge、専用Facet候補、Object / Facet / Attribute / Relation / Statement境界、representative examples / counterexamplesを整理し、`docs/design/FACET_TAXONOMY_SURVEY.md`へまとめてください。物理schemaやseed変更はsurvey結果を先に確定してからE-02B以降で判断してください。
 ```
 
 ---
@@ -604,6 +609,8 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 Phase A、Phase B、Phase C、Phase Dは完了している。
 
-**次の作業はE-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する。**
+**次の作業はE-02A [P0] 全ClassのFacet taxonomy surveyを実施する。**
+
+E-02A〜E-02Cで全62 ClassのFacet taxonomy / vocabulary / boundary gold casesを検証した後、E-03のSource / Evidence / Provenance設計へ戻る。
 
 再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase DでRepository / Git / module / runtime data / history cleanupの境界は確定した。Phase EではObject / Class / Relation / Versionを中心とする物理Data Modelへ進む。

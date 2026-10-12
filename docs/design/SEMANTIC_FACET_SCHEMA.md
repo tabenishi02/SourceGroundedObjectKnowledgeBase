@@ -153,7 +153,9 @@ examples
 
 `themes`や`relationships`のように意味が共有できるFacetは同じRegistry entryを複数Class profileから参照する。これにより将来の明示的cross-class Facet comparisonを可能にする。
 
-Character / Work / Concept以外のClassはE-02時点で専用profileを必須としない。`overall`と共通Knowledge contractで保持できる。
+Character / Work / Concept以外のClassはE-02 core実装時点で専用profileを必須としない。`overall`と共通Knowledge contractで保持できる。
+
+ただし、この初期18 Facet / 3 profileはVertical Sliceを成立させるための初期seedであり、全ClassのFacet taxonomyが確定したことを意味しない。2026-10-12の設計レビューにより、全62 Classを対象とするE-02A〜E-02Cを追加し、Class意味境界、Facet候補、近義Facetの統合、Object / Facet / Attribute / Relation境界、gold casesを事前検証してからFacet taxonomyをfreezeする方針へ更新した。
 
 ---
 
@@ -381,7 +383,35 @@ Application / Result Validator:
 
 ---
 
-## 13. E-03以降へ残す事項
+## 13. E-02 follow-up hardening
+
+E-02の物理schemaはCompleteだが、Facet taxonomyの意味設計は次の追加Taskでhardeningする。
+
+### E-02A — 全Class Facet taxonomy survey
+
+- E-01 initial Registryの全62 Classを対象とする。
+- Classごとの意味定義、include / exclude、想定Knowledge、Facet候補を整理する。
+- Facetへ置く情報とObject / Attribute / Relation / Statementへ置く情報の境界を明示する。
+- representative examples / counterexamplesでClass意味幅を検証する。
+
+### E-02B — Facet vocabulary横断統合
+
+- Classごとの候補Facetを横断比較する。
+- shared / class-specific / inherited Facetを区別する。
+- 近義語によるFacet ID乱立を避ける。
+- cross-class Facet similarityの意味整合を確認する。
+
+### E-02C — Class / Facet境界gold cases
+
+- 全Classのpositive / negative例を作る。
+- 代表KnowledgeのFacet / Object / Attribute / Relation / Statement期待配置を記録する。
+- E-05 / I-07 / N-01 / N-02へ再利用できるregression corpusとする。
+
+これらは全Class固有機能を先行実装するTaskではない。E-02の汎用schemaを維持しながらOntology / taxonomyの意味品質を検証し、必要なRegistry変更のみを明示的に適用する。
+
+---
+
+## 14. E-03以降へ残す事項
 
 ### E-03
 
@@ -418,7 +448,7 @@ Application / Result Validator:
 
 ---
 
-## 14. Migration boundary
+## 15. Migration boundary
 
 Migration 004はadditive migrationである。
 
@@ -442,7 +472,7 @@ Prototype dataの意味migrationは引き続きPhase Lの責務とする。
 
 ---
 
-## 15. Integrity contract
+## 16. Integrity contract
 
 E-02でSQLiteが直接保証する主なinvariantは次である。
 
@@ -463,7 +493,7 @@ E-02でSQLiteが直接保証する主なinvariantは次である。
 
 ---
 
-## 16. Validation result
+## 17. Validation result
 
 E-02実装では次をtest対象とする。
 
@@ -480,4 +510,4 @@ E-02実装では次をtest対象とする。
 - builder version / content hash追跡
 - Migration 004適用後の既存回帰
 
-E-02完了後の次Taskは `E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する` とする。
+E-02 core実装完了後の次Taskは `E-02A [P0] 全ClassのFacet taxonomy surveyを実施する` とする。E-02A〜E-02C完了後にE-03へ進む。
