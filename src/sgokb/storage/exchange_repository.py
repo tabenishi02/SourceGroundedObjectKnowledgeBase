@@ -144,6 +144,7 @@ class PackageExchangeAuditRepository:
         intake_state: str,
         intake_findings: list[str] | tuple[str, ...],
         *,
+        receipt_id: str | None = None,
         parsed_schema_version: str | None = None,
         parsed_result_status: str | None = None,
         parsed_target_object_id: str | None = None,
@@ -159,7 +160,7 @@ class PackageExchangeAuditRepository:
         if existing:
             return str(existing["id"])
 
-        receipt_id = new_persistent_id()
+        receipt_id = receipt_id or new_persistent_id()
         timestamp = _now()
         with self.db:
             self.db.execute(
