@@ -197,9 +197,15 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
   - Concept所有契約はC-03、Object ID / Version参照・MCP等の具体的連携契約はC-04へ残した。
   - 成果物: `docs/requirements/UPDS_PERSONAL_INFERENCE_LAYER_REQUIREMENTS.md`
 
-- [ ] **C-03 [P1] Conceptの所有境界を確定する**
-  - Conceptそのものの定義・Relation・EmbeddingはSGOKBで管理する案を第一候補とする。
-  - UPDSはSGOKB Concept IDを参照してPreference Evidenceを構築できるようにする。
+- [x] **C-03 [P1] Conceptの所有境界を確定する**
+  - Concept Objectのcanonical identity / classification / definition / Semantic Facet / Relation / Source / Evidence / Knowledge Version / Search Representation / EmbeddingをSGOKB所有とした。
+  - UPDSはSGOKBのstable Concept Object IDを参照し、Semantic Observation / Pattern / Preference Hypothesis / User-oriented Evidenceを所有する。
+  - SGOKB Concept RelationとUser-to-Concept Preference Relation、およびConcept EmbeddingとPreference Embeddingを別責務として分離した。
+  - UPDS内部analytic vocabularyを自動的にSGOKB Conceptへ昇格させず、未登録Conceptはunresolved / provisional / proposalとして扱う。
+  - Concept proposalとSGOKB canonical adoptionを分離し、UPDSがcanonical Concept IDをsilent作成したり近似Conceptへ強制fallbackしたりしない。
+  - stable Concept `object_id`を参照の基本単位とし、推論再現性のため必要に応じKnowledge Versionを併記できる要件とした。
+  - 具体的なObject / Version参照payload、MCP Tool、stale contractはC-04へ残した。
+  - 成果物: `docs/requirements/CONCEPT_OWNERSHIP_BOUNDARY_REQUIREMENTS.md`
 
 - [ ] **C-04 [P1] SGOKB→UPDS連携契約を定義する**
   - Object IDの安定性。
@@ -234,6 +240,7 @@ docs/
 │  ├─ KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md
 │  ├─ SGOKB_WORLD_OBJECT_KNOWLEDGE_REQUIREMENTS.md
 │  ├─ UPDS_PERSONAL_INFERENCE_LAYER_REQUIREMENTS.md
+│  ├─ CONCEPT_OWNERSHIP_BOUNDARY_REQUIREMENTS.md
 │  ├─ OBJECT_REQUIREMENTS.md
 │  ├─ OBJECT_TYPE_CANDIDATES.md
 │  ├─ OBJECT_TYPE_MODEL.md
@@ -809,7 +816,7 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase AとPhase B（B-01〜B-07）、およびPhase CのC-01〜C-02は完了した。次の最優先は **C-03 [P1] Conceptの所有境界を確定する** とし、その後C-04 SGOKB→UPDS連携契約を確定する。
+Phase AとPhase B（B-01〜B-07）、およびPhase CのC-01〜C-03は完了した。次の最優先は **C-04 [P1] SGOKB→UPDS連携契約を定義する** とする。
 
 実装変更を先に始めると、旧PrototypeのEntity / Fragment / Final Document概念を新設計へ引きずる可能性がある。まず目的・責務・データ境界を確定し、その後 **E-01 Object schema** を起点として実装を再構成する。
 
