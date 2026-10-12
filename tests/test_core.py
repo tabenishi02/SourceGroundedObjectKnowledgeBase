@@ -6,8 +6,8 @@ import pytest
 
 from sgokb.cli import export_markdown, main
 from sgokb.domain import SearchFilter, validate_fragments, validate_vectors
-from sgokb.extraction import ExtractorRegistry, GenericExtractor, chunks
-from sgokb.importer import WebCaptureImporter
+from sgokb.ingestion.extraction import ExtractorRegistry, GenericExtractor, chunks
+from sgokb.ingestion.importer import WebCaptureImporter
 from sgokb.search import merge_candidates
 
 
