@@ -220,6 +220,6 @@ def test_migration_009_backfills_existing_canonical_evidence(tmp_path):
     try:
         rows = repository.source_store.lexical_evidence_rows('"Backfill Hero"')
         assert [row["id"] for row in rows] == [evidence_id]
-        assert repository.one("SELECT count(*) n FROM schema_migrations")["n"] == 9
+        assert repository.one("SELECT count(*) n FROM schema_migrations")["n"] == 12
     finally:
         repository.close()

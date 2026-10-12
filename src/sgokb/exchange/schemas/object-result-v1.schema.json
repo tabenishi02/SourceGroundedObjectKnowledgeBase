@@ -200,7 +200,7 @@
       }
     },
     "date_or_datetime": {
-      "oneOf": [
+      "anyOf": [
         {"type": "string", "format": "date"},
         {"type": "string", "format": "date-time"}
       ]

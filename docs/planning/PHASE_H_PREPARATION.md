@@ -2,10 +2,11 @@
 
 更新日: 2026-10-13
 
-- Status: Ready
+- Status: In Progress
 - Completed phase: Phase G — Google Drive / ChatGPT交換ワークフロー
 - Next phase: Phase H — Result Validation / Import / Rendering
-- First task: `H-01 [P0] Result JSON Validatorを実装する`
+- Completed task: `H-01 [P0] Result JSON Validatorを実装する`
+- Next task: `H-02 [P0] Object Version Importを実装する`
 - Working branch: `integration/knowledge-base-redesign`
 
 ---
@@ -351,16 +352,23 @@ H-01はdeterministic validatorとして維持する。
 
 ---
 
-## 11. Phase H開始判断
+## 11. Phase H進行状況
 
 Phase Gの個別Task G-01〜G-05は完了している。
 
-再監査で発見したPackage Builder接続gapもPhase G closureとして補完したため、Phase Gのlogical completion conditionを満たす実装経路が成立した。
+H-01では`ResultValidationService`、Migration 012、`sgokb-package validate-result`、focused testを追加し、G-05 immutable receiptからdeterministic Validation Reportを生成できるようにした。
 
-Phase Hへ移行可能である。
+ValidationはArtifact / Syntax、Static Schema、Binding / Precondition、Referential、Grounding / Provenance、Domain Contractの6層へ分離した。`valid`はauthoritative Importを意味せず、Version作成・current切替は行わない。
+
+H-01正本:
+
+- `docs/design/RESULT_VALIDATION.md`
+- `src/sgokb/exchange/result_validation.py`
+- `src/sgokb/migrations/012_result_validation.sql`
+- `tests/test_result_validation.py`
 
 次に実施するTask:
 
 ```text
-H-01 [P0] Result JSON Validatorを実装する
+H-02 [P0] Object Version Importを実装する
 ```

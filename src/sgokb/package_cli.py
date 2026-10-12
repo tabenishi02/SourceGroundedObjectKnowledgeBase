@@ -11,6 +11,7 @@ from pathlib import Path
 from .exchange.package_builder import DEFAULT_BUILD_ROOT, ObjectEvidencePackageBuilder
 from .exchange.package_transfer import PackageTransferService
 from .exchange.result_receipt import DEFAULT_INCOMING_ROOT, ResultReceiptService
+from .exchange.result_validation import ResultValidationService
 from .repository import Repository
 from .storage import PackageExchangeAuditRepository
 
@@ -49,7 +50,9 @@ def parser() -> argparse.ArgumentParser:
     preflight.add_argument("package", type=Path)
     preflight.add_argument("--destination", type=Path)
 
-    export = actions.add_parser("export", help="Explicitly copy a staged Package to an external root")
+    export = actions.add_parser(
+        "export", help="Explicitly copy a staged Package to an external root"
+    )
     export.add_argument("package", type=Path)
     export.add_argument("--destination", type=Path, required=True)
     export.add_argument(
@@ -80,6 +83,13 @@ def parser() -> argparse.ArgumentParser:
         "pending-validation",
         help="List Result receipts waiting for the Phase H validator",
     )
+    validate_result = actions.add_parser(
+        "validate-result",
+        help="Run the Phase H deterministic validator for one immutable Result receipt",
+    )
+    validate_result.add_argument("receipt_id")
+    validate_result.add_argument("--incoming-root", type=Path, default=incoming_default)
+    validate_result.add_argument("--force", action="store_true")
     return root
 
 
@@ -104,18 +114,22 @@ def main(argv=None) -> int:
         receipt_service = ResultReceiptService(audit)
 
         if args.action == "build":
-            result = ObjectEvidencePackageBuilder(repository).build(
-                args.object,
-                build_root=args.build_root,
-                max_estimated_tokens=args.max_estimated_tokens,
-                max_bytes=args.max_bytes,
-                max_items=args.max_items,
-                max_candidates=args.max_candidates,
-                semantic=False,
-                manual_include=args.include_evidence,
-                manual_exclude=args.exclude_evidence,
-                knowledge_language=args.knowledge_language,
-            ).to_dict()
+            result = (
+                ObjectEvidencePackageBuilder(repository)
+                .build(
+                    args.object,
+                    build_root=args.build_root,
+                    max_estimated_tokens=args.max_estimated_tokens,
+                    max_bytes=args.max_bytes,
+                    max_items=args.max_items,
+                    max_candidates=args.max_candidates,
+                    semantic=False,
+                    manual_include=args.include_evidence,
+                    manual_exclude=args.exclude_evidence,
+                    knowledge_language=args.knowledge_language,
+                )
+                .to_dict()
+            )
         elif args.action == "stage":
             staged = transfer.stage_from_directory(args.source, args.staging_root)
             manifest = _manifest(Path(staged.path))
@@ -148,10 +162,19 @@ def main(argv=None) -> int:
             ).to_dict()
         elif args.action == "receipts":
             result = list(audit.result_receipts(args.package_id))
+        elif args.action == "validate-result":
+            report = ResultValidationService(repository, audit).validate_receipt(
+                args.receipt_id,
+                incoming_root=args.incoming_root,
+                force=args.force,
+            )
+            result = report.to_dict()
         else:
             result = list(audit.pending_result_receipts())
 
         print(json.dumps(result, ensure_ascii=False, indent=2))
+        if args.action == "validate-result" and result["validation_state"] != "valid":
+            return 1
         return 0
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
         print(
