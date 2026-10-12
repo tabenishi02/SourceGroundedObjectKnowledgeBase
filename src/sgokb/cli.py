@@ -55,6 +55,49 @@ def parser():
     link = actions.add_parser("link", help="Explicitly associate an entity with snapshot evidence")
     link.add_argument("entity_id")
     link.add_argument("snapshot_id")
+    association = commands.add_parser(
+        "association", help="Maintain canonical Source↔Object associations"
+    )
+    association_actions = association.add_subparsers(dest="action", required=True)
+    association_list = association_actions.add_parser("list")
+    association_list.add_argument("--object", required=True)
+    association_suggest = association_actions.add_parser(
+        "suggest", help="Show read-only Source suggestions from canonical Evidence retrieval"
+    )
+    association_suggest.add_argument("--object", required=True)
+    association_suggest.add_argument("--max-candidates", type=int, default=500)
+    association_suggest.add_argument("--semantic", action="store_true")
+    association_suggest.add_argument("--semantic-batch-size", type=int, default=32)
+    association_set = association_actions.add_parser("set")
+    association_set.add_argument("--object", required=True)
+    association_set.add_argument("--source", required=True)
+    association_set.add_argument(
+        "--status", choices=["candidate", "confirmed", "excluded"], required=True
+    )
+    association_set.add_argument("--subject-relationship")
+    association_set.add_argument("--note")
+    association_clear = association_actions.add_parser(
+        "clear", help="Remove an explicit association; does not mean excluded"
+    )
+    association_clear.add_argument("--object", required=True)
+    association_clear.add_argument("--source", required=True)
+
+    evidence_controls = commands.add_parser(
+        "evidence", help="Inspect and manually adjust canonical Object Evidence selection"
+    )
+    evidence_actions = evidence_controls.add_subparsers(dest="action", required=True)
+    for action in ("candidates", "select"):
+        evidence_action = evidence_actions.add_parser(action)
+        evidence_action.add_argument("--object", required=True)
+        evidence_action.add_argument("--include-evidence", action="append", default=[])
+        evidence_action.add_argument("--exclude-evidence", action="append", default=[])
+        evidence_action.add_argument("--max-candidates", type=int, default=500)
+        evidence_action.add_argument("--semantic", action="store_true")
+        evidence_action.add_argument("--semantic-batch-size", type=int, default=32)
+        if action == "select":
+            evidence_action.add_argument("--max-estimated-tokens", type=int, default=12000)
+            evidence_action.add_argument("--max-bytes", type=int, default=65536)
+            evidence_action.add_argument("--max-items", type=int, default=64)
     fragment = commands.add_parser(
         "legacy-fragment",
         aliases=["fragment"],
@@ -174,6 +217,8 @@ def main(argv=None):
             or (args.command == "legacy-generate" and args.prototype_final)
             or (args.command == "legacy-benchmark" and args.phase in {"retrieval", "all"})
             or (args.command == "search" and args.mode != "lexical")
+            or (args.command == "association" and args.action == "suggest" and args.semantic)
+            or (args.command == "evidence" and args.semantic)
             else None
         )
         app = Application(repository, llm, embedder, prompt_dir=args.prompt_dir)
@@ -235,6 +280,44 @@ def main(argv=None):
                     raise ValueError("No processed evidence for this snapshot")
                 repository.link_evidence(args.entity_id, [e["id"] for e in evidence])
                 result = {"linked": len(evidence)}
+        elif args.command == "association":
+            if args.action == "list":
+                result = app.list_source_object_associations(args.object)
+            elif args.action == "suggest":
+                result = app.suggest_source_associations(
+                    args.object,
+                    max_candidates=args.max_candidates,
+                    semantic=args.semantic,
+                    semantic_batch_size=args.semantic_batch_size,
+                )
+            elif args.action == "set":
+                result = app.set_source_object_association(
+                    args.object,
+                    args.source,
+                    args.status,
+                    subject_relationship=args.subject_relationship,
+                    note=args.note,
+                )
+            else:
+                result = app.clear_source_object_association(args.object, args.source)
+        elif args.command == "evidence":
+            common = {
+                "max_candidates": args.max_candidates,
+                "semantic": args.semantic,
+                "semantic_batch_size": args.semantic_batch_size,
+                "manual_include": args.include_evidence,
+                "manual_exclude": args.exclude_evidence,
+            }
+            if args.action == "candidates":
+                result = app.retrieve_object_evidence(args.object, **common)
+            else:
+                result = app.select_object_evidence(
+                    args.object,
+                    max_estimated_tokens=args.max_estimated_tokens,
+                    max_bytes=args.max_bytes,
+                    max_items=args.max_items,
+                    **common,
+                )
         elif args.command == "legacy-fragment":
             if args.classic:
                 result = app.legacy_fragment(args.snapshot, args.entity, args.limit, args.max_chars)

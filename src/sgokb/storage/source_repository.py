@@ -754,14 +754,33 @@ class SourceRepository:
             for row in rows
         )
 
+    def association_for_object_source(self, object_id: str, source_id: str) -> dict | None:
+        row = self.db.execute(
+            """SELECT source_id,object_id,status,subject_relationship,origin_kind,note,
+                      created_at,updated_at
+               FROM source_object_associations
+               WHERE object_id=? AND source_id=?""",
+            (object_id, source_id),
+        ).fetchone()
+        return dict(row) if row else None
+
     def associations_for_object(self, object_id: str) -> tuple[dict, ...]:
         rows = self.db.execute(
-            """SELECT source_id,object_id,status,subject_relationship,origin_kind,note
+            """SELECT source_id,object_id,status,subject_relationship,origin_kind,note,
+                      created_at,updated_at
                FROM source_object_associations
                WHERE object_id=? ORDER BY source_id""",
             (object_id,),
         ).fetchall()
         return tuple(dict(row) for row in rows)
+
+    def remove_object_association(self, source_id: str, object_id: str) -> bool:
+        with self.db:
+            cursor = self.db.execute(
+                "DELETE FROM source_object_associations WHERE source_id=? AND object_id=?",
+                (source_id, object_id),
+            )
+        return cursor.rowcount > 0
 
     def effective_evidence_rows(self, source_ids: Iterable[str] | None = None) -> tuple[dict, ...]:
         source_ids = tuple(dict.fromkeys(source_ids or ()))

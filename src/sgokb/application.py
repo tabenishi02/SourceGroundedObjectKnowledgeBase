@@ -561,6 +561,96 @@ class Application:
             omitted=[asdict(item) for item in result["omitted"]],
         )
 
+    def list_source_object_associations(self, object_id):
+        """Return persistent Source↔Object operator associations for one canonical Object."""
+        self.repository.object_store.get_object(object_id)
+        return list(self.repository.source_store.associations_for_object(object_id))
+
+    def set_source_object_association(
+        self,
+        object_id,
+        source_id,
+        status,
+        *,
+        subject_relationship=None,
+        note=None,
+    ):
+        """Create or replace one manual Source↔Object association."""
+        self.repository.object_store.get_object(object_id)
+        self.repository.source_store.source_by_id(source_id)
+        self.repository.source_store.associate_object(
+            source_id,
+            object_id,
+            status,
+            subject_relationship=subject_relationship,
+            origin_kind="manual",
+            note=note,
+        )
+        return self.repository.source_store.association_for_object_source(object_id, source_id)
+
+    def clear_source_object_association(self, object_id, source_id):
+        """Remove the explicit association; this is not the same as setting excluded."""
+        self.repository.object_store.get_object(object_id)
+        self.repository.source_store.source_by_id(source_id)
+        removed = self.repository.source_store.remove_object_association(source_id, object_id)
+        return {"object_id": object_id, "source_id": source_id, "cleared": removed}
+
+    def suggest_source_associations(
+        self,
+        object_id,
+        *,
+        max_candidates=500,
+        semantic=None,
+        semantic_batch_size=32,
+    ):
+        """Aggregate F-03 Evidence candidates into read-only Source association suggestions."""
+        retrieval = self.retrieve_object_evidence(
+            object_id,
+            max_candidates=max_candidates,
+            semantic=semantic,
+            semantic_batch_size=semantic_batch_size,
+        )
+        existing = {
+            row["source_id"]: row for row in self.list_source_object_associations(object_id)
+        }
+        grouped = {}
+        for candidate in retrieval["candidates"]:
+            source_id = candidate["source_id"]
+            item = grouped.setdefault(
+                source_id,
+                {
+                    "source_id": source_id,
+                    "source_label": candidate["context"].get("source_label"),
+                    "association": existing.get(source_id),
+                    "evidence_count": 0,
+                    "top_retrieval_score": candidate["retrieval_score"],
+                    "reason_channels": [],
+                    "sample_evidence_ids": [],
+                },
+            )
+            item["evidence_count"] += 1
+            item["top_retrieval_score"] = max(
+                item["top_retrieval_score"], candidate["retrieval_score"]
+            )
+            for reason in candidate["reasons"]:
+                channel = reason["channel"]
+                if channel not in item["reason_channels"]:
+                    item["reason_channels"].append(channel)
+            if len(item["sample_evidence_ids"]) < 3:
+                item["sample_evidence_ids"].append(candidate["evidence_id"])
+        suggestions = sorted(
+            grouped.values(),
+            key=lambda item: (-item["top_retrieval_score"], item["source_id"]),
+        )
+        return {
+            "object_id": retrieval["object_id"],
+            "name": retrieval["name"],
+            "semantic": retrieval["semantic"],
+            "suggestion_count": len(suggestions),
+            "suggestions": suggestions,
+            "note": "Suggestions are read-only until an operator sets an association.",
+        }
+
     def legacy_capture_fragments(self, snapshot_id, entity_id, **options):
         from .capture import HighRecallCapture
 

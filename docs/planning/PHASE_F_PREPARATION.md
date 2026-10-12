@@ -3,11 +3,11 @@
 更新日: 2026-10-12
 
 - Target: `Phase F — Source / Evidenceパイプラインの簡略化`
-- Status: In progress — F-01〜F-04 complete
+- Status: Complete — F-01〜F-05
 - Active redesign branch: `integration/knowledge-base-redesign`
 - Phase E status: Complete — E-01〜E-05
 - Structural prerequisite: D-05 Wave 2 complete — ingestion modules moved to `src/sgokb/ingestion/`
-- Next task: `F-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する`
+- Next task: `G-01 [P0] Object Evidence Package formatを確定する`
 
 ## 1. 目的
 
@@ -567,9 +567,11 @@ Object Evidence Retrievalはcanonical Evidenceを対象とし、次をselection 
 
 ### F-05
 
-`source_object_associations`の`candidate / confirmed / excluded`を日常操作から扱えるUI/CLIを設計する。
+**Implementation status: Complete (2026-10-12).**
 
-Source associationとKnowledge Evidence Linkを混同しない。
+`source_object_associations`をcanonical operator surfaceへ接続し、`association list/suggest/set/clear`を実装した。suggestionはF-03 retrieval候補をSource単位へ集約するread-only表示で、operatorが明示setするまで永続化しない。candidate / confirmed / excluded、subject relationship、noteをmanual originで維持できる。Evidence単位のmanual include / excludeは`evidence candidates/select`からF-03/F-04へ渡すPackage selection controlとし、Knowledge `evidence_links`とは分離した。正本は`docs/design/OPERATOR_ASSOCIATION_CONTROLS.md`。
+
+F-05完了によりPhase FのTaskはすべて完了した。
 
 ## 17. F-01 Definition of Ready
 
@@ -637,9 +639,9 @@ D-05 Wave 2として importer / extraction / context の ingestion package移動
 - extensions/web-page-capture/docs/CAPTURE_BUNDLE_FORMAT.md
 
 今回実施するTask:
-F-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する
+G-01 [P0] Object Evidence Package formatを確定する
 
-F-01〜F-04は完了しています。F-05では`source_object_associations`のcandidate / confirmed / excludedとsubject relationshipをoperatorが安全に追加・変更・除外できる操作面を設計・実装してください。F-03 retrievalとF-04 bounded selectionの契約を維持し、Source associationとKnowledge Evidence Linkを混同しないでください。
+F-01〜F-05は完了し、Phase Fは完了しています。F-03〜F-05でcanonical Evidence retrieval、bounded selection、operator association / manual Evidence overrideが成立しました。G-01ではこれらの出力を入力として、current Knowledge carry-forward、Evidence/Source provenance、selection controlsを保持するObject Evidence Package formatを確定してください。Packageはderived local artifactでありcanonical正本にはしないでください。
 ```
 
 ## 20. 結論
@@ -648,6 +650,6 @@ Phase Eには未完了Taskはない。
 
 Phase F開始前のstructural prerequisiteとしてD-05 Wave 2も完了し、Importer / Extractor / Page Contextは`src/sgokb/ingestion/`へ正規配置された。旧top-level pathはcompatibility shimとして維持している。
 
-F-01でcanonical ingestion、F-02でstandard / legacy境界、F-03でObject Evidence Retrieval、F-04でbounded Evidence Selectionまで完了した。F-04はtoken / byte / item hard budget、Source diversity、duplicate / overlap処理、omission reasonを実装済みである。
+F-01でcanonical ingestion、F-02でstandard / legacy境界、F-03でObject Evidence Retrieval、F-04でbounded Evidence Selection、F-05でoperator association / Evidence override CLIまで完了した。Phase Fの完了条件である「生成LLMなしでObjectに関連するEvidence Package入力集合を構築できること」を満たした。
 
-**Next: `F-05 [P1] ObjectとSource/Evidenceの明示linkを維持できるUI/CLIを設計する`**
+**Next: `G-01 [P0] Object Evidence Package formatを確定する`**
