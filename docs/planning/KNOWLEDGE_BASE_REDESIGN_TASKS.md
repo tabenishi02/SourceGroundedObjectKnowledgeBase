@@ -1,6 +1,6 @@
 # Source Grounded Object Knowledge Base — Knowledge Base 再設計タスク
 
-更新日: 2026-10-11
+更新日: 2026-10-12
 
 ## 1. 目的
 
@@ -186,9 +186,16 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
   - Conceptのプロジェクト間所有契約はC-03、SGOKB → UPDS連携契約はC-04へ残した。
   - 成果物: `docs/requirements/SGOKB_WORLD_OBJECT_KNOWLEDGE_REQUIREMENTS.md`
 
-- [ ] **C-02 [P0] UPDSをPersonal Inference Layerとして定義する**
-  - Selection Event、Pattern、Preference HypothesisはUPDS所有とする。
-  - SGOKBはUPDSを知らなくても単独で成立させる。
+- [x] **C-02 [P0] UPDSをPersonal Inference Layerとして定義する**
+  - Selection Eventを観測事実としてUPDS所有とし、Preferenceそのものとは区別する。
+  - Selection EventとSGOKB等のObject Knowledgeを組み合わせたSemantic Observation、Cross-source / Cross-object Pattern、Preference HypothesisをUPDS所有とした。
+  - Preference Hypothesisは確定Factではなく、Alternative Explanation、supporting / contradicting Evidence、判断不能状態を保持可能にする。
+  - User-oriented Evidence SetをSGOKB Source / Evidenceとは別責務として定義し、Object canonical KnowledgeをUPDSの第二の正本として複製しない。
+  - non-selection、選択頻度、Similarity / Search scoreを単純にPreferenceへ変換しない。
+  - 嗜好・関心は時間変化し得るものとし、単一Universal Preference Scoreへの圧縮を必須としない。
+  - SGOKB → UPDSを基本依存方向とし、SGOKB CoreはUPDS schemaを知らなくても単独成立させる。
+  - Concept所有契約はC-03、Object ID / Version参照・MCP等の具体的連携契約はC-04へ残した。
+  - 成果物: `docs/requirements/UPDS_PERSONAL_INFERENCE_LAYER_REQUIREMENTS.md`
 
 - [ ] **C-03 [P1] Conceptの所有境界を確定する**
   - Conceptそのものの定義・Relation・EmbeddingはSGOKBで管理する案を第一候補とする。
@@ -226,6 +233,7 @@ docs/
 ├─ requirements/
 │  ├─ KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md
 │  ├─ SGOKB_WORLD_OBJECT_KNOWLEDGE_REQUIREMENTS.md
+│  ├─ UPDS_PERSONAL_INFERENCE_LAYER_REQUIREMENTS.md
 │  ├─ OBJECT_REQUIREMENTS.md
 │  ├─ OBJECT_TYPE_CANDIDATES.md
 │  ├─ OBJECT_TYPE_MODEL.md
@@ -801,7 +809,7 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase AとPhase B（B-01〜B-07）、およびPhase CのC-01は完了した。次の最優先は **C-02 [P0] UPDSをPersonal Inference Layerとして定義する** とし、その後C-03 Concept所有境界、C-04 SGOKB→UPDS連携契約を確定する。
+Phase AとPhase B（B-01〜B-07）、およびPhase CのC-01〜C-02は完了した。次の最優先は **C-03 [P1] Conceptの所有境界を確定する** とし、その後C-04 SGOKB→UPDS連携契約を確定する。
 
 実装変更を先に始めると、旧PrototypeのEntity / Fragment / Final Document概念を新設計へ引きずる可能性がある。まず目的・責務・データ境界を確定し、その後 **E-01 Object schema** を起点として実装を再構成する。
 
