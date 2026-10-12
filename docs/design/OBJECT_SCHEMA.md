@@ -353,14 +353,9 @@ E-01でSQLiteが直接保証する主なinvariantは次である。
 
 ## 13. E-02以降への引き継ぎ
 
-### E-02
+### E-02 — Complete
 
-- Facet Registry
-- Class-to-Facet profile
-- Knowledge Statement
-- typed attribute
-- temporal scope
-- Object / Facet / Statement Search Representation logical membership
+`docs/design/SEMANTIC_FACET_SCHEMA.md`を正本として、Facet Registry、Class-to-Facet profile、Knowledge Statement、typed attribute、temporal scope、Object / Facet / Statement Search Representation membershipを確定した。
 
 ### E-03
 

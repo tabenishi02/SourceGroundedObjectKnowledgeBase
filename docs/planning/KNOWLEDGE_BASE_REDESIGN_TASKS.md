@@ -349,7 +349,7 @@ docs/
   - Object Registry metadataとObject Knowledge Version dataを分離し、Result内Registry proposalを通常Knowledge Importの副作用として自動適用しない。
   - Relation Type vocabulary / RegistryをObject Class Registryと分離して管理できる物理契約。
 
-- [ ] **E-02 [P0] Semantic Facet schemaを設計する**
+- [x] **E-02 [P0] Semantic Facet schemaを設計する**
   - Character例: overall / personality / values / motivation / behavior / relationships / role / themes。
   - Work例: overall / themes / worldview / narrative / tone / characters / relationships。
   - Concept例: definition / properties / implications / related_concepts / examples。
@@ -851,8 +851,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01は完了した。次の最優先は **E-02 [P0] Semantic Facet schemaを設計する** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01 / E-02は完了した。次の最優先は **E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する** とする。
 
 Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 
-E-01ではD-04で確定した`domain / storage`責務境界を維持し、Migration 003、Object domain contract、`storage/ObjectRepository`、62 Class seed、DB integrity constraintを実装した。設計正本は`docs/design/OBJECT_SCHEMA.md`とする。E-02ではこのObject / Class / Version / Relation骨格上へSemantic Facetを設計する。
+E-01ではD-04で確定した`domain / storage`責務境界を維持し、Migration 003、Object domain contract、`storage/ObjectRepository`、62 Class seed、DB integrity constraintを実装した。設計正本は`docs/design/OBJECT_SCHEMA.md`とする。E-02ではMigration 004、Facet Registry、Class-to-Facet profile、Knowledge Statement、typed attribute、temporal scope、Object / Facet / Statement Search Representation membershipを実装した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`とする。E-03ではこのKnowledge骨格をEvidence / Provenanceへ接続する。

@@ -3,11 +3,11 @@
 更新日: 2026-10-12
 
 - Target: `Phase E — Object Knowledgeデータモデル`
-- Status: E-01 Complete / E-02 Ready
+- Status: E-01 / E-02 Complete / E-03 Ready
 - Active redesign branch: `integration/knowledge-base-redesign`
 - Phase D status: Complete — D-01〜D-07
 - Structural prerequisite: Complete — `domain.py -> domain/` package conversion
-- Next task: `E-02 [P0] Semantic Facet schemaを設計する`
+- Next task: `E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する`
 
 ## 1. 目的
 
@@ -434,13 +434,16 @@ D-05 Wave 1のdomain package conversionも完了済みです。
 - docs/requirements/OBJECT_TYPE_MODEL.md
 - docs/requirements/OBJECT_TYPE_BOUNDARIES.md
 - docs/requirements/OBJECT_RESULT_REQUIREMENTS.md
+- docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md
+- docs/design/OBJECT_SCHEMA.md
+- docs/design/SEMANTIC_FACET_SCHEMA.md
 - docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md
 - docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
 
 今回実施するタスク:
-E-02 [P0] Semantic Facet schemaを設計する
+E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する
 
-E-01は`docs/design/OBJECT_SCHEMA.md`を正本として完了しています。E-01で確定したObject / Class / Version / Relation骨格を維持し、Facet Registry、Class-to-Facet profile、Knowledge Statement、typed attribute、temporal scope、Search Representation membershipを設計してください。Evidence Link詳細はE-03、Version state machineはE-04、JSON Schema最終形はE-05へ残してください。
+E-01 / E-02は完了しています。`docs/design/OBJECT_SCHEMA.md`と`docs/design/SEMANTIC_FACET_SCHEMA.md`を正本として維持し、Source Identity、0..N locator、Snapshot、Raw Artifact、Normalized Run、Evidence、Source↔Object association、Statement / attribute / Relation→Evidence Link、Evidence role、Provenance integrityの物理schemaを設計してください。Version state machineはE-04、JSON Schema最終形はE-05へ残してください。
 ```
 
 ---
@@ -451,4 +454,4 @@ Phase Dには残Taskはない。
 
 D-05でPhase E開始前に要求されていたdomain package conversionも完了したため、Repository / Git / physical module boundaryの観点からPhase Eへ移行可能である。
 
-E-01は`docs/design/OBJECT_SCHEMA.md`を正本として完了した。次Taskは`E-02 [P0] Semantic Facet schemaを設計する`。
+E-01 / E-02は完了した。E-02の設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`。次Taskは`E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する`。

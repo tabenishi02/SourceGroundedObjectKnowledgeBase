@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / C / DとPhase EのE-01は完了。canonical Object / Class / Version / Relationの物理骨格、62 Class seed、Object registry persistenceを実装済み。次の未完了TaskはE-02 [P0] Semantic Facet schemaを設計する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A / B / C / DとPhase EのE-01 / E-02は完了。Object / Class / Version / Relation骨格に加え、Facet / Statement / typed attribute / temporal scope / Search Representation membershipを実装済み。次の未完了TaskはE-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
 
 Phase D / E移行資料:
 
@@ -452,9 +452,9 @@ Phase D由来で後続へ残る事項は、O-05での最終branch cleanupとO-06
 
 ### Phase E
 
-E-01は完了し、Object / Class / Version参照 / Relationの物理骨格を`docs/design/OBJECT_SCHEMA.md`へ確定した。残る主な未確定事項は次である。
+E-01 / E-02は完了し、Object / Class / Version / Relation骨格とSemantic Facet / Statement / Attribute / Temporal Scope / Search Representation schemaを確定した。残る主な未確定事項は次である。
 
-- E-02: Facet / Statement / typed attribute / temporal scope schema
+- E-02: Complete — `docs/design/SEMANTIC_FACET_SCHEMA.md`
 - E-03: Source / Evidence / Evidence Link / Provenance schema
 - E-04: Version lifecycle / stale / rollback / current promotion
 - E-05: Object Result JSON Schemaの物理field
@@ -555,9 +555,9 @@ Phase A〜Dは完了しています。
 - docs/decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md
 
 今回実施するTask:
-E-02 [P0] Semantic Facet schemaを設計する
+E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する
 
-E-01で確定した`docs/design/OBJECT_SCHEMA.md`のObject / Class / Version / Relation骨格を維持し、Facet Registry、Class-to-Facet profile、Knowledge Statement、typed attribute、temporal scope、Search Representation membershipの物理schemaを具体化してください。Source / Evidence Link詳細はE-03、Version state machineはE-04、Result JSON Schema最終形はE-05へ残してください。
+E-01 / E-02で確定した`docs/design/OBJECT_SCHEMA.md`と`docs/design/SEMANTIC_FACET_SCHEMA.md`を維持し、Source Identity、0..N locator、Snapshot、Raw Artifact、Normalized Run、Evidence、Source↔Object association、Statement / attribute / Relation→Evidence Link、Evidence role、Provenance integrityの物理schemaを設計してください。Version state machineはE-04、Result JSON Schema最終形はE-05へ残してください。
 ```
 
 ---
@@ -604,6 +604,6 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 Phase A、Phase B、Phase C、Phase Dは完了している。
 
-**次の作業はE-02 [P0] Semantic Facet schemaを設計する。**
+**次の作業はE-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する。**
 
 再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase DでRepository / Git / module / runtime data / history cleanupの境界は確定した。Phase EではObject / Class / Relation / Versionを中心とする物理Data Modelへ進む。
