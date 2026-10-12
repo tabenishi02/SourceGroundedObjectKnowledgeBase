@@ -298,9 +298,15 @@ docs/
   - 実ファイルmove / behavior changeはD-05以降へ分離した。
   - 成果物: `docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`
 
-- [ ] **D-05 [P1] 既存モジュール移動方針を決める**
-  - 大量renameとロジック変更を同一commitへ混在させない。
-  - 「move only」と「behavior change」を別commit/PRに分割する。
+- [x] **D-05 [P1] 既存モジュール移動方針を決める**
+  - moduleをdirect move / package conversion / split / legacyの4分類へ整理した。
+  - structural PRは`git mv`中心commitとimport/package-data repair commitを分離し、behavior / schema変更を別PRへ送る。
+  - 旧top-level importは必要期間、ロジックを持たない明示re-export shimで互換維持し、新規codeはcanonical pathのみを使用する。
+  - `domain.py`はPhase E前、`application.py`は新use case導入時、`cli.py`はPhase Mでpackage conversionする。
+  - `repository.py` / `providers.py`はwholesale moveせず責務別splitし、`capture.py` / `final.py`等はreplacement成立後にlegacy隔離する。
+  - migrations / promptsはloader・package-data・legacy処遇を伴う適切なPhaseまで早期移動しない。
+  - Phase E〜Lへまたがる移動Waveとstructural PR検証Gateを確定した。
+  - 成果物: `docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md`
 
 - [ ] **D-06 [P1] `.local/` / generated / Google Drive exchangeデータのGit除外方針を更新する**
   - Object package、result、DB、vector index、生Source、backup generationを誤commitしない。
@@ -648,8 +654,9 @@ docs/
   - Fragment生成速度の比較を現行MVPの性能指標から外す。
   - 歴史的結果としてREADME/Archiveから参照可能にする。
 
-- [ ] **L-05 [P0] 不要依存関係を削除する**
+- [ ] **L-05 [P0] 不要依存関係・互換層を削除する**
   - 標準運用から生成LLM Providerが不要になった場合、optional/research dependencyへ降格する。
+  - D-05で導入した旧top-level import compatibility shimのうち不要になったものを削除する。
   - Embedding dependencyは維持する。
 
 **完了条件:** 旧Prototypeの高コスト処理が通常運用に残存していない。
@@ -831,8 +838,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）は完了した。Phase DではD-01〜D-04が完了しており、次の最優先は **D-05 [P1] 既存モジュール移動方針を決める** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）は完了した。Phase DではD-01〜D-05が完了しており、次の最優先は **D-06 [P1] `.local/` / generated / Google Drive exchangeデータのGit除外方針を更新する** とする。
 
-D-04で`src/sgokb`の正規責務を`domain / ingestion / storage / retrieval / exchange / rendering / application / cli / mcp`へ分離し、旧Fragment / Final系を一時`_legacy`境界へ隔離する方針、依存方向、既存module mappingを確定した。詳細は`docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`を正本とする。
+D-04で`src/sgokb`の正規責務構造を確定し、D-05でそこへ安全に移行するmove / split / compatibility / PR順序を確定した。実ファイルは一括移動せず、Phase E〜Lの実装時にstructural PRとbehavior PRを分離して段階移行する。詳細は`docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`と`docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md`を正本とする。
 
-D-05ではこの責務設計を変更せず、move-onlyとbehavior changeを分離できる具体的な移動・split・compatibility順序を決定する。Phase EのDB schemaは引き続き先取りしない。
+D-06ではcode配置とは別に、canonical DB / Raw / generated index / exchange package / result / backup等のruntime data配置とGit除外を確定する。
