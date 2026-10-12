@@ -439,7 +439,7 @@ docs/
   - `object_derived_states`のrevision tokenで古いworkerのlate completionが新current stateを上書きしない契約を追加した。
   - pre-E-04 `object_versions`はMigration 007適用時にacceptedとしてbackfillし、既存current pointer / Version IDを維持するupgrade contractを確認した。
 
-- [ ] **E-05 [P1] JSON Schemaを作成する**
+- [x] **E-05 [P1] JSON Schemaを作成する**
   - 共通Object Result schema。
   - Class別extension schema。
   - Primary / Additional ClassがClass Registryに存在することをValidationする。
@@ -448,8 +448,17 @@ docs/
   - Object Result Envelope、package/base Version binding、generation provenanceをSchema化する。
   - Knowledge Statement / derivation kind / reported-view attribution / Evidence role、Knowledge language / temporal scope、Facet / attribute / Relation、conflict / gap、unresolved reference / Registry proposalを表現する。
   - partial / insufficient evidence状態を処理失敗と区別する。
+  - 成果物: `docs/design/OBJECT_RESULT_JSON_SCHEMA.md`、`src/sgokb/exchange/schemas/object-result-v1.schema.json`。
+  - Object Result schema versionを`sgokb.object-result/1.0`、JSON Schema dialectをDraft 2020-12として固定した。
+  - 単一のcanonical base SchemaをChatGPT出力契約とImport Validatorで共有し、`ObjectResultContract`でtarget / Package / base Version / Classification / effective Facet profileをruntime合成する方式を採用した。
+  - full snapshot Resultではeffective Facetをちょうど1回ずつ全件明示し、`content / insufficient_evidence / not_applicable / not_analyzed`でomission ambiguityを解消した。
+  - Statement / known Attribute / RelationのEvidence grounding、`reported_view` attribution、temporal scope、conflict / gap / unresolved reference / Registry proposalをSchema化した。
+  - persistent Version IDをResultから排除し、unknown fieldを原則rejectする。未登録Objectは`unresolved_references`、Registry変更候補は`registry_proposals`へ分離した。
+  - Class固有差分はFacet / Attribute / RelationのRegistry contractを基本とし、真に固有構造が必要な場合だけregistered `class_extensions`を利用する。専用extensionなしClassもcommon Schemaで有効とした。
+  - `collect_evidence_ids()`を追加し、H-01がE-03のEvidence存在 / Package membership / Provenance validationへ接続できる境界を用意した。
+  - E-05 focused test 15件、full suite 137件を通過した。Migration追加はなくschema migration countは7のままである。
 
-**完了条件:** ChatGPT出力、DB、検索、MCPの共通契約となるObject schemaが確定している。
+**Phase E完了条件:** ChatGPT出力、DB、検索、MCPの共通契約となるObject schemaが確定した。E-01〜E-05は完了し、Phase E — Object Knowledgeデータモデルを完了とする。
 
 ---
 
@@ -909,8 +918,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01 / E-02本体 / E-02A / E-02B / E-02C / E-03 / E-04も完了した。E-04でfull immutable Version snapshot、candidate / accepted / abandoned lifecycle、stale判定、current promotion / rollback、derived failure-domain contractをMigration 007へ反映した。次の最優先は **E-05 [P1] JSON Schemaを作成する** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）、Phase E（E-01〜E-05）は完了した。E-05で`sgokb.object-result/1.0`のcanonical Object Result JSON Schemaとruntime contract specializationを確定し、ChatGPT出力からH-01/H-02へ接続できる交換契約を完成させた。次の最優先は **F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する** とする。
 
 Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 
-E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomy、E-03ではMigration 006でSource / Evidence / Evidence Link / Provenance、E-04ではMigration 007でVersion lifecycle / stale / current promotion / rollback / derived-state boundaryを物理反映した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、`docs/design/VERSIONING_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。次はE-05でObject Result JSON Schemaを確定する。
+E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomy、E-03ではMigration 006でSource / Evidence / Evidence Link / Provenance、E-04ではMigration 007でVersion lifecycle / stale / current promotion / rollback / derived-state boundaryを物理反映した。E-05ではMigrationを追加せず、`src/sgokb/exchange/schemas/object-result-v1.schema.json`と`ObjectResultContract`でObject Result exchange contractを確定した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、`docs/design/VERSIONING_SCHEMA.md`、`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。次はPhase Fへ移行し、F-01で既存ingestion pipelineをcanonical Source / Evidence schemaへ接続する。

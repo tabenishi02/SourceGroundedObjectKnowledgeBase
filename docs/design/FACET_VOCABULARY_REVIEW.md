@@ -660,4 +660,4 @@ E-02Aで列挙されたClass固有候補をそのままFacetへ昇格させる�
 - `overall`をcatch-allとして利用しない。
 - cross-class similarityでFacet IDの意味を安定させる。
 
-この55 FacetはE-02Cの62 Class + 25 boundary gold caseで検証され、修正要求なしでFacet taxonomyとしてfreezeされた。物理Registryは`005_facet_taxonomy_freeze.sql`で55 Facet / 188 profile rowへ反映済みである。E-03 Source / Evidence / Provenance schemaとE-04 Versioning schemaも完了し、現在の次TaskはE-05 Object Result JSON Schema設計である。
+この55 FacetはE-02Cの62 Class + 25 boundary gold caseで検証され、修正要求なしでFacet taxonomyとしてfreezeされた。物理Registryは`005_facet_taxonomy_freeze.sql`で55 Facet / 188 profile rowへ反映済みである。E-03 Source / Evidence / Provenance、E-04 Versioning、E-05 Object Result JSON Schemaまで完了し、Phase Eは完了している。現在の次TaskはF-01で既存Capture / Import / Normalize / Evidenceを新設計へ接続することである。

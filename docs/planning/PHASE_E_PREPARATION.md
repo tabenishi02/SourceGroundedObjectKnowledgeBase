@@ -3,11 +3,11 @@
 更新日: 2026-10-12
 
 - Target: `Phase E — Object Knowledgeデータモデル`
-- Status: E-01 / E-02 Core / E-02A / E-02B / E-02C / E-03 / E-04 Complete / E-05 Ready
+- Status: Phase E Complete — E-01 / E-02 Core / E-02A / E-02B / E-02C / E-03 / E-04 / E-05
 - Active redesign branch: `integration/knowledge-base-redesign`
 - Phase D status: Complete — D-01〜D-07
 - Structural prerequisite: Complete — `domain.py -> domain/` package conversion
-- Next task: `E-05 [P1] JSON Schemaを作成する`
+- Next task: `F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する`
 
 ## 1. 目的
 
@@ -90,7 +90,7 @@ E-02B Facet vocabulary横断統合（完了）
 E-02C Class / Facet境界gold cases（完了）
 E-03  Source / Evidence / Evidence Link / Provenance schema（完了）
 E-04  Versioning（完了）
-E-05  Object Result JSON Schema
+E-05  Object Result JSON Schema（完了）
 ```
 
 E-02A〜E-02Cは、E-02で完成した汎用物理schemaを作り直すためではなく、全Classの意味境界とFacet語彙を本格実装前に検証するhardening taskである。Class-specific implementationを全て先行実装することは要求しない。
@@ -426,7 +426,7 @@ E-01中に必要に応じ参照:
 
 ```text
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
-Phase A〜Dは完了し、Phase E開始準備も完了しています。
+Phase A〜Eは完了しています。
 
 再設計の正規作業基盤はintegration/knowledge-base-redesignです。
 D-05 Wave 1のdomain package conversionも完了済みです。
@@ -449,9 +449,9 @@ D-05 Wave 1のdomain package conversionも完了済みです。
 - docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
 
 今回実施するタスク:
-E-05 [P1] JSON Schemaを作成する
+F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する
 
-E-01〜E-04は完了しています。`docs/design/VERSIONING_SCHEMA.md`でfull snapshot Version lifecycle / stale / accepted immutability / current promotionまで物理化済みです。`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`を中心に、Object Result Envelope、target / Package / base Version / Classification binding、generation provenance、summary / Statement / Facet / typed Attribute / Relation、Evidence reference + role、temporal scope、reported-view attribution、conflict / gap、unresolved reference / Registry proposal、partial / insufficient evidence状態を共通JSON Schemaと必要なClass extensionへ落とし込んでください。E-03 / E-04のvalidation boundaryを再利用し、Result validationだけでauthoritative Importやcurrent promotionを行わないでください。
+Phase EはE-05まで完了しています。`docs/design/SOURCE_EVIDENCE_SCHEMA.md`と`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`を主要入力として、既存Capture / Import / Normalize / Evidence経路をcanonical Source / locator / Snapshot / Raw Artifact / Normalization Run / Evidence schemaへ接続してください。既存IDとProvenanceを可能な限り維持し、D-05 Wave 2のmodule moveとbehavior changeを分離してください。
 ```
 
 ---
@@ -462,4 +462,4 @@ Phase Dには残Taskはない。
 
 D-05でPhase E開始前に要求されていたdomain package conversionも完了したため、Repository / Git / physical module boundaryの観点からPhase Eへ移行可能である。
 
-E-01 / E-02 core schema / E-02A / E-02B / E-02C / E-03 / E-04は完了した。Facet taxonomyはMigration 005、Source / Evidence / Evidence Link / Provenance schemaはMigration 006、Version lifecycleはMigration 007へ反映済み。E-04の設計正本は`docs/design/VERSIONING_SCHEMA.md`。次Taskは`E-05 [P1] JSON Schemaを作成する`。
+E-01 / E-02 core schema / E-02A / E-02B / E-02C / E-03 / E-04 / E-05は完了した。Facet taxonomyはMigration 005、Source / Evidence / Evidence Link / Provenance schemaはMigration 006、Version lifecycleはMigration 007へ反映済みで、E-05はMigration追加なしで`sgokb.object-result/1.0`のcanonical JSON Schemaとruntime contract specializationを追加した。E-05の設計正本は`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`。Phase Eを完了し、次Taskは`F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する`。

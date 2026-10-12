@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / C / DとPhase EのE-01 / E-02 / E-02A / E-02B / E-02C / E-03 / E-04は完了。Migration 007でimmutable full-snapshot Version lifecycle、stale判定、current promotion / rollback、derived-state boundaryを追加済み。次の未完了TaskはE-05 [P1] JSON Schemaを作成する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A / B / C / D / Eは完了。E-05で`sgokb.object-result/1.0`のDraft 2020-12 canonical Object Result Schema、runtime Class/Facet specialization、Evidence-grounded Knowledge exchange contractを追加済み。次の未完了TaskはF-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
 
 Phase D / E移行資料:
 
@@ -452,7 +452,7 @@ Phase D由来で後続へ残る事項は、O-05での最終branch cleanupとO-06
 
 ### Phase E
 
-E-01 / E-02 core schemaは完了し、Object / Class / Version / Relation骨格とSemantic Facet / Statement / Attribute / Temporal Scope / Search Representation schemaを確定した。その後の設計レビューで、Class意味幅の膨張防止と試験詳細化のためFacet taxonomy hardening taskを追加した。残る主な未確定事項は次である。
+Phase Eは完了した。Object / Class / Version / Relation骨格、Semantic Facet / Statement / Attribute / Temporal Scope / Search Representation、Source / Evidence / Provenance、Version lifecycle、Object Result exchange contractまで確定している。完了成果物は次である。
 
 - E-02: Core Complete — `docs/design/SEMANTIC_FACET_SCHEMA.md`
 - E-02A: Complete — `docs/design/FACET_TAXONOMY_SURVEY.md`
@@ -460,9 +460,9 @@ E-01 / E-02 core schemaは完了し、Object / Class / Version / Relation骨格�
 - E-02C: Complete — `docs/reference/CLASS_FACET_GOLD_CASES.md` / `tests/fixtures/class_facet_gold_cases.json`
 - E-03: Complete — `docs/design/SOURCE_EVIDENCE_SCHEMA.md` / Migration 006
 - E-04: Complete — `docs/design/VERSIONING_SCHEMA.md` / Migration 007
-- E-05: Object Result JSON Schemaの物理field
+- E-05: Complete — `docs/design/OBJECT_RESULT_JSON_SCHEMA.md` / `src/sgokb/exchange/schemas/object-result-v1.schema.json`
 
-E-02A〜E-02Cは完了した。55 Facet taxonomyとClass profileはMigration 005へ反映済みである。E-03も完了し、Source Identity / locator / Snapshot / Raw / Normalization / Evidence / Evidence Link / Provenance contractをMigration 006へ反映した。E-04ではMigration 007でcandidate / accepted / abandoned lifecycle、full snapshot、base / Classification stale判定、accepted immutability、current promotion / rollback、derived-state failure domainを確定した。E-05ではこのVersion contractへObject Result JSON Schemaを接続する。
+E-02A〜E-02Cで55 Facet taxonomyとClass profile、E-03でSource / Evidence / Provenance、E-04でimmutable Version lifecycle、E-05でObject Result wire contractを確定した。E-05では`sgokb.object-result/1.0`を単一canonical Schemaとし、Package / Classification / effective Facet profileをruntime specializationする方式を採用した。Phase Eに未完了Taskはない。次はPhase Fで既存Capture / Import / Normalize / Evidence pipelineを新canonical schemaへ接続する。
 
 ### Phase F〜H
 
@@ -541,28 +541,28 @@ Phase内のTaskを確認し、必要な調査・設計・実装・テスト・�
 Phase完了時には、決定事項、実施内容、未決事項、次Phaseへの引き継ぎを報告してください。
 ```
 
-Phase Eを開始する場合:
+Phase Fを開始する場合:
 
 ```text
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
-Phase A〜Dは完了しています。
+Phase A〜Eは完了しています。
 
 再設計の正規作業基盤はintegration/knowledge-base-redesignです。
 まず以下を確認してください。
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
-- docs/requirements/OBJECT_REQUIREMENTS.md
-- docs/requirements/OBJECT_TYPE_MODEL.md
-- docs/requirements/OBJECT_TYPE_BOUNDARIES.md
+- docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md
 - docs/requirements/OBJECT_RESULT_REQUIREMENTS.md
+- docs/design/SOURCE_EVIDENCE_SCHEMA.md
+- docs/design/VERSIONING_SCHEMA.md
+- docs/design/OBJECT_RESULT_JSON_SCHEMA.md
 - docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md
 - docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
-- docs/decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md
 
 今回実施するTask:
-E-05 [P1] JSON Schemaを作成する
+F-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する
 
-E-01〜E-04は完了しています。`docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`、`docs/design/OBJECT_SCHEMA.md`、`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、`docs/design/VERSIONING_SCHEMA.md`、`docs/reference/CLASS_FACET_GOLD_CASES.md`を主要入力として、Object Resultの共通Envelope / Class extension JSON Schemaを作成してください。target Object / Package / base Version / Classification snapshot binding、generation provenance、summary / Statement / Facet / typed Attribute / Relation、Evidence reference + role、temporal scope、reported-view attribution、conflict / gap、unresolved reference / Registry proposal、partial / insufficient evidence状態を表現し、E-03のEvidence validation primitiveとE-04のbase / Classification preconditionへ接続できる契約にしてください。Result validationとauthoritative Importは分離し、Schema適合だけでcurrent Versionへ昇格させないでください。
+Phase Eは完了しています。既存`importer.py` / `extraction.py` / `context.py` / `repository.py`のCapture → Normalize → Evidence経路を調査し、E-03のcanonical Source / locator / Snapshot / Raw Artifact / Normalization Run / Evidence contractへ接続してください。既存source_id / snapshot_id / evidence_id / Raw provenanceを可能な限り維持し、旧`source_type` / Page Context metadataは新分類軸へbest-effort mappingまたはlegacy保持してください。最新Snapshotを無条件にeffectiveとせずselection policyを明示し、D-05 Wave 2のingestion module moveはbehavior changeと分離して実施してください。
 ```
 
 ---
@@ -601,6 +601,7 @@ E-01〜E-04は完了しています。`docs/requirements/OBJECT_RESULT_REQUIREME
 - `docs/design/FACET_VOCABULARY_REVIEW.md`
 - `docs/design/SOURCE_EVIDENCE_SCHEMA.md`
 - `docs/design/VERSIONING_SCHEMA.md`
+- `docs/design/OBJECT_RESULT_JSON_SCHEMA.md`
 - `docs/reference/CLASS_FACET_GOLD_CASES.md`
 - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
 - `docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md`
@@ -614,8 +615,8 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 Phase A、Phase B、Phase C、Phase Dは完了している。
 
-**次の作業はE-05 [P1] JSON Schemaを作成する。**
+**次の作業はF-01 [P0] 既存Capture / Import / Normalize / Evidenceを新設計へ接続する。**
 
-E-02A〜E-02CでFacet taxonomy hardeningを完了し、E-03でcanonical Source / Evidence / Provenance schemaをMigration 006、E-04でObject Knowledge Version lifecycleをMigration 007へ反映した。次はE-05でObject Result JSON Schemaを設計する。
+E-02A〜E-02CでFacet taxonomy hardening、E-03でcanonical Source / Evidence / Provenance、E-04でObject Knowledge Version lifecycle、E-05でObject Result JSON Schemaを完成させた。Phase Eは完了しており、次はPhase Fで既存ingestion pathをcanonical Source / Evidence modelへ接続する。
 
-再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase DでRepository / Git / module / runtime data / history cleanupの境界は確定した。Phase EではObject / Class / Relation / Versionを中心とする物理Data Modelへ進む。
+再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase DでRepository / Git / module / runtime data / history cleanupの境界、Phase EでObject Knowledge Data ModelとObject Result exchange contractを確定した。Phase Fでは既存ingestion pipelineをこのcanonical modelへ接続する。
