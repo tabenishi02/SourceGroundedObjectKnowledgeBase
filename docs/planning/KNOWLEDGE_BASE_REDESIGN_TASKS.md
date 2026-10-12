@@ -399,7 +399,7 @@ docs/
 
 **E-02 follow-up Gate:** E-02A〜E-02Cは完了し、Facet taxonomyは55 Facetでfreeze済み。Migration 005でFacet Registry / Class profileへ物理反映した。E-03以降はこのtaxonomyを前提とし、変更時はgold fixtureでregressionを確認する。
 
-- [ ] **E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する**
+- [x] **E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する**
   - Source Identityと0..N locator、Snapshot、Raw Artifact、Normalized Run、Evidenceの物理schemaをB-03要件から設計する。
   - 既存`url UNIQUE`前提を解消し、既存`source_id` / `snapshot_id` / `evidence_id`を可能な限り維持するmigration契約を定義する。
   - resource type / media type / document genre / publisher kind等のSource分類と、Source↔Objectごとのsubject relationshipを物理的に分離する。
@@ -408,6 +408,15 @@ docs/
   - ChatGPT出力が存在しないEvidence / Source IDを参照できないValidationを定義する。
   - Knowledge Statement / structured attribute / RelationからEvidenceへのLinkと、`supports` / `contradicts` / `contextualizes`等のEvidence roleを表現する。
   - 標準ResultのEvidence referenceが入力Package manifestに含まれることをValidation可能にする。
+
+  - 成果物: `docs/design/SOURCE_EVIDENCE_SCHEMA.md`。
+  - Migration 006でURL等から独立した`source_records` + 0..N `source_locators`、Snapshot / Raw Artifact / Normalization Run / Evidenceのcanonical provenance chainをadditiveに追加した。
+  - 旧Prototypeの`sources / snapshots / artifacts / normalized_runs / evidence`は破壊せず、Phase Lで既存`source_id / snapshot_id / evidence_id`を可能な限り維持して移行できる共存構造とした。
+  - Source classificationの各axisとcaptured / deterministic / inferred / override provenanceを、Source↔Object associationの`subject_relationship`から物理的に分離した。
+  - Source dependency Registry、Evidence location / extraction mode / content hash、Provenance immutability guardを追加した。
+  - Statement / structured attribute / RelationからEvidenceへの`evidence_links`と、`supports / contradicts / contextualizes` Evidence Role Registryを追加した。
+  - Facet自体へEvidence一覧を直接bindせず、Facet内Knowledge Statementをgrounding単位とする契約を確定した。
+  - Source / Evidence ID存在確認と、将来Package manifestのEvidence集合を入力してPackage外参照を拒否できるstorage validation primitiveを追加した。
 
 - [ ] **E-04 [P0] Versioningを設計する**
   - Final Object Dataは上書きではなくVersion追加を基本とする。
@@ -890,8 +899,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01 / E-02本体 / E-02A / E-02B / E-02Cも完了した。E-02Cで全62 Classと25件の横断boundary caseをgold化し、55 Facet taxonomyをfreezeしてMigration 005へ反映した。次の最優先は **E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01 / E-02本体 / E-02A / E-02B / E-02C / E-03も完了した。E-03でcanonical Source / locator / Snapshot / Raw Artifact / Normalization Run / Evidence / Evidence Link / Provenance schemaをMigration 006へ反映した。次の最優先は **E-04 [P0] Versioningを設計する** とする。
 
 Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 
-E-01ではMigration 003でObject / Class / Relation骨格を実装し、E-02ではMigration 004でSemantic Facet基盤を実装した。E-02A / E-02B / E-02Cで全62 Classを横断検証し、Migration 005で37 FacetとClass profileを追加して55 Facet taxonomyを物理反映した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。次はE-03でKnowledge骨格をEvidence / Provenanceへ接続する。
+E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomyを物理反映した。E-03ではMigration 006でSource / Evidence / Evidence Link / Provenanceを追加した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。次はE-04でVersion lifecycle / stale / current promotion / rollbackを確定する。

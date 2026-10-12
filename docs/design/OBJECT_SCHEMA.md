@@ -357,12 +357,9 @@ E-01でSQLiteが直接保証する主なinvariantは次である。
 
 `docs/design/SEMANTIC_FACET_SCHEMA.md`を正本として、Facet Registry、Class-to-Facet profile、Knowledge Statement、typed attribute、temporal scope、Object / Facet / Statement Search Representation membershipを確定した。
 
-### E-03
+### E-03 — Complete
 
-- Source / Snapshot / Raw Artifact / Normalized Run / Evidence更新
-- Statement / attribute / Relation -> Evidence Link
-- Evidence role
-- Provenance integrity
+`docs/design/SOURCE_EVIDENCE_SCHEMA.md`を正本として、canonical Source Identity / locator / Snapshot / Raw Artifact / Normalization Run / Evidence、Source↔Object association、Statement / attribute / Relation -> Evidence Link、Evidence role、Provenance integrityをMigration 006で確定した。
 
 ### E-04
 

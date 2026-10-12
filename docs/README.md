@@ -32,8 +32,9 @@
 26. [Facet Taxonomy Survey](design/FACET_TAXONOMY_SURVEY.md) — E-02Aで全62 Classの意味境界・Facet候補・非Facet境界・代表例/反例を横断整理したsurvey。
 27. [Facet Vocabulary Review](design/FACET_VOCABULARY_REVIEW.md) — E-02Bで近義Facetを横断統合し、既存18 + 新規37 = 55 Facetのfreeze候補とprofile inheritance方針を整理した設計レビュー。
 28. [Class / Facet Gold Cases](reference/CLASS_FACET_GOLD_CASES.md) — E-02Cで全62 Classと25 boundary caseをgold化し、55 Facet taxonomyをfreezeした回帰基準。
-29. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
-30. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
+29. [Source / Evidence Schema Design](design/SOURCE_EVIDENCE_SCHEMA.md) — E-03で確定したSource Identity / locator / Snapshot / Raw / Normalization / Evidence / Evidence Link / Provenanceの物理schema。
+30. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+31. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
 
 ## 現行文書
 
@@ -59,9 +60,10 @@ Phase E以降で確定した物理Architecture / Data Model設計を置く。
 - [Semantic Facet Schema Design](design/SEMANTIC_FACET_SCHEMA.md)
 - [Facet Taxonomy Survey](design/FACET_TAXONOMY_SURVEY.md)
 - [Facet Vocabulary Review](design/FACET_VOCABULARY_REVIEW.md)
+- [Source / Evidence Schema Design](design/SOURCE_EVIDENCE_SCHEMA.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase EのE-01 / E-02 core schema / E-02A / E-02B / E-02Cは完了している。全62 Classのsurvey、55 Facet vocabulary統合、62 Class + 25 boundary gold caseを完了し、Migration 005でFacet Registry / profileへ反映した。次TaskはE-03のSource / Evidence / Evidence Link / Provenance schema設計とする。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase EのE-01 / E-02 core schema / E-02A / E-02B / E-02C / E-03は完了している。Migration 005でFacet taxonomy、Migration 006でcanonical Source / Evidence / Evidence Link / Provenance schemaを反映した。次TaskはE-04のVersioning設計とする。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果とgold corpusを置く。
