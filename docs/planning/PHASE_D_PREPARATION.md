@@ -3,9 +3,9 @@
 更新日: 2026-10-12
 
 - Target: `Phase D — Repository / Git / フォルダ構造再編`
-- Status: In progress — D-01〜D-06 complete
+- Status: Complete — D-01〜D-07 complete
 - Active redesign branch: `integration/knowledge-base-redesign`
-- Next task: `D-07 [P1] 旧branch / PR / tag / release整理ルールを決める`
+- Next task: `E-01 [P0] Object schemaを設計する`
 
 ## 1. 目的
 
@@ -63,7 +63,10 @@ D-03 [P0] 新しいdocs構造を決定する                 完了
 D-04 [P0] src/sgokbの責務別再編を設計する          完了
 D-05 [P1] 既存モジュール移動方針を決める           完了
 D-06 [P1] local/generated/exchangeのGit除外方針     完了
-D-07 [P1] 旧branch / PR / tag / release整理ルール   未完了 ← 次
+D-07 [P1] 旧branch / PR / tag / release整理ルール   完了
+
+Phase D                                             完了
+Next: E-01 [P0] Object schema
 ```
 
 D-02 / D-03をやり直さず、既決事項をD-04以降の入力として利用する。
@@ -154,11 +157,14 @@ D-05ではD-04の責務構造を維持し、moduleをdirect move / package conve
 
 D-06では`.local / generated / exchange / backups`のruntime data境界を確定し、Google Drive同期先を原則Repository外とした。root `.gitignore`も更新済みで、runtime DB / Raw / Package / Result / Index / secretをGit historyへ入れない。
 
+D-07ではbranch / PR / tag / Releaseを実査し、squash mergeを考慮したtask branch cleanup ruleを確定した。merge済み短命branchは検証後に削除し、11 unique commitを持つ`archive/pre-rename-local-main`はhistorical archiveとして保全する。tag / Releaseはimmutable historyとし、新SGOKBのversion境界はO-06まで固定しない。
+
 正本:
 
 - `docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`
 - `docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md`
 - `docs/decisions/SGOKB_RUNTIME_DATA_GIT_POLICY.md`
+- `docs/decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md`
 
 ---
 
@@ -199,26 +205,28 @@ Phase Dへ移行する条件を次とする。
 
 ---
 
-## 10. Phase D継続時の指示文
+## 10. Phase E開始時の指示文
 
-別チャットでD-07から開始する場合は、次を使用できる。
+別チャットでE-01から開始する場合は、次を使用できる。
 
 ```text
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
-Phase A〜Cは完了し、Phase DはD-01〜D-06まで完了しています。
+Phase A〜Dは完了しています。
 
 再設計の正規作業基盤はintegration/knowledge-base-redesignです。
 まず以下を確認してください。
-- docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md
-- docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md
-- docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
-- docs/decisions/SGOKB_RUNTIME_DATA_GIT_POLICY.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
-- docs/planning/PHASE_D_PREPARATION.md
+- docs/requirements/OBJECT_REQUIREMENTS.md
+- docs/requirements/OBJECT_TYPE_MODEL.md
+- docs/requirements/OBJECT_TYPE_BOUNDARIES.md
+- docs/requirements/OBJECT_RESULT_REQUIREMENTS.md
+- docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md
+- docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
+- docs/decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md
 
 今回実施するタスク:
-D-07 [P1] 旧branch / PR / tag / releaseの整理ルールを決める
+E-01 [P0] Object schemaを設計する
 
-D-01のbranch strategyを前提に、現在のbranch / PR / tag / releaseを調査し、merge済みtask branch、未統合branch、Prototype tag、新Knowledge Base release境界の整理ルールを決定してください。必要commit救済前のbranch削除は行わないでください。
+D-04のdomain / storage責務境界とD-05の移行Waveを維持し、Object Identity、Class Registry、Object-Class membership、Knowledge Version、Relation、Registry metadataの物理schemaを設計してください。Phase Dで先送りしたDB列・repository構造をここで具体化しますが、E-02以降のFacet詳細を不必要に先取りしないでください。
 ```

@@ -22,11 +22,12 @@
 16. [Module Responsibility Design](decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md) — `src/sgokb`の責務別構造、依存方向、既存module mapping。
 17. [Module Migration Policy](decisions/SGOKB_MODULE_MIGRATION_POLICY.md) — 既存moduleのmove / split / compatibility / PR分割・実施Wave。
 18. [Runtime Data / Git Exclusion Policy](decisions/SGOKB_RUNTIME_DATA_GIT_POLICY.md) — canonical / generated / exchange / backup / secretの物理配置とGit管理境界。
-19. [再設計タスク](planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 現在の進捗と次に実施する作業。
-20. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — Phase A〜Dの確定事項と後続Phaseへの全体Handoff。
-21. [Phase D Preparation](planning/PHASE_D_PREPARATION.md) — Phase D開始条件とD-07への引継ぎ。
-22. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
-23. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
+19. [Git History Cleanup Policy](decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md) — branch / PR / tag / releaseの保持・救済・cleanup規則。
+20. [再設計タスク](planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 現在の進捗と次に実施する作業。
+21. [再設計引継ぎ](planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md) — Phase A〜Dの確定事項と後続Phaseへの全体Handoff。
+22. [Phase D Preparation](planning/PHASE_D_PREPARATION.md) — Phase D完了記録とPhase Eへの引継ぎ。
+23. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+24. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
 
 ## 現行文書
 
@@ -41,10 +42,11 @@
 - [SGOKB Module Responsibility Design](decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md)
 - [SGOKB Module Migration Policy](decisions/SGOKB_MODULE_MIGRATION_POLICY.md)
 - [SGOKB Runtime Data / Git Exclusion Policy](decisions/SGOKB_RUNTIME_DATA_GIT_POLICY.md)
+- [SGOKB Git History / Branch / PR / Tag / Release Cleanup Policy](decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md)
 - [SGOKB名称変更Decision](decisions/SGOKB_RENAME_DECISION.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。現在はPhase DのD-01〜D-06まで完了しており、次TaskはD-07である。再設計の正規作業基盤は`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）は完了しており、次TaskはPhase EのE-01である。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果を置く。通常は最初から読む必要はない。
