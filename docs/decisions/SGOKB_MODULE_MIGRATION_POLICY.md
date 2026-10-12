@@ -324,6 +324,8 @@ package-data変更はprompt moveと同じstructural PRで実施する。
 
 ### Wave 1 — Phase E開始前 / E-01冒頭
 
+**Implementation status: Complete (2026-10-12, PR #11).**
+
 目的: 新Object domainを置ける物理空間を作る。
 
 - `domain.py`を`domain/_prototype.py`へ`git mv`

@@ -6,6 +6,7 @@
 - Status: Complete — D-01〜D-07 complete
 - Active redesign branch: `integration/knowledge-base-redesign`
 - Next task: `E-01 [P0] Object schemaを設計する`
+- Phase E handoff: `docs/planning/PHASE_E_PREPARATION.md`
 
 ## 1. 目的
 

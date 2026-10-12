@@ -14,11 +14,12 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / C / Dは完了。次の未完了TaskはE-01 [P0] Object schemaを設計する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A / B / C / Dは完了。Phase E開始準備も完了し、D-05 Wave 1の`domain.py -> domain/` structural conversionを実施済み。次の未完了TaskはE-01 [P0] Object schemaを設計する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
 
-Phase D専用資料:
+Phase D / E移行資料:
 
 - `docs/planning/PHASE_D_PREPARATION.md`
+- `docs/planning/PHASE_E_PREPARATION.md`
 
 ---
 
@@ -404,6 +405,8 @@ D-06ではruntime data境界を確定した。`.local/`はGit管理外runtime ro
 
 D-07ではGit history cleanup policyを確定した。PR #1〜#9はすべてmerged、open PR / tag / Releaseは0件。merge済み短命branchはPR metadataとhead SHAを確認して早期削除可能とし、squash merge時に`git branch --merged`だけへ依存しない。`archive/pre-rename-local-main`は11 unique commitを持つためhistorical archiveとして保全し、新SGOKBのtag / Release境界はO-06へ延期した。
 
+Phase E開始準備としてD-05 Wave 1を実行し、旧`domain.py`を内容変更なしで`domain/_prototype.py`へ移動、`domain/__init__.py`で既存public importを維持した。PR #11をintegrationへmerge済み。E-01の詳細開始条件と現行Prototype DBとの差分は`docs/planning/PHASE_E_PREPARATION.md`を正本とする。
+
 正本:
 
 - `docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`
@@ -585,6 +588,7 @@ Phase Dで確定したRepository / module / Git境界を維持し、Object Ident
 - `docs/decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md`
 - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
 - `docs/planning/PHASE_D_PREPARATION.md`
+- `docs/planning/PHASE_E_PREPARATION.md`
 - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
 - `docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md`
 - `README.md`

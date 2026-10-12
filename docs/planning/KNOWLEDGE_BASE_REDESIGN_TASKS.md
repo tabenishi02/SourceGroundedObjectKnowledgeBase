@@ -335,6 +335,8 @@ docs/
 
 # Phase E — Object Knowledgeデータモデル
 
+**Phase E開始準備（2026-10-12）:** Phase D完了を再監査し未完了Task 0件を確認した。D-05 Wave 1として`domain.py -> domain/` package conversionをstructural-only PR #11で完了し、現行Prototypeの`entities / entity_relations / entity_evidence` schemaとの差分とE-01 Definition of Readyを`docs/planning/PHASE_E_PREPARATION.md`へ整理した。
+
 - [ ] **E-01 [P0] Object schemaを設計する**
   - `objects`
   - `object_aliases`
