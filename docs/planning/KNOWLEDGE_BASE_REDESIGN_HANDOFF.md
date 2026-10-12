@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / C / DとPhase EのE-01 / E-02 core schema / E-02Aは完了。Migration 003の全62 Classについて意味境界、Facet候補、非Facet境界、representative / counterexampleを`docs/design/FACET_TAXONOMY_SURVEY.md`へ整理済み。次の未完了TaskはE-02B [P0] Facet vocabularyを横断統合する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A / B / C / DとPhase EのE-01 / E-02 core schema / E-02A / E-02Bは完了。全62 Classのsurveyに続き、Facet候補を既存18 + 新規37 = 55 Facetのfreeze候補へ横断統合し、shared / inherited / class-specific profile方針を`docs/design/FACET_VOCABULARY_REVIEW.md`へ整理済み。次の未完了TaskはE-02C [P0] Class / Facet境界gold casesを作成する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
 
 Phase D / E移行資料:
 
@@ -456,7 +456,7 @@ E-01 / E-02 core schemaは完了し、Object / Class / Version / Relation骨格�
 
 - E-02: Core Complete — `docs/design/SEMANTIC_FACET_SCHEMA.md`
 - E-02A: Complete — `docs/design/FACET_TAXONOMY_SURVEY.md`
-- E-02B: Facet vocabulary横断統合
+- E-02B: Complete — `docs/design/FACET_VOCABULARY_REVIEW.md`
 - E-02C: Class / Facet境界gold cases
 - E-03: Source / Evidence / Evidence Link / Provenance schema
 - E-04: Version lifecycle / stale / rollback / current promotion
@@ -560,9 +560,9 @@ Phase A〜Dは完了しています。
 - docs/decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md
 
 今回実施するTask:
-E-02B [P0] Facet vocabularyを横断統合する
+E-02C [P0] Class / Facet境界gold casesを作成する
 
-E-02Aは完了しています。`docs/design/FACET_TAXONOMY_SURVEY.md`を主要入力として、62 Classで列挙したFacet候補を横断比較してください。shared Facet / Class-specific Facet / Structural ancestorから継承するFacetを区別し、近義語の乱立を避けるstable vocabularyとprofile方針を`docs/design/FACET_VOCABULARY_REVIEW.md`へ確定してください。初期18 Facet seedの維持・追加・名称整理と、Migration / Registry変更が必要かを明示してください。E-02Cのgold casesで検証すべき決定も引き渡してください。
+E-02A / E-02Bは完了しています。`docs/design/FACET_TAXONOMY_SURVEY.md`と`docs/design/FACET_VOCABULARY_REVIEW.md`を主要入力として、全62 Classのpositive / negative例と代表KnowledgeのFacet / Object / Attribute / Relation / Statement期待配置をgold case化してください。55 Facet freeze候補、ancestor profile inheritance、`overall` fallback禁止、Relation / Attribute境界、近義Facet境界を具体例で検証し、`docs/reference/CLASS_FACET_GOLD_CASES.md`へまとめてください。必要なら機械可読fixtureも追加してください。
 ```
 
 ---
@@ -598,6 +598,7 @@ E-02Aは完了しています。`docs/design/FACET_TAXONOMY_SURVEY.md`を主要�
 - `docs/planning/PHASE_D_PREPARATION.md`
 - `docs/planning/PHASE_E_PREPARATION.md`
 - `docs/design/FACET_TAXONOMY_SURVEY.md`
+- `docs/design/FACET_VOCABULARY_REVIEW.md`
 - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
 - `docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md`
 - `README.md`
@@ -610,8 +611,8 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 Phase A、Phase B、Phase C、Phase Dは完了している。
 
-**次の作業はE-02B [P0] Facet vocabularyを横断統合する。**
+**次の作業はE-02C [P0] Class / Facet境界gold casesを作成する。**
 
-E-02Aで全62 Classのtaxonomy surveyを完了した。E-02BでFacet vocabularyを統合し、E-02Cでboundary gold casesを固定した後、E-03のSource / Evidence / Provenance設計へ戻る。
+E-02Aで全62 Classのtaxonomy survey、E-02Bで55 Facetのfreeze候補とprofile inheritance方針を確定した。E-02Cで具体例によるboundary regression corpusを固定し、Facet taxonomyをfreezeした後、E-03のSource / Evidence / Provenance設計へ戻る。
 
 再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase DでRepository / Git / module / runtime data / history cleanupの境界は確定した。Phase EではObject / Class / Relation / Versionを中心とする物理Data Modelへ進む。

@@ -3,11 +3,11 @@
 更新日: 2026-10-12
 
 - Target: `Phase E — Object Knowledgeデータモデル`
-- Status: E-01 / E-02 Core / E-02A Complete / E-02B Ready / E-03 Queued
+- Status: E-01 / E-02 Core / E-02A / E-02B Complete / E-02C Ready / E-03 Queued
 - Active redesign branch: `integration/knowledge-base-redesign`
 - Phase D status: Complete — D-01〜D-07
 - Structural prerequisite: Complete — `domain.py -> domain/` package conversion
-- Next task: `E-02B [P0] Facet vocabularyを横断統合する`
+- Next task: `E-02C [P0] Class / Facet境界gold casesを作成する`
 
 ## 1. 目的
 
@@ -86,7 +86,7 @@ Phase Eは、SGOKBのcanonical Object Knowledge Storeを支える物理データ
 E-01  Object schema
 E-02  Semantic Facet schema（core schema完了）
 E-02A 全62 Class Facet taxonomy survey（完了）
-E-02B Facet vocabulary横断統合
+E-02B Facet vocabulary横断統合（完了）
 E-02C Class / Facet境界gold cases
 E-03  Source / Evidence / Evidence Link / Provenance schema
 E-04  Versioning
@@ -443,13 +443,14 @@ D-05 Wave 1のdomain package conversionも完了済みです。
 - docs/design/OBJECT_SCHEMA.md
 - docs/design/SEMANTIC_FACET_SCHEMA.md
 - docs/design/FACET_TAXONOMY_SURVEY.md
+- docs/design/FACET_VOCABULARY_REVIEW.md
 - docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md
 - docs/decisions/SGOKB_MODULE_MIGRATION_POLICY.md
 
 今回実施するタスク:
-E-02B [P0] Facet vocabularyを横断統合する
+E-02C [P0] Class / Facet境界gold casesを作成する
 
-E-02Aは完了しています。`docs/design/FACET_TAXONOMY_SURVEY.md`を主要入力として、62 Classに列挙したFacet候補を横断比較してください。shared / class-specific / inherited Facetを区別し、近義Facetの乱立を避けるstable vocabularyを設計してください。初期18 Facet seedの維持・追加・名称整理、Class-to-Facet profileの配置、Structural Classを継承点として使う範囲、必要なMigration / Registry変更案を`docs/design/FACET_VOCABULARY_REVIEW.md`へまとめてください。
+E-02A / E-02Bは完了しています。`docs/design/FACET_TAXONOMY_SURVEY.md`と`docs/design/FACET_VOCABULARY_REVIEW.md`を主要入力として、全62 Classのpositive / negative Class例と代表Knowledgeの期待配置をgold case化してください。55 Facetのfreeze候補、shared / inherited / class-specific profile、Relation / Attributeへ出す境界、`overall` fallback禁止を具体例で検証し、`docs/reference/CLASS_FACET_GOLD_CASES.md`へまとめてください。
 ```
 
 ---
@@ -460,4 +461,4 @@ Phase Dには残Taskはない。
 
 D-05でPhase E開始前に要求されていたdomain package conversionも完了したため、Repository / Git / physical module boundaryの観点からPhase Eへ移行可能である。
 
-E-01 / E-02 core schema / E-02Aは完了した。E-02の設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、E-02Aのsurvey正本は`docs/design/FACET_TAXONOMY_SURVEY.md`。全62 Classのcoverageは62/62、欠落0、重複0を確認済み。次Taskは`E-02B [P0] Facet vocabularyを横断統合する`。
+E-01 / E-02 core schema / E-02A / E-02Bは完了した。E-02の設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、E-02Aのsurvey正本は`docs/design/FACET_TAXONOMY_SURVEY.md`、E-02Bのvocabulary正本は`docs/design/FACET_VOCABULARY_REVIEW.md`。55 Facetのfreeze候補をE-02Cでgold case検証する。次Taskは`E-02C [P0] Class / Facet境界gold casesを作成する`。
