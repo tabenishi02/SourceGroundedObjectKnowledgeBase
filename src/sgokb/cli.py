@@ -24,21 +24,23 @@ def filters(args):
 
 
 def parser():
-    root = argparse.ArgumentParser(description="Source Grounded Object Knowledge Base prototype")
+    root = argparse.ArgumentParser(description="Source Grounded Object Knowledge Base")
     root.add_argument("--db", default=os.environ.get("SGOKB_DB", ".local/sgokb.sqlite"))
     root.add_argument("--prompt-dir", default=os.environ.get("SGOKB_PROMPT_DIR"))
     commands = root.add_subparsers(dest="command", required=True)
     importer = commands.add_parser(
-        "import", help="Read bundles recursively; originals stay unchanged"
+        "import", help="Import Web Capture bundles into canonical Source/Snapshot storage"
     )
     importer.add_argument("path", type=Path)
+    importer.add_argument("--legacy", action="store_true", help="Use Prototype legacy tables")
     process = commands.add_parser(
-        "process", aliases=["extract"], help="Normalize and chunk raw snapshots"
+        "process", aliases=["extract"], help="Normalize canonical Snapshots into Evidence"
     )
     process.add_argument("--snapshot")
     process.add_argument("--size", type=int, default=1000)
     process.add_argument("--overlap", type=int, default=100)
     process.add_argument("--include-auxiliary", action="store_true")
+    process.add_argument("--legacy", action="store_true", help="Use Prototype legacy tables")
     entity = commands.add_parser("entity")
     actions = entity.add_subparsers(dest="action", required=True)
     add = actions.add_parser("add")
@@ -53,7 +55,11 @@ def parser():
     link = actions.add_parser("link", help="Explicitly associate an entity with snapshot evidence")
     link.add_argument("entity_id")
     link.add_argument("snapshot_id")
-    fragment = commands.add_parser("fragment")
+    fragment = commands.add_parser(
+        "legacy-fragment",
+        aliases=["fragment"],
+        help="Legacy/research Fragment generation; excluded from the standard pipeline",
+    )
     fragment.add_argument("--snapshot", required=True)
     fragment.add_argument("--entity", required=True)
     fragment.add_argument("--limit", type=int, default=6)
@@ -65,7 +71,13 @@ def parser():
         default="single_pass",
     )
     fragment.add_argument("--resume")
-    fragment.add_argument("--legacy", action="store_true")
+    fragment.add_argument(
+        "--classic",
+        "--legacy",
+        dest="classic",
+        action="store_true",
+        help="Use the oldest single-pass Fragment extractor",
+    )
     embed = commands.add_parser("embed")
     add_filters(embed)
     embed.add_argument("--batch-size", type=int, default=16)
@@ -74,12 +86,22 @@ def parser():
     add_filters(search)
     search.add_argument("--limit", type=int, default=10)
     search.add_argument("--mode", choices=["hybrid", "lexical", "semantic"], default="hybrid")
-    generate = commands.add_parser("generate")
+    generate = commands.add_parser(
+        "legacy-generate",
+        aliases=["generate"],
+        help="Legacy Fragment-based document generation; excluded from the standard pipeline",
+    )
     generate.add_argument("--entity", required=True)
     generate.add_argument("--query")
     generate.add_argument("--limit", type=int, default=10)
     generate.add_argument("--out", type=Path)
-    generate.add_argument("--legacy", action="store_true")
+    generate.add_argument(
+        "--prototype-final",
+        "--legacy",
+        dest="prototype_final",
+        action="store_true",
+        help="Use the oldest Fragment search + Final Document implementation",
+    )
     generate.add_argument("--llm-order", action="store_true")
     generate.add_argument("--batch-size", type=int, default=24)
     generate.add_argument("--max-chars", type=int, default=8000)
@@ -91,7 +113,11 @@ def parser():
     )
     coverage = commands.add_parser("coverage")
     coverage.add_argument("job_id")
-    benchmark = commands.add_parser("benchmark")
+    benchmark = commands.add_parser(
+        "legacy-benchmark",
+        aliases=["benchmark"],
+        help="Legacy Fragment/Final benchmark; research compatibility only",
+    )
     benchmark.add_argument("manifest", type=Path)
     benchmark.add_argument(
         "--phase", choices=["fragment", "retrieval", "final", "all"], default="all"
@@ -103,8 +129,10 @@ def parser():
     provenance = commands.add_parser("provenance")
     provenance.add_argument("kind", choices=["evidence", "fragment", "document"])
     provenance.add_argument("id")
-    commands.add_parser("status")
-    commands.add_parser("snapshots")
+    status = commands.add_parser("status")
+    status.add_argument("--legacy", action="store_true", help="Show Prototype legacy counts")
+    snapshots = commands.add_parser("snapshots")
+    snapshots.add_argument("--legacy", action="store_true", help="List Prototype legacy snapshots")
     return root
 
 
@@ -126,20 +154,25 @@ def main(argv=None):
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     args = parser().parse_args(argv)
+    args.command = {
+        "fragment": "legacy-fragment",
+        "generate": "legacy-generate",
+        "benchmark": "legacy-benchmark",
+    }.get(args.command, args.command)
     repository = None
     try:
         repository = Repository(args.db)
         llm = (
-            llm_from_env("final" if args.command == "generate" else "fragment")
-            if args.command in {"fragment", "benchmark"}
-            or (args.command == "generate" and (args.legacy or args.llm_order))
+            llm_from_env("final" if args.command == "legacy-generate" else "fragment")
+            if args.command in {"legacy-fragment", "legacy-benchmark"}
+            or (args.command == "legacy-generate" and (args.prototype_final or args.llm_order))
             else None
         )
         embedder = (
             embedder_from_env()
             if args.command == "embed"
-            or (args.command == "generate" and args.legacy)
-            or (args.command == "benchmark" and args.phase in {"retrieval", "all"})
+            or (args.command == "legacy-generate" and args.prototype_final)
+            or (args.command == "legacy-benchmark" and args.phase in {"retrieval", "all"})
             or (args.command == "search" and args.mode != "lexical")
             else None
         )
@@ -154,18 +187,33 @@ def main(argv=None):
                 )
             else:
                 targets = (
-                    [args.snapshot] if args.snapshot else [s["id"] for s in repository.snapshots()]
+                    [args.snapshot]
+                    if args.snapshot
+                    else (
+                        [s["id"] for s in repository.snapshots()]
+                        if args.legacy
+                        else [s.snapshot_id for s in repository.source_store.snapshots()]
+                    )
                 )
             if not targets:
                 raise ValueError("No input bundles or snapshots found")
             result = []
             for target in targets:
                 try:
-                    value = (
-                        app.import_path(target)
-                        if args.command == "import"
-                        else app.process(target, args.size, args.overlap, args.include_auxiliary)
-                    )
+                    if args.command == "import":
+                        value = (
+                            app.import_path(target)
+                            if args.legacy
+                            else app.import_source_path(target)
+                        )
+                    else:
+                        value = (
+                            app.process(target, args.size, args.overlap, args.include_auxiliary)
+                            if args.legacy
+                            else app.process_source_snapshot(
+                                target, args.size, args.overlap, args.include_auxiliary
+                            )
+                        )
                     result.append(value)
                 except Exception as error:
                     failed = True
@@ -187,11 +235,11 @@ def main(argv=None):
                     raise ValueError("No processed evidence for this snapshot")
                 repository.link_evidence(args.entity_id, [e["id"] for e in evidence])
                 result = {"linked": len(evidence)}
-        elif args.command == "fragment":
-            if args.legacy:
-                result = app.fragment(args.snapshot, args.entity, args.limit, args.max_chars)
+        elif args.command == "legacy-fragment":
+            if args.classic:
+                result = app.legacy_fragment(args.snapshot, args.entity, args.limit, args.max_chars)
             else:
-                result = app.capture_fragments(
+                result = app.legacy_capture_fragments(
                     args.snapshot,
                     args.entity,
                     batch_size=args.batch_size,
@@ -204,11 +252,11 @@ def main(argv=None):
             result = app.embed(filters(args), args.batch_size)
         elif args.command == "search":
             result = app.search(args.query, filters(args), args.limit, args.mode)
-        elif args.command == "generate":
+        elif args.command == "legacy-generate":
             result = (
-                app.generate(args.entity, args.query, args.limit)
-                if args.legacy
-                else app.build_document(
+                app.legacy_generate(args.entity, args.query, args.limit)
+                if args.prototype_final
+                else app.legacy_build_document(
                     args.entity,
                     use_llm=args.llm_order,
                     batch_size=args.batch_size,
@@ -246,7 +294,7 @@ def main(argv=None):
             )
         elif args.command == "coverage":
             result = repository.coverage(args.job_id)
-        elif args.command == "benchmark":
+        elif args.command == "legacy-benchmark":
             from .benchmark import run_benchmark
 
             result = run_benchmark(app, args.manifest, args.phase, args.strategy, args.resume)
@@ -264,23 +312,39 @@ def main(argv=None):
             else:
                 result = repository.provenance(args.kind, args.id)
         elif args.command == "status":
-            result = repository.status()
+            result = repository.status() if args.legacy else repository.source_store.status()
         elif args.command == "snapshots":
-            result = [
-                {
-                    k: s[k]
-                    for k in (
-                        "id",
-                        "source_id",
-                        "site",
-                        "source_type",
-                        "title",
-                        "captured_at",
-                        "active_run",
-                    )
-                }
-                for s in repository.snapshots()
-            ]
+            if args.legacy:
+                result = [
+                    {
+                        k: s[k]
+                        for k in (
+                            "id",
+                            "source_id",
+                            "site",
+                            "source_type",
+                            "title",
+                            "captured_at",
+                            "active_run",
+                        )
+                    }
+                    for s in repository.snapshots()
+                ]
+            else:
+                result = [
+                    {
+                        "id": s.snapshot_id,
+                        "source_id": s.source_id,
+                        "title": s.title,
+                        "captured_at": s.captured_at,
+                        "completeness": s.completeness.value,
+                        "effective": bool(
+                            (effective := repository.source_store.effective_snapshot(s.source_id))
+                            and effective.snapshot_id == s.snapshot_id
+                        ),
+                    }
+                    for s in repository.source_store.snapshots()
+                ]
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 1 if failed else 0
     except httpx.HTTPError as error:

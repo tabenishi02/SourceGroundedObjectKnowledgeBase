@@ -236,6 +236,24 @@ class SourceRepository:
         ).fetchone()
         return self._snapshot_record(row) if row else None
 
+    def snapshots(self) -> tuple[SourceSnapshotRecord, ...]:
+        rows = self.db.execute("SELECT * FROM source_snapshots ORDER BY captured_at,id").fetchall()
+        return tuple(self._snapshot_record(row) for row in rows)
+
+    def status(self) -> dict[str, int]:
+        tables = {
+            "sources": "source_records",
+            "snapshots": "source_snapshots",
+            "raw_artifacts": "raw_artifacts",
+            "normalization_runs": "normalization_runs",
+            "evidence": "evidence_records",
+            "selection_events": "source_selection_events",
+        }
+        return {
+            name: self.db.execute(f"SELECT count(*) AS n FROM {table}").fetchone()["n"]
+            for name, table in tables.items()
+        }
+
     def snapshot_metadata(self, snapshot_id: str) -> dict:
         row = self.db.execute(
             "SELECT metadata_json FROM source_snapshots WHERE id=?", (snapshot_id,)

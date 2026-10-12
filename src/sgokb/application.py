@@ -495,17 +495,17 @@ class Application:
             raise
         return ai_id, version, parsed
 
-    def capture_fragments(self, snapshot_id, entity_id, **options):
+    def legacy_capture_fragments(self, snapshot_id, entity_id, **options):
         from .capture import HighRecallCapture
 
         return HighRecallCapture(self).run(snapshot_id, entity_id, **options)
 
-    def build_document(self, entity_id, **options):
+    def legacy_build_document(self, entity_id, **options):
         from .final import StructuredFinal
 
         return StructuredFinal(self).build(entity_id, **options)
 
-    def fragment(self, snapshot_id, entity_id, limit=6, max_chars=5000):
+    def legacy_fragment(self, snapshot_id, entity_id, limit=6, max_chars=5000):
         snapshot = self.repository.snapshot(snapshot_id)
         if not snapshot or not snapshot["active_run"]:
             raise ValueError("Process snapshot before extracting fragments")
@@ -578,6 +578,17 @@ class Application:
             "ai_run": ai_id,
         }
 
+    # Prototype Fragment / Final workflows are retained only for compatibility and research.
+    # Canonical standard processing ends at Evidence and must not call these methods.
+    def capture_fragments(self, snapshot_id, entity_id, **options):
+        return self.legacy_capture_fragments(snapshot_id, entity_id, **options)
+
+    def build_document(self, entity_id, **options):
+        return self.legacy_build_document(entity_id, **options)
+
+    def fragment(self, snapshot_id, entity_id, limit=6, max_chars=5000):
+        return self.legacy_fragment(snapshot_id, entity_id, limit, max_chars)
+
     def embed(self, filters=SearchFilter(), batch_size=16):
         if self.embedder is None:
             raise ValueError("Real embedding provider required for this stage")
@@ -608,7 +619,7 @@ class Application:
             query, filters, limit, mode
         )
 
-    def generate(self, entity_id, query=None, limit=10):
+    def legacy_generate(self, entity_id, query=None, limit=10):
         entity = self.repository.entity(entity_id)
         query = query or entity["name"]
         results = self.search(query, SearchFilter(entity=entity_id), min(1000, limit * 5))
@@ -643,7 +654,7 @@ class Application:
         payload["evidence"] = list(evidence_pool.values())
         ai_id, version, parsed = self.call_llm("final_document", "final_document", payload)
         try:
-            markdown, citations = self.render_document(entity["name"], parsed, selected)
+            markdown, citations = self.legacy_render_document(entity["name"], parsed, selected)
             configuration = {
                 "prompt_version": version,
                 "query": query,
@@ -671,7 +682,10 @@ class Application:
             "markdown": markdown,
         }
 
-    def render_document(self, name, parsed, selected):
+    def generate(self, entity_id, query=None, limit=10):
+        return self.legacy_generate(entity_id, query, limit)
+
+    def legacy_render_document(self, name, parsed, selected):
         if not isinstance(parsed, dict) or not isinstance(parsed.get("sections"), list):
             raise ValueError("Expected final sections array")
         allowed = {r["target_id"] for r in selected}
