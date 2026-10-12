@@ -22,6 +22,11 @@ from .object_result import (
     load_object_result_schema,
     validate_object_result,
 )
+from .package_builder import (
+    DEFAULT_BUILD_ROOT,
+    ObjectEvidencePackageBuilder,
+    PackageBuildResult,
+)
 from .package_manifest import (
     MANIFEST_CANONICALIZATION,
     PACKAGE_SCHEMA_ID,
@@ -50,6 +55,7 @@ from .result_receipt import (
 )
 
 __all__ = [
+    "DEFAULT_BUILD_ROOT",
     "DEFAULT_INCOMING_ROOT",
     "INSTRUCTIONS_VERSION",
     "MANIFEST_CANONICALIZATION",
@@ -66,8 +72,10 @@ __all__ = [
     "ClassExtensionContract",
     "DetectedResult",
     "ObjectAnalysisInstructionContext",
+    "ObjectEvidencePackageBuilder",
     "ObjectResultContract",
     "ObjectResultValidationError",
+    "PackageBuildResult",
     "PackageExportResult",
     "PackagePreflight",
     "PackageStageResult",
