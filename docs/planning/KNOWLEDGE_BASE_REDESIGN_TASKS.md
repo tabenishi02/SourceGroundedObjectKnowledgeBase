@@ -479,10 +479,11 @@ docs/
   - 互換・研究用途として残すか完全廃止するかを決定する。
   - **完了（2026-10-12）:** canonical標準経路をSource / Snapshot / Raw Artifact → Normalization Run → Evidenceで停止するよう固定した。CLIの`import` / `process` / `status` / `snapshots`はcanonical側を標準動作とし、旧Prototype経路は`--legacy`でのみ選択する。Fragment / Final /旧benchmarkは`legacy-fragment` / `legacy-generate` / `legacy-benchmark`へ明示し、旧command名はPhase Lまでcompatibility aliasとして保持する。`Application`にも`legacy_*` APIを追加し、旧method名はshimとして維持する。標準処理ではFragment・`ai_runs`・旧Final artifactを生成しない。物理`_legacy/`移動や削除はModule Migration PolicyどおりPhase Lへ残す。設計正本: `docs/design/STANDARD_PIPELINE_BOUNDARY.md`。
 
-- [ ] **F-03 [P0] Object Evidence Retrievalを実装する**
+- [x] **F-03 [P0] Object Evidence Retrievalを実装する**
   - name / alias / explicit association / Source metadata / FTS / embeddingを組み合わせる。
   - 高Recall優先とし、最終的な意味判断はChatGPTへ渡す。
   - Evidence選択理由（explicit link / name / alias / FTS / semantic / manual等）を追跡可能にする。
+  - **完了（2026-10-12）:** `ObjectEvidenceRetriever`と`Application.retrieve_object_evidence()`を追加し、Fragmentを介さずcanonical `evidence_records`を直接検索する標準Retrievalを実装した。既定scopeはF-01で選択されたeffective Snapshot / Runのみ。`confirmed / candidate / excluded` Source↔Object association、Object name / alias、effective Source metadata、Migration 009のcanonical Evidence FTS、明示設定されたEmbedderによるsemantic cosine、manual include / excludeを統合する。各候補は複数のselection reasonと補助scoreを保持し、ranking scoreをtruth / confidenceとして扱わない。Generative LLMは呼ばない。semanticはPhase Iまでのon-demand baselineとし、永続Vector Indexは先取りしない。設計正本: `docs/design/OBJECT_EVIDENCE_RETRIEVAL.md`。
 
 - [ ] **F-04 [P1] Evidence Selectionのtoken/size budgetを設計する**
   - Evidence granularityはsection / paragraph / table / post等のSource構造を優先し、固定文字数だけで決めない。
@@ -922,8 +923,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）、Phase E（E-01〜E-05）とF-01〜F-02は完了した。F-01でcanonical Capture / Import / Normalize / Evidence経路とeffective Snapshot / Run selectionを実装し、F-02でFragment / Finalをlegacy / research compatibilityへ分離した。次の最優先は **F-03 [P0] Object Evidence Retrievalを実装する** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）、Phase E（E-01〜E-05）とF-01〜F-03は完了した。F-01でcanonical Capture / Import / Normalize / Evidence経路とeffective Snapshot / Run selectionを実装し、F-02でFragment / Finalをlegacy / research compatibilityへ分離、F-03でcanonical Evidenceを直接対象とするObject Evidence Retrievalを実装した。次の最優先は **F-04 [P1] Evidence Selectionのtoken/size budgetを設計する** とする。
 
 Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 
-E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomy、E-03ではMigration 006でSource / Evidence / Evidence Link / Provenance、E-04ではMigration 007でVersion lifecycle / stale / current promotion / rollback / derived-state boundaryを物理反映した。E-05ではMigrationを追加せず、`src/sgokb/exchange/schemas/object-result-v1.schema.json`と`ObjectResultContract`でObject Result exchange contractを確定した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、`docs/design/VERSIONING_SCHEMA.md`、`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。F-01で既存ingestion pipelineのcanonical Source / Evidence schema接続、F-02で標準pipelineからのFragment生成除外は完了した。次はF-03でcanonical Evidenceを直接対象とするObject Evidence Retrievalを実装する。
+E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomy、E-03ではMigration 006でSource / Evidence / Evidence Link / Provenance、E-04ではMigration 007でVersion lifecycle / stale / current promotion / rollback / derived-state boundaryを物理反映した。E-05ではMigrationを追加せず、`src/sgokb/exchange/schemas/object-result-v1.schema.json`と`ObjectResultContract`でObject Result exchange contractを確定した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、`docs/design/VERSIONING_SCHEMA.md`、`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。F-01で既存ingestion pipelineのcanonical Source / Evidence schema接続、F-02で標準pipelineからのFragment生成除外、F-03でcanonical Evidenceを直接対象とするObject Evidence Retrievalまで完了した。次はF-04でEvidence Packageへ渡す候補のtoken / size budget、Source diversity、近接Evidence、truncation理由を設計する。

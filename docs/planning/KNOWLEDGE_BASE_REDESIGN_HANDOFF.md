@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / C / D / EとF-01〜F-02は完了。標準経路はcanonical Source / Snapshot / Raw Artifact → Normalization Run → Evidenceで停止し、Fragment / Finalはlegacy / research compatibilityへ分離済み。次の未完了TaskはF-03 [P0] Object Evidence Retrievalを実装する。再設計の正規統合作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A / B / C / D / EとF-01〜F-03は完了。canonical EvidenceをFragmentなしでObjectへ高Recall retrievalでき、selection reasonを追跡可能。次の未完了TaskはF-04 [P1] Evidence Selectionのtoken/size budgetを設計する。再設計の正規統合作業基盤は`integration/knowledge-base-redesign`。**
 
 Phase D / E / F移行資料:
 
@@ -471,7 +471,8 @@ Phase F開始準備としてD-05 Wave 2も完了した。`importer.py / extracti
 
 - F-01 canonical Capture / Import / Normalize / Evidence接続 — Complete
 - F-02 standard pipeline / legacy Fragment境界 — Complete
-- F-03 Object Evidence Retrieval — Next
+- F-03 Object Evidence Retrieval — Complete
+- F-04 Evidence Selection token / size budget — Next
 - Evidence Package具体実装
 - Drive交換形式
 - Validation / Import state machine
@@ -551,7 +552,7 @@ Phase Fを継続する場合:
 
 ```text
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
-Phase A〜EとF-01〜F-02は完了しています。
+Phase A〜EとF-01〜F-03は完了しています。
 
 再設計の正規作業基盤はintegration/knowledge-base-redesignです。
 まず以下を確認してください。
@@ -560,13 +561,14 @@ Phase A〜EとF-01〜F-02は完了しています。
 - docs/planning/PHASE_F_PREPARATION.md
 - docs/design/SOURCE_INGESTION_PIPELINE.md
 - docs/design/STANDARD_PIPELINE_BOUNDARY.md
+- docs/design/OBJECT_EVIDENCE_RETRIEVAL.md
 - docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md
 - docs/design/SOURCE_EVIDENCE_SCHEMA.md
 
 今回実施するTask:
-F-03 [P0] Object Evidence Retrievalを実装する
+F-04 [P1] Evidence Selectionのtoken/size budgetを設計する
 
-F-01でcanonical Capture → Evidence経路、F-02でstandard pipeline / legacy Fragment境界が確定しました。Fragmentをretrieval中間層へ戻さず、canonical `evidence_records`を直接候補集合として扱ってください。name / alias / explicit Source↔Object association / Source metadata / lexical / semantic / manual includeをselection signalとして利用し、選択理由を追跡可能にしてください。
+F-03でcanonical `evidence_records`を直接対象とするObject Evidence Retrievalとselection reason追跡が成立しました。F-04ではRetrieval候補をそのまま全件Packageへ入れず、Source構造を優先したEvidence granularity、token / byte budget、Source diversity、chunk overlap /近接Evidence、near-duplicate、truncation理由を設計してください。F-03のeffective Snapshot / Run scope、excluded association、manual include / exclude、selection reason契約は維持してください。
 ```
 
 ---
@@ -607,6 +609,7 @@ F-01でcanonical Capture → Evidence経路、F-02でstandard pipeline / legacy 
 - `docs/design/SOURCE_EVIDENCE_SCHEMA.md`
 - `docs/design/SOURCE_INGESTION_PIPELINE.md`
 - `docs/design/STANDARD_PIPELINE_BOUNDARY.md`
+- `docs/design/OBJECT_EVIDENCE_RETRIEVAL.md`
 - `docs/design/VERSIONING_SCHEMA.md`
 - `docs/design/OBJECT_RESULT_JSON_SCHEMA.md`
 - `docs/reference/CLASS_FACET_GOLD_CASES.md`
@@ -620,10 +623,12 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 ## 14. 現在地点
 
-Phase A、Phase B、Phase C、Phase D、Phase EとF-01〜F-02は完了している。
+Phase A、Phase B、Phase C、Phase D、Phase EとF-01〜F-03は完了している。
 
-**次の作業はF-03 [P0] Object Evidence Retrievalを実装する。**
+**次の作業はF-04 [P1] Evidence Selectionのtoken/size budgetを設計する。**
 
 F-01でcanonical Capture → Source / Snapshot / Raw Artifact → Normalization Run → Evidence経路を実装し、F-02でその経路を標準pipelineとして固定した。標準CLIの`import` / `process` / `status` / `snapshots`はcanonical側を使用し、Fragment / Final /旧benchmarkは`legacy-*`へ明示した。旧API・旧command名はPhase Lまでcompatibility shim / aliasとして残すが、新standard codeからは利用しない。物理隔離・archive・削除判断はPhase Lへ残す。詳細は`docs/design/SOURCE_INGESTION_PIPELINE.md`と`docs/design/STANDARD_PIPELINE_BOUNDARY.md`を正本とする。
 
-再設計の正規作業基盤は`integration/knowledge-base-redesign`である。F-03ではFragmentを中間層にせずcanonical Evidenceを直接対象としてObject Evidence Retrievalを実装する。
+F-03ではMigration 009のcanonical Evidence FTSと`ObjectEvidenceRetriever`を追加し、explicit association / name / alias / Source metadata / lexical / semantic / manualのselection reasonを統合した。通常scopeはeffective Snapshot / Runのみで、`excluded` associationは自動候補から除外する。semanticはon-demand baselineであり、永続Vector backendはPhase Iへ残す。詳細は`docs/design/OBJECT_EVIDENCE_RETRIEVAL.md`を正本とする。
+
+再設計の正規作業基盤は`integration/knowledge-base-redesign`である。F-04ではcandidate retrievalとPackage selectionを分離したままbudget設計へ進む。

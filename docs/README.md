@@ -36,10 +36,11 @@
 30. [Source / Evidence Schema Design](design/SOURCE_EVIDENCE_SCHEMA.md) — E-03で確定したSource Identity / locator / Snapshot / Raw / Normalization / Evidence / Evidence Link / Provenanceの物理schema。
 31. [Source Ingestion Pipeline](design/SOURCE_INGESTION_PIPELINE.md) — F-01で実装したcanonical Capture / Import / Normalize / Evidence接続、Source resolution、effective generation selection。
 32. [Standard Pipeline / Legacy Fragment Boundary](design/STANDARD_PIPELINE_BOUNDARY.md) — F-02で確定した標準Evidence pipelineと旧Fragment / Finalのlegacy・research境界。
-33. [Versioning Schema Design](design/VERSIONING_SCHEMA.md) — E-04で確定したfull snapshot Version lifecycle、stale判定、accepted immutability、current promotion / rollback、derived-state boundary。
-34. [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md) — E-05で確定した`sgokb.object-result/1.0`、Package/Class/Facet binding、Evidence-grounded Result exchange contract。
-35. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
-36. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
+33. [Object Evidence Retrieval](design/OBJECT_EVIDENCE_RETRIEVAL.md) — F-03で実装したeffective Evidence scope、association / name / alias / metadata / FTS / semantic / manual signal統合とselection reason契約。
+34. [Versioning Schema Design](design/VERSIONING_SCHEMA.md) — E-04で確定したfull snapshot Version lifecycle、stale判定、accepted immutability、current promotion / rollback、derived-state boundary。
+35. [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md) — E-05で確定した`sgokb.object-result/1.0`、Package/Class/Facet binding、Evidence-grounded Result exchange contract。
+36. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+37. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
 
 ## 現行文書
 
@@ -68,11 +69,12 @@ Phase E以降で確定した物理Architecture / Data Model設計を置く。
 - [Source / Evidence Schema Design](design/SOURCE_EVIDENCE_SCHEMA.md)
 - [Source Ingestion Pipeline](design/SOURCE_INGESTION_PIPELINE.md)
 - [Standard Pipeline / Legacy Fragment Boundary](design/STANDARD_PIPELINE_BOUNDARY.md)
+- [Object Evidence Retrieval](design/OBJECT_EVIDENCE_RETRIEVAL.md)
 - [Versioning Schema Design](design/VERSIONING_SCHEMA.md)
 - [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase E（E-01〜E-05）、F-01〜F-02は完了している。Migration 005でFacet taxonomy、Migration 006でcanonical Source / Evidence / Evidence Link / Provenance schema、Migration 007でVersion lifecycle、Migration 008でeffective Snapshot / Run selection eventを反映した。F-01で生成LLMなしのcanonical Capture → Evidence経路を実装し、F-02でFragment / Finalをlegacy / research compatibilityへ分離して標準pipelineをcanonical Evidenceで停止する境界を固定した。詳細は[Source Ingestion Pipeline](design/SOURCE_INGESTION_PIPELINE.md)と[Standard Pipeline / Legacy Fragment Boundary](design/STANDARD_PIPELINE_BOUNDARY.md)を正本とする。次TaskはF-03のObject Evidence Retrieval実装とする。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase E（E-01〜E-05）、F-01〜F-03は完了している。Migration 005でFacet taxonomy、Migration 006でcanonical Source / Evidence / Evidence Link / Provenance schema、Migration 007でVersion lifecycle、Migration 008でeffective Snapshot / Run selection event、Migration 009でcanonical Evidence FTSを反映した。F-01で生成LLMなしのcanonical Capture → Evidence経路、F-02でstandard / legacy境界、F-03でFragmentを介さないObject Evidence Retrievalを実装した。詳細は[Source Ingestion Pipeline](design/SOURCE_INGESTION_PIPELINE.md)、[Standard Pipeline / Legacy Fragment Boundary](design/STANDARD_PIPELINE_BOUNDARY.md)、[Object Evidence Retrieval](design/OBJECT_EVIDENCE_RETRIEVAL.md)を正本とする。次TaskはF-04のEvidence Selection token / size budget設計とする。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果とgold corpusを置く。

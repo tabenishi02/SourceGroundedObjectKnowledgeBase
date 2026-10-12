@@ -24,6 +24,7 @@ from .ingestion import (
     chunks,
     classify,
 )
+from .retrieval import ObjectEvidenceRetriever
 from .search import HybridSearch
 
 
@@ -494,6 +495,30 @@ class Application:
             self.repository.finish_ai(ai_id, output, type(error).__name__)
             raise
         return ai_id, version, parsed
+
+    def retrieve_object_evidence(
+        self,
+        object_id,
+        *,
+        max_candidates=500,
+        semantic=None,
+        semantic_batch_size=32,
+        manual_include=(),
+        manual_exclude=(),
+    ):
+        """Retrieve canonical Evidence for one Object without generating Fragments."""
+        result = ObjectEvidenceRetriever(self.repository, self.embedder).retrieve(
+            object_id,
+            max_candidates=max_candidates,
+            semantic=semantic,
+            semantic_batch_size=semantic_batch_size,
+            manual_include=manual_include,
+            manual_exclude=manual_exclude,
+        )
+        return dict(
+            result,
+            candidates=[asdict(candidate) for candidate in result["candidates"]],
+        )
 
     def legacy_capture_fragments(self, snapshot_id, entity_id, **options):
         from .capture import HighRecallCapture
