@@ -384,15 +384,20 @@ docs/
   - Relation / typed attributeへ置く候補をFacet IDから除外し、parent / Structural Classを利用するprofile inheritance案を確定した。
   - Migration 004は変更せず、E-02C通過後に新しいadditive migrationでRegistry / profileを反映する方針とした。
 
-- [ ] **E-02C [P0] Class / Facet境界gold casesを作成する**
+- [x] **E-02C [P0] Class / Facet境界gold casesを作成する**
   - 全62 Classについて少なくともpositive / negative Class例を用意し、Class意味境界を試験可能にする。
   - 代表KnowledgeについてFacet / Object / Attribute / Relation / Statementの期待配置をgold caseとして記録する。
   - ancestor profile inheritance、専用profileなしClass、cross-class shared Facet、意味的に不正確なfallback禁止を含める。
   - E-05 Result Validator、I-07検索品質gold、N-01/N-02 testへ再利用可能な形式にする。
   - Facet taxonomy変更時にgold casesでregressionを検出できるようにする。
-  - 成果物: `docs/reference/CLASS_FACET_GOLD_CASES.md`（必要に応じて`tests/fixtures/`へ機械可読fixtureを追加）
+  - 成果物: `docs/reference/CLASS_FACET_GOLD_CASES.md` と `tests/fixtures/class_facet_gold_cases.json`。
+  - 初期62 Classを62/62 coverageし、各Classのpositive / negative例と代表Knowledge配置をfixture化した。
+  - 近義Facet、inheritance、Relation / Attribute境界、fallback禁止等を25件のcross-cutting boundary caseとして固定した。
+  - E-02Bの55 Facet freeze候補に矛盾がないことを確認し、Facet taxonomyを55 Facetでfreezeした。
+  - `005_facet_taxonomy_freeze.sql`で新規37 Facetと169 profile rowをadditiveに反映し、Registryを55 Facet / 188 profile rowへ更新した。
+  - `tests/test_class_facet_gold_cases.py`を追加し、Class Registry・Facet Registry・profile inheritance・gold fixtureの整合を回帰試験化した。
 
-**E-02 follow-up Gate:** E-02本体の物理schema実装は完了済みとするが、Facet taxonomyの設計freezeはE-02A〜E-02C完了後とする。E-03のSource / Evidence設計とは概念上独立しているものの、E-05のClass別extension / Facet profile validationを確定する前にE-02A〜E-02Cを完了する。
+**E-02 follow-up Gate:** E-02A〜E-02Cは完了し、Facet taxonomyは55 Facetでfreeze済み。Migration 005でFacet Registry / Class profileへ物理反映した。E-03以降はこのtaxonomyを前提とし、変更時はgold fixtureでregressionを確認する。
 
 - [ ] **E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する**
   - Source Identityと0..N locator、Snapshot、Raw Artifact、Normalized Run、Evidenceの物理schemaをB-03要件から設計する。
@@ -885,8 +890,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01 / E-02本体 / E-02A / E-02Bは完了した。E-02Bで全62 ClassのFacet候補を横断統合し、初期18 Facetを維持しつつ新規37を加えた55 Facetのfreeze候補とprofile inheritance案を`docs/design/FACET_VOCABULARY_REVIEW.md`へ整理した。次の最優先は **E-02C [P0] Class / Facet境界gold casesを作成する** とする。E-02C完了後にE-03へ進む。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01 / E-02本体 / E-02A / E-02B / E-02Cも完了した。E-02Cで全62 Classと25件の横断boundary caseをgold化し、55 Facet taxonomyをfreezeしてMigration 005へ反映した。次の最優先は **E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する** とする。
 
 Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 
-E-01ではD-04で確定した`domain / storage`責務境界を維持し、Migration 003、Object domain contract、`storage/ObjectRepository`、62 Class seed、DB integrity constraintを実装した。設計正本は`docs/design/OBJECT_SCHEMA.md`とする。E-02ではMigration 004、Facet Registry、Class-to-Facet profile、Knowledge Statement、typed attribute、temporal scope、Object / Facet / Statement Search Representation membershipを実装した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`とする。E-02Aで全62 ClassのFacet taxonomy surveyを完了し、E-02Bで候補語彙を55 Facetのfreeze候補へ横断統合した。E-02Cではこのvocabulary / inheritance / non-Facet境界をgold casesで検証し、Facet taxonomyをfreezeする。その後E-03でKnowledge骨格をEvidence / Provenanceへ接続する。
+E-01ではMigration 003でObject / Class / Relation骨格を実装し、E-02ではMigration 004でSemantic Facet基盤を実装した。E-02A / E-02B / E-02Cで全62 Classを横断検証し、Migration 005で37 FacetとClass profileを追加して55 Facet taxonomyを物理反映した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。次はE-03でKnowledge骨格をEvidence / Provenanceへ接続する。

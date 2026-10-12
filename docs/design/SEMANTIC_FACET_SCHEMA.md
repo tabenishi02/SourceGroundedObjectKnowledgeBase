@@ -157,6 +157,8 @@ Character / Work / Concept以外のClassはE-02 core実装時点で専用profile
 
 ただし、この初期18 Facet / 3 profileはVertical Sliceを成立させるための初期seedであり、全ClassのFacet taxonomyが確定したことを意味しない。2026-10-12の設計レビューにより、全62 Classを対象とするE-02A〜E-02Cを追加し、Class意味境界、Facet候補、近義Facetの統合、Object / Facet / Attribute / Relation境界、gold casesを事前検証してからFacet taxonomyをfreezeする方針へ更新した。
 
+E-02C完了後、Migration 005により新規37 Facetを追加し、runtime Facet Registryは合計55 Facetへ拡張した。
+
 ---
 
 ## 6. VersionごとのFacet状態
@@ -407,13 +409,15 @@ E-02の物理schemaはCompleteだが、Facet taxonomyの意味設計は次の追
 - Relation / Attributeへ置くべき候補はFacet Definitionへ昇格させない。
 - Registry / profileの物理変更はE-02Cのgold case通過後に新規additive migrationで適用する。
 
-### E-02C — Class / Facet境界gold cases
+### E-02C — Class / Facet境界gold cases — Complete
 
-- 全Classのpositive / negative例を作る。
-- 代表KnowledgeのFacet / Object / Attribute / Relation / Statement期待配置を記録する。
-- E-05 / I-07 / N-01 / N-02へ再利用できるregression corpusとする。
+成果物: `docs/reference/CLASS_FACET_GOLD_CASES.md` / `tests/fixtures/class_facet_gold_cases.json`
 
-これらは全Class固有機能を先行実装するTaskではない。E-02の汎用schemaを維持しながらOntology / taxonomyの意味品質を検証し、必要なRegistry変更のみを明示的に適用する。
+- 初期62 Classを62/62 coverageし、positive / negative例と代表Knowledge配置をgold化した。
+- 25件のcross-cutting boundary caseで近義Facet、Relation / Attribute境界、inheritance、fallback禁止を検証した。
+- E-02Bの55 Facet候補に修正要求がないことを確認し、Facet taxonomyをfreezeした。
+- Migration 005で新規37 Facetと169 profile rowを追加し、runtime Registryを55 Facet / 188 profile rowへ更新した。
+- `tests/test_class_facet_gold_cases.py`をE-05 / I-07 / N-01 / N-02で再利用可能なregression基盤とした。
 
 ---
 
@@ -456,15 +460,12 @@ E-02の物理schemaはCompleteだが、Facet taxonomyの意味設計は次の追
 
 ## 15. Migration boundary
 
-Migration 004はadditive migrationである。
+Migration 004 / 005はいずれもadditive migrationである。
 
 次を行う。
 
-- Semantic Facet schema追加
-- 18 Facet seed
-- Character / Work / Concept profile seed
-- Statement / Attribute / Temporal Scope schema追加
-- Search Representation metadata schema追加
+- Migration 004: Semantic Facet schema、初期18 Facet、Character / Work / Concept profile、Statement / Attribute / Temporal Scope、Search Representation metadataを追加。
+- Migration 005: E-02Cでfreezeした新規37 Facetと169 Class profile rowを追加し、合計55 Facet / 188 profile rowとする。
 
 次は行わない。
 
@@ -503,7 +504,7 @@ E-02でSQLiteが直接保証する主なinvariantは次である。
 
 E-02実装では次をtest対象とする。
 
-- 18 Facet / 19 Class-profile seed
+- 55 Facet / 188 Class-profile seed（Migration 004 + 005）
 - common `overall` Facet
 - Work subclass / Concept subclassへのprofile inheritance
 - 専用profileなしClassのcommon contract
@@ -514,6 +515,7 @@ E-02実装では次をtest対象とする。
 - Relation Temporal ScopeのVersion一致
 - Object / Facet / Statement Search Representation membership
 - builder version / content hash追跡
-- Migration 004適用後の既存回帰
+- Migration 004 / 005適用後の既存回帰
+- 62 Class + 25 boundary gold fixture coverage / profile inheritance整合
 
-E-02A / E-02Bは完了した。次Taskは `E-02C [P0] Class / Facet境界gold casesを作成する` とする。E-02C完了後にFacet taxonomyをfreezeし、E-03へ進む。
+E-02A / E-02B / E-02Cは完了した。Facet taxonomyは55 FacetでfreezeしMigration 005へ反映済み。次Taskは `E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する` とする。

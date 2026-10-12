@@ -35,16 +35,15 @@ def _object_and_version(repo, class_key="character", *, suffix="a", version_numb
 
 
 def test_initial_facet_registry_and_profiles(repo):
-    assert repo.one("SELECT count(*) n FROM facet_definitions")["n"] == 18
-    assert repo.one("SELECT count(*) n FROM class_facet_profiles")["n"] == 19
+    assert repo.one("SELECT count(*) n FROM facet_definitions")["n"] == 55
+    assert repo.one("SELECT count(*) n FROM class_facet_profiles")["n"] == 188
 
     overall = repo.semantic_store.facet_by_key("overall")
     assert overall.facet_id == "facet:overall"
     assert overall.is_common is True
 
     character = {
-        x.key
-        for x in repo.semantic_store.facets_for_classes([_class_id(repo, "character")])
+        x.key for x in repo.semantic_store.facets_for_classes([_class_id(repo, "character")])
     }
     assert {"overall", "personality", "values", "motivation", "behavior"} <= character
     assert {"relationships", "role", "themes", "abilities"} <= character
@@ -58,9 +57,24 @@ def test_initial_facet_registry_and_profiles(repo):
     assert {"overall", "definition", "properties", "implications", "related_concepts"} <= theme
 
 
-def test_class_without_specialized_profile_uses_common_contract(repo):
-    series = repo.semantic_store.facets_for_classes([_class_id(repo, "series")])
-    assert [facet.key for facet in series] == ["overall"]
+def test_structural_class_without_specialized_profile_uses_common_contract(repo):
+    agent = repo.semantic_store.facets_for_classes([_class_id(repo, "agent")])
+    assert [facet.key for facet in agent] == ["overall"]
+
+
+def test_series_profile_is_available_after_taxonomy_freeze(repo):
+    series = {
+        facet.key for facet in repo.semantic_store.facets_for_classes([_class_id(repo, "series")])
+    }
+    assert {
+        "overall",
+        "scope",
+        "chronology",
+        "themes",
+        "history",
+        "production",
+        "reception",
+    } <= series
 
 
 def test_facet_status_is_explicit_and_statements_require_content(repo):
@@ -77,9 +91,12 @@ def test_facet_status_is_explicit_and_statements_require_content(repo):
         facet_id=personality,
         language="ja",
     )
-    assert repo.one("SELECT facet_id FROM knowledge_statements WHERE id=?", (statement_id,))[
-        "facet_id"
-    ] == personality
+    assert (
+        repo.one("SELECT facet_id FROM knowledge_statements WHERE id=?", (statement_id,))[
+            "facet_id"
+        ]
+        == personality
+    )
 
     with pytest.raises(sqlite3.IntegrityError, match="must remain content"):
         repo.semantic_store.set_version_facet(
@@ -105,9 +122,12 @@ def test_summary_statement_does_not_require_a_facet(repo):
         "Object全体の要約。",
         DerivationKind.SYNTHESIS,
     )
-    assert repo.one("SELECT facet_id FROM knowledge_statements WHERE id=?", (statement_id,))[
-        "facet_id"
-    ] is None
+    assert (
+        repo.one("SELECT facet_id FROM knowledge_statements WHERE id=?", (statement_id,))[
+            "facet_id"
+        ]
+        is None
+    )
 
 
 def test_typed_attributes_keep_value_type_and_analysis_state(repo):
@@ -116,9 +136,7 @@ def test_typed_attributes_keep_value_type_and_analysis_state(repo):
         "release_date", "Release date", AttributeValueType.DATE
     )
 
-    value_id = repo.semantic_store.add_attribute(
-        version_id, "release_date", "2026-10-12"
-    )
+    value_id = repo.semantic_store.add_attribute(version_id, "release_date", "2026-10-12")
     row = repo.one("SELECT * FROM object_version_attributes WHERE id=?", (value_id,))
     assert row["value_text"] == "2026-10-12"
     assert row["value_integer"] is None
@@ -192,9 +210,7 @@ def test_temporal_scope_is_version_scoped_for_statements_and_attributes(repo):
 
     repo.semantic_store.register_attribute_definition("state", "State", AttributeValueType.TEXT)
     with pytest.raises(sqlite3.IntegrityError, match="FOREIGN KEY"):
-        repo.semantic_store.add_attribute(
-            version_b, "state", "old", temporal_scope_id=scope_a
-        )
+        repo.semantic_store.add_attribute(version_b, "state", "old", temporal_scope_id=scope_a)
 
 
 def test_relation_temporal_scope_must_match_relation_version(repo):
@@ -216,10 +232,13 @@ def test_relation_temporal_scope_must_match_relation_version(repo):
 
     scope_a = repo.semantic_store.create_temporal_scope(version_a, as_of="2025-01-01")
     repo.semantic_store.set_relation_temporal_scope("relation-temporal", scope_a)
-    assert repo.one(
-        "SELECT temporal_scope_id FROM relation_temporal_scopes WHERE relation_id=?",
-        ("relation-temporal",),
-    )["temporal_scope_id"] == scope_a
+    assert (
+        repo.one(
+            "SELECT temporal_scope_id FROM relation_temporal_scopes WHERE relation_id=?",
+            ("relation-temporal",),
+        )["temporal_scope_id"]
+        == scope_a
+    )
 
     scope_b = repo.semantic_store.create_temporal_scope(version_b, as_of="2026-01-01")
     with pytest.raises(sqlite3.IntegrityError, match="relation version"):

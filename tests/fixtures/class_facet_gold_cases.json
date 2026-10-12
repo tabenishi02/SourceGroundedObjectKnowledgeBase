@@ -1,0 +1,1334 @@
+{
+  "schema_version": "e02c-1",
+  "task": "E-02C",
+  "status": "frozen",
+  "facet_vocabulary": {
+    "existing_18": [
+      "overall",
+      "personality",
+      "values",
+      "motivation",
+      "behavior",
+      "relationships",
+      "role",
+      "themes",
+      "abilities",
+      "worldview",
+      "narrative",
+      "tone",
+      "characters",
+      "definition",
+      "properties",
+      "implications",
+      "related_concepts",
+      "examples"
+    ],
+    "added_37": [
+      "background",
+      "appearance",
+      "purpose",
+      "history",
+      "structure",
+      "activities",
+      "culture",
+      "scope",
+      "chronology",
+      "setting",
+      "production",
+      "reception",
+      "changes",
+      "significance",
+      "geography",
+      "environment",
+      "function",
+      "usage",
+      "design",
+      "mechanism",
+      "causes",
+      "conditions",
+      "effects",
+      "requirements",
+      "constraints",
+      "variants",
+      "procedure",
+      "rules",
+      "society",
+      "distribution",
+      "interpretations",
+      "manifestations",
+      "measurement",
+      "safety",
+      "composition",
+      "symbols",
+      "vocabulary"
+    ],
+    "all_55": [
+      "overall",
+      "personality",
+      "values",
+      "motivation",
+      "behavior",
+      "relationships",
+      "role",
+      "themes",
+      "abilities",
+      "worldview",
+      "narrative",
+      "tone",
+      "characters",
+      "definition",
+      "properties",
+      "implications",
+      "related_concepts",
+      "examples",
+      "background",
+      "appearance",
+      "purpose",
+      "history",
+      "structure",
+      "activities",
+      "culture",
+      "scope",
+      "chronology",
+      "setting",
+      "production",
+      "reception",
+      "changes",
+      "significance",
+      "geography",
+      "environment",
+      "function",
+      "usage",
+      "design",
+      "mechanism",
+      "causes",
+      "conditions",
+      "effects",
+      "requirements",
+      "constraints",
+      "variants",
+      "procedure",
+      "rules",
+      "society",
+      "distribution",
+      "interpretations",
+      "manifestations",
+      "measurement",
+      "safety",
+      "composition",
+      "symbols",
+      "vocabulary"
+    ]
+  },
+  "class_cases": [
+    {
+      "class_id": "class:object_class",
+      "class_key": "object_class",
+      "assignment_policy": "structural",
+      "positive_example": "Class hierarchyのrootとしてCharacter等のancestorを束ねる",
+      "negative_example": "未知ObjectをPrimary=ObjectClassへ割り当てる",
+      "representative_placement": {
+        "knowledge": "ObjectClassはRegistry構造でありObject Knowledge Facetを持たない",
+        "expected_kind": "classification",
+        "target": "structural_only"
+      }
+    },
+    {
+      "class_id": "class:fictional_entity",
+      "class_key": "fictional_entity",
+      "assignment_policy": "additional_only",
+      "positive_example": "架空OrganizationへAdditional Classとしてfictionalityを付与する",
+      "negative_example": "FictionalEntityをPrimary Classとして使う",
+      "representative_placement": {
+        "knowledge": "fictionalityは補助分類であり専用Facetを要求しない",
+        "expected_kind": "classification",
+        "target": "additional_only"
+      }
+    },
+    {
+      "class_id": "class:agent",
+      "class_key": "agent",
+      "assignment_policy": "structural",
+      "positive_example": "Character / Person / Organization等のstructural ancestorとして使う",
+      "negative_example": "実在人物をPrimary=Agentへ割り当てる",
+      "representative_placement": {
+        "knowledge": "Agentは広すぎるため直接profileを持たない",
+        "expected_kind": "classification",
+        "target": "structural_only"
+      }
+    },
+    {
+      "class_id": "class:character",
+      "class_key": "character",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "物語上の人格主体である架空主人公",
+      "negative_example": "実在俳優そのものはPerson",
+      "representative_placement": {
+        "knowledge": "冷静だが仲間の危機では衝動的になる",
+        "expected_kind": "facet",
+        "target": "personality",
+        "expected_facet": "personality"
+      }
+    },
+    {
+      "class_id": "class:person",
+      "class_key": "person",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "実在の作者・研究者・歴史人物",
+      "negative_example": "作品内の架空人物はCharacter",
+      "representative_placement": {
+        "knowledge": "研究者としての経歴以前に工学教育を受けた",
+        "expected_kind": "facet",
+        "target": "background",
+        "expected_facet": "background"
+      }
+    },
+    {
+      "class_id": "class:organization",
+      "class_key": "organization",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "出版社・学校・法人・架空機関",
+      "negative_example": "制度性のない一時的な集まりはGroupまたは非Object",
+      "representative_placement": {
+        "knowledge": "編集・営業・製造の部門構造を持つ",
+        "expected_kind": "facet",
+        "target": "structure",
+        "expected_facet": "structure"
+      }
+    },
+    {
+      "class_id": "class:group",
+      "class_key": "group",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "名称と継続Identityを持つバンド・ユニット",
+      "negative_example": "偶然居合わせた人々はGroup Objectにしない",
+      "representative_placement": {
+        "knowledge": "共同制作を目的として結成された",
+        "expected_kind": "facet",
+        "target": "purpose",
+        "expected_facet": "purpose"
+      }
+    },
+    {
+      "class_id": "class:team",
+      "class_key": "team",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "共同目標を持つスポーツ/制作チーム",
+      "negative_example": "企業全体はOrganization",
+      "representative_placement": {
+        "knowledge": "大会参加と共同練習を継続する",
+        "expected_kind": "facet",
+        "target": "activities",
+        "expected_facet": "activities"
+      }
+    },
+    {
+      "class_id": "class:faction",
+      "class_key": "faction",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "政治・軍事・思想的な陣営や派閥",
+      "negative_example": "短期作業班はTeam",
+      "representative_placement": {
+        "knowledge": "秩序維持を最優先する価値観を共有する",
+        "expected_kind": "facet",
+        "target": "values",
+        "expected_facet": "values"
+      }
+    },
+    {
+      "class_id": "class:creature",
+      "class_key": "creature",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "固有名を持つ実在または架空の非人間個体",
+      "negative_example": "猫という種全体はSpecies",
+      "representative_placement": {
+        "knowledge": "夜間に活動し特定人物へ強く懐く",
+        "expected_kind": "facet",
+        "target": "behavior",
+        "expected_facet": "behavior"
+      }
+    },
+    {
+      "class_id": "class:creative_work",
+      "class_key": "creative_work",
+      "assignment_policy": "structural",
+      "positive_example": "Work / Series等を束ねるstructural ancestor",
+      "negative_example": "小説をPrimary=CreativeWorkへ割り当てる",
+      "representative_placement": {
+        "knowledge": "CreativeWorkはfamily rootで直接profileを持たない",
+        "expected_kind": "classification",
+        "target": "structural_only"
+      }
+    },
+    {
+      "class_id": "class:work",
+      "class_key": "work",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "個別の小説・映画・ゲーム作品",
+      "negative_example": "複数作品を束ねるまとまりはSeries",
+      "representative_placement": {
+        "knowledge": "喪失からの再生を中心主題として扱う",
+        "expected_kind": "facet",
+        "target": "themes",
+        "expected_facet": "themes"
+      }
+    },
+    {
+      "class_id": "class:adaptation",
+      "class_key": "adaptation",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "小説を原作とする映画版など独立した翻案作品",
+      "negative_example": "同一媒体の改訂版はWorkEdition",
+      "representative_placement": {
+        "knowledge": "映画版では脇役の視点が削除された",
+        "expected_kind": "facet",
+        "target": "changes",
+        "expected_facet": "changes"
+      }
+    },
+    {
+      "class_id": "class:work_edition",
+      "class_key": "work_edition",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "改訂版・remake・revised edition",
+      "negative_example": "SGOKB Knowledge VersionはWorkEditionではない",
+      "representative_placement": {
+        "knowledge": "改訂版では終章が加筆された",
+        "expected_kind": "facet",
+        "target": "changes",
+        "expected_facet": "changes"
+      }
+    },
+    {
+      "class_id": "class:series",
+      "class_key": "series",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "複数Workを継続的まとまりとして束ねるSeries",
+      "negative_example": "単一作品はWork",
+      "representative_placement": {
+        "knowledge": "本編三作と外伝二作をSeries範囲に含む",
+        "expected_kind": "facet",
+        "target": "scope",
+        "expected_facet": "scope"
+      }
+    },
+    {
+      "class_id": "class:franchise",
+      "class_key": "franchise",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "複数mediaやSeriesを跨ぐIP的まとまり",
+      "negative_example": "一つのTV SeriesだけならSeries",
+      "representative_placement": {
+        "knowledge": "ゲームから始まりアニメ・出版へ展開した",
+        "expected_kind": "facet",
+        "target": "history",
+        "expected_facet": "history"
+      }
+    },
+    {
+      "class_id": "class:work_component",
+      "class_key": "work_component",
+      "assignment_policy": "structural",
+      "positive_example": "Episode / Chapter / Arc等のstructural ancestor",
+      "negative_example": "実際の第1話をPrimary=WorkComponentへ割り当てる",
+      "representative_placement": {
+        "knowledge": "WorkComponentはdescendant profileの継承点である",
+        "expected_kind": "classification",
+        "target": "structural_only"
+      }
+    },
+    {
+      "class_id": "class:episode",
+      "class_key": "episode",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "固有Identityを持つTV第1話",
+      "negative_example": "目次上の番号だけで独立Knowledge不要ならObject化しない",
+      "representative_placement": {
+        "knowledge": "主人公と敵対者が初めて遭遇する",
+        "expected_kind": "facet",
+        "target": "narrative",
+        "expected_facet": "narrative"
+      }
+    },
+    {
+      "class_id": "class:chapter",
+      "class_key": "chapter",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "独立して参照する価値のある章",
+      "negative_example": "単なるページ範囲はChapter Objectにしない",
+      "representative_placement": {
+        "knowledge": "この章では責任と贖罪が強調される",
+        "expected_kind": "facet",
+        "target": "themes",
+        "expected_facet": "themes"
+      }
+    },
+    {
+      "class_id": "class:volume",
+      "class_key": "volume",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "漫画第5巻など独立Identityを持つ巻",
+      "negative_example": "単巻完結書籍を機械的にVolume扱いしない",
+      "representative_placement": {
+        "knowledge": "第35話から第43話までを収録する",
+        "expected_kind": "facet",
+        "target": "scope",
+        "expected_facet": "scope"
+      }
+    },
+    {
+      "class_id": "class:season",
+      "class_key": "season",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "公式Season 2など複数Episodeを束ねる単位",
+      "negative_example": "歴史上の季節や時期はPeriod",
+      "representative_placement": {
+        "knowledge": "前半で内戦、後半で和解へ進む",
+        "expected_kind": "facet",
+        "target": "chronology",
+        "expected_facet": "chronology"
+      }
+    },
+    {
+      "class_id": "class:arc",
+      "class_key": "arc",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "安定名称を持つ物語編",
+      "negative_example": "恣意的に選んだ数話集合はArc Objectにしない",
+      "representative_placement": {
+        "knowledge": "主人公の価値観が転換する物語上の節目となる",
+        "expected_kind": "facet",
+        "target": "significance",
+        "expected_facet": "significance"
+      }
+    },
+    {
+      "class_id": "class:place",
+      "class_key": "place",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "都市・学校・施設など地理/施設的対象",
+      "negative_example": "Workが学校を舞台にするという説明はsetting Facet",
+      "representative_placement": {
+        "knowledge": "河川沿いの盆地に位置する",
+        "expected_kind": "facet",
+        "target": "geography",
+        "expected_facet": "geography"
+      }
+    },
+    {
+      "class_id": "class:world",
+      "class_key": "world",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "複数Place/Eventを包含する架空世界・宇宙",
+      "negative_example": "単一都市はPlace",
+      "representative_placement": {
+        "knowledge": "魔力保存則が世界内の現象を制約する",
+        "expected_kind": "facet",
+        "target": "rules",
+        "expected_facet": "rules"
+      }
+    },
+    {
+      "class_id": "class:event",
+      "class_key": "event",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "特定時点・期間に起きた戦争・大会・事件",
+      "negative_example": "地震という反復可能な現象typeはPhenomenon",
+      "representative_placement": {
+        "knowledge": "資源不足と同盟崩壊が開戦原因となった",
+        "expected_kind": "facet",
+        "target": "causes",
+        "expected_facet": "causes"
+      }
+    },
+    {
+      "class_id": "class:artifact",
+      "class_key": "artifact",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "固有Identityを持つ人工物・道具・遺物",
+      "negative_example": "剣という一般型はArtifactTypeConcept",
+      "representative_placement": {
+        "knowledge": "片手使用を前提に軽量化された設計を持つ",
+        "expected_kind": "facet",
+        "target": "design",
+        "expected_facet": "design"
+      }
+    },
+    {
+      "class_id": "class:product",
+      "class_key": "product",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "市場上の製品model",
+      "negative_example": "その一個体を個別追跡するならArtifact寄り",
+      "representative_placement": {
+        "knowledge": "高負荷GPU計算と4Kゲームに利用される",
+        "expected_kind": "facet",
+        "target": "usage",
+        "expected_facet": "usage"
+      }
+    },
+    {
+      "class_id": "class:taxon",
+      "class_key": "taxon",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "属・科などtaxonomy上の分類群",
+      "negative_example": "固有個体はCreature",
+      "representative_placement": {
+        "knowledge": "共通する形態的特徴を持つ分類群である",
+        "expected_kind": "facet",
+        "target": "properties",
+        "expected_facet": "properties"
+      }
+    },
+    {
+      "class_id": "class:species",
+      "class_key": "species",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "Felis catus等の実在species",
+      "negative_example": "作品世界のrace-like集団はFictionalRace",
+      "representative_placement": {
+        "knowledge": "人間居住域に広く分布する",
+        "expected_kind": "facet",
+        "target": "distribution",
+        "expected_facet": "distribution"
+      }
+    },
+    {
+      "class_id": "class:fictional_race",
+      "class_key": "fictional_race",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "公式設定された架空種族",
+      "negative_example": "思想で集まった陣営はFaction",
+      "representative_placement": {
+        "knowledge": "成人儀礼として共同巡礼を行う",
+        "expected_kind": "facet",
+        "target": "culture",
+        "expected_facet": "culture"
+      }
+    },
+    {
+      "class_id": "class:concept",
+      "class_key": "concept",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "独立定義・比較価値を持つ抽象概念",
+      "negative_example": "固有特殊能力はAbility",
+      "representative_placement": {
+        "knowledge": "自己犠牲とは他者利益のため自己利益を放棄する行為概念である",
+        "expected_kind": "facet",
+        "target": "definition",
+        "expected_facet": "definition"
+      }
+    },
+    {
+      "class_id": "class:theme",
+      "class_key": "theme",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "作品横断で扱う成長・自己犠牲等の主題概念",
+      "negative_example": "あるWork内でのテーマ説明はWork.themes",
+      "representative_placement": {
+        "knowledge": "喪失と再生の反復として作品群に現れる",
+        "expected_kind": "facet",
+        "target": "manifestations",
+        "expected_facet": "manifestations"
+      }
+    },
+    {
+      "class_id": "class:ideology",
+      "class_key": "ideology",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "体系化された思想・doctrine",
+      "negative_example": "Personの単発意見はStatement",
+      "representative_placement": {
+        "knowledge": "個人の自由より共同体秩序を優先する",
+        "expected_kind": "facet",
+        "target": "values",
+        "expected_facet": "values"
+      }
+    },
+    {
+      "class_id": "class:trait",
+      "class_key": "trait",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "外向性など独立概念として扱う持続的性質",
+      "negative_example": "今怒っている状態はEmotion/Stateの具体例",
+      "representative_placement": {
+        "knowledge": "複数尺度で外向性傾向を評価できる",
+        "expected_kind": "facet",
+        "target": "measurement",
+        "expected_facet": "measurement"
+      }
+    },
+    {
+      "class_id": "class:emotion",
+      "class_key": "emotion",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "恐怖・喜び等の感情概念",
+      "negative_example": "Character Aが今恐れていることはCharacter Knowledge",
+      "representative_placement": {
+        "knowledge": "未知の脅威認知で生じやすい",
+        "expected_kind": "facet",
+        "target": "conditions",
+        "expected_facet": "conditions"
+      }
+    },
+    {
+      "class_id": "class:motivation",
+      "class_key": "motivation",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "承認欲求等の動機概念",
+      "negative_example": "Character固有の復讐動機はCharacter.motivation",
+      "representative_placement": {
+        "knowledge": "承認追求行動を強化し得る",
+        "expected_kind": "facet",
+        "target": "effects",
+        "expected_facet": "effects"
+      }
+    },
+    {
+      "class_id": "class:state_concept",
+      "class_key": "state_concept",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "孤立・飢餓等を独立Knowledge化する状態概念",
+      "negative_example": "objects.status=active等のRegistry状態",
+      "representative_placement": {
+        "knowledge": "社会的接触の継続的不足が成立条件となる",
+        "expected_kind": "facet",
+        "target": "conditions",
+        "expected_facet": "conditions"
+      }
+    },
+    {
+      "class_id": "class:role_concept",
+      "class_key": "role_concept",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "教師・指揮官等の役割概念",
+      "negative_example": "Aが教師である事実そのものはRelation/value",
+      "representative_placement": {
+        "knowledge": "教育責任と評価権限を担うため資格が要求される",
+        "expected_kind": "facet",
+        "target": "requirements",
+        "expected_facet": "requirements"
+      }
+    },
+    {
+      "class_id": "class:artifact_type_concept",
+      "class_key": "artifact_type_concept",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "剣・容器等の人工物type概念",
+      "negative_example": "エクスカリバー等の固有物はArtifact",
+      "representative_placement": {
+        "knowledge": "切断・刺突を主要機能とする",
+        "expected_kind": "facet",
+        "target": "function",
+        "expected_facet": "function"
+      }
+    },
+    {
+      "class_id": "class:capability",
+      "class_key": "capability",
+      "assignment_policy": "structural",
+      "positive_example": "Ability / Skillのstructural ancestor",
+      "negative_example": "固有能力をPrimary=Capabilityへ割り当てる",
+      "representative_placement": {
+        "knowledge": "Capabilityは能力familyの継承点である",
+        "expected_kind": "classification",
+        "target": "structural_only"
+      }
+    },
+    {
+      "class_id": "class:ability",
+      "class_key": "ability",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "名称・ルール・制約を持つ特殊能力",
+      "negative_example": "訓練可能な技能中心ならSkill",
+      "representative_placement": {
+        "knowledge": "接触対象の熱を別地点へ転送する",
+        "expected_kind": "facet",
+        "target": "mechanism",
+        "expected_facet": "mechanism"
+      }
+    },
+    {
+      "class_id": "class:skill",
+      "class_key": "skill",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "習得・訓練可能な技能・technique",
+      "negative_example": "一回の斬撃実行はAction/Event",
+      "representative_placement": {
+        "knowledge": "足運び→構え→斬撃の順で実行する",
+        "expected_kind": "facet",
+        "target": "procedure",
+        "expected_facet": "procedure"
+      }
+    },
+    {
+      "class_id": "class:process",
+      "class_key": "process",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "stage/input/outputを持つ過程type",
+      "negative_example": "特定日時の事故はEvent",
+      "representative_placement": {
+        "knowledge": "酵母が糖を代謝して二酸化炭素を生じる",
+        "expected_kind": "facet",
+        "target": "mechanism",
+        "expected_facet": "mechanism"
+      }
+    },
+    {
+      "class_id": "class:action",
+      "class_key": "action",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "離散的な行為type",
+      "negative_example": "Relation predicate usesを何でもAction Object化しない",
+      "representative_placement": {
+        "knowledge": "投票は選択肢間の意思決定を表明するため行う",
+        "expected_kind": "facet",
+        "target": "purpose",
+        "expected_facet": "purpose"
+      }
+    },
+    {
+      "class_id": "class:activity",
+      "class_key": "activity",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "継続・反復される活動type",
+      "negative_example": "特定日の公演はEvent",
+      "representative_placement": {
+        "knowledge": "演奏活動は公演・録音・練習として実践される",
+        "expected_kind": "facet",
+        "target": "usage",
+        "expected_facet": "usage"
+      }
+    },
+    {
+      "class_id": "class:temporal_entity",
+      "class_key": "temporal_entity",
+      "assignment_policy": "structural",
+      "positive_example": "Period / Timeline等のstructural temporal ancestor",
+      "negative_example": "任意date rangeをPrimary=TemporalEntityにしない",
+      "representative_placement": {
+        "knowledge": "TemporalEntityは時間文脈familyの継承点である",
+        "expected_kind": "classification",
+        "target": "structural_only"
+      }
+    },
+    {
+      "class_id": "class:period",
+      "class_key": "period",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "名称・Identityを持つ期間",
+      "negative_example": "無名の2020-01-01〜02-01区間はtyped temporal scopeで足りる",
+      "representative_placement": {
+        "knowledge": "改革開始から制度定着までを対象期間とする",
+        "expected_kind": "facet",
+        "target": "scope",
+        "expected_facet": "scope"
+      }
+    },
+    {
+      "class_id": "class:era",
+      "class_key": "era",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "歴史的・作品世界上の意味を持つ時代",
+      "negative_example": "単なる10年間はEraにしない",
+      "representative_placement": {
+        "knowledge": "都市文化と出版活動が急速に発達した",
+        "expected_kind": "facet",
+        "target": "culture",
+        "expected_facet": "culture"
+      }
+    },
+    {
+      "class_id": "class:timeline",
+      "class_key": "timeline",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "公式な時間系列・world-line context",
+      "negative_example": "UIで生成した表示年表はderived view",
+      "representative_placement": {
+        "knowledge": "分岐後は出来事の順序関係を独立に扱う",
+        "expected_kind": "facet",
+        "target": "rules",
+        "expected_facet": "rules"
+      }
+    },
+    {
+      "class_id": "class:continuity",
+      "class_key": "continuity",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "canon/reboot/world-lineを区別するcontinuity context",
+      "negative_example": "単なるSeries分類はContinuityではない",
+      "representative_placement": {
+        "knowledge": "rebootで人物関係と歴史設定が再定義された",
+        "expected_kind": "facet",
+        "target": "changes",
+        "expected_facet": "changes"
+      }
+    },
+    {
+      "class_id": "class:system",
+      "class_key": "system",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "独自ルール・構成要素を持つ体系",
+      "negative_example": "単純な抽象概念はConcept",
+      "representative_placement": {
+        "knowledge": "入力・処理・保存・出力のsubsystemから成る",
+        "expected_kind": "facet",
+        "target": "structure",
+        "expected_facet": "structure"
+      }
+    },
+    {
+      "class_id": "class:software",
+      "class_key": "software",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "独立名称・機能・Versionを持つsoftware",
+      "negative_example": "software提供会社はOrganization",
+      "representative_placement": {
+        "knowledge": "拡張機構と統合terminal機能を備える",
+        "expected_kind": "facet",
+        "target": "properties",
+        "expected_facet": "properties"
+      }
+    },
+    {
+      "class_id": "class:service",
+      "class_key": "service",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "継続的に提供されるWeb/配信等のservice",
+      "negative_example": "提供会社そのものはOrganization",
+      "representative_placement": {
+        "knowledge": "利用者はaccountを通じて検索・保存機能を使う",
+        "expected_kind": "facet",
+        "target": "usage",
+        "expected_facet": "usage"
+      }
+    },
+    {
+      "class_id": "class:rule_system",
+      "class_key": "rule_system",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "複数Objectの挙動を規定するrule-governed system",
+      "negative_example": "単一ルール文はStatement",
+      "representative_placement": {
+        "knowledge": "行動順序と資源消費を規則として定める",
+        "expected_kind": "facet",
+        "target": "rules",
+        "expected_facet": "rules"
+      }
+    },
+    {
+      "class_id": "class:material",
+      "class_key": "material",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "材料として独立性質・用途を持つ対象",
+      "negative_example": "その材料から作られた製品はProduct/Artifact",
+      "representative_placement": {
+        "knowledge": "炭素鋼は鉄を主成分とし炭素を含む",
+        "expected_kind": "facet",
+        "target": "composition",
+        "expected_facet": "composition"
+      }
+    },
+    {
+      "class_id": "class:substance",
+      "class_key": "substance",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "化学的・物理的identityを強く持つ物質",
+      "negative_example": "用途中心の複合材料はMaterial",
+      "representative_placement": {
+        "knowledge": "常温で液体で高い極性を持つ",
+        "expected_kind": "facet",
+        "target": "properties",
+        "expected_facet": "properties"
+      }
+    },
+    {
+      "class_id": "class:phenomenon",
+      "class_key": "phenomenon",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "反復して生じる現象type",
+      "negative_example": "特定日時の発生はEvent",
+      "representative_placement": {
+        "knowledge": "需要増と供給制約の相互作用で価格上昇が生じる",
+        "expected_kind": "facet",
+        "target": "mechanism",
+        "expected_facet": "mechanism"
+      }
+    },
+    {
+      "class_id": "class:natural_phenomenon",
+      "class_key": "natural_phenomenon",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "自然界のphenomenon type",
+      "negative_example": "2026年の特定台風はEvent",
+      "representative_placement": {
+        "knowledge": "落雷は感電・火災リスクを伴う",
+        "expected_kind": "facet",
+        "target": "safety",
+        "expected_facet": "safety"
+      }
+    },
+    {
+      "class_id": "class:social_phenomenon",
+      "class_key": "social_phenomenon",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "社会に反復・広域的に現れるphenomenon type",
+      "negative_example": "政党はOrganization、単発選挙はEvent",
+      "representative_placement": {
+        "knowledge": "消費・言語・メディア行動の複数領域に現れる",
+        "expected_kind": "facet",
+        "target": "manifestations",
+        "expected_facet": "manifestations"
+      }
+    },
+    {
+      "class_id": "class:symbolic_system",
+      "class_key": "symbolic_system",
+      "assignment_policy": "structural",
+      "positive_example": "Language / WritingSystem等のstructural ancestor",
+      "negative_example": "実言語をPrimary=SymbolicSystemにしない",
+      "representative_placement": {
+        "knowledge": "SymbolicSystemは記号体系familyの継承点である",
+        "expected_kind": "classification",
+        "target": "structural_only"
+      }
+    },
+    {
+      "class_id": "class:language",
+      "class_key": "language",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "日本語・人工言語・架空言語",
+      "negative_example": "Latin alphabetはWritingSystem",
+      "representative_placement": {
+        "knowledge": "語彙は和語・漢語・外来語等から構成される",
+        "expected_kind": "facet",
+        "target": "vocabulary",
+        "expected_facet": "vocabulary"
+      }
+    },
+    {
+      "class_id": "class:writing_system",
+      "class_key": "writing_system",
+      "assignment_policy": "primary_eligible",
+      "positive_example": "Latin alphabet・漢字体系等の表記体系",
+      "negative_example": "日本語という言語全体はLanguage",
+      "representative_placement": {
+        "knowledge": "有限の文字inventoryと組合せ規則を持つ",
+        "expected_kind": "facet",
+        "target": "symbols",
+        "expected_facet": "symbols"
+      }
+    }
+  ],
+  "boundary_cases": [
+    {
+      "id": "purpose_function_usage",
+      "input": "製品は映像を表示するために設計され、信号を画素へ変換し、PC接続で利用される",
+      "expect": [
+        {
+          "kind": "facet",
+          "facet": "purpose"
+        },
+        {
+          "kind": "facet",
+          "facet": "function"
+        },
+        {
+          "kind": "facet",
+          "facet": "usage"
+        }
+      ],
+      "reject": [
+        "single facet collapse"
+      ]
+    },
+    {
+      "id": "history_chronology_changes",
+      "input": "シリーズは1990年開始。作中ではA→B→Cの順。新版でBが削除された",
+      "expect": [
+        {
+          "facet": "history"
+        },
+        {
+          "facet": "chronology"
+        },
+        {
+          "facet": "changes"
+        }
+      ],
+      "reject": [
+        "history/chronology/changes equivalence"
+      ]
+    },
+    {
+      "id": "structure_relation_components",
+      "input": "Systemは3 subsystemで構成され、個々のsubsystemは独立Objectである",
+      "expect": [
+        {
+          "kind": "facet",
+          "facet": "structure"
+        },
+        {
+          "kind": "relation",
+          "role": "has_component"
+        }
+      ],
+      "reject": [
+        "component list duplicated as facet truth"
+      ]
+    },
+    {
+      "id": "properties_vs_attribute",
+      "input": "GPUは24 GB VRAMを持ち、高帯域メモリ構成を特徴とする",
+      "expect": [
+        {
+          "kind": "attribute",
+          "key": "vram_capacity"
+        },
+        {
+          "kind": "facet",
+          "facet": "properties"
+        }
+      ],
+      "reject": [
+        "numeric value only in properties"
+      ]
+    },
+    {
+      "id": "rules_constraints_conditions",
+      "input": "能力は夜間のみ使用可能、1回10秒まで、対象接触時に発動する",
+      "expect": [
+        {
+          "facet": "rules"
+        },
+        {
+          "facet": "constraints"
+        },
+        {
+          "facet": "conditions"
+        }
+      ],
+      "reject": [
+        "rules/constraints/conditions collapse"
+      ]
+    },
+    {
+      "id": "mechanism_procedure_behavior",
+      "input": "発酵は代謝でCO2を生じ、工程は混合→発酵→焼成、酵母は糖濃度で活動が変化する",
+      "expect": [
+        {
+          "facet": "mechanism"
+        },
+        {
+          "facet": "procedure"
+        },
+        {
+          "facet": "behavior"
+        }
+      ],
+      "reject": [
+        "mechanism/procedure/behavior collapse"
+      ]
+    },
+    {
+      "id": "causes_effects_implications",
+      "input": "資源不足が暴動を引き起こし物流停止を生んだ。この事例は制度脆弱性を示唆する",
+      "expect": [
+        {
+          "facet": "causes"
+        },
+        {
+          "facet": "effects"
+        },
+        {
+          "facet": "implications"
+        }
+      ],
+      "reject": [
+        "causal result treated as implication"
+      ]
+    },
+    {
+      "id": "relation_not_collection_facet",
+      "input": "Organizationのmembers A/B/C",
+      "expect": [
+        {
+          "kind": "relation",
+          "role": "member"
+        }
+      ],
+      "reject": [
+        "members facet"
+      ]
+    },
+    {
+      "id": "overall_not_catchall",
+      "input": "Organizationの設立目的がEvidenceで明示される",
+      "expect": [
+        {
+          "kind": "facet",
+          "facet": "purpose"
+        }
+      ],
+      "reject": [
+        "overall"
+      ]
+    },
+    {
+      "id": "work_component_inheritance",
+      "input": "Episodeの物語上の重要性",
+      "expect": [
+        {
+          "kind": "facet",
+          "facet": "significance",
+          "inherited_from": "work_component"
+        }
+      ],
+      "reject": [
+        "overall"
+      ]
+    },
+    {
+      "id": "capability_inheritance",
+      "input": "Abilityの発動原理",
+      "expect": [
+        {
+          "kind": "facet",
+          "facet": "mechanism",
+          "inherited_from": "capability"
+        }
+      ],
+      "reject": [
+        "new ability_mechanism facet"
+      ]
+    },
+    {
+      "id": "temporal_inheritance",
+      "input": "Eraの対象範囲",
+      "expect": [
+        {
+          "kind": "facet",
+          "facet": "scope",
+          "inherited_from": "period/temporal_entity"
+        }
+      ],
+      "reject": [
+        "date range attribute only"
+      ]
+    },
+    {
+      "id": "symbolic_inheritance",
+      "input": "Languageの文法規則",
+      "expect": [
+        {
+          "kind": "facet",
+          "facet": "rules",
+          "inherited_from": "symbolic_system"
+        }
+      ],
+      "reject": [
+        "grammar facet"
+      ]
+    },
+    {
+      "id": "concept_subclass_direct",
+      "input": "Emotionが具体的に表情や行動へ現れる形",
+      "expect": [
+        {
+          "kind": "facet",
+          "facet": "manifestations",
+          "direct_on": "emotion"
+        }
+      ],
+      "reject": [
+        "examples only"
+      ]
+    },
+    {
+      "id": "provenance_reserved",
+      "input": "Artifactが誰から誰へ受け継がれたか",
+      "expect": [
+        {
+          "kind": "facet",
+          "facet": "history"
+        }
+      ],
+      "reject": [
+        "provenance facet"
+      ]
+    },
+    {
+      "id": "cross_class_shared",
+      "input": "OrganizationとTeamの存在目的を比較する",
+      "expect": [
+        {
+          "kind": "similarity",
+          "facet": "purpose",
+          "cross_class": true
+        }
+      ],
+      "reject": [
+        "separate organization_purpose/team_purpose ids"
+      ]
+    },
+    {
+      "id": "narrow_similarity_scope",
+      "input": "WorkとEpisodeのnarrative similarity",
+      "expect": [
+        {
+          "kind": "similarity",
+          "facet": "narrative",
+          "class_scope_required": true
+        }
+      ],
+      "reject": [
+        "unscoped all-class comparison"
+      ]
+    },
+    {
+      "id": "missing_profile_no_fallback",
+      "input": "Class profileにfacet Xがない",
+      "expect": [
+        {
+          "kind": "validation",
+          "result": "reject_or_not_analyzed"
+        }
+      ],
+      "reject": [
+        "overall fallback"
+      ]
+    },
+    {
+      "id": "structural_not_primary",
+      "input": "named Person object",
+      "expect": [
+        {
+          "kind": "classification",
+          "primary": "person"
+        }
+      ],
+      "reject": [
+        "agent",
+        "object_class"
+      ]
+    },
+    {
+      "id": "fictional_additional_only",
+      "input": "架空Organization",
+      "expect": [
+        {
+          "kind": "classification",
+          "primary": "organization",
+          "additional": [
+            "fictional_entity"
+          ]
+        }
+      ],
+      "reject": [
+        "primary fictional_entity"
+      ]
+    },
+    {
+      "id": "adaptation_edition_version",
+      "input": "映画翻案・改訂版・Knowledge更新",
+      "expect": [
+        {
+          "classification": "adaptation"
+        },
+        {
+          "classification": "work_edition"
+        },
+        {
+          "kind": "knowledge_version"
+        }
+      ],
+      "reject": [
+        "three-way conflation"
+      ]
+    },
+    {
+      "id": "event_phenomenon_process",
+      "input": "2026年の台風 / 台風という現象 / 台風形成過程",
+      "expect": [
+        {
+          "classification": "event"
+        },
+        {
+          "classification": "natural_phenomenon"
+        },
+        {
+          "classification": "process"
+        }
+      ],
+      "reject": [
+        "single event class"
+      ]
+    },
+    {
+      "id": "artifact_product_type",
+      "input": "固有の剣 / 市販製品model / 剣という一般型",
+      "expect": [
+        {
+          "classification": "artifact"
+        },
+        {
+          "classification": "product"
+        },
+        {
+          "classification": "artifact_type_concept"
+        }
+      ],
+      "reject": [
+        "single artifact class"
+      ]
+    },
+    {
+      "id": "taxon_species_race_creature",
+      "input": "科 / 実在species / 架空race / 固有個体",
+      "expect": [
+        {
+          "classification": "taxon"
+        },
+        {
+          "classification": "species"
+        },
+        {
+          "classification": "fictional_race"
+        },
+        {
+          "classification": "creature"
+        }
+      ],
+      "reject": [
+        "species for all"
+      ]
+    },
+    {
+      "id": "language_writing_system",
+      "input": "日本語とLatin alphabet",
+      "expect": [
+        {
+          "classification": "language"
+        },
+        {
+          "classification": "writing_system"
+        },
+        {
+          "kind": "relation"
+        }
+      ],
+      "reject": [
+        "same class"
+      ]
+    }
+  ],
+  "invariants": [
+    "all 62 initial classes have one gold case",
+    "structural classes are never valid Primary Class assignments",
+    "fictional_entity is additional-only",
+    "facet placements use only frozen 55-facet vocabulary",
+    "relation/attribute facts are not duplicated as facet canonical truth",
+    "missing specialized facet never silently falls back to overall",
+    "provenance is reserved for Source/Evidence provenance rather than a semantic facet"
+  ]
+}

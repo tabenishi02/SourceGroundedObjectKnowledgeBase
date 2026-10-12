@@ -9,7 +9,7 @@
   - `docs/design/SEMANTIC_FACET_SCHEMA.md`
   - `docs/requirements/OBJECT_TYPE_BOUNDARIES.md`
   - `src/sgokb/migrations/004_semantic_facets.sql`
-- Next: `E-02C [P0] Class / Facet境界gold casesを作成する`
+- Validated by: `E-02C [P0] Class / Facet境界gold cases` — Complete
 
 ## 1. 目的
 
@@ -660,4 +660,4 @@ E-02Aで列挙されたClass固有候補をそのままFacetへ昇格させる�
 - `overall`をcatch-allとして利用しない。
 - cross-class similarityでFacet IDの意味を安定させる。
 
-この55 Facetはまだ物理Registryの確定seedではない。次Task **`E-02C [P0] Class / Facet境界gold casesを作成する`** で具体例に対して境界を検証し、問題がなければその結果をFacet taxonomy freezeとする。
+この55 FacetはE-02Cの62 Class + 25 boundary gold caseで検証され、修正要求なしでFacet taxonomyとしてfreezeされた。物理Registryは`005_facet_taxonomy_freeze.sql`で55 Facet / 188 profile rowへ反映済みである。次TaskはE-03 Source / Evidence / Provenance schema設計とする。
