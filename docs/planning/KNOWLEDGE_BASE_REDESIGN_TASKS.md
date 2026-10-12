@@ -207,12 +207,22 @@ SGOKBは「外部世界のObject Knowledge」を担当する。ユーザー自�
   - 具体的なObject / Version参照payload、MCP Tool、stale contractはC-04へ残した。
   - 成果物: `docs/requirements/CONCEPT_OWNERSHIP_BOUNDARY_REQUIREMENTS.md`
 
-- [ ] **C-04 [P1] SGOKB→UPDS連携契約を定義する**
-  - Object IDの安定性。
-  - Object / Facet / Relationの取得方式。
-  - MCP経由を基本とし、DB直結を前提としない。
+- [x] **C-04 [P1] SGOKB→UPDS連携契約を定義する**
+  - SGOKBをcanonical World / Object Knowledge Provider、UPDSをPersonal Inference Consumerとし、依存方向を原則SGOKB → UPDSに固定した。
+  - stable `object_id`を永続参照の基本単位、immutable `knowledge_version_id`を推論再現用のVersion参照とした。
+  - Version省略時はcurrent accepted Knowledgeを返しつつ、実際に解決した`resolved_version_id`を必ず識別可能にする契約とした。
+  - UPDSがSemantic Observation / Hypothesis生成に使用したObject ID / Knowledge Version /取得時刻 / scopeを追跡できる要件とした。
+  - staleをinvalidと同一視せず、過去推論はpinned Versionで再現し、current Knowledgeでの再評価は新しいObservation / Hypothesis revisionとして扱う。
+  - merge / supersede / split / unavailable時にIDをsilent置換せず、resolution情報またはunresolved / review-requiredとして扱う。
+  - Object / batch / Facet / Relation / Concept /必要時Evidence、およびSearch / Similarityの論理取得capabilityを定義した。
+  - UPDS cacheはderived cacheとしてのみ許容し、`object_id` / Version / contract version / retrieved time / scopeを保持する。freshness未確認cacheをcurrentとsilent扱いしない。
+  - 標準transportをSGOKB Retrieval / Application Core経由のMCP read accessとし、SQLite direct accessやcloud serviceへのsilent fallbackを禁止した。
+  - Integration Contract version、partial response / warning、data minimization、SGOKB停止時のpending semantic enrichmentを定義した。
+  - UPDS専用Preference推論をSGOKBへ埋め込まず、Personal Inferenceのcanonical write-backを禁止した。Concept proposal等のreverse directionはstaging / reviewとcanonical writeを分離する。
+  - 具体的なDB schemaはPhase E、MCP Tool / JSON SchemaはPhase J、実UPDSでの受入はPhase Kへ引き継いだ。
+  - 成果物: `docs/requirements/SGOKB_UPDS_INTEGRATION_CONTRACT_REQUIREMENTS.md`
 
-**完了条件:** 両プロジェクトで同一ConceptやObject Knowledgeを重複生成しない責務境界が決まっている。
+**完了条件:** 両プロジェクトで同一ConceptやObject Knowledgeを重複生成せず、stable Identity / Version / Knowledge Access境界を介してUPDSがSGOKBを再利用できる責務・連携契約が決まっている。
 
 ---
 
@@ -241,6 +251,7 @@ docs/
 │  ├─ SGOKB_WORLD_OBJECT_KNOWLEDGE_REQUIREMENTS.md
 │  ├─ UPDS_PERSONAL_INFERENCE_LAYER_REQUIREMENTS.md
 │  ├─ CONCEPT_OWNERSHIP_BOUNDARY_REQUIREMENTS.md
+│  ├─ SGOKB_UPDS_INTEGRATION_CONTRACT_REQUIREMENTS.md
 │  ├─ OBJECT_REQUIREMENTS.md
 │  ├─ OBJECT_TYPE_CANDIDATES.md
 │  ├─ OBJECT_TYPE_MODEL.md
@@ -816,8 +827,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase AとPhase B（B-01〜B-07）、およびPhase CのC-01〜C-03は完了した。次の最優先は **C-04 [P1] SGOKB→UPDS連携契約を定義する** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）は完了した。次の未完了PhaseはPhase Dであり、次の最優先は **D-01 [P0] 再設計用長期ブランチ戦略を決定する** とする。D-02 / D-03は既に完了しているため、その後はD-04以降のRepository / module再編設計へ進む。
 
-実装変更を先に始めると、旧PrototypeのEntity / Fragment / Final Document概念を新設計へ引きずる可能性がある。まず目的・責務・データ境界を確定し、その後 **E-01 Object schema** を起点として実装を再構成する。
+実装変更を先に始めると、旧PrototypeのEntity / Fragment / Final Document概念を新設計へ引きずる可能性がある。Phase Cまでで目的・責務・データ境界は確定したため、Phase DでRepository / Git構造方針を揃え、その後 **E-01 Object schema** を起点として実装を再構成する。
 
-Git上の物理的な大量移動（D-03〜D-05）は、要件・責務境界が確定した後に行う。
+Git上の物理的な大量移動やbehavior changeは、D-01 / D-04 / D-05で方針を確定してから実施する。
