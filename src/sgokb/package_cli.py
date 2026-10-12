@@ -1,4 +1,4 @@
-"""Dedicated Phase G CLI for Package transfer and Result receipt."""
+"""Dedicated Phase G CLI for Package build, transfer, and Result receipt."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import os
 import sys
 from pathlib import Path
 
+from .exchange.package_builder import DEFAULT_BUILD_ROOT, ObjectEvidencePackageBuilder
 from .exchange.package_transfer import PackageTransferService
 from .exchange.result_receipt import DEFAULT_INCOMING_ROOT, ResultReceiptService
 from .repository import Repository
@@ -18,6 +19,23 @@ def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(description="SGOKB Object Evidence Package exchange")
     root.add_argument("--db", default=os.environ.get("SGOKB_DB", ".local/sgokb.sqlite"))
     actions = root.add_subparsers(dest="action", required=True)
+
+    build = actions.add_parser(
+        "build", help="Build one Object Evidence Package workspace from canonical storage"
+    )
+    build.add_argument("--object", required=True)
+    build.add_argument(
+        "--build-root",
+        type=Path,
+        default=Path(os.environ.get("SGOKB_PACKAGE_BUILD_ROOT", DEFAULT_BUILD_ROOT)),
+    )
+    build.add_argument("--include-evidence", action="append", default=[])
+    build.add_argument("--exclude-evidence", action="append", default=[])
+    build.add_argument("--max-estimated-tokens", type=int, default=12000)
+    build.add_argument("--max-bytes", type=int, default=65536)
+    build.add_argument("--max-items", type=int, default=64)
+    build.add_argument("--max-candidates", type=int, default=500)
+    build.add_argument("--knowledge-language", default="ja")
 
     stage = actions.add_parser("stage", help="Finalize a local Package build into staging")
     stage.add_argument("source", type=Path, help="Package build directory containing manifest.json")
@@ -85,7 +103,20 @@ def main(argv=None) -> int:
         audit = PackageExchangeAuditRepository(repository.db)
         receipt_service = ResultReceiptService(audit)
 
-        if args.action == "stage":
+        if args.action == "build":
+            result = ObjectEvidencePackageBuilder(repository).build(
+                args.object,
+                build_root=args.build_root,
+                max_estimated_tokens=args.max_estimated_tokens,
+                max_bytes=args.max_bytes,
+                max_items=args.max_items,
+                max_candidates=args.max_candidates,
+                semantic=False,
+                manual_include=args.include_evidence,
+                manual_exclude=args.exclude_evidence,
+                knowledge_language=args.knowledge_language,
+            ).to_dict()
+        elif args.action == "stage":
             staged = transfer.stage_from_directory(args.source, args.staging_root)
             manifest = _manifest(Path(staged.path))
             audit.record_staged(manifest, staged.path, staged.preflight.to_dict())
