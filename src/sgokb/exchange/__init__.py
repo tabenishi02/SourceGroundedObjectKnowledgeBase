@@ -45,6 +45,7 @@ from .package_transfer import (
     PackageTransferService,
     inspect_package,
 )
+from .result_import import ObjectVersionImportResult, ObjectVersionImportService
 from .result_receipt import (
     DEFAULT_INCOMING_ROOT,
     MAX_RESULT_BYTES,
@@ -86,6 +87,8 @@ __all__ = [
     "ObjectEvidencePackageBuilder",
     "ObjectResultContract",
     "ObjectResultValidationError",
+    "ObjectVersionImportResult",
+    "ObjectVersionImportService",
     "PackageBuildResult",
     "PackageExportResult",
     "PackagePreflight",

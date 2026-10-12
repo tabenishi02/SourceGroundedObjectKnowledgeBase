@@ -570,7 +570,7 @@ docs/
   - `ResultValidationService`でG-05 immutable receiptを検証し、`pending -> running -> valid/invalid/error`を監査保存する。
   - `docs/design/RESULT_VALIDATION.md`をH-01設計・実装正本とする。
 
-- [ ] **H-02 [P0] Object Version Importを実装する**
+- [x] **H-02 [P0] Object Version Importを実装する**
   - Validation成功後も標準ではexplicit Import operationを要求し、Result検出だけでsilent commitしない。
   - normal ResultではImport開始後のVersion発行 / current切替 /派生Index更新を追加confirmationへ過剰分割しない。
   - stale Resultは通常Importをblockし、partial / limited Resultはreview-requiredを既定とする。
@@ -581,6 +581,9 @@ docs/
   - Registry proposalをObject Knowledge Importの副作用として自動適用しない。
   - process interruption / retryに対してtransaction-safeかつidempotentにし、incomplete Versionをcurrentへ昇格させない。
   - canonical commit後のEmbedding / Index等はpending / ready / failed / stale相当の独立derived jobとして扱う。
+  - `ObjectVersionImportService`でH-01 valid receiptを明示Importし、candidate作成からcurrent promotionまでを単一transaction化する。
+  - Import provenance / Validation snapshot / Result review metadataをMigration 013でimmutableに保持する。
+  - `docs/design/OBJECT_VERSION_IMPORT.md`をH-02設計・実装正本とする。
 
 - [ ] **H-03 [P1] Markdown Rendererを実装する**
   - DB/JSONから人間向けObject文書を生成する。

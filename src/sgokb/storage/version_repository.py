@@ -104,6 +104,42 @@ class VersionRepository:
             raise ValueError("Unknown Object ID")
         return row["current_version_id"]
 
+    def create_candidate_in_transaction(
+        self,
+        object_id: str,
+        base_version_id: str | None,
+        *,
+        version_id: str | None = None,
+        timestamp: str | None = None,
+    ) -> str:
+        """Create a candidate inside an existing transaction without committing it."""
+
+        if not self.db.in_transaction:
+            raise RuntimeError("Candidate creation requires an active transaction")
+        version_id = version_id or new_persistent_id()
+        timestamp = timestamp or _now()
+        current = self.current_version_id(object_id)
+        if current != base_version_id:
+            raise StaleVersionError(
+                f"Expected base {base_version_id!r}, but current version is {current!r}"
+            )
+        row = self.db.execute(
+            "SELECT coalesce(max(version_number),0)+1 AS next "
+            "FROM object_versions WHERE object_id=?",
+            (object_id,),
+        ).fetchone()
+        self.db.execute(
+            "INSERT INTO object_versions VALUES(?,?,?,?)",
+            (version_id, object_id, row["next"], timestamp),
+        )
+        self._event(
+            version_id,
+            "candidate_created",
+            {"base_version_id": base_version_id, "snapshot_kind": "full"},
+            timestamp,
+        )
+        return version_id
+
     def begin_candidate(
         self,
         object_id: str,
@@ -114,29 +150,10 @@ class VersionRepository:
         """Create a full-snapshot candidate iff the expected base is still current."""
 
         self._require_idle_transaction()
-        version_id = version_id or new_persistent_id()
-        timestamp = _now()
         self.db.execute("BEGIN IMMEDIATE")
         try:
-            current = self.current_version_id(object_id)
-            if current != base_version_id:
-                raise StaleVersionError(
-                    f"Expected base {base_version_id!r}, but current version is {current!r}"
-                )
-            row = self.db.execute(
-                "SELECT coalesce(max(version_number),0)+1 AS next "
-                "FROM object_versions WHERE object_id=?",
-                (object_id,),
-            ).fetchone()
-            self.db.execute(
-                "INSERT INTO object_versions VALUES(?,?,?,?)",
-                (version_id, object_id, row["next"], timestamp),
-            )
-            self._event(
-                version_id,
-                "candidate_created",
-                {"base_version_id": base_version_id, "snapshot_kind": "full"},
-                timestamp,
+            version_id = self.create_candidate_in_transaction(
+                object_id, base_version_id, version_id=version_id
             )
             self.db.commit()
         except Exception:
@@ -168,6 +185,78 @@ class VersionRepository:
             self.db.rollback()
             raise
 
+    def accept_candidate_in_transaction(
+        self,
+        version_id: str,
+        *,
+        derived_kinds: tuple[str, ...] = DEFAULT_DERIVED_KINDS,
+        timestamp: str | None = None,
+    ) -> tuple[str, str | None]:
+        """Accept/promote a candidate inside an existing transaction without committing it."""
+
+        if not self.db.in_transaction:
+            raise RuntimeError("Candidate acceptance requires an active transaction")
+        timestamp = timestamp or _now()
+        row = self.db.execute(
+            """SELECT v.object_id,l.state,l.base_version_id
+               FROM object_versions v
+               JOIN object_version_lifecycle l ON l.version_id=v.id
+               WHERE v.id=?""",
+            (version_id,),
+        ).fetchone()
+        if not row:
+            raise ValueError("Unknown Object Knowledge Version ID")
+        if row["state"] != VersionState.CANDIDATE.value:
+            raise ValueError("Only candidate Versions may be accepted")
+        current = self.current_version_id(row["object_id"])
+        if current != row["base_version_id"]:
+            raise StaleVersionError(
+                f"Candidate base {row['base_version_id']!r} no longer matches current {current!r}"
+            )
+        current_class = self.db.execute(
+            "SELECT primary_class_id FROM objects WHERE id=?", (row["object_id"],)
+        ).fetchone()["primary_class_id"]
+        snapshot_class = self.db.execute(
+            "SELECT primary_class_id FROM object_version_classification_snapshots "
+            "WHERE version_id=?",
+            (version_id,),
+        ).fetchone()
+        if not snapshot_class or snapshot_class["primary_class_id"] != current_class:
+            raise StaleVersionError("Candidate classification snapshot is stale")
+        current_additional = {
+            item["class_id"]
+            for item in self.db.execute(
+                "SELECT class_id FROM object_additional_classes WHERE object_id=?",
+                (row["object_id"],),
+            )
+        }
+        snapshot_additional = {
+            item["class_id"]
+            for item in self.db.execute(
+                "SELECT class_id FROM object_version_additional_class_snapshots WHERE version_id=?",
+                (version_id,),
+            )
+        }
+        if current_additional != snapshot_additional:
+            raise StaleVersionError("Candidate classification snapshot is stale")
+
+        self.db.execute(
+            "UPDATE object_version_lifecycle SET state='accepted',accepted_at=? WHERE version_id=?",
+            (timestamp, version_id),
+        )
+        self.db.execute(
+            "UPDATE objects SET current_version_id=?,updated_at=? WHERE id=?",
+            (version_id, timestamp, row["object_id"]),
+        )
+        self._queue_derived(row["object_id"], version_id, derived_kinds, timestamp)
+        self._event(
+            version_id,
+            "accepted_and_promoted",
+            {"previous_current_version_id": current},
+            timestamp,
+        )
+        return row["object_id"], current
+
     def accept_candidate(
         self,
         version_id: str,
@@ -181,70 +270,9 @@ class VersionRepository:
         """
 
         self._require_idle_transaction()
-        timestamp = _now()
         self.db.execute("BEGIN IMMEDIATE")
         try:
-            row = self.db.execute(
-                """SELECT v.object_id,l.state,l.base_version_id
-                   FROM object_versions v
-                   JOIN object_version_lifecycle l ON l.version_id=v.id
-                   WHERE v.id=?""",
-                (version_id,),
-            ).fetchone()
-            if not row:
-                raise ValueError("Unknown Object Knowledge Version ID")
-            if row["state"] != VersionState.CANDIDATE.value:
-                raise ValueError("Only candidate Versions may be accepted")
-            current = self.current_version_id(row["object_id"])
-            if current != row["base_version_id"]:
-                raise StaleVersionError(
-                    "Candidate base "
-                    f"{row['base_version_id']!r} no longer matches current {current!r}"
-                )
-            current_class = self.db.execute(
-                "SELECT primary_class_id FROM objects WHERE id=?", (row["object_id"],)
-            ).fetchone()["primary_class_id"]
-            snapshot_class = self.db.execute(
-                "SELECT primary_class_id FROM object_version_classification_snapshots "
-            "WHERE version_id=?",
-                (version_id,),
-            ).fetchone()
-            if not snapshot_class or snapshot_class["primary_class_id"] != current_class:
-                raise StaleVersionError("Candidate classification snapshot is stale")
-            current_additional = {
-                item["class_id"]
-                for item in self.db.execute(
-                    "SELECT class_id FROM object_additional_classes WHERE object_id=?",
-                    (row["object_id"],),
-                )
-            }
-            snapshot_additional = {
-                item["class_id"]
-                for item in self.db.execute(
-                    "SELECT class_id FROM object_version_additional_class_snapshots "
-                    "WHERE version_id=?",
-                    (version_id,),
-                )
-            }
-            if current_additional != snapshot_additional:
-                raise StaleVersionError("Candidate classification snapshot is stale")
-
-            self.db.execute(
-                """UPDATE object_version_lifecycle
-                   SET state='accepted',accepted_at=? WHERE version_id=?""",
-                (timestamp, version_id),
-            )
-            self.db.execute(
-                "UPDATE objects SET current_version_id=?,updated_at=? WHERE id=?",
-                (version_id, timestamp, row["object_id"]),
-            )
-            self._queue_derived(row["object_id"], version_id, derived_kinds, timestamp)
-            self._event(
-                version_id,
-                "accepted_and_promoted",
-                {"previous_current_version_id": current},
-                timestamp,
-            )
+            self.accept_candidate_in_transaction(version_id, derived_kinds=derived_kinds)
             self.db.commit()
         except Exception:
             self.db.rollback()
