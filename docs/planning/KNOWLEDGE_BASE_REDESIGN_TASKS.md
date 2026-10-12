@@ -337,7 +337,7 @@ docs/
 
 **Phase E開始準備（2026-10-12）:** Phase D完了を再監査し未完了Task 0件を確認した。D-05 Wave 1として`domain.py -> domain/` package conversionをstructural-only PR #11で完了し、現行Prototypeの`entities / entity_relations / entity_evidence` schemaとの差分とE-01 Definition of Readyを`docs/planning/PHASE_E_PREPARATION.md`へ整理した。
 
-- [ ] **E-01 [P0] Object schemaを設計する**
+- [x] **E-01 [P0] Object schemaを設計する**
   - `objects`
   - `object_aliases`
   - `object_versions`
@@ -851,8 +851,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。次の最優先は **E-01 [P0] Object schemaを設計する** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）は完了した。E-01は完了した。次の最優先は **E-02 [P0] Semantic Facet schemaを設計する** とする。
 
 Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
 
-Phase EではD-04で確定した`domain / storage`責務境界を維持しつつ、B-02〜B-04要件を物理Object schemaへ落とし込む。D-05に従い、E-01のschema/domain behavior変更より先に必要な`domain.py -> domain/` structural conversionを別PRとして扱う。
+E-01ではD-04で確定した`domain / storage`責務境界を維持し、Migration 003、Object domain contract、`storage/ObjectRepository`、62 Class seed、DB integrity constraintを実装した。設計正本は`docs/design/OBJECT_SCHEMA.md`とする。E-02ではこのObject / Class / Version / Relation骨格上へSemantic Facetを設計する。
