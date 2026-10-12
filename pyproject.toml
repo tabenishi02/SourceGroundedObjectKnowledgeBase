@@ -15,6 +15,7 @@ local-embedding = ["sentence-transformers>=3,<6"]
 
 [project.scripts]
 sgokb = "sgokb.cli:main"
+sgokb-package = "sgokb.package_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
