@@ -1,14 +1,36 @@
+# Historical / local corpora
 old/
 sample/
+
+# Runtime / private state
 .local/
+/generated/
+/exchange/
+/backups/
+
+# Python local environment / cache
 .venv/
 __pycache__/
 *.py[cod]
 *.egg-info/
 .pytest_cache/
 .ruff_cache/
+
+# Secrets / local overrides
 .env
+.env.*
+!.env.example
+.secrets/
+config.local.*
+credentials.local.*
+
+# Runtime databases / SQLite journals
 *.sqlite*
 *.db
+*.db-wal
+*.db-shm
+*.db-journal
+
+# Build artifacts
 dist/
 build/
