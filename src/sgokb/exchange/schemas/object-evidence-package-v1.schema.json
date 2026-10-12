@@ -1,0 +1,527 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:sgokb:schema:object-evidence-package:1.0",
+  "title": "SGOKB Object Evidence Package Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "package_id",
+    "created_at",
+    "extracted_at",
+    "target",
+    "binding",
+    "artifacts",
+    "evidence",
+    "selection",
+    "files",
+    "warnings",
+    "export_preflight",
+    "integrity"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "sgokb.object-evidence-package/1.0"
+    },
+    "package_id": {
+      "type": "string",
+      "pattern": "^pkg_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "extracted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "target": {
+      "$ref": "#/$defs/target"
+    },
+    "binding": {
+      "$ref": "#/$defs/binding"
+    },
+    "artifacts": {
+      "$ref": "#/$defs/artifacts"
+    },
+    "evidence": {
+      "$ref": "#/$defs/evidence"
+    },
+    "selection": {
+      "$ref": "#/$defs/selection"
+    },
+    "files": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "$ref": "#/$defs/file"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/warning"
+      }
+    },
+    "export_preflight": {
+      "$ref": "#/$defs/export_preflight"
+    },
+    "integrity": {
+      "$ref": "#/$defs/integrity"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "object_id",
+        "primary_class_id",
+        "additional_class_ids",
+        "name",
+        "aliases"
+      ],
+      "properties": {
+        "object_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "primary_class_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "additional_class_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aliases": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base_version_id",
+        "expected_result_schema_version",
+        "instructions_version"
+      ],
+      "properties": {
+        "base_version_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "expected_result_schema_version": {
+          "const": "sgokb.object-result/1.0"
+        },
+        "instructions_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instructions_path",
+        "result_schema_path",
+        "current_object_path"
+      ],
+      "properties": {
+        "instructions_path": {
+          "const": "instructions.md"
+        },
+        "result_schema_path": {
+          "const": "schema/object-result-v1.schema.json"
+        },
+        "current_object_path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "current_object.json",
+            null
+          ]
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "included_source_ids",
+        "included_evidence_ids",
+        "source_generations",
+        "items"
+      ],
+      "properties": {
+        "included_source_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "included_evidence_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "source_generations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/source_generation"
+          }
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/evidence_item"
+          }
+        }
+      }
+    },
+    "source_generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "snapshot_id",
+        "normalization_run_id",
+        "file_path",
+        "evidence_ids"
+      ],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "snapshot_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "normalization_run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "file_path": {
+          "type": "string",
+          "pattern": "^evidence/source_[0-9]{3,}\\.md$"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "evidence_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "source_id",
+        "snapshot_id",
+        "normalization_run_id",
+        "file_path",
+        "selected_by",
+        "package_roles",
+        "retrieval_reasons",
+        "related_selected_evidence_ids"
+      ],
+      "properties": {
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "snapshot_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "normalization_run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "file_path": {
+          "type": "string",
+          "pattern": "^evidence/source_[0-9]{3,}\\.md$"
+        },
+        "selected_by": {
+          "enum": [
+            "protected",
+            "source_diversity",
+            "relevance_fill"
+          ]
+        },
+        "package_roles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "carry_forward",
+              "manual_include",
+              "retrieved"
+            ]
+          }
+        },
+        "retrieval_reasons": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "explicit_association",
+              "name",
+              "alias",
+              "source_metadata",
+              "lexical",
+              "semantic",
+              "manual"
+            ]
+          }
+        },
+        "related_selected_evidence_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "token_estimator",
+        "budget",
+        "usage",
+        "candidate_count",
+        "selected_count",
+        "omitted_count"
+      ],
+      "properties": {
+        "token_estimator": {
+          "const": "ascii_div4_plus_non_ascii_v1"
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "max_estimated_tokens",
+            "max_bytes",
+            "max_items"
+          ],
+          "properties": {
+            "max_estimated_tokens": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "usage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "estimated_tokens",
+            "bytes",
+            "items",
+            "sources"
+          ],
+          "properties": {
+            "estimated_tokens": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sources": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "candidate_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "selected_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "omitted_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "role",
+        "media_type",
+        "size_bytes",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "enum": [
+            "instructions",
+            "current_object",
+            "result_schema",
+            "evidence"
+          ]
+        },
+        "media_type": {
+          "enum": [
+            "text/markdown",
+            "application/json"
+          ]
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "warning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "review_required",
+            "blocking"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "export_preflight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "disposition",
+        "reasons",
+        "credential_material_included"
+      ],
+      "properties": {
+        "disposition": {
+          "enum": [
+            "allow",
+            "review_required",
+            "blocked"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "credential_material_included": {
+          "const": false
+        }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hash_algorithm",
+        "canonicalization",
+        "manifest_sha256"
+      ],
+      "properties": {
+        "hash_algorithm": {
+          "const": "sha256"
+        },
+        "canonicalization": {
+          "const": "sgokb-json-c14n-v1"
+        },
+        "manifest_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    }
+  }
+}
