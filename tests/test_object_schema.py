@@ -76,6 +76,7 @@ def test_current_version_must_belong_to_same_object(repo):
             "INSERT INTO object_versions VALUES(?,?,?,?)",
             ("version-1", first, 1, "2026-10-12T00:00:00Z"),
         )
+    repo.version_store.accept_candidate("version-1")
 
     with pytest.raises(sqlite3.IntegrityError, match="current version must belong"):
         with repo.db:

@@ -427,14 +427,9 @@ E-02の物理schemaはCompleteだが、Facet taxonomyの意味設計は次の追
 
 `docs/design/SOURCE_EVIDENCE_SCHEMA.md`を正本としてMigration 006を追加し、Statement / attribute / Relation → Evidence Link、`supports / contradicts / contextualizes` Evidence role、canonical Source / Snapshot / Raw Artifact / Normalization Run / Evidence、Provenance integrityを確定した。Facet自体への直接Evidence一覧は持たせず、Facet内Statementをgrounding単位とする。
 
-### E-04
+### E-04 — Complete
 
-- Version candidate / accepted state
-- accepted Version immutability
-- stale Result
-- omission / deletion semantics
-- current promotion / rollback
-- Search Representation invalidation / regeneration transaction境界
+`docs/design/VERSIONING_SCHEMA.md`を正本としてMigration 007を追加し、candidate / accepted / abandoned lifecycle、full snapshot omission boundary、base / Classification stale判定、accepted Version content immutability、current promotion / rollback、Search / Embedding等のderived-state transaction境界を確定した。
 
 ### E-05
 
@@ -515,4 +510,4 @@ E-02実装では次をtest対象とする。
 - Migration 004 / 005適用後の既存回帰
 - 62 Class + 25 boundary gold fixture coverage / profile inheritance整合
 
-E-02A / E-02B / E-02CとE-03は完了した。Facet taxonomyはMigration 005、Source / Evidence / Evidence Link / ProvenanceはMigration 006へ反映済み。次Taskは `E-04 [P0] Versioningを設計する` とする。
+E-02A / E-02B / E-02C / E-03 / E-04は完了した。Facet taxonomyはMigration 005、Source / Evidence / Evidence Link / ProvenanceはMigration 006、Version lifecycleはMigration 007へ反映済み。次Taskは `E-05 [P1] JSON Schemaを作成する` とする。

@@ -61,8 +61,22 @@ from .source import (
     SourceSnapshotRecord,
     SourceStatus,
 )
+from .version import (
+    DerivedState,
+    DerivedStateRecord,
+    ObjectVersionRecord,
+    StaleVersionError,
+    VersionClassificationSnapshot,
+    VersionState,
+)
 
 __all__ = [
+    "DerivedState",
+    "DerivedStateRecord",
+    "ObjectVersionRecord",
+    "StaleVersionError",
+    "VersionClassificationSnapshot",
+    "VersionState",
     "AssociationStatus",
     "EvidenceExtractionMode",
     "EvidenceLinkRecord",
