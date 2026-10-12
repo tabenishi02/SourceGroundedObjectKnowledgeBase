@@ -116,6 +116,16 @@ class SourceRepository:
             raise ValueError("Unknown source ID")
         return self._source_record(row)
 
+    def sources_by_locator(self, kind: str, value: str) -> tuple[SourceRecord, ...]:
+        rows = self.db.execute(
+            """SELECT DISTINCT s.* FROM source_records s
+               JOIN source_locators l ON l.source_id=s.id
+               WHERE l.kind=? AND l.value=? AND l.status='active' AND s.status='active'
+               ORDER BY s.id""",
+            (kind.strip(), value.strip()),
+        ).fetchall()
+        return tuple(self._source_record(row) for row in rows)
+
     def add_locator(
         self,
         source_id: str,
@@ -149,6 +159,19 @@ class SourceRepository:
             "SELECT * FROM source_locators WHERE source_id=? ORDER BY rowid", (source_id,)
         ).fetchall()
         return tuple(self._locator_record(row) for row in rows)
+
+    def ensure_locator(
+        self, source_id: str, kind: str, value: str, *, preferred: bool = False
+    ) -> str:
+        row = self.db.execute(
+            """SELECT id FROM source_locators
+               WHERE source_id=? AND kind=? AND value=? AND status='active'
+               ORDER BY rowid LIMIT 1""",
+            (source_id, kind.strip(), value.strip()),
+        ).fetchone()
+        if row:
+            return row["id"]
+        return self.add_locator(source_id, kind, value, preferred=preferred)
 
     def create_snapshot(
         self,
@@ -207,6 +230,20 @@ class SourceRepository:
             raise ValueError("Unknown source snapshot ID")
         return self._snapshot_record(row)
 
+    def find_snapshot_by_id(self, snapshot_id: str) -> SourceSnapshotRecord | None:
+        row = self.db.execute(
+            "SELECT * FROM source_snapshots WHERE id=?", (snapshot_id,)
+        ).fetchone()
+        return self._snapshot_record(row) if row else None
+
+    def snapshot_metadata(self, snapshot_id: str) -> dict:
+        row = self.db.execute(
+            "SELECT metadata_json FROM source_snapshots WHERE id=?", (snapshot_id,)
+        ).fetchone()
+        if not row:
+            raise ValueError("Unknown source snapshot ID")
+        return json.loads(row["metadata_json"])
+
     def add_classification(
         self,
         source_id: str,
@@ -263,6 +300,51 @@ class SourceRepository:
             )
         return metadata_id
 
+    def observe_classification(
+        self,
+        source_id: str,
+        axis: str,
+        value: str,
+        origin: MetadataOrigin | str,
+        *,
+        snapshot_id: str | None = None,
+    ) -> str:
+        normalized_origin = MetadataOrigin(origin).value
+        row = self.db.execute(
+            """SELECT id FROM source_classifications
+               WHERE source_id=? AND axis=? AND value=? AND origin_kind=?
+                 AND snapshot_id IS ?
+               ORDER BY rowid LIMIT 1""",
+            (source_id, axis, value.strip(), normalized_origin, snapshot_id),
+        ).fetchone()
+        if row:
+            return row["id"]
+        return self.add_classification(
+            source_id, axis, value, normalized_origin, snapshot_id=snapshot_id
+        )
+
+    def observe_metadata(
+        self,
+        source_id: str,
+        key: str,
+        value: object,
+        origin: MetadataOrigin | str,
+        *,
+        snapshot_id: str | None = None,
+    ) -> str:
+        normalized_origin = MetadataOrigin(origin).value
+        encoded = _json(value)
+        row = self.db.execute(
+            """SELECT id FROM source_metadata_values
+               WHERE source_id=? AND key=? AND value_json=? AND origin_kind=?
+                 AND snapshot_id IS ?
+               ORDER BY rowid LIMIT 1""",
+            (source_id, key.strip(), encoded, normalized_origin, snapshot_id),
+        ).fetchone()
+        if row:
+            return row["id"]
+        return self.add_metadata(source_id, key, value, normalized_origin, snapshot_id=snapshot_id)
+
     def add_raw_artifact(
         self,
         snapshot_id: str,
@@ -292,6 +374,12 @@ class SourceRepository:
                 ),
             )
         return artifact_id
+
+    def raw_artifacts(self, snapshot_id: str) -> tuple[dict, ...]:
+        rows = self.db.execute(
+            "SELECT * FROM raw_artifacts WHERE snapshot_id=? ORDER BY rowid", (snapshot_id,)
+        ).fetchall()
+        return tuple(dict(row) for row in rows)
 
     def create_normalization_run(
         self,
@@ -396,6 +484,94 @@ class SourceRepository:
                 (location_id, evidence_id, ordinal, kind, _json(value), _now()),
             )
         return location_id
+
+    def normalization_run(self, run_id: str) -> dict:
+        row = self.db.execute("SELECT * FROM normalization_runs WHERE id=?", (run_id,)).fetchone()
+        if not row:
+            raise ValueError("Unknown normalization run ID")
+        return dict(row)
+
+    def select_effective_snapshot(
+        self,
+        source_id: str,
+        snapshot_id: str,
+        *,
+        origin_kind: str = "manual",
+        reason: str,
+    ) -> str:
+        self.source_by_id(source_id)
+        snapshot = self.snapshot_by_id(snapshot_id)
+        if snapshot.source_id != source_id:
+            raise ValueError("Effective snapshot must belong to source")
+        if snapshot.completeness is SnapshotCompleteness.FAILED:
+            raise ValueError("Failed snapshot cannot be effective")
+        selection_id = new_persistent_id()
+        with self.db:
+            self.db.execute(
+                "INSERT INTO source_selection_events VALUES(?,?,?,?,?,?,?,?)",
+                (
+                    selection_id,
+                    source_id,
+                    "snapshot",
+                    snapshot_id,
+                    None,
+                    origin_kind,
+                    reason.strip(),
+                    _now(),
+                ),
+            )
+        return selection_id
+
+    def effective_snapshot(self, source_id: str) -> SourceSnapshotRecord | None:
+        row = self.db.execute(
+            """SELECT s.* FROM source_selection_events e
+               JOIN source_snapshots s ON s.id=e.snapshot_id
+               WHERE e.source_id=? AND e.selection_kind='snapshot'
+               ORDER BY e.rowid DESC LIMIT 1""",
+            (source_id,),
+        ).fetchone()
+        return self._snapshot_record(row) if row else None
+
+    def select_effective_run(
+        self,
+        snapshot_id: str,
+        run_id: str,
+        *,
+        origin_kind: str = "manual",
+        reason: str,
+    ) -> str:
+        snapshot = self.snapshot_by_id(snapshot_id)
+        run = self.normalization_run(run_id)
+        if run["snapshot_id"] != snapshot_id:
+            raise ValueError("Effective run must belong to snapshot")
+        if run["status"] == NormalizationStatus.FAILED.value:
+            raise ValueError("Failed normalization run cannot be effective")
+        selection_id = new_persistent_id()
+        with self.db:
+            self.db.execute(
+                "INSERT INTO source_selection_events VALUES(?,?,?,?,?,?,?,?)",
+                (
+                    selection_id,
+                    snapshot.source_id,
+                    "run",
+                    snapshot_id,
+                    run_id,
+                    origin_kind,
+                    reason.strip(),
+                    _now(),
+                ),
+            )
+        return selection_id
+
+    def effective_run(self, snapshot_id: str) -> dict | None:
+        row = self.db.execute(
+            """SELECT n.* FROM source_selection_events e
+               JOIN normalization_runs n ON n.id=e.run_id
+               WHERE e.snapshot_id=? AND e.selection_kind='run'
+               ORDER BY e.rowid DESC LIMIT 1""",
+            (snapshot_id,),
+        ).fetchone()
+        return dict(row) if row else None
 
     def associate_object(
         self,

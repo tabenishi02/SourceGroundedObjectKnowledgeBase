@@ -34,10 +34,11 @@
 28. [Facet Vocabulary Review](design/FACET_VOCABULARY_REVIEW.md) — E-02Bで近義Facetを横断統合し、既存18 + 新規37 = 55 Facetのfreeze候補とprofile inheritance方針を整理した設計レビュー。
 29. [Class / Facet Gold Cases](reference/CLASS_FACET_GOLD_CASES.md) — E-02Cで全62 Classと25 boundary caseをgold化し、55 Facet taxonomyをfreezeした回帰基準。
 30. [Source / Evidence Schema Design](design/SOURCE_EVIDENCE_SCHEMA.md) — E-03で確定したSource Identity / locator / Snapshot / Raw / Normalization / Evidence / Evidence Link / Provenanceの物理schema。
-31. [Versioning Schema Design](design/VERSIONING_SCHEMA.md) — E-04で確定したfull snapshot Version lifecycle、stale判定、accepted immutability、current promotion / rollback、derived-state boundary。
-32. [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md) — E-05で確定した`sgokb.object-result/1.0`、Package/Class/Facet binding、Evidence-grounded Result exchange contract。
-33. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
-34. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
+31. [Source Ingestion Pipeline](design/SOURCE_INGESTION_PIPELINE.md) — F-01で実装したcanonical Capture / Import / Normalize / Evidence接続、Source resolution、effective generation selection。
+32. [Versioning Schema Design](design/VERSIONING_SCHEMA.md) — E-04で確定したfull snapshot Version lifecycle、stale判定、accepted immutability、current promotion / rollback、derived-state boundary。
+33. [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md) — E-05で確定した`sgokb.object-result/1.0`、Package/Class/Facet binding、Evidence-grounded Result exchange contract。
+34. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+35. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
 
 ## 現行文書
 
@@ -64,11 +65,12 @@ Phase E以降で確定した物理Architecture / Data Model設計を置く。
 - [Facet Taxonomy Survey](design/FACET_TAXONOMY_SURVEY.md)
 - [Facet Vocabulary Review](design/FACET_VOCABULARY_REVIEW.md)
 - [Source / Evidence Schema Design](design/SOURCE_EVIDENCE_SCHEMA.md)
+- [Source Ingestion Pipeline](design/SOURCE_INGESTION_PIPELINE.md)
 - [Versioning Schema Design](design/VERSIONING_SCHEMA.md)
 - [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase E（E-01〜E-05）は完了している。Migration 005でFacet taxonomy、Migration 006でcanonical Source / Evidence / Evidence Link / Provenance schema、Migration 007でVersion lifecycle / stale / accepted immutability / current promotionを反映し、E-05で`sgokb.object-result/1.0`のcanonical JSON Schemaを追加した。Phase F開始準備ではD-05 Wave 2としてImporter / Extractor / Page Contextを`src/sgokb/ingestion/`へ移動し、legacy shimを保持した。詳細は[Phase F Preparation](planning/PHASE_F_PREPARATION.md)を正本とする。次TaskはF-01の既存Capture / Import / Normalize / Evidence接続とする。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）とPhase E（E-01〜E-05）は完了している。Migration 005でFacet taxonomy、Migration 006でcanonical Source / Evidence / Evidence Link / Provenance schema、Migration 007でVersion lifecycle、Migration 008でeffective Snapshot / Run selection eventを反映した。F-01では`Application.import_source_path()` / `process_source_snapshot()`により生成LLMなしのcanonical Capture → Evidence経路を実装し、旧Prototype ingestionはdual-writeせずcompatibility pathとして維持した。詳細は[Source Ingestion Pipeline](design/SOURCE_INGESTION_PIPELINE.md)を正本とする。次TaskはF-02の標準パイプラインからFragment生成を外す作業とする。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果とgold corpusを置く。
