@@ -197,11 +197,12 @@ class ResultReceiptService:
         if package_record is None:
             raise ValueError("Unknown Package ID; Result must refer to a staged/audited Package")
 
-        source = Path(result_path).resolve()
-        if source.name != RESULT_FILENAME:
+        source_input = Path(result_path)
+        if source_input.name != RESULT_FILENAME:
             raise ValueError("Standard Result artifact must be named result.json")
-        if source.is_symlink() or not source.is_file():
+        if source_input.is_symlink() or not source_input.is_file():
             raise ValueError("Result artifact must be a regular non-symlink file")
+        source = source_input.resolve()
         raw = source.read_bytes()
         if len(raw) > MAX_RESULT_BYTES:
             raise ValueError(f"Result artifact exceeds {MAX_RESULT_BYTES} bytes")
@@ -253,6 +254,7 @@ class ResultReceiptService:
         elif not self.audit.export_events(package_id):
             findings.append("package_has_no_export_audit")
 
+        findings = list(dict.fromkeys(findings))
         intake_state = "ready_for_validation" if not findings else "needs_review"
         receipt_id = str(uuid.uuid4())
         root = Path(incoming_root).resolve()
@@ -275,6 +277,7 @@ class ResultReceiptService:
                 storage_ref,
                 intake_state,
                 findings,
+                receipt_id=receipt_id,
                 parsed_schema_version=self._text_value(parsed, "schema_version"),
                 parsed_result_status=self._text_value(parsed, "result_status"),
                 parsed_target_object_id=self._nested_text(parsed, "target", "object_id"),
@@ -296,7 +299,7 @@ class ResultReceiptService:
             byte_count=len(raw),
             path=str(final / RESULT_FILENAME),
             intake_state=intake_state,
-            intake_findings=tuple(dict.fromkeys(findings)),
+            intake_findings=tuple(findings),
             validation_state="pending",
             already_received=False,
         )
