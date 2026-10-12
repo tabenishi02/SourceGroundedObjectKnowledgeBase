@@ -270,6 +270,7 @@ docs/
 ├─ decisions/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_DECISION.md
 │  ├─ KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md
+│  ├─ SGOKB_MODULE_RESPONSIBILITY_DESIGN.md
 │  └─ SGOKB_RENAME_DECISION.md
 ├─ planning/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_TASKS.md
@@ -286,21 +287,16 @@ docs/
 
   - 今後Phase E以降で確定するArchitecture / Data Model / Retrieval / MCP等は、確定時に現行カテゴリを追加する。
 
-- [ ] **D-04 [P0] `src/sgokb`の責務別再編を設計する**
-  - 例:
-
-```text
-src/sgokb/
-├─ domain/        # Object / Relation / Facet / Version
-├─ ingestion/     # Capture / Import / Normalize / Evidence
-├─ storage/       # SQLite repository / migration
-├─ retrieval/     # FTS / vector / hybrid / similarity
-├─ exchange/      # Evidence Package / Result Import
-├─ rendering/     # JSON -> Markdown等
-├─ mcp/           # MCP adapter
-├─ cli/           # CLI adapter
-└─ application/   # use cases / orchestration
-```
+- [x] **D-04 [P0] `src/sgokb`の責務別再編を設計する**
+  - 現行15 moduleと内部importを棚卸しし、既存ファイル単位の1対1 moveでは責務分離できないことを確認した。
+  - 正規構造を`domain / ingestion / storage / retrieval / exchange / rendering / application / cli / mcp`へ確定した。
+  - 旧Fragment / Final系を通常責務へ混在させない移行用`_legacy/`境界を追加した。これはPhase Lまでの一時領域であり恒久layerではない。
+  - `domain`を最内層、`application`を複数capabilityの調停、`cli / mcp`を外側adapterとする依存方向を定義した。
+  - `mcp -> SQLite direct access`および新設計moduleから`_legacy`への依存を禁止した。
+  - `repository.py`, `domain.py`, `providers.py`は単純moveではなく責務別split対象と確定した。
+  - Phase Eの物理DB schema、Vector backend、MCP Tool等は先取りしていない。
+  - 実ファイルmove / behavior changeはD-05以降へ分離した。
+  - 成果物: `docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`
 
 - [ ] **D-05 [P1] 既存モジュール移動方針を決める**
   - 大量renameとロジック変更を同一commitへ混在させない。
@@ -835,8 +831,8 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）は完了した。Phase DではD-01 / D-02 / D-03が完了しており、次の最優先は **D-04 [P0] `src/sgokb`の責務別再編を設計する** とする。
+Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）は完了した。Phase DではD-01〜D-04が完了しており、次の最優先は **D-05 [P1] 既存モジュール移動方針を決める** とする。
 
-D-01で`main`をstable baseline、`integration/knowledge-base-redesign`を再設計の長期integration branchと確定した。D-04以降の再設計作業は原則integration branchを正規作業基盤とし、code / migration / module move等は短命task branch + PRで段階統合する。詳細は`docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md`を正本とする。
+D-04で`src/sgokb`の正規責務を`domain / ingestion / storage / retrieval / exchange / rendering / application / cli / mcp`へ分離し、旧Fragment / Final系を一時`_legacy`境界へ隔離する方針、依存方向、既存module mappingを確定した。詳細は`docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`を正本とする。
 
-D-04では既存`src/sgokb`の責務と依存方向を棚卸しし、Phase EのDB schemaを先取りせずに責務別配置を設計する。大量moveやbehavior changeはD-04 / D-05の設計確定前に実施しない。
+D-05ではこの責務設計を変更せず、move-onlyとbehavior changeを分離できる具体的な移動・split・compatibility順序を決定する。Phase EのDB schemaは引き続き先取りしない。

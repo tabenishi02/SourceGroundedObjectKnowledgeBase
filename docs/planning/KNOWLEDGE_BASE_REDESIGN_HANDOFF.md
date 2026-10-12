@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / Cは完了。Phase DはD-01 / D-02 / D-03まで完了。次の未完了TaskはD-04 [P0] `src/sgokb`の責務別再編を設計する。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A / B / Cは完了。Phase DはD-01〜D-04まで完了。次の未完了TaskはD-05 [P1] 既存モジュール移動方針を決める。再設計の正規作業基盤は`integration/knowledge-base-redesign`。**
 
 Phase D専用資料:
 
@@ -352,8 +352,8 @@ Phase Dの目的は、Phase A〜Cで確定した論理境界を、将来の実�
 D-01 [P0] 長期ブランチ戦略                         完了
 D-02 [P0] 旧Prototype文書の扱い                   完了
 D-03 [P0] docs構造                                完了
-D-04 [P0] src/sgokb責務別再編                     未完了 ← 次
-D-05 [P1] 既存module移動方針                      未完了
+D-04 [P0] src/sgokb責務別再編                     完了
+D-05 [P1] 既存module移動方針                      未完了 ← 次
 D-06 [P1] .local/generated/exchange Git除外方針   未完了
 D-07 [P1] branch / PR / tag / release整理ルール   未完了
 ```
@@ -378,7 +378,7 @@ Phase Dで守る原則:
 5. 既存moduleを調査してから再配置し、理想ディレクトリへの全面moveを前提にしない。
 6. branch作成・大量moveは対応Taskで決定後に実施する。
 
-責務別code構造の現在の候補:
+D-04で責務別code構造を次のとおり確定した:
 
 ```text
 src/sgokb/
@@ -388,12 +388,15 @@ src/sgokb/
 ├─ retrieval/
 ├─ exchange/
 ├─ rendering/
-├─ mcp/
+├─ application/
 ├─ cli/
-└─ application/
+├─ mcp/
+└─ _legacy/   # Phase Lまでの一時隔離領域
 ```
 
-これはD-04で検証する候補であり、まだ確定物理構造ではない。
+`domain`は外部I/Oを持たない最内層、`application`はcapability間の調停、`cli / mcp`はadapterとする。現行`repository.py / domain.py / providers.py`は複数責務を持つため単純moveではなくsplit対象である。`capture.py / final.py / knowledge_repository.py`の旧Fragment / Final責務は新標準layerへ混ぜず、replacement完了までlegacy境界として扱う。
+
+正本: `docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`
 
 ---
 
@@ -427,10 +430,9 @@ src/sgokb/
 
 ### Phase D
 
-D-01のbranch / PR / merge戦略は確定済み。残る主要未確定事項:
+D-01のbranch / PR / merge戦略とD-04の`src/sgokb`責務別構造は確定済み。残る主要未確定事項:
 
-- `src/sgokb`最終責務別構造
-- module move順序
+- module move / split / compatibility順序
 - generated / local / exchangeのGit除外
 - branch / tag / release整理ルール
 
@@ -521,11 +523,12 @@ Phase Dを続ける場合:
 
 ```text
 Source Grounded Object Knowledge BaseのKnowledge Base再設計を続けます。
-Phase A〜Cは完了し、Phase DはD-01 / D-02 / D-03まで完了しています。
+Phase A〜Cは完了し、Phase DはD-01〜D-04まで完了しています。
 
 再設計の正規作業基盤はintegration/knowledge-base-redesignです。
 まず以下を確認してください。
 - docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md
+- docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
 - docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
 - docs/planning/PHASE_D_PREPARATION.md
@@ -533,9 +536,9 @@ Phase A〜Cは完了し、Phase DはD-01 / D-02 / D-03まで完了していま�
 - docs/reference/KNOWLEDGE_BASE_DEPENDENCY_INVENTORY.md
 
 今回実施するTask:
-D-04 [P0] src/sgokbの責務別再編を設計する
+D-05 [P1] 既存モジュール移動方針を決める
 
-既存src/sgokbのmoduleと依存方向を棚卸しし、再利用可能な責務を確認したうえで、Phase B / Cの要件境界に沿う責務別module構造を設計してください。Phase EのDB schemaを先取りせず、大量moveやbehavior changeはまだ実施しないでください。
+D-04で確定した責務境界と既存module mappingを前提に、move-onlyとbehavior changeを分離できる具体的な移動・split・compatibility順序を決定してください。まだ大規模なbehavior changeやPhase EのDB schema実装は行わないでください。
 ```
 
 ---
@@ -563,6 +566,7 @@ D-04 [P0] src/sgokbの責務別再編を設計する
 ### Planning / reference
 
 - `docs/decisions/KNOWLEDGE_BASE_REDESIGN_BRANCH_STRATEGY.md`
+- `docs/decisions/SGOKB_MODULE_RESPONSIBILITY_DESIGN.md`
 - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
 - `docs/planning/PHASE_D_PREPARATION.md`
 - `docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md`
@@ -575,8 +579,8 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 ## 14. 現在地点
 
-Phase A、Phase B、Phase Cは完了している。Phase DはD-01 / D-02 / D-03まで完了している。
+Phase A、Phase B、Phase Cは完了している。Phase DはD-01〜D-04まで完了している。
 
-**次の作業はD-04 [P0] `src/sgokb`の責務別再編を設計する。**
+**次の作業はD-05 [P1] 既存モジュール移動方針を決める。**
 
-再設計の正規作業基盤は`integration/knowledge-base-redesign`である。D-04では既存moduleと依存方向を棚卸しし、まだ大量moveやbehavior changeを実施しない。
+再設計の正規作業基盤は`integration/knowledge-base-redesign`である。D-04で責務別module構造と依存方向は確定済みであり、D-05ではその設計を前提に安全なmove / split順序を決める。
