@@ -311,6 +311,10 @@ Importする場合は明示的に、
 
 acknowledgement後はVersion発行からcurrent promotionまでを追加confirmationへ分割しない。
 
+H-04完了後は、`ObjectVersionImportService`がImport直前にH-04 Reviewを再計算する。したがってH-01 findingだけでなく、base Versionとのfull-snapshot Diffで検出された`destructive_omission`もReview Requiredとなり、`--acknowledge-review`なしではImportしない。
+
+H-04 Review自体はread-onlyであり、承認stateを別途永続化しない。実際にauthoritative Importされた時点の`object_result_imports.review_acknowledged`を監査値とする。
+
 ---
 
 ## 11. Stale protection

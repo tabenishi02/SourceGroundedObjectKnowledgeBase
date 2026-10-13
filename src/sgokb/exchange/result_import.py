@@ -32,6 +32,37 @@ class ObjectVersionImportResult:
         return asdict(self)
 
 
+def load_immutable_result_artifact(
+    receipt: Mapping[str, Any], incoming_root: str | Path
+) -> tuple[Mapping[str, Any], str, int]:
+    """Read an audited Result receipt without allowing path/hash drift."""
+
+    root = Path(incoming_root).resolve()
+    storage_ref = Path(str(receipt["storage_ref"]))
+    if storage_ref.is_absolute() or ".." in storage_ref.parts:
+        raise ValueError("Receipt storage reference is not a safe incoming-root relative path")
+    path = (root / storage_ref).resolve()
+    try:
+        path.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("Receipt storage reference escapes the incoming root") from exc
+    if path.name != RESULT_FILENAME or path.is_symlink() or not path.is_file():
+        raise ValueError("Immutable receipt result.json is missing or is not a regular file")
+    raw = path.read_bytes()
+    digest = hashlib.sha256(raw).hexdigest()
+    if len(raw) != int(receipt["byte_count"]):
+        raise ValueError("Immutable Result byte count no longer matches receipt audit")
+    if digest != receipt["result_sha256"]:
+        raise ValueError("Immutable Result SHA-256 no longer matches receipt audit")
+    try:
+        parsed = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("Previously validated Result artifact can no longer be parsed") from exc
+    if not isinstance(parsed, Mapping):
+        raise ValueError("Object Result top level must be a JSON object")
+    return parsed, digest, len(raw)
+
+
 class ObjectVersionImportService:
     """Turn one H-01-valid immutable receipt into one accepted Object Version."""
 
@@ -64,7 +95,21 @@ class ObjectVersionImportService:
         if receipt["validation_state"] != "valid":
             raise ValueError("Object Result import requires successful H-01 validation")
 
-        result, sha256, byte_count = self._load_immutable_result(receipt, incoming_root)
+        # H-04 adds deterministic review reasons such as destructive full-snapshot
+        # omissions. Recompute them immediately before Import so a review preview cannot
+        # be acknowledged against an older current Version and then silently drift.
+        from sgokb.review.diff import DiffReviewService
+
+        review = DiffReviewService(self.repository, self.audit).review_result(
+            receipt_id,
+            incoming_root=incoming_root,
+        )
+        if review.blocked:
+            raise ValueError("Object Result import is blocked by H-04 review")
+        if review.requires_review and not acknowledge_review:
+            raise ValueError("Object Result import requires explicit review acknowledgement")
+
+        result, sha256, byte_count = load_immutable_result_artifact(receipt, incoming_root)
         imported = self.import_store.import_result(
             receipt_id,
             result,
@@ -95,29 +140,6 @@ class ObjectVersionImportService:
     def _load_immutable_result(
         receipt: Mapping[str, Any], incoming_root: str | Path
     ) -> tuple[Mapping[str, Any], str, int]:
-        root = Path(incoming_root).resolve()
-        storage_ref = Path(str(receipt["storage_ref"]))
-        if storage_ref.is_absolute() or ".." in storage_ref.parts:
-            raise ValueError("Receipt storage reference is not a safe incoming-root relative path")
-        path = (root / storage_ref).resolve()
-        try:
-            path.relative_to(root)
-        except ValueError as exc:
-            raise ValueError("Receipt storage reference escapes the incoming root") from exc
-        if path.name != RESULT_FILENAME or path.is_symlink() or not path.is_file():
-            raise ValueError("Immutable receipt result.json is missing or is not a regular file")
-        raw = path.read_bytes()
-        digest = hashlib.sha256(raw).hexdigest()
-        if len(raw) != int(receipt["byte_count"]):
-            raise ValueError("Immutable Result byte count no longer matches receipt audit")
-        if digest != receipt["result_sha256"]:
-            raise ValueError("Immutable Result SHA-256 no longer matches receipt audit")
-        try:
-            parsed = json.loads(raw.decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-            raise ValueError(
-                "Previously validated Result artifact can no longer be parsed"
-            ) from exc
-        if not isinstance(parsed, Mapping):
-            raise ValueError("Object Result top level must be a JSON object")
-        return parsed, digest, len(raw)
+        """Compatibility wrapper for the shared immutable Result artifact loader."""
+
+        return load_immutable_result_artifact(receipt, incoming_root)
