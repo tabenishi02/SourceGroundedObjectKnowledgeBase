@@ -1,0 +1,43 @@
+name: J04 Verification
+
+on:
+  push:
+    branches:
+      - integration/knowledge-base-redesign
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Ruff
+        run: >-
+          ruff check
+          src/sgokb/retrieval/context_builder.py
+          src/sgokb/retrieval/__init__.py
+          src/sgokb/application_read.py
+          src/sgokb/mcp
+          tests/test_j04_context_builder.py
+          tests/test_j03_mcp_resources.py
+          tests/test_j02_mcp_read_tools.py
+      - name: Focused regression
+        run: >-
+          pytest -q
+          tests/test_j04_context_builder.py
+          tests/test_j03_mcp_resources.py
+          tests/test_j02_mcp_read_tools.py
+          tests/test_j02_evidence_search.py
+          tests/test_j01_retrieval_mcp_boundary.py
+          tests/test_j01_similarity_application.py
+          tests/test_j01_application_semantics.py
+          tests/test_f03_object_evidence_retrieval.py
+          tests/test_hybrid_search.py
+          tests/test_object_similarity.py
