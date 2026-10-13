@@ -723,7 +723,7 @@ Preparation: `docs/planning/PHASE_I_PREPARATION.md`
 
 Preparation: `docs/planning/PHASE_J_PREPARATION.md`
 
-- [ ] **J-01 [P0] Retrieval CoreとMCP Adapterを分離する**
+- [x] **J-01 [P0] Retrieval CoreとMCP Adapterを分離する**
   - MCPからSQLiteへ直接SQLを公開しない。
   - CLIとMCPが同じApplication/Retrieval APIを使用する。
 
