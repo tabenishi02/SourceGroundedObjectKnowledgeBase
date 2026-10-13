@@ -743,9 +743,13 @@ Preparation: `docs/planning/PHASE_J_PREPARATION.md`
   - MCP Tool contract `sgokb.mcp-read-tools.v1`、JSON Schema Draft 2020-12、read-only / closed-world annotation、public limitを固定した。general `EvidenceSearch`もApplication境界へ追加し、effective世代を既定・historicalを明示opt-inとした。
   - J-02 + J-01 + Phase I focused regressionはRuff成功、Pytest 38 passed / 2 skipped。
 
-- [ ] **J-03 [P1] MCP Resourcesを定義する**
+- [x] **J-03 [P1] MCP Resourcesを定義する**
   - 例: `sgokb://object/<id>`。
   - ToolとResourceの責務重複を整理する。
+  - **完了 (2026-10-14):** `docs/decisions/J03_MCP_RESOURCE_CONTRACT.md`を正本とし、Resourceを既知stable IDのdereference専用surfaceとして定義した。
+  - Resource Templateは`sgokb://object/{object_id}` / `sgokb://object/{object_id}/version/{version_id}` / `sgokb://evidence/{evidence_id}`の3種類。全recordを`resources/list`で列挙しない。
+  - Search / filter / batch / Relation traversal / Context selectionはTool側に残し、Resource URIへのquery parameter埋め込みを禁止した。Resource contractは`sgokb.mcp-resources.v1`。
+  - `KnowledgeReadApplication.get_evidence()`とMCP Resource Adapterを実装し、Ruff成功、J-03〜J-01 focused regressionは48 passed / 2 skipped。
 
 - [ ] **J-04 [P0] Context Builderを設計する**
   - roleplay / comparison / analysis / creative等の用途に応じて返すFacetを制御する。

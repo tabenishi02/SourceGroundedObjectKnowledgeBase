@@ -334,6 +334,15 @@ J-03では次を検証する。
 - AdapterがStorage / SQLiteを直接参照しない。
 - J-01/J-02 read Tool regressionを壊さない。
 
+検証結果:
+
+```text
+Ruff: All checks passed
+Pytest: 48 passed, 2 skipped
+```
+
+検証用GitHub Actions Workflowは結果確認後に削除した。
+
 ---
 
 ## 13. J-03 Definition of Done
