@@ -7,7 +7,7 @@
 - [x] **J-01 [P0] Retrieval CoreとMCP Adapterを分離する**
 - [x] **J-02 [P0] MCP read toolsを定義する**
 - [x] **J-03 [P1] MCP Resourcesを定義する**
-- [x] **J-05 [P1] MCP write系はread系と分離する**
+- [x] **J-04 [P0] Context Builderを設計する**
 - [ ] **J-05 [P1] MCP write系はread系と分離する**
 - [ ] **J-06 [P0] ローカルMCP Clientで受入試験する**
 
