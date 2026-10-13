@@ -7,6 +7,7 @@ Knowledge operation to the Application port established by J-01.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Iterable
 from dataclasses import asdict, is_dataclass
 from enum import Enum
@@ -17,6 +18,13 @@ from jsonschema.exceptions import ValidationError
 
 from sgokb.domain import ObjectSearchFilters, ObjectSearchMode
 
+from .resource_contracts import (
+    MCP_RESOURCE_CONTRACT_VERSION,
+    MCP_RESOURCE_MIME_TYPE,
+    MCPResourceURIError,
+    parse_resource_uri,
+    resource_template_contracts,
+)
 from .tool_contracts import (
     MCP_READ_TOOL_CONTRACT_VERSION,
     read_tool_contract,
@@ -95,6 +103,8 @@ class KnowledgeReadApplicationPort(Protocol):
         manual_exclude: Iterable[str] = (),
     ) -> dict: ...
 
+    def get_evidence(self, evidence_id: str) -> dict: ...
+
     def search_evidence(
         self,
         query: str,
@@ -139,6 +149,49 @@ class MCPReadAdapter:
     @property
     def tool_contract_version(self) -> str:
         return MCP_READ_TOOL_CONTRACT_VERSION
+
+    @property
+    def resource_contract_version(self) -> str:
+        return MCP_RESOURCE_CONTRACT_VERSION
+
+    def list_resources(self) -> tuple[dict[str, Any], ...]:
+        """No dynamic KB rows are eagerly enumerated as static MCP Resources."""
+
+        return ()
+
+    def list_resource_templates(self) -> tuple[dict[str, Any], ...]:
+        """Return Resource Template definitions in resources/templates/list shape."""
+
+        return tuple(contract.as_mcp_definition() for contract in resource_template_contracts())
+
+    def read_resource(self, uri: str) -> dict[str, Any]:
+        """Resolve one canonical SGOKB Resource URI through the Application port."""
+
+        parsed = parse_resource_uri(uri)
+        if parsed.kind == "object_current":
+            data = self.get_object(parsed.object_id)
+        elif parsed.kind == "object_version":
+            data = self.get_object(parsed.object_id, version_id=parsed.version_id)
+        elif parsed.kind == "evidence":
+            data = self.get_evidence(parsed.evidence_id)
+        else:
+            raise MCPResourceURIError(f"Unsupported SGOKB Resource kind: {parsed.kind}")
+
+        payload = {
+            "resource_contract_version": self.resource_contract_version,
+            "application_contract_version": self.contract_version,
+            "data": _jsonable(data),
+        }
+        return {
+            "uri": parsed.canonical_uri,
+            "mimeType": MCP_RESOURCE_MIME_TYPE,
+            "text": json.dumps(
+                payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
+        }
 
     def list_tools(self) -> tuple[dict[str, Any], ...]:
         """Return active MCP Tool definitions in tools/list-compatible shape."""
@@ -339,6 +392,9 @@ class MCPReadAdapter:
             manual_include=manual_include,
             manual_exclude=manual_exclude,
         )
+
+    def get_evidence(self, evidence_id: str) -> dict:
+        return self._application.get_evidence(evidence_id)
 
     def search_evidence(
         self,
