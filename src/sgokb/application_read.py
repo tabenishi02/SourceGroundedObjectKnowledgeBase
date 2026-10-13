@@ -231,6 +231,23 @@ class KnowledgeReadApplication:
             "candidates": [asdict(candidate) for candidate in result["candidates"]],
         }
 
+    def get_evidence(self, evidence_id: str) -> dict:
+        """Read one canonical Evidence record with its provenance chain."""
+
+        try:
+            provenance = self._repository.source_store.evidence_provenance(evidence_id)
+            context = self._repository.source_store.evidence_context(evidence_id)
+        except ValueError as exc:
+            raise KnowledgeRequestError(str(exc)) from exc
+        return {
+            "contract_version": self.contract_version,
+            "evidence": asdict(provenance.evidence),
+            "snapshot": asdict(provenance.snapshot),
+            "source": asdict(provenance.source),
+            "raw_artifact_ids": list(provenance.raw_artifact_ids),
+            "context": context,
+        }
+
     def search_evidence(
         self,
         query: str,
