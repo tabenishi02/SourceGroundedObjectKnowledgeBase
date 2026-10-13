@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import subprocess
 import sys
@@ -7,13 +8,12 @@ from pathlib import Path
 
 import pytest
 
-mcp = pytest.importorskip("mcp", reason="J-06 requires the optional mcp extra")
-
-from mcp import Client, StdioServerParameters
-
 from sgokb.application_read import KnowledgeReadApplication
 from sgokb.repository import Repository
 
+mcp = pytest.importorskip("mcp", reason="J-06 requires the optional mcp extra")
+Client = mcp.Client
+StdioServerParameters = mcp.StdioServerParameters
 
 FIXTURE_SERVER = Path(__file__).with_name("j06_mcp_fixture_server.py")
 EXPECTED_TOOLS = {
@@ -39,8 +39,7 @@ def _structured(result):
     return result.structured_content
 
 
-@pytest.mark.anyio
-async def test_local_stdio_client_acceptance_surface():
+async def _run_local_stdio_client_acceptance_surface() -> None:
     params = StdioServerParameters(command=sys.executable, args=[str(FIXTURE_SERVER)])
 
     async with Client(params) as client:
@@ -54,7 +53,8 @@ async def test_local_stdio_client_acceptance_surface():
         assert all(tool.annotations.read_only_hint is True for tool in listed_tools.tools)
 
         templates = await client.list_resource_templates()
-        assert {str(item.uri_template) for item in templates.resource_templates} == EXPECTED_TEMPLATES
+        actual_templates = {str(item.uri_template) for item in templates.resource_templates}
+        assert actual_templates == EXPECTED_TEMPLATES
         assert (await client.list_resources()).resources == []
 
         object_result = _structured(
@@ -111,6 +111,10 @@ async def test_local_stdio_client_acceptance_surface():
         assert payload["resource_contract_version"] == "sgokb.mcp-resources.v1"
 
 
+def test_local_stdio_client_acceptance_surface():
+    asyncio.run(_run_local_stdio_client_acceptance_surface())
+
+
 def _class_id(repo: Repository) -> str:
     return repo.object_store.class_by_key("character").class_id
 
@@ -119,7 +123,11 @@ def test_canonical_read_and_cli_continue_without_mcp_process(tmp_path):
     repo = Repository(tmp_path / "j06-fallback.sqlite")
     try:
         object_id = repo.object_store.create_object("Fallback Object", _class_id(repo))
-        version_id = repo.version_store.begin_candidate(object_id, None, version_id="version:fallback:v1")
+        version_id = repo.version_store.begin_candidate(
+            object_id,
+            None,
+            version_id="version:fallback:v1",
+        )
         repo.version_store.accept_candidate(version_id)
 
         direct = KnowledgeReadApplication(repo).get_object(object_id)
