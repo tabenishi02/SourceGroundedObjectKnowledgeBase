@@ -17,14 +17,14 @@ from .retrieval.object_read import ObjectKnowledgeReader
 APPLICATION_READ_CONTRACT_VERSION = "sgokb.application-read.v1"
 
 
-class KnowledgeAccessError(RuntimeError):
-    """Base error that a transport may map without knowing storage/backend details."""
+class KnowledgeRequestError(ValueError):
+    """Invalid transport-neutral Knowledge request."""
 
-    code = "knowledge_access_error"
+    code = "invalid_knowledge_request"
 
 
-class RetrievalRuntimeUnavailableError(KnowledgeAccessError):
-    """Required local retrieval runtime dependency was not configured."""
+class RetrievalRuntimeUnavailableError(RuntimeError):
+    """Required local retrieval runtime dependency was unavailable or not configured."""
 
     code = "retrieval_runtime_unavailable"
 
@@ -67,17 +67,22 @@ class KnowledgeReadApplication:
     ):
         """Run the canonical Phase I Object Search through the Application boundary."""
 
-        return HybridObjectSearch(
-            self._repository,
-            embedding_provider=self._embedding_provider,
-            vector_index=self._vector_index,
-        ).search(
-            query,
-            filters=filters,
-            limit=limit,
-            mode=mode,
-            candidate_limit=candidate_limit,
-        )
+        try:
+            return HybridObjectSearch(
+                self._repository,
+                embedding_provider=self._embedding_provider,
+                vector_index=self._vector_index,
+            ).search(
+                query,
+                filters=filters,
+                limit=limit,
+                mode=mode,
+                candidate_limit=candidate_limit,
+            )
+        except ValueError as exc:
+            raise KnowledgeRequestError(str(exc)) from exc
+        except RuntimeError as exc:
+            raise RetrievalRuntimeUnavailableError(str(exc)) from exc
 
     def find_similar_objects(
         self,
@@ -95,18 +100,23 @@ class KnowledgeReadApplication:
             raise RetrievalRuntimeUnavailableError(
                 "Object similarity requires an injected Embedding Space and Vector Index"
             )
-        return ObjectSimilaritySearch(
-            self._repository,
-            space=self._embedding_space,
-            vector_index=self._vector_index,
-        ).find_similar_objects(
-            object_id,
-            facet=facet,
-            limit=limit,
-            cross_class=cross_class,
-            source_version_id=source_version_id,
-            include_archived=include_archived,
-        )
+        try:
+            return ObjectSimilaritySearch(
+                self._repository,
+                space=self._embedding_space,
+                vector_index=self._vector_index,
+            ).find_similar_objects(
+                object_id,
+                facet=facet,
+                limit=limit,
+                cross_class=cross_class,
+                source_version_id=source_version_id,
+                include_archived=include_archived,
+            )
+        except ValueError as exc:
+            raise KnowledgeRequestError(str(exc)) from exc
+        except RuntimeError as exc:
+            raise RetrievalRuntimeUnavailableError(str(exc)) from exc
 
     def get_object(
         self,
@@ -119,14 +129,22 @@ class KnowledgeReadApplication:
     ) -> dict:
         """Read current or explicitly pinned accepted Object Knowledge."""
 
-        payload = self._object_reader.get_object(
-            object_id,
-            version_id=version_id,
-            facets=facets,
-            include_relations=include_relations,
-            include_evidence_refs=include_evidence_refs,
-        )
-        return {"contract_version": self.contract_version, **payload}
+        try:
+            payload = self._object_reader.get_object(
+                object_id,
+                version_id=version_id,
+                facets=facets,
+                include_relations=include_relations,
+                include_evidence_refs=include_evidence_refs,
+            )
+        except ValueError as exc:
+            raise KnowledgeRequestError(str(exc)) from exc
+        requested_scope = payload.pop("scope")
+        return {
+            "contract_version": self.contract_version,
+            **payload,
+            "requested_scope": requested_scope,
+        }
 
     def get_objects(
         self,
@@ -163,11 +181,14 @@ class KnowledgeReadApplication:
         version_id: str | None = None,
         include_evidence_refs: bool = True,
     ) -> dict:
-        payload = self._object_reader.get_relations(
-            object_id,
-            version_id=version_id,
-            include_evidence_refs=include_evidence_refs,
-        )
+        try:
+            payload = self._object_reader.get_relations(
+                object_id,
+                version_id=version_id,
+                include_evidence_refs=include_evidence_refs,
+            )
+        except ValueError as exc:
+            raise KnowledgeRequestError(str(exc)) from exc
         return {"contract_version": self.contract_version, **payload}
 
     def get_object_evidence(
@@ -182,17 +203,22 @@ class KnowledgeReadApplication:
     ) -> dict:
         """Expose canonical Evidence retrieval without exposing Source/SQLite storage."""
 
-        result = ObjectEvidenceRetriever(
-            self._repository,
-            self._evidence_embedder,
-        ).retrieve(
-            object_id,
-            max_candidates=max_candidates,
-            semantic=semantic,
-            semantic_batch_size=semantic_batch_size,
-            manual_include=manual_include,
-            manual_exclude=manual_exclude,
-        )
+        try:
+            result = ObjectEvidenceRetriever(
+                self._repository,
+                self._evidence_embedder,
+            ).retrieve(
+                object_id,
+                max_candidates=max_candidates,
+                semantic=semantic,
+                semantic_batch_size=semantic_batch_size,
+                manual_include=manual_include,
+                manual_exclude=manual_exclude,
+            )
+        except ValueError as exc:
+            raise KnowledgeRequestError(str(exc)) from exc
+        except RuntimeError as exc:
+            raise RetrievalRuntimeUnavailableError(str(exc)) from exc
         return {
             "contract_version": self.contract_version,
             **result,
