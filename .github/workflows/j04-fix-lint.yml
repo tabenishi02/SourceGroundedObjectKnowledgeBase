@@ -1,0 +1,34 @@
+name: J04 Fix Lint
+
+on:
+  push:
+    branches:
+      - integration/knowledge-base-redesign
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Ruff
+        run: python -m pip install 'ruff<1,>=0.9'
+      - name: Fix formatting
+        run: |
+          ruff check --fix src/sgokb/application_read.py
+          ruff format src/sgokb/application_read.py src/sgokb/retrieval/context_builder.py
+      - name: Commit fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/sgokb/application_read.py src/sgokb/retrieval/context_builder.py
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "style(j04): satisfy Context Builder lint"
+          git push origin HEAD:integration/knowledge-base-redesign
