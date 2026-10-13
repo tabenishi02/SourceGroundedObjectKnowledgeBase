@@ -1,4 +1,4 @@
-"""Transport-neutral Knowledge Access application boundary for Phase J / J-01.
+"""Transport-neutral Knowledge Access application boundary for Phase J.
 
 CLI, MCP and future clients should use this module instead of reaching into
 SQLite repositories or Phase I retrieval implementations directly. Runtime
@@ -11,7 +11,13 @@ from dataclasses import asdict
 from typing import Iterable
 
 from .domain import ObjectSearchFilters, ObjectSearchMode
-from .retrieval import HybridObjectSearch, ObjectEvidenceRetriever, ObjectSimilaritySearch
+from .retrieval import (
+    EvidenceSearch,
+    EvidenceSearchMode,
+    HybridObjectSearch,
+    ObjectEvidenceRetriever,
+    ObjectSimilaritySearch,
+)
 from .retrieval.object_read import ObjectKnowledgeReader
 
 APPLICATION_READ_CONTRACT_VERSION = "sgokb.application-read.v1"
@@ -201,7 +207,7 @@ class KnowledgeReadApplication:
         manual_include: Iterable[str] = (),
         manual_exclude: Iterable[str] = (),
     ) -> dict:
-        """Expose canonical Evidence retrieval without exposing Source/SQLite storage."""
+        """Expose Object-oriented Evidence retrieval without exposing storage."""
 
         try:
             result = ObjectEvidenceRetriever(
@@ -224,3 +230,38 @@ class KnowledgeReadApplication:
             **result,
             "candidates": [asdict(candidate) for candidate in result["candidates"]],
         }
+
+    def search_evidence(
+        self,
+        query: str,
+        *,
+        mode: EvidenceSearchMode | str = EvidenceSearchMode.HYBRID,
+        limit: int = 10,
+        source_ids: Iterable[str] = (),
+        object_id: str | None = None,
+        association_status: str | None = None,
+        language: str | None = None,
+        include_historical: bool = False,
+        semantic_batch_size: int = 32,
+    ):
+        """Search the Evidence Store independently from accepted Object Knowledge."""
+
+        try:
+            return EvidenceSearch(
+                self._repository,
+                self._evidence_embedder,
+            ).search(
+                query,
+                mode=mode,
+                limit=limit,
+                source_ids=source_ids,
+                object_id=object_id,
+                association_status=association_status,
+                language=language,
+                include_historical=include_historical,
+                semantic_batch_size=semantic_batch_size,
+            )
+        except ValueError as exc:
+            raise KnowledgeRequestError(str(exc)) from exc
+        except RuntimeError as exc:
+            raise RetrievalRuntimeUnavailableError(str(exc)) from exc
