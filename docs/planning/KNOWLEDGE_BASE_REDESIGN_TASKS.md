@@ -760,9 +760,13 @@ Preparation: `docs/planning/PHASE_J_PREPARATION.md`
   - J-02で予約していた`build_context`をactive MCP read Tool化した。Context Builder contractは`sgokb.context-builder.v1`。
   - Ruff成功、J-04〜J-01 + Phase I focused regressionは55 passed / 2 skipped。
 
-- [ ] **J-05 [P1] MCP write系はread系と分離する**
+- [x] **J-05 [P1] MCP write系はread系と分離する**
   - 初期MVPではread-onlyを第一候補とする。
   - 将来`propose_object`等を追加する場合もstagingへ限定する。
+  - **完了 (2026-10-14):** `docs/decisions/J05_MCP_WRITE_BOUNDARY.md`を正本とし、初期MCP MVPをread-onlyへ固定した。
+  - read / writeを別contract・別Adapter境界へ分離し、`MCPWriteAdapter`はMVPでTool 0個・全call拒否とした。
+  - future writeはproposal/staging-onlyとし、canonical direct mutation / automatic promotionを禁止した。explicit enable / authorization scope / audit recordを必須policyとした。
+  - MCP write policyは`sgokb.mcp-write-policy.v1`、将来Tool contract namespaceは`sgokb.mcp-write-tools.v1`。Ruff成功、J-05〜J-01 + Phase I focused regressionは59 passed / 2 skipped。
 
 - [ ] **J-06 [P0] ローカルMCP Clientで受入試験する**
   - Local LLM HostからObject取得。
