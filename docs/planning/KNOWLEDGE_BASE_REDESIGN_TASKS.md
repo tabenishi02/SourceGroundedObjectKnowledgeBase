@@ -727,7 +727,7 @@ Preparation: `docs/planning/PHASE_J_PREPARATION.md`
   - MCPからSQLiteへ直接SQLを公開しない。
   - CLIとMCPが同じApplication/Retrieval APIを使用する。
 
-- [ ] **J-02 [P0] MCP read toolsを定義する**
+- [x] **J-02 [P0] MCP read toolsを定義する**
   - `search_objects`
   - `semantic_search_objects`
   - `find_similar_objects`
@@ -738,6 +738,10 @@ Preparation: `docs/planning/PHASE_J_PREPARATION.md`
   - `get_object_evidence`
   - `search_evidence`
   - `build_context` または同等機能。
+  - **完了 (2026-10-14):** `docs/decisions/J02_MCP_READ_TOOL_CONTRACT.md`を正本とし、active read Toolを`search_objects` / `find_similar_objects` / `get_object` / `get_objects` / `get_object_relations` / `get_object_evidence` / `search_evidence`の7個へ整理した。
+  - `semantic_search_objects`は重複Tool化せず`search_objects(mode="semantic")`、Facet Similarityは`find_similar_objects(facet=...)`で表現する。`build_context`はJ-04まで予約・非activeとした。
+  - MCP Tool contract `sgokb.mcp-read-tools.v1`、JSON Schema Draft 2020-12、read-only / closed-world annotation、public limitを固定した。general `EvidenceSearch`もApplication境界へ追加し、effective世代を既定・historicalを明示opt-inとした。
+  - J-02 + J-01 + Phase I focused regressionはRuff成功、Pytest 38 passed / 2 skipped。
 
 - [ ] **J-03 [P1] MCP Resourcesを定義する**
   - 例: `sgokb://object/<id>`。
