@@ -12,6 +12,12 @@ from .embedding import (
     exact_cosine_scores,
 )
 from .evidence import EvidenceCandidate, EvidenceSelectionReason, ObjectEvidenceRetriever
+from .evidence_search import (
+    EvidenceSearch,
+    EvidenceSearchMode,
+    EvidenceSearchResponse,
+    EvidenceSearchResult,
+)
 from .evaluation import (
     ExactVectorIndexAdapter,
     aggregate_metric_rows,
@@ -50,6 +56,10 @@ __all__ = [
     "EvidenceBudget",
     "EvidenceCandidate",
     "EvidencePackageSelector",
+    "EvidenceSearch",
+    "EvidenceSearchMode",
+    "EvidenceSearchResponse",
+    "EvidenceSearchResult",
     "EvidenceSelectionReason",
     "ObjectEvidenceRetriever",
     "OmittedEvidence",
