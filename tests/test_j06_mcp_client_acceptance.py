@@ -61,7 +61,7 @@ async def _run_local_stdio_client_acceptance_surface() -> None:
             await client.call_tool("get_object", {"object_id": "object:alpha"})
         )
         assert object_result["data"]["object_id"] == "object:alpha"
-        assert object_result["data"]["resolved_version_id"] == "version:object:alpha:current"
+        assert object_result["data"]["resolved_version_id"] == "version:alpha:v1"
 
         batch_result = _structured(
             await client.call_tool(
@@ -88,6 +88,7 @@ async def _run_local_stdio_client_acceptance_surface() -> None:
             )
         )
         assert similar["data"]["source_object_id"] == "object:alpha"
+        assert similar["data"]["source_version_id"] == "version:alpha:v1"
         assert similar["data"]["results"][0]["object_id"] == "object:beta"
 
         context = _structured(
@@ -108,6 +109,7 @@ async def _run_local_stdio_client_acceptance_surface() -> None:
         assert len(resource.contents) == 1
         payload = json.loads(resource.contents[0].text)
         assert payload["data"]["object_id"] == "object:alpha"
+        assert payload["data"]["resolved_version_id"] == "version:alpha:v1"
         assert payload["resource_contract_version"] == "sgokb.mcp-resources.v1"
 
 
