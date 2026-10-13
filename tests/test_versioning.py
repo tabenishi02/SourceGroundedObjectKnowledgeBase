@@ -306,7 +306,7 @@ def test_pre_e04_versions_are_backfilled_as_accepted_on_upgrade(tmp_path):
     assert record.accepted_at == "2026-10-12T00:00:00Z"
     assert record.classification.primary_class_id == "class:character"
     assert upgraded.version_store.current_version_id("legacy-object") == "legacy-version"
-    assert upgraded.one("SELECT count(*) n FROM schema_migrations")["n"] == 13
+    assert upgraded.one("SELECT count(*) n FROM schema_migrations")["n"] == 16
     assert upgraded.one("PRAGMA integrity_check")["integrity_check"] == "ok"
     assert not upgraded.rows("PRAGMA foreign_key_check")
     upgraded.close()

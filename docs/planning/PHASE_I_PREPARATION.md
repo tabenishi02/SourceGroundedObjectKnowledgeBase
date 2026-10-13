@@ -1,13 +1,15 @@
 # Source Grounded Object Knowledge Base — Phase I Preparation
 
-更新日: 2026-10-13
+更新日: 2026-10-14
 
-- Status: Ready to Start
-- Completed phase: Phase H — Result Validation / Import / Rendering
-- Current phase: Phase I — 意味検索・類似検索
-- Next task: `I-01 [P0] Search Representation / Embedding対象を設計する`
+- Status: **Complete (I-01〜I-07 Complete)**
+- Completed phase: Phase I — 意味検索・類似検索
+- Next phase: Phase J — MCP Knowledge Access Layer
+- Next task: `J-01 [P0] Retrieval CoreとMCP Adapterを分離する`
 - Working branch: `integration/knowledge-base-redesign`
 - Closure input: `docs/planning/PHASE_H_CLOSURE_AUDIT.md`
+- Closure audit: `docs/planning/PHASE_I_CLOSURE_AUDIT.md`
+- Phase J preparation: `docs/planning/PHASE_J_PREPARATION.md`
 
 ---
 
@@ -43,15 +45,29 @@ Phase I完了条件:
 
 | Task | Priority | Status | 概要 |
 |---|---|---|---|
-| I-01 Search Representation / Embedding対象 | P0 | Next | Object / Facet / Statement / Evidenceの派生表現契約を設計 |
-| I-02 Embedding Provider / 多言語Model比較 | P0 | Pending | providerとmodelを分離して日本語・cross-lingual評価 |
-| I-03 VectorIndexAdapter / Backend比較 | P0 | Pending | Exact / sqlite系 / LanceDB / Qdrant等を比較 |
-| I-04 Hybrid Search / Object Aggregation | P0 | Pending | Lexical + multi-representation SemanticをObjectへ集約 |
-| I-05 `find_similar_objects` | P0 | Pending | overall / Facet similarity |
-| I-06 Reranker評価 | P1 | Pending | first-stage recall確保後に導入判断 |
-| I-07 Search gold / Backend benchmark | P0 | Pending | Recall / MRR / nDCG / latency / rebuild等を評価 |
+| I-01 Search Representation / Embedding対象 | P0 | Completed | Object / Facet / Statement / Evidenceの派生表現契約を設計 |
+| I-02 Embedding Provider / 多言語Model比較 | P0 | Completed | 2026追加候補を含めHarrier OSS v1 0.6B / 1024-dim共通Embedding Spaceを固定 |
+| I-03 VectorIndexAdapter / Backend比較 | P0 | Completed | Qdrant HNSWを標準backend、LanceDBを第2候補として固定 |
+| I-04 Hybrid Search / Object Aggregation | P0 | Completed | Lexical + multi-representation SemanticをObjectへ集約 |
+| I-05 `find_similar_objects` | P0 | Completed | overall / Facet similarity、same-Class既定scope、cross-class明示拡張 |
+| I-06 Reranker評価 | P1 | Completed | BGE v2-m3をbalanced候補、zerank-2をquality候補として評価 |
+| I-07 Search gold / Backend benchmark | P0 | Completed | frozen gold + 100k Exact/Qdrant + formal reranker benchmark |
 
 I-01を先に確定しないままI-02/I-03を始めると、model/backend比較対象となるrepresentation自体が揺れるため、I-01をPhase Iの設計起点とする。
+
+I-01は2026-10-13に完了した。確定contractは`docs/design/SEARCH_REPRESENTATION_SCHEMA.md`を正本とし、migration `014_search_representations.sql`、deterministic `SearchRepresentationBuilder`、focused regression testsへ反映済みである。
+
+I-02も2026-10-13に完了した。初回比較後に2026年の新候補であるHarrier OSS v1 0.6B、Jina Embeddings v5 Text Small、Nemotron 3 Embed 1B / 8B、EmbeddingGemma 2を同一暫定corpusで追加実測し、Gemini Embedding 2もAPI試験対象としてharnessを固定した。GeminiはAPI key未設定のため実測blockedとして記録した。比較結果と確定Embedding Spaceは`docs/design/EMBEDDING_PROVIDER_MODEL_EVALUATION.md`を正本とし、Phase I共通baselineをHarrier OSS v1 0.6B / 1024次元 / 32Kへ更新した。Migration `015_embedding_spaces.sql`の汎用contractとlocal Provider adapterへ反映済みである。I-03ではこのEmbedding Spaceを固定し、Vector backend差だけを比較する。
+
+I-03も2026-10-13に完了した。30,000件 / Harrier 1024次元の固定fixtureでNumPy Exact、sqlite-vec 0.1.9、SQLite-Vector 1.1.2 Exact / TurboQuant、LanceDB 0.40.0、native Windows Qdrant 1.19.2を比較した。`docs/design/VECTOR_INDEX_ADAPTER_BACKEND_EVALUATION.md`を正本とし、標準backendをlocal Qdrant HNSW (`m=16`, `ef_construct=128`, `hnsw_ef=256`)へ固定した。LanceDB embeddedはserver不要の第2候補として保持する。backend-neutral `VectorIndexAdapter` contractとQdrant adapterを実装し、Qdrant停止・index消失はDerived Search failureとしてSQLite正本からrebuild可能とした。I-04ではこのbackend contractを固定し、Hybrid Search / Object Aggregationを実装する。
+
+I-04も2026-10-13に完了した。`docs/design/HYBRID_SEARCH_OBJECT_AGGREGATION.md`を正本とし、Registry / Knowledge LexicalとObject / Facet / Statement SemanticをObject単位へ集約するHybrid Search Coreを実装した。異種raw scoreは直接加算せずRRF (`k=60`)で融合し、Object / Facet / Statement / Knowledge Lexicalのcontribution capをそれぞれ1 / 2 / 3 / 3へ固定した。exact name / aliasは別priority tierとし、current/historical、Primary/Additional/ancestor Class、Facet、derivation、temporal hard filterをcandidate generation前に適用する。Vector pointはSearch RepresentationではなくKnowledge membership単位とし、Embedding reuseとVersion/filter identityを両立した。Migration `016_hybrid_search.sql`、`HybridObjectSearch`、`KnowledgeVectorIndexBuilder`とfocused regression testsへ反映済みである。I-05ではこのretrieval contractを固定し、Object / Facet similarityを実装する。
+
+I-05は2026-10-14に完了した。`docs/design/OBJECT_SIMILARITY_SEARCH.md`を正本とし、`ObjectSimilaritySearch.find_similar_objects()`で既存`object_overall` / Facet EmbeddingをQuery Vectorとして再利用するObject-to-Object Similarityを実装した。既定candidate scopeはsource Versionと同じPrimary Classのcurrent accepted Objectで、cross-classは`cross_class=True`の明示指定時だけ拡張する。Facet指定時は同一Facetのみを比較し、Source/CandidateのFacet欠落をoverallや0 scoreへsilent fallbackしない。結果はRRFではなく同一Embedding Space上のcosine similarityを返し、matched Facet、target Version、representation / membership identityを保持する。Vector filterへsource Object除外用`excludes`を追加し、Qdrantでは`must_not`としてcandidate generation前に適用する。I-06ではこのfirst-stage retrieval / similarity contractを固定してReranker導入を評価する。
+
+I-06は2026-10-14に完了し、その後の最新model surveyを受けて同日追加評価した。`docs/design/RERANKER_SECOND_STAGE_EVALUATION.md`を正本とし、Harrier top 50固定candidateでBGE、Qwen3 0.6B / 4B、Jina v3.5に加え、KaLM Nano/Small R2、Qwen3-VL-Reranker-2B、ZeroEntropy zerank-2を実測した。追加評価ではzerank-2がMRR 0.971 / Recall@1 96.2% / nDCG@10 0.953で品質1位、BGEはMRR 0.944ながら同runtime再測定でp50約56 ms / peak VRAM約1.21 GiBと圧倒的に軽量だった。I-07ではBGEをbalanced/default候補、zerank-2をquality候補、暫定rerank depthをtop 50として正式goldで比較し、production mandatory化はそれまで保留する。
+
+I-07は2026-10-14に完了した。`benchmark/search-quality-gold-v1.json`をfrozen goldとし、20 Object / 21 accepted Version / 24 QueryでLexical / Semantic / Hybrid、Statement、overall / Facet similarity、Evidence Search、filter / current-history / temporal contractを評価した。HybridはObject MRR 1.000 / Recall@10 100%、contract 5/5、Facet similarityはMRR 1.000だった。100k / 1024-dim backend benchmarkではNumPy Float32 ExactをreferenceにQdrant HNSWを評価し、100k scale tuningによりdefault `hnsw_ef`を256から768へ更新した。formal reranker goldではBGE / zerank-2ともObject MRR 1.000で、BGEをbalanced候補、zerank-2をquality候補として維持する。設計正本は`docs/design/SEARCH_QUALITY_GOLD_BACKEND_BENCHMARK.md`。Phase I完了条件を満たし、次はPhase Jへ進む。
 
 ---
 
@@ -400,10 +416,10 @@ Phase Iに必要な前提も、
 
 が揃っている。
 
-したがってPhase Iは**Ready to Start**とする。
+Phase IはI-01〜I-07を完了し、正式Search gold / 100k Backend benchmarkを含む完了条件を満たした。Phase Iを**Complete**とする。
 
 次に実施するTask:
 
 ```text
-I-01 [P0] Search Representation / Embedding対象を設計する
+J-01 [P0] Retrieval CoreとMCP Adapterを分離する
 ```

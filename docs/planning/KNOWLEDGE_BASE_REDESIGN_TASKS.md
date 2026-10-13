@@ -1,6 +1,6 @@
 # Source Grounded Object Knowledge Base — Knowledge Base 再設計タスク
 
-更新日: 2026-10-12
+更新日: 2026-10-14
 
 ## 1. 目的
 
@@ -505,7 +505,7 @@ docs/
 
 # Phase G — Google Drive / ChatGPT交換ワークフロー
 
-- [ ] **G-01 [P0] Object Evidence Package formatを確定する**
+- [x] **G-01 [P0] Object Evidence Package formatを確定する**
   - 更新Packageではcurrent Knowledgeを評価・carry-forwardできるよう、現Versionが参照するEvidenceを必要に応じて含める。
   - Package外Evidenceを標準Resultが引用しないB-04契約とtoken budgetを両立させる。
   - 例:
@@ -521,7 +521,7 @@ docs/
    └─ ...
 ```
 
-- [ ] **G-02 [P0] `manifest.json` schemaを定義する**
+- [x] **G-02 [P0] `manifest.json` schemaを定義する**
   - object_id / primary_class / additional_classes / name / aliases。
   - package version。
   - included sources/evidence IDs。
@@ -529,7 +529,7 @@ docs/
   - expected result schema version。
   - package identity / manifest hash / base Object Knowledge Version等、Result bindingに必要なprecondition。
 
-- [ ] **G-03 [P0] ChatGPT用`instructions.md`を設計する**
+- [x] **G-03 [P0] ChatGPT用`instructions.md`を設計する**
   - Primary Class / ancestor Class別の分析目的。
   - Fact / synthesis / interpretationの区別。
   - Evidence ID参照ルール。
@@ -539,14 +539,14 @@ docs/
   - Package外Evidence IDや未知Object IDを創作しないルール。
   - Evidence不足・矛盾・unresolved referenceを構造化して返すルール。
 
-- [ ] **G-04 [P0] Local Package staging / Google Drive export方式を実装する**
+- [x] **G-04 [P0] Local Package staging / Google Drive export方式を実装する**
   - Package Buildはまずlocal stagingへ生成し、External Exportと分離する。
   - 初期版は明示export → Drive同期フォルダでも可。同期対象directoryへのwriteもExternal Exportとして扱う。
   - export前にpackage identity / target Object / file・Evidence scope / warning / destinationをpreflight表示可能にする。
   - B-07の`allow / review_required / blocked`相当export decisionを扱い、credential / secretを標準Packageへ含めない。
   - SGOKB本体をGoogle Drive APIへ強く依存させるかは別途判断する。
 
-- [ ] **G-05 [P1] Result受け取り運用を定義する**
+- [x] **G-05 [P1] Result受け取り運用を定義する**
   - `result.json`必須。
   - MarkdownをChatGPTに作らせる場合も正本にはしない。
   - 手動配置場所とvalidation triggerを定義する。
@@ -554,6 +554,8 @@ docs/
   - Google Drive / ChatGPT手動工程の開始・返却・失敗時運用を1 Object単位で定義する。
 
 **完了条件:** APIを利用せず、ユーザーがChatGPTとの手動工程を介して1 Objectを往復できる。
+
+Phase G completion: `docs/planning/PHASE_G_COMPLETION.md`
 
 ---
 
@@ -615,7 +617,7 @@ Phase H closure audit: `docs/planning/PHASE_H_CLOSURE_AUDIT.md`
 
 Preparation: `docs/planning/PHASE_I_PREPARATION.md`
 
-- [ ] **I-01 [P0] Search Representation / Embedding対象を設計する**
+- [x] **I-01 [P0] Search Representation / Embedding対象を設計する**
   - Evidence representation / embedding。
   - Object overall representation / embedding。
   - Facet representation / embedding。
@@ -624,15 +626,23 @@ Preparation: `docs/planning/PHASE_I_PREPARATION.md`
   - Statement単体で文脈不足の場合、Object / Class / Facet / temporal scope等を付加するContextual Search Representation Builderを設計する。
   - representation kind / Object Version / Facet / Statement membership / Evidence generation / builder version / content hashを追跡する。
   - `gap` / `insufficient evidence` / `unresolved reference` / Registry proposalは通常Statement Semantic Indexへ入れない。
+  - **完了 (2026-10-13):** `docs/design/SEARCH_REPRESENTATION_SCHEMA.md`を正本とし、`object_overall / facet / statement / evidence`、content identity / membership分離、current/historical境界、deterministic Builder、Evidence別membership familyを確定した。
+  - migration `014_search_representations.sql`、`SearchRepresentationBuilder`、focused regression testsを実装した。Embedding model / backend / fusion / rerankerは後続Taskへ明示的に留保する。
 
-- [ ] **I-02 [P0] Embedding Provider / 多言語Modelを比較する**
+- [x] **I-02 [P0] Embedding Provider / 多言語Modelを比較する**
   - 日本語を含むSGOKB実データで評価する。
   - FastEmbed等のlocal provider adapterと、BGE-M3等のmodel候補を分離して評価する。
   - Object / Facet / Statement / Evidenceで同一modelが最適かも確認する。
   - model / revision / dimension / preprocessing / normalization / provider configurationをEmbedding Space metadataへ記録する。
   - Vector backend比較時はEmbedding Spaceを固定し、model比較とbackend比較を混同しない。
+  - **完了 (2026-10-13):** `docs/design/EMBEDDING_PROVIDER_MODEL_EVALUATION.md`を正本とし、ProviderとModelを分離して初回候補Qwen3-Embedding-0.6B / 4B、multilingual-e5-large-instruct、BGE-M3、FastEmbedを評価した。
+  - 2026年追加候補としてHarrier OSS v1 0.6B、Jina Embeddings v5 Text Small、Nemotron 3 Embed 1B / 8B、EmbeddingGemma 2を同一4,851 representation / 26 QueryのExact条件で実測した。Gemini Embedding 2も試験対象へ追加したが、API key未設定のため実測blockedとしてharness / statusを記録した。
+  - 追加試験の結果、Phase I共通baselineを`sentence-transformers + microsoft/harrier-oss-v1-0.6b`、revision `f9b9dc8d367d443f2479d27aa5d8d2850c0774ee`、native/output 1024次元、L2 normalize、max 32768 token、overflow=`reject`へ更新した。外部Providerへのsilent fallbackは行わない。
+  - `Nemotron-3-Embed-8B-BF16`は今回最高品質のquality ceiling / reference profile、`multilingual-e5-large-instruct`はshort Statement高速profile、Jina v5はlicense上benchmark/reference profileとして保持し、複数Embedding Spaceの正式採否はI-07へ留保した。
+  - Migration `015_embedding_spaces.sql`、`EmbeddingSpaceSpec`、`EmbeddingRepository`、`SentenceTransformerEmbeddingProvider` / `FastEmbedEmbeddingProvider`、Float32 Exact cosine baselineを実装した。default local profileとoptional dependency条件をHarrier / sentence-transformers 6.1+へ更新した。
+  - I-03ではHarrier 1024-dim Embedding Spaceを固定し、Vector backendのみを比較する。
 
-- [ ] **I-03 [P0] VectorIndexAdapterを設計しBackendを比較決定する**
+- [x] **I-03 [P0] VectorIndexAdapterを設計しBackendを比較決定する**
   - SQLiteをcanonical Knowledge Storeとし、Vector backendを再構築可能なDerived Search Indexとして分離する。
   - `VectorIndexAdapter`相当の共通契約でupsert / search / filter / invalidate / rebuild / metadata取得を抽象化する。
   - SQLite系Float32 Exact / FlatをANN Recallの基準にする。
@@ -644,8 +654,13 @@ Preparation: `docs/planning/PHASE_I_PREPARATION.md`
   - 実測前に最終backendを固定しない。
   - Vector backend停止 / Index消失時もcanonical read / Lexical Searchを継続し、SQLite正本からfull rebuildできることを必須とする。
   - local provider失敗時にexternal providerへsilent fallbackしない。
+  - **完了 (2026-10-13):** `docs/design/VECTOR_INDEX_ADAPTER_BACKEND_EVALUATION.md`を正本とし、30,000件 / 1024次元固定fixtureでNumPy Exact、sqlite-vec、SQLite-Vector Exact / TurboQuant、LanceDB、Qdrant HNSWを比較した。
+  - 標準backendをlocal Qdrant HNSWへ固定した。実測profileはQdrant server 1.19.2、`m=16`、`ef_construct=128`、`hnsw_ef=256`で、無filter / 1-of-8 hard filterともExact top-10に対しRecall@10 100%を確認した。LanceDB 0.40.0はserver不要の第2候補として保持する。
+  - `VectorIndexAdapter`、`VectorIndexPoint`、`VectorSearchFilter`、`VectorSearchHit`、`VectorIndexMetadata`と`QdrantVectorIndexAdapter`を実装した。Embedding Spaceごとにcollectionを分離し、hard filterをQdrant payload filterへ渡す。
+  - Windowsの深いstorage pathで64桁space hashをcollection名へ直接使うとpath errorが発生したため、物理collection名は96-bit prefixへ短縮し、full `space_id`をcollection metadataへ保存・照合する方式を採用した。
+  - Qdrant停止 / Index消失時もcanonical SQLite / Lexical Searchを維持し、silent backend fallbackを禁止する。Vector IndexはSQLiteのSearch Representation / Embedding cacheからfull rebuild可能なDerived Search Indexとする。
 
-- [ ] **I-04 [P0] Multi-representation Hybrid Search / Object Aggregationを実装する**
+- [x] **I-04 [P0] Multi-representation Hybrid Search / Object Aggregationを実装する**
   - FTS + Object / Facet / Statement vector searchを組み合わせる。
   - Statement-level hitを内部candidateとして扱い、通常Object検索は1 Object = 1結果へ集約するObject Aggregatorを実装する。
   - matched Statement / Facet / representative snippet / groundingをresult detailとして保持する。
@@ -654,21 +669,37 @@ Preparation: `docs/planning/PHASE_I_PREPARATION.md`
   - exact name/aliasをSemantic Searchより優先できるようにする。
   - current accepted Knowledgeを既定scopeとし、historical Statement Vectorをsilent混合しない。
   - lexical / Object / Facet / Statement各channelのfusionとmatch reasonを説明可能にする。
+  - **完了 (2026-10-13):** `docs/design/HYBRID_SEARCH_OBJECT_AGGREGATION.md`を正本とし、Registry / Knowledge Lexical + Object / Facet / Statement SemanticをObjectへ集約する`HybridObjectSearch`を実装した。
+  - raw BM25 / cosineを直接加算せず、RRF (`k=60`)をbaselineとした。Object overall / Facet / Statement / Knowledge Lexicalの同一Object内contributionを1 / 2 / 3 / 3へcapし、exact name / aliasは別priority tierでsemantic resultより優先可能とした。
+  - Primary / Additional / ancestor Class、Facet、accepted Version、derivation、temporal scope / valid-atをcandidate generation前のhard filterとして実装した。current accepted Knowledgeが既定で、historicalは明示Versionだけを検索する。
+  - Migration `016_hybrid_search.sql`でSearch Representation FTS5を追加し、1〜2文字日本語queryはliteral fallbackする。Knowledge Vector Indexはmembership-scoped pointとし、Embedding content reuseを維持したままcurrent/history/filter identityを保持する。
+  - Qdrant adapter integrationを含むfocused testsを追加し、semantic backend障害時はSemantic modeをexplicit failure、Hybrid modeをLexical + `degraded_channels`として扱う。別Vector backend / external providerへのsilent fallbackは行わない。
 
-- [ ] **I-05 [P0] `find_similar_objects`を実装する**
+- [x] **I-05 [P0] `find_similar_objects`を実装する**
   - overall similarity。
   - 既定candidate scopeは同じPrimary Classとし、cross-classは明示拡張とする。
   - facet指定similarity。
   - missing Facetを0 similarityやoverallへsilent fallbackしない。
   - scoreとmatched facet / target Versionを返せる構造。
+  - **完了 (2026-10-14):** `docs/design/OBJECT_SIMILARITY_SEARCH.md`を正本とし、`ObjectSimilaritySearch.find_similar_objects()`でObject overall / Facet similarityを実装した。
+  - Sourceの保存済みSearch Representation EmbeddingをQuery Vectorとして再利用し、Providerへ再Embeddingしない。overallは`object_overall`同士、Facet指定時は同一Facet同士だけをdirect cosineで比較する。
+  - 既定candidate scopeをsource Versionと同じPrimary Classのcurrent accepted Objectへ固定し、`cross_class=True`時だけ明示的にClass境界を外す。Source Object自身はVector candidate生成前に除外する。
+  - Source missing Facetは明示error、Candidate missing Facetは候補外とし、overall / 別Facet / score=0へのsilent fallbackを禁止した。accepted historical source Versionも明示指定可能とした。
+  - Resultへcosine score、matched Facet、candidate target Version、representation / membership identityを保持する。Vector filterへ後方互換の`excludes`を追加し、Qdrant `must_not`へ変換する。
 
-- [ ] **I-06 [P1] Reranker / second-stage retrievalを評価する**
+- [x] **I-06 [P1] Reranker / second-stage retrievalを評価する**
   - 初期版MVPには必須としない。
   - FastEmbed等で利用可能なCross Encoderを含め候補を比較する。
   - first-stageで取得できなかったObjectをrerankerは救えないため、Statement Recallを先に評価する。
   - retrieval品質とlatencyの実測で導入を判断する。
 
-- [ ] **I-07 [P0] 検索品質gold / Backend benchmarkを作成する**
+  - **完了 (2026-10-14):** `docs/design/RERANKER_SECOND_STAGE_EVALUATION.md`を正本とし、Harrier top 50固定candidateでsecond-stage rerankerを比較した。
+  - BGE reranker v2-m3はMRR 0.944 / Recall@10 100% / nDCG@10 0.921、50候補p50約35 ms、peak VRAM約1.21 GiB。Qwen3 Reranker 4BはMRR 0.949と僅差で上回るが、p50約607 ms / peak約8.06 GiBのためquality referenceとした。
+  - Qwen3 Reranker 0.6B、Jina Reranker v3.5も比較した。Jina v3.5はCC BY-NC 4.0のためresearch/reference扱い。GTE multilingual rerankerは現行Transformers 5.19 / PyTorch 2.8 CUDA環境のcustom runtime互換性問題で実測blockedとした。
+  - first-stage candidate Recallはtop 30まで96.2%、top 40 / 50で100%だったため、I-07の暫定rerank depthを50とする。Rerankerはcandidate集合外のObjectを救えないためfirst-stage Recall評価を先行する。
+  - 追加model survey後、KaLM Nano/Small R2、Qwen3-VL-Reranker-2B、ZeroEntropy zerank-2を同じtop-50 fixtureで追加実測した。zerank-2がMRR 0.971 / Recall@1 96.2% / nDCG@10 0.953で品質1位、BGEは同runtime再測定でMRR 0.944 / p50約56 ms / peak約1.21 GiBだった。I-07ではBGEをbalanced/default候補、zerank-2をquality候補として比較し、正式gold通過前はHybrid Searchへmandatory second-stageとして組み込まない。
+
+- [x] **I-07 [P0] 検索品質gold / Backend benchmarkを作成する**
   - Character / Work / Conceptに加え、Person / Organization / Series / Place / EventとLater support Classの代表Queryを用意する。
   - Facet全体では薄まりやすい細粒度Statement Query、条件・例外・時系列Queryを明示的に含める。
   - 日本語Queryとcross-lingual Queryを含める。
@@ -677,12 +708,20 @@ Preparation: `docs/planning/PHASE_I_PREPARATION.md`
   - Float32 Exact結果をANN backend評価のreferenceにする。
   - exact lookup、Statement Recall@K、Object Recall@K、ANN Recall@K、MRR、nDCG、filter correctness、current/historical isolation、人間Similarity評価を記録する。
   - latency / index size / build / incremental update / rebuildを同一workloadで測定する。
+  - **完了 (2026-10-14):** `benchmark/search-quality-gold-v1.json`、`scripts/run_search_quality_gold.py`、`scripts/run_vector_backend_benchmark.py`、`scripts/run_search_gold_reranker_benchmark.py`を追加し、正式gold / harnessを固定した。Hybrid Object SearchはMRR 1.000 / Recall@10 100%、Statement Recall@10 100%、exact lookup 100%、filter/current-history/temporal contract 5/5を確認した。
+  - human-authored Similarity goldではoverall MRR 0.833 / Recall@10 100%、Facet-specific MRR 1.000。Evidence Searchはlexical/association・semanticともMRR 1.000。Statement Embedding有無は20 Object goldではObject-level差が未観測だったため、標準representationは維持しつつN-06で実データscale再評価とした。
+  - 100k / 1024-dim backend benchmarkでNumPy Float32 ExactとQdrant HNSWを比較し、I-03の`hnsw_ef=256`を100k tuning結果に基づき`768`へ更新した。build / 100-point update / full rebuild / disk sizeを同一workloadで記録した。
+  - formal reranker goldではBGE / zerank-2ともObject MRR 1.000。BGEをbalanced/default候補、zerank-2をquality候補として維持し、MVP mandatory rerankerとはしない。設計正本: `docs/design/SEARCH_QUALITY_GOLD_BACKEND_BENCHMARK.md`。
 
 **完了条件:** 「文字列が一致するObject」だけでなく、「意味・価値観・テーマ等が近いObject」を実用精度で取得できる。
+
+**Phase I closure（2026-10-14）:** I-01〜I-07の未完了Taskが0件であることを再監査し、正式gold・100k Backend benchmark・回帰試験結果を`docs/planning/PHASE_I_CLOSURE_AUDIT.md`へ固定した。Phase IをCompleteとし、`docs/planning/PHASE_J_PREPARATION.md`でJ-01開始条件とApplication / Retrieval / MCP境界のgapを整理した。
 
 ---
 
 # Phase J — MCP Knowledge Access Layer
+
+Preparation: `docs/planning/PHASE_J_PREPARATION.md`
 
 - [ ] **J-01 [P0] Retrieval CoreとMCP Adapterを分離する**
   - MCPからSQLiteへ直接SQLを公開しない。
@@ -944,8 +983,16 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A、Phase B（B-01〜B-07）、Phase C（C-01〜C-04）、Phase D（D-01〜D-07）、Phase E（E-01〜E-05）、Phase F（F-01〜F-05）は完了した。F-01でcanonical Capture / Import / Normalize / Evidence経路とeffective Snapshot / Run selection、F-02でstandard / legacy境界、F-03でObject Evidence Retrieval、F-04でbounded Evidence Selection、F-05でoperator association / Evidence override CLIまで実装した。次の最優先は **G-01 [P0] Object Evidence Package formatを確定する** とする。
+Phase A〜Iは完了している。Phase Gは`docs/planning/PHASE_G_COMPLETION.md`、Phase Hは`docs/planning/PHASE_H_CLOSURE_AUDIT.md`、Phase Iは`docs/planning/PHASE_I_CLOSURE_AUDIT.md`をclosure正本とする。
 
-Phase Dではbranch strategy、docs / archive境界、`src/sgokb`責務構造、module migration、runtime data / Git exclusion、branch / PR / tag / release cleanup policyまで確定した。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
+現在はPhase J — MCP Knowledge Access Layerへ移行する。準備内容と開始条件は`docs/planning/PHASE_J_PREPARATION.md`を正本とする。
 
-E-01ではMigration 003でObject / Class / Relation骨格、E-02ではMigration 004でSemantic Facet基盤、E-02CではMigration 005で55 Facet taxonomy、E-03ではMigration 006でSource / Evidence / Evidence Link / Provenance、E-04ではMigration 007でVersion lifecycle / stale / current promotion / rollback / derived-state boundaryを物理反映した。E-05ではMigrationを追加せず、`src/sgokb/exchange/schemas/object-result-v1.schema.json`と`ObjectResultContract`でObject Result exchange contractを確定した。設計正本は`docs/design/SEMANTIC_FACET_SCHEMA.md`、`docs/design/SOURCE_EVIDENCE_SCHEMA.md`、`docs/design/VERSIONING_SCHEMA.md`、`docs/design/OBJECT_RESULT_JSON_SCHEMA.md`、taxonomy regression正本は`docs/reference/CLASS_FACET_GOLD_CASES.md`とする。F-01で既存ingestion pipelineのcanonical Source / Evidence schema接続、F-02で標準pipelineからのFragment生成除外、F-03でcanonical Evidenceを直接対象とするObject Evidence Retrieval、F-04でbounded Evidence Selection、F-05でSource↔Object associationと明示Evidence操作を日常運用から扱うoperator CLIまで完了した。Phase F完了条件を満たしたため、次はG-01でObject Evidence Package formatを確定する。
+次の最優先Task:
+
+```text
+J-01 [P0] Retrieval CoreとMCP Adapterを分離する
+```
+
+J-01ではPhase Iで完成した`HybridObjectSearch` / `ObjectSimilaritySearch`等をApplication read boundaryへ接続し、MCP AdapterがSQLite / Repository / Qdrant固有APIへ直接依存しない構造を先に確立する。Tool名・Resource URI・Context Builder・write capabilityはJ-02以降で確定する。
+
+再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。

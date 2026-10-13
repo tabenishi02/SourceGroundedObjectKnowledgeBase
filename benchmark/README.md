@@ -1,3 +1,17 @@
+# Current SGOKB Search benchmark
+
+Phase Iの現行Search評価正本は`search-quality-gold-v1.json`。外部Web内容に依存しないfrozen synthetic canonical Knowledgeで、Search contract / Similarity / Evidence / ANN / Reranker regressionに使用する。
+
+```powershell
+python scripts/run_search_quality_gold.py --local-files-only
+python scripts/run_vector_backend_benchmark.py --count 100000 --hnsw-ef 768
+python scripts/run_search_gold_reranker_benchmark.py
+```
+
+設計・結果: [`docs/design/SEARCH_QUALITY_GOLD_BACKEND_BENCHMARK.md`](../docs/design/SEARCH_QUALITY_GOLD_BACKEND_BENCHMARK.md)
+
+---
+
 # Local AI comparison
 
 次回のモデル比較は[モデル比較の実行計画](../docs/archive/prototype-0.2/MODEL_COMPARISON_PLAN.md)に従う。現行の8CaptureはPrompt修正にも使用済みのため、独立した未知データのtestとは扱わず、モデル比較用manifestと保留データを別に用意する。

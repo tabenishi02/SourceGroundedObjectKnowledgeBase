@@ -1,6 +1,6 @@
 # Source Grounded Object Knowledge Base — Knowledge Base 再設計 引き継ぎ資料
 
-更新日: 2026-10-12
+更新日: 2026-10-14
 
 ## 1. 本書の目的
 
@@ -14,13 +14,15 @@ Task master:
 
 現在地点:
 
-> **Phase A / B / C / D / E / F（F-01〜F-05）は完了。canonical EvidenceをFragmentなしでretrieval / bounded selectionし、Source↔Object associationとEvidence manual overrideをoperator CLIから維持できる。次の未完了TaskはG-01 [P0] Object Evidence Package formatを確定する。再設計の正規統合作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A〜Iは完了。Phase I closure auditを通過し、Phase J — MCP Knowledge Access Layerへ移行可能。次TaskはJ-01 [P0] Retrieval CoreとMCP Adapterを分離する。現行移行正本は`docs/planning/PHASE_I_CLOSURE_AUDIT.md`と`docs/planning/PHASE_J_PREPARATION.md`。再設計の正規統合作業基盤は`integration/knowledge-base-redesign`。**
 
 Phase D / E / F移行資料:
 
 - `docs/planning/PHASE_D_PREPARATION.md`
 - `docs/planning/PHASE_E_PREPARATION.md`
 - `docs/planning/PHASE_F_PREPARATION.md`
+- `docs/planning/PHASE_I_CLOSURE_AUDIT.md`
+- `docs/planning/PHASE_J_PREPARATION.md`
 
 ---
 
@@ -626,16 +628,16 @@ Prototype資料は`docs/archive/prototype-0.2/`へ分離済みであり、現行
 
 ## 14. 現在地点
 
-Phase A、Phase B、Phase C、Phase D、Phase E、Phase F（F-01〜F-05）は完了している。
+Phase A〜Iは完了している。
 
-**次の作業はG-01 [P0] Object Evidence Package formatを確定する。**
+Phase GでObject Evidence Packageのbuild / stage / explicit export / Result receiptまでの手動交換Workflow、Phase HでResult Validation / explicit Import / Rendering / Diff Review、Phase IでSemantic / Hybrid / Similarity Retrievalと正式gold / Backend benchmarkまで完了した。
 
-F-01でcanonical Capture → Source / Snapshot / Raw Artifact → Normalization Run → Evidence経路を実装し、F-02でその経路を標準pipelineとして固定した。標準CLIの`import` / `process` / `status` / `snapshots`はcanonical側を使用し、Fragment / Final /旧benchmarkは`legacy-*`へ明示した。旧API・旧command名はPhase Lまでcompatibility shim / aliasとして残すが、新standard codeからは利用しない。物理隔離・archive・削除判断はPhase Lへ残す。詳細は`docs/design/SOURCE_INGESTION_PIPELINE.md`と`docs/design/STANDARD_PIPELINE_BOUNDARY.md`を正本とする。
+Phase Iの完了再監査ではI-01〜I-07の未完了Taskは0件だった。詳細は`docs/planning/PHASE_I_CLOSURE_AUDIT.md`を参照する。
 
-F-03ではMigration 009のcanonical Evidence FTSと`ObjectEvidenceRetriever`を追加し、explicit association / name / alias / Source metadata / lexical / semantic / manualのselection reasonを統合した。通常scopeはeffective Snapshot / Runのみで、`excluded` associationは自動候補から除外する。semanticはon-demand baselineであり、永続Vector backendはPhase Iへ残す。詳細は`docs/design/OBJECT_EVIDENCE_RETRIEVAL.md`を正本とする。
+**次の作業はJ-01 [P0] Retrieval CoreとMCP Adapterを分離する。**
 
-F-04では`EvidencePackageSelector`によりestimated token / byte / item hard budget、Source diversity pass、relevance fill、duplicate / overlap suppression、omission reason追跡を実装した。manual includeはprotectedとしてsilent omissionしない。設計正本は`docs/design/EVIDENCE_SELECTION_BUDGET.md`である。
+Phase JではMCPを新しい検索実装にせず、Phase IのRetrieval CoreをApplication read use caseへ接続し、MCPは薄いtransport / schema adapterとする。SQLite direct access、Qdrant固有API直結、MCP独自ranking、cloud/providerへのsilent fallbackは禁止する。
 
-F-05では`source_object_associations`をApplication / CLIへ接続し、`association list/suggest/set/clear`と`evidence candidates/select`を実装した。自動suggestionはread-only、Evidence include / excludeはPackage単位のoverride、Knowledge `evidence_links`は別責務とした。設計正本は`docs/design/OPERATOR_ASSOCIATION_CONTROLS.md`である。
+J-01の開始条件・現行実装gap・Definition of Doneは`docs/planning/PHASE_J_PREPARATION.md`を正本とする。
 
-再設計の正規作業基盤は`integration/knowledge-base-redesign`である。Phase Fは完了し、G-01ではObject Evidence Package formatへ進む。
+再設計の正規作業基盤は`integration/knowledge-base-redesign`である。

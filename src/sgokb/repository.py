@@ -6,7 +6,13 @@ from pathlib import Path
 
 from .domain import digest, json_text, now, uid
 from .knowledge_repository import KnowledgeRepository
-from .storage import ObjectRepository, SemanticRepository, SourceRepository, VersionRepository
+from .storage import (
+    EmbeddingRepository,
+    ObjectRepository,
+    SemanticRepository,
+    SourceRepository,
+    VersionRepository,
+)
 
 
 class Repository(KnowledgeRepository):
@@ -19,6 +25,7 @@ class Repository(KnowledgeRepository):
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.execute("PRAGMA busy_timeout=5000")
         self.migrate()
+        self.embedding_store = EmbeddingRepository(self.db)
         self.object_store = ObjectRepository(self.db)
         self.semantic_store = SemanticRepository(self.db)
         self.source_store = SourceRepository(self.db)

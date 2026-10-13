@@ -20,13 +20,16 @@ from ._prototype import (
     validate_fragments,
     validate_vectors,
 )
+from .embedding import EmbeddingProvider, EmbeddingSpaceRecord, EmbeddingSpaceSpec
 from .knowledge import (
     AttributeDefinitionRecord,
     AttributeStatus,
     AttributeValueType,
     DerivationKind,
+    EvidenceSearchMembershipRecord,
     FacetDefinitionRecord,
     FacetStatus,
+    KnowledgeSearchMembershipRecord,
     KnowledgeStatementRecord,
     SearchRepresentationKind,
     SearchRepresentationRecord,
@@ -43,6 +46,16 @@ from .object import (
     ObjectVersionRef,
     RelationTypeRecord,
     new_persistent_id,
+)
+from .search import (
+    ObjectSearchChannel,
+    ObjectSearchFilters,
+    ObjectSearchMatch,
+    ObjectSearchMode,
+    ObjectSearchResponse,
+    ObjectSearchResult,
+    ObjectSimilarityResponse,
+    SimilarObjectResult,
 )
 from .source import (
     AssociationStatus,
@@ -61,6 +74,15 @@ from .source import (
     SourceSnapshotRecord,
     SourceStatus,
 )
+from .vector_index import (
+    VectorIndexAdapter,
+    VectorIndexMetadata,
+    VectorIndexPoint,
+    VectorMatch,
+    VectorRange,
+    VectorSearchFilter,
+    VectorSearchHit,
+)
 from .version import (
     DerivedState,
     DerivedStateRecord,
@@ -71,13 +93,31 @@ from .version import (
 )
 
 __all__ = [
+    "ObjectSearchChannel",
+    "ObjectSearchFilters",
+    "ObjectSearchMatch",
+    "ObjectSearchMode",
+    "ObjectSearchResponse",
+    "ObjectSearchResult",
+    "ObjectSimilarityResponse",
+    "SimilarObjectResult",
     "DerivedState",
     "DerivedStateRecord",
     "ObjectVersionRecord",
     "StaleVersionError",
     "VersionClassificationSnapshot",
     "VersionState",
+    "VectorSearchHit",
+    "VectorSearchFilter",
+    "VectorRange",
+    "VectorMatch",
+    "VectorIndexPoint",
+    "VectorIndexMetadata",
+    "VectorIndexAdapter",
     "AssociationStatus",
+    "EmbeddingProvider",
+    "EmbeddingSpaceRecord",
+    "EmbeddingSpaceSpec",
     "EvidenceExtractionMode",
     "EvidenceLinkRecord",
     "EvidenceProvenance",
@@ -96,8 +136,10 @@ __all__ = [
     "AttributeStatus",
     "AttributeValueType",
     "DerivationKind",
+    "EvidenceSearchMembershipRecord",
     "FacetDefinitionRecord",
     "FacetStatus",
+    "KnowledgeSearchMembershipRecord",
     "KnowledgeStatementRecord",
     "SearchRepresentationKind",
     "SearchRepresentationRecord",

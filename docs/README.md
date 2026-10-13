@@ -41,8 +41,17 @@
 35. [Operator Association / Evidence Selection Controls](design/OPERATOR_ASSOCIATION_CONTROLS.md) — F-05で確定したSource↔Object association、read-only suggestion、Evidence manual include / exclude、canonical CLI境界。
 36. [Versioning Schema Design](design/VERSIONING_SCHEMA.md) — E-04で確定したfull snapshot Version lifecycle、stale判定、accepted immutability、current promotion / rollback、derived-state boundary。
 37. [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md) — E-05で確定した`sgokb.object-result/1.0`、Package/Class/Facet binding、Evidence-grounded Result exchange contract。
-38. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
-39. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
+38. [Search Representation Schema](design/SEARCH_REPRESENTATION_SCHEMA.md) — I-01で確定したObject / Facet / Statement / Evidenceの派生検索表現、membership、current/historical境界。
+39. [Embedding Provider / Model Evaluation](design/EMBEDDING_PROVIDER_MODEL_EVALUATION.md) — I-02で確定したProvider比較、Harrier OSS v1 0.6B / 1024-dim Embedding Space、Exact baseline。
+40. [VectorIndexAdapter / Backend Evaluation](design/VECTOR_INDEX_ADAPTER_BACKEND_EVALUATION.md) — I-03で確定したbackend-neutral contract、Qdrant HNSW標準、LanceDB第2候補、Exact/ANN benchmark。
+41. [Hybrid Search / Object Aggregation](design/HYBRID_SEARCH_OBJECT_AGGREGATION.md) — I-04で確定したmulti-representation retrieval、hard filter、membership-scoped Vector point、RRF Object aggregation。
+42. [Object Similarity Search](design/OBJECT_SIMILARITY_SEARCH.md) — I-05で確定したoverall / Facet similarity、same Primary Class既定scope、cross-class明示拡張、direct cosine result contract。
+43. [Reranker / Second-stage Evaluation](design/RERANKER_SECOND_STAGE_EVALUATION.md) — I-06で評価したBGE v2-m3 balanced/default候補、zerank-2 quality候補、top-50 second-stage benchmark。
+44. [Search Quality Gold / Backend Benchmark](design/SEARCH_QUALITY_GOLD_BACKEND_BENCHMARK.md) — I-07 frozen gold、100k Exact/Qdrant、Similarity、Evidence、formal reranker benchmark。
+45. [Phase I Closure Audit](planning/PHASE_I_CLOSURE_AUDIT.md) — I-01〜I-07の完了状態、正式gold、回帰試験、Phase J引継ぎを再監査したclosure記録。
+46. [Phase J Preparation](planning/PHASE_J_PREPARATION.md) — MCP Knowledge Access Layer開始条件、Application/Retrieval boundaryのgap、J-01 Definition of Ready / Done。
+47. [Object Type精緻化タスク](planning/OBJECT_TYPE_REFINEMENT_TASKS.md) — 完了したB-02A〜DのObject分類タスク記録。
+48. [Object Type精緻化引継ぎ](planning/OBJECT_TYPE_REFINEMENT_HANDOFF.md) — 完了したB-02A〜Dの決定とB-03反映結果をまとめた専用Handoff。
 
 ## 現行文書
 
@@ -76,9 +85,16 @@ Phase E以降で確定した物理Architecture / Data Model設計を置く。
 - [Operator Association / Evidence Selection Controls](design/OPERATOR_ASSOCIATION_CONTROLS.md)
 - [Versioning Schema Design](design/VERSIONING_SCHEMA.md)
 - [Object Result JSON Schema Design](design/OBJECT_RESULT_JSON_SCHEMA.md)
+- [Search Representation Schema](design/SEARCH_REPRESENTATION_SCHEMA.md)
+- [Embedding Provider / Model Evaluation](design/EMBEDDING_PROVIDER_MODEL_EVALUATION.md)
+- [VectorIndexAdapter / Backend Evaluation](design/VECTOR_INDEX_ADAPTER_BACKEND_EVALUATION.md)
+- [Hybrid Search / Object Aggregation](design/HYBRID_SEARCH_OBJECT_AGGREGATION.md)
+- [Object Similarity Search](design/OBJECT_SIMILARITY_SEARCH.md)
+- [Reranker / Second-stage Evaluation](design/RERANKER_SECOND_STAGE_EVALUATION.md)
+- [Search Quality Gold / Backend Benchmark](design/SEARCH_QUALITY_GOLD_BACKEND_BENCHMARK.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase D（D-01〜D-07）、Phase E（E-01〜E-05）、Phase F（F-01〜F-05）は完了している。Migration 005でFacet taxonomy、Migration 006でcanonical Source / Evidence / Evidence Link / Provenance schema、Migration 007でVersion lifecycle、Migration 008でeffective Snapshot / Run selection event、Migration 009でcanonical Evidence FTSを反映した。F-01で生成LLMなしのcanonical Capture → Evidence経路、F-02でstandard / legacy境界、F-03でFragmentを介さないObject Evidence Retrieval、F-04でbounded Evidence Selection、F-05でSource↔Object associationとEvidence manual overrideのoperator CLIを実装した。詳細は[Source Ingestion Pipeline](design/SOURCE_INGESTION_PIPELINE.md)、[Standard Pipeline / Legacy Fragment Boundary](design/STANDARD_PIPELINE_BOUNDARY.md)、[Object Evidence Retrieval](design/OBJECT_EVIDENCE_RETRIEVAL.md)、[Evidence Selection Budget](design/EVIDENCE_SELECTION_BUDGET.md)、[Operator Association / Evidence Selection Controls](design/OPERATOR_ASSOCIATION_CONTROLS.md)を正本とする。次TaskはG-01のObject Evidence Package format確定とする。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。Phase IはI-01〜I-07まで完了し、正式Search gold / 100k Backend benchmarkを含むclosure auditを通過した。`PHASE_I_CLOSURE_AUDIT.md`をPhase I終了記録、`PHASE_J_PREPARATION.md`をMCP Knowledge Access Layerへの移行正本とする。次Taskは`J-01 [P0] Retrieval CoreとMCP Adapterを分離する`。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果とgold corpusを置く。

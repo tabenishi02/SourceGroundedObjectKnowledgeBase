@@ -40,9 +40,12 @@ class AttributeStatus(str, Enum):
 
 
 class SearchRepresentationKind(str, Enum):
-    OBJECT = "object"
+    OBJECT_OVERALL = "object_overall"
+    # Compatibility alias for the pre-I-01 public enum name.
+    OBJECT = "object_overall"
     FACET = "facet"
     STATEMENT = "statement"
+    EVIDENCE = "evidence"
 
 
 @dataclass(frozen=True, slots=True)
@@ -96,3 +99,24 @@ class SearchRepresentationRecord:
     builder_version: str
     content: str
     content_hash: str
+
+
+@dataclass(frozen=True, slots=True)
+class KnowledgeSearchMembershipRecord:
+    membership_id: str
+    representation_id: str
+    object_id: str
+    version_id: str
+    target_kind: SearchRepresentationKind
+    facet_id: str | None
+    statement_id: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class EvidenceSearchMembershipRecord:
+    membership_id: str
+    representation_id: str
+    evidence_id: str
+    source_id: str
+    snapshot_id: str
+    run_id: str

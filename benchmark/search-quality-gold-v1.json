@@ -1,0 +1,1123 @@
+{
+  "schema_version": "sgokb.search-gold/1.0",
+  "dataset_id": "i07-search-gold-v1",
+  "status": "frozen",
+  "judgement_channel": "human_authored_synthetic_gold",
+  "created_at": "2026-10-14",
+  "description": "Deterministic source-grounded synthetic canonical Knowledge for Phase I retrieval evaluation.",
+  "objects": [
+    {
+      "id": "obj:aoi",
+      "name": "蒼井アオイ",
+      "primary_class": "character",
+      "aliases": [
+        "蒼",
+        "Aoi Aoi"
+      ],
+      "additional_classes": [
+        "fictional_entity"
+      ],
+      "versions": [
+        {
+          "id": "ver:aoi:v1",
+          "source_id": "src:aoi:v1",
+          "evidence_id": "ev:aoi:v1",
+          "statements": [
+            {
+              "facet": "personality",
+              "text": "規則を重んじ、感情より任務の完遂を優先する。",
+              "derivation": "direct_statement",
+              "key": "old_duty"
+            },
+            {
+              "facet": "values",
+              "text": "組織の命令への忠実さを最優先する。",
+              "derivation": "direct_statement",
+              "key": "old_loyalty"
+            }
+          ]
+        },
+        {
+          "id": "ver:aoi:v2",
+          "source_id": "src:aoi:v2",
+          "evidence_id": "ev:aoi:v2",
+          "statements": [
+            {
+              "facet": "personality",
+              "text": "普段は穏やかだが、仲間が危険にさらされると自分を危険にさらしてでも守ろうとする。",
+              "derivation": "direct_statement",
+              "key": "protective"
+            },
+            {
+              "facet": "values",
+              "text": "仲間との信頼を自己保身より優先する。",
+              "derivation": "direct_statement",
+              "key": "trust"
+            },
+            {
+              "facet": "behavior",
+              "text": "2026年中は単独行動を避け、必ず仲間と行動する。",
+              "derivation": "direct_statement",
+              "key": "2026_team",
+              "temporal": {
+                "valid_from": "2026-01-01",
+                "valid_to": "2026-12-31"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:mika",
+      "name": "水城ミカ",
+      "primary_class": "character",
+      "aliases": [],
+      "additional_classes": [
+        "fictional_entity"
+      ],
+      "versions": [
+        {
+          "id": "ver:mika:v1",
+          "source_id": "src:mika:v1",
+          "evidence_id": "ev:mika:v1",
+          "statements": [
+            {
+              "facet": "personality",
+              "text": "困っている人を放っておけず、危険を承知で助けに入る。",
+              "derivation": "direct_statement",
+              "key": "helping"
+            },
+            {
+              "facet": "values",
+              "text": "相互扶助と人との信頼関係を大切にする。",
+              "derivation": "direct_statement",
+              "key": "mutual_aid"
+            },
+            {
+              "facet": "behavior",
+              "text": "慈愛を行動原理とし、弱い立場の人へ先に手を差し伸べる。",
+              "derivation": "direct_statement",
+              "key": "compassion"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:ren",
+      "name": "黒瀬レン",
+      "primary_class": "character",
+      "aliases": [],
+      "additional_classes": [
+        "fictional_entity"
+      ],
+      "versions": [
+        {
+          "id": "ver:ren:v1",
+          "source_id": "src:ren:v1",
+          "evidence_id": "ev:ren:v1",
+          "statements": [
+            {
+              "facet": "personality",
+              "text": "冷静で他人に頼らず、単独で問題を解決しようとする。",
+              "derivation": "direct_statement",
+              "key": "independent"
+            },
+            {
+              "facet": "values",
+              "text": "集団の合意より個人の自律と自己決定を優先する。",
+              "derivation": "direct_statement",
+              "key": "autonomy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:glass_sky",
+      "name": "硝子の空",
+      "primary_class": "work",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:glass_sky:v1",
+          "source_id": "src:glass_sky:v1",
+          "evidence_id": "ev:glass_sky:v1",
+          "statements": [
+            {
+              "facet": "themes",
+              "text": "喪失を経験した人々が他者との信頼を取り戻し、生活を再建していく過程を主題とする。",
+              "derivation": "direct_statement",
+              "key": "recovery"
+            },
+            {
+              "facet": "tone",
+              "text": "静かな会話と余白を多用し、内省的で穏やかな雰囲気を持つ。",
+              "derivation": "direct_statement",
+              "key": "tone"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:ash_garden",
+      "name": "灰の庭",
+      "primary_class": "work",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:ash_garden:v1",
+          "source_id": "src:ash_garden:v1",
+          "evidence_id": "ev:ash_garden:v1",
+          "statements": [
+            {
+              "facet": "themes",
+              "text": "悲嘆を抱えた共同体が互いを支えながら再生していく物語である。",
+              "derivation": "direct_statement",
+              "key": "grief_recovery"
+            },
+            {
+              "facet": "relationships",
+              "text": "対立していた住民が協力を通して信頼関係を築く。",
+              "derivation": "direct_statement",
+              "key": "trust"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:iron_crown",
+      "name": "鉄の王冠",
+      "primary_class": "work",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:iron_crown:v1",
+          "source_id": "src:iron_crown:v1",
+          "evidence_id": "ev:iron_crown:v1",
+          "statements": [
+            {
+              "facet": "themes",
+              "text": "権力獲得の競争と支配の正当性を中心主題とする。",
+              "derivation": "direct_statement",
+              "key": "power"
+            },
+            {
+              "facet": "tone",
+              "text": "対立と緊張を前面に出した攻撃的な雰囲気を持つ。",
+              "derivation": "direct_statement",
+              "key": "tone"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:self_sacrifice",
+      "name": "自己犠牲",
+      "primary_class": "concept",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:self_sacrifice:v1",
+          "source_id": "src:self_sacrifice:v1",
+          "evidence_id": "ev:self_sacrifice:v1",
+          "statements": [
+            {
+              "facet": "definition",
+              "text": "自己犠牲とは、他者の利益や安全のために自分の利益・安全を意図的に差し出す行為概念である。",
+              "derivation": "direct_statement",
+              "key": "definition"
+            },
+            {
+              "facet": "implications",
+              "text": "利他的に評価される場合がある一方、継続すると本人へ過大な負担を生じ得る。",
+              "derivation": "direct_statement",
+              "key": "implications"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:altruism",
+      "name": "利他主義",
+      "primary_class": "concept",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:altruism:v1",
+          "source_id": "src:altruism:v1",
+          "evidence_id": "ev:altruism:v1",
+          "statements": [
+            {
+              "facet": "definition",
+              "text": "利他主義とは、自分だけでなく他者の利益を重視して行動しようとする立場である。",
+              "derivation": "direct_statement",
+              "key": "definition"
+            },
+            {
+              "facet": "related_concepts",
+              "text": "自己犠牲は利他的行動の一形態になり得るが、利他主義は必ず自己損失を要求するわけではない。",
+              "derivation": "direct_statement",
+              "key": "related"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:autonomy",
+      "name": "自律",
+      "primary_class": "concept",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:autonomy:v1",
+          "source_id": "src:autonomy:v1",
+          "evidence_id": "ev:autonomy:v1",
+          "statements": [
+            {
+              "facet": "definition",
+              "text": "自律とは、外部からの強制だけに従わず自らの原則と判断で意思決定する概念である。",
+              "derivation": "direct_statement",
+              "key": "definition"
+            },
+            {
+              "facet": "implications",
+              "text": "自己決定を尊重する一方、共同体との調整が必要になる場合がある。",
+              "derivation": "direct_statement",
+              "key": "implications"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:dr_sora",
+      "name": "空野博士",
+      "primary_class": "person",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:dr_sora:v1",
+          "source_id": "src:dr_sora:v1",
+          "evidence_id": "ev:dr_sora:v1",
+          "statements": [
+            {
+              "facet": "background",
+              "text": "研究者になる以前に大学で機械工学と制御工学の教育を受けた。",
+              "derivation": "direct_statement",
+              "key": "education"
+            },
+            {
+              "facet": "activities",
+              "text": "ロボット制御と人間機械協調の研究を続けている。",
+              "derivation": "direct_statement",
+              "key": "research"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:aurora_lab",
+      "name": "オーロラ研究所",
+      "primary_class": "organization",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:aurora_lab:v1",
+          "source_id": "src:aurora_lab:v1",
+          "evidence_id": "ev:aurora_lab:v1",
+          "statements": [
+            {
+              "facet": "structure",
+              "text": "研究・技術移転・管理の三部門から構成される。",
+              "derivation": "direct_statement",
+              "key": "departments"
+            },
+            {
+              "facet": "purpose",
+              "text": "基礎研究を実用技術へ橋渡しすることを目的とする。",
+              "derivation": "direct_statement",
+              "key": "purpose"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:dawn_chronicles",
+      "name": "暁年代記",
+      "primary_class": "series",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:dawn_chronicles:v1",
+          "source_id": "src:dawn_chronicles:v1",
+          "evidence_id": "ev:dawn_chronicles:v1",
+          "statements": [
+            {
+              "facet": "scope",
+              "text": "本編三作と外伝二作をシリーズ範囲に含む。",
+              "derivation": "direct_statement",
+              "key": "scope"
+            },
+            {
+              "facet": "chronology",
+              "text": "本編第一作、第二作、第三作の順に物語時間が進む。",
+              "derivation": "direct_statement",
+              "key": "chronology"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:rivergate",
+      "name": "リバーゲート",
+      "primary_class": "place",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:rivergate:v1",
+          "source_id": "src:rivergate:v1",
+          "evidence_id": "ev:rivergate:v1",
+          "statements": [
+            {
+              "facet": "geography",
+              "text": "大河の東岸にある盆地に位置し、北側を低い山地に囲まれる。",
+              "derivation": "direct_statement",
+              "key": "geography"
+            },
+            {
+              "facet": "environment",
+              "text": "河川交通に適する一方、春季には洪水リスクがある。",
+              "derivation": "direct_statement",
+              "key": "environment"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:harbor_accord",
+      "name": "港湾協定紛争",
+      "primary_class": "event",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:harbor_accord:v1",
+          "source_id": "src:harbor_accord:v1",
+          "evidence_id": "ev:harbor_accord:v1",
+          "statements": [
+            {
+              "facet": "causes",
+              "text": "資源不足と同盟国間の関税対立が紛争の直接的な原因となった。",
+              "derivation": "direct_statement",
+              "key": "causes"
+            },
+            {
+              "facet": "effects",
+              "text": "停戦後に共同港湾管理制度が設立された。",
+              "derivation": "direct_statement",
+              "key": "effects"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:forgeedit",
+      "name": "ForgeEdit",
+      "primary_class": "software",
+      "aliases": [
+        "フォージエディット"
+      ],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:forgeedit:v1",
+          "source_id": "src:forgeedit:v1",
+          "evidence_id": "ev:forgeedit:v1",
+          "statements": [
+            {
+              "facet": "properties",
+              "text": "拡張機構と統合ターミナルを備え、複数言語の開発作業を一つの画面で扱える。",
+              "derivation": "direct_statement",
+              "key": "features"
+            },
+            {
+              "facet": "usage",
+              "text": "コード編集、テスト実行、バージョン管理操作に利用される。",
+              "derivation": "direct_statement",
+              "key": "usage"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:orion_gpu",
+      "name": "Orion GX90",
+      "primary_class": "product",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:orion_gpu:v1",
+          "source_id": "src:orion_gpu:v1",
+          "evidence_id": "ev:orion_gpu:v1",
+          "statements": [
+            {
+              "facet": "usage",
+              "text": "高負荷GPU計算と4Kゲームの描画に利用される。",
+              "derivation": "direct_statement",
+              "key": "usage"
+            },
+            {
+              "facet": "properties",
+              "text": "24 GBのビデオメモリを備える。",
+              "derivation": "direct_statement",
+              "key": "memory"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:night_glider",
+      "name": "ヨルスベリ",
+      "primary_class": "species",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:night_glider:v1",
+          "source_id": "src:night_glider:v1",
+          "evidence_id": "ev:night_glider:v1",
+          "statements": [
+            {
+              "facet": "distribution",
+              "text": "都市周辺の林縁部と河川敷に広く分布する。",
+              "derivation": "direct_statement",
+              "key": "distribution"
+            },
+            {
+              "facet": "behavior",
+              "text": "夜間に活動し、明け方には樹洞へ戻る。",
+              "derivation": "direct_statement",
+              "key": "behavior"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:supply_squeeze",
+      "name": "供給逼迫",
+      "primary_class": "phenomenon",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:supply_squeeze:v1",
+          "source_id": "src:supply_squeeze:v1",
+          "evidence_id": "ev:supply_squeeze:v1",
+          "statements": [
+            {
+              "facet": "mechanism",
+              "text": "需要の急増と供給制約が同時に起きることで価格上昇と在庫不足が生じる。",
+              "derivation": "direct_statement",
+              "key": "mechanism"
+            },
+            {
+              "facet": "causes",
+              "text": "生産停止や物流障害が供給制約を強めることがある。",
+              "derivation": "direct_statement",
+              "key": "causes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:luma_language",
+      "name": "ルーマ語",
+      "primary_class": "language",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:luma_language:v1",
+          "source_id": "src:luma_language:v1",
+          "evidence_id": "ev:luma_language:v1",
+          "statements": [
+            {
+              "facet": "vocabulary",
+              "text": "固有語彙に加えて交易を通じた借用語を多く含む。",
+              "derivation": "direct_statement",
+              "key": "vocabulary"
+            },
+            {
+              "facet": "structure",
+              "text": "基本語順は主語・目的語・動詞の順である。",
+              "derivation": "direct_statement",
+              "key": "word_order"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obj:heat_shift",
+      "name": "熱転送",
+      "primary_class": "ability",
+      "aliases": [],
+      "additional_classes": [],
+      "versions": [
+        {
+          "id": "ver:heat_shift:v1",
+          "source_id": "src:heat_shift:v1",
+          "evidence_id": "ev:heat_shift:v1",
+          "statements": [
+            {
+              "facet": "mechanism",
+              "text": "接触した対象の熱を離れた地点へ転送する能力である。",
+              "derivation": "direct_statement",
+              "key": "mechanism"
+            },
+            {
+              "facet": "constraints",
+              "text": "夜間のみ使用でき、対象へ直接触れている場合に限り発動し、一回の使用は10秒までである。",
+              "derivation": "direct_statement",
+              "key": "constraints"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "search_queries": [
+    {
+      "id": "identity_name_aoi",
+      "category": "exact_name",
+      "query": "蒼井アオイ",
+      "relevance": {
+        "obj:aoi": 3
+      },
+      "statement_refs": []
+    },
+    {
+      "id": "identity_alias_aoi",
+      "category": "exact_alias",
+      "query": "蒼",
+      "relevance": {
+        "obj:aoi": 3
+      },
+      "statement_refs": []
+    },
+    {
+      "id": "short_japanese_love",
+      "category": "short_japanese",
+      "query": "愛",
+      "relevance": {
+        "obj:mika": 3
+      },
+      "statement_refs": [
+        "obj:mika@current:compassion"
+      ]
+    },
+    {
+      "id": "char_self_risk",
+      "category": "fine_statement",
+      "query": "仲間を守るためなら自分が危険になることも選ぶ人物",
+      "relevance": {
+        "obj:aoi": 3,
+        "obj:mika": 2
+      },
+      "statement_refs": [
+        "obj:aoi@current:protective",
+        "obj:mika@current:helping"
+      ]
+    },
+    {
+      "id": "char_trust_values",
+      "category": "facet_specific",
+      "query": "自己保身より仲間との信頼を重視する",
+      "filters": {
+        "facet": "values",
+        "primary_class": "character"
+      },
+      "relevance": {
+        "obj:aoi": 3,
+        "obj:mika": 2
+      },
+      "statement_refs": [
+        "obj:aoi@current:trust",
+        "obj:mika@current:mutual_aid"
+      ]
+    },
+    {
+      "id": "en_char_protect",
+      "category": "cross_lingual",
+      "query": "a character who puts friends' safety ahead of personal safety",
+      "filters": {
+        "primary_class": "character"
+      },
+      "relevance": {
+        "obj:aoi": 3,
+        "obj:mika": 2
+      },
+      "statement_refs": [
+        "obj:aoi@current:protective",
+        "obj:mika@current:helping"
+      ]
+    },
+    {
+      "id": "work_loss_recovery",
+      "category": "work_theme",
+      "query": "喪失や悲嘆を経験した人々が他者との関係を通して再生する作品",
+      "filters": {
+        "primary_class": "work",
+        "facet": "themes"
+      },
+      "relevance": {
+        "obj:glass_sky": 3,
+        "obj:ash_garden": 3
+      },
+      "statement_refs": [
+        "obj:glass_sky@current:recovery",
+        "obj:ash_garden@current:grief_recovery"
+      ]
+    },
+    {
+      "id": "en_work_recovery",
+      "category": "cross_lingual",
+      "query": "a story about rebuilding life after loss through mutual support",
+      "filters": {
+        "primary_class": "work"
+      },
+      "relevance": {
+        "obj:glass_sky": 3,
+        "obj:ash_garden": 3
+      },
+      "statement_refs": [
+        "obj:glass_sky@current:recovery",
+        "obj:ash_garden@current:grief_recovery"
+      ]
+    },
+    {
+      "id": "concept_self_sacrifice",
+      "category": "concept_definition",
+      "query": "他者のために自分の利益や安全を差し出す概念",
+      "filters": {
+        "primary_class": "concept"
+      },
+      "relevance": {
+        "obj:self_sacrifice": 3,
+        "obj:altruism": 2
+      },
+      "statement_refs": [
+        "obj:self_sacrifice@current:definition"
+      ]
+    },
+    {
+      "id": "concept_autonomy",
+      "category": "concept_definition",
+      "query": "外部の強制ではなく自分の原則で意思決定する概念",
+      "filters": {
+        "primary_class": "concept"
+      },
+      "relevance": {
+        "obj:autonomy": 3
+      },
+      "statement_refs": [
+        "obj:autonomy@current:definition"
+      ]
+    },
+    {
+      "id": "person_education",
+      "category": "later_class",
+      "query": "研究者になる前に機械工学を学んだ人物",
+      "filters": {
+        "primary_class": "person"
+      },
+      "relevance": {
+        "obj:dr_sora": 3
+      },
+      "statement_refs": [
+        "obj:dr_sora@current:education"
+      ]
+    },
+    {
+      "id": "organization_structure",
+      "category": "later_class",
+      "query": "研究・技術移転・管理の三部門を持つ組織",
+      "filters": {
+        "primary_class": "organization"
+      },
+      "relevance": {
+        "obj:aurora_lab": 3
+      },
+      "statement_refs": [
+        "obj:aurora_lab@current:departments"
+      ]
+    },
+    {
+      "id": "series_scope",
+      "category": "later_class",
+      "query": "本編三作と外伝二作から成るシリーズ",
+      "filters": {
+        "primary_class": "series"
+      },
+      "relevance": {
+        "obj:dawn_chronicles": 3
+      },
+      "statement_refs": [
+        "obj:dawn_chronicles@current:scope"
+      ]
+    },
+    {
+      "id": "place_geography",
+      "category": "later_class",
+      "query": "大河の東岸にある盆地の場所",
+      "filters": {
+        "primary_class": "place"
+      },
+      "relevance": {
+        "obj:rivergate": 3
+      },
+      "statement_refs": [
+        "obj:rivergate@current:geography"
+      ]
+    },
+    {
+      "id": "event_causes",
+      "category": "later_class",
+      "query": "資源不足と関税対立が原因になった出来事",
+      "filters": {
+        "primary_class": "event",
+        "facet": "causes"
+      },
+      "relevance": {
+        "obj:harbor_accord": 3
+      },
+      "statement_refs": [
+        "obj:harbor_accord@current:causes"
+      ]
+    },
+    {
+      "id": "software_features",
+      "category": "later_class",
+      "query": "拡張機構と統合ターミナルを備えるソフトウェア",
+      "filters": {
+        "primary_class": "software"
+      },
+      "relevance": {
+        "obj:forgeedit": 3
+      },
+      "statement_refs": [
+        "obj:forgeedit@current:features"
+      ]
+    },
+    {
+      "id": "product_usage",
+      "category": "later_class",
+      "query": "4Kゲームと高負荷GPU計算に使う製品",
+      "filters": {
+        "primary_class": "product"
+      },
+      "relevance": {
+        "obj:orion_gpu": 3
+      },
+      "statement_refs": [
+        "obj:orion_gpu@current:usage"
+      ]
+    },
+    {
+      "id": "species_distribution",
+      "category": "later_class",
+      "query": "都市周辺の林縁部や河川敷に分布する種",
+      "filters": {
+        "primary_class": "species"
+      },
+      "relevance": {
+        "obj:night_glider": 3
+      },
+      "statement_refs": [
+        "obj:night_glider@current:distribution"
+      ]
+    },
+    {
+      "id": "phenomenon_mechanism",
+      "category": "later_class",
+      "query": "需要増と供給制約が重なって価格と在庫に影響する現象",
+      "filters": {
+        "primary_class": "phenomenon"
+      },
+      "relevance": {
+        "obj:supply_squeeze": 3
+      },
+      "statement_refs": [
+        "obj:supply_squeeze@current:mechanism"
+      ]
+    },
+    {
+      "id": "language_vocabulary",
+      "category": "later_class",
+      "query": "交易由来の借用語を多く含む言語",
+      "filters": {
+        "primary_class": "language"
+      },
+      "relevance": {
+        "obj:luma_language": 3
+      },
+      "statement_refs": [
+        "obj:luma_language@current:vocabulary"
+      ]
+    },
+    {
+      "id": "ability_condition",
+      "category": "conditional_exception",
+      "query": "夜にしか使えず、対象に直接触れたときだけ発動して10秒で切れる能力",
+      "filters": {
+        "primary_class": "ability",
+        "facet": "constraints"
+      },
+      "relevance": {
+        "obj:heat_shift": 3
+      },
+      "statement_refs": [
+        "obj:heat_shift@current:constraints"
+      ]
+    },
+    {
+      "id": "en_ability_mechanism",
+      "category": "cross_lingual",
+      "query": "an ability that moves heat from something being touched to a distant location",
+      "filters": {
+        "primary_class": "ability"
+      },
+      "relevance": {
+        "obj:heat_shift": 3
+      },
+      "statement_refs": [
+        "obj:heat_shift@current:mechanism"
+      ]
+    },
+    {
+      "id": "ancestor_agent_person",
+      "category": "class_filter",
+      "query": "機械工学の教育を受けた",
+      "filters": {
+        "ancestor_class": "agent"
+      },
+      "relevance": {
+        "obj:dr_sora": 3
+      },
+      "statement_refs": [
+        "obj:dr_sora@current:education"
+      ]
+    },
+    {
+      "id": "additional_fictional",
+      "category": "class_filter",
+      "query": "仲間との信頼",
+      "filters": {
+        "additional_class": "fictional_entity"
+      },
+      "relevance": {
+        "obj:aoi": 3,
+        "obj:mika": 2
+      },
+      "statement_refs": [
+        "obj:aoi@current:trust",
+        "obj:mika@current:mutual_aid"
+      ]
+    }
+  ],
+  "contract_cases": [
+    {
+      "id": "current_excludes_old",
+      "query": "任務の完遂を優先する",
+      "mode": "lexical",
+      "expected_absent": [
+        "obj:aoi"
+      ]
+    },
+    {
+      "id": "historical_finds_old",
+      "query": "任務の完遂を優先する",
+      "mode": "lexical",
+      "filters": {
+        "version_id": "ver:aoi:v1"
+      },
+      "expected_present": [
+        "obj:aoi"
+      ],
+      "expected_version": "ver:aoi:v1"
+    },
+    {
+      "id": "temporal_inside",
+      "query": "単独行動を避け",
+      "mode": "lexical",
+      "filters": {
+        "knowledge_valid_at": "2026-06-01"
+      },
+      "expected_present": [
+        "obj:aoi"
+      ]
+    },
+    {
+      "id": "temporal_outside",
+      "query": "単独行動を避け",
+      "mode": "lexical",
+      "filters": {
+        "knowledge_valid_at": "2027-01-01"
+      },
+      "expected_absent": [
+        "obj:aoi"
+      ]
+    },
+    {
+      "id": "facet_hard_filter",
+      "query": "信頼",
+      "mode": "hybrid",
+      "filters": {
+        "facet": "values",
+        "primary_class": "character"
+      },
+      "expected_present": [
+        "obj:aoi",
+        "obj:mika"
+      ],
+      "expected_match_facets": [
+        "values"
+      ]
+    }
+  ],
+  "similarity_cases": [
+    {
+      "id": "character_overall",
+      "source_object_id": "obj:aoi",
+      "relevance": {
+        "obj:mika": 3,
+        "obj:ren": 0
+      },
+      "judgement_channel": "human_authored_synthetic_gold"
+    },
+    {
+      "id": "character_values",
+      "source_object_id": "obj:aoi",
+      "facet": "values",
+      "relevance": {
+        "obj:mika": 3,
+        "obj:ren": 0
+      },
+      "judgement_channel": "human_authored_synthetic_gold"
+    },
+    {
+      "id": "work_overall",
+      "source_object_id": "obj:glass_sky",
+      "relevance": {
+        "obj:ash_garden": 3,
+        "obj:iron_crown": 0
+      },
+      "judgement_channel": "human_authored_synthetic_gold"
+    },
+    {
+      "id": "concept_overall",
+      "source_object_id": "obj:self_sacrifice",
+      "relevance": {
+        "obj:altruism": 3,
+        "obj:autonomy": 0
+      },
+      "judgement_channel": "human_authored_synthetic_gold"
+    }
+  ],
+  "evidence_cases": [
+    {
+      "id": "evidence_aoi",
+      "object_id": "obj:aoi",
+      "relevance": {
+        "ev:aoi:v2": 3
+      }
+    },
+    {
+      "id": "evidence_software",
+      "object_id": "obj:forgeedit",
+      "relevance": {
+        "ev:forgeedit:v1": 3
+      }
+    },
+    {
+      "id": "evidence_event",
+      "object_id": "obj:harbor_accord",
+      "relevance": {
+        "ev:harbor_accord:v1": 3
+      }
+    }
+  ],
+  "noise_sources": [
+    {
+      "source_id": "src:noise:weather",
+      "evidence_id": "ev:noise:weather",
+      "content": "沿岸部では午後から強い雨となり、鉄道の一部区間が運休した。"
+    },
+    {
+      "source_id": "src:noise:cooking",
+      "evidence_id": "ev:noise:cooking",
+      "content": "小麦粉に水と塩を加えてこね、休ませてから加熱する。"
+    },
+    {
+      "source_id": "src:noise:finance",
+      "evidence_id": "ev:noise:finance",
+      "content": "市場金利の上昇を受けて長期債価格が下落した。"
+    }
+  ],
+  "required_class_coverage": [
+    "character",
+    "work",
+    "concept",
+    "person",
+    "organization",
+    "series",
+    "place",
+    "event",
+    "software",
+    "product",
+    "species",
+    "phenomenon",
+    "language",
+    "ability"
+  ],
+  "required_query_categories": [
+    "exact_name",
+    "exact_alias",
+    "short_japanese",
+    "fine_statement",
+    "facet_specific",
+    "conditional_exception",
+    "cross_lingual",
+    "class_filter",
+    "later_class",
+    "work_theme",
+    "concept_definition"
+  ]
+}

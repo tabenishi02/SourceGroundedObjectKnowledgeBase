@@ -348,6 +348,87 @@ class SemanticRepository:
             content_hash=row["content_hash"],
         )
 
+    def link_knowledge_search_representation(
+        self,
+        object_id: str,
+        version_id: str,
+        representation_id: str,
+        target_kind: SearchRepresentationKind | str,
+        *,
+        facet_id: str | None = None,
+        statement_id: str | None = None,
+    ) -> str:
+        target_kind = SearchRepresentationKind(target_kind)
+        if target_kind is SearchRepresentationKind.EVIDENCE:
+            raise ValueError("Evidence uses a separate search representation membership family")
+        existing = self.db.execute(
+            """SELECT id FROM knowledge_search_representation_memberships
+               WHERE object_id=? AND version_id=? AND representation_id=? AND target_kind=?
+                 AND facet_id IS ? AND statement_id IS ?""",
+            (
+                object_id,
+                version_id,
+                representation_id,
+                target_kind.value,
+                facet_id,
+                statement_id,
+            ),
+        ).fetchone()
+        if existing:
+            return existing["id"]
+        membership_id = new_persistent_id()
+        with self.db:
+            self.db.execute(
+                """INSERT INTO knowledge_search_representation_memberships
+                   (id,representation_id,object_id,version_id,target_kind,facet_id,statement_id,created_at)
+                   VALUES(?,?,?,?,?,?,?,?)""",
+                (
+                    membership_id,
+                    representation_id,
+                    object_id,
+                    version_id,
+                    target_kind.value,
+                    facet_id,
+                    statement_id,
+                    _now(),
+                ),
+            )
+        return membership_id
+
+    def link_evidence_search_representation(
+        self, representation_id: str, evidence_id: str
+    ) -> str:
+        evidence = self.db.execute(
+            "SELECT source_id,snapshot_id,run_id FROM evidence_records WHERE id=?",
+            (evidence_id,),
+        ).fetchone()
+        if not evidence:
+            raise ValueError("Unknown evidence ID")
+        existing = self.db.execute(
+            """SELECT id FROM evidence_search_representation_memberships
+               WHERE representation_id=? AND evidence_id=?""",
+            (representation_id, evidence_id),
+        ).fetchone()
+        if existing:
+            return existing["id"]
+        membership_id = new_persistent_id()
+        with self.db:
+            self.db.execute(
+                """INSERT INTO evidence_search_representation_memberships
+                   (id,representation_id,evidence_id,source_id,snapshot_id,run_id,created_at)
+                   VALUES(?,?,?,?,?,?,?)""",
+                (
+                    membership_id,
+                    representation_id,
+                    evidence_id,
+                    evidence["source_id"],
+                    evidence["snapshot_id"],
+                    evidence["run_id"],
+                    _now(),
+                ),
+            )
+        return membership_id
+
     def link_search_representation(
         self,
         version_id: str,
@@ -355,18 +436,76 @@ class SemanticRepository:
         target_kind: SearchRepresentationKind | str,
         target_ref: str,
     ) -> str:
+        """Compatibility wrapper for the pre-I-01 Knowledge membership API."""
+
         target_kind = SearchRepresentationKind(target_kind)
-        membership_id = new_persistent_id()
-        with self.db:
-            self.db.execute(
-                "INSERT INTO search_representation_memberships VALUES(?,?,?,?,?,?)",
-                (
-                    membership_id,
-                    version_id,
-                    representation_id,
-                    target_kind.value,
-                    target_ref,
-                    _now(),
-                ),
-            )
-        return membership_id
+        if target_kind is SearchRepresentationKind.EVIDENCE:
+            raise ValueError("Evidence memberships are not version-scoped")
+        version = self.db.execute(
+            "SELECT object_id FROM object_versions WHERE id=?", (version_id,)
+        ).fetchone()
+        if not version:
+            raise ValueError("Unknown Object Knowledge Version ID")
+        facet_id = None
+        statement_id = None
+        if target_kind is SearchRepresentationKind.OBJECT_OVERALL:
+            if target_ref != version["object_id"]:
+                raise ValueError("Object representation target must own version")
+        elif target_kind is SearchRepresentationKind.FACET:
+            facet_id = target_ref
+        elif target_kind is SearchRepresentationKind.STATEMENT:
+            statement_id = target_ref
+            statement = self.db.execute(
+                "SELECT facet_id FROM knowledge_statements WHERE id=? AND version_id=?",
+                (statement_id, version_id),
+            ).fetchone()
+            facet_id = statement["facet_id"] if statement else None
+        return self.link_knowledge_search_representation(
+            version["object_id"],
+            version_id,
+            representation_id,
+            target_kind,
+            facet_id=facet_id,
+            statement_id=statement_id,
+        )
+
+    def knowledge_search_memberships(
+        self,
+        *,
+        object_id: str | None = None,
+        version_id: str | None = None,
+        current_only: bool = False,
+    ) -> tuple[dict, ...]:
+        clauses: list[str] = []
+        parameters: list[str] = []
+        if object_id is not None:
+            clauses.append("m.object_id=?")
+            parameters.append(object_id)
+        if version_id is not None:
+            clauses.append("m.version_id=?")
+            parameters.append(version_id)
+        if current_only:
+            clauses.append("o.status='active' AND o.current_version_id=m.version_id")
+        clauses.append("l.state='accepted'")
+        sql = """SELECT m.* FROM knowledge_search_representation_memberships m
+                 JOIN objects o ON o.id=m.object_id
+                 JOIN object_version_lifecycle l ON l.version_id=m.version_id"""
+        if clauses:
+            sql += " WHERE " + " AND ".join(clauses)
+        sql += " ORDER BY m.object_id,m.version_id,m.target_kind,m.facet_id,m.statement_id,m.id"
+        return tuple(dict(row) for row in self.db.execute(sql, parameters))
+
+    def evidence_search_memberships(
+        self, *, evidence_id: str | None = None
+    ) -> tuple[dict, ...]:
+        if evidence_id is None:
+            rows = self.db.execute(
+                "SELECT * FROM evidence_search_representation_memberships ORDER BY evidence_id,id"
+            ).fetchall()
+        else:
+            rows = self.db.execute(
+                """SELECT * FROM evidence_search_representation_memberships
+                   WHERE evidence_id=? ORDER BY id""",
+                (evidence_id,),
+            ).fetchall()
+        return tuple(dict(row) for row in rows)
