@@ -85,9 +85,18 @@ def test_object_resources_dispatch_current_and_pinned_reads():
     assert pinned_payload["data"]["resolved_version_id"] == "version:alice:v1"
     assert pinned_payload["data"]["is_current"] is False
 
+    common = {
+        "facets": None,
+        "include_relations": True,
+        "include_evidence_refs": True,
+    }
     assert application.calls == [
-        ("get_object", "object:alice", {}),
-        ("get_object", "object:alice", {"version_id": "version:alice:v1"}),
+        ("get_object", "object:alice", {"version_id": None, **common}),
+        (
+            "get_object",
+            "object:alice",
+            {"version_id": "version:alice:v1", **common},
+        ),
     ]
 
 
