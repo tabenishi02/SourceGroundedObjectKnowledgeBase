@@ -19,6 +19,13 @@ from .retrieval import (
     ObjectSimilaritySearch,
 )
 from .retrieval.object_read import ObjectKnowledgeReader
+from .retrieval.context_builder import (
+    CONTEXT_DEFAULT_MAX_CHARACTERS,
+    CONTEXT_MAX_OBJECTS,
+    ContextBuilder,
+    context_facets_for_purpose,
+    context_purpose_profile,
+)
 
 APPLICATION_READ_CONTRACT_VERSION = "sgokb.application-read.v1"
 
@@ -123,6 +130,74 @@ class KnowledgeReadApplication:
             raise KnowledgeRequestError(str(exc)) from exc
         except RuntimeError as exc:
             raise RetrievalRuntimeUnavailableError(str(exc)) from exc
+
+    def build_context(
+        self,
+        object_ids: Iterable[str],
+        *,
+        purpose: str = "general",
+        version_ids: dict[str, str] | None = None,
+        facets: Iterable[str] | None = None,
+        max_characters: int = CONTEXT_DEFAULT_MAX_CHARACTERS,
+        include_attributes: bool | None = None,
+        include_relations: bool | None = None,
+        include_evidence_refs: bool | None = None,
+    ) -> dict:
+        """Build deterministic purpose-scoped Knowledge context without LLM inference."""
+
+        ids = tuple(object_ids)
+        if not ids:
+            raise KnowledgeRequestError("Context Builder requires at least one Object")
+        if len(ids) > CONTEXT_MAX_OBJECTS:
+            raise KnowledgeRequestError(
+                f"Context Builder supports at most {CONTEXT_MAX_OBJECTS} Objects"
+            )
+        if len(set(ids)) != len(ids):
+            raise KnowledgeRequestError("Context Builder object_ids must be unique")
+        version_ids = version_ids or {}
+        unknown_version_keys = sorted(set(version_ids) - set(ids))
+        if unknown_version_keys:
+            raise KnowledgeRequestError(
+                "version_ids contains Objects outside object_ids: "
+                + ", ".join(unknown_version_keys)
+            )
+
+        try:
+            profile = context_purpose_profile(purpose)
+            selected_facets = context_facets_for_purpose(purpose, facets)
+        except ValueError as exc:
+            raise KnowledgeRequestError(str(exc)) from exc
+        resolved_relations = (
+            profile.include_relations if include_relations is None else include_relations
+        )
+        resolved_evidence = (
+            profile.include_evidence_refs
+            if include_evidence_refs is None
+            else include_evidence_refs
+        )
+
+        objects = [
+            self.get_object(
+                object_id,
+                version_id=version_ids.get(object_id),
+                facets=selected_facets,
+                include_relations=resolved_relations,
+                include_evidence_refs=resolved_evidence,
+            )
+            for object_id in ids
+        ]
+        try:
+            return ContextBuilder().build(
+                objects,
+                purpose=purpose,
+                facets=facets,
+                max_characters=max_characters,
+                include_attributes=include_attributes,
+                include_relations=include_relations,
+                include_evidence_refs=include_evidence_refs,
+            )
+        except ValueError as exc:
+            raise KnowledgeRequestError(str(exc)) from exc
 
     def get_object(
         self,

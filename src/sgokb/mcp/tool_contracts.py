@@ -466,15 +466,14 @@ SEARCH_EVIDENCE = MCPToolContract(
     annotations=_annotations("Search SGOKB Evidence"),
 )
 
-# J-04 owns deterministic context selection semantics. J-02 reserves the public
-# capability name and a minimal shape, but it is intentionally not listed as an
-# active Tool until J-04 defines/implements the policy.
+# J-04 finalizes deterministic Context Builder semantics and activates the Tool.
 BUILD_CONTEXT = MCPToolContract(
     name="build_context",
     title="Build SGOKB Context",
     description=(
-        "Build deterministic, purpose-scoped Knowledge context from known Objects without LLM "
-        "inference. Reserved by J-02; activation and selection policy are owned by J-04."
+        "Build deterministic purpose-scoped context from known Objects without LLM inference. "
+        "Purpose selects a fixed Facet profile; explicit facets override that profile. "
+        "A character budget limits selected Knowledge items without splitting statements."
     ),
     input_schema=_object_schema(
         {
@@ -482,21 +481,58 @@ BUILD_CONTEXT = MCPToolContract(
                 "type": "array",
                 "items": _string(),
                 "minItems": 1,
-                "maxItems": MCP_BATCH_OBJECT_LIMIT,
+                "maxItems": 20,
+                "uniqueItems": True,
             },
             "purpose": {
                 "type": "string",
                 "enum": ["general", "analysis", "comparison", "roleplay", "creative"],
                 "default": "general",
             },
+            "version_ids": {
+                "type": ["object", "null"],
+                "additionalProperties": _string(),
+                "maxProperties": 20,
+            },
             "facets": {"anyOf": [{"type": "null"}, _string_array(max_items=50)]},
-            "token_budget": {"type": "integer", "minimum": 256, "maximum": 65536},
+            "max_characters": {
+                "type": "integer",
+                "minimum": 512,
+                "maximum": 200000,
+                "default": 12000,
+            },
+            "include_attributes": {"type": ["boolean", "null"], "default": None},
+            "include_relations": {"type": ["boolean", "null"], "default": None},
+            "include_evidence_refs": {"type": ["boolean", "null"], "default": None},
         },
         ("object_ids",),
     ),
-    output_schema=_envelope({"type": "object", "additionalProperties": True}),
+    output_schema=_envelope(
+        {
+            "type": "object",
+            "properties": {
+                "context_contract_version": {"type": "string"},
+                "purpose": {
+                    "type": "string",
+                    "enum": ["general", "analysis", "comparison", "roleplay", "creative"],
+                },
+                "selection_policy": {"type": "object"},
+                "objects": {"type": "array", "items": {"type": "object"}},
+                "budget": {"type": "object"},
+                "warnings": {"type": "array", "items": {"type": "string"}},
+            },
+            "required": [
+                "context_contract_version",
+                "purpose",
+                "selection_policy",
+                "objects",
+                "budget",
+                "warnings",
+            ],
+            "additionalProperties": False,
+        }
+    ),
     annotations=_annotations("Build SGOKB Context"),
-    availability="reserved_j04",
 )
 
 ACTIVE_READ_TOOL_CONTRACTS = (
@@ -507,8 +543,9 @@ ACTIVE_READ_TOOL_CONTRACTS = (
     GET_OBJECT_RELATIONS,
     GET_OBJECT_EVIDENCE,
     SEARCH_EVIDENCE,
+    BUILD_CONTEXT,
 )
-RESERVED_READ_TOOL_CONTRACTS = (BUILD_CONTEXT,)
+RESERVED_READ_TOOL_CONTRACTS: tuple[MCPToolContract, ...] = ()
 
 
 def read_tool_contracts(*, include_reserved: bool = False) -> tuple[MCPToolContract, ...]:

@@ -79,6 +79,18 @@ class FakeReadApplication:
             "candidates": [],
         }
 
+    def build_context(self, object_ids, **kwargs):
+        values = tuple(object_ids)
+        self.calls.append(("build_context", values, kwargs))
+        return {
+            "context_contract_version": "sgokb.context-builder.v1",
+            "purpose": kwargs["purpose"],
+            "selection_policy": {},
+            "objects": [],
+            "budget": {},
+            "warnings": [],
+        }
+
     def search_evidence(self, query, **kwargs):
         self.calls.append(("search_evidence", query, kwargs))
         return {
@@ -101,9 +113,9 @@ def test_active_read_tool_set_is_small_and_non_overlapping():
         "get_object_relations",
         "get_object_evidence",
         "search_evidence",
+        "build_context",
     ]
     assert "semantic_search_objects" not in names
-    assert "build_context" not in names
     for contract in contracts:
         definition = contract.as_mcp_definition()
         assert definition["annotations"]["readOnlyHint"] is True
@@ -112,13 +124,16 @@ def test_active_read_tool_set_is_small_and_non_overlapping():
         assert definition["outputSchema"]["$schema"].endswith("2020-12/schema")
 
 
-def test_build_context_is_reserved_for_j04_but_not_active():
-    all_contracts = read_tool_contracts(include_reserved=True)
-    reserved = next(item for item in all_contracts if item.name == "build_context")
-    assert reserved.availability == "reserved_j04"
+def test_build_context_is_active_after_j04():
+    contracts = read_tool_contracts(include_reserved=True)
+    context = next(item for item in contracts if item.name == "build_context")
+    assert context.availability == "active"
     adapter = MCPReadAdapter(FakeReadApplication())
-    with pytest.raises(MCPToolArgumentsError):
-        adapter.call_tool("build_context", {"object_ids": ["obj-1"]})
+    response = adapter.call_tool(
+        "build_context",
+        {"object_ids": ["obj-1"], "purpose": "general", "max_characters": 2000},
+    )
+    assert response["data"]["context_contract_version"] == "sgokb.context-builder.v1"
 
 
 def test_search_objects_uses_mode_instead_of_duplicate_semantic_tool():

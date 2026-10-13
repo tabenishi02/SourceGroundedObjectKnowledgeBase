@@ -105,6 +105,19 @@ class KnowledgeReadApplicationPort(Protocol):
 
     def get_evidence(self, evidence_id: str) -> dict: ...
 
+    def build_context(
+        self,
+        object_ids: Iterable[str],
+        *,
+        purpose: str = "general",
+        version_ids: dict[str, str] | None = None,
+        facets: Iterable[str] | None = None,
+        max_characters: int = 12000,
+        include_attributes: bool | None = None,
+        include_relations: bool | None = None,
+        include_evidence_refs: bool | None = None,
+    ) -> dict: ...
+
     def search_evidence(
         self,
         query: str,
@@ -278,6 +291,17 @@ class MCPReadAdapter:
                 max_candidates=arguments.get("max_candidates", 50),
                 semantic=arguments.get("semantic"),
             )
+        if name == "build_context":
+            return self.build_context(
+                arguments["object_ids"],
+                purpose=arguments.get("purpose", "general"),
+                version_ids=arguments.get("version_ids"),
+                facets=arguments.get("facets"),
+                max_characters=arguments.get("max_characters", 12000),
+                include_attributes=arguments.get("include_attributes"),
+                include_relations=arguments.get("include_relations"),
+                include_evidence_refs=arguments.get("include_evidence_refs"),
+            )
         if name == "search_evidence":
             return self.search_evidence(
                 arguments["query"],
@@ -395,6 +419,29 @@ class MCPReadAdapter:
 
     def get_evidence(self, evidence_id: str) -> dict:
         return self._application.get_evidence(evidence_id)
+
+    def build_context(
+        self,
+        object_ids: Iterable[str],
+        *,
+        purpose: str = "general",
+        version_ids: dict[str, str] | None = None,
+        facets: Iterable[str] | None = None,
+        max_characters: int = 12000,
+        include_attributes: bool | None = None,
+        include_relations: bool | None = None,
+        include_evidence_refs: bool | None = None,
+    ) -> dict:
+        return self._application.build_context(
+            object_ids,
+            purpose=purpose,
+            version_ids=version_ids,
+            facets=facets,
+            max_characters=max_characters,
+            include_attributes=include_attributes,
+            include_relations=include_relations,
+            include_evidence_refs=include_evidence_refs,
+        )
 
     def search_evidence(
         self,

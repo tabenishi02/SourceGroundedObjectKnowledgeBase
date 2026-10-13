@@ -1,5 +1,16 @@
 """Canonical retrieval capabilities."""
 
+from .context_builder import (
+    CONTEXT_BUILDER_CONTRACT_VERSION,
+    CONTEXT_DEFAULT_MAX_CHARACTERS,
+    CONTEXT_MAX_CHARACTERS,
+    CONTEXT_MAX_OBJECTS,
+    CONTEXT_PURPOSE_PROFILES,
+    ContextBuilder,
+    ContextPurposeProfile,
+    context_facets_for_purpose,
+    context_purpose_profile,
+)
 from .embedding import (
     DEFAULT_EMBEDDING_DIMENSION,
     DEFAULT_EMBEDDING_MAX_SEQUENCE_LENGTH,
@@ -37,6 +48,15 @@ from .search_representation import BuiltSearchRepresentation, SearchRepresentati
 from .similarity import ObjectSimilaritySearch
 
 __all__ = [
+    "CONTEXT_BUILDER_CONTRACT_VERSION",
+    "CONTEXT_DEFAULT_MAX_CHARACTERS",
+    "CONTEXT_MAX_CHARACTERS",
+    "CONTEXT_MAX_OBJECTS",
+    "CONTEXT_PURPOSE_PROFILES",
+    "ContextBuilder",
+    "ContextPurposeProfile",
+    "context_facets_for_purpose",
+    "context_purpose_profile",
     "DEFAULT_EMBEDDING_DIMENSION",
     "DEFAULT_EMBEDDING_MAX_SEQUENCE_LENGTH",
     "DEFAULT_EMBEDDING_MODEL",
