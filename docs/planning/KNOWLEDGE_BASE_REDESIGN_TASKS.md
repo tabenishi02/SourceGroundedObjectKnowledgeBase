@@ -593,11 +593,17 @@ docs/
   - historical Version renderとJSON pure renderはcurrent derived stateを変更しない。
   - `docs/design/MARKDOWN_RENDERER.md`をH-03設計・実装正本とする。
 
-- [ ] **H-04 [P1] Diff / Review表示を実装する**
+- [x] **H-04 [P1] Diff / Review表示を実装する**
   - v1→v2の属性・Facet・Relation差分を確認できるようにする。
   - stale / partial / destructive omission / Registry proposal / Identity ambiguity等のreview-required reasonを表示する。
   - 手動承認を採用する場合の状態遷移を定義する。
   - full snapshotで消えるStatement / attribute / Relation、conflict、Registry proposal、stale baseを目立たせる。
+  - immutable Result receiptとbase VersionのImport前Review Preview、およびaccepted Version同士のhistorical Diffを実装する。
+  - destructive omissionをStatement / Attribute / Relation削除、Facet content downgrade、Conflict / Registry proposal消失としてdeterministicに検出する。
+  - H-01 findingsを再利用し、`blocked / review_required / ready_to_import / imported`を表示する。
+  - Conflict存在単独ではImport blockせず`attention`として可視化する。
+  - manual acceptanceはH-02 `--acknowledge-review`へ接続し、H-04専用の孤立approval stateを作らない。
+  - `docs/design/DIFF_REVIEW.md`をH-04設計・実装正本とする。
 
 **完了条件:** ChatGPT出力を壊れた状態で正本DBへ登録できず、過去versionへ戻れる。
 

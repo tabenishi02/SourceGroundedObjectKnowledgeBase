@@ -2,11 +2,11 @@
 
 更新日: 2026-10-13
 
-- Status: In Progress
-- Completed phase: Phase G — Google Drive / ChatGPT交換ワークフロー
-- Next phase: Phase H — Result Validation / Import / Rendering
-- Completed tasks: `H-01 [P0] Result JSON Validator`, `H-02 [P0] Object Version Import`, `H-03 [P1] Markdown Renderer`
-- Next task: `H-04 [P1] Diff / Review表示を実装する`
+- Status: Complete
+- Completed phase: Phase H — Result Validation / Import / Rendering
+- Next phase: Phase I — 意味検索・類似検索
+- Completed tasks: `H-01 [P0] Result JSON Validator`, `H-02 [P0] Object Version Import`, `H-03 [P1] Markdown Renderer`, `H-04 [P1] Diff / Review表示`
+- Next task: `I-01 [P0] Search Representation / Embedding対象を設計する`
 - Working branch: `integration/knowledge-base-redesign`
 
 ---
@@ -386,8 +386,21 @@ H-03正本:
 - `src/sgokb/storage/markdown_repository.py`
 - `tests/test_markdown_renderer.py`
 
+H-04では`ObjectKnowledgeDiffEngine`、`DiffReviewService`、`DiffReviewMarkdownRenderer`、`sgokb-package review-result / diff-versions`を追加した。immutable Result receiptとbase VersionをImport前に比較し、accepted Version同士のhistorical Diffも生成する。Statement / Facet / Attribute / Relationに加え、Conflict / Gap / unresolved reference / Registry proposalを比較し、full snapshotで消えるKnowledgeや`content` Facet downgrade、Conflict / Registry proposal消失をdestructive omissionとしてReview対象へ昇格する。
+
+H-01のstale / partial / Registry proposal / Identity ambiguity等のfindingを再利用し、`blocked / review_required / ready_to_import / imported`を表示する。Conflict存在だけではImport blockせずattentionとし、manual acceptanceはH-02 `--acknowledge-review`へ接続した。H-04自体はread-onlyでありcanonical DBを変更しない。
+
+H-04正本:
+
+- `docs/design/DIFF_REVIEW.md`
+- `src/sgokb/review/diff.py`
+- `src/sgokb/review/markdown.py`
+- `tests/test_diff_review.py`
+
+Phase HはH-01〜H-04が完了したためCompleteとする。
+
 次に実施するTask:
 
 ```text
-H-04 [P1] Diff / Review表示を実装する
+I-01 [P0] Search Representation / Embedding対象を設計する
 ```

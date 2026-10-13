@@ -15,6 +15,7 @@ from .exchange.result_receipt import DEFAULT_INCOMING_ROOT, ResultReceiptService
 from .exchange.result_validation import ResultValidationService
 from .rendering import DEFAULT_RENDER_ROOT, MarkdownRenderService
 from .repository import Repository
+from .review import DiffReviewMarkdownRenderer, DiffReviewService
 from .storage import PackageExchangeAuditRepository
 
 
@@ -117,6 +118,22 @@ def parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path(os.environ.get("SGOKB_RENDER_ROOT", DEFAULT_RENDER_ROOT)),
     )
+
+    review_result = actions.add_parser(
+        "review-result",
+        help="Preview H-01 validation findings and full-snapshot Diff before explicit Import",
+    )
+    review_result.add_argument("receipt_id")
+    review_result.add_argument("--incoming-root", type=Path, default=incoming_default)
+    review_result.add_argument("--format", choices=("json", "markdown"), default="json")
+
+    diff_versions = actions.add_parser(
+        "diff-versions",
+        help="Compare two accepted Object Knowledge Versions without mutating canonical storage",
+    )
+    diff_versions.add_argument("before_version_id")
+    diff_versions.add_argument("after_version_id")
+    diff_versions.add_argument("--format", choices=("json", "markdown"), default="json")
     return root
 
 
@@ -220,10 +237,33 @@ def main(argv=None) -> int:
                 )
                 .to_dict()
             )
+        elif args.action == "review-result":
+            report = DiffReviewService(repository, audit).review_result(
+                args.receipt_id,
+                incoming_root=args.incoming_root,
+            )
+            result = (
+                DiffReviewMarkdownRenderer().render_review(report)
+                if args.format == "markdown"
+                else report.to_dict()
+            )
+        elif args.action == "diff-versions":
+            report = DiffReviewService(repository, audit).diff_versions(
+                args.before_version_id,
+                args.after_version_id,
+            )
+            result = (
+                DiffReviewMarkdownRenderer().render_diff(report)
+                if args.format == "markdown"
+                else report.to_dict()
+            )
         else:
             result = list(audit.pending_result_receipts())
 
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        if isinstance(result, str):
+            print(result)
+        else:
+            print(json.dumps(result, ensure_ascii=False, indent=2))
         if args.action == "validate-result" and result["validation_state"] != "valid":
             return 1
         return 0

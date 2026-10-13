@@ -212,7 +212,13 @@ def test_historical_render_does_not_mark_current_target_ready(tmp_path):
         second_root = tmp_path / "second"
         second_root.mkdir()
         receipt, incoming, _ = _validate(repository, audit, manifest, second_root, result)
-        second = _import(repository, audit, receipt, incoming)
+        second = _import(
+            repository,
+            audit,
+            receipt,
+            incoming,
+            acknowledge_review=True,
+        )
         state = _rendering_state(repository, object_id)
         assert state["target_version_id"] == second.version_id
         assert state["status"] == "pending"
