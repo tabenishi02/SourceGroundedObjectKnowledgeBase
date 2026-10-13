@@ -585,9 +585,13 @@ docs/
   - Import provenance / Validation snapshot / Result review metadataをMigration 013でimmutableに保持する。
   - `docs/design/OBJECT_VERSION_IMPORT.md`をH-02設計・実装正本とする。
 
-- [ ] **H-03 [P1] Markdown Rendererを実装する**
+- [x] **H-03 [P1] Markdown Rendererを実装する**
   - DB/JSONから人間向けObject文書を生成する。
   - Markdownを編集正本にしない。
+  - accepted VersionからSummary / Facet / Attribute / Relation / temporal scope / attribution / Evidence / Import provenanceを含むMarkdownを生成する。
+  - managed artifactをatomic writeし、current targetの`rendering` derived stateをrevision CAS付きで`ready / failed`へ更新する。
+  - historical Version renderとJSON pure renderはcurrent derived stateを変更しない。
+  - `docs/design/MARKDOWN_RENDERER.md`をH-03設計・実装正本とする。
 
 - [ ] **H-04 [P1] Diff / Review表示を実装する**
   - v1→v2の属性・Facet・Relation差分を確認できるようにする。
