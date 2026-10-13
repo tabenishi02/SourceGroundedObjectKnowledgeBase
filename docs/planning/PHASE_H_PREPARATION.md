@@ -7,6 +7,8 @@
 - Next phase: Phase I — 意味検索・類似検索
 - Completed tasks: `H-01 [P0] Result JSON Validator`, `H-02 [P0] Object Version Import`, `H-03 [P1] Markdown Renderer`, `H-04 [P1] Diff / Review表示`
 - Next task: `I-01 [P0] Search Representation / Embedding対象を設計する`
+- Closure audit: `docs/planning/PHASE_H_CLOSURE_AUDIT.md`
+- Phase I preparation: `docs/planning/PHASE_I_PREPARATION.md`
 - Working branch: `integration/knowledge-base-redesign`
 
 ---
