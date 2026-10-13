@@ -87,8 +87,8 @@ def create_read_server(adapter: MCPReadAdapter) -> Server[Any]:
         title="Source Grounded Object Knowledge Base",
         description="Read-only local Knowledge Access Layer for SGOKB.",
         instructions=(
-            "Use search tools when stable IDs are unknown; use get/resource reads when IDs are known. "
-            "This server is read-only."
+            "Use search tools when stable IDs are unknown; use get/resource reads "
+            "when IDs are known. This server is read-only."
         ),
         on_list_tools=list_tools,
         on_call_tool=call_tool,
