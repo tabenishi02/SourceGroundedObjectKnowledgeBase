@@ -280,7 +280,8 @@ GET_OBJECT = MCPToolContract(
     title="Get SGOKB Object",
     description=(
         "Get one Object by stable object_id. Omit version_id for current accepted Knowledge or "
-        "provide an accepted Version to pin the read. Optional facets limits semantic Facet content."
+        "provide an accepted Version to pin the read. Optional facets limits semantic Facet "
+        "content."
     ),
     input_schema=_object_schema(
         {
@@ -300,8 +301,8 @@ GET_OBJECTS = MCPToolContract(
     name="get_objects",
     title="Get Multiple SGOKB Objects",
     description=(
-        "Batch-get known Objects by stable object_id. Use search_objects first when IDs are unknown. "
-        "Each Object still reports the resolved Knowledge Version."
+        "Batch-get known Objects by stable object_id. Use search_objects first when IDs are "
+        "unknown. Each Object still reports the resolved Knowledge Version."
     ),
     input_schema=_object_schema(
         {
