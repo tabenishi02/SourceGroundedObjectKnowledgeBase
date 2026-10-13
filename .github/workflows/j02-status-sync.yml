@@ -1,0 +1,48 @@
+name: J02 Status Sync
+
+on:
+  push:
+    branches:
+      - integration/knowledge-base-redesign
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Mark J-02 complete
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md")
+          text = path.read_text(encoding="utf-8")
+          old = "- [ ] **J-02 [P0] MCP read toolsを定義する**"
+          new = "- [x] **J-02 [P0] MCP read toolsを定義する**"
+          if old in text:
+              text = text.replace(old, new, 1)
+          elif new not in text:
+              raise SystemExit("J-02 task line was not found")
+
+          marker = "  - `build_context` または同等機能。"
+          completion = """  - **完了 (2026-10-14):** `docs/decisions/J02_MCP_READ_TOOL_CONTRACT.md`を正本とし、active read Toolを`search_objects` / `find_similar_objects` / `get_object` / `get_objects` / `get_object_relations` / `get_object_evidence` / `search_evidence`の7個へ整理した。\n  - `semantic_search_objects`は重複Tool化せず`search_objects(mode=\"semantic\")`、Facet Similarityは`find_similar_objects(facet=...)`で表現する。`build_context`はJ-04まで予約・非activeとした。\n  - MCP Tool contract `sgokb.mcp-read-tools.v1`、JSON Schema Draft 2020-12、read-only / closed-world annotation、public limitを固定した。general `EvidenceSearch`もApplication境界へ追加し、effective世代を既定・historicalを明示opt-inとした。\n  - J-02 + J-01 + Phase I focused regressionはRuff成功、Pytest 38 passed / 2 skipped。\n"""
+          if completion.splitlines()[0] not in text:
+              if marker not in text:
+                  raise SystemExit("J-02 completion insertion marker was not found")
+              text = text.replace(marker, marker + "\n" + completion.rstrip("\n"), 1)
+          path.write_text(text, encoding="utf-8")
+      - name: Commit status
+        run: |
+          if git diff --quiet -- docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md
+          git commit -m "docs(j02): mark J-02 complete"
+          git push origin HEAD:integration/knowledge-base-redesign
