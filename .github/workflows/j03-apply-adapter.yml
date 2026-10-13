@@ -1,0 +1,81 @@
+name: J03 Apply Adapter
+
+on:
+  push:
+    branches:
+      - integration/knowledge-base-redesign
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply J-03 adapter changes
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("src/sgokb/mcp/adapter.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace(
+              "from __future__ import annotations\n\nfrom collections.abc import Iterable",
+              "from __future__ import annotations\n\nimport json\nfrom collections.abc import Iterable",
+              1,
+          )
+          marker = "from sgokb.domain import ObjectSearchFilters, ObjectSearchMode\n\n"
+          resource_import = '''from .resource_contracts import (\n    MCP_RESOURCE_CONTRACT_VERSION,\n    MCP_RESOURCE_MIME_TYPE,\n    MCPResourceURIError,\n    parse_resource_uri,\n    resource_template_contracts,\n)\n'''
+          if resource_import not in text:
+              text = text.replace(marker, marker + resource_import, 1)
+
+          protocol_marker = '''    def search_evidence(\n        self,\n        query: str,\n'''
+          protocol_method = '''    def get_evidence(self, evidence_id: str) -> dict: ...\n\n'''
+          if protocol_method not in text:
+              text = text.replace(protocol_marker, protocol_method + protocol_marker, 1)
+
+          property_marker = '''    @property\n    def tool_contract_version(self) -> str:\n        return MCP_READ_TOOL_CONTRACT_VERSION\n\n'''
+          resource_methods = '''    @property\n    def resource_contract_version(self) -> str:\n        return MCP_RESOURCE_CONTRACT_VERSION\n\n    def list_resources(self) -> tuple[dict[str, Any], ...]:\n        \"\"\"No dynamic KB rows are eagerly enumerated as static MCP Resources.\"\"\"\n\n        return ()\n\n    def list_resource_templates(self) -> tuple[dict[str, Any], ...]:\n        \"\"\"Return Resource Template definitions in resources/templates/list shape.\"\"\"\n\n        return tuple(contract.as_mcp_definition() for contract in resource_template_contracts())\n\n    def read_resource(self, uri: str) -> dict[str, Any]:\n        \"\"\"Resolve one canonical SGOKB Resource URI through the Application port.\"\"\"\n\n        parsed = parse_resource_uri(uri)\n        if parsed.kind == \"object_current\":\n            data = self.get_object(parsed.object_id)\n        elif parsed.kind == \"object_version\":\n            data = self.get_object(parsed.object_id, version_id=parsed.version_id)\n        elif parsed.kind == \"evidence\":\n            data = self.get_evidence(parsed.evidence_id)\n        else:\n            raise MCPResourceURIError(f\"Unsupported SGOKB Resource kind: {parsed.kind}\")\n\n        payload = {\n            \"resource_contract_version\": self.resource_contract_version,\n            \"application_contract_version\": self.contract_version,\n            \"data\": _jsonable(data),\n        }\n        return {\n            \"uri\": parsed.canonical_uri,\n            \"mimeType\": MCP_RESOURCE_MIME_TYPE,\n            \"text\": json.dumps(\n                payload,\n                ensure_ascii=False,\n                sort_keys=True,\n                separators=(\",\", \":\"),\n            ),\n        }\n\n'''
+          if resource_methods not in text:
+              text = text.replace(property_marker, property_marker + resource_methods, 1)
+
+          delegate_marker = '''    def search_evidence(\n        self,\n        query: str,\n        *,\n'''
+          delegate_method = '''    def get_evidence(self, evidence_id: str) -> dict:\n        return self._application.get_evidence(evidence_id)\n\n'''
+          positions = [i for i in range(len(text)) if text.startswith(delegate_marker, i)]
+          if delegate_method not in text:
+              if len(positions) < 2:
+                  raise SystemExit("Could not locate adapter search_evidence delegate")
+              index = positions[-1]
+              text = text[:index] + delegate_method + text[index:]
+          path.write_text(text, encoding="utf-8")
+
+          init_path = Path("src/sgokb/mcp/__init__.py")
+          init_text = init_path.read_text(encoding="utf-8")
+          resource_exports = '''from .resource_contracts import (\n    MCP_RESOURCE_CONTRACT_VERSION,\n    MCPResourceTemplateContract,\n    MCPResourceURIError,\n    evidence_resource_uri,\n    object_resource_uri,\n    object_version_resource_uri,\n    parse_resource_uri,\n    resource_template_contracts,\n)\n'''
+          tool_import = "from .tool_contracts import (\n"
+          if resource_exports not in init_text:
+              init_text = init_text.replace(tool_import, resource_exports + tool_import, 1)
+          additions = [
+              '    "MCP_RESOURCE_CONTRACT_VERSION",',
+              '    "MCPResourceTemplateContract",',
+              '    "MCPResourceURIError",',
+              '    "evidence_resource_uri",',
+              '    "object_resource_uri",',
+              '    "object_version_resource_uri",',
+              '    "parse_resource_uri",',
+              '    "resource_template_contracts",',
+          ]
+          for line in reversed(additions):
+              if line not in init_text:
+                  init_text = init_text.replace("__all__ = [\n", "__all__ = [\n" + line + "\n", 1)
+          init_path.write_text(init_text, encoding="utf-8")
+      - name: Commit adapter changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/sgokb/mcp/adapter.py src/sgokb/mcp/__init__.py
+          git commit -m "feat(j03): bind MCP Resource templates to Application reads"
+          git push origin HEAD:integration/knowledge-base-redesign
