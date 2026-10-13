@@ -179,7 +179,12 @@ def test_semantic_evidence_search_returns_provenance(tmp_path):
             snapshot_id,
             "The winter protector guards a remote place.",
         )
-        _evidence(repo, source_id, snapshot_id, "Completely unrelated material.")
+        repo.source_store.add_evidence(
+            run_id,
+            "Completely unrelated material.",
+            "normalized",
+            language="en",
+        )
         repo.source_store.select_effective_snapshot(source_id, snapshot_id, reason="fixture")
         repo.source_store.select_effective_run(snapshot_id, run_id, reason="fixture")
 
