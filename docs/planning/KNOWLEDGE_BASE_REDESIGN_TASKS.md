@@ -607,9 +607,13 @@ docs/
 
 **完了条件:** ChatGPT出力を壊れた状態で正本DBへ登録できず、過去versionへ戻れる。
 
+Phase H closure audit: `docs/planning/PHASE_H_CLOSURE_AUDIT.md`
+
 ---
 
 # Phase I — 意味検索・類似検索
+
+Preparation: `docs/planning/PHASE_I_PREPARATION.md`
 
 - [ ] **I-01 [P0] Search Representation / Embedding対象を設計する**
   - Evidence representation / embedding。
