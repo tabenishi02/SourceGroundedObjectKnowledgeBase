@@ -751,9 +751,14 @@ Preparation: `docs/planning/PHASE_J_PREPARATION.md`
   - Search / filter / batch / Relation traversal / Context selectionはTool側に残し、Resource URIへのquery parameter埋め込みを禁止した。Resource contractは`sgokb.mcp-resources.v1`。
   - `KnowledgeReadApplication.get_evidence()`とMCP Resource Adapterを実装し、Ruff成功、J-03〜J-01 focused regressionは48 passed / 2 skipped。
 
-- [ ] **J-04 [P0] Context Builderを設計する**
+- [x] **J-04 [P0] Context Builderを設計する**
   - roleplay / comparison / analysis / creative等の用途に応じて返すFacetを制御する。
   - LLM推論は行わず、決定論的なKnowledge selectionを担当する。
+  - **完了 (2026-10-14):** `docs/decisions/J04_CONTEXT_BUILDER_CONTRACT.md`を正本とし、Context BuilderをLLM推論から分離したdeterministic Knowledge selectorとして設計・実装した。
+  - `general` / `analysis` / `comparison` / `roleplay` / `creative`の固定Purpose Profileを定義し、Facet priority、attributes / relations / evidence refsの既定値を用途別に固定した。明示`facets`はprofileをoverrideする。
+  - length controlはmodel依存tokenizerを避け、selected Knowledge itemのserialized JSON character budgetを採用した。Statement途中切断を禁止し、複数Objectではequal-shareで配分する。
+  - J-02で予約していた`build_context`をactive MCP read Tool化した。Context Builder contractは`sgokb.context-builder.v1`。
+  - Ruff成功、J-04〜J-01 + Phase I focused regressionは55 passed / 2 skipped。
 
 - [ ] **J-05 [P1] MCP write系はread系と分離する**
   - 初期MVPではread-onlyを第一候補とする。

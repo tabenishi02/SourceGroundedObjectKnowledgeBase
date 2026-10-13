@@ -7,7 +7,7 @@
 - [x] **J-01 [P0] Retrieval CoreとMCP Adapterを分離する**
 - [x] **J-02 [P0] MCP read toolsを定義する**
 - [x] **J-03 [P1] MCP Resourcesを定義する**
-- [ ] **J-04 [P0] Context Builderを設計する**
+- [x] **J-05 [P1] MCP write系はread系と分離する**
 - [ ] **J-05 [P1] MCP write系はread系と分離する**
 - [ ] **J-06 [P0] ローカルMCP Clientで受入試験する**
 
@@ -23,15 +23,19 @@ J-03の設計・実装・検証記録:
 
 - `docs/decisions/J03_MCP_RESOURCE_CONTRACT.md`
 
+J-04の設計・実装・検証記録:
+
+- `docs/decisions/J04_CONTEXT_BUILDER_CONTRACT.md`
+
 Latest focused verification:
 
 ```text
 Ruff: All checks passed
-Pytest: 48 passed, 2 skipped
+Pytest: 55 passed, 2 skipped
 ```
 
 ## Next task
 
 ```text
-J-04 [P0] Context Builderを設計する
+J-05 [P1] MCP write系はread系と分離する
 ```

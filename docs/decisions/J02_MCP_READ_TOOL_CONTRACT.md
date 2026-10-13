@@ -209,6 +209,10 @@ J-04完了まではactive Tool一覧へ含めず、`tools/list`相当の結果�
 
 これによりJ-02でroleplay / comparison / analysis / creative等のFacet selection policyを先取りして固定しない。
 
+### J-04 follow-up — 2026-10-14
+
+J-04でContext Builder policyが確定したため、`build_context`はactive read Toolへ移行した。現在のactive read Toolは8個である。正式なselection / budget contractは`docs/decisions/J04_CONTEXT_BUILDER_CONTRACT.md`を正本とする。J-02時点の7 Tool / `reserved_j04`記述はJ-02完了時点の履歴として保持する。
+
 ---
 
 ## 4. Tool schema policy
