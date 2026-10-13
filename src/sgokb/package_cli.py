@@ -13,6 +13,7 @@ from .exchange.package_transfer import PackageTransferService
 from .exchange.result_import import ObjectVersionImportService
 from .exchange.result_receipt import DEFAULT_INCOMING_ROOT, ResultReceiptService
 from .exchange.result_validation import ResultValidationService
+from .rendering import DEFAULT_RENDER_ROOT, MarkdownRenderService
 from .repository import Repository
 from .storage import PackageExchangeAuditRepository
 
@@ -103,6 +104,19 @@ def parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Explicitly approve review-required Result findings for this import",
     )
+
+    render_markdown = actions.add_parser(
+        "render-markdown",
+        help="Render one accepted Object Version as derived human-readable Markdown",
+    )
+    target = render_markdown.add_mutually_exclusive_group(required=True)
+    target.add_argument("--version", help="Accepted Object Version ID to render")
+    target.add_argument("--object", help="Render the Object's current accepted Version")
+    render_markdown.add_argument(
+        "--output-root",
+        type=Path,
+        default=Path(os.environ.get("SGOKB_RENDER_ROOT", DEFAULT_RENDER_ROOT)),
+    )
     return root
 
 
@@ -189,6 +203,20 @@ def main(argv=None) -> int:
                     args.receipt_id,
                     incoming_root=args.incoming_root,
                     acknowledge_review=args.acknowledge_review,
+                )
+                .to_dict()
+            )
+        elif args.action == "render-markdown":
+            version_id = args.version
+            if version_id is None:
+                version_id = repository.version_store.current_version_id(args.object)
+                if version_id is None:
+                    raise ValueError("Object has no current accepted Version to render")
+            result = (
+                MarkdownRenderService(repository)
+                .render_version(
+                    version_id,
+                    output_root=args.output_root,
                 )
                 .to_dict()
             )

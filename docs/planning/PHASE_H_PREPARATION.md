@@ -5,8 +5,8 @@
 - Status: In Progress
 - Completed phase: Phase G — Google Drive / ChatGPT交換ワークフロー
 - Next phase: Phase H — Result Validation / Import / Rendering
-- Completed tasks: `H-01 [P0] Result JSON Validator`, `H-02 [P0] Object Version Import`
-- Next task: `H-03 [P1] Markdown Rendererを実装する`
+- Completed tasks: `H-01 [P0] Result JSON Validator`, `H-02 [P0] Object Version Import`, `H-03 [P1] Markdown Renderer`
+- Next task: `H-04 [P1] Diff / Review表示を実装する`
 - Working branch: `integration/knowledge-base-redesign`
 
 ---
@@ -377,8 +377,17 @@ H-02正本:
 - `src/sgokb/migrations/013_object_version_import.sql`
 - `tests/test_object_version_import.py`
 
+H-03では`MarkdownRenderReadRepository`、`ObjectMarkdownRenderer`、`MarkdownRenderService`、`sgokb-package render-markdown`を追加した。accepted Versionから人間向けMarkdownを再生成し、Markdownを編集正本にせず、current targetの`rendering` derived stateをrevision CAS付きで`ready / failed`へ更新する。historical Version renderおよびJSON pure renderはcurrent derived stateを変更しない。
+
+H-03正本:
+
+- `docs/design/MARKDOWN_RENDERER.md`
+- `src/sgokb/rendering/markdown.py`
+- `src/sgokb/storage/markdown_repository.py`
+- `tests/test_markdown_renderer.py`
+
 次に実施するTask:
 
 ```text
-H-03 [P1] Markdown Rendererを実装する
+H-04 [P1] Diff / Review表示を実装する
 ```
