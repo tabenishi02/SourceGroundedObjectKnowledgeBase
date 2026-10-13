@@ -255,16 +255,16 @@ class ContextBuilder:
         if len(values) > CONTEXT_MAX_OBJECTS:
             raise ValueError(f"Context Builder supports at most {CONTEXT_MAX_OBJECTS} Objects")
         if not 512 <= max_characters <= CONTEXT_MAX_CHARACTERS:
-            raise ValueError(
-                f"Context max_characters must be 512..{CONTEXT_MAX_CHARACTERS}"
-            )
+            raise ValueError(f"Context max_characters must be 512..{CONTEXT_MAX_CHARACTERS}")
 
         profile = context_purpose_profile(purpose)
         selected_facets = context_facets_for_purpose(purpose, facets)
         resolved_attributes = (
             profile.include_attributes if include_attributes is None else include_attributes
         )
-        resolved_relations = profile.include_relations if include_relations is None else include_relations
+        resolved_relations = (
+            profile.include_relations if include_relations is None else include_relations
+        )
         resolved_evidence = (
             profile.include_evidence_refs
             if include_evidence_refs is None

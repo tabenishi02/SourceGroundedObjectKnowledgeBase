@@ -18,7 +18,6 @@ from .retrieval import (
     ObjectEvidenceRetriever,
     ObjectSimilaritySearch,
 )
-from .retrieval.object_read import ObjectKnowledgeReader
 from .retrieval.context_builder import (
     CONTEXT_DEFAULT_MAX_CHARACTERS,
     CONTEXT_MAX_OBJECTS,
@@ -26,6 +25,7 @@ from .retrieval.context_builder import (
     context_facets_for_purpose,
     context_purpose_profile,
 )
+from .retrieval.object_read import ObjectKnowledgeReader
 
 APPLICATION_READ_CONTRACT_VERSION = "sgokb.application-read.v1"
 
