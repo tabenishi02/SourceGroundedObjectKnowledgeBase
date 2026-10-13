@@ -768,13 +768,18 @@ Preparation: `docs/planning/PHASE_J_PREPARATION.md`
   - future writeはproposal/staging-onlyとし、canonical direct mutation / automatic promotionを禁止した。explicit enable / authorization scope / audit recordを必須policyとした。
   - MCP write policyは`sgokb.mcp-write-policy.v1`、将来Tool contract namespaceは`sgokb.mcp-write-tools.v1`。Ruff成功、J-05〜J-01 + Phase I focused regressionは59 passed / 2 skipped。
 
-- [ ] **J-06 [P0] ローカルMCP Clientで受入試験する**
+- [x] **J-06 [P0] ローカルMCP Clientで受入試験する**
   - Local LLM HostからObject取得。
   - 複数Object取得。
   - Semantic Search / Similarity Search。
   - Context長制御。
   - MCP停止時にcanonical DB / CLIが継続利用できること。
   - loopback外へ公開する場合はexplicit enable + authentication / scopeを要求する。
+  - **完了 (2026-10-14):** `docs/decisions/J06_LOCAL_MCP_CLIENT_ACCEPTANCE.md`を正本とし、MCP Python SDK v2のlocal stdio Server bindingとWindows local Client受入試験を実施した。
+  - final fixtureは実SQLite Repository / `KnowledgeReadApplication` / Search Representation / `ExactVectorIndexAdapter`を使用し、single/batch Object read、Semantic Search、Similarity Search、Context length control、Resource dereferenceをMCP越しに確認した。
+  - MCP subprocess停止時もcanonical Application readとCLIが独立して利用可能であることを確認した。初期MVPはstdio read-onlyでnetwork listenerを持たず、将来の非loopback公開はexplicit enable + authentication / authorization scopeを必須とする。
+  - 実測環境はWindows Server 2025 / Python 3.12.10 / MCP Python SDK 2.3.0。Ruff成功、J-06〜J-01 + Phase I focused regressionは61 passed / 2 skipped。
+  - J-01〜J-06完了によりPhase J — MCP Knowledge Access Layerを完了した。
 
 **完了条件:** LLM/AgentがDB構造を知らずにSGOKB Knowledgeを取得できる。
 
