@@ -1,9 +1,18 @@
-"""MCP transport adapter package.
+"""MCP Knowledge Access adapter package."""
 
-Phase J/J-01 establishes only the dependency boundary. Public MCP Tool/Resource
-schemas are defined by later Phase J tasks.
-"""
+from .adapter import MCPReadAdapter, MCPToolArgumentsError
+from .tool_contracts import (
+    MCP_READ_TOOL_CONTRACT_VERSION,
+    MCPToolContract,
+    read_tool_contract,
+    read_tool_contracts,
+)
 
-from .adapter import MCPReadAdapter
-
-__all__ = ["MCPReadAdapter"]
+__all__ = [
+    "MCP_READ_TOOL_CONTRACT_VERSION",
+    "MCPReadAdapter",
+    "MCPToolArgumentsError",
+    "MCPToolContract",
+    "read_tool_contract",
+    "read_tool_contracts",
+]
