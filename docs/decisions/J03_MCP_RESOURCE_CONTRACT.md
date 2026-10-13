@@ -309,6 +309,15 @@ resources/read(uri)
 
 AdapterはRepository / SQLite / storage moduleを直接importしない。
 
+実装箇所:
+
+```text
+src/sgokb/mcp/resource_contracts.py
+src/sgokb/mcp/adapter.py
+src/sgokb/application_read.py
+tests/test_j03_mcp_resources.py
+```
+
 ---
 
 ## 12. Verification target
