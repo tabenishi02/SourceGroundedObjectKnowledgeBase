@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A〜Jは完了。Phase K — SGOKB / UPDS連携試験を進行中。K-01〜K-03は2026-10-14に完了した。K-03ではSGOKB Semantic IndexをObject / Facet / Statement / Evidence retrievalへ限定し、UPDS Personal Inference Indexとのownership、metadata、rebuild authority、score semanticsを分離した。次TaskはK-04 [P2] UPDS向けContext/Profileを追加するか評価する。現在の作業branchは`main`のみ。Phase K正本は`docs/planning/PHASE_K_PREPARATION.md`とK-01〜K-03 decision文書。**
+> **Phase A〜Kは完了。Phase Kでは、UPDSの標準参照を`get_objects` + explicit Facet subsetとし、stable Object ID / Version参照、Semantic Index ownership分離、専用Context/Profile不要を確認した。UPDS専用Profileは現時点では追加せず、実UPDS workloadで不足が実証された場合のみ再評価する。次TaskはPhase LのL-01 [P0] Fragment table / code / CLIの移行方針を確定する。現在の作業branchは`main`のみ。Phase K正本は`docs/planning/PHASE_K_PREPARATION.md`とK-01〜K-04 decision文書。**
 
 Phase D / E / F移行資料:
 
@@ -27,6 +27,7 @@ Phase D / E / F移行資料:
 - `docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`
 - `docs/decisions/K02_STABLE_OBJECT_ID_REFERENCE_VERIFICATION.md`
 - `docs/decisions/K03_SEMANTIC_INDEX_OWNERSHIP_VERIFICATION.md`
+- `docs/decisions/K04_UPDS_CONTEXT_PROFILE_EVALUATION.md`
 
 ---
 

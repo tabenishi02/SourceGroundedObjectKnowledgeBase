@@ -2,14 +2,15 @@
 
 更新日: 2026-10-14
 
-- Status: **Ready to Start**
+- Status: **Complete**
 - Previous phase: `Phase J — MCP Knowledge Access Layer` — Complete
 - Closure audit: `docs/planning/PHASE_J_CLOSURE_AUDIT.md`
 - Current phase target: `Phase K — SGOKB / UPDS連携試験`
-- Current task: `K-04 [P2] UPDS向けContext/Profileを追加するか評価する`
+- Next phase task: `L-01 [P0] Fragment table / code / CLIの移行方針を確定する`
 - K-01 decision: `docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`
 - K-02 verification: `docs/decisions/K02_STABLE_OBJECT_ID_REFERENCE_VERIFICATION.md`
 - K-03 verification: `docs/decisions/K03_SEMANTIC_INDEX_OWNERSHIP_VERIFICATION.md`
+- K-04 decision: `docs/decisions/K04_UPDS_CONTEXT_PROFILE_EVALUATION.md`
 - Working branch: `main`（Phase K開始前のbranch cleanup後）
 - External project: `tabenishi02/UserPreferenceDiscoverySystem`
 
@@ -46,7 +47,7 @@ Phase Kで重要なのは、UPDSをSGOKBの拡張機能として埋め込むこ�
 | K-01 | P1 | Complete | UPDSからSGOKB Objectを参照する最小ユースケースを定義する |
 | K-02 | P1 | Complete | stable Object ID / Version参照がSGOKB更新後も壊れないことを検証する |
 | K-03 | P1 | Complete | SGOKBとUPDSのSemantic Index / inference ownershipを混同しないことを確認する |
-| K-04 | P2 | Next | UPDS専用Context/Profileが本当に必要か評価する |
+| K-04 | P2 | Complete | UPDS専用Context/Profileが本当に必要か評価する |
 
 Phase KはK-01から順に進める。
 
@@ -295,6 +296,12 @@ K-04ではUPDS専用Context/Profileを追加することを前提にしない。
 
 ---
 
+**K-04 Acceptance: PASS — UPDS専用Context/Profileは追加しない。**
+
+詳細: `docs/decisions/K04_UPDS_CONTEXT_PROFILE_EVALUATION.md`
+
+---
+
 ## 10. Failure / privacy acceptance
 
 Phase Kでは正常系だけでなく次を維持する。
@@ -410,18 +417,20 @@ K-01は少なくとも次を満たして完了とする。
 
 ---
 
-## 15. Phase K開始判定
+## 15. Phase K完了判定
 
 Phase J Closure Auditにより未完了Taskは0件。
 
 Phase Kに必要なIntegration Contract、stable Identity / Version contract、MCP read transport、Facet subset、Context Builder、failure boundaryは揃っている。
 
-UPDS runtimeは未実装だが、K-01はcontract-levelの最小ユースケース定義として完了した。
+K-01〜K-04はすべて完了した。K-01で標準参照経路を固定し、K-02でstable Object ID / Version参照、K-03でSemantic Index ownership、K-04で専用Context/Profile不要を確認した。
 
-K-01で固定した主経路は、既知Character `object_id`群を`get_objects`で取得し、`values` / `personality` / `themes`と`resolved_version_id`をUPDS Personal Inferenceの入力・参照情報として利用する方式である。
+UPDS runtimeは未実装だが、SGOKB側Integration Contractはconsumer-shaped contract testと既存MCP / Context Builder contractにより検証済みである。実UPDS実装後のcross-repository E2EはStage Bとして残す。
+
+**Phase K完了条件を満たす。**
 
 次に実施するTask:
 
 ```text
-K-04 [P2] UPDS向けContext/Profileを追加するか評価する
+L-01 [P0] Fragment table / code / CLIの移行方針を確定する
 ```

@@ -813,8 +813,12 @@ Preparation: `docs/planning/PHASE_K_PREPARATION.md`
   - 成果物: `docs/decisions/K03_SEMANTIC_INDEX_OWNERSHIP_VERIFICATION.md`
   - 自動試験: K-03 + J-01/J-02 regression 14 passed、K-03 focused 6 passed、対象Ruff pass。
 
-- [ ] **K-04 [P2] UPDS向けContext/Profileを追加するか評価する**
-  - SGOKB固有にUPDSロジックを埋め込まず、汎用Facet取得で不足する場合のみ追加する。
+- [x] **K-04 [P2] UPDS向けContext/Profileを追加するか評価する**
+  - 現時点ではUPDS専用Context/Profileを追加しないと決定した。
+  - K-01の`get_objects` + explicit Facet subsetを標準経路とし、`build_context`はLLM投入時の任意のdeterministic selection layerとする。
+  - `get_objects`のattributes省略不可、Context Builderのsummary常時候補はUPDS専用問題ではなく汎用contract改善候補として分離した。
+  - 実UPDS workloadで汎用contractの不足が実証された場合のみ専用Profileを再評価する。
+  - 成果物: `docs/decisions/K04_UPDS_CONTEXT_PROFILE_EVALUATION.md`
 
 **完了条件:** UPDSがSGOKB Knowledgeを再解析せず再利用でき、SGOKBはUPDSなしでも独立している。
 
