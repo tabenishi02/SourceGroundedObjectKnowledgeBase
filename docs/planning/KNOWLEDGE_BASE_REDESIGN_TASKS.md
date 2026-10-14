@@ -798,8 +798,12 @@ Preparation: `docs/planning/PHASE_K_PREPARATION.md`
   - Relation / Evidence / Search / Similarityは最小ケースから分離し、UPDS Personal InferenceをSGOKBへwrite-backしない。
   - 成果物: `docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`
 
-- [ ] **K-02 [P1] Stable Object ID参照を検証する**
-  - SGOKB側version更新でUPDS Selection Event参照が壊れないこと。
+- [x] **K-02 [P1] Stable Object ID参照を検証する**
+  - K-01のconsumer-shaped参照を実テストへ落とし、同一`object_id`でv1→v2へcurrent Knowledgeを更新してもIdentityが維持されることを確認した。
+  - current取得はv2へ進み、保存済み`resolved_version_id`を指定したpinned取得ではv1 Knowledgeを再取得できることを確認した。
+  - Object表示名変更後も`object_id`参照が維持され、既存UPDS-shaped referenceがsilent rewriteされないことを確認した。
+  - 成果物: `docs/decisions/K02_STABLE_OBJECT_ID_REFERENCE_VERIFICATION.md`
+  - 自動試験: K-02関連24 passed。全pytestは313 passed / 4 skipped / 既知のPackage Transfer 1 failed。
 
 - [ ] **K-03 [P1] SGOKBとUPDSのSemantic Indexを混同しないことを確認する**
   - SGOKB: World/Object Knowledge。

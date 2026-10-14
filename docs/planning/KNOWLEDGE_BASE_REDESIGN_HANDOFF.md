@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A〜Jは完了。Phase K — SGOKB / UPDS連携試験を進行中。K-01は2026-10-14に完了し、最小連携を「既知Character `object_id`群 → MCP `get_objects` → `values` / `personality` / `themes` + `resolved_version_id` → UPDS Personal Inference」と固定した。次TaskはK-02 [P1] Stable Object ID参照を検証する。Phase K開始前のbranch cleanupにより現在の作業branchは`main`のみ。正本は`docs/planning/PHASE_K_PREPARATION.md`と`docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`。**
+> **Phase A〜Jは完了。Phase K — SGOKB / UPDS連携試験を進行中。K-01とK-02は2026-10-14に完了した。K-02ではstable `object_id`がKnowledge Version更新・表示名変更後も維持され、currentは新Version、pinnedは旧accepted Versionを再取得できることをMCP `get_objects`経由の自動試験で確認した。次TaskはK-03 [P1] SGOKBとUPDSのSemantic Indexを混同しないことを確認する。現在の作業branchは`main`のみ。正本は`docs/planning/PHASE_K_PREPARATION.md`、`docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`、`docs/decisions/K02_STABLE_OBJECT_ID_REFERENCE_VERIFICATION.md`。**
 
 Phase D / E / F移行資料:
 
@@ -25,6 +25,7 @@ Phase D / E / F移行資料:
 - `docs/planning/PHASE_J_PREPARATION.md`
 - `docs/planning/PHASE_K_PREPARATION.md`
 - `docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`
+- `docs/decisions/K02_STABLE_OBJECT_ID_REFERENCE_VERIFICATION.md`
 
 ---
 

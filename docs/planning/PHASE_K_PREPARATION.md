@@ -6,8 +6,9 @@
 - Previous phase: `Phase J — MCP Knowledge Access Layer` — Complete
 - Closure audit: `docs/planning/PHASE_J_CLOSURE_AUDIT.md`
 - Current phase target: `Phase K — SGOKB / UPDS連携試験`
-- Current task: `K-02 [P1] Stable Object ID参照を検証する`
+- Current task: `K-03 [P1] SGOKBとUPDSのSemantic Indexを混同しないことを確認する`
 - K-01 decision: `docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`
+- K-02 verification: `docs/decisions/K02_STABLE_OBJECT_ID_REFERENCE_VERIFICATION.md`
 - Working branch: `main`（Phase K開始前のbranch cleanup後）
 - External project: `tabenishi02/UserPreferenceDiscoverySystem`
 
@@ -42,8 +43,8 @@ Phase Kで重要なのは、UPDSをSGOKBの拡張機能として埋め込むこ�
 | Task | Priority | Status | 概要 |
 |---|---|---|---|
 | K-01 | P1 | Complete | UPDSからSGOKB Objectを参照する最小ユースケースを定義する |
-| K-02 | P1 | Next | stable Object ID / Version参照がSGOKB更新後も壊れないことを検証する |
-| K-03 | P1 | Pending | SGOKBとUPDSのSemantic Index / inference ownershipを混同しないことを確認する |
+| K-02 | P1 | Complete | stable Object ID / Version参照がSGOKB更新後も壊れないことを検証する |
+| K-03 | P1 | Next | SGOKBとUPDSのSemantic Index / inference ownershipを混同しないことを確認する |
 | K-04 | P2 | Pending | UPDS専用Context/Profileが本当に必要か評価する |
 
 Phase KはK-01から順に進める。
@@ -233,6 +234,12 @@ K-02ではstable IdentityとKnowledge Versionを分離して検証する。
 
 ---
 
+**K-02 Acceptance: PASS**
+
+詳細: `docs/decisions/K02_STABLE_OBJECT_ID_REFERENCE_VERIFICATION.md`
+
+---
+
 ## 8. K-03の境界準備
 
 K-03ではSGOKBとUPDSでEmbedding / Semantic Indexを共有しないこと自体が目的ではなく、**意味責務を混同しないこと**を検証する。
@@ -409,5 +416,5 @@ K-01で固定した主経路は、既知Character `object_id`群を`get_objects`
 次に実施するTask:
 
 ```text
-K-02 [P1] Stable Object ID参照を検証する
+K-03 [P1] SGOKBとUPDSのSemantic Indexを混同しないことを確認する
 ```
