@@ -2,7 +2,7 @@
 
 更新日: 2026-10-14
 
-Status: Accepted
+Status: Accepted — Revised
 
 対象Task: `L-01 [P0] Fragment table / code / CLIの移行方針を確定する`
 
@@ -19,68 +19,103 @@ Baseline: `15d35013591bd70563e69a2672d716d44b7684d9`
 
 ---
 
-## 1. Decision
+## 1. Revised Decision
 
-Phase L以降のFragment資産は、単一の扱いに統一せず、**永続データと実行可能な生成機能を分離して退役させる**。
+L-01の初回Decisionでは、既存Fragment rowsをlegacy read-onlyとして保全する方針を採用した。
 
-最終方針は次のとおりとする。
+その後、Phase Lの目的と現在のcanonical workflowを再確認した結果、**現在の標準運用・Search・MCP・SGOKB/UPDS連携のいずれにもFragmentデータを必要とする具体的用途は存在しない**と判断した。
 
-> **既存Fragmentデータはlegacy read-onlyとして保全し、新規Fragment生成write pathは完全に退役させる。Fragment generation code / prompt / CLIをresearch-only runtimeとして現行packageに残さない。研究再現性はGit履歴・固定baseline・archive資料で確保する。**
+したがってL-01の最終方針を次のように改定する。
 
-したがって、L-01の分類は以下となる。
+> **Fragment関連資産は、現時点で必要な具体的用途が存在しないため、active DB・active package・standard CLIから完全に削除する。既存Fragment rowsをread-only archiveとして恒久保持しない。必要な歴史的実装情報はGit履歴と必要最小限の設計資料で確認する。**
 
-| Asset | Decision |
+この方針は「今すぐ無条件にDROPする」という意味ではない。既存DBを破損させないため、物理削除はL-03/L-05でmigration・依存除去を順序立てて実施する。
+
+---
+
+## 2. Fragment資産の最終分類
+
+| Asset | Final Decision |
 |---|---|
-| 既存`fragment_runs / fragments / fragment_evidence` rows | Legacy read-onlyとして保全 |
-| Fragment generation write path | Retire |
-| `capture.py` / Fragment validation / persistence write code | Active packageからRetire |
-| Fragment prompt群 | Active package dataからRetire |
-| `legacy-fragment` CLI | Retire |
-| `fragment` alias | Retire |
-| Fragment search representation / Prototype embedding | Current SearchからRetire、legacy DB内では移行完了まで保全 |
-| Fragment provenance | Audit可能性を保全。ただしstandard runtime APIとして恒久保証しない |
-| Fragment専用tests / scripts | Active acceptance suiteからRetire。必要な履歴はarchive / Gitで再現 |
-
-このDecisionは物理削除そのものを実施しない。実DB migrationはL-03、benchmark/archive整理はL-04、code / dependency / compatibility cleanupはL-05で実施する。
-
----
-
-## 2. なぜ完全削除ではなくdata read-onlyなのか
-
-既存schemaではFragmentは単なる生成テキストではなく、次の履歴へ接続されている。
-
-```text
-normalized_runs
-  -> fragment_runs
-      -> ai_runs
-      -> fragments
-          -> fragment_evidence
-              -> evidence
-```
-
-さらにHigh Recall系では次の実行ledgerが存在する。
-
-```text
-extraction_jobs
-  -> extraction_batches
-  -> evidence_assessments
-  -> entity_candidates
-  -> fragment_run
-```
-
-これらを即時削除すると、過去のPrototype処理について「どのEvidenceから、どのmodel / prompt / runで、どのFragmentが生成されたか」を追跡できなくなる。
-
-一方、canonical Object KnowledgeはすでにFragment非依存で成立しているため、これらを新canonical schemaへ第一級資産として移植する必要もない。
-
-よって、既存データは**legacy provenance / audit資産**としてのみ扱う。
+| `fragment_runs` | Delete |
+| `fragments` | Delete |
+| `fragment_evidence` | Delete |
+| Fragment専用`extraction_jobs` / `extraction_batches` / `evidence_assessments`等 | Delete（他用途がないもの） |
+| Fragment generation write path | Delete |
+| Fragment read path | Delete |
+| `capture.py` | Delete from active package |
+| `validate_fragments` | Delete |
+| Fragment prompt群 | Delete from active package data |
+| `legacy-fragment` CLI | Delete |
+| `fragment` alias | Delete |
+| `search_items(kind='fragment')` | Delete |
+| Fragment由来embedding | Delete |
+| Fragment専用tests / scripts | Delete from active suite |
+| Fragment research runtime | Do not preserve |
+| Historical implementation | Git historyのみを正とする |
 
 ---
 
-## 3. Fragment table方針
+## 3. 削除してよい理由
 
-### 3.1 canonical schemaへFragment tableを持ち込まない
+### 3.1 canonical workflowがFragment非依存で成立している
 
-次のtableをcanonical Object Knowledge schemaの構成要素として維持しない。
+標準Pipelineは次で完結する。
+
+```text
+Web Capture Bundle
+  → canonical Source / Locator
+  → Snapshot / Raw Artifact
+  → Normalization Run
+  → Evidence
+  → Object Evidence Retrieval
+  → Object Evidence Package
+  → Object Result validation / import
+  → accepted Object Knowledge Version
+```
+
+Fragmentはこの経路に存在しない。
+
+### 3.2 SearchがFragmentを必要としない
+
+現行Searchはcanonical Evidence / Object / Facet / Statement等を対象として成立している。
+
+旧Prototypeの`search_items(kind='fragment')`とFragment embeddingを新Searchへ持ち込む必要はない。
+
+### 3.3 MCP / SGOKB-UPDS連携もFragment非依存である
+
+MCP read contractとUPDS連携はaccepted Object Knowledgeを参照し、Fragmentを中間表現として必要としない。
+
+### 3.4 Fragmentはcanonical Knowledgeではない
+
+旧Fragmentは過去の生成LLM処理の出力であり、現在のObject Result validation / Versioningを経ていない。
+
+そのため、Fragmentを将来利用する可能性を理由にlive DBへ残す価値は低い。
+
+### 3.5 「監査できるかもしれない」だけでは保持理由にしない
+
+初回DecisionではFragment provenanceを監査用途として残すことを理由にread-only保全した。
+
+しかし現時点では、Fragment監査を必要とする運用・受入要件・障害対応要件は存在しない。
+
+不要なlegacy schemaを恒久維持すると、次のコストが発生する。
+
+- schema理解コスト
+- migration複雑化
+- Repository APIの残存
+- CLI / test compatibility維持
+- 誤って旧workflowを利用する余地
+- 「どれが正本か」の認知負荷
+
+よって、具体的な現在用途がないlegacy dataは削除する。
+
+---
+
+## 4. DB削除方針
+
+### 4.1 canonical schemaへFragment tableを持ち込まない
+
+次のtableはcanonical schemaの構成要素ではない。
 
 ```text
 fragment_runs
@@ -90,63 +125,77 @@ fragment_evidence
 
 新しいcanonical Fragment tableは作成しない。
 
-L-03までは既存DB compatibilityのため旧tableを残す。L-03では、既存DBについて次のどちらかを満たすmigrationを設計する。
+### 4.2 existing DBでも最終的に削除する
 
-1. legacy archive領域としてread-only保全する。
-2. DB外archiveへ完全性情報付きで退避した後、active schemaから除去する。
+L-03では既存Prototype DBについて、Fragment関連rowを新schemaへ移送しない。
 
-どちらを採る場合も、legacy ID、Evidence参照、AI run参照、row count等の監査可能性を失わないことを必須とする。
+最終結果は以下とする。
 
-### 3.2 FragmentからObject Knowledgeを自動生成しない
+```text
+legacy Fragment rows
+  → canonical migration対象外
+  → dependency確認
+  → new migrationでdrop
+```
 
-既存Fragmentはcanonical Knowledgeへのmigration sourceとはみなさない。
+Fragment rowの内容を外部archiveへ退避することも標準要件としない。
+
+ただし削除直前には、migration失敗時に元DBへ戻せる通常のbackup / rollback手順を用意する。
+
+これはFragmentを長期保存するためではなく、破壊的migrationの安全策である。
+
+### 4.3 migration 001/002は書き換えない
+
+`001_initial.sql` / `002_knowledge_capture.sql`は過去migration履歴なので編集しない。
+
+Fragment tableの削除は新規migrationとして実施する。
+
+これによりfresh DBとexisting DBのupgrade pathを明示する。
+
+### 4.4 Fragment専用補助tableも削除候補とする
+
+以下はFragment / High Recall workflow専用であることをL-03で最終確認し、他のcanonical用途がなければ削除する。
+
+```text
+extraction_jobs
+extraction_batches
+evidence_assessments
+entity_candidates
+```
+
+`page_contexts`や`ai_runs`等、Fragment以外にも再利用可能性があるtableは一括削除せず、個別に用途を確認する。
+
+---
+
+## 5. FragmentからObject Knowledgeを移行しない
+
+Fragmentはcanonical migration sourceとして利用しない。
 
 禁止:
 
 ```text
 legacy Fragment
-  -> automatic synthesis
-  -> accepted Object Knowledge Version
+  → automatic synthesis / conversion
+  → accepted Object Knowledge Version
 ```
 
-必要なKnowledgeはcanonical Evidence Package / Object Result workflowを通して生成する。
+必要なKnowledgeはcanonical Evidence Package / Object Result workflowを通して作成する。
 
-### 3.3 write pathは停止する
-
-Phase L完了時点では、通常配布packageから新規Fragment rowを生成できない状態にする。
-
-対象には少なくとも以下を含む。
-
-```text
-fragment_runsへの新規write
-fragmentsへの新規write
-fragment_evidenceへの新規write
-High Recall extraction jobからFragmentをpromoteするwrite
-classic Fragment extractor write
-```
+したがってFragment削除によってObject Knowledgeの欠損補完処理を自動実行しない。
 
 ---
 
-## 4. Fragment code方針
+## 6. Code削除方針
 
-### 4.1 `capture.py`
+### 6.1 `capture.py`
 
-`src/sgokb/capture.py`は**active packageからRetire**する。
+`src/sgokb/capture.py`はactive packageから削除する。
 
-`_legacy`へ移して実行可能状態を維持する方式は採用しない。
+`_legacy/`へ移して実行可能状態を維持する方式は採用しない。
 
-理由:
+### 6.2 Application compatibility methods
 
-- standard workflowから完全に不要である。
-- Generative LLM provider、Prompt、Prototype Entity/Evidence persistenceを同時に維持する必要が生じる。
-- research-only runtimeを維持すると、Phase L完了後も旧write pathの保守責任が残る。
-- Git履歴により当時の実装を正確に復元できる。
-
-削除実施はL-05とし、必要な歴史資料のarchive判断はL-04と連携する。
-
-### 4.2 Application compatibility methods
-
-以下はRetire対象とする。
+以下は削除対象とする。
 
 ```text
 legacy_capture_fragments()
@@ -155,32 +204,31 @@ legacy_fragment()
 fragment()
 ```
 
-新standard application serviceからFragment implementationを参照しない。
+### 6.3 Fragment persistence / search methods
 
-### 4.3 Fragment persistence / search methods
+Repository / `knowledge_repository.py`等の以下を削除する。
 
-`knowledge_repository.py`等に残るFragment write / promotion / Fragment search専用methodはRetire対象とする。
+```text
+Fragment write
+Fragment promotion
+Fragment lookup
+Fragment-only search
+Fragment provenance lookup
+```
 
-ただし、L-03完了まで既存DB調査・migration検証に必要なread helperを一時保持してよい。
+ただしL-03 migration実装中に旧tableを読む必要がある一時的helperは、migration完了までのみ保持してよい。
 
-その場合も条件は次のとおり。
+### 6.4 `validate_fragments`
 
-- writeしない。
-- standard application pathから呼ばない。
-- canonical storage contractへFragment APIを追加しない。
-- L-03完了後にL-05で再評価する。
+`domain/_prototype.py::validate_fragments`は削除する。
 
-### 4.4 `validate_fragments`
-
-`domain/_prototype.py::validate_fragments`はcanonical domain contractではない。
-
-Fragment生成codeとともにRetire対象とする。canonical Object Result validationへ流用しない。
+canonical Object Result validationへ流用しない。
 
 ---
 
-## 5. Prompt方針
+## 7. Prompt削除方針
 
-Fragment generation専用promptはactive package dataからRetireする。
+Fragment generation専用promptはactive package dataから削除する。
 
 対象例:
 
@@ -189,170 +237,146 @@ fragment_extraction.*
 high_recall.*
 ```
 
-これらを新Object Result promptへrenameして再利用しない。
+新Object Result promptへrenameして再利用しない。
 
-研究再現性のために現行packageへ残す必要はない。再現時はbaseline commitまたはarchive manifestから、当時のPromptとSchemaを一体で復元する。
-
-Prompt単体を更新し続けるresearch-only運用は採用しない。
+必要になった場合はGit履歴から当時の実装と組み合わせて参照する。
 
 ---
 
-## 6. CLI方針
+## 8. CLI削除方針
 
-### 6.1 `legacy-fragment`
-
-`legacy-fragment`はPhase LでRetireする。
-
-Phase L完了後のstandard CLIから新規Fragment生成を開始できてはならない。
-
-### 6.2 `fragment` alias
-
-`fragment` aliasもRetireする。
-
-旧aliasだけを残すと、利用者から見るとFragment workflowが現行機能であるように見えるため、compatibility価値より誤操作リスクが大きい。
-
-CLI package conversion自体はPhase Mの責務だが、Phase MはFragment commandを再導入しない。
-
-### 6.3 read-only inspection
-
-既存Fragment監査のために恒久的な`fragment` CLIを維持しない。
-
-L-03 migration作業中にread-only inspectionが必要であれば、migration検証用script / SQL /一時helperを用いる。これはstandard user-facing CLI contractには含めない。
-
----
-
-## 7. Search / Embedding方針
-
-旧`search_items`は`kind IN ('evidence', 'fragment')`であり、Fragment embeddingも保持できる。
-
-Phase L以降は次のように扱う。
+次をstandard CLIから削除する。
 
 ```text
-search_items(kind='fragment')
-legacy fragment embeddings
+legacy-fragment
+fragment
 ```
 
-- canonical Searchの入力にしない。
-- canonical Search indexへ移送しない。
+read-only inspection commandも残さない。
+
+L-03 migration検証でFragment rowの確認が必要な場合は、一時的なSQL / migration testを用いる。
+
+Phase MはFragment commandを再導入しない。
+
+---
+
+## 9. Search / Embedding削除方針
+
+旧`search_items(kind='fragment')`と、それに紐づくFragment embeddingは削除する。
+
+- canonical Searchへ移送しない。
 - new embeddingを生成しない。
-- L-03 migration完了までlegacy DB内で保持してよい。
-- canonical Evidence / Object / Facet / Statement representationと混在させない。
+- legacy DB migration時に削除する。
+- canonical Evidence / Object / Facet / Statement representationへ変換しない。
 
-Embedding provider abstraction自体は現行Search資産なのでRetireしない。
-
----
-
-## 8. Provenance / audit方針
-
-Fragment自体は正本Knowledgeではないが、過去処理の監査可能性は保持する。
-
-最低限追跡可能であるべき情報:
-
-```text
-legacy fragment_id
-fragment_run id
-normalized_run / snapshot
-legacy entity id
-Evidence IDs
-AI run id
-model / revision
-prompt / prompt_version
-configuration
-created_at
-```
-
-ただし、これを理由に旧Fragment runtimeを恒久保守しない。
-
-L-03でactive tableを削除する場合は、archive側に上記identity / referenceを保持し、migration前後の件数・参照整合性を検証する。
+Embedding provider abstraction自体は現行Searchで必要なので保持する。
 
 ---
 
-## 9. Research reproducibility方針
+## 10. Research reproducibility方針
 
-`research-only`として現行runtimeを維持する案は採用しない。
+Fragment runtimeやFragment DB dataをlive systemに残して研究再現性を維持する方式は採用しない。
 
-代わりに、研究再現性は次で確保する。
+研究・履歴確認は次で行う。
 
-1. Git履歴で旧code / prompt / tests / scriptsを保持する。
-2. 本Decisionのbaseline commitを旧Fragment runtimeの基準点として記録する。
-3. L-04で旧benchmark資産を歴史資料としてarchiveする。
-4. 必要であればarchive manifestに対象path / hash /実行条件を記録する。
-5. 再実行が本当に必要になった場合は、現行standard packageへ戻すのではなく、historical commitから隔離環境を再構成する。
+1. Git履歴で旧code / prompt / tests / scriptsを確認する。
+2. 必要であればbaseline commitから隔離環境を再構成する。
+3. L-04ではcurrent repositoryに残す価値があるbenchmark資料だけを選別する。
+4. 実DB内の過去Fragment rows自体は研究再現性の必須資産とはみなさない。
 
-これにより研究再現性とproduction保守負担を分離する。
+つまり、**コード履歴はGitに残すが、不要なruntime dataをDBに残さない。**
 
 ---
 
-## 10. Tests / scripts方針
+## 11. Tests / scripts方針
 
-Fragment write pathを検証するtestは、Phase L完了後のactive acceptance suiteへ残さない。
+Fragment生成・Fragment永続化・Fragment検索を検証するtestはactive acceptance suiteから削除する。
 
 分類:
 
 - canonical Evidence / Search / Object workflowの回帰test: Keep
-- Fragment生成そのもののtest: Retire / archive候補
-- legacy DB migration integrity test: L-03で追加
-- benchmark再現用test / script: L-04 archive候補
+- Fragment生成test: Delete
+- Fragment persistence/search test: Delete
+- Fragment CLI test: Delete
+- legacy DB cleanup migration test: L-03で追加
+- Fragment benchmark / speed script: L-04でarchiveまたはDeleteを判断
 
-L-05でFragment codeを削除する前に、現行test / scriptからのimport依存を除去する。
+L-05でcodeを削除する前にactive test / scriptからFragment import依存を除去する。
 
 ---
 
-## 11. 後続Taskへの拘束条件
+## 12. 後続Taskへの拘束条件
 
 ### L-02
 
-Final Documentの処遇を決める際、Fragment生成を再び必要条件にしてはならない。
+Final Documentの処遇を決める際、Fragmentを保持理由にしてはならない。
+
+Fragmentは削除前提である。
 
 ### L-03
 
-既存Prototype DB migrationは以下を満たす。
+既存Prototype DB migrationは次を満たす。
 
-- Fragmentをcanonical Knowledgeへ昇格させない。
-- existing Fragment dataをmigration完了前にdropしない。
-- legacy Fragment ID / Evidence / AI run provenanceを追跡可能にする。
-- migrationを再実行してduplicate archive/importを作らない。
-- backup / rollback / integrity verificationを定義する。
+- Fragment rowsをcanonical schemaへ移行しない。
+- Fragment rowsを外部archiveすることを必須にしない。
+- Fragment tableを新migrationで削除する。
+- Fragment専用補助tableも他用途がなければ削除する。
+- migration前backup / rollbackを用意する。
+- migration後にFragment table / Fragment search item / Fragment embeddingが残っていないことを検証する。
+- Source / Snapshot / Raw Artifact / Evidence等、保持対象のlegacy dataを巻き込んで削除しない。
 
 ### L-04
 
-旧Fragment benchmarkはcurrent KPIから外す。再現価値のあるmanifest / expected result /実行条件は歴史資料としてarchiveできる。
+Fragment benchmarkはcurrent KPIから外す。
+
+歴史資料として明確な価値があるものだけをarchiveし、それ以外は削除可能とする。
 
 ### L-05
 
-以下を削除・縮小する実装Taskとする。
+以下を実際に削除する。
 
 ```text
 Fragment generation code
 Fragment prompt package data
 Application Fragment compatibility methods
-Repository Fragment write path
+Repository Fragment read/write/search path
 legacy-fragment command
 fragment alias
-Fragment-only test / script dependencies
+Fragment-only tests / scripts
 不要になったGenerative LLM compatibility surface
 ```
 
-ただしL-03で必要なmigration read pathを先に壊さない。
+---
+
+## 13. 削除前の安全条件
+
+Fragment資産は不要と判断したが、既存DBの破損を避けるため、実削除時には次を満たす。
+
+1. canonical Source / Evidence migrationとFragment cleanupを区別する。
+2. Fragment tableを参照するFK / trigger / search row / embeddingを先に特定する。
+3. backup / rollback手順を用意する。
+4. migration後にfresh DBとexisting DBの双方でtestする。
+5. Fragment削除によってcanonical Search / MCP / Object workflowが変化しないことを確認する。
 
 ---
 
-## 12. Acceptance Criteria
+## 14. Acceptance Criteria
 
-L-01は以下を満たしたため完了とする。
+L-01は改定後、以下を満たしたため完了とする。
 
-- [x] Fragment tableの処遇を確定した。
-- [x] 既存Fragment dataのread-only / audit方針を確定した。
-- [x] Fragment write pathを退役させる方針を確定した。
-- [x] `capture.py`の処遇を確定した。
-- [x] Fragment promptの処遇を確定した。
-- [x] `legacy-fragment`の処遇を確定した。
-- [x] `fragment` aliasの処遇を確定した。
-- [x] `search_items(kind='fragment')` / legacy embeddingの処遇を確定した。
-- [x] Fragment provenanceの保全条件を確定した。
-- [x] tests / scriptsの研究再現方針を確定した。
+- [x] Fragment tableを最終的に削除すると確定した。
+- [x] 既存Fragment rowsを恒久read-only保全しないと確定した。
+- [x] Fragment write/read pathを削除すると確定した。
+- [x] `capture.py`を削除すると確定した。
+- [x] Fragment promptを削除すると確定した。
+- [x] `legacy-fragment`を削除すると確定した。
+- [x] `fragment` aliasを削除すると確定した。
+- [x] `search_items(kind='fragment')` / Fragment embeddingを削除すると確定した。
+- [x] Fragment dataをObject Knowledgeへ自動変換しないと確定した。
+- [x] 研究再現性はGit履歴を中心に確保すると確定した。
+- [x] 実削除はL-03/L-05で安全に実施すると確定した。
 
-**L-01: Complete.**
+**L-01: Complete (Revised).**
 
 次Task:
 
