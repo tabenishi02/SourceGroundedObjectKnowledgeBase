@@ -87,7 +87,7 @@ J-05で定義した`MCPWriteAdapter`はread-only serverへ登録しない。
 
 ## 4. Acceptance environment
 
-最終受入環境:
+初回受入環境（GitHub-hosted Windows runner）:
 
 ```text
 OS: Microsoft Windows Server 2025
@@ -97,9 +97,21 @@ Transport: local stdio subprocess
 Protocol negotiation: 2026-07-28
 ```
 
-ユーザーPC上のRemote Desktop Commander deviceはJ-06実施時にofflineだったため、同じWindows系環境で再現可能なGitHub-hosted Windows runnerを使用した。
+2026-10-14にRemote Desktop Commander経由でReference Workstation上のfollow-up受入試験も実施した。
 
-これはMCP protocol / subprocess / Windows behaviorの受入試験であり、LM Studio等の特定GUI Host固有の設定画面を試験したものではない。Phase JのP0完了条件はclientがDB schemaを知らずにKnowledgeを取得できることなので、特定Host UIへの依存は受入条件にしない。
+```text
+OS: Windows 11
+Python: 3.10.6
+MCP Python SDK: 2.3.0
+Ruff: 0.17.0
+Transport: local stdio subprocess
+Protocol negotiation: 2026-07-28
+Repository HEAD: 0991b642006a4a00fec6d88c805551bb33faa25e
+```
+
+Reference Workstationでは実repoをGitHub側HEADへfast-forwardしたうえで、`tests/test_j06_mcp_client_acceptance.py`を実行し、local MCP Client → stdio Server subprocess → `MCPReadAdapter` → `KnowledgeReadApplication` → Repository / Retrieval Coreの経路を確認した。
+
+LM Studio等の特定GUI Host固有の設定画面はこのfollow-upでも受入条件には含めていない。Phase JのP0完了条件はclientがDB schemaを知らずにKnowledgeを取得できることであり、特定Host UIへの依存は設けない。
 
 ---
 
@@ -189,7 +201,7 @@ UPDS等のMCP consumerがMCP停止時にSQLiteへ直接fallbackしてよい、�
 
 ## 8. Verification result
 
-最終Windows runで次を確認した。
+GitHub-hosted Windows runnerの最終runで次を確認した。
 
 ```text
 MCP Python SDK: 2.3.0
@@ -197,7 +209,16 @@ Ruff: All checks passed
 Pytest: 61 passed, 2 skipped
 ```
 
-focused regressionにはJ-06に加えてJ-05〜J-01、Object Evidence Retrieval、Hybrid Search、Object Similarityを含めた。
+2026-10-14のReference Workstation follow-upでは次を確認した。
+
+```text
+MCP Python SDK: 2.3.0
+Ruff 0.17.0: All checks passed
+J-06 acceptance: 2 passed
+Focused regression: 61 passed, 2 skipped in 7.72s
+```
+
+focused regressionにはJ-06に加えてJ-05〜J-01、Object Evidence Retrieval、Hybrid Search、Object Similarityを含めた。Reference WorkstationでもGitHub runnerと同じ結果となったため、Codexによる代替検証は不要と判断した。
 
 ---
 

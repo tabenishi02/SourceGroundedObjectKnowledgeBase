@@ -38,11 +38,14 @@ J-06の設計・実装・検証記録:
 Latest focused verification:
 
 ```text
-Environment: Microsoft Windows Server 2025 / Python 3.12.10
-MCP Python SDK: 2.3.0
-Ruff: All checks passed
-Pytest: 61 passed, 2 skipped
+GitHub runner: Windows Server 2025 / Python 3.12.10 / MCP 2.3.0
+Reference Workstation follow-up: Windows 11 / Python 3.10.6 / MCP 2.3.0
+Ruff 0.17.0: All checks passed
+J-06 acceptance: 2 passed
+Focused regression: 61 passed, 2 skipped in 7.72s
 ```
+
+2026-10-14にRemote Desktop Commander経由でReference Workstation上のlocal stdio MCP acceptanceを再実施し、GitHub runnerと同じ結果を確認した。Codex fallbackは不要。
 
 ## Phase J result
 

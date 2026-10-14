@@ -780,6 +780,7 @@ Preparation: `docs/planning/PHASE_J_PREPARATION.md`
   - MCP subprocess停止時もcanonical Application readとCLIが独立して利用可能であることを確認した。初期MVPはstdio read-onlyでnetwork listenerを持たず、将来の非loopback公開はexplicit enable + authentication / authorization scopeを必須とする。
   - 実測環境はWindows Server 2025 / Python 3.12.10 / MCP Python SDK 2.3.0。Ruff成功、J-06〜J-01 + Phase I focused regressionは61 passed / 2 skipped。
   - J-01〜J-06完了によりPhase J — MCP Knowledge Access Layerを完了した。
+  - **実機follow-up (2026-10-14):** Remote Desktop Commander経由でReference Workstation（Windows 11 / Python 3.10.6 / MCP Python SDK 2.3.0）上のlocal stdio MCP acceptanceを再実施した。J-06 acceptance 2 passed、focused regression 61 passed / 2 skipped、Ruff 0.17.0 All checks passedを確認し、Codex fallbackは不要と判断した。
 
 **完了条件:** LLM/AgentがDB構造を知らずにSGOKB Knowledgeを取得できる。
 
