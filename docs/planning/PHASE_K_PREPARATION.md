@@ -11,6 +11,8 @@
 - K-02 verification: `docs/decisions/K02_STABLE_OBJECT_ID_REFERENCE_VERIFICATION.md`
 - K-03 verification: `docs/decisions/K03_SEMANTIC_INDEX_OWNERSHIP_VERIFICATION.md`
 - K-04 decision: `docs/decisions/K04_UPDS_CONTEXT_PROFILE_EVALUATION.md`
+- Phase K closure: `docs/planning/PHASE_K_CLOSURE_AUDIT.md`
+- Phase L preparation: `docs/planning/PHASE_L_PREPARATION.md`
 - Working branch: `main`（Phase K開始前のbranch cleanup後）
 - External project: `tabenishi02/UserPreferenceDiscoverySystem`
 
@@ -428,6 +430,9 @@ K-01〜K-04はすべて完了した。K-01で標準参照経路を固定し、K-
 UPDS runtimeは未実装だが、SGOKB側Integration Contractはconsumer-shaped contract testと既存MCP / Context Builder contractにより検証済みである。実UPDS実装後のcross-repository E2EはStage Bとして残す。
 
 **Phase K完了条件を満たす。**
+
+Closure Audit: `docs/planning/PHASE_K_CLOSURE_AUDIT.md`
+Phase L Preparation: `docs/planning/PHASE_L_PREPARATION.md`
 
 次に実施するTask:
 

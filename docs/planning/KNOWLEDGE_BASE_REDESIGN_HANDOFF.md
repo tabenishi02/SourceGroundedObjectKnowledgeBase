@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A〜Kは完了。Phase Kでは、UPDSの標準参照を`get_objects` + explicit Facet subsetとし、stable Object ID / Version参照、Semantic Index ownership分離、専用Context/Profile不要を確認した。UPDS専用Profileは現時点では追加せず、実UPDS workloadで不足が実証された場合のみ再評価する。次TaskはPhase LのL-01 [P0] Fragment table / code / CLIの移行方針を確定する。現在の作業branchは`main`のみ。Phase K正本は`docs/planning/PHASE_K_PREPARATION.md`とK-01〜K-04 decision文書。**
+> **Phase A〜Kは完了し、Phase K Closure Auditで未完了Task 0件を確認した。現在はPhase L — 旧Prototype移行・削除へ移行準備済み。L-01ではFragment table / code / CLIの処遇を、legacy dataの読み出し・研究再現性・standard workflow非依存を基準に確定する。旧Prototype schemaとcanonical Source/Evidence schemaは現在additiveに併存しているため、Phase Lでは一括削除せずL-01/L-02で処遇を決め、L-03でdata migrationを設計してからcleanupする。次TaskはL-01 [P0]。作業branchは`main`のみ。**
 
 Phase D / E / F移行資料:
 
@@ -24,6 +24,8 @@ Phase D / E / F移行資料:
 - `docs/planning/PHASE_I_CLOSURE_AUDIT.md`
 - `docs/planning/PHASE_J_PREPARATION.md`
 - `docs/planning/PHASE_K_PREPARATION.md`
+- `docs/planning/PHASE_K_CLOSURE_AUDIT.md`
+- `docs/planning/PHASE_L_PREPARATION.md`
 - `docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`
 - `docs/decisions/K02_STABLE_OBJECT_ID_REFERENCE_VERIFICATION.md`
 - `docs/decisions/K03_SEMANTIC_INDEX_OWNERSHIP_VERIFICATION.md`

@@ -791,6 +791,7 @@ Closure audit: `docs/planning/PHASE_J_CLOSURE_AUDIT.md`
 # Phase K — SGOKB / UPDS連携試験
 
 Preparation: `docs/planning/PHASE_K_PREPARATION.md`
+Closure: `docs/planning/PHASE_K_CLOSURE_AUDIT.md`
 
 - [x] **K-01 [P1] UPDSからSGOKB Objectを参照する最小ユースケースを定義する**
   - 最小ケースを「既知のCharacter `object_id`群から`values` / `personality` / `themes`を`get_objects`でbatch取得する」フローとして固定した。
@@ -825,6 +826,8 @@ Preparation: `docs/planning/PHASE_K_PREPARATION.md`
 ---
 
 # Phase L — 旧Prototype移行・削除
+
+Preparation: `docs/planning/PHASE_L_PREPARATION.md`
 
 - [ ] **L-01 [P0] Fragment table / code / CLIの移行方針を確定する**
   - 完全削除、legacy read-only、research-onlyのいずれかを決める。
