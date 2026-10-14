@@ -723,6 +723,8 @@ Preparation: `docs/planning/PHASE_I_PREPARATION.md`
 
 Preparation: `docs/planning/PHASE_J_PREPARATION.md`
 
+Closure audit: `docs/planning/PHASE_J_CLOSURE_AUDIT.md`
+
 - [x] **J-01 [P0] Retrieval CoreとMCP Adapterを分離する**
   - MCPからSQLiteへ直接SQLを公開しない。
   - CLIとMCPが同じApplication/Retrieval APIを使用する。
@@ -787,6 +789,8 @@ Preparation: `docs/planning/PHASE_J_PREPARATION.md`
 ---
 
 # Phase K — SGOKB / UPDS連携試験
+
+Preparation: `docs/planning/PHASE_K_PREPARATION.md`
 
 - [ ] **K-01 [P1] UPDSからSGOKB Objectを参照する最小ユースケースを定義する**
   - 「選択したCharacter群のvalues/personality/themesを取得する」等。

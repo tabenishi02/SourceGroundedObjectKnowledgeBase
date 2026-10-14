@@ -2,6 +2,10 @@
 
 更新日: 2026-10-14
 
+- Status: **Complete / Closed**
+- Closure audit: `docs/planning/PHASE_J_CLOSURE_AUDIT.md`
+- Next phase preparation: `docs/planning/PHASE_K_PREPARATION.md`
+
 ## Current status
 
 - [x] **J-01 [P0] Retrieval CoreとMCP Adapterを分離する**
@@ -55,6 +59,12 @@ J-01〜J-06を完了し、Phase J — MCP Knowledge Access Layerは完了した�
 Completion condition:
 LLM/AgentがDB構造を知らずにSGOKB Knowledgeを取得できる。
 ```
+
+## Phase K transition
+
+Phase J Closure Auditで未完了Task 0件を確認し、Phase KのDefinition of Readyを`docs/planning/PHASE_K_PREPARATION.md`へ整理した。
+
+Phase Kは開始可能である。
 
 ## Next task
 
