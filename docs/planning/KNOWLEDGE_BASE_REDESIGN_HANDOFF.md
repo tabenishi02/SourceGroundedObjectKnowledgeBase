@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A〜Jは完了。Phase K — SGOKB / UPDS連携試験を進行中。K-01とK-02は2026-10-14に完了した。K-02ではstable `object_id`がKnowledge Version更新・表示名変更後も維持され、currentは新Version、pinnedは旧accepted Versionを再取得できることをMCP `get_objects`経由の自動試験で確認した。次TaskはK-03 [P1] SGOKBとUPDSのSemantic Indexを混同しないことを確認する。現在の作業branchは`main`のみ。正本は`docs/planning/PHASE_K_PREPARATION.md`、`docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`、`docs/decisions/K02_STABLE_OBJECT_ID_REFERENCE_VERIFICATION.md`。**
+> **Phase A〜Jは完了。Phase K — SGOKB / UPDS連携試験を進行中。K-01〜K-03は2026-10-14に完了した。K-03ではSGOKB Semantic IndexをObject / Facet / Statement / Evidence retrievalへ限定し、UPDS Personal Inference Indexとのownership、metadata、rebuild authority、score semanticsを分離した。次TaskはK-04 [P2] UPDS向けContext/Profileを追加するか評価する。現在の作業branchは`main`のみ。Phase K正本は`docs/planning/PHASE_K_PREPARATION.md`とK-01〜K-03 decision文書。**
 
 Phase D / E / F移行資料:
 
@@ -26,6 +26,7 @@ Phase D / E / F移行資料:
 - `docs/planning/PHASE_K_PREPARATION.md`
 - `docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`
 - `docs/decisions/K02_STABLE_OBJECT_ID_REFERENCE_VERIFICATION.md`
+- `docs/decisions/K03_SEMANTIC_INDEX_OWNERSHIP_VERIFICATION.md`
 
 ---
 

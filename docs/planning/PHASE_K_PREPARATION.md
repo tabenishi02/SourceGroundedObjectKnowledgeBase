@@ -6,9 +6,10 @@
 - Previous phase: `Phase J — MCP Knowledge Access Layer` — Complete
 - Closure audit: `docs/planning/PHASE_J_CLOSURE_AUDIT.md`
 - Current phase target: `Phase K — SGOKB / UPDS連携試験`
-- Current task: `K-03 [P1] SGOKBとUPDSのSemantic Indexを混同しないことを確認する`
+- Current task: `K-04 [P2] UPDS向けContext/Profileを追加するか評価する`
 - K-01 decision: `docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`
 - K-02 verification: `docs/decisions/K02_STABLE_OBJECT_ID_REFERENCE_VERIFICATION.md`
+- K-03 verification: `docs/decisions/K03_SEMANTIC_INDEX_OWNERSHIP_VERIFICATION.md`
 - Working branch: `main`（Phase K開始前のbranch cleanup後）
 - External project: `tabenishi02/UserPreferenceDiscoverySystem`
 
@@ -44,8 +45,8 @@ Phase Kで重要なのは、UPDSをSGOKBの拡張機能として埋め込むこ�
 |---|---|---|---|
 | K-01 | P1 | Complete | UPDSからSGOKB Objectを参照する最小ユースケースを定義する |
 | K-02 | P1 | Complete | stable Object ID / Version参照がSGOKB更新後も壊れないことを検証する |
-| K-03 | P1 | Next | SGOKBとUPDSのSemantic Index / inference ownershipを混同しないことを確認する |
-| K-04 | P2 | Pending | UPDS専用Context/Profileが本当に必要か評価する |
+| K-03 | P1 | Complete | SGOKBとUPDSのSemantic Index / inference ownershipを混同しないことを確認する |
+| K-04 | P2 | Next | UPDS専用Context/Profileが本当に必要か評価する |
 
 Phase KはK-01から順に進める。
 
@@ -263,6 +264,12 @@ UPDS Semantic / inference layer
 
 ---
 
+**K-03 Acceptance: PASS**
+
+詳細: `docs/decisions/K03_SEMANTIC_INDEX_OWNERSHIP_VERIFICATION.md`
+
+---
+
 ## 9. K-04の評価基準準備
 
 K-04ではUPDS専用Context/Profileを追加することを前提にしない。
@@ -416,5 +423,5 @@ K-01で固定した主経路は、既知Character `object_id`群を`get_objects`
 次に実施するTask:
 
 ```text
-K-03 [P1] SGOKBとUPDSのSemantic Indexを混同しないことを確認する
+K-04 [P2] UPDS向けContext/Profileを追加するか評価する
 ```

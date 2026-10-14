@@ -805,9 +805,13 @@ Preparation: `docs/planning/PHASE_K_PREPARATION.md`
   - 成果物: `docs/decisions/K02_STABLE_OBJECT_ID_REFERENCE_VERIFICATION.md`
   - 自動試験: K-02関連24 passed。全pytestは313 passed / 4 skipped / 既知のPackage Transfer 1 failed。
 
-- [ ] **K-03 [P1] SGOKBとUPDSのSemantic Indexを混同しないことを確認する**
-  - SGOKB: World/Object Knowledge。
-  - UPDS: Observation/Pattern/Preference Evidence。
+- [x] **K-03 [P1] SGOKBとUPDSのSemantic Indexを混同しないことを確認する**
+  - SGOKB Search Representationを`object_overall` / `facet` / `statement` / `evidence`へ限定し、Personal Inference表現を混在させないことを確認した。
+  - MCP read contractがUser Profile / Preference signalを入力として受け取らず、Vector metadataにもPersonal Inference fieldが存在しないことを自動試験化した。
+  - Similarity / Search scoreはretrieval signalでありPreference probabilityではないことを固定した。
+  - 同じ物理Vector backendの利用は許容するが、collection / namespace / metadata ownership / rebuild authority / score semanticsを分離する。
+  - 成果物: `docs/decisions/K03_SEMANTIC_INDEX_OWNERSHIP_VERIFICATION.md`
+  - 自動試験: K-03 + J-01/J-02 regression 14 passed、K-03 focused 6 passed、対象Ruff pass。
 
 - [ ] **K-04 [P2] UPDS向けContext/Profileを追加するか評価する**
   - SGOKB固有にUPDSロジックを埋め込まず、汎用Facet取得で不足する場合のみ追加する。
