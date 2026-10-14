@@ -14,7 +14,7 @@ Task master:
 
 現在地点:
 
-> **Phase A〜Iは完了。Phase I closure auditを通過し、Phase J — MCP Knowledge Access Layerへ移行可能。次TaskはJ-01 [P0] Retrieval CoreとMCP Adapterを分離する。現行移行正本は`docs/planning/PHASE_I_CLOSURE_AUDIT.md`と`docs/planning/PHASE_J_PREPARATION.md`。再設計の正規統合作業基盤は`integration/knowledge-base-redesign`。**
+> **Phase A〜Jは完了。Phase K — SGOKB / UPDS連携試験を進行中。K-01は2026-10-14に完了し、最小連携を「既知Character `object_id`群 → MCP `get_objects` → `values` / `personality` / `themes` + `resolved_version_id` → UPDS Personal Inference」と固定した。次TaskはK-02 [P1] Stable Object ID参照を検証する。Phase K開始前のbranch cleanupにより現在の作業branchは`main`のみ。正本は`docs/planning/PHASE_K_PREPARATION.md`と`docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`。**
 
 Phase D / E / F移行資料:
 
@@ -23,6 +23,8 @@ Phase D / E / F移行資料:
 - `docs/planning/PHASE_F_PREPARATION.md`
 - `docs/planning/PHASE_I_CLOSURE_AUDIT.md`
 - `docs/planning/PHASE_J_PREPARATION.md`
+- `docs/planning/PHASE_K_PREPARATION.md`
+- `docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`
 
 ---
 

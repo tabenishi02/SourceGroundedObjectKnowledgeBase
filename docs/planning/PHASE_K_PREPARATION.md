@@ -6,8 +6,9 @@
 - Previous phase: `Phase J — MCP Knowledge Access Layer` — Complete
 - Closure audit: `docs/planning/PHASE_J_CLOSURE_AUDIT.md`
 - Current phase target: `Phase K — SGOKB / UPDS連携試験`
-- First task: `K-01 [P1] UPDSからSGOKB Objectを参照する最小ユースケースを定義する`
-- Working branch: `integration/knowledge-base-redesign`
+- Current task: `K-02 [P1] Stable Object ID参照を検証する`
+- K-01 decision: `docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`
+- Working branch: `main`（Phase K開始前のbranch cleanup後）
 - External project: `tabenishi02/UserPreferenceDiscoverySystem`
 
 ---
@@ -40,8 +41,8 @@ Phase Kで重要なのは、UPDSをSGOKBの拡張機能として埋め込むこ�
 
 | Task | Priority | Status | 概要 |
 |---|---|---|---|
-| K-01 | P1 | Next | UPDSからSGOKB Objectを参照する最小ユースケースを定義する |
-| K-02 | P1 | Pending | stable Object ID / Version参照がSGOKB更新後も壊れないことを検証する |
+| K-01 | P1 | Complete | UPDSからSGOKB Objectを参照する最小ユースケースを定義する |
+| K-02 | P1 | Next | stable Object ID / Version参照がSGOKB更新後も壊れないことを検証する |
 | K-03 | P1 | Pending | SGOKBとUPDSのSemantic Index / inference ownershipを混同しないことを確認する |
 | K-04 | P2 | Pending | UPDS専用Context/Profileが本当に必要か評価する |
 
@@ -374,7 +375,7 @@ K-01ではStage A / B双方が使用できる最小ユースケースcontractを
 - [x] SGOKB / UPDS ownership boundaryがC-01〜C-04で確定している。
 - [x] UPDS repositoryの現状を確認した。
 
-**K-01は開始可能。**
+**K-01は2026-10-14に完了した。成果物は`docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`。**
 
 ---
 
@@ -401,12 +402,12 @@ Phase J Closure Auditにより未完了Taskは0件。
 
 Phase Kに必要なIntegration Contract、stable Identity / Version contract、MCP read transport、Facet subset、Context Builder、failure boundaryは揃っている。
 
-UPDS runtimeは未実装だが、K-01は連携ユースケース定義Taskでありblockerではない。
+UPDS runtimeは未実装だが、K-01はcontract-levelの最小ユースケース定義として完了した。
 
-**Phase Kへ移行する準備は完了している。**
+K-01で固定した主経路は、既知Character `object_id`群を`get_objects`で取得し、`values` / `personality` / `themes`と`resolved_version_id`をUPDS Personal Inferenceの入力・参照情報として利用する方式である。
 
 次に実施するTask:
 
 ```text
-K-01 [P1] UPDSからSGOKB Objectを参照する最小ユースケースを定義する
+K-02 [P1] Stable Object ID参照を検証する
 ```

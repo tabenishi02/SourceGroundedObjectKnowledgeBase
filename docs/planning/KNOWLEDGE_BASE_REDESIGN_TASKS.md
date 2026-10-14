@@ -792,8 +792,11 @@ Closure audit: `docs/planning/PHASE_J_CLOSURE_AUDIT.md`
 
 Preparation: `docs/planning/PHASE_K_PREPARATION.md`
 
-- [ ] **K-01 [P1] UPDSからSGOKB Objectを参照する最小ユースケースを定義する**
-  - 「選択したCharacter群のvalues/personality/themesを取得する」等。
+- [x] **K-01 [P1] UPDSからSGOKB Objectを参照する最小ユースケースを定義する**
+  - 最小ケースを「既知のCharacter `object_id`群から`values` / `personality` / `themes`を`get_objects`でbatch取得する」フローとして固定した。
+  - current取得では返却された`resolved_version_id`をUPDS側参照メタデータへ記録し、過去推論再現時はpinned Versionを利用する。
+  - Relation / Evidence / Search / Similarityは最小ケースから分離し、UPDS Personal InferenceをSGOKBへwrite-backしない。
+  - 成果物: `docs/decisions/K01_UPDS_OBJECT_REFERENCE_USE_CASE.md`
 
 - [ ] **K-02 [P1] Stable Object ID参照を検証する**
   - SGOKB側version更新でUPDS Selection Event参照が壊れないこと。
