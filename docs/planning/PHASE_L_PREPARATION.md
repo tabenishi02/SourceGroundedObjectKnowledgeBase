@@ -17,11 +17,11 @@ Phase Lでは、Object / Evidence / Version / Search / MCP中心の新standard w
 
 目的は単純なコード削減ではない。
 
-> **旧Prototypeの履歴・既存DB・研究再現性を壊さず、Fragment / Final Document中心の高コスト処理を標準運用から完全に退役させる。**
+> **旧Prototypeから必要なcanonical資産を安全に移行し、Fragment / Final Document中心の高コスト処理と不要なlegacy dataを標準運用・active schema・active packageから退役させる。**
 
 Phase L完了条件:
 
-> 旧Prototypeの高コスト処理が通常運用に残存していない。
+> 旧Prototypeの高コスト処理と不要なlegacy資産が通常運用に残存していない。
 
 ---
 
@@ -29,15 +29,15 @@ Phase L完了条件:
 
 | Task | Priority | Status | 概要 |
 |---|---|---|---|
-| L-01 | P0 | Complete | Fragment table / code / CLIの処遇を確定した |
+| L-01 | P0 | Complete (Revised) | Fragment table / code / CLIを削除対象と確定した |
 | L-02 | P0 | Next | Final Document table / code / CLIの処遇を確定する |
 | L-03 | P1 | Pending | 既存Prototype DB migrationを設計する |
-| L-04 | P1 | Pending | 旧benchmarkをarchiveする |
+| L-04 | P1 | Pending | 旧benchmarkをarchive / deleteする |
 | L-05 | P0 | Pending | 不要依存関係・compatibility layerを削除する |
 
 推奨順序は`L-01 → L-02 → L-03 → L-04 → L-05`とする。
 
-L-01/L-02で何を保持するかを決める前にschemaやdependencyを削除しない。
+L-01/L-02で何を保持・削除するかを決める前にschemaやdependencyを変更しない。
 
 L-01 decision:
 
@@ -62,8 +62,6 @@ Web Capture Bundle
 ```
 
 標準経路ではGenerative LLMによるFragment生成・Fragment依存Final Document生成を行わない。
-
-旧機能はPhase Lまでlegacy / research compatibilityとして残されている。
 
 関連正本:
 
@@ -107,7 +105,9 @@ normalized_runs
 evidence
 ```
 
-これらは「削除対象」と即断せず、L-03でcanonical Source / Evidence schemaへの移送可否を評価する。
+Source / Snapshot / Raw Artifact / Evidence等は削除対象と即断せず、L-03でcanonical Source / Evidence schemaへの移送可否を評価する。
+
+Fragment関連tableはL-01で削除対象と確定した。
 
 ### 4.2 migration 002由来
 
@@ -125,7 +125,7 @@ benchmark_runs
 benchmark_cases
 ```
 
-これらのうち、Source分類等へ再利用可能な情報と、Fragment generation専用ledgerを区別する必要がある。
+Fragment専用ledgerは削除候補とし、`page_contexts` / `ai_observations`等は他のcanonical用途が存在するか個別評価する。
 
 ### 4.3 canonical replacementはすでに存在する
 
@@ -145,7 +145,7 @@ evidence_links
 
 `006_source_evidence_schema.sql`自身が旧Prototype tablesをPhase L data migrationまで保持すると明記している。
 
-したがってL-03では旧tableを直接dropする前に、移送・整合性検証・rollback方針を決める。
+したがってL-03では、保持対象dataの移送とFragment等不要tableのdropを区別し、整合性検証・backup / rollbackを定義する。
 
 ---
 
@@ -171,15 +171,17 @@ legacy-fragment
 fragment alias
 ```
 
-L-01で次を確定した。
+L-01の改定後Decisionでは次を確定した。
 
-- 既存Fragment dataはlegacy read-only / audit資産として保全する。
-- canonical schemaへFragment tableを持ち込まない。
-- 新規Fragment generation write pathは退役させる。
-- `capture.py`、Fragment prompt、Application / RepositoryのFragment write pathはactive packageからRetireする。
-- `legacy-fragment`と`fragment` aliasはRetireする。
-- research-only runtimeは維持せず、研究再現性はGit履歴・baseline・archive資料で確保する。
-- `search_items(kind='fragment')`とlegacy Fragment embeddingはcurrent Searchへ移行しない。
+- Fragment関連table / rowsをactive DBから削除する。
+- 既存Fragment dataを恒久read-only archiveとして保持しない。
+- Fragment生成・参照write/read pathを削除する。
+- `capture.py`、Fragment prompt、Fragment validation、Application / RepositoryのFragment処理をactive packageから削除する。
+- `legacy-fragment`と`fragment` aliasを削除する。
+- research-only runtimeは維持しない。
+- `search_items(kind='fragment')`とFragment embeddingを削除する。
+- Fragmentをaccepted Object Knowledgeへ自動変換しない。
+- 歴史的code / promptはGit履歴で確認する。
 
 詳細は`docs/decisions/L01_FRAGMENT_RETIREMENT_POLICY.md`を正本とする。
 
@@ -254,10 +256,10 @@ vector-qdrant
 
 ```text
 Embedding provider      → Keep
-Generative LLM provider → legacy/research用途を確認してRetire/Isolate候補
+Generative LLM provider → Final / benchmark等の残存用途を確認後Retire候補
 ```
 
-L-01ではFragment generationのためだけにGenerative LLM runtimeを維持しないことを確定した。Final / benchmark等の残存用途はL-02/L-04を踏まえてL-05で最終判断する。
+L-01ではFragment generationのためだけにGenerative LLM runtimeを維持しないことを確定した。
 
 ---
 
@@ -291,11 +293,11 @@ generate  → legacy-generate
 benchmark → legacy-benchmark
 ```
 
-L-01でFragment系method / CLIはRetire対象と確定した。CLI package conversion自体はPhase Mの責務であるため、L-05で実削除する際もPhase Mとの境界を維持する。
+L-01でFragment系method / CLIはDelete対象と確定した。CLI package conversion自体はPhase Mの責務であるため、L-05で実削除する際もPhase Mとの境界を維持する。
 
 ---
 
-## 8. L-01決定結果 — Complete
+## 8. L-01決定結果 — Complete (Revised)
 
 正本:
 
@@ -303,20 +305,21 @@ L-01でFragment系method / CLIはRetire対象と確定した。CLI package conve
 
 Decision:
 
-> **既存Fragmentデータはlegacy read-onlyとして保全し、新規Fragment生成write pathは完全に退役させる。Fragment generation code / prompt / CLIをresearch-only runtimeとして現行packageに残さない。研究再現性はGit履歴・固定baseline・archive資料で確保する。**
+> **Fragment関連資産は、現時点で必要な具体的用途が存在しないため、active DB・active package・standard CLIから完全に削除する。既存Fragment rowsをread-only archiveとして恒久保持しない。必要な歴史的実装情報はGit履歴で確認する。**
 
 主な確定事項:
 
-1. `fragments / fragment_runs / fragment_evidence`をcanonical schemaへ持ち込まない。
-2. existing Fragment rowsはL-03 migration完了前に削除しない。
+1. `fragments / fragment_runs / fragment_evidence`を削除する。
+2. Fragment専用補助tableも他用途がなければ削除する。
 3. Fragmentからaccepted Object Knowledgeを自動生成しない。
-4. Fragment write pathはPhase Lで停止する。
-5. `capture.py`、Fragment prompt、Fragment generation methodをactive packageからRetireする。
-6. `legacy-fragment`と`fragment` aliasをRetireする。
-7. Fragment search representation / embeddingをcurrent Searchへ移送しない。
-8. legacy Fragment provenanceは監査可能性を保持する。
+4. Fragment write/read/search pathを削除する。
+5. `capture.py`、Fragment prompt、Fragment generation / validation methodを削除する。
+6. `legacy-fragment`と`fragment` aliasを削除する。
+7. Fragment search representation / embeddingを削除する。
+8. Fragment rowsを外部archiveすることを必須としない。
 9. research-only runtimeは維持しない。
-10. 実DB migrationはL-03、archiveはL-04、code / dependency cleanupはL-05へ分離する。
+10. migration 001/002は書き換えず、新migrationで既存DBをcleanupする。
+11. 実DB cleanupはL-03、code / dependency cleanupはL-05へ分離する。
 
 ---
 
@@ -339,9 +342,9 @@ canonical Object Markdown renderer → Keep
 - final prompt群
 - `legacy-generate`
 - `generate` alias
-- 過去生成Markdownのarchive/read-only価値
+- 過去生成Markdownの保持価値
 
-L-01によりFragment generation runtimeはRetire確定済みなので、L-02で旧Final生成を残す場合も新規Fragment生成を前提にしてはならない。
+L-01によりFragment自体は削除前提となったため、L-02で旧Final生成を残す場合もFragment保持を前提にしてはならない。
 
 ---
 
@@ -349,7 +352,7 @@ L-01によりFragment generation runtimeはRetire確定済みなので、L-02で
 
 L-03は単なるSQL `DROP TABLE` Taskではない。
 
-最低限、次のmappingを作る。
+保持対象について最低限、次のmappingを作る。
 
 ```text
 legacy sources             → source_records + source_locators
@@ -358,24 +361,23 @@ legacy artifacts           → raw_artifacts
 legacy normalized_runs     → normalization_runs
 legacy evidence            → evidence_records + evidence_locations
 legacy entity references   → Objectへのmapping可否を個別評価
-legacy Fragment/Document   → migrate / archive / leave legacy の判断
 ```
+
+Fragmentについてはmappingを作らず、cleanup対象とする。
 
 要件:
 
-- stable legacy IDの追跡可能性を失わない。
 - Raw hash / Evidence provenanceを保持する。
 - migrationを再実行して二重Importしない。
-- migration前back up / rollback pathを定義する。
+- migration前backup / rollback pathを定義する。
 - migration後にrow count / reference / checksum等を検証する。
 - accepted Object Knowledgeをlegacy Fragmentから自動生成しない。
-- Fragment dataはL-01のread-only / audit方針に従う。
+- Fragment table / Fragment search item / Fragment embeddingがmigration後に残っていないことを検証する。
+- Fragment削除で保持対象のSource / Evidence等を巻き込まない。
 
 ---
 
 ## 11. L-04 benchmark archive境界
-
-archive対象は「Fragment/Final生成性能を現行MVP KPIとして扱う仕組み」である。
 
 Keep対象:
 
@@ -383,16 +385,16 @@ Keep対象:
 - Embedding / Vector backend評価
 - Phase I Search / Similarity regression
 
-Retire/archive対象:
+Retire/archive/delete対象:
 
 - fragments/sec
 - fragments per evidence
 - Final Document生成速度
 - High Recall extraction model比較をcurrent acceptance基準とすること
 
-既存`docs/archive/prototype-0.2/`は歴史資料保存先としてすでに存在するため、L-04ではそこへの統合または専用archive locationを検討できる。
+既存`docs/archive/prototype-0.2/`は歴史資料保存先として利用できるが、不要なbenchmark dataをすべて保存する必要はない。
 
-L-01ではFragment research runtimeを現行packageに残さないと確定したため、必要な再現情報はGit baseline / archive manifestへ寄せる。
+L-04では「歴史資料として具体的価値があるか」を基準にarchive / deleteを判断する。
 
 ---
 
@@ -403,14 +405,14 @@ L-01ではFragment research runtimeを現行packageに残さないと確定し�
 - production codeが旧shimをimportしていない。
 - current tests / scriptsがcanonical pathへ移行済み。
 - standard CLI / package entrypointがlegacy codeを必要としない。
-- legacy read-only方針がL-01/L-02で確定済み。
+- L-01/L-02で削除対象が確定済み。
 - migration方針がL-03で確定済み。
-- benchmark archive方針がL-04で確定済み。
+- benchmark archive/delete方針がL-04で確定済み。
 - full testまたは既知failureを明示したfocused regressionが通る。
 
 Embedding dependencyは削除対象ではない。
 
-Fragment generation code / prompt / CLIはL-01でRetire対象と確定済みだが、L-03 migration検証に必要なread pathを先に削除しない。
+Fragment generation code / prompt / CLI / read-write pathはL-01でDelete対象と確定済みだが、L-03 migration実装に必要な一時helperを先に削除しない。
 
 ---
 
@@ -440,23 +442,23 @@ Phase L cleanupを理由に次を再設計しない。
 - [x] SGOKB / UPDS integration contractがFragment非依存で成立済み。
 - [x] Legacy Fragment / Final assetsの主要配置を棚卸しした。
 - [x] Canonical Source / Evidence schemaとlegacy schemaの併存を確認した。
-- [x] L-01でFragment資産の退役方針を確定した。
+- [x] L-01でFragment資産を削除する方針を確定した。
 
 **Phase Lは進行中であり、L-02へ移行可能である。**
 
 ---
 
-## 15. Phase L開始時の原則
+## 15. Phase L実施原則
 
-1. まずL-01でFragmentの処遇をdecision化する。
-2. decision前にlegacy table / codeを削除しない。
-3. migration 001/002を過去履歴として書き換えない。
-4. schema除去が必要なら新migrationとして実施する。
-5. existing DB migrationを先に検証し、fresh DBだけを見て判断しない。
-6. canonical Source/EvidenceやEmbedding assetをlegacy cleanupへ巻き込まない。
-7. structural moveとbehavior削除を可能な限り分離する。
+1. migration 001/002を過去履歴として書き換えない。
+2. schema除去は新migrationとして実施する。
+3. existing DB migrationを検証し、fresh DBだけを見て判断しない。
+4. canonical Source/Evidenceや現行Embedding assetをlegacy cleanupへ巻き込まない。
+5. structural moveとbehavior削除を可能な限り分離する。
+6. 「将来使うかもしれない」だけではlegacy資産の保持理由にしない。
+7. 破壊的migrationにはbackup / rollbackを用意する。
 
-L-01は完了したため、次Taskは以下とする。
+次Task:
 
 ```text
 L-02 [P0] Final Document table / code / CLIの移行方針を確定する
