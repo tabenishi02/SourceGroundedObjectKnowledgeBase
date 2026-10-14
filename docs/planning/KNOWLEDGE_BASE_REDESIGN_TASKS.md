@@ -829,27 +829,38 @@ Closure: `docs/planning/PHASE_K_CLOSURE_AUDIT.md`
 
 Preparation: `docs/planning/PHASE_L_PREPARATION.md`
 
-- [ ] **L-01 [P0] Fragment table / code / CLIの移行方針を確定する**
-  - 完全削除、legacy read-only、research-onlyのいずれかを決める。
+- [x] **L-01 [P0] Fragment table / code / CLIの移行方針を確定する**
+  - Fragment関連table / rows / search item / embeddingをactive DBから削除する。
+  - Fragment generation / read / write / search code、prompt、CLIをactive packageから削除する。
+  - 既存Fragment dataをread-only archiveとして恒久保持せず、歴史的実装はGit履歴で確認する。
+  - 2026-10-14のruntime auditによりproduction移行対象dataが存在しないことを確認したため、既存Prototype DBのdata migrationは行わない。
+  - `sample/` Raw Capture corpusはDBとは独立した回帰試験資産として保持する。
 
 - [ ] **L-02 [P0] Final Document table / code / CLIの移行方針を確定する**
   - Knowledge正本用途を廃止する。
-  - Rendererとして再利用できる部分のみ残す。
+  - Fragment-based Final generationとcanonical Object Markdown rendererを分離する。
+  - Rendererとして再利用できるcanonical部分のみ残す。
 
-- [ ] **L-03 [P1] 既存Prototype DB migrationを設計する**
-  - Source / Snapshot / Evidence / Entity等、再利用可能なデータを保持する。
-  - Fragment/Documentは必要ならlegacy tableまたはarchive DBへ退避する。
+- [ ] **L-03 [P1] 既存Prototype DBを破棄しcanonical DBをclean rebuildする**
+  - 既存Prototype / evaluation DBをcanonical data sourceとしてmigrationしない。
+  - `sample/` Raw Capture corpusは保持する。
+  - active canonical bootstrap / schema baselineを整理し、legacy Prototype tableをfresh DBへ再生成しない。
+  - `001_initial.sql` / `002_knowledge_capture.sql`等を履歴として保持する場合も、active bootstrapから分離する。
+  - clean DBからSource / Evidence / Object / Version / Search / MCP workflowが成立することを検証する。
+  - このresetはproduction data蓄積前に限る一度限りのpre-production例外とし、将来の本番DBには通常のmigration / backup / restore原則を適用する。
 
-- [ ] **L-04 [P1] 旧benchmarkをarchiveする**
+- [ ] **L-04 [P1] 旧benchmarkをarchive / deleteする**
   - Fragment生成速度の比較を現行MVPの性能指標から外す。
-  - 歴史的結果としてREADME/Archiveから参照可能にする。
+  - L-03でevaluation DBを削除する前に、歴史資料として残すべきbenchmark情報がDBにのみ存在しないか確認する。
+  - current Search quality gold / Embedding / Vector backend評価は保持する。
 
 - [ ] **L-05 [P0] 不要依存関係・互換層を削除する**
-  - 標準運用から生成LLM Providerが不要になった場合、optional/research dependencyへ降格する。
+  - 標準運用から生成LLM Providerが不要になった場合、不要surfaceを削除する。
   - D-05で導入した旧top-level import compatibility shimのうち不要になったものを削除する。
+  - Fragment / Final legacy code・prompt・CLI・testを削除する。
   - Embedding dependencyは維持する。
 
-**完了条件:** 旧Prototypeの高コスト処理が通常運用に残存していない。
+**完了条件:** 旧Prototypeの高コスト処理・legacy schema・不要runtimeが通常運用に残存せず、Sample Rawとcanonical workflowは維持されている。
 
 ---
 

@@ -278,27 +278,59 @@ Embedding抽出PRでLLM adapterの動作変更・削除を行わない。
 
 legacy移動時は旧top-level pathへshimを置くことができるが、新standard moduleから`_legacy`へimportしてはならない。
 
-## 5. `migrations/`の移動方針
+## 5. `migrations/`の移動・baseline方針
 
-現行:
+現行migration chainはPrototypeからcanonical schemaへ段階的に拡張してきた履歴を含む。
 
 ```text
 sgokb/migrations/
 ├─ 001_initial.sql
-└─ 002_knowledge_capture.sql
+├─ 002_knowledge_capture.sql
+├─ 003_...
+└─ 016_...
 ```
 
-migration履歴は既存DB再現・upgradeに必要なので、見た目を整えるためだけに早期移動しない。
+D-05策定時点では既存DB upgrade互換を維持するため、migration version / 内容を変更せずchainを継続することを原則としていた。
 
-最終的には`storage/migrations/`が自然だが、次を同一structural PRで満たせる時点まで現位置を維持する。
+その後、2026-10-14のPhase L runtime auditで次を確認した。
 
-- migration loader pathを更新できる。
-- `pyproject.toml` package-dataを更新できる。
-- wheel/editable installの双方でSQL fileを取得できる。
-- 既存migration version番号・内容を変更しない。
-- 既存DBからmigration履歴を継続できる。
+- active `.local/sgokb.sqlite` にproduction dataは存在しない。
+- 大容量DBはsample / evaluation / upgrade / acceptance / synthetic benchmark用途である。
+- canonical Source / Evidence / Object Knowledgeとして移行すべきproduction rowsは存在しない。
+- `sample/` Raw Capture corpusはDBとは独立して保持できる。
 
-SQL内容変更や新Object schema migration追加は、directory moveとは別commit / 別PRにする。
+したがって**今回のPhase Lに限り、existing Prototype DBのupgrade compatibilityを要求せずclean rebuildを採用する。**
+
+### 5.1 historical migrationは書き換えない
+
+`001_initial.sql` / `002_knowledge_capture.sql`等の既存migration fileを、clean schemaに見せるためだけに内容改変・履歴改竄しない。
+
+旧migrationをGit上のhistorical implementationとして保持する場合、そのversion番号・当時の意味を維持する。
+
+### 5.2 active canonical bootstrapからlegacy schemaを分離する
+
+既存migration chainを001からそのまま実行するとFragment / Final等のlegacy tableが一度生成されるため、L-03ではactive canonical bootstrap / baselineを整理する。
+
+候補は次を含むが、具体方式はL-03で確定する。
+
+- canonical final schemaを表す新baselineを導入する。
+- historical migration chainをarchive / legacy bootstrapとして分離する。
+- fresh production DBはcanonical baselineから開始する。
+
+重要なのは、**fresh production DBのactive schemaに不要なPrototype tableを再導入しないこと**である。
+
+### 5.3 pre-production限定の例外
+
+このclean rebuildは、production dataが存在しないことを実機確認できた現時点に限る。
+
+production運用開始後は、次を通常原則へ戻す。
+
+- destructive resetではなく明示migrationを使用する。
+- canonical DB / Raw / Result provenanceをbackup対象とする。
+- migration前後でintegrity / rollback / restore可能性を検証する。
+- 本番dataを理由なく破棄しない。
+
+したがって今回の方針変更はSQLite / migration基盤そのものをRetireするものではなく、**Prototype compatibilityを一度切ってcanonical baselineを確立するためのpre-production reset**である。
 
 ## 6. `prompts/`の移動方針
 

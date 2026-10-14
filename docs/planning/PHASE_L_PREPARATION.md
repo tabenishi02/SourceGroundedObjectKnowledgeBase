@@ -17,7 +17,7 @@ Phase Lでは、Object / Evidence / Version / Search / MCP中心の新standard w
 
 目的は単純なコード削減ではない。
 
-> **旧Prototypeから必要なcanonical資産を安全に移行し、Fragment / Final Document中心の高コスト処理と不要なlegacy dataを標準運用・active schema・active packageから退役させる。**
+> **旧Prototypeから必要な設計資産・Sample Rawを保持しつつ、Fragment / Final Document中心の高コスト処理、不要なlegacy data、旧runtime DBを標準運用・active schema・active packageから退役させる。**
 
 Phase L完了条件:
 
@@ -95,7 +95,7 @@ embeddings
 documents
 ```
 
-一方、旧`source / snapshot / artifact / normalized_run / evidence`にも移行対象データが存在する。
+一方、旧`source / snapshot / artifact / normalized_run / evidence`にもPrototype-era dataを格納できるtableが存在する。
 
 ```text
 sources
@@ -105,7 +105,7 @@ normalized_runs
 evidence
 ```
 
-Source / Snapshot / Raw Artifact / Evidence等は削除対象と即断せず、L-03でcanonical Source / Evidence schemaへの移送可否を評価する。
+Source / Snapshot / Raw Artifact / Evidenceという**概念とcanonical実装はKeep**する。ただし2026-10-14のruntime auditで移行すべきproduction rowsが存在しないことを確認したため、現存Prototype DBのrowsはcanonical DBへ移送しない。`sample/` Raw Capture corpusは別資産として保持する。
 
 Fragment関連tableはL-01で削除対象と確定した。
 
@@ -142,7 +142,9 @@ Fragment専用ledgerは削除候補とし、`page_contexts` / `ai_observations`�
 
 `sample/` Raw Capture corpusはDBとは独立した回帰試験資産として保持する。
 
-`001_initial.sql` / `002_knowledge_capture.sql`を含む既存migration chainをそのままfresh DBへ適用するとlegacy tableが再生成されるため、L-03でactive bootstrap / canonical baselineを整理する。---
+`001_initial.sql` / `002_knowledge_capture.sql`を含む既存migration chainをそのままfresh DBへ適用するとlegacy tableが再生成されるため、L-03でactive bootstrap / canonical baselineを整理する。
+
+---
 
 ## 5. Legacy code / CLI資産の棚卸し
 
@@ -371,7 +373,22 @@ L-03で決めること:
 - clean DBからSource / Evidence / Object / Version / Search / MCPが正常に動作することの検証。
 - Sample Rawを保持し、必要なtestでisolated DBへ再importする手順。
 
-既存DB row count / legacy ID / Fragment provenanceの移送・整合性検証は不要とする。---
+既存DB row count / legacy ID / Fragment provenanceの移送・整合性検証は不要とする。
+
+### 10.1 clean rebuildはpre-production限定の例外とする
+
+今回のclean rebuildは、2026-10-14のruntime auditで**production Source / Evidence / Object Knowledgeが0件であることを確認できたため採用できる一度限りのreset**である。
+
+この判断は、将来のproduction DBに対して「DBを削除して作り直せばよい」という一般原則を導入するものではない。
+
+production data蓄積開始後は、D-06のruntime data保全方針および通常のmigration / backup / restore / integrity verificationを適用する。
+
+### 10.2 L-04より前にbenchmark-only dataを確認する
+
+L-03でevaluation / upgrade等のruntime DBを物理削除する前に、L-04で歴史資料として残す価値があるbenchmark情報がDBにしか存在しないか確認する。
+
+必要な情報がある場合は、DB全体を保存するのではなく、L-04の基準に従い必要最小限の結果・条件・manifestのみをarchiveする。
+---
 
 ## 11. L-04 benchmark archive境界
 
@@ -408,7 +425,7 @@ L-04では「歴史資料として具体的価値があるか」を基準にarch
 
 Embedding dependencyは削除対象ではない。
 
-Fragment generation code / prompt / CLI / read-write pathはL-01でDelete対象と確定済みだが、L-03 migration実装に必要な一時helperを先に削除しない。
+Fragment generation code / prompt / CLI / read-write pathはL-01でDelete対象と確定済みである。L-03で旧runtime DBのinventory確認に必要な一時helperがある場合のみ、clean rebuild確認完了まで限定的に残してよい。data migration用途として恒久化しない。
 
 ---
 

@@ -133,6 +133,16 @@ D-06実施時点で`.local/`は既にGit ignoreされており、tracked runtime
 
 既存Prototypeの`.local/`をD-06で一括移動・削除しない。新設計runtimeの実装時に上記subdirectory contractへ段階移行する。
 
+### 3.4 Phase L pre-production resetとの関係
+
+2026-10-14のPhase L runtime auditでは、現存するSGOKB runtime DBを個別調査し、production正本を含まないdevelopment / evaluation / acceptance / synthetic benchmark用途であることを確認した。これによりPhase Lでは当該DBをclean rebuild対象にできる。
+
+これは「`.local/`だから削除可能」という判断ではない。D-06の原則どおり、**Git ignored != disposable** は維持する。
+
+今後production dataを含むcanonical DB / Raw Artifact / accepted Result provenanceが作成された後は、本節のpre-production resetを根拠に削除してはならず、backup / migration / restore / integrity validationを要求する。
+
+`sample/` Raw Capture corpusは今回のDB resetから除外し、回帰試験資産として保持する。
+
 ## 4. `generated/`の責務
 
 `generated/`は**rebuildable derived artifact専用root**とする。

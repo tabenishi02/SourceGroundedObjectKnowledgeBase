@@ -230,7 +230,7 @@ Fragment-only search
 Fragment provenance lookup
 ```
 
-ただしL-03 migration実装中に旧tableを読む必要がある一時的helperは、migration完了までのみ保持してよい。
+ただしL-03のruntime inventory / clean rebuild検証で旧tableを確認する必要がある場合、一時的helperを検証完了までのみ保持してよい。既存rowsをcanonicalへ移送するdata migration helperとして恒久化しない。
 
 ### 6.4 `validate_fragments`
 
@@ -268,7 +268,7 @@ fragment
 
 read-only inspection commandも残さない。
 
-L-03 migration検証でFragment rowの確認が必要な場合は、一時的なSQL / migration testを用いる。
+L-03の削除対象inventory確認でFragment rowの確認が必要な場合は、一時的なSQL / inspection testを用いる。
 
 Phase MはFragment commandを再導入しない。
 

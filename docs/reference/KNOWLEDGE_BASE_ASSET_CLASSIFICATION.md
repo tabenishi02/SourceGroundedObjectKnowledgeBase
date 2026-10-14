@@ -129,6 +129,8 @@ Sourceと取得時点Snapshotを分離し、Raw hashと処理世代を保持す�
 
 Source / Snapshot / Artifact / Normalized Run / Evidenceの概念と履歴はKeepする。ただしB-03により`Source = URL UNIQUE`と単一`source_type`は現行要件ではなくなったため、`sources`の物理schemaはModify対象とする。既存`source_id` / Snapshot / Evidence履歴を失う置換は行わない。
 
+**Phase L pre-production例外:** 2026-10-14のruntime auditで、現存runtime DBには移行すべきproduction Source / Snapshot / Evidence / Object Knowledgeが存在しないことを確認した。このため今回に限り既存Prototype DB rowsのmigrationは行わずclean rebuildする。これは上記の履歴保持原則を撤回するものではなく、production data蓄積前に限る一度限りのresetである。`sample/` Raw Capture corpusは回帰試験資産として保持する。
+
 ### K-04 checksum / content hash / Raw不変性
 
 **対象例**
@@ -200,7 +202,9 @@ Provenance思想とSource/Evidence側の実装をKeep。Entity固有部分はObj
 
 **方針**
 
-Keep。新Schemaはadditive migrationまたは明示migrationで追加する。
+Keep。SQLite / transaction / migration mechanismはcanonical基盤として維持する。
+
+通常のproduction変更ではadditive migrationまたは明示migrationを使用する。ただしPhase Lではproduction dataが存在しないことをruntime auditで確認したため、Prototype migration chainとのupgrade互換を一度切り、canonical baselineからclean rebuildするpre-production例外を認める。historical migrationをGit上に残す場合も、active canonical bootstrapへlegacy schemaを再導入しない。
 
 ### K-08 Lexical Search / FTS5
 
