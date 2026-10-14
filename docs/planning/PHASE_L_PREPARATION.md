@@ -1,12 +1,12 @@
 # Source Grounded Object Knowledge Base — Phase L Preparation
 
-更新日: 2026-10-14
+更新日: 2026-10-15
 
 - Status: **In Progress**
 - Phase: `Phase L — 旧Prototype移行・削除`
 - Previous phase: `Phase K — SGOKB / UPDS連携試験` — Complete
 - Previous closure: `docs/planning/PHASE_K_CLOSURE_AUDIT.md`
-- Current task: `L-02 [P0] Final Document table / code / CLIの移行方針を確定する`
+- Current task: `L-03 [P1] 既存Prototype DBを破棄しcanonical DBをclean rebuildする`
 - Working branch: `main`
 
 ---
@@ -30,8 +30,8 @@ Phase L完了条件:
 | Task | Priority | Status | 概要 |
 |---|---|---|---|
 | L-01 | P0 | Complete (Revised) | Fragment table / code / CLIを削除対象と確定した |
-| L-02 | P0 | Next | Final Document table / code / CLIの処遇を確定する |
-| L-03 | P1 | Pending | 既存Prototype DBを破棄しcanonical DBをclean rebuildする |
+| L-02 | P0 | Complete | Final Document table / code / CLIを削除対象と確定し、canonical RendererをKeepした |
+| L-03 | P1 | Next | 既存Prototype DBを破棄しcanonical DBをclean rebuildする |
 | L-04 | P1 | Pending | 旧benchmarkをarchive / deleteする |
 | L-05 | P0 | Pending | 不要依存関係・compatibility layerを削除する |
 
@@ -39,9 +39,10 @@ Phase L完了条件:
 
 L-01/L-02で何を保持・削除するかを決める前にschemaやdependencyを変更しない。
 
-L-01 decision:
+L-01 / L-02 decisions:
 
 - `docs/decisions/L01_FRAGMENT_RETIREMENT_POLICY.md`
+- `docs/decisions/L02_FINAL_DOCUMENT_RETIREMENT_POLICY.md`
 
 ---
 
@@ -320,28 +321,28 @@ Decision:
 
 ---
 
-## 9. L-02で決めるべきこと
+## 9. L-02決定結果 — Complete
 
-Final DocumentはKnowledge正本用途を廃止済みである。
+正本:
 
-L-02では次を分離する。
+- `docs/decisions/L02_FINAL_DOCUMENT_RETIREMENT_POLICY.md`
 
-```text
-旧Fragment-based Final generation  → Retire候補
-canonical Object Markdown renderer → Keep
-```
+Decision:
 
-検討対象:
+> **旧Fragment-based Final Document機能はactive schema / active package / standard CLIから完全に退役させる。`documents` / `structured_documents`、`final.py`、Final専用Prompt、`legacy-generate` / `generate` alias、旧Document保存・参照APIをDelete対象とする。Phase Hのcanonical `ObjectMarkdownRenderer`はKeepする。**
 
-- `documents`
-- `structured_documents`
-- `src/sgokb/final.py`
-- final prompt群
-- `legacy-generate`
-- `generate` alias
-- 過去生成Markdownの保持価値
+主な確定事項:
 
-L-01によりFragment自体は削除前提となったため、L-02で旧Final生成を残す場合もFragment保持を前提にしてはならない。
+1. `documents` / `structured_documents`をcanonical baselineへ持ち込まない。
+2. 既存Final rowsをcanonical Object Knowledgeへmigrationしない。
+3. 旧Final dataを恒久archiveしない。歴史的実装はGit履歴で確認する。
+4. `src/sgokb/final.py` / `StructuredFinal`をactive packageから削除する。
+5. `final_document.*` / `final_order.*` Promptを削除する。
+6. `legacy_build_document` / `build_document` / `legacy_generate` / `generate` / `legacy_render_document`を削除対象とする。
+7. legacy Repository document APIと`provenance document` CLIを削除対象とする。
+8. canonical `rendering/markdown.py` / Markdown repository / renderer tests / design docはKeepする。
+9. Final benchmark / old generated outputのarchive/deleteはL-04で歴史的価値を基準に判断する。
+10. DB clean baseline反映はL-03、物理code / prompt / CLI cleanupはL-05で実施する。
 
 ---
 
@@ -456,8 +457,9 @@ Phase L cleanupを理由に次を再設計しない。
 - [x] Legacy Fragment / Final assetsの主要配置を棚卸しした。
 - [x] Canonical Source / Evidence schemaとlegacy schemaの併存を確認した。
 - [x] L-01でFragment資産を削除する方針を確定した。
+- [x] L-02で旧Final Document資産を削除しcanonical Markdown RendererをKeepする方針を確定した。
 
-**Phase Lは進行中であり、L-02へ移行可能である。**
+**Phase Lは進行中であり、L-03へ移行可能である。**
 
 ---
 
@@ -475,5 +477,5 @@ Phase L cleanupを理由に次を再設計しない。
 次Task:
 
 ```text
-L-02 [P0] Final Document table / code / CLIの移行方針を確定する
+L-03 [P1] 既存Prototype DBを破棄しcanonical DBをclean rebuildする
 ```

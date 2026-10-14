@@ -1,6 +1,6 @@
 # Source Grounded Object Knowledge Base — Knowledge Base 再設計タスク
 
-更新日: 2026-10-14
+更新日: 2026-10-15
 
 ## 1. 目的
 
@@ -836,10 +836,13 @@ Preparation: `docs/planning/PHASE_L_PREPARATION.md`
   - 2026-10-14のruntime auditによりproduction移行対象dataが存在しないことを確認したため、既存Prototype DBのdata migrationは行わない。
   - `sample/` Raw Capture corpusはDBとは独立した回帰試験資産として保持する。
 
-- [ ] **L-02 [P0] Final Document table / code / CLIの移行方針を確定する**
-  - Knowledge正本用途を廃止する。
-  - Fragment-based Final generationとcanonical Object Markdown rendererを分離する。
-  - Rendererとして再利用できるcanonical部分のみ残す。
+- [x] **L-02 [P0] Final Document table / code / CLIの移行方針を確定する**
+  - `documents` / `structured_documents`、`final.py`、Final専用Prompt、旧Document APIをDelete対象とした。
+  - `legacy-generate` / `generate` alias / `provenance document`をDelete対象とした。
+  - 既存Final rowsをcanonical Knowledgeへmigrationせず、恒久archiveもしない。
+  - Phase Hの`ObjectMarkdownRenderer`、canonical Markdown repository / tests / designをKeepする。
+  - DB baseline反映はL-03、Final benchmark整理はL-04、物理code cleanupはL-05で実施する。
+  - 成果物: `docs/decisions/L02_FINAL_DOCUMENT_RETIREMENT_POLICY.md`
 
 - [ ] **L-03 [P1] 既存Prototype DBを破棄しcanonical DBをclean rebuildする**
   - 既存Prototype / evaluation DBをcanonical data sourceとしてmigrationしない。
@@ -1039,16 +1042,14 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A〜Iは完了している。Phase Gは`docs/planning/PHASE_G_COMPLETION.md`、Phase Hは`docs/planning/PHASE_H_CLOSURE_AUDIT.md`、Phase Iは`docs/planning/PHASE_I_CLOSURE_AUDIT.md`をclosure正本とする。
+Phase A〜Kは完了している。Phase L — 旧Prototype移行・削除を進行中であり、`docs/planning/PHASE_L_PREPARATION.md`を作業正本とする。
 
-現在はPhase J — MCP Knowledge Access Layerへ移行する。準備内容と開始条件は`docs/planning/PHASE_J_PREPARATION.md`を正本とする。
+L-01でFragment資産、L-02で旧Final Document資産の退役方針を確定した。2026-10-14のruntime auditによりproduction移行対象dataが存在しないため、既存Prototype DBのdata migrationは行わずpre-production clean rebuildを採用する。`sample/` Raw Capture corpusは保持する。
 
 次の最優先Task:
 
 ```text
-J-01 [P0] Retrieval CoreとMCP Adapterを分離する
+L-03 [P1] 既存Prototype DBを破棄しcanonical DBをclean rebuildする
 ```
 
-J-01ではPhase Iで完成した`HybridObjectSearch` / `ObjectSimilaritySearch`等をApplication read boundaryへ接続し、MCP AdapterがSQLite / Repository / Qdrant固有APIへ直接依存しない構造を先に確立する。Tool名・Resource URI・Context Builder・write capabilityはJ-02以降で確定する。
-
-再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`である。
+L-03ではactive canonical bootstrap / schema baselineを整理し、Fragment / Final / benchmark等のlegacy tableをfresh DBへ再生成しないこと、clean DBからSource / Evidence / Object / Version / Search / MCP workflowが成立することを検証する。

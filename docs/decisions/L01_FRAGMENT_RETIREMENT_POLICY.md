@@ -398,5 +398,5 @@ L-01は改定後、以下を満たしたため完了とする。
 次Task:
 
 ```text
-L-02 [P0] Final Document table / code / CLIの移行方針を確定する
+L-03 [P1] 既存Prototype DBを破棄しcanonical DBをclean rebuildする
 ```

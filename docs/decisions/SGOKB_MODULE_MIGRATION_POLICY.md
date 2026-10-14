@@ -1,6 +1,6 @@
 # SGOKB Module Migration Policy
 
-更新日: 2026-10-12
+更新日: 2026-10-15
 
 - Decision: Accepted
 - Task: `D-05 [P1] 既存モジュール移動方針を決める`
@@ -277,6 +277,8 @@ Embedding抽出PRでLLM adapterの動作変更・削除を行わない。
 - legacy read / evaluation用途を保持するか削除するかがPhase Lで明確。
 
 legacy移動時は旧top-level pathへshimを置くことができるが、新standard moduleから`_legacy`へimportしてはならない。
+
+**Phase L final decision:** L-01 / L-02により`capture.py`と`final.py`は`_legacy/`へ実行可能状態で隔離せず、L-05でactive packageから削除する。Fragment / Final専用Promptとcompatibility method / CLIも同様に削除する。`knowledge_repository.py`はcanonical用途を確認してlegacy Fragment / Document surfaceを除去し、`benchmark.py`の旧Fragment / Final部分はL-04判断に従う。
 
 ## 5. `migrations/`の移動・baseline方針
 

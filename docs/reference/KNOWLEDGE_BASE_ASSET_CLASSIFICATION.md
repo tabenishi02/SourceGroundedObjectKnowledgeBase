@@ -1,6 +1,6 @@
 # Source Grounded Object Knowledge Base — 既存資産 Keep / Modify / Replace / Retire 分類
 
-更新日: 2026-10-09
+更新日: 2026-10-15
 
 - Task: `A-02 [P0] 既存機能を Keep / Modify / Replace / Retire に分類する`
 - Related Decision: `SGOKB-KB-001`
@@ -481,6 +481,8 @@ Structured Object Result → Validation → Object Version Store。
 
 MarkdownはObject JSON/DBから生成する派生表示へ変更する。
 
+**Phase L / L-02 finalization (2026-10-15):** 置換が完了したため、旧`documents` / `structured_documents` / `StructuredFinal` / Final専用Prompt / `legacy-generate`系はactive systemからDeleteする。Phase Hの`ObjectMarkdownRenderer`およびcanonical Markdown rendering資産はKeepする。旧Final dataはcanonical Knowledgeへmigrationせず、恒久archiveもしない。
+
 ### R-06 標準Generative LLM Pipeline
 
 **対象**
@@ -561,11 +563,11 @@ D-02で`docs/archive/prototype-0.2/`等への配置を検討する。
 | `extraction_batches` | Replace | 旧Fragment batch contractを廃止 |
 | `evidence_assessments` | Replace | Fragment coverage前提を廃止 |
 | `entity_candidates` | Replace | 標準Object登録から分離 |
-| `documents` | Replace | Object Version Store + Rendererへ置換 |
-| `structured_documents` | Replace | Structured Object Result/Versionへ置換 |
+| `documents` | Retire | L-02でactive schemaからDelete。Object Version Store + canonical Rendererへ置換済み |
+| `structured_documents` | Retire | L-02でactive schemaからDelete。Structured Object Result / Object Versionへ置換済み |
 | `benchmark_runs` / `benchmark_cases` | Modify | 新評価軸へ再利用 |
 
-これはA-02時点の責務分類であり、既存実データをどのtableからどこへmigrationするかはA-03 / L-03で確定する。
+これはA-02時点の責務分類を基礎とする。Phase Lの2026-10-14 runtime auditでproduction移行対象rowsが存在しないことを確認したため、L-03では既存Prototype DBのdata migrationを行わずclean rebuildする。
 
 ---
 

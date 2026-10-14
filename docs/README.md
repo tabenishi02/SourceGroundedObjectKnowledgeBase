@@ -68,6 +68,8 @@
 - [SGOKB Runtime Data / Git Exclusion Policy](decisions/SGOKB_RUNTIME_DATA_GIT_POLICY.md)
 - [SGOKB Git History / Branch / PR / Tag / Release Cleanup Policy](decisions/SGOKB_GIT_HISTORY_CLEANUP_POLICY.md)
 - [SGOKB名称変更Decision](decisions/SGOKB_RENAME_DECISION.md)
+- [L-01 Fragment Retirement Policy](decisions/L01_FRAGMENT_RETIREMENT_POLICY.md)
+- [L-02 Final Document Retirement Policy](decisions/L02_FINAL_DOCUMENT_RETIREMENT_POLICY.md)
 
 ### `design/`
 
@@ -94,7 +96,7 @@ Phase E以降で確定した物理Architecture / Data Model設計を置く。
 - [Search Quality Gold / Backend Benchmark](design/SEARCH_QUALITY_GOLD_BACKEND_BENCHMARK.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase IはI-01〜I-07まで完了し、正式Search gold / 100k Backend benchmarkを含むclosure auditを通過した。`PHASE_I_CLOSURE_AUDIT.md`をPhase I終了記録、`PHASE_J_PREPARATION.md`をMCP Knowledge Access Layerへの移行正本とする。次Taskは`J-01 [P0] Retrieval CoreとMCP Adapterを分離する`。再設計の正規作業基盤は引き続き`integration/knowledge-base-redesign`とする。
+進行中の計画・タスク・引継ぎ資料を置く。Phase A〜Kは完了し、現在はPhase L — 旧Prototype移行・削除を進行中である。`PHASE_L_PREPARATION.md`を作業正本とし、L-01 / L-02の退役Decisionを反映済み。次Taskは`L-03 [P1] 既存Prototype DBを破棄しcanonical DBをclean rebuildする`。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果とgold corpusを置く。
