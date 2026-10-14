@@ -21,15 +21,21 @@ Baseline: `15d35013591bd70563e69a2672d716d44b7684d9`
 
 ## 1. Revised Decision
 
-L-01の初回Decisionでは、既存Fragment rowsをlegacy read-onlyとして保全する方針を採用した。
+L-01の初回Decisionでは既存Fragment rowsのread-only保全、その後の改定ではactive DBからの削除を方針化した。
 
-その後、Phase Lの目的と現在のcanonical workflowを再確認した結果、**現在の標準運用・Search・MCP・SGOKB/UPDS連携のいずれにもFragmentデータを必要とする具体的用途は存在しない**と判断した。
+2026-10-14に実runtime dataを追加調査した結果、さらに前提を単純化できることを確認した。
+
+- 既定DB `.local/sgokb.sqlite` は業務・本番データを保持しておらず、主要tableは0件だった。
+- 大容量のPrototype DBは `sample/` corpus、evaluation、upgrade、acceptance、synthetic search gold等の試験用途だった。
+- canonical DBは現行schemaから新規生成できることを一時DBで確認した。
+- 現時点で移行すべきproduction Source / Evidence / Object Knowledgeは存在しない。
+- `sample/` のRaw Capture corpusはExtractor回帰試験等に価値があるため保持する。
 
 したがってL-01の最終方針を次のように改定する。
 
-> **Fragment関連資産は、現時点で必要な具体的用途が存在しないため、active DB・active package・standard CLIから完全に削除する。既存Fragment rowsをread-only archiveとして恒久保持しない。必要な歴史的実装情報はGit履歴と必要最小限の設計資料で確認する。**
+> **既存Prototype/runtime DBの内容はcanonical DBへデータmigrationせず、旧DBを破棄してcanonical schemaからclean rebuildする。Fragment関連table / row / search item / embeddingは新DBへ持ち込まない。Sample RawはDBとは独立した試験corpusとして保持する。**
 
-この方針は「今すぐ無条件にDROPする」という意味ではない。既存DBを破損させないため、物理削除はL-03/L-05でmigration・依存除去を順序立てて実施する。
+研究・履歴確認はGit履歴と設計資料で行い、不要なlegacy runtime dataを保全理由なく維持しない。
 
 ---
 
@@ -111,59 +117,67 @@ MCP read contractとUPDS連携はaccepted Object Knowledgeを参照し、Fragmen
 
 ---
 
-## 4. DB削除方針
+## 4. DB削除・clean rebuild方針
 
-### 4.1 canonical schemaへFragment tableを持ち込まない
+### 4.1 existing DBのデータmigrationを行わない
 
-次のtableはcanonical schemaの構成要素ではない。
+現時点のruntime inventoryでは、canonical DBへ引き継ぐ必要があるproduction dataは確認されなかった。
+
+したがってL-03では、旧Prototype DBについて次のmapping/importを行わない。
+
+```text
+legacy sources / snapshots / evidence / fragments / documents
+  -> canonical tables
+```
+
+旧DBはmigration sourceではなく、削除可能なdevelopment / evaluation runtime artifactとして扱う。
+
+### 4.2 clean canonical DBを新規構築する
+
+L-03の最終状態は次とする。
+
+```text
+old runtime DBs
+  -> delete
+
+canonical schema baseline
+  -> create new empty DB
+  -> canonical Source / Evidence / Object / Version / Search tables only
+```
+
+新DBにはFragment table、Fragment search representation、Fragment embedding、Fragment専用ledgerを作成しない。
+
+### 4.3 historical migration compatibilityを要件としない
+
+`001_initial.sql` / `002_knowledge_capture.sql`はPrototype schemaを生成するため、単純に001から全migrationを再実行するだけではclean rebuildにならない。
+
+production dataのupgrade compatibilityが不要であることを今回確認したため、L-03では**active migration chain / canonical baselineを整理し、fresh DBの最終schemaからlegacy Prototype tableを排除する**。
+
+過去migrationの履歴情報を残す場合も、active DB bootstrapがそれらへ依存する必要はない。具体的なbaseline化・archive方法はL-03で確定する。
+
+### 4.4 Sample Rawは保持する
+
+`sample/`配下のWeb Capture BundleはDBとは別資産であり、Extractor / ingestion / regression試験に利用価値があるため削除しない。
+
+Sample Rawをcanonical production DBへ常時importしておく必要もない。試験時にisolated DBへ必要分だけimportする。
+
+### 4.5 Fragment専用補助資産も新DBへ持ち込まない
+
+Fragment / High Recall workflow専用で、canonical用途がないtableはclean baselineから除外する。
+
+例:
 
 ```text
 fragment_runs
 fragments
 fragment_evidence
-```
-
-新しいcanonical Fragment tableは作成しない。
-
-### 4.2 existing DBでも最終的に削除する
-
-L-03では既存Prototype DBについて、Fragment関連rowを新schemaへ移送しない。
-
-最終結果は以下とする。
-
-```text
-legacy Fragment rows
-  → canonical migration対象外
-  → dependency確認
-  → new migrationでdrop
-```
-
-Fragment rowの内容を外部archiveへ退避することも標準要件としない。
-
-ただし削除直前には、migration失敗時に元DBへ戻せる通常のbackup / rollback手順を用意する。
-
-これはFragmentを長期保存するためではなく、破壊的migrationの安全策である。
-
-### 4.3 migration 001/002は書き換えない
-
-`001_initial.sql` / `002_knowledge_capture.sql`は過去migration履歴なので編集しない。
-
-Fragment tableの削除は新規migrationとして実施する。
-
-これによりfresh DBとexisting DBのupgrade pathを明示する。
-
-### 4.4 Fragment専用補助tableも削除候補とする
-
-以下はFragment / High Recall workflow専用であることをL-03で最終確認し、他のcanonical用途がなければ削除する。
-
-```text
 extraction_jobs
 extraction_batches
 evidence_assessments
 entity_candidates
 ```
 
-`page_contexts`や`ai_runs`等、Fragment以外にも再利用可能性があるtableは一括削除せず、個別に用途を確認する。
+Final Document / benchmark関連tableはL-02 / L-04のDecisionに従って同様に整理する。
 
 ---
 
@@ -266,7 +280,7 @@ Phase MはFragment commandを再導入しない。
 
 - canonical Searchへ移送しない。
 - new embeddingを生成しない。
-- legacy DB migration時に削除する。
+- clean rebuild後のactive DBには存在させない。
 - canonical Evidence / Object / Facet / Statement representationへ変換しない。
 
 Embedding provider abstraction自体は現行Searchで必要なので保持する。
@@ -298,7 +312,7 @@ Fragment生成・Fragment永続化・Fragment検索を検証するtestはactive 
 - Fragment生成test: Delete
 - Fragment persistence/search test: Delete
 - Fragment CLI test: Delete
-- legacy DB cleanup migration test: L-03で追加
+- clean rebuild schema / bootstrap test: L-03で追加
 - Fragment benchmark / speed script: L-04でarchiveまたはDeleteを判断
 
 L-05でcodeを削除する前にactive test / scriptからFragment import依存を除去する。
@@ -315,15 +329,15 @@ Fragmentは削除前提である。
 
 ### L-03
 
-既存Prototype DB migrationは次を満たす。
+既存Prototype DBの**データmigrationは行わずclean rebuildを採用する**。
 
-- Fragment rowsをcanonical schemaへ移行しない。
-- Fragment rowsを外部archiveすることを必須にしない。
-- Fragment tableを新migrationで削除する。
-- Fragment専用補助tableも他用途がなければ削除する。
-- migration前backup / rollbackを用意する。
-- migration後にFragment table / Fragment search item / Fragment embeddingが残っていないことを検証する。
-- Source / Snapshot / Raw Artifact / Evidence等、保持対象のlegacy dataを巻き込んで削除しない。
+- production移行対象データは現時点で存在しない。
+- old runtime DBは削除対象とする。
+- Sample Raw corpusは保持する。
+- canonical baselineから新しい空DBを構築する。
+- Fragment table / Fragment search item / Fragment embeddingを新DBへ作成しない。
+- legacy Prototype tableを再生成しないようactive migration chain / bootstrapを整理する。
+- clean rebuild後にcanonical Source / Evidence / Object / Version / Search / MCP workflowが成立することをtestする。
 
 ### L-04
 
@@ -348,15 +362,18 @@ Fragment-only tests / scripts
 
 ---
 
-## 13. 削除前の安全条件
+## 13. clean rebuild前の安全条件
 
-Fragment資産は不要と判断したが、既存DBの破損を避けるため、実削除時には次を満たす。
+今回のruntime inventoryにより、既存DBの内容を保全してdata migrationする必要はないと確認した。
 
-1. canonical Source / Evidence migrationとFragment cleanupを区別する。
-2. Fragment tableを参照するFK / trigger / search row / embeddingを先に特定する。
-3. backup / rollback手順を用意する。
-4. migration後にfresh DBとexisting DBの双方でtestする。
-5. Fragment削除によってcanonical Search / MCP / Object workflowが変化しないことを確認する。
+L-03 / L-05では次を満たす。
+
+1. 削除対象DBがdevelopment / evaluation / test用途であり、production正本を含まないことを再確認する。
+2. `sample/` Raw corpusをDB削除へ巻き込まない。
+3. canonical schemaから空DBを再生成できることをtestする。
+4. 新DBにFragment / legacy Prototype tableが存在しないことをtestする。
+5. canonical Search / MCP / Object workflowがclean DBで成立することを確認する。
+6. 削除対象はruntime DBと不要derived dataに限定し、Sample RawやGit管理のschema/documentを誤削除しない。
 
 ---
 

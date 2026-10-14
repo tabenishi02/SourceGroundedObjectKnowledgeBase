@@ -31,7 +31,7 @@ Phase L完了条件:
 |---|---|---|---|
 | L-01 | P0 | Complete (Revised) | Fragment table / code / CLIを削除対象と確定した |
 | L-02 | P0 | Next | Final Document table / code / CLIの処遇を確定する |
-| L-03 | P1 | Pending | 既存Prototype DB migrationを設計する |
+| L-03 | P1 | Pending | 既存Prototype DBを破棄しcanonical DBをclean rebuildする |
 | L-04 | P1 | Pending | 旧benchmarkをarchive / deleteする |
 | L-05 | P0 | Pending | 不要依存関係・compatibility layerを削除する |
 
@@ -127,27 +127,22 @@ benchmark_cases
 
 Fragment専用ledgerは削除候補とし、`page_contexts` / `ai_observations`等は他のcanonical用途が存在するか個別評価する。
 
-### 4.3 canonical replacementはすでに存在する
+### 4.3 runtime data調査によりclean rebuild可能と確認した
 
-migration 006以降では新canonical Source / Evidence schemaをadditiveに導入している。
+2026-10-14のlocal runtime調査で以下を確認した。
 
-```text
-source_records
-source_locators
-source_snapshots
-raw_artifacts
-normalization_runs
-evidence_records
-source_object_associations
-evidence_links
-...
-```
+- `.local/sgokb.sqlite` は主要データtableが0件であり、本番正本を保持していない。
+- `evaluation.sqlite` / `extraction-fix-verification.sqlite` / `upgrade.sqlite` は106件の`sample/` Raw corpusを使う評価用DBである。
+- `i07-search-gold.sqlite` は`*.invalid` / `memory://`を用いたsynthetic benchmark DBである。
+- `sgokb-capture-acceptance.sqlite` は`https://example.com/`を用いたacceptance DBである。
+- 一時DBで現行schemaの新規生成に成功した。
+- canonical DBへ引き継ぐ必要があるproduction Source / Evidence / Object Knowledgeは確認されなかった。
 
-`006_source_evidence_schema.sql`自身が旧Prototype tablesをPhase L data migrationまで保持すると明記している。
+このためL-03では既存Prototype DBのdata migrationを行わず、**old runtime DBを削除してcanonical baselineからclean rebuildする**。
 
-したがってL-03では、保持対象dataの移送とFragment等不要tableのdropを区別し、整合性検証・backup / rollbackを定義する。
+`sample/` Raw Capture corpusはDBとは独立した回帰試験資産として保持する。
 
----
+`001_initial.sql` / `002_knowledge_capture.sql`を含む既存migration chainをそのままfresh DBへ適用するとlegacy tableが再生成されるため、L-03でactive bootstrap / canonical baselineを整理する。---
 
 ## 5. Legacy code / CLI資産の棚卸し
 
@@ -318,8 +313,8 @@ Decision:
 7. Fragment search representation / embeddingを削除する。
 8. Fragment rowsを外部archiveすることを必須としない。
 9. research-only runtimeは維持しない。
-10. migration 001/002は書き換えず、新migrationで既存DBをcleanupする。
-11. 実DB cleanupはL-03、code / dependency cleanupはL-05へ分離する。
+10. 既存DBのdata migrationは行わず、canonical baselineからclean rebuildする。
+11. DB clean rebuild設計はL-03、code / dependency cleanupはL-05へ分離する。
 
 ---
 
@@ -348,34 +343,35 @@ L-01によりFragment自体は削除前提となったため、L-02で旧Final�
 
 ---
 
-## 10. L-03 migration準備
+## 10. L-03 clean rebuild準備
 
-L-03は単なるSQL `DROP TABLE` Taskではない。
+L-03は既存Prototype DBをcanonical DBへ変換するdata migration Taskではない。
 
-保持対象について最低限、次のmappingを作る。
+採用方針:
 
 ```text
-legacy sources             → source_records + source_locators
-legacy snapshots           → source_snapshots
-legacy artifacts           → raw_artifacts
-legacy normalized_runs     → normalization_runs
-legacy evidence            → evidence_records + evidence_locations
-legacy entity references   → Objectへのmapping可否を個別評価
+existing Prototype / evaluation DB
+  -> production移行対象なしを確認
+  -> delete
+
+Sample Raw corpus
+  -> keep
+
+canonical baseline
+  -> create new empty DB
+  -> run canonical workflow tests
 ```
 
-Fragmentについてはmappingを作らず、cleanup対象とする。
+L-03で決めること:
 
-要件:
+- 削除対象runtime DBの最終inventory。
+- active canonical schema baseline / bootstrap方式。
+- 001/002等のhistorical Prototype migrationをactive bootstrapからどう分離するか。
+- Fragment / Final / benchmark等のlegacy tableがfresh DBへ生成されないことの検証。
+- clean DBからSource / Evidence / Object / Version / Search / MCPが正常に動作することの検証。
+- Sample Rawを保持し、必要なtestでisolated DBへ再importする手順。
 
-- Raw hash / Evidence provenanceを保持する。
-- migrationを再実行して二重Importしない。
-- migration前backup / rollback pathを定義する。
-- migration後にrow count / reference / checksum等を検証する。
-- accepted Object Knowledgeをlegacy Fragmentから自動生成しない。
-- Fragment table / Fragment search item / Fragment embeddingがmigration後に残っていないことを検証する。
-- Fragment削除で保持対象のSource / Evidence等を巻き込まない。
-
----
+既存DB row count / legacy ID / Fragment provenanceの移送・整合性検証は不要とする。---
 
 ## 11. L-04 benchmark archive境界
 
@@ -406,7 +402,7 @@ L-04では「歴史資料として具体的価値があるか」を基準にarch
 - current tests / scriptsがcanonical pathへ移行済み。
 - standard CLI / package entrypointがlegacy codeを必要としない。
 - L-01/L-02で削除対象が確定済み。
-- migration方針がL-03で確定済み。
+- clean rebuild / canonical bootstrap方針がL-03で確定済み。
 - benchmark archive/delete方針がL-04で確定済み。
 - full testまたは既知failureを明示したfocused regressionが通る。
 
@@ -450,13 +446,14 @@ Phase L cleanupを理由に次を再設計しない。
 
 ## 15. Phase L実施原則
 
-1. migration 001/002を過去履歴として書き換えない。
-2. schema除去は新migrationとして実施する。
-3. existing DB migrationを検証し、fresh DBだけを見て判断しない。
-4. canonical Source/Evidenceや現行Embedding assetをlegacy cleanupへ巻き込まない。
-5. structural moveとbehavior削除を可能な限り分離する。
-6. 「将来使うかもしれない」だけではlegacy資産の保持理由にしない。
-7. 破壊的migrationにはbackup / rollbackを用意する。
+1. production移行対象データがないという2026-10-14のruntime auditをL-03の前提とする。
+2. 既存Prototype / evaluation DBをcanonical data sourceとしてmigrationしない。
+3. `sample/` Raw corpusは保持し、DB削除と分離する。
+4. clean rebuild後のactive DBにlegacy Fragment / Final / benchmark tableを残さない。
+5. historical migrationを保持する場合も、active canonical bootstrapへ不要なlegacy schemaを再導入しない。
+6. canonical Source/Evidence、Object、Version、Search、MCPの現行semanticsは変更しない。
+7. structural cleanupとbehavior cleanupを可能な限り分離する。
+8. 「将来使うかもしれない」だけではlegacy runtime assetの保持理由にしない。
 
 次Task:
 
