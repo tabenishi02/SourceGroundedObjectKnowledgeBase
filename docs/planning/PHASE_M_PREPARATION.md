@@ -54,12 +54,14 @@ Phase L完了監査:
 | Task | Priority | Status | 概要 |
 |---|---|---|---|
 | M-01 | P0 | **In Progress** | 新しいObject中心CLIを設計する |
-| M-02 | P1 | Pending | 旧CLIとの互換性を決定する |
+| M-02 | P1 | **Complete (2026-10-16)** | 旧CLIとの互換性を決定する |
 | M-03 | P1 | Pending | 1 Object標準手順を1ページで実行可能にする |
 
 推奨順序は `M-01 → M-02 → M-03` とする。
 
 M-01でtarget command taxonomy・side-effect境界・exit/output contractを確定し、その後M-02で既存entrypointとの移行方法を決める。M-03は確定したCLIだけを使って標準運用手順を作る。
+
+M-02はM-01のtop-level taxonomy承認後に先行してcompatibility policyだけを確定した。M-01の未承認事項は引き続きIn Progressであり、M-02完了によって暗黙に確定しない。
 
 ### M-01で承認済みの部分Decision
 
@@ -88,6 +90,24 @@ sgokb system ...
 ```
 
 M-01全体はまだ未完了であり、各namespace配下の最終command、side-effect境界、Output / Error / Exit contract、selector、Registry proposal、Relation write boundary等は引き続き承認待ちである。
+
+### M-02で確定したCompatibility Decision
+
+2026-10-16に、旧CLIとの互換性について次を確定した。
+
+Decision:
+
+- `docs/decisions/M02_CLI_COMPATIBILITY_POLICY.md`
+
+要点:
+
+- deprecated execution compatibilityを長期維持しない。
+- 新しいDomain namespace側の同等operationを実装・検証した変更と同じcutoverで、対応する旧command / aliasを削除する。
+- 将来のpublic CLI entrypointは`sgokb` 1本とする。
+- `sgokb-package`はPackage / Result等の移行完了時に削除し、deprecated wrapperとして残さない。
+- Phase Lで削除済みのFragment / Final / old benchmark等のPrototype CLIは復活させない。
+- CLI pathをbreaking changeとして切っても、canonical Source / Evidence / Package / Result / Version / Search / MCP semanticsは維持する。
+- M-01で未確定の最終subcommand名、Output / Error / Exit contract等はM-02では確定しない。
 
 ---
 
@@ -168,6 +188,8 @@ diff-versions
 機能はcanonicalだが、Phase G/Hの実装単位を反映した専用entrypointであり、Object中心の日常CLIとしては分断されている。
 
 M-01ではcommand semanticsを再利用しつつ、Object / Package / Result / Search / MCP / Operationsを一貫したtaxonomyへ整理する。
+
+M-02のDecisionにより、`sgokb-package`は将来のpublic contractとして維持せず、新`sgokb`側へ同等operationが移行したcutoverで削除する。
 
 ---
 
