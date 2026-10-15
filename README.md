@@ -6,7 +6,7 @@ Web上のSource / Evidenceを根拠に、Character・Work・ConceptなどのObje
 
 Phase A〜Lは完了しました。L-05で旧PrototypeのFragment / Final / benchmark / Generative LLM・互換API/CLIを撤去し、canonical Source / Evidence / Object / Version / Search / MCPを維持しています。fresh DBはmigration003〜016のみから構築し、Prototype DBは自動upgradeせず拒否します。
 
-次Taskは`M-01 [P0] 新しいObject中心CLIを設計する`です。Phase Mの実装は未着手です。検証結果と既知のPackage Transfer failure・任意依存制約は[Phase L Closure Audit](docs/planning/PHASE_L_CLOSURE_AUDIT.md)を参照してください。
+Phase Mは開始準備完了です。現在のTaskは`M-01 [P0] 新しいObject中心CLIを設計する`で、実装は未着手です。Phase Mの現行CLI棚卸し・設計論点・Definition of Readyは[Phase M Preparation](docs/planning/PHASE_M_PREPARATION.md)、Phase Lの検証結果と既知制約は[Phase L Closure Audit](docs/planning/PHASE_L_CLOSURE_AUDIT.md)を参照してください。
 
 現在の設計判断・要件・作業状況は **[Documentation Index](docs/README.md)** を入口として確認してください。
 
@@ -32,6 +32,8 @@ Phase A〜Lは完了しました。L-05で旧PrototypeのFragment / Final / benc
 - [Phase D Preparation](docs/planning/PHASE_D_PREPARATION.md)
 - [Phase I Closure Audit](docs/planning/PHASE_I_CLOSURE_AUDIT.md)
 - [Phase J Preparation](docs/planning/PHASE_J_PREPARATION.md)
+- [Phase L Closure Audit](docs/planning/PHASE_L_CLOSURE_AUDIT.md)
+- [Phase M Preparation](docs/planning/PHASE_M_PREPARATION.md)
 - [Standard Pipeline / Legacy Fragment Boundary](docs/design/STANDARD_PIPELINE_BOUNDARY.md)
 - [Operator Association / Evidence Selection Controls](docs/design/OPERATOR_ASSOCIATION_CONTROLS.md)
 - [既存資産分類](docs/reference/KNOWLEDGE_BASE_ASSET_CLASSIFICATION.md)
