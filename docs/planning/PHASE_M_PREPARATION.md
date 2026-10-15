@@ -55,13 +55,15 @@ Phase L完了監査:
 |---|---|---|---|
 | M-01 | P0 | **In Progress** | 新しいObject中心CLIを設計する |
 | M-02 | P1 | **Complete (2026-10-16)** | 旧CLIとの互換性を決定する |
-| M-03 | P1 | Pending | 1 Object標準手順を1ページで実行可能にする |
+| M-03 | P1 | **Workflow specified / Blocked by M-01 implementation** | 1 Object標準手順を1ページで実行可能にする |
 
 推奨順序は `M-01 → M-02 → M-03` とする。
 
 M-01でtarget command taxonomy・side-effect境界・exit/output contractを確定し、その後M-02で既存entrypointとの移行方法を決める。M-03は確定したCLIだけを使って標準運用手順を作る。
 
 M-02はM-01のtop-level taxonomy承認後に先行してcompatibility policyだけを確定した。M-01の未承認事項は引き続きIn Progressであり、M-02完了によって暗黙に確定しない。
+
+M-03については、2026-10-16に1 Object標準workflowを`docs/operations/OBJECT_STANDARD_WORKFLOW.md`へ1ページで定義した。ただし現在のactive CLIにはObject登録、Search / Similarity、operator-facing MCP起動など必要routeがまだ揃っていないため、M-01 implementation cutoverまでは「実行可能」条件を満たさずComplete扱いにしない。
 
 ### M-01で承認済みの部分Decision
 
@@ -108,6 +110,36 @@ Decision:
 - Phase Lで削除済みのFragment / Final / old benchmark等のPrototype CLIは復活させない。
 - CLI pathをbreaking changeとして切っても、canonical Source / Evidence / Package / Result / Version / Search / MCP semanticsは維持する。
 - M-01で未確定の最終subcommand名、Output / Error / Exit contract等はM-02では確定しない。
+
+### M-03標準workflow
+
+標準運用の正本:
+
+- `docs/operations/OBJECT_STANDARD_WORKFLOW.md`
+
+固定した工程:
+
+```text
+Object登録 / 確認
+→ Source Capture import
+→ Normalize / Evidence
+→ Source↔Object association確認
+→ Evidence selection
+→ Package build
+→ stage / preflight / explicit export
+→ ChatGPT手動分析
+→ Result detect / receive
+→ validate / review
+→ explicit Result import
+→ accepted Version
+→ render
+→ Object / Search / Similarity確認
+→ MCP read確認
+```
+
+Human decision boundaryとして、Object Identity、External Export、ChatGPT外部工程、authoritative Result Import、review-required Result、Registry proposalを自動通過させない。
+
+M-03をCompleteへ移すGateは、M-01で必要routeが実装され、`sgokb-package`を使わず新`sgokb`だけで上記workflowを完走でき、focused integration testが成功することである。
 
 ---
 
