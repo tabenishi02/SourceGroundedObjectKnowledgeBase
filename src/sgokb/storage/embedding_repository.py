@@ -7,8 +7,8 @@ import struct
 from datetime import datetime, timezone
 from typing import Iterable
 
-from sgokb.domain._prototype import validate_vectors
 from sgokb.domain.embedding import EmbeddingSpaceRecord, EmbeddingSpaceSpec
+from sgokb.domain.primitives import validate_vectors
 
 
 def _now() -> str:

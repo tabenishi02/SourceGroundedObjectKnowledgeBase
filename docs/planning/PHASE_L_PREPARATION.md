@@ -2,11 +2,13 @@
 
 更新日: 2026-10-15
 
-- Status: **In Progress**
+- Status: **Complete**
 - Phase: `Phase L — 旧Prototype移行・削除`
 - Previous phase: `Phase K — SGOKB / UPDS連携試験` — Complete
 - Previous closure: `docs/planning/PHASE_K_CLOSURE_AUDIT.md`
-- Current task: `L-05 [P0] 不要依存関係・compatibility layerを削除する`
+- Current task: None — Phase L Complete
+- Next phase/task: `M-01 [P0] 新しいObject中心CLIを設計する`（未着手）
+- Closure: `docs/planning/PHASE_L_CLOSURE_AUDIT.md`
 - Working branch: `main`
 
 ---
@@ -33,18 +35,19 @@ Phase L完了条件:
 | L-02 | P0 | Complete | Final Document table / code / CLIを削除対象と確定し、canonical RendererをKeepした |
 | L-03 | P1 | Complete | Prototype DBをdata migrationせず、003〜016からclean rebuildする設計を確定した |
 | L-04 | P1 | Complete | 旧benchmark inputs/scriptsとlocal runtime DBを削除し、current Search benchmarkとSample Rawを保持した |
-| L-05 | P0 | Next | 不要依存関係・compatibility layerを削除する |
+| L-05 | P0 | Complete | 不要依存関係・compatibility layerを削除する |
 
 推奨順序は`L-01 → L-02 → L-03 → L-04 → L-05`とする。
 
 L-01/L-02で何を保持・削除するかを決める前にschemaやdependencyを変更しない。
 
-L-01 / L-02 / L-03 / L-04 decisions:
+L-01 / L-02 / L-03 / L-04 / L-05 decisions:
 
 - `docs/decisions/L01_FRAGMENT_RETIREMENT_POLICY.md`
 - `docs/decisions/L02_FINAL_DOCUMENT_RETIREMENT_POLICY.md`
 - `docs/decisions/L03_CANONICAL_DB_CLEAN_REBUILD_POLICY.md`
 - `docs/decisions/L04_LEGACY_BENCHMARK_RETIREMENT_POLICY.md`
+- `docs/decisions/L05_LEGACY_COMPATIBILITY_CLEANUP_POLICY.md`
 
 ---
 
@@ -75,7 +78,7 @@ Web Capture Bundle
 
 ---
 
-## 4. Legacy DB資産の棚卸し
+## 4. Legacy DB資産の棚卸し（L-05前の履歴）
 
 ### 4.1 migration 001由来
 
@@ -147,7 +150,7 @@ L-03では001/002全体をactive bootstrapから除外すると確定したた�
 
 ---
 
-## 5. Legacy code / CLI資産の棚卸し
+## 5. Legacy code / CLI資産の棚卸し（L-05前の履歴）
 
 ### 5.1 Fragment generation
 
@@ -225,7 +228,7 @@ current Search quality gold / Similarity / Vector / Reranker benchmarkと`script
 
 ---
 
-## 6. Provider / dependency境界
+## 6. Provider / dependency境界（L-05前の履歴）
 
 現行`pyproject.toml`の必須dependencyは、
 
@@ -256,7 +259,7 @@ L-01ではFragment generationのためだけにGenerative LLM runtimeを維持�
 
 ---
 
-## 7. Compatibility layer棚卸し
+## 7. Compatibility layer棚卸し（L-05前の履歴）
 
 D-05で意図的に残した互換surfaceがある。
 
@@ -402,7 +405,17 @@ L-01〜L-04はComplete、次TaskはL-05とする。canonical clean bootstrapの�
 
 ---
 
-## 12. L-05 cleanup gate
+## 12. L-05 implementation / cleanup gate — Complete
+
+正本: `docs/decisions/L05_LEGACY_COMPATIBILITY_CLEANUP_POLICY.md`。結果の詳細は`docs/planning/PHASE_L_CLOSURE_AUDIT.md`を参照する。
+
+- Fragment / old Final / benchmark / Prototype Search / Generative LLM runtimeと旧Repository継承・CLI互換surfaceを削除した。
+- migration001/002とtop-level ingestion shimを削除し、canonical実装・migration003〜016・Embedding・Search・MCP・UPDSを維持した。
+- fresh canonical DB / Prototype fail-fast tests、全体regression、Search goldの実行可能部分、Raw106件不変を確認した。
+- full pytest: 283 passed / 3 skipped / 1 known unrelated Package Transfer failure。collection errorsは0。Ruffは既存38件、変更ファイルの違反0。
+- 第4〜7節と下記gateの実施前棚卸しは履歴であり、削除済みAPI/CLIを現行runtimeとして提供しない。
+
+### 実施前のcleanup gate（履歴）
 
 不要dependency / shim / aliasを削除する前に次を満たす。
 
@@ -452,7 +465,9 @@ Phase L cleanupを理由に次を再設計しない。
 
 - [x] L-04でtracked legacy benchmarkとlocal evaluation DBを削除し、current benchmark / Sample Rawの保持を確認した。
 
-**L-01〜L-04はComplete。Phase Lは進行中であり、Current taskはL-05である。**
+- [x] L-05のruntime撤去・fresh canonical bootstrap・fail-fast・現行機能回帰を確認した。
+
+**L-01〜L-05はComplete。Phase LはCompleteであり、次はPhase M / M-01（未着手）である。**
 
 ---
 
@@ -471,5 +486,5 @@ Phase L cleanupを理由に次を再設計しない。
 次Task:
 
 ```text
-L-05 [P0] 不要依存関係・compatibility layerを削除する
+M-01 [P0] 新しいObject中心CLIを設計する
 ```

@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from sgokb.cli import main, parser
 from sgokb.repository import Repository
 
@@ -20,23 +22,28 @@ def test_standard_cli_import_and_process_stop_at_canonical_evidence(tmp_path, ma
     try:
         assert _count(repo, "source_records") == 1
         assert _count(repo, "source_snapshots") == 1
-        assert _count(repo, "snapshots") == 0
-        assert _count(repo, "fragments") == 0
-        assert _count(repo, "ai_runs") == 0
+        assert repo.one("SELECT name FROM sqlite_master WHERE name='snapshots'") is None
+        assert repo.one("SELECT name FROM sqlite_master WHERE name='fragments'") is None
+        assert repo.one("SELECT name FROM sqlite_master WHERE name='ai_runs'") is None
     finally:
         repo.close()
 
     assert main(["--db", str(db), "process", "--snapshot", snapshot_id]) == 0
     processed = json.loads(capsys.readouterr().out)[0]
     assert processed["evidence"] > 0
+    evidence_id = processed["evidence_ids"][0]
+    assert main(["--db", str(db), "provenance", "evidence", evidence_id]) == 0
+    provenance = json.loads(capsys.readouterr().out)
+    assert provenance["snapshot"]["snapshot_id"] == snapshot_id
+    assert provenance["evidence"]["evidence_id"] == evidence_id
 
     repo = Repository(db)
     try:
         assert _count(repo, "evidence_records") == processed["evidence"]
-        assert _count(repo, "evidence") == 0
-        assert _count(repo, "fragments") == 0
-        assert _count(repo, "ai_runs") == 0
-        assert _count(repo, "structured_documents") == 0
+        assert repo.one("SELECT name FROM sqlite_master WHERE name='evidence'") is None
+        assert repo.one("SELECT name FROM sqlite_master WHERE name='fragments'") is None
+        assert repo.one("SELECT name FROM sqlite_master WHERE name='ai_runs'") is None
+        assert repo.one("SELECT name FROM sqlite_master WHERE name='structured_documents'") is None
     finally:
         repo.close()
 
@@ -53,33 +60,31 @@ def test_standard_cli_import_and_process_stop_at_canonical_evidence(tmp_path, ma
     assert snapshots[0]["effective"] is True
 
 
-def test_legacy_cli_import_and_process_remain_available(tmp_path, make_bundle, capsys):
-    db = tmp_path / "legacy.sqlite"
-    path = make_bundle()
-
-    assert main(["--db", str(db), "import", str(path), "--legacy"]) == 0
-    imported = json.loads(capsys.readouterr().out)[0]
-    assert main(["--db", str(db), "process", "--snapshot", imported["snapshot"], "--legacy"]) == 0
-    json.loads(capsys.readouterr().out)
-
-    repo = Repository(db)
-    try:
-        assert _count(repo, "snapshots") == 1
-        assert _count(repo, "evidence") > 0
-        assert _count(repo, "source_snapshots") == 0
-        assert _count(repo, "evidence_records") == 0
-    finally:
-        repo.close()
-
-
-def test_fragment_and_final_commands_are_explicitly_legacy_with_compatibility_aliases():
-    root = parser()
-    canonical = root.parse_args(["legacy-fragment", "--snapshot", "snapshot", "--entity", "entity"])
-    compatibility = root.parse_args(["fragment", "--snapshot", "snapshot", "--entity", "entity"])
-    final = root.parse_args(["legacy-generate", "--entity", "entity"])
-    benchmark = root.parse_args(["legacy-benchmark", "manifest.json"])
-
-    assert canonical.command == "legacy-fragment"
-    assert compatibility.command == "fragment"
-    assert final.command == "legacy-generate"
-    assert benchmark.command == "legacy-benchmark"
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["legacy-fragment"],
+        ["fragment"],
+        ["legacy-generate"],
+        ["generate"],
+        ["legacy-benchmark"],
+        ["benchmark"],
+        ["benchmark-score"],
+        ["coverage"],
+        ["entity"],
+        ["embed"],
+        ["search"],
+        ["context"],
+        ["import", "capture.zip", "--legacy"],
+        ["process", "--legacy"],
+        ["status", "--legacy"],
+        ["snapshots", "--legacy"],
+        ["provenance", "fragment", "id"],
+        ["provenance", "document", "id"],
+        ["--prompt-dir", "prompts", "status"],
+    ],
+)
+def test_retired_cli_surface_is_rejected(argv):
+    with pytest.raises(SystemExit) as error:
+        parser().parse_args(argv)
+    assert error.value.code == 2

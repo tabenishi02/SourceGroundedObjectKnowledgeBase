@@ -42,8 +42,8 @@ def test_canonical_capture_to_evidence_preserves_full_provenance(tmp_path, make_
         assert imported["duplicate"] is False
         assert imported["effective"] is True
         assert imported["raw_artifacts"] == 9
-        assert repository.one("SELECT count(*) n FROM sources")["n"] == 0
-        assert repository.one("SELECT count(*) n FROM snapshots")["n"] == 0
+        assert repository.one("SELECT name FROM sqlite_master WHERE name='sources'") is None
+        assert repository.one("SELECT name FROM sqlite_master WHERE name='snapshots'") is None
 
         locators = {(item.kind, item.value) for item in repository.source_store.locators(source_id)}
         assert locators == {("url", url), ("canonical_url", canonical_url)}
@@ -76,8 +76,8 @@ def test_canonical_capture_to_evidence_preserves_full_provenance(tmp_path, make_
         result = app.process_source_snapshot(snapshot_id)
         assert result["effective"] is True
         assert result["evidence"] > 0
-        assert repository.one("SELECT count(*) n FROM normalized_runs")["n"] == 0
-        assert repository.one("SELECT count(*) n FROM evidence")["n"] == 0
+        assert repository.one("SELECT name FROM sqlite_master WHERE name='normalized_runs'") is None
+        assert repository.one("SELECT name FROM sqlite_master WHERE name='evidence'") is None
 
         provenance = repository.source_store.evidence_provenance(result["evidence_ids"][0])
         assert provenance.source.source_id == source_id

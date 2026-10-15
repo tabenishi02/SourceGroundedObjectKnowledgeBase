@@ -4,9 +4,9 @@ Web上のSource / Evidenceを根拠に、Character・Work・ConceptなどのObje
 
 ## Status
 
-現在は旧PrototypeからObject中心Knowledge Baseへの再設計中です。旧Prototypeのコードは移行元として残っていますが、Fragment大量生成や巨大Final Documentを中心とする方式は現行の最終設計ではありません。
+Phase A〜Lは完了しました。L-05で旧PrototypeのFragment / Final / benchmark / Generative LLM・互換API/CLIを撤去し、canonical Source / Evidence / Object / Version / Search / MCPを維持しています。fresh DBはmigration003〜016のみから構築し、Prototype DBは自動upgradeせず拒否します。
 
-Phase A〜Iは完了しています。Phase GではObject Evidence Packageから明示export・ChatGPT手動工程・Result receiptまでの交換Workflow、Phase HではResult Validation / Import / Rendering、Phase IではSearch Representation、Harrier Embedding、Qdrant HNSW、Hybrid Object Search、Object / Facet Similarity、Reranker評価、正式Search gold / 100k Backend benchmarkまで完了しました。現在はPhase J — MCP Knowledge Access Layerへ移行する準備が完了しており、次Taskは`J-01 [P0] Retrieval CoreとMCP Adapterを分離する`です。
+次Taskは`M-01 [P0] 新しいObject中心CLIを設計する`です。Phase Mの実装は未着手です。検証結果と既知のPackage Transfer failure・任意依存制約は[Phase L Closure Audit](docs/planning/PHASE_L_CLOSURE_AUDIT.md)を参照してください。
 
 現在の設計判断・要件・作業状況は **[Documentation Index](docs/README.md)** を入口として確認してください。
 
@@ -46,7 +46,7 @@ docs/                       # 現行文書の入口 + Archive
 src/sgokb/                  # 現在のPython実装（再設計移行中）
 extensions/web-page-capture/ # Web Page Capture / Native Host
 scripts/                    # 評価・移行・補助script
-benchmark/                  # Prototype時代からの評価資産（再設計で扱いを再確認）
+benchmark/                  # 現行Search quality gold / Vector / Reranker評価資産
 sample/                     # Capture sample
 ```
 

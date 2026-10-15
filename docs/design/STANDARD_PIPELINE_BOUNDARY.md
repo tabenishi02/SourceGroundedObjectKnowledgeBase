@@ -1,5 +1,19 @@
 # Standard Pipeline / Legacy Fragment Boundary
 
+## 現行境界（L-05 / 2026-10-15）
+
+標準処理はcanonical Source / Snapshot / Raw Artifact → Normalization → Evidenceで完結し、Package / Result / Object Versionへ接続する。SGOKB runtime内で生成LLMを呼ばない。
+
+- canonical `Application.import_source_path()` / `process_source_snapshot()`とObject Evidence Retrieval / Selection / associationを維持する。
+- CLIはcanonical `import` / `process` / `status` / `snapshots` / `association` / `evidence` / Evidence provenanceを維持する。
+- 旧Fragment / Final / benchmark runtime、旧Entity・Search・Embedding CLI、旧method/command aliasと`--legacy`は削除済み。
+- fresh DBはmigration003〜016だけで構築し、Prototype migration version1/2を持つDBは変更せず拒否する。
+- 正本は[L-05 Cleanup Policy](../decisions/L05_LEGACY_COMPATIBILITY_CLEANUP_POLICY.md)。新Object CLIはPhase Mで設計する。
+
+## F-02実装記録 — Historical
+
+以下は2026-10-12の移行時点の記録である。下記のlegacy API / CLI / tableの保持説明は当時の事実を残したものであり、現行runtimeの利用手順ではない。L-05後の現行境界は上記を適用する。
+
 更新日: 2026-10-12
 
 - Status: Implemented

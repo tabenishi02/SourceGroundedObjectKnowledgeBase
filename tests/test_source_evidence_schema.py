@@ -317,13 +317,8 @@ def test_package_membership_validation_rejects_unknown_or_out_of_package_evidenc
         repo.source_store.validate_evidence_references(["invented-evidence"])
 
 
-def test_legacy_and_canonical_source_tables_coexist_without_reissuing_ids(repo):
-    with repo.db:
-        repo.db.execute(
-            "INSERT INTO sources VALUES(?,?,?,?,?)",
-            ("same-id", "https://legacy.test", "legacy", "wiki", "2026-01-01"),
-        )
+def test_canonical_source_preserves_explicit_identity(repo):
     canonical_id = repo.source_store.create_source("Canonical", source_id="same-id")
     assert canonical_id == "same-id"
-    assert repo.one("SELECT url FROM sources WHERE id='same-id'")["url"] == "https://legacy.test"
     assert repo.source_store.source_by_id("same-id").label == "Canonical"
+    assert repo.one("SELECT name FROM sqlite_master WHERE name='sources'") is None

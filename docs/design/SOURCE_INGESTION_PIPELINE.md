@@ -1,5 +1,7 @@
 # Source / Evidence Canonical Ingestion Pipeline
 
+> **L-05現行境界（2026-10-15）:** canonical ingestionは維持している。本文のF-01時点の旧`import_path()` / `process()`・legacy table共存に関する記述は履歴であり、そのcompatibility runtimeはL-05で削除済み。現行APIは`import_source_path()` / `process_source_snapshot()`を使用する。詳細は[L-05 Decision](../decisions/L05_LEGACY_COMPATIBILITY_CLEANUP_POLICY.md)。
+
 更新日: 2026-10-12
 
 - Status: Implemented

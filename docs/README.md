@@ -72,6 +72,8 @@
 - [L-02 Final Document Retirement Policy](decisions/L02_FINAL_DOCUMENT_RETIREMENT_POLICY.md)
 - [L-03 Canonical DB Clean Rebuild Policy](decisions/L03_CANONICAL_DB_CLEAN_REBUILD_POLICY.md)
 - [L-04 Legacy Benchmark Retirement Policy](decisions/L04_LEGACY_BENCHMARK_RETIREMENT_POLICY.md)
+- [L-05 Legacy Compatibility Cleanup Policy](decisions/L05_LEGACY_COMPATIBILITY_CLEANUP_POLICY.md)
+- [Phase L Closure Audit](planning/PHASE_L_CLOSURE_AUDIT.md)
 
 ### `design/`
 
@@ -98,9 +100,9 @@ Phase E以降で確定した物理Architecture / Data Model設計を置く。
 - [Search Quality Gold / Backend Benchmark](design/SEARCH_QUALITY_GOLD_BACKEND_BENCHMARK.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase A〜Kは完了し、現在はPhase L — 旧Prototype移行・削除を進行中である。[Phase L Preparation](planning/PHASE_L_PREPARATION.md)を作業正本とし、L-01 / L-02 / L-03 / L-04はComplete。Current task / Nextは`L-05 [P0] 不要依存関係・compatibility layerを削除する`。
+進行中の計画・タスク・引継ぎ資料を置く。Phase A〜LはComplete。[Phase L Closure Audit](planning/PHASE_L_CLOSURE_AUDIT.md)を完了監査の正本とし、次Taskは`M-01 [P0] 新しいObject中心CLIを設計する`（未着手）。
 
-[L-04 Decision](decisions/L04_LEGACY_BENCHMARK_RETIREMENT_POLICY.md)に従い、current Search quality gold / Similarity / Vector / Reranker benchmarkとSample Raw corpusはKeep、old Fragment / Final benchmark inputs/scriptsはDelete済み。historical resultは既存`archive/prototype-0.2/`を正本とし、old benchmark runtime DBはArchiveせずローカルで削除した。runtime-coupled benchmark code / CLI cleanupはL-05へ引き渡す。
+L-04で旧benchmark inputs/scriptsとlocal DBを削除し、L-05でFragment / Final / old benchmark / Generative LLM / Prototype Search・migration001/002・runtime compatibilityを撤去した。current Search quality gold / Vector / Reranker benchmarkとSample RawはKeepする。historical resultは`archive/prototype-0.2/`、旧実装はGit historyを参照する。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果とgold corpusを置く。

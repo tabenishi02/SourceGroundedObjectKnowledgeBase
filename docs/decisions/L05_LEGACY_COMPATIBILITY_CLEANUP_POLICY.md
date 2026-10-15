@@ -2,7 +2,7 @@
 
 更新日: 2026-10-15
 
-- Status: Accepted — implementation pending local regression
+- Status: Complete — implemented and locally verified
 - Task: `L-05 [P0] 不要依存関係・compatibility layerを削除する`
 - Baseline: `d17489ebc141579d27bb5cfab4483622393e2f56`
 - Related:
@@ -389,21 +389,21 @@ Embedding / Vector optional dependencies
 
 L-05完了条件:
 
-- [ ] Fragment runtime module / prompt / Application / Repository / CLI surfaceがactive treeにない。
-- [ ] old Final runtime module / prompt / Application / Repository / CLI surfaceがactive treeにない。
-- [ ] old benchmark runtime module / CLI / Repository surfaceがactive treeにない。
-- [ ] Generative LLM provider surfaceと`Use-Strata.ps1`がactive treeにない。
-- [ ] 001/002がactive migration chainにない。
-- [ ] fresh DBが003〜016だけから構築できる。
-- [ ] Prototype DB version 1/2をfail-fastで拒否する。
-- [ ] old top-level ingestion compatibility shimを必要性なしに残していない。
-- [ ] deleted scriptを参照するobsolete testsがない。
-- [ ] Embedding provider / canonical Search / MCPを維持している。
-- [ ] `git diff --check`が成功する。
-- [ ] Ruff結果を記録する。
-- [ ] full pytest結果を記録し、L-05起因failure 0件である。
-- [ ] current Search benchmark regressionを実行するか、実行不能理由を明示する。
-- [ ] Sample Rawを変更していない。
+- [x] Fragment runtime module / prompt / Application / Repository / CLI surfaceがactive treeにない。
+- [x] old Final runtime module / prompt / Application / Repository / CLI surfaceがactive treeにない。
+- [x] old benchmark runtime module / CLI / Repository surfaceがactive treeにない。
+- [x] Generative LLM provider surfaceと`Use-Strata.ps1`がactive treeにない。
+- [x] 001/002がactive migration chainにない。
+- [x] fresh DBが003〜016だけから構築できる。
+- [x] Prototype DB version 1/2をfail-fastで拒否する。
+- [x] old top-level ingestion compatibility shimを必要性なしに残していない。
+- [x] deleted scriptを参照するobsolete testsがない。
+- [x] Embedding provider / canonical Search / MCPを維持している。
+- [x] `git diff --check`が成功する。
+- [x] Ruff結果を記録する。
+- [x] full pytest結果を記録し、L-05起因failure 0件である。
+- [x] current Search benchmark regressionを実行するか、実行不能理由を明示する。
+- [x] Sample Rawを変更していない。
 
 ---
 
@@ -420,3 +420,17 @@ Phase O: README / Release / final Git cleanup
 ```
 
 L-05完了後、Phase L closure auditを作成してPhase Mへ移行可能か確認する。
+
+
+## 17. Implementation / local acceptance（2026-10-15）
+
+L-05はComplete。Phase L closureの正本は[Phase L Closure Audit](../planning/PHASE_L_CLOSURE_AUDIT.md)とする。
+
+- standalone runtime / legacy prompts / provider / Application・Repository・CLI surface / migration001/002 / ingestion shims / obsolete testsを削除した。必要な共通primitiveは`domain/primitives.py`へ内容不変で移した。
+- fresh DBのapplied versionsは`[3,4,5,6,7,8,9,10,11,12,13,14,15,16]`。003〜016は内容・番号とも変更していない。
+- version1/2を持つsynthetic DBは明示拒否し、DB bytes・sentinel data・IDを保持した。silent DROP / upgradeは行わない。
+- full pytestは283 passed / 3 skipped / 1 known unrelated failure。旧preflight参照の2 collection errorsは解消した。Package Transferの既知failureは今回の変更から独立しており修正していない。
+- Ruffは既存38件、変更ファイルの違反は0。Python compileと`git diff --check`は成功した。
+- current Search goldのLexical 24 queryとcontract 4/4を実行した。実モデルSemantic / Vector / Reranker品質・速度は任意依存`sentence_transformers`不足のため今回測定していない。
+- sample Web Captureは106件。L-04時点およびL-05前後のSHA-256が一致し、mtimeも不変。
+- Phase Mの新Object CLIは実装していない。

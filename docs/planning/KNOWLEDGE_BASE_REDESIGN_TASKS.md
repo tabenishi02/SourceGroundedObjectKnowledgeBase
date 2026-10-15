@@ -865,11 +865,13 @@ Preparation: `docs/planning/PHASE_L_PREPARATION.md`
   - runtime-coupled benchmark code / CLI / Repository API / migration 002、Use-Strata、legacy provider / compatibility testsのcleanupはL-05へ引き渡す。
   - 成果物: `docs/decisions/L04_LEGACY_BENCHMARK_RETIREMENT_POLICY.md`
 
-- [ ] **L-05 [P0] 不要依存関係・compatibility layerを削除する** — **Next**
-  - 標準運用から生成LLM Providerが不要になった場合、不要surfaceを削除する。
-  - D-05で導入した旧top-level import compatibility shimのうち不要になったものを削除する。
-  - Fragment / Final legacy code・prompt・CLI・testを削除する。
-  - Embedding dependencyは維持する。
+- [x] **L-05 [P0] 不要依存関係・compatibility layerを削除する** — **Complete (2026-10-15)**
+  - Fragment / Final / old benchmark / Prototype Search / Generative LLM、旧Repository API・CLI・ingestion shim・prompt・legacy-only testsを削除した。
+  - 共通primitiveは`domain/primitives.py`へ移し、canonical Source/Evidence・Object/Version・Embedding/Search・MCP・UPDSを維持した。
+  - 001/002を削除し、003〜016を変更せずfresh DBへ適用する。version1/2のPrototype DBは変更せずfail-fastで拒否する。
+  - full pytest: 283 passed / 3 skipped / 1 known unrelated Package Transfer failure。旧preflightの2 collection errorsは解消した。
+  - Ruffは既存38件、変更ファイルの違反0。Search gold Lexical 24 query / contract4件、Raw106件SHA-256不変を確認した。
+  - 成果物: `docs/decisions/L05_LEGACY_COMPATIBILITY_CLEANUP_POLICY.md`、`docs/planning/PHASE_L_CLOSURE_AUDIT.md`
 
 **完了条件:** 旧Prototypeの高コスト処理・legacy schema・不要runtimeが通常運用に残存せず、Sample Rawとcanonical workflowは維持されている。
 
@@ -1050,14 +1052,12 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A〜Kは完了している。Phase L — 旧Prototype移行・削除を進行中であり、`docs/planning/PHASE_L_PREPARATION.md`を作業正本とする。
+Phase A〜LはComplete。Phase LではL-01〜L-04のDecisionをL-05で実装し、旧runtime・001/002・互換surfaceをactive treeから削除した。現行canonical workflowとSample Rawは保持している。受入結果・既知制約は`docs/planning/PHASE_L_CLOSURE_AUDIT.md`を正本とする。
 
-L-01でFragment資産、L-02で旧Final Document資産、L-03でcanonical DB clean rebuild方針を確定し、L-04で旧benchmark inputs/scriptsとlocal評価DBの削除を完了した。L-01〜L-04はCompleteである。2026-10-14のruntime auditによりproduction移行対象dataが存在しないため、既存Prototype DBのrow-level migrationは行わず、001/002をactive bootstrapから除外して003〜016をcanonical migration chainとして使用する。`sample/` Raw Capture corpusは保持する。
-
-次の最優先Task:
+次の最優先Task（未着手）:
 
 ```text
-L-05 [P0] 不要依存関係・compatibility layerを削除する
+M-01 [P0] 新しいObject中心CLIを設計する
 ```
 
-L-04の正本は`docs/decisions/L04_LEGACY_BENCHMARK_RETIREMENT_POLICY.md`。current Search quality gold / Vector / Reranker benchmarkとSample RawをKeepし、historical resultは既存`docs/archive/prototype-0.2/`で保持する。old benchmark runtime DBはArchiveせず削除済み。L-05ではruntime-coupled benchmark / Fragment / Final / generative provider / compatibility surfaceをcleanupする。
+Phase Mでは新Object中心CLIと操作フローを設計する。L-05では旧surface削除に必要な既存CLIの最小変更だけを行い、新しいObject CLIやPhase M実装は開始していない。

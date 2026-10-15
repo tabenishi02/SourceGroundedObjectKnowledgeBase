@@ -7,8 +7,8 @@ import math
 from importlib import metadata
 from typing import Iterable
 
-from sgokb.domain._prototype import validate_vectors
 from sgokb.domain.embedding import EmbeddingSpaceSpec
+from sgokb.domain.primitives import validate_vectors
 
 DEFAULT_RETRIEVAL_INSTRUCTION = (
     "Given a query about an object knowledge base, retrieve semantically relevant "
@@ -163,9 +163,7 @@ class SentenceTransformerEmbeddingProvider:
                 texts, add_special_tokens=True, padding=False, truncation=False
             )["input_ids"]
             oversized = [
-                index
-                for index, ids in enumerate(encoded)
-                if len(ids) > self.max_sequence_length
+                index for index, ids in enumerate(encoded) if len(ids) > self.max_sequence_length
             ]
             if oversized:
                 raise ValueError(
@@ -194,7 +192,7 @@ class SentenceTransformerEmbeddingProvider:
         return self._encode([_qwen_query(self.query_instruction, text) for text in texts])
 
     def embed(self, texts: list[str], *, query: bool = False) -> list[list[float]]:
-        """Compatibility shim for the prototype Embedder protocol."""
+        """Adapt document/query embedding for canonical Evidence retrieval."""
         return self.embed_queries(texts) if query else self.embed_documents(texts)
 
 
@@ -311,7 +309,6 @@ def exact_cosine_scores(query: list[float], documents: list[list[float]]) -> lis
     for document in documents:
         doc_length = math.sqrt(sum(value * value for value in document))
         output.append(
-            sum(left * right for left, right in zip(query, document))
-            / (query_length * doc_length)
+            sum(left * right for left, right in zip(query, document)) / (query_length * doc_length)
         )
     return output

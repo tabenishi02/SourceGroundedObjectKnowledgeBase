@@ -83,7 +83,7 @@ def test_object_evidence_retrieval_combines_signals_and_honors_excluded(tmp_path
         ]
         assert alias_candidates
         assert {"explicit_association", "alias", "lexical"} <= _channels(alias_candidates[0])
-        assert repository.one("SELECT count(*) n FROM ai_runs")["n"] == 0
+        assert repository.one("SELECT name FROM sqlite_master WHERE name='ai_runs'") is None
     finally:
         repository.close()
 
@@ -220,6 +220,6 @@ def test_migration_009_backfills_existing_canonical_evidence(tmp_path):
     try:
         rows = repository.source_store.lexical_evidence_rows('"Backfill Hero"')
         assert [row["id"] for row in rows] == [evidence_id]
-        assert repository.one("SELECT count(*) n FROM schema_migrations")["n"] == 16
+        assert repository.one("SELECT count(*) n FROM schema_migrations")["n"] == 14
     finally:
         repository.close()

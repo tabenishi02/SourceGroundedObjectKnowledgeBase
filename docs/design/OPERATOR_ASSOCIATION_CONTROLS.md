@@ -1,5 +1,7 @@
 # Operator Association / Evidence Selection Controls
 
+> **L-05現行境界（2026-10-15）:** canonical association / Evidence controlsは維持している。本文中のF-05時点の旧`entity link`との共存説明は履歴であり、旧Entity CLIはL-05で削除済み。[L-05 Decision](../decisions/L05_LEGACY_COMPATIBILITY_CLEANUP_POLICY.md)を適用し、現在はcanonical `association` / `evidence` controlsを使用する。
+
 更新日: 2026-10-12
 
 ## 1. 目的

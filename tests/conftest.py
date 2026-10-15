@@ -5,9 +5,6 @@ import zipfile
 
 import pytest
 
-from sgokb.application import Application
-from sgokb.repository import Repository
-
 HTML = """<!DOCTYPE html><html><head><meta charset="shift_jis"><script>SECRET UI</script></head>
 <body><nav>REMOVE NAV</nav><main><h1>架空太郎</h1><p>架空太郎は勇敢で強い人物。</p>
 <h2>能力</h2><p>strength and power. 架空太郎は氷を操る。</p>
@@ -77,72 +74,3 @@ def make_bundle(tmp_path):
         return path
 
     return make
-
-
-class FixtureLLM:
-    model, revision = "unit-test-double", "1"
-
-    def __init__(self):
-        self.fail = False
-        self.invalid = False
-        self.empty = False
-
-    def complete(self, prompt, payload, *, schema=None):
-        if self.fail:
-            raise RuntimeError("simulated failure")
-        if "query" not in payload:
-            return json.dumps(
-                {
-                    "fragments": []
-                    if self.empty
-                    else [
-                        {
-                            "facet": "能力",
-                            "content": "架空太郎の strength and power は氷を操る能力。",
-                            "evidence_ids": ["invented"]
-                            if self.invalid
-                            else [payload["evidence"][0]["id"]],
-                        }
-                    ]
-                }
-            )
-        return json.dumps(
-            {
-                "sections": [
-                    {
-                        "heading": "能力",
-                        "claims": [
-                            {
-                                "text": "架空太郎は氷を操る。",
-                                "fragment_ids": ["invented"]
-                                if self.invalid
-                                else [payload["fragments"][0]["id"]],
-                            }
-                        ],
-                    }
-                ]
-            }
-        )
-
-
-class FixtureEmbedder:
-    model, revision, configuration = "unit-test-vectors", "1", "fixture-v1"
-
-    def embed(self, texts, *, query=False):
-        return [
-            [1.0, 0.01] if any(k in t for k in ("strength", "power", "might")) else [0.01, 1.0]
-            for t in texts
-        ]
-
-
-@pytest.fixture
-def core(tmp_path, make_bundle):
-    repository = Repository(tmp_path / "test.sqlite")
-    llm, embedder = FixtureLLM(), FixtureEmbedder()
-    app = Application(repository, llm, embedder)
-    path = make_bundle()
-    snapshot = app.import_path(path)["snapshot"]
-    entity = repository.add_entity("Character", "架空太郎")
-    app.process(snapshot)
-    yield app, repository, llm, embedder, snapshot, entity, path
-    repository.close()

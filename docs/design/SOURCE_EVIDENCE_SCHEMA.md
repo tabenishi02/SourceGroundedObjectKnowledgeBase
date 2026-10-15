@@ -1,5 +1,7 @@
 # Source Grounded Object Knowledge Base — Source / Evidence Schema Design
 
+> **L-05現行境界（2026-10-15）:** canonical Source / Evidence schemaの意味は維持している。本文中のE-03時点のPrototype table共存・旧DB migration/ID引継ぎ予定は歴史記録であり、[L-03 Decision](../decisions/L03_CANONICAL_DB_CLEAN_REBUILD_POLICY.md)と[L-05 Decision](../decisions/L05_LEGACY_COMPATIBILITY_CLEANUP_POLICY.md)で置き換えた。現行fresh DBは003〜016のみ、version1/2はfail-fastで拒否する。
+
 更新日: 2026-10-12
 
 - Task: `E-03 [P0] Source / Evidence / Evidence Link / Provenance schemaを設計する`
