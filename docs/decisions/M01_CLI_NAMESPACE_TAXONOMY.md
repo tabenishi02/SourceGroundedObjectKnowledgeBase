@@ -88,6 +88,17 @@ sgokb import-result
 
 ---
 
+## Resolved by M-02
+
+`sgokb-package`の互換性・廃止時期はM-02で確定した。
+
+- 将来のpublic CLI entrypointは`sgokb` 1本とする。
+- `sgokb-package`は新`sgokb`側へ同等operationが移行したcutoverで削除する。
+- deprecated wrapperとして長期維持しない。
+- 詳細は`docs/decisions/M02_CLI_COMPATIBILITY_POLICY.md`を正本とする。
+
+---
+
 ## Non-decisions
 
 このDecisionで確定するのは**top-level CLI taxonomyのみ**である。
@@ -95,7 +106,6 @@ sgokb import-result
 次の事項はM-01内の別判断として未確定のまま残す。
 
 - 各namespace配下の最終command名・option名
-- `sgokb-package`の互換性・廃止時期（M-02で最終判断）
 - Output / Error / Exit code contract
 - Object selector contract
 - Registry proposal review / apply semantics
