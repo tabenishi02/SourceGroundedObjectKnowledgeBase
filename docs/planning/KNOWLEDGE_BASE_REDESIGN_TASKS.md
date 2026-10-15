@@ -856,12 +856,16 @@ Preparation: `docs/planning/PHASE_L_PREPARATION.md`
   - このresetはproduction data蓄積前に限る一度限りのpre-production例外とし、将来の本番DBには通常のmigration / backup / restore原則を適用する。
   - 成果物: `docs/decisions/L03_CANONICAL_DB_CLEAN_REBUILD_POLICY.md`
 
-- [ ] **L-04 [P1] 旧benchmarkをarchive / deleteする**
-  - Fragment生成速度の比較を現行MVPの性能指標から外す。
-  - L-03でevaluation DBを削除する前に、歴史資料として残すべきbenchmark情報がDBにのみ存在しないか確認する。
-  - current Search quality gold / Embedding / Vector backend評価は保持する。
+- [x] **L-04 [P1] 旧benchmarkをarchive / deleteする**
+  - current Search quality gold / Similarity / Vector / Reranker benchmarkとSample Raw corpusはKeepした。
+  - old Fragment / Final benchmark inputs 3件・standalone evaluation / preflight scripts 6件はDelete済み。
+  - historical resultは既存`docs/archive/prototype-0.2/`をArchive正本とし、old benchmark runtime DB全体はArchiveしない。
+  - local evaluation / probe SQLite DB 24件とWAL/SHM 44件、計10,902,806,528 bytesを削除した。削除前一覧・sizeをGit管理外に記録した。
+  - sample Web Captureは106件を保持し、全SHA-256とsample非DBファイル895件の一覧・size・mtimeの不変を確認した。
+  - runtime-coupled benchmark code / CLI / Repository API / migration 002、Use-Strata、legacy provider / compatibility testsのcleanupはL-05へ引き渡す。
+  - 成果物: `docs/decisions/L04_LEGACY_BENCHMARK_RETIREMENT_POLICY.md`
 
-- [ ] **L-05 [P0] 不要依存関係・互換層を削除する**
+- [ ] **L-05 [P0] 不要依存関係・compatibility layerを削除する** — **Next**
   - 標準運用から生成LLM Providerが不要になった場合、不要surfaceを削除する。
   - D-05で導入した旧top-level import compatibility shimのうち不要になったものを削除する。
   - Fragment / Final legacy code・prompt・CLI・testを削除する。
@@ -1048,12 +1052,12 @@ O  Documentation / Release / Cleanup
 
 Phase A〜Kは完了している。Phase L — 旧Prototype移行・削除を進行中であり、`docs/planning/PHASE_L_PREPARATION.md`を作業正本とする。
 
-L-01でFragment資産、L-02で旧Final Document資産、L-03でcanonical DB clean rebuild方針を確定した。2026-10-14のruntime auditによりproduction移行対象dataが存在しないため、既存Prototype DBのrow-level migrationは行わず、001/002をactive bootstrapから除外して003〜016をcanonical migration chainとして使用する。`sample/` Raw Capture corpusは保持する。
+L-01でFragment資産、L-02で旧Final Document資産、L-03でcanonical DB clean rebuild方針を確定し、L-04で旧benchmark inputs/scriptsとlocal評価DBの削除を完了した。L-01〜L-04はCompleteである。2026-10-14のruntime auditによりproduction移行対象dataが存在しないため、既存Prototype DBのrow-level migrationは行わず、001/002をactive bootstrapから除外して003〜016をcanonical migration chainとして使用する。`sample/` Raw Capture corpusは保持する。
 
 次の最優先Task:
 
 ```text
-L-04 [P1] 旧benchmarkをarchive / deleteする
+L-05 [P0] 不要依存関係・compatibility layerを削除する
 ```
 
-L-04ではevaluation / upgrade等のruntime DBを物理削除する前に、歴史資料として具体的価値があるbenchmark情報がDBにしか存在しないか確認する。current Search quality gold / Embedding / Vector backend評価は保持し、旧Fragment / Final中心benchmarkはarchive / deleteを判断する。
+L-04の正本は`docs/decisions/L04_LEGACY_BENCHMARK_RETIREMENT_POLICY.md`。current Search quality gold / Vector / Reranker benchmarkとSample RawをKeepし、historical resultは既存`docs/archive/prototype-0.2/`で保持する。old benchmark runtime DBはArchiveせず削除済み。L-05ではruntime-coupled benchmark / Fragment / Final / generative provider / compatibility surfaceをcleanupする。

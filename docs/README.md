@@ -70,6 +70,8 @@
 - [SGOKB名称変更Decision](decisions/SGOKB_RENAME_DECISION.md)
 - [L-01 Fragment Retirement Policy](decisions/L01_FRAGMENT_RETIREMENT_POLICY.md)
 - [L-02 Final Document Retirement Policy](decisions/L02_FINAL_DOCUMENT_RETIREMENT_POLICY.md)
+- [L-03 Canonical DB Clean Rebuild Policy](decisions/L03_CANONICAL_DB_CLEAN_REBUILD_POLICY.md)
+- [L-04 Legacy Benchmark Retirement Policy](decisions/L04_LEGACY_BENCHMARK_RETIREMENT_POLICY.md)
 
 ### `design/`
 
@@ -96,7 +98,9 @@ Phase E以降で確定した物理Architecture / Data Model設計を置く。
 - [Search Quality Gold / Backend Benchmark](design/SEARCH_QUALITY_GOLD_BACKEND_BENCHMARK.md)
 
 ### `planning/`
-進行中の計画・タスク・引継ぎ資料を置く。Phase A〜Kは完了し、現在はPhase L — 旧Prototype移行・削除を進行中である。`PHASE_L_PREPARATION.md`を作業正本とし、L-01 / L-02の退役Decisionを反映済み。次Taskは`L-03 [P1] 既存Prototype DBを破棄しcanonical DBをclean rebuildする`。
+進行中の計画・タスク・引継ぎ資料を置く。Phase A〜Kは完了し、現在はPhase L — 旧Prototype移行・削除を進行中である。[Phase L Preparation](planning/PHASE_L_PREPARATION.md)を作業正本とし、L-01 / L-02 / L-03 / L-04はComplete。Current task / Nextは`L-05 [P0] 不要依存関係・compatibility layerを削除する`。
+
+[L-04 Decision](decisions/L04_LEGACY_BENCHMARK_RETIREMENT_POLICY.md)に従い、current Search quality gold / Similarity / Vector / Reranker benchmarkとSample Raw corpusはKeep、old Fragment / Final benchmark inputs/scriptsはDelete済み。historical resultは既存`archive/prototype-0.2/`を正本とし、old benchmark runtime DBはArchiveせずローカルで削除した。runtime-coupled benchmark code / CLI cleanupはL-05へ引き渡す。
 
 ### `reference/`
 再設計で参照する既存資産・依存関係の調査結果とgold corpusを置く。

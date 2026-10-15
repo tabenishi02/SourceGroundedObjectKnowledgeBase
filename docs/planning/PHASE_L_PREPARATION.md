@@ -6,7 +6,7 @@
 - Phase: `Phase L — 旧Prototype移行・削除`
 - Previous phase: `Phase K — SGOKB / UPDS連携試験` — Complete
 - Previous closure: `docs/planning/PHASE_K_CLOSURE_AUDIT.md`
-- Current task: `L-04 [P1] 旧benchmarkをarchive / deleteする`
+- Current task: `L-05 [P0] 不要依存関係・compatibility layerを削除する`
 - Working branch: `main`
 
 ---
@@ -29,21 +29,22 @@ Phase L完了条件:
 
 | Task | Priority | Status | 概要 |
 |---|---|---|---|
-| L-01 | P0 | Complete (Revised) | Fragment table / code / CLIを削除対象と確定した |
+| L-01 | P0 | Complete | Fragment table / code / CLIを削除対象と確定した |
 | L-02 | P0 | Complete | Final Document table / code / CLIを削除対象と確定し、canonical RendererをKeepした |
 | L-03 | P1 | Complete | Prototype DBをdata migrationせず、003〜016からclean rebuildする設計を確定した |
-| L-04 | P1 | Next | 旧benchmarkをarchive / deleteする |
-| L-05 | P0 | Pending | 不要依存関係・compatibility layerを削除する |
+| L-04 | P1 | Complete | 旧benchmark inputs/scriptsとlocal runtime DBを削除し、current Search benchmarkとSample Rawを保持した |
+| L-05 | P0 | Next | 不要依存関係・compatibility layerを削除する |
 
 推奨順序は`L-01 → L-02 → L-03 → L-04 → L-05`とする。
 
 L-01/L-02で何を保持・削除するかを決める前にschemaやdependencyを変更しない。
 
-L-01 / L-02 / L-03 decisions:
+L-01 / L-02 / L-03 / L-04 decisions:
 
 - `docs/decisions/L01_FRAGMENT_RETIREMENT_POLICY.md`
 - `docs/decisions/L02_FINAL_DOCUMENT_RETIREMENT_POLICY.md`
 - `docs/decisions/L03_CANONICAL_DB_CLEAN_REBUILD_POLICY.md`
+- `docs/decisions/L04_LEGACY_BENCHMARK_RETIREMENT_POLICY.md`
 
 ---
 
@@ -206,26 +207,21 @@ generate alias
 
 ### 5.3 Legacy benchmark
 
-主な対象:
+L-04で旧Fragment / Final benchmark inputs・standalone evaluation/preflight scriptsはDelete済み。削除対象とKeep対象の正本は`docs/decisions/L04_LEGACY_BENCHMARK_RETIREMENT_POLICY.md`とする。
+
+次のruntime-coupled surfaceはL-05まで保持する。
 
 ```text
 src/sgokb/benchmark.py
-scripts/run_evaluation.py
-scripts/run_speed_preflight.py
-scripts/run_strata_preflight.py
-scripts/run_strata_speed_preflight.py
-scripts/run_upgrade_evaluation.py
-benchmark/ 内のPrototype評価資産
+CLI: legacy-benchmark / benchmark alias / benchmark-score
+Repository: benchmark_runs / benchmark_cases関連API
+migration 002: benchmark_runs / benchmark_cases
+scripts/Use-Strata.ps1
+legacy Generative LLM provider surface
+Fragment / Final / benchmark compatibility tests
 ```
 
-CLI:
-
-```text
-legacy-benchmark
-benchmark alias
-```
-
-ただし`benchmark/search-quality-gold-v1.json`やPhase IのSearch品質benchmarkは現行資産であり、Fragment速度benchmarkと一括archiveしない。
+current Search quality gold / Similarity / Vector / Reranker benchmarkと`scripts/inventory_samples.py`はKeepする。
 
 ---
 
@@ -378,26 +374,31 @@ production data蓄積開始後は、D-06のruntime data保全方針および通�
 
 ---
 
-## 11. L-04 benchmark archive境界
+## 11. L-04決定・ローカル後処理結果 — Complete
 
-Keep対象:
+正本: `docs/decisions/L04_LEGACY_BENCHMARK_RETIREMENT_POLICY.md`
 
-- current Object Search quality gold
-- Embedding / Vector backend評価
-- Phase I Search / Similarity regression
+- **Keep:** current Search quality gold / Similarity / Vector / Reranker benchmark。`benchmark/search-quality-gold-v1.json`、`scripts/run_search_quality_gold.py`、`scripts/run_vector_backend_benchmark.py`、`scripts/run_search_gold_reranker_benchmark.py`、`scripts/inventory_samples.py`を保持した。
+- **Delete済み:** old Fragment / Final benchmark inputs 3件とstandalone evaluation / preflight scripts 6件。GitHub mainの`14b5a5104b46c48c8e96c19d4cd3d2dd2f20972f`をfast-forwardで取り込んだ。
+- **Archive正本:** historical resultは既存`docs/archive/prototype-0.2/`とGit historyで保持する。old benchmark runtime DB全体・個別run rowsを追加Archiveしない。
+- **Local DB cleanup:** 2026-10-14のruntime auditとL-04 Decisionの削除許可に基づき、明示された`.local/`の8 DBと`sample/`の16 DB、対応する44 WAL/SHMを2026-10-15に削除した。合計10,902,806,528 bytes。
+- **Sample Raw corpus Keep:** `sample/**/*.webcapture.zip`は削除前後とも106件、全SHA-256が一致した。sample非DBファイル895件の一覧・size・mtimeも不変だった。
+- **削除記録:** 削除前の相対path・size一覧をGit管理外`.local/l04-local-cleanup-20261015/inventory.json`および`deletion-list.csv`へ保存した。`result.json`に削除結果・Raw保持確認を記録した。DB本体のbackup/archiveは作成していない。
+- **L-05引継ぎ:** runtime-coupled benchmark code / CLI / Repository API / migration 002、`Use-Strata.ps1`、legacy Generative LLM provider surface、Fragment / Final / benchmark compatibility testsは今回変更・削除していない。
 
-Retire/archive/delete対象:
+L-01〜L-04はComplete、次TaskはL-05とする。canonical clean bootstrapの実装とlegacy compatibility cleanupを先回りしない。
 
-- fragments/sec
-- fragments per evidence
-- Final Document生成速度
-- High Recall extraction model比較をcurrent acceptance基準とすること
+### 11.1 ローカル検証と既知制約
 
-既存`docs/archive/prototype-0.2/`は歴史資料保存先として利用できるが、不要なbenchmark dataをすべて保存する必要はない。
+- `git diff --check`: 成功。
+- current benchmark / Raw inventory script 4本のsyntax確認: 成功。Search gold / Vector backend / Sample inventoryのimportは成功した。Reranker scriptのimportは任意依存`sentence_transformers`未導入により失敗した。依存追加やmodel downloadは今回行っていない。
+- `python -m pytest -q`: ローカル削除前のGitHub mainそのままで、削除済みpreflight scriptを参照する2 moduleがcollection errorとなった。
+- 削除後の`python -m pytest -q --continue-on-collection-errors`: **311 passed / 3 skipped / 1 failed / 2 collection errors**。
+- 上記2 collection errorsは`tests/test_speed_preflight.py`と`tests/test_strata_speed_preflight.py`が、上流L-04で削除済みのscriptを参照する既知compatibility不整合である。今回testを変更せずL-05のcleanupへ引き継ぐ。
+- 1 failureは`tests/test_package_transfer.py::test_stage_rejects_unexpected_files_and_hash_mismatch`。SHA-256 mismatchを期待するtestにsize mismatchが返る既存の不整合で、L-04前のcheckoutと全`src/`・`tests/`が同一であることを確認した。L-04のDB削除対象を使用しない一時fixtureのtestであり、今回修正していない。
+- `ruff check src tests scripts`: 既存違反38件で失敗。今回code / tests / scriptsの変更はなく、無関係なlint修正は行っていない。
+- 削除後testsでもDB対象68ファイルは再生成されず、tracked Search benchmark 5資産とsample非DBファイル895件・Web Capture 106件を保持した。syntax/import、test、lintの詳細はGit管理外`.local/l04-local-cleanup-20261015/`に保存した。
 
-L-04では「歴史資料として具体的価値があるか」を基準にarchive / deleteを判断する。
-
-L-04は同時に、evaluation / upgrade等のruntime DBを物理削除する前の**benchmark salvage gate**とする。保存価値がある情報がDBにしか存在しない場合は、DB全体ではなく必要最小限の結果・条件・manifestのみをarchiveする。
 
 ---
 
@@ -449,7 +450,9 @@ Phase L cleanupを理由に次を再設計しない。
 - [x] L-02で旧Final Document資産を削除しcanonical Markdown RendererをKeepする方針を確定した。
 - [x] L-03でPrototype DB migrationを行わず003〜016からclean rebuildする方式を確定した。
 
-**Phase Lは進行中であり、L-04へ移行可能である。**
+- [x] L-04でtracked legacy benchmarkとlocal evaluation DBを削除し、current benchmark / Sample Rawの保持を確認した。
+
+**L-01〜L-04はComplete。Phase Lは進行中であり、Current taskはL-05である。**
 
 ---
 
@@ -468,5 +471,5 @@ Phase L cleanupを理由に次を再設計しない。
 次Task:
 
 ```text
-L-04 [P1] 旧benchmarkをarchive / deleteする
+L-05 [P0] 不要依存関係・compatibility layerを削除する
 ```
