@@ -844,13 +844,17 @@ Preparation: `docs/planning/PHASE_L_PREPARATION.md`
   - DB baseline反映はL-03、Final benchmark整理はL-04、物理code cleanupはL-05で実施する。
   - 成果物: `docs/decisions/L02_FINAL_DOCUMENT_RETIREMENT_POLICY.md`
 
-- [ ] **L-03 [P1] 既存Prototype DBを破棄しcanonical DBをclean rebuildする**
+- [x] **L-03 [P1] 既存Prototype DBを破棄しcanonical DBをclean rebuildする**
   - 既存Prototype / evaluation DBをcanonical data sourceとしてmigrationしない。
   - `sample/` Raw Capture corpusは保持する。
-  - active canonical bootstrap / schema baselineを整理し、legacy Prototype tableをfresh DBへ再生成しない。
-  - `001_initial.sql` / `002_knowledge_capture.sql`等を履歴として保持する場合も、active bootstrapから分離する。
-  - clean DBからSource / Evidence / Object / Version / Search / MCP workflowが成立することを検証する。
+  - `001_initial.sql` / `002_knowledge_capture.sql`をactive bootstrapから除外し、clean schema用には書き換えない。
+  - canonical migration `003_object_schema.sql`〜`016_hybrid_search.sql`を番号変更せずactive chainとして維持し、future migrationは`017_...`以降を使用する。
+  - fresh canonical DBの`schema_migrations`は原則`3..16`とし、Prototype tableを生成しない。
+  - `schema_migrations`に`1`または`2`を持つPrototype DBはin-place upgradeせずfail-fastで拒否する。
+  - evaluation / upgrade等のruntime DBはL-04のbenchmark salvage gate通過後に削除し、Raw CaptureとDB cleanupを分離する。
+  - clean DBでSQLite integrity、Source / Evidence / Object / Version / Search / MCP workflowを検証する。
   - このresetはproduction data蓄積前に限る一度限りのpre-production例外とし、将来の本番DBには通常のmigration / backup / restore原則を適用する。
+  - 成果物: `docs/decisions/L03_CANONICAL_DB_CLEAN_REBUILD_POLICY.md`
 
 - [ ] **L-04 [P1] 旧benchmarkをarchive / deleteする**
   - Fragment生成速度の比較を現行MVPの性能指標から外す。
@@ -1044,12 +1048,12 @@ O  Documentation / Release / Cleanup
 
 Phase A〜Kは完了している。Phase L — 旧Prototype移行・削除を進行中であり、`docs/planning/PHASE_L_PREPARATION.md`を作業正本とする。
 
-L-01でFragment資産、L-02で旧Final Document資産の退役方針を確定した。2026-10-14のruntime auditによりproduction移行対象dataが存在しないため、既存Prototype DBのdata migrationは行わずpre-production clean rebuildを採用する。`sample/` Raw Capture corpusは保持する。
+L-01でFragment資産、L-02で旧Final Document資産、L-03でcanonical DB clean rebuild方針を確定した。2026-10-14のruntime auditによりproduction移行対象dataが存在しないため、既存Prototype DBのrow-level migrationは行わず、001/002をactive bootstrapから除外して003〜016をcanonical migration chainとして使用する。`sample/` Raw Capture corpusは保持する。
 
 次の最優先Task:
 
 ```text
-L-03 [P1] 既存Prototype DBを破棄しcanonical DBをclean rebuildする
+L-04 [P1] 旧benchmarkをarchive / deleteする
 ```
 
-L-03ではactive canonical bootstrap / schema baselineを整理し、Fragment / Final / benchmark等のlegacy tableをfresh DBへ再生成しないこと、clean DBからSource / Evidence / Object / Version / Search / MCP workflowが成立することを検証する。
+L-04ではevaluation / upgrade等のruntime DBを物理削除する前に、歴史資料として具体的価値があるbenchmark情報がDBにしか存在しないか確認する。current Search quality gold / Embedding / Vector backend評価は保持し、旧Fragment / Final中心benchmarkはarchive / deleteを判断する。
