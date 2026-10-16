@@ -2,12 +2,12 @@
 
 更新日: 2026-10-16
 
-- Status: **Active — N-02 Complete / N-03 Next**
+- Status: **Active — N-03 Complete / N-04 Next**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - Previous closure: `docs/planning/PHASE_M_CLOSURE_AUDIT.md`
 - Baseline: `7b4507ab5a80ebdb687c65d5e4627beb83806f3c`
-- Current task: `N-03 [P0] real-data Vertical Slice`（Next / 未着手）
+- Current task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`（Next / 未着手）
 
 ---
 
@@ -63,8 +63,8 @@ Phase Nへ引き継ぐ既知制約:
 |---|---|---|---|
 | N-01 | P0 | **Complete (2026-10-16)** | Unit TestをObject / Relation / Facet / Version / Validation / Retrievalへ整理・補完 |
 | N-02 | P0 | **Complete (2026-10-16)** | cross-domain Integrationを追加 |
-| N-03 | P0 | **Next / 未着手** | Character / Work / Conceptの実データVertical Slice |
-| N-04 | P0 | Pending | 代表AI利用ケース3件の受入 |
+| N-03 | P0 | **Complete (2026-10-16)** | Character / Work / Conceptの実データVertical Slice |
+| N-04 | P0 | **Next / 未着手** | 代表AI利用ケース3件の受入 |
 | N-05 | P0 | Pending | 1 Object自動処理時間の計測 |
 | N-06 | P0 | Pending | Retrieval / Vector Backend品質評価 |
 | N-07 | P1 | Pending | Failure / Recovery試験 |
@@ -391,4 +391,13 @@ N-01完了時の次TaskはN-02だった。現在の状態はsection 15を参照�
 
 2026-10-16、Captureからaccepted Version、deterministic Derived Search pipeline、実Applicationを経由するMCP integrationの追加3 testがPASS。full suite 0 failed、対象Ruff / format / git diff --checkもPASSし、N-02をCompleteとした。fixture / API使用の問題を修正し、production contractは維持した。詳細は`docs/planning/N02_INTEGRATION_TESTS.md`を参照する。
 
-次TaskはN-03 [P0] real-data Vertical Slice（未着手）。N-03〜N-07とclosure auditを残し、Phase N全体は継続中。
+N-02完了時の次TaskはN-03だった。現在の状態はsection 16を参照する。
+
+
+## 16. N-03 real-data dataset構築完了
+
+2026-10-16、8 real Web Captureをfresh評価DBへ取り込み、Character / Work / Concept各2 Object、6 Package / valid Result / accepted current Versionを固定した。全74 Package EvidenceのProvenance、全12 Statement grounding、canonical name / alias lexical smoke、system integrity、full pytest（307 passed / 3 skipped / 0 failed）がPASSした。
+
+N-03 Complete / N-04 Next。成果物は`docs/evaluation/N03_REAL_DATA_VERTICAL_SLICE.md`と`benchmark/n03-real-data-vertical-slice-v1.json`。Raw / DB / Package / Result / logsはGit管理外。
+
+内容語検索10 probeはSearch Representationがpendingのため未ヒットで、派生生成経路とretrieval品質は未受入。N-04の検索依存ケースではこの制約を先に解消・受入する。identity smokeの成功をsemantic品質やAI出力品質の成功へ拡大しない。N-04〜N-07とclosure auditを残し、Phase N全体は継続中。
