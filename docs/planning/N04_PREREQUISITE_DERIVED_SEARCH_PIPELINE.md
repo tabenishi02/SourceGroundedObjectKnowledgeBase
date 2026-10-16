@@ -1,12 +1,12 @@
 # N-04 Prerequisite — Derived Search Pipeline
 
-更新日: 2026-10-16
+更新日: 2026-10-17
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Position: `N-03 Complete` と `N-04` の間に置く必須Gate
 - Base: N-03 completed commit `da61d287c6ab97ef24e2062344510327a770d65e`
 - Branch: `phase-n/n04-prerequisite-derived-search`
-- Status: **Active — N-04P-03 Complete / N-04P-04 Next**
+- Status: **Active — N-04P-04 Complete / N-04P-05 Next**
 - Origin: N-03 real-data Vertical Sliceで、accepted Knowledgeは作成できたが内容語Lexical Searchが未成立し、`search_representation` derived stateがpendingのまま残ることを確認した。
 - Lifecycle contract: `docs/decisions/N04P01_DERIVED_SEARCH_LIFECYCLE_CONTRACT.md`
 
@@ -65,8 +65,8 @@ N-03では内部`SearchRepresentationBuilder`を直接呼ばず、公開CLI限�
 | N-04P-01 | P0 | **Complete (2026-10-16)** | Derived Search lifecycle / state / orchestration contractを確定 |
 | N-04P-02 | P0 | **Complete (2026-10-16)** | Search Representation同期経路を実装 |
 | N-04P-03 | P0 | **Complete (2026-10-16)** | Incremental Embedding同期経路を実装 |
-| N-04P-04 | P0 | **Next / 未着手** | Vector Index同期 / rebuild経路を完成 |
-| N-04P-05 | P0 | Pending | Public CLI / Status contractを実装 |
+| N-04P-04 | P0 | **Complete (2026-10-17)** | Vector Index同期 / rebuild経路を完成 |
+| N-04P-05 | P0 | **Next / 未着手** | Public CLI / Status contractを実装 |
 | N-04P-06 | P0 | Pending | N-03実データでDerived Search Gateを受入 |
 
 ---
@@ -152,7 +152,7 @@ N-03で未ヒットだった内容語queryについて、少なくともRepresen
 
 ---
 
-## N-04P-04 [P0] Vector Index同期 / rebuild経路を完成させる
+## N-04P-04 [P0] Vector Index同期 / rebuild経路を完成させる — Complete
 
 **目的:** Embedding ready後にSimilarity / Semantic Retrievalで使用できるVector Indexを構築する。
 
@@ -261,9 +261,9 @@ N-04P-02 Search Representation sync     Complete
   ↓
 N-04P-03 Embedding sync                 Complete
   ↓
-N-04P-04 Vector sync/rebuild            Next
+N-04P-04 Vector sync/rebuild            Complete
   ↓
-N-04P-05 Public CLI / status
+N-04P-05 Public CLI / status            Next
   ↓
 N-04P-06 N-03 real-data acceptance
   ↓
@@ -337,4 +337,11 @@ N-04P-02受入時の状態はP-03 Nextだった。現在はN-04P-01〜P-03 Compl
 
 2026-10-16、focused 9 passed、Embedding/Search回帰 23 passed / 1 skipped、P-02回帰 6 passed、full suite 322 passed / 3 skipped / 0 failed、指定Ruff / format / git diff --checkがPASSした。実測は`docs/planning/N04P03_INCREMENTAL_EMBEDDING_SYNC.md`を参照する。
 
-N-04P-01 / P-02 / P-03 Complete、P-04 Next、P-05 / P-06 Pending。N-04 AI use-case acceptanceはprerequisite完了待ちで、PR #39はDraftを維持する。
+P-03受入時の状態はP-04 Nextだった。現在はN-04P-01〜P-04 Complete、P-05 Next、P-06 Pending。N-04 AI use-case acceptanceはprerequisite完了待ちで、PR #39はDraftを維持する。
+
+
+## N-04P-04 Reference Workstation acceptance
+
+2026-10-17、focused 14 passed、Vector/Similarity回帰 23 passed / 3 skipped、P-02/P-03 15 passed、N-02 3 passed、CLI 14 passed、full suite 336 passed / 3 skipped / 0 failed。Ruff / format / git diff --checkもPASS。詳細は`docs/planning/N04P04_VECTOR_INDEX_SYNC_REBUILD.md`。
+
+N-04P-01〜P-04 Complete / N-04P-05 Next / N-04P-06 Pending。公開Builderと既存Vector-only CLI rebuildがderived stateを直接変更しないことも保証した。N-04本体はprerequisite完了待ち、PR #39はDraftを維持する。

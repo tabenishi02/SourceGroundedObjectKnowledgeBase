@@ -24,7 +24,9 @@ class KnowledgeVectorMaintenanceBuilder(_PhaseIKnowledgeVectorIndexBuilder):
     ) -> tuple[VectorIndexPoint, ...]:
         rows = [row for row in self._membership_rows() if row["object_id"] == object_id]
         if not rows:
-            raise ValueError("Vector Index sync found no accepted Search Representation memberships")
+            raise ValueError(
+                "Vector Index sync found no accepted Search Representation memberships"
+            )
 
         representation_ids = tuple(dict.fromkeys(row["representation_id"] for row in rows))
         embeddings = {

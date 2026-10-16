@@ -1,4 +1,6 @@
 import hashlib
+import importlib
+import json
 import math
 
 import pytest
@@ -21,7 +23,12 @@ from sgokb.domain import (
     VectorSearchHit,
 )
 from sgokb.repository import Repository
-from sgokb.retrieval import HybridObjectSearch, ObjectSimilaritySearch
+from sgokb.retrieval import (
+    HybridObjectSearch,
+    KnowledgeVectorIndexBuilder,
+    KnowledgeVectorMaintenanceBuilder,
+    ObjectSimilaritySearch,
+)
 
 
 @pytest.fixture
@@ -338,9 +345,9 @@ def test_new_version_refreshes_historical_is_current_metadata(repo):
     assert len(second_points) == 3
     assert all(point.metadata["is_current"] is False for point in first_points)
     assert all(point.metadata["is_current"] is True for point in second_points)
-    assert {
-        point.metadata["representation_id"] for point in first_points
-    } == {point.metadata["representation_id"] for point in second_points}
+    assert {point.metadata["representation_id"] for point in first_points} == {
+        point.metadata["representation_id"] for point in second_points
+    }
 
 
 def test_missing_historical_embedding_is_explicit_failure(repo):
@@ -449,11 +456,14 @@ def test_full_rebuild_recovers_backend_and_enables_semantic_and_similarity(repo)
     _prepare_embedding_ready(repo, alpha, provider)
     _prepare_embedding_ready(repo, beta, provider)
     index = FakeVectorIndex()
+    unprepared = repo.object_store.create_object("Unprepared Hero", _character_class(repo))
+    _accepted_version(repo, unprepared, "unprepared-v1")
 
     result = _vector_service(repo, provider, index).rebuild_vector_index()
 
     assert result.point_count == 6
     assert result.ready_object_count == 2
+    assert _derived_state(repo, unprepared, "vector_index").status is DerivedState.PENDING
     assert result.state == "ready"
     assert len(index.points) == 6
     assert _derived_state(repo, alpha, "vector_index").status is DerivedState.READY
@@ -487,3 +497,88 @@ def test_full_rebuild_missing_embedding_fails_without_ready_promotion(repo):
         _vector_service(repo, provider, FakeVectorIndex()).rebuild_vector_index()
 
     assert _derived_state(repo, object_id, "vector_index") == before
+
+
+def test_exported_builder_and_cli_rebuild_do_not_change_derived_lifecycle(
+    repo, tmp_path, capsys, monkeypatch
+):
+    object_id = repo.object_store.create_object("Alpha Hero", _character_class(repo))
+    _accepted_version(repo, object_id, "alpha-v1")
+    provider = FakeEmbeddingProvider()
+    _prepare_embedding_ready(repo, object_id, provider)
+    before = repo.version_store.derived_states(object_id)
+    calls_before = list(provider.document_calls)
+    assert _derived_state(repo, object_id, "vector_index").status is DerivedState.PENDING
+    assert KnowledgeVectorIndexBuilder is KnowledgeVectorMaintenanceBuilder
+
+    direct_index = FakeVectorIndex()
+    metadata = KnowledgeVectorIndexBuilder(repo, direct_index).rebuild(provider.space)
+    assert metadata.points_count == 3
+    assert len(direct_index.points) == 3
+    assert repo.version_store.derived_states(object_id) == before
+
+    cli_module = importlib.import_module("sgokb.cli.main")
+    cli_index = FakeVectorIndex()
+    monkeypatch.setattr(cli_module, "semantic_runtime", lambda: (provider, cli_index))
+    assert (
+        cli_module.main(
+            [
+                "--db",
+                str(tmp_path / "n04p04-vector-index-sync.sqlite"),
+                "system",
+                "index",
+                "rebuild",
+            ]
+        )
+        == 0
+    )
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["data"]["points_count"] == 3
+    assert len(cli_index.points) == 3
+    assert repo.version_store.derived_states(object_id) == before
+    assert provider.document_calls == calls_before
+
+
+@pytest.mark.parametrize("change", ["new_object", "new_version"])
+def test_full_rebuild_rejects_catalog_changes_without_ready_promotion(repo, change):
+    alpha = repo.object_store.create_object("Alpha Hero", _character_class(repo))
+    version = _accepted_version(repo, alpha, "alpha-v1")
+    provider = FakeEmbeddingProvider()
+    _prepare_embedding_ready(repo, alpha, provider)
+    targets = [alpha]
+
+    def supersede():
+        if change == "new_object":
+            beta = repo.object_store.create_object("Beta Hero", _character_class(repo))
+            targets.append(beta)
+            _accepted_version(repo, beta, "beta-v1")
+        else:
+            _accepted_version(repo, alpha, "alpha-v2", base_version_id=version)
+
+    index = FakeVectorIndex(on_write=supersede)
+    with pytest.raises(DerivedMaintenanceSupersededError, match="catalog changed"):
+        _vector_service(repo, provider, index).rebuild_vector_index()
+    for object_id in targets:
+        state = _derived_state(repo, object_id, "vector_index")
+        assert state.status is DerivedState.PENDING
+        assert state.last_error is None
+    assert repo.version_store.version_by_id(version).state.value == "accepted"
+
+
+def test_full_rebuild_backend_failure_preserves_all_objects_and_states(repo):
+    alpha = repo.object_store.create_object("Alpha Hero", _character_class(repo))
+    beta = repo.object_store.create_object("Beta Hero", _character_class(repo))
+    provider = FakeEmbeddingProvider()
+    for object_id, version in ((alpha, "alpha-v1"), (beta, "beta-v1")):
+        _accepted_version(repo, object_id, version)
+        _prepare_embedding_ready(repo, object_id, provider)
+    reader = KnowledgeReadApplication(repo)
+    before_knowledge = {oid: reader.get_object(oid) for oid in (alpha, beta)}
+    before_states = {oid: repo.version_store.derived_states(oid) for oid in (alpha, beta)}
+    calls_before = list(provider.document_calls)
+
+    with pytest.raises(DerivedMaintenanceError, match="simulated vector rebuild failure"):
+        _vector_service(repo, provider, FakeVectorIndex(fail_rebuild=True)).rebuild_vector_index()
+    assert {oid: reader.get_object(oid) for oid in (alpha, beta)} == before_knowledge
+    assert {oid: repo.version_store.derived_states(oid) for oid in (alpha, beta)} == before_states
+    assert provider.document_calls == calls_before

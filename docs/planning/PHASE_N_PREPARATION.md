@@ -1,13 +1,13 @@
 # Source Grounded Object Knowledge Base — Phase N Preparation
 
-更新日: 2026-10-16
+更新日: 2026-10-17
 
-- Status: **Active — N-03 Complete / N-04 prerequisite: N-04P-03 Complete / N-04P-04 Next**
+- Status: **Active — N-03 Complete / N-04 prerequisite: N-04P-04 Complete / N-04P-05 Next**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - Previous closure: `docs/planning/PHASE_M_CLOSURE_AUDIT.md`
 - Baseline: `7b4507ab5a80ebdb687c65d5e4627beb83806f3c`
-- Current task: `N-04P-04 [P0] Vector Index同期 / rebuild経路を完成させる`（Next / 未着手）
+- Current task: `N-04P-05 [P0] Public CLI / Status contractを整備する`（Next / 未着手）
 - N-04 AI use-case acceptance: prerequisite N-04P-01〜P-06完了待ち
 
 ---
@@ -411,11 +411,15 @@ N-03 Completeを維持する。N-04本体の正式開始前に`docs/planning/N04
 - N-04P-01: Complete（lifecycle contract）。
 - N-04P-02: Complete（Reference Workstation検証PASS、Search Representation Application sync）。
 - N-04P-03: Complete（Incremental Embedding同期 / Reference Workstation検証PASS）。
-- N-04P-04: Next（Vector Index同期 / rebuild）。
-- N-04P-05 / P-06: Pending。
+- N-04P-04: Complete（Vector Index同期 / rebuild / Reference Workstation検証PASS）。
+- N-04P-05: Next（Public CLI / Status）。
+- N-04P-06: Pending。
 - N-04 AI use-case acceptance: prerequisite全体完了待ち。
 
-P-02はsemantic runtimeなしでKnowledge内容語Lexical Searchを成立させるApplication境界までの完了である。P-03で明示provider注入によるEmbedding同期まで完了した。public CLI / status、Vector同期、N-03 real-dataへの正式適用は残っている。実測結果は`docs/planning/N04P02_SEARCH_REPRESENTATION_SYNC.md`を参照する。
+P-02はsemantic runtimeなしでKnowledge内容語Lexical Searchを成立させるApplication境界までの完了である。P-03で明示provider注入によるEmbedding同期まで完了した。P-04でVector同期 / rebuildまで完了した。public CLI / statusとN-03 real-dataへの正式適用は残っている。実測結果は`docs/planning/N04P02_SEARCH_REPRESENTATION_SYNC.md`を参照する。
 
 
-N-04P-03もReference Workstationで全GateがPASSしCompleteとなった。provider未構成はpending維持、missing-only生成、Embedding reuse / Space isolation、failure時Knowledge保全、superseded成功/失敗のrevision guardを確認済み。詳細は`docs/planning/N04P03_INCREMENTAL_EMBEDDING_SYNC.md`。N-04本体は引き続きP-04〜P-06完了待ち。
+N-04P-03もReference Workstationで全GateがPASSしCompleteとなった。provider未構成はpending維持、missing-only生成、Embedding reuse / Space isolation、failure時Knowledge保全、superseded成功/失敗のrevision guardを確認済み。詳細は`docs/planning/N04P03_INCREMENTAL_EMBEDDING_SYNC.md`。N-04本体は引き続きP-05 / P-06完了待ち。
+
+
+2026-10-17、N-04P-04も全GateがPASSしComplete。incremental current/historical metadata更新、missing Embedding拒否、revision guard、fresh full rebuild、Semantic/Similarity、Builder/既存CLIのlifecycle-neutral境界を確認した。実測結果は`docs/planning/N04P04_VECTOR_INDEX_SYNC_REBUILD.md`。次はP-05、N-04 AI use-case acceptanceはP-05 / P-06の完了待ち。
