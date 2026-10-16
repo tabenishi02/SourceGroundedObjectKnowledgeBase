@@ -165,7 +165,7 @@ def test_stage_rejects_unexpected_files_and_hash_mismatch(tmp_path):
         PackageTransferService().stage_from_directory(source, tmp_path / "staging")
 
     (source / "accidental.txt").unlink()
-    (source / "evidence/source_001.md").write_text("changed", encoding="utf-8")
+    (source / "evidence/source_001.md").write_text("Tampered text", encoding="utf-8")
     with pytest.raises(ValueError, match="SHA-256 mismatch"):
         PackageTransferService().stage_from_directory(source, tmp_path / "staging")
 
