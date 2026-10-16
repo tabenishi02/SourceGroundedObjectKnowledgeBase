@@ -932,8 +932,8 @@ N-04本体の正式開始前にN-04P-01〜P-06を必須Gateとする。正本: `
 |---|---|---|
 | N-04P-01 | Complete | lifecycle contract確定 |
 | N-04P-02 | Complete | Search Representation Application sync / Reference Workstation検証。成果物: `docs/planning/N04P02_SEARCH_REPRESENTATION_SYNC.md` |
-| N-04P-03 | Next / 未着手 | Incremental Embedding同期 |
-| N-04P-04 | Pending | Vector Index同期 / rebuild |
+| N-04P-03 | Complete | Incremental Embedding同期。成果物: `docs/planning/N04P03_INCREMENTAL_EMBEDDING_SYNC.md` |
+| N-04P-04 | Next / 未着手 | Vector Index同期 / rebuild |
 | N-04P-05 | Pending | Public CLI / Status |
 | N-04P-06 | Pending | N-03実データDerived Search Gate受入 |
 
@@ -1073,7 +1073,7 @@ Phase A〜MはComplete。Phase LではL-01〜L-04のDecisionをL-05で実装し�
 次の最優先Task（未着手）:
 
 ```text
-N-04P-03 [P0] Incremental Embedding同期経路を実装する
+N-04P-04 [P0] Vector Index同期 / rebuild経路を完成させる
 ```
 
-Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01〜N-03のReference Workstation検証・dataset構築を完了し、次はN-04 prerequisiteのN-04P-03へ進む。N-04 AI利用ケース受入はP-01〜P-06完了待ち。内容語retrievalの派生表現pending制約はN-03評価記録を参照する。
+Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01〜N-03のReference Workstation検証・dataset構築を完了し、次はN-04 prerequisiteのN-04P-04へ進む。N-04 AI利用ケース受入はP-01〜P-06完了待ち。内容語retrievalの派生表現pending制約はN-03評価記録を参照する。

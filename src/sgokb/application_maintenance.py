@@ -207,9 +207,7 @@ class DerivedSearchMaintenanceApplication:
             object_id=object_id,
             version_id=version_id,
         )
-        representation_ids = tuple(
-            dict.fromkeys(row["representation_id"] for row in memberships)
-        )
+        representation_ids = tuple(dict.fromkeys(row["representation_id"] for row in memberships))
         if not representation_ids:
             raise DerivedMaintenanceError(
                 "Embedding sync found no Search Representation memberships for the current Version"

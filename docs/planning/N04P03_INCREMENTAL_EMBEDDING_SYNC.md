@@ -7,7 +7,7 @@
 - Parent: `docs/planning/N04_PREREQUISITE_DERIVED_SEARCH_PIPELINE.md`
 - Contract: `docs/decisions/N04P01_DERIVED_SEARCH_LIFECYCLE_CONTRACT.md`
 - Branch: `phase-n/n04-prerequisite-derived-search`
-- Status: **Implementation complete / Reference Workstation verification pending**
+- Status: **Complete (2026-10-16)**
 
 ## 1. Scope
 
@@ -202,7 +202,7 @@ Gate:
 - no new skip / xfail to hide N-04P-03 failures
 - no cloud/network requirement for focused tests
 
-Reference Workstation検証がPASSするまでN-04P-03をCompleteにしない。
+Reference Workstationでfocused / 回帰 / full suite / lint / format / diff-checkがPASSしたため、N-04P-03をCompleteとした。
 
 ---
 
@@ -220,3 +220,46 @@ PASS後:
 次Task:
 
 `N-04P-04 [P0] Vector Index同期 / rebuild経路を完成させる`
+
+
+## 8. Reference Workstation実測結果
+
+- 実行日: 2026-10-16 JST
+- 環境: Windows 11 build 26300 / Python 3.10.6 / 通常`.venv`、pytest 9.1.1 / Ruff 0.17.0。
+- branch: `phase-n/n04-prerequisite-derived-search` / PR #39。
+- 開始head: `f3d6647414479775d42513251c0819a6ee9cd170`。
+
+通常venvのPython（`.venv/Scripts/python.exe`）で実行した。
+
+| Command | 結果 |
+|---|---|
+| `python -m pytest tests/test_n04p03_embedding_sync.py -q` | **9 passed / 0 failed**（2.03s） |
+| `python -m pytest tests/test_embedding_space.py tests/test_search_representation.py tests/test_hybrid_search.py -q` | **23 passed / 1 skipped / 0 failed**（6.17s） |
+| `python -m pytest tests/test_n04p02_search_representation_sync.py -q` | **6 passed / 0 failed**（1.29s） |
+| `python -m pytest -q` | **322 passed / 3 skipped / 0 failed**（124.85s (0:02:04)） |
+| `python -m ruff check src/sgokb/application_maintenance.py tests/test_n04p03_embedding_sync.py` | **PASS** |
+| `python -m ruff format --check src/sgokb/application_maintenance.py tests/test_n04p03_embedding_sync.py` | **PASS**（2 files） |
+| `git diff --check` | **PASS** |
+
+Embedding/Search回帰の1 skipとfull suiteの3 skipは既存optional Qdrant runtime条件。P-03 focusedは9件すべて実行・成功し、新規skip / xfailは追加していない。format修正後に上記全テストを再実行した。
+
+### Contract確認 / reuse実測
+
+- provider未構成ではDerivedMaintenanceRuntimeUnavailableErrorとなり、embedding stateはbefore/after完全一致（pending維持）。Embedding Space rowも0件で、自動provider構築やcloud fallbackはない。
+- Search Representation未readyではprovider呼出し0回、embeddingはpendingを維持。
+- readyなcurrent Versionのunique Representation 3件に対し、初回はproviderへ3 documentsを1回渡し、created=3 / reused=0。保存rowsを再照合してembedding=ready、vector_index=pending。
+- ready再実行はcreated=0 / reused=3 / changed=false。provider総呼出し回数は1回のまま。
+- 同content v1→v2もcreated=0 / reused=3、provider総呼出し回数1回を維持し、新revision=2のembeddingだけreadyになる。
+- requested provider.spaceを使い、別Spaceは3 rowsずつ計6 rows、2 Spaceとして共存。旧Spaceのsilent overwriteなし。
+- provider failureは同revisionをfailed + last_errorへ変更するが、accepted Version / current pointer / KnowledgeReadApplicationのKnowledge全体は前後一致。Vectorはpendingのまま。
+- superseded成功/失敗の両経路で新v2 revision=2はpending、last_error=Noneを維持する。旧attemptはDerivedMaintenanceSupersededErrorとなる。
+- 実装確認で、target Versionのcurrent一致、provider Vector数とdocument数の一致、requested Space内の全必要Embedding保存の再確認、persistence errorのrevision-guarded failed記録を確認した。
+- focusedは明示注入したdeterministic FakeEmbeddingProviderのみを使い、実Embeddingモデル、network、cloud、Vector backendは不要。P-02のruntime-free同期も6ケースすべてPASS。
+
+### 発見した問題 / 実施した修正
+
+初回focused 9件とRuffはPASS。format checkだけが`application_maintenance.py`のrepresentation_ids式の折返し1か所を検出したため、指定Ruff formatterで整形した。動作変更、fixture/assertion変更、migration変更、production contractの緩和は不要だった。A〜Gに該当する機能的failureは今回の検証では見つからなかった。
+
+**N-04P-03 completion decision: Complete (2026-10-16)。次TaskはN-04P-04。** P-04〜P-06とN-04本体は未完了。N-03評価DBへは適用しておらず、public CLI / real-data受入は後続Taskへ残す。PR #39はDraftを維持し、PR #36 / #37 / #38 / #39はmergeしていない。
+
+ローカル証跡（Git管理外）: `.local/n04p03/focused-initial.log`、`focused-final.log`、`search-regression.log`、`p02-regression.log`、`full.log`。
