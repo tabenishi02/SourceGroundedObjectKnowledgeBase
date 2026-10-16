@@ -6,12 +6,12 @@ from test_markdown_renderer import _rich_import
 from test_object_version_import import _import, _validate
 from test_result_validation import _valid_result
 
+from sgokb.cli import main as cli_main
 from sgokb.exchange import (
     ObjectEvidencePackageBuilder,
     PackageTransferService,
     ResultValidationService,
 )
-from sgokb.package_cli import main as package_cli_main
 from sgokb.repository import Repository
 from sgokb.review import DiffReviewMarkdownRenderer, DiffReviewService
 
@@ -239,8 +239,6 @@ def test_stale_candidate_is_blocked_but_still_shows_base_candidate_diff(tmp_path
         assert validation.validation_state == "valid"
 
         intervening = repository.version_store.begin_candidate(object_id, first.version_id)
-        # The acceptance gate permits an empty manually-created snapshot here; this is enough
-        # to make the received Result stale without changing its immutable artifact.
         repository.version_store.accept_candidate(intervening)
         forced = ResultValidationService(repository, audit).validate_receipt(
             receipt.receipt_id,
@@ -482,11 +480,12 @@ def test_cli_review_and_diff_support_json_and_markdown(tmp_path, capsys):
         repository.close()
 
     assert (
-        package_cli_main(
+        cli_main(
             [
                 "--db",
                 str(db_path),
-                "review-result",
+                "result",
+                "review",
                 receipt_id,
                 "--incoming-root",
                 str(incoming),
@@ -494,20 +493,24 @@ def test_cli_review_and_diff_support_json_and_markdown(tmp_path, capsys):
         )
         == 0
     )
-    review_json = json.loads(capsys.readouterr().out)
-    assert review_json["review_state"] == "imported"
-    assert review_json["schema_version"] == "sgokb.result-review/1.0"
+    review_payload = json.loads(capsys.readouterr().out)
+    assert review_payload["schema_version"] == "sgokb.cli/1.0"
+    assert review_payload["data"]["review_state"] == "imported"
+    assert review_payload["data"]["schema_version"] == "sgokb.result-review/1.0"
 
     assert (
-        package_cli_main(
+        cli_main(
             [
                 "--db",
                 str(db_path),
-                "review-result",
+                "--format",
+                "text",
+                "result",
+                "review",
                 receipt_id,
                 "--incoming-root",
                 str(incoming),
-                "--format",
+                "--review-format",
                 "markdown",
             ]
         )
@@ -516,29 +519,34 @@ def test_cli_review_and_diff_support_json_and_markdown(tmp_path, capsys):
     assert "# Object Result Review" in capsys.readouterr().out
 
     assert (
-        package_cli_main(
+        cli_main(
             [
                 "--db",
                 str(db_path),
-                "diff-versions",
+                "version",
+                "diff",
                 first_id,
                 second_id,
             ]
         )
         == 0
     )
-    diff_json = json.loads(capsys.readouterr().out)
-    assert diff_json["schema_version"] == "sgokb.object-diff/1.0"
+    diff_payload = json.loads(capsys.readouterr().out)
+    assert diff_payload["schema_version"] == "sgokb.cli/1.0"
+    assert diff_payload["data"]["schema_version"] == "sgokb.object-diff/1.0"
 
     assert (
-        package_cli_main(
+        cli_main(
             [
                 "--db",
                 str(db_path),
-                "diff-versions",
+                "--format",
+                "text",
+                "version",
+                "diff",
                 first_id,
                 second_id,
-                "--format",
+                "--diff-format",
                 "markdown",
             ]
         )
