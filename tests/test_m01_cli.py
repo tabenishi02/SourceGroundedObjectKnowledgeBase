@@ -1,3 +1,4 @@
+import importlib
 import json
 from pathlib import Path
 
@@ -111,6 +112,23 @@ def test_registry_and_source_read_commands_use_new_namespace(tmp_path, capsys):
     assert main(["--db", str(db), "source", "status"]) == 0
     payload, _ = _stdout_json(capsys)
     assert payload["command"] == "source.status"
+
+
+def test_mcp_stdio_command_does_not_append_cli_json(tmp_path, capsys, monkeypatch):
+    module = importlib.import_module("sgokb.cli.main")
+    called = []
+
+    def fake_mcp_dispatch(repository, args):
+        called.append((repository, args.action))
+
+    monkeypatch.setattr(module, "_mcp_dispatch", fake_mcp_dispatch)
+    code = module.main(["--db", str(tmp_path / "mcp.sqlite"), "mcp", "serve"])
+    captured = capsys.readouterr()
+
+    assert code == 0
+    assert called and called[0][1] == "serve"
+    assert captured.out == ""
+    assert captured.err == ""
 
 
 def test_sgokb_package_entrypoint_removed():
