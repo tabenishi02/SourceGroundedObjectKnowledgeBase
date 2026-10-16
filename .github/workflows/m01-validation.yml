@@ -35,11 +35,11 @@ jobs:
           tests/test_m01_registry_proposals.py
           tests/test_f02_standard_pipeline.py
           tests/test_f05_association_controls.py
-          tests/test_package_instructions.py
+          tests/test_object_analysis_instructions.py
       - name: Full suite excluding known unrelated baseline failure
         run: >-
           pytest -q
-          --ignore=tests/test_package_transfer.py
+          -k "not test_stage_rejects_unexpected_files_and_hash_mismatch"
       - name: Confirm known Package Transfer baseline failure remains isolated
         continue-on-error: true
         run: >-
