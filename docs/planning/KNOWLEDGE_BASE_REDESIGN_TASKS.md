@@ -924,7 +924,20 @@ Preparation: `docs/planning/PHASE_L_PREPARATION.md`
   - 8 real Capture / 6 Object / 6 valid Result / 6 accepted Versionを評価DBへ固定。identity lexical / Provenance / integrity / full pytest PASS。内容語検索は派生表現pendingの残課題。
   - 成果物: `docs/evaluation/N03_REAL_DATA_VERTICAL_SLICE.md`、`benchmark/n03-real-data-vertical-slice-v1.json`。
 
-- [ ] **N-04 [P0] 3つの代表AI利用ケースを受入試験する**
+**N-04 prerequisite: Derived Search同期経路**
+
+N-04本体の正式開始前にN-04P-01〜P-06を必須Gateとする。正本: `docs/planning/N04_PREREQUISITE_DERIVED_SEARCH_PIPELINE.md`。
+
+| Task | Status | 内容 |
+|---|---|---|
+| N-04P-01 | Complete | lifecycle contract確定 |
+| N-04P-02 | Complete | Search Representation Application sync / Reference Workstation検証。成果物: `docs/planning/N04P02_SEARCH_REPRESENTATION_SYNC.md` |
+| N-04P-03 | Next / 未着手 | Incremental Embedding同期 |
+| N-04P-04 | Pending | Vector Index同期 / rebuild |
+| N-04P-05 | Pending | Public CLI / Status |
+| N-04P-06 | Pending | N-03実データDerived Search Gate受入 |
+
+- [ ] **N-04 [P0] 3つの代表AI利用ケースを受入試験する** — **Prerequisite完了待ち**
   1. Character DataをローカルLLMへ渡しRoleplayできる。
   2. Work Dataから意味的に類似する別Workを検索し、AIが比較説明できる。
   3. Concept A/Bを取得し、ローカルLLMが両概念を組み合わせたCharacter創作に利用できる。
@@ -1060,7 +1073,7 @@ Phase A〜MはComplete。Phase LではL-01〜L-04のDecisionをL-05で実装し�
 次の最優先Task（未着手）:
 
 ```text
-N-04 [P0] 3つの代表AI利用ケースを受入試験する
+N-04P-03 [P0] Incremental Embedding同期経路を実装する
 ```
 
-Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01〜N-03のReference Workstation検証・dataset構築を完了し、次はN-04 AI利用ケース受入（未着手）へ進む。内容語retrievalの派生表現pending制約はN-03評価記録を参照する。
+Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01〜N-03のReference Workstation検証・dataset構築を完了し、次はN-04 prerequisiteのN-04P-03へ進む。N-04 AI利用ケース受入はP-01〜P-06完了待ち。内容語retrievalの派生表現pending制約はN-03評価記録を参照する。

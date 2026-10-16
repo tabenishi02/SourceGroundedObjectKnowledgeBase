@@ -6,7 +6,7 @@
 - Position: `N-03 Complete` と `N-04` の間に置く必須Gate
 - Base: N-03 completed commit `da61d287c6ab97ef24e2062344510327a770d65e`
 - Branch: `phase-n/n04-prerequisite-derived-search`
-- Status: **Active — N-04P-01 Complete / N-04P-02 Next**
+- Status: **Active — N-04P-02 Complete / N-04P-03 Next**
 - Origin: N-03 real-data Vertical Sliceで、accepted Knowledgeは作成できたが内容語Lexical Searchが未成立し、`search_representation` derived stateがpendingのまま残ることを確認した。
 - Lifecycle contract: `docs/decisions/N04P01_DERIVED_SEARCH_LIFECYCLE_CONTRACT.md`
 
@@ -63,8 +63,8 @@ N-03では内部`SearchRepresentationBuilder`を直接呼ばず、公開CLI限�
 | Task | Priority | Status | 主目的 |
 |---|---|---|---|
 | N-04P-01 | P0 | **Complete (2026-10-16)** | Derived Search lifecycle / state / orchestration contractを確定 |
-| N-04P-02 | P0 | **Next / 未着手** | Search Representation同期経路を実装 |
-| N-04P-03 | P0 | Pending | Incremental Embedding同期経路を実装 |
+| N-04P-02 | P0 | **Complete (2026-10-16)** | Search Representation同期経路を実装 |
+| N-04P-03 | P0 | **Next / 未着手** | Incremental Embedding同期経路を実装 |
 | N-04P-04 | P0 | Pending | Vector Index同期 / rebuild経路を完成 |
 | N-04P-05 | P0 | Pending | Public CLI / Status contractを実装 |
 | N-04P-06 | P0 | Pending | N-03実データでDerived Search Gateを受入 |
@@ -97,7 +97,7 @@ N-04P-01完了により、N-04P-02はSearch Representationだけにscopeを限�
 
 ---
 
-## N-04P-02 [P0] Search Representation同期経路を実装する
+## N-04P-02 [P0] Search Representation同期経路を実装する — Complete
 
 **目的:** accepted KnowledgeをKnowledge本文Lexical Search可能な状態へする。
 
@@ -257,9 +257,9 @@ N-03 Complete
   ↓
 N-04P-01 Contract freeze                Complete
   ↓
-N-04P-02 Search Representation sync     Next
+N-04P-02 Search Representation sync     Complete
   ↓
-N-04P-03 Embedding sync
+N-04P-03 Embedding sync                 Next
   ↓
 N-04P-04 Vector sync/rebuild
   ↓
@@ -324,3 +324,10 @@ N-04 prerequisite全体をCompleteとする条件:
 - focused tests / full pytest / lintがPASS。
 
 完了後、Phase Nの次Taskを`N-04 [P0] 3つの代表AI利用ケースを受入試験する`へ戻す。
+
+
+## N-04P-02 Reference Workstation acceptance
+
+2026-10-16、Application syncのfocused 6ケース、Search回帰15 passed / 1 skipped、full suite 0 failed、指定Ruff / format / git diff --checkがPASSした。fixtureのStatement groundingを修正し、superseded成功/失敗双方のrevision guardとcanonical Knowledge不変を確認した。実測件数・詳細は`docs/planning/N04P02_SEARCH_REPRESENTATION_SYNC.md`を参照する。
+
+N-04P-01 Complete / N-04P-02 Complete / N-04P-03 Next。P-03〜P-06は未着手。N-04 AI use-case acceptanceはprerequisite全体の完了待ちで、PR #39はDraftを維持する。

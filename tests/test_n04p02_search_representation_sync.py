@@ -1,3 +1,5 @@
+import hashlib
+
 import pytest
 
 from sgokb.application_maintenance import (
@@ -6,7 +8,13 @@ from sgokb.application_maintenance import (
     DerivedSearchMaintenanceApplication,
 )
 from sgokb.application_read import KnowledgeReadApplication
-from sgokb.domain import DerivationKind, DerivedState, FacetStatus
+from sgokb.domain import (
+    DerivationKind,
+    DerivedState,
+    EvidenceExtractionMode,
+    EvidenceTargetKind,
+    FacetStatus,
+)
 from sgokb.repository import Repository
 from sgokb.retrieval import SearchRepresentationBuilder
 
@@ -44,6 +52,20 @@ def _accepted_version(
         DerivationKind.DIRECT_STATEMENT,
         facet_id=personality,
         language="en",
+    )
+    source = repo.source_store.create_source("Alpha source")
+    locator = repo.source_store.add_locator(source, "url", "https://example.test/alpha")
+    snapshot = repo.source_store.create_snapshot(
+        source, "2026-10-16T00:00:00Z", "test_fixture", observed_locator_id=locator
+    )
+    raw = statement_text.encode("utf-8")
+    artifact = repo.source_store.add_raw_artifact(
+        snapshot, "document", "fixture/alpha.txt", hashlib.sha256(raw).hexdigest(), len(raw)
+    )
+    run = repo.source_store.create_normalization_run(snapshot, "fixture", "1", [artifact])
+    evidence = repo.source_store.add_evidence(run, statement_text, EvidenceExtractionMode.VERBATIM)
+    repo.source_store.link_evidence(
+        version_id, EvidenceTargetKind.STATEMENT, statement_id, evidence
     )
     repo.version_store.accept_candidate(version_id)
     return version_id, statement_id
@@ -120,6 +142,8 @@ def test_builder_failure_marks_only_derived_state_failed_and_keeps_accepted_know
     object_id = repo.object_store.create_object("Alpha Hero", _character_class(repo))
     version_id, _ = _accepted_version(repo, object_id, "alpha-v1")
 
+    before = KnowledgeReadApplication(repo).get_object(object_id)
+
     class FailingBuilder:
         def materialize_version(self, target_version_id):
             assert target_version_id == version_id
@@ -137,9 +161,13 @@ def test_builder_failure_marks_only_derived_state_failed_and_keeps_accepted_know
     assert "simulated representation failure" in state.last_error
     assert repo.version_store.current_version_id(object_id) == version_id
     assert repo.version_store.version_by_id(version_id).state.value == "accepted"
+    assert KnowledgeReadApplication(repo).get_object(object_id) == before
 
 
-def test_superseded_revision_cannot_mark_new_current_version_ready(repo):
+@pytest.mark.parametrize("fail_after_superseding", [False, True])
+def test_superseded_revision_cannot_mark_new_current_version_ready_or_failed(
+    repo, fail_after_superseding
+):
     object_id = repo.object_store.create_object("Alpha Hero", _character_class(repo))
     first_version_id, _ = _accepted_version(repo, object_id, "alpha-v1")
     real_builder = SearchRepresentationBuilder(repo)
@@ -155,6 +183,8 @@ def test_superseded_revision_cannot_mark_new_current_version_ready(repo):
                 base_version_id=first_version_id,
                 statement_text="A newer accepted description.",
             )
+            if fail_after_superseding:
+                raise RuntimeError("older attempt failed after supersession")
             return stored
 
     service = DerivedSearchMaintenanceApplication(
@@ -165,6 +195,7 @@ def test_superseded_revision_cannot_mark_new_current_version_ready(repo):
         service.sync_search_representation(object_id)
 
     state = _derived_state(repo, object_id, "search_representation")
+    assert state.last_error is None
     assert state.target_version_id == "alpha-v2"
     assert state.revision == 2
     assert state.status is DerivedState.PENDING
