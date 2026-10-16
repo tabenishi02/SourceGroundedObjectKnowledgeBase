@@ -4,16 +4,17 @@ from __future__ import annotations
 
 from sgokb.domain import EmbeddingSpaceSpec, VectorIndexPoint
 
-from .hybrid_search import KnowledgeVectorIndexBuilder
+from .hybrid_search import KnowledgeVectorIndexBuilder as _PhaseIKnowledgeVectorIndexBuilder
 
 
-class KnowledgeVectorMaintenanceBuilder(KnowledgeVectorIndexBuilder):
+class KnowledgeVectorMaintenanceBuilder(_PhaseIKnowledgeVectorIndexBuilder):
     """Build membership-scoped Vector points without mutating derived lifecycle state.
 
     The Phase I builder already owns the canonical metadata projection used by
-    Semantic/Hybrid/Similarity retrieval.  This subclass reuses that projection
-    while adding an Object-scoped point set for incremental maintenance.  Lifecycle
-    state remains the responsibility of the Application layer.
+    Semantic/Hybrid/Similarity retrieval. This subclass reuses that projection
+    while adding Object-scoped point generation and removes lifecycle-state side
+    effects from rebuild. Derived state remains the responsibility of the
+    Application layer.
     """
 
     def points_for_object(
@@ -71,3 +72,14 @@ class KnowledgeVectorMaintenanceBuilder(KnowledgeVectorIndexBuilder):
         points = self.points(space)
         metadata = self.vector_index.rebuild(space, points)
         return metadata, len(points)
+
+    def rebuild(self, space: EmbeddingSpaceSpec):
+        """Compatibility entrypoint retaining Vector-only rebuild semantics.
+
+        Unlike the original Phase I implementation, this method does not mutate
+        `object_derived_states`. Lifecycle promotion is revision-guarded by
+        `DerivedSearchMaintenanceApplication.rebuild_vector_index()`.
+        """
+
+        metadata, _ = self.rebuild_backend(space)
+        return metadata
