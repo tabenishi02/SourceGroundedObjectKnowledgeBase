@@ -6,7 +6,8 @@
 - Task: `N-01 [P0] Unit Testを新ドメインへ更新する`
 - Baseline: `eecbe5d2f47017c3e7c35157d2851c58c1c6a4ef`
 - Scope: canonical domain coverage audit / missing Unit Test補完 / known baseline failure処遇
-- Runtime verification: **Reference Workstationでのfull pytest実行待ち**
+- Runtime verification: **PASS (2026-10-16)**
+- Status: **Complete (2026-10-16)**
 
 ## 1. 方針
 
@@ -148,11 +149,34 @@ python -m ruff check tests/test_package_transfer.py tests/test_n01_domain_contra
 - full suiteに新規regressionがない。
 - RuffがPASSする。
 
-このverificationが完了するまではTask masterのN-01を`[x]`へ変更しない。
+Reference Workstationで全必須verificationがPASSしたため、Task masterのN-01を`[x]`へ更新した。
 
 ## 7. N-01 completion decision
 
-Code / test design上のN-01変更は実装済み。
+**Complete (2026-10-16)**。Code / test designとReference Workstationでのruntime verificationが完了した。N-02 Integration Testへ移行可能。N-02以降の実装は今回行っていない。
 
-残るGateはReference Workstationでのruntime verificationのみである。
-verification完了後、N-01をCompleteとして閉じ、N-02 Integration Testへ移行する。
+
+## 8. Reference Workstation runtime verification
+
+- 実施日: 2026-10-16 JST
+- 環境: Windows 11 build 26300 / PowerShell / Python 3.10.6、通常の`.venv`。pytest 9.1.1 / Ruff 0.17.0 / MCP SDK 2.3.0。
+- branch: `phase-n/n01-unit-test-update` / PR #36
+- 検証基準: main `eecbe5d2f47017c3e7c35157d2851c58c1c6a4ef`、PR実装 `68ecbfbb62c47e8605d35b26b1fa3543a3374006`。今回の追加差分はtest整形と完了記録のみ。
+
+通常venvのPython（`.venv/Scripts/python.exe`）で次を実行した。
+
+| Command | 結果 |
+|---|---|
+| `python -m pytest tests/test_package_transfer.py tests/test_n01_domain_contracts.py -q` | **11 passed / 0 failed**（整形後4.01秒） |
+| `python -m pytest -q` | **304 passed / 3 skipped / 0 failed**（113.56s (0:01:53)） |
+| `python -m ruff check tests/test_package_transfer.py tests/test_n01_domain_contracts.py` | **PASS** |
+| `python -m ruff format --check tests/test_package_transfer.py tests/test_n01_domain_contracts.py` | **PASS**（2 files） |
+| `git diff --check` | **PASS** |
+
+既知のPackage Transfer baseline failureは解消した。同一13 bytesの`Evidence text`から`Tampered text`への改変によりsize gateを通過し、期待どおりSHA-256 mismatchを検出する。production側のvalidation order・assertionは変更していない。
+
+追加Relation test 2件はいずれもPASS。migration007のacceptance triggerによるEvidence必須条件、accepted VersionのRelation update/delete禁止と一致する。Evidenceなしcandidateの昇格失敗後もcurrent Versionが未設定であり、拒否されたRelation変更後も元のsubject/target/current Versionが維持されることを確認した。
+
+発見・修正: 指定Ruffで`test_package_transfer.py`の既存長行2件（E501）を検出したため、同ファイルをformatした。test fixtureや期待値、production実装、migration、repository、domain modelの追加修正は不要だった。整形後に対象testとfull suiteを実行し、新規regressionはなかった。今回skip / xfailを追加していない。full suiteの既存skipはoptional runtime条件によるもので、N-01対象11件はskipなし。
+
+ローカル証跡（Git管理外）: `.local/n01/focused.log` / `.local/n01/full.log`。ログ、DB、端末固有設定はcommit対象外。Phase N全体は継続中で、次TaskはN-02。

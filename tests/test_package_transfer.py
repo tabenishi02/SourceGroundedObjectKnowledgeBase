@@ -29,12 +29,11 @@ def _workspace(tmp_path, *, disposition="allow", reasons=None, evidence_text="Ev
     root = tmp_path / "build"
     root.mkdir()
     instructions = (
-        "# SGOKB Object Analysis Instructions\n\n"
-        f"Instructions version: `{INSTRUCTIONS_VERSION}`\n"
+        f"# SGOKB Object Analysis Instructions\n\nInstructions version: `{INSTRUCTIONS_VERSION}`\n"
     ).encode("utf-8")
-    result_schema = (json.dumps(load_object_result_schema(), ensure_ascii=False, indent=2) + "\n").encode(
-        "utf-8"
-    )
+    result_schema = (
+        json.dumps(load_object_result_schema(), ensure_ascii=False, indent=2) + "\n"
+    ).encode("utf-8")
     evidence = evidence_text.encode("utf-8")
     files = []
     for relative, role, media_type, raw in (
@@ -225,7 +224,10 @@ def test_preflight_blocks_tampered_finalized_package(tmp_path):
 
     preflight = service.preflight(staged.path, tmp_path / "DriveSync")
     assert preflight.disposition == "blocked"
-    assert any(reason.startswith("size_mismatch:") or reason.startswith("sha256_mismatch:") for reason in preflight.reasons)
+    assert any(
+        reason.startswith("size_mismatch:") or reason.startswith("sha256_mismatch:")
+        for reason in preflight.reasons
+    )
 
 
 def test_staging_and_export_audit_metadata_are_persisted(tmp_path):
