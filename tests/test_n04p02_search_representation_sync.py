@@ -59,7 +59,7 @@ def test_sync_materializes_current_version_marks_ready_and_enables_lexical_searc
     reader = KnowledgeReadApplication(repo)
 
     before = reader.search_objects("sacrifice", mode="lexical")
-    assert before.results == ()
+    assert not before.results
     state = _derived_state(repo, object_id, "search_representation")
     assert state.status is DerivedState.PENDING
     assert state.target_version_id == version_id
