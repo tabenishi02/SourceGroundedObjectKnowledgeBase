@@ -184,9 +184,9 @@ Use the following standard `payload` shapes so an accepted proposal can be appli
 - `object_alias`: `{"value":"Alias","language":"ja","kind":"alias"}` (`language` / `kind` may be omitted)
 - `primary_class`: `{"class_id":"class:..."}` using an existing Class ID supplied by the Package
 - `additional_class`: `{"class_id":"class:...","action":"add"}` or `action:"remove"`
-- `new_class`: `{"key":"...","name":"...","assignment_policy":"primary_allowed","description":"...","parent_class_ids":[...]}`; omit `class_id` unless a stable ID is explicitly supplied
+- `new_class`: `{"key":"...","name":"...","assignment_policy":"primary_eligible","description":"...","parent_class_ids":[...]}`; `assignment_policy` must be `structural`, `primary_eligible`, or `additional_only`; omit `class_id` unless a stable ID is explicitly supplied
 - `new_facet`: `{"key":"...","name":"...","description":"...","is_common":false,"class_profiles":[{"class_id":"class:...","position":0,"inherit_to_descendants":true}]}`; omit `facet_id` unless explicitly supplied
-- `new_attribute`: `{"key":"...","name":"...","value_type":"string","description":"..."}`; omit `attribute_id` unless explicitly supplied
+- `new_attribute`: `{"key":"...","name":"...","value_type":"text","description":"..."}`; `value_type` must be one of `text`, `integer`, `real`, `boolean`, `date`, `datetime`, `identifier`, `enum`, or `json`; omit `attribute_id` unless explicitly supplied
 - `new_relation_type`: `{"key":"...","name":"...","description":"..."}`; omit `relation_type_id` unless explicitly supplied
 
 Do not invent existing Class/Object IDs. Optional fields may be omitted when unsupported by Evidence. A proposal whose required payload fields cannot be grounded should not be emitted.
