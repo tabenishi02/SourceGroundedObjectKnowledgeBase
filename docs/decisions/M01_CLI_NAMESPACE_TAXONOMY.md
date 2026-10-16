@@ -2,10 +2,11 @@
 
 更新日: 2026-10-16
 
-- Status: **Accepted (partial M-01 decision)**
+- Status: **Accepted — incorporated into final M-01 contract**
 - Phase: `Phase M — CLI / 操作フロー`
-- Task: `M-01 [P0] 新しいObject中心CLIを設計する`
-- Scope: CLI top-level taxonomy only
+- Task: `M-01 [P0] 新しいObject中心CLIを設計・実装する`
+- Scope: CLI top-level taxonomy
+- Final contract: `docs/decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md`
 
 ---
 
@@ -88,7 +89,7 @@ sgokb import-result
 
 ---
 
-## Resolved by M-02
+## M-02との関係
 
 `sgokb-package`の互換性・廃止時期はM-02で確定した。
 
@@ -99,19 +100,17 @@ sgokb import-result
 
 ---
 
-## Non-decisions
+## M-01 finalization
 
-このDecisionで確定するのは**top-level CLI taxonomyのみ**である。
-
-次の事項はM-01内の別判断として未確定のまま残す。
+この文書で当初留保していた次の事項は、M-01実装時にすべて確定した。
 
 - 各namespace配下の最終command名・option名
 - Output / Error / Exit code contract
 - Object selector contract
 - Registry proposal review / apply semantics
-- `object relate`の最終semantics
+- Relation write boundary
 - Search runtime composition
-- MCP composition rootの詳細
-- system / backup / restoreの具体的なoperation contract
+- MCP composition root
+- system / backup / restore operation contract
 
-これらはユーザー承認を得ながら順次確定する。
+最終仕様は`docs/decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md`を正本とする。
