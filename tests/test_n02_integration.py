@@ -25,6 +25,7 @@ from sgokb.storage import PackageExchangeAuditRepository
 
 class DeterministicEmbeddingProvider:
     def __init__(self):
+        self.embedded_documents = []
         self._space = EmbeddingSpaceSpec(
             provider_key="n02-deterministic",
             provider_version="1",
@@ -52,6 +53,7 @@ class DeterministicEmbeddingProvider:
         return [1.0, 0.0, 0.0]
 
     def embed_documents(self, texts):
+        self.embedded_documents.extend(texts)
         return [self._vector(text) for text in texts]
 
     def embed_queries(self, texts):
@@ -117,7 +119,15 @@ def _roundtrip_result(repository, object_id, tmp_path, suffix):
     )
 
     result = _valid_result(repository, manifest)
-    result_path = tmp_path / f"result-{suffix}.json"
+    result["knowledge"]["summary"][0]["text"] = (
+        "N02 Character is a brave fictional character used for integration testing."
+    )
+    result["knowledge"]["summary"][0]["evidence"] = [
+        {"evidence_id": eid, "role": "supports"}
+        for eid in manifest["evidence"]["included_evidence_ids"]
+    ]
+    result_path = tmp_path / f"result-{suffix}" / "result.json"
+    result_path.parent.mkdir()
     result_path.write_text(
         json.dumps(result, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
@@ -148,8 +158,15 @@ def _roundtrip_result(repository, object_id, tmp_path, suffix):
 
 def _materialize_and_embed(repository, version_id, provider):
     representation_ids = SearchRepresentationBuilder(repository).materialize_version(version_id)
+    repository.embedding_store.ensure_space(provider.space)
+    existing = {
+        row["representation_id"]
+        for row in repository.embedding_store.embedding_rows(provider.space.space_id)
+    }
     created = 0
     for representation_id in sorted(set(representation_ids)):
+        if representation_id in existing:
+            continue
         representation = repository.semantic_store.search_representation(representation_id)
         vector = provider.embed_documents([representation.content])[0]
         created += int(
@@ -173,14 +190,17 @@ def test_capture_evidence_package_result_validate_import_version_chain(tmp_path,
         assert captured["evidence_ids"]
         assert set(manifest["evidence"]["included_evidence_ids"]) & set(captured["evidence_ids"])
         assert manifest["binding"]["base_version_id"] is None
-        assert repository.version_store.current_version_id(captured["object_id"]) == imported.version_id
+        assert (
+            repository.version_store.current_version_id(captured["object_id"])
+            == imported.version_id
+        )
         assert repository.version_store.version_by_id(imported.version_id).state.value == "accepted"
 
-        included_evidence = manifest["evidence"]["included_evidence_ids"][0]
-        provenance = repository.source_store.evidence_provenance(included_evidence)
-        assert provenance.source.source_id == captured["source_id"]
-        assert provenance.snapshot.snapshot_id == captured["snapshot_id"]
-        assert provenance.evidence.run_id == captured["run_id"]
+        for included_evidence in manifest["evidence"]["included_evidence_ids"]:
+            provenance = repository.source_store.evidence_provenance(included_evidence)
+            assert provenance.source.source_id == captured["source_id"]
+            assert provenance.snapshot.snapshot_id == captured["snapshot_id"]
+            assert provenance.evidence.run_id == captured["run_id"]
     finally:
         repository.close()
 
@@ -200,9 +220,13 @@ def test_import_to_embedding_index_search_reuses_representation_and_isolates_ver
             provider,
         )
         assert first_created == len(set(first_representations))
+        assert len(provider.embedded_documents) == first_created
+        first_embeddings = repository.embedding_store.embedding_rows(provider.space.space_id)
 
         vector_index = ExactVectorIndexAdapter()
-        first_metadata = KnowledgeVectorIndexBuilder(repository, vector_index).rebuild(provider.space)
+        first_metadata = KnowledgeVectorIndexBuilder(repository, vector_index).rebuild(
+            provider.space
+        )
         assert first_metadata.points_count == len(first_representations)
 
         first_search = KnowledgeReadApplication(
@@ -223,6 +247,10 @@ def test_import_to_embedding_index_search_reuses_representation_and_isolates_ver
         )
         assert set(second_representations) == set(first_representations)
         assert second_created == 0
+        assert len(provider.embedded_documents) == first_created
+        assert (
+            repository.embedding_store.embedding_rows(provider.space.space_id) == first_embeddings
+        )
 
         metadata = KnowledgeVectorIndexBuilder(repository, vector_index).rebuild(provider.space)
         memberships = repository.semantic_store.knowledge_search_memberships()

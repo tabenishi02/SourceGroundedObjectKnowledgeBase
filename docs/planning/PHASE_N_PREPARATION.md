@@ -2,12 +2,12 @@
 
 更新日: 2026-10-16
 
-- Status: **Active — N-01 Complete / N-02 Next**
+- Status: **Active — N-02 Complete / N-03 Next**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - Previous closure: `docs/planning/PHASE_M_CLOSURE_AUDIT.md`
 - Baseline: `7b4507ab5a80ebdb687c65d5e4627beb83806f3c`
-- Current task: `N-02 [P0] Integration Testを追加する`（Next / 未着手）
+- Current task: `N-03 [P0] real-data Vertical Slice`（Next / 未着手）
 
 ---
 
@@ -62,8 +62,8 @@ Phase Nへ引き継ぐ既知制約:
 | Task | Priority | Status | 主目的 |
 |---|---|---|---|
 | N-01 | P0 | **Complete (2026-10-16)** | Unit TestをObject / Relation / Facet / Version / Validation / Retrievalへ整理・補完 |
-| N-02 | P0 | **Next / 未着手** | cross-domain Integrationを追加 |
-| N-03 | P0 | Pending | Character / Work / Conceptの実データVertical Slice |
+| N-02 | P0 | **Complete (2026-10-16)** | cross-domain Integrationを追加 |
+| N-03 | P0 | **Next / 未着手** | Character / Work / Conceptの実データVertical Slice |
 | N-04 | P0 | Pending | 代表AI利用ケース3件の受入 |
 | N-05 | P0 | Pending | 1 Object自動処理時間の計測 |
 | N-06 | P0 | Pending | Retrieval / Vector Backend品質評価 |
@@ -384,4 +384,11 @@ N-01ではまずTest inventoryとcoverage gapを確定し、その後にtest変�
 
 2026-10-16、Reference Workstationで対象test 11件とfull suite、指定RuffがPASSし、N-01をCompleteとした。Relationのgrounding / accepted immutabilityが現行contractと一致し、Package Transfer既知failureも解消した。詳細と件数は`docs/planning/N01_UNIT_TEST_COVERAGE.md`を参照する。
 
-次TaskはN-02（未着手）。Phase N全体のComplete判定はN-02〜N-07とclosure auditの完了後に行う。
+N-01完了時の次TaskはN-02だった。現在の状態はsection 15を参照する。
+
+
+## 15. N-02 Reference Workstation検証完了
+
+2026-10-16、Captureからaccepted Version、deterministic Derived Search pipeline、実Applicationを経由するMCP integrationの追加3 testがPASS。full suite 0 failed、対象Ruff / format / git diff --checkもPASSし、N-02をCompleteとした。fixture / API使用の問題を修正し、production contractは維持した。詳細は`docs/planning/N02_INTEGRATION_TESTS.md`を参照する。
+
+次TaskはN-03 [P0] real-data Vertical Slice（未着手）。N-03〜N-07とclosure auditを残し、Phase N全体は継続中。
