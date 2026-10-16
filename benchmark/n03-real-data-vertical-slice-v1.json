@@ -16,7 +16,8 @@
   },
   "objects": [
     {
-      "object_id": "object-n03-saber",
+      "object_key": "saber",
+      "object_id": null,
       "name": "Saber",
       "class": "character",
       "aliases": ["Artoria Pendragon"],
@@ -37,7 +38,7 @@
       "expected_search_queries": ["Saber", "Artoria Pendragon", "King of Knights"],
       "expected_relation_semantics": [
         {
-          "target_object_id": "object-n03-fate-stay-night",
+          "target_object_key": "fate-stay-night",
           "semantic": "character appears in / belongs to Fate/stay night",
           "required_for_n03_import": false
         }
@@ -45,7 +46,8 @@
       "similarity_rationale": "Compare with Ichigo Kurosaki as a supernatural combat-oriented fictional character while preserving clear differences in role, setting, and characterization."
     },
     {
-      "object_id": "object-n03-ichigo-kurosaki",
+      "object_key": "ichigo-kurosaki",
+      "object_id": null,
       "name": "Ichigo Kurosaki",
       "class": "character",
       "aliases": [],
@@ -66,7 +68,7 @@
       "expected_search_queries": ["Ichigo Kurosaki", "Substitute Soul Reaper", "Zangetsu"],
       "expected_relation_semantics": [
         {
-          "target_object_id": "object-n03-bleach",
+          "target_object_key": "bleach",
           "semantic": "character appears in / belongs to BLEACH",
           "required_for_n03_import": false
         }
@@ -74,7 +76,8 @@
       "similarity_rationale": "Compare with Saber as another supernatural combat-oriented character; expected similarity should arise from role and conflict themes rather than shared franchise identity."
     },
     {
-      "object_id": "object-n03-fate-stay-night",
+      "object_key": "fate-stay-night",
+      "object_id": null,
       "name": "Fate/stay night",
       "class": "work",
       "aliases": ["Fate/Stay Night"],
@@ -91,7 +94,8 @@
       "similarity_rationale": "Compare with BLEACH as a Japanese supernatural fantasy work centered on recurring combat, while format, narrative structure, and franchise history remain distinct."
     },
     {
-      "object_id": "object-n03-bleach",
+      "object_key": "bleach",
+      "object_id": null,
       "name": "BLEACH",
       "class": "work",
       "aliases": ["Bleach"],
@@ -108,7 +112,8 @@
       "similarity_rationale": "Compare with Fate/stay night as a supernatural Japanese work with combat and spiritual/fantasy systems, but with different medium and narrative structure."
     },
     {
-      "object_id": "object-n03-tsundere",
+      "object_key": "tsundere",
+      "object_id": null,
       "name": "Tsundere",
       "class": "concept",
       "aliases": [],
@@ -125,7 +130,8 @@
       "similarity_rationale": "A character-development/archetype concept intended to remain distinguishable from the broader narrative-structure concept Hero's Journey."
     },
     {
-      "object_id": "object-n03-heros-journey",
+      "object_key": "heros-journey",
+      "object_id": null,
       "name": "Hero's Journey",
       "class": "concept",
       "aliases": ["Monomyth"],
@@ -149,6 +155,7 @@
     "minimum_multi_source_objects": 1,
     "all_objects_require_real_web_capture": true,
     "all_objects_require_accepted_version": true,
+    "record_generated_stable_object_ids": true,
     "record_source_snapshot_evidence_package_result_version_ids": true,
     "record_human_ground_truth_notes": true,
     "record_search_and_similarity_expectations": true
