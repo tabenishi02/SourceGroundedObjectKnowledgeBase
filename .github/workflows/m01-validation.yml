@@ -42,6 +42,18 @@ jobs:
                       '        elif args.domain == "mcp":\n            _mcp_dispatch(repository, args)\n            return 0\n        else:\n',
                   ),
               ],
+              Path('src/sgokb/exchange/instructions.py'): [
+                  (
+                      'INSTRUCTIONS_VERSION = "sgokb.object-analysis/1.0"',
+                      'INSTRUCTIONS_VERSION = "sgokb.object-analysis/1.1"',
+                  ),
+              ],
+              Path('src/sgokb/prompts/object_analysis.md'): [
+                  (
+                      'Do not directly change Object Registry identity or classification. If analysis suggests a better target name, alias, Primary Class, or Additional Class, place it in `registry_proposals` if the Result Schema permits that proposal. A Registry proposal is not automatically accepted Knowledge.\n',
+                      '''Do not directly change Object Registry identity or classification. If analysis suggests a Registry change, place it in `registry_proposals`. A Registry proposal is not automatically accepted Knowledge; it is reviewed and applied separately by the operator.\n\nUse the following standard `payload` shapes so an accepted proposal can be applied deterministically:\n\n- `object_name`: `{"name":"New canonical name"}`\n- `object_alias`: `{"value":"Alias","language":"ja","kind":"alias"}` (`language` / `kind` may be omitted)\n- `primary_class`: `{"class_id":"class:..."}` using an existing Class ID supplied by the Package\n- `additional_class`: `{"class_id":"class:...","action":"add"}` or `action:"remove"`\n- `new_class`: `{"key":"...","name":"...","assignment_policy":"primary_allowed","description":"...","parent_class_ids":[...]}`; omit `class_id` unless a stable ID is explicitly supplied\n- `new_facet`: `{"key":"...","name":"...","description":"...","is_common":false,"class_profiles":[{"class_id":"class:...","position":0,"inherit_to_descendants":true}]}`; omit `facet_id` unless explicitly supplied\n- `new_attribute`: `{"key":"...","name":"...","value_type":"string","description":"..."}`; omit `attribute_id` unless explicitly supplied\n- `new_relation_type`: `{"key":"...","name":"...","description":"..."}`; omit `relation_type_id` unless explicitly supplied\n\nDo not invent existing Class/Object IDs. Optional fields may be omitted when unsupported by Evidence. A proposal whose required payload fields cannot be grounded should not be emitted.\n''',
+                  ),
+              ],
           }
           changed_paths = []
           for path, pairs in replacements.items():
@@ -57,8 +69,8 @@ jobs:
           if ! git diff --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add tests/test_hybrid_search.py tests/test_versioning.py src/sgokb/cli/main.py
-            git commit -m 'fix: preserve MCP stdio protocol boundary'
+            git add tests/test_hybrid_search.py tests/test_versioning.py src/sgokb/cli/main.py src/sgokb/exchange/instructions.py src/sgokb/prompts/object_analysis.md
+            git commit -m 'docs: define registry proposal payload conventions'
             git push origin HEAD:task/m-01-object-centered-cli
             exit 0
           fi
@@ -73,6 +85,7 @@ jobs:
           src/sgokb/storage/registry_proposal_repository.py
           src/sgokb/repository.py
           src/sgokb/storage/__init__.py
+          src/sgokb/exchange/instructions.py
           tests/test_m01_cli.py
           tests/test_m01_registry_proposals.py
           tests/test_f02_standard_pipeline.py
@@ -84,5 +97,6 @@ jobs:
           tests/test_m01_registry_proposals.py
           tests/test_f02_standard_pipeline.py
           tests/test_f05_association_controls.py
+          tests/test_package_instructions.py
       - name: Full pytest
         run: pytest -q
