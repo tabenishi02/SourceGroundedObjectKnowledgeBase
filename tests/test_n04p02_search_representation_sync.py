@@ -169,3 +169,48 @@ def test_superseded_revision_cannot_mark_new_current_version_ready(repo):
     assert state.revision == 2
     assert state.status is DerivedState.PENDING
     assert repo.version_store.current_version_id(object_id) == "alpha-v2"
+
+
+def test_new_current_version_reuses_content_and_preserves_historical_memberships(repo):
+    object_id = repo.object_store.create_object("Alpha Hero", _character_class(repo))
+    first_version_id, _ = _accepted_version(repo, object_id, "alpha-v1")
+    service = DerivedSearchMaintenanceApplication(repo)
+    service.sync_search_representation(object_id)
+    first_memberships = repo.semantic_store.knowledge_search_memberships(
+        object_id=object_id,
+        version_id=first_version_id,
+    )
+    first_representation_ids = {row["representation_id"] for row in first_memberships}
+
+    second_version_id, _ = _accepted_version(
+        repo,
+        object_id,
+        "alpha-v2",
+        base_version_id=first_version_id,
+    )
+    pending = _derived_state(repo, object_id, "search_representation")
+    assert pending.target_version_id == second_version_id
+    assert pending.revision == 2
+    assert pending.status is DerivedState.PENDING
+
+    service.sync_search_representation(object_id)
+    second_memberships = repo.semantic_store.knowledge_search_memberships(
+        object_id=object_id,
+        version_id=second_version_id,
+    )
+    second_representation_ids = {row["representation_id"] for row in second_memberships}
+
+    assert first_representation_ids == second_representation_ids
+    historical = repo.semantic_store.knowledge_search_memberships(version_id=first_version_id)
+    current = repo.semantic_store.knowledge_search_memberships(
+        object_id=object_id,
+        current_only=True,
+    )
+    assert historical
+    assert {row["version_id"] for row in historical} == {first_version_id}
+    assert current
+    assert {row["version_id"] for row in current} == {second_version_id}
+
+    response = KnowledgeReadApplication(repo).search_objects("sacrifice", mode="lexical")
+    assert response.results
+    assert response.results[0].version_id == second_version_id
