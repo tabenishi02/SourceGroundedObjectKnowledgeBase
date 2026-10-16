@@ -36,7 +36,7 @@ from .evidence_search import (
     EvidenceSearchResponse,
     EvidenceSearchResult,
 )
-from .hybrid_search import HybridObjectSearch, KnowledgeVectorIndexBuilder
+from .hybrid_search import HybridObjectSearch
 from .package import (
     EvidenceBudget,
     EvidencePackageSelector,
@@ -46,6 +46,9 @@ from .package import (
 )
 from .search_representation import BuiltSearchRepresentation, SearchRepresentationBuilder
 from .similarity import ObjectSimilaritySearch
+from .vector_maintenance import KnowledgeVectorMaintenanceBuilder
+
+KnowledgeVectorIndexBuilder = KnowledgeVectorMaintenanceBuilder
 
 __all__ = [
     "CONTEXT_BUILDER_CONTRACT_VERSION",
@@ -73,6 +76,7 @@ __all__ = [
     "ranked_retrieval_metrics",
     "HybridObjectSearch",
     "KnowledgeVectorIndexBuilder",
+    "KnowledgeVectorMaintenanceBuilder",
     "EvidenceBudget",
     "EvidenceCandidate",
     "EvidencePackageSelector",
