@@ -830,7 +830,8 @@ def main(argv=None) -> int:
         elif args.domain == "render":
             data = _render_dispatch(repository, args)
         elif args.domain == "mcp":
-            data = _mcp_dispatch(repository, args)
+            _mcp_dispatch(repository, args)
+            return 0
         else:
             data = _system_dispatch(repository, db_path, args)
 
