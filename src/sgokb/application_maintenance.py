@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 from .domain import DerivedState
 from .retrieval import SearchRepresentationBuilder
+from .retrieval.vector_maintenance import KnowledgeVectorMaintenanceBuilder
 
 
 class DerivedMaintenanceError(RuntimeError):
@@ -44,17 +45,41 @@ class EmbeddingSyncResult:
     state: str
 
 
+@dataclass(frozen=True, slots=True)
+class VectorIndexSyncResult:
+    object_id: str
+    version_id: str
+    revision: int
+    space_id: str
+    backend_key: str
+    point_count: int
+    written_point_count: int
+    changed: bool
+    state: str
+
+
+@dataclass(frozen=True, slots=True)
+class VectorIndexRebuildResult:
+    space_id: str
+    backend_key: str
+    point_count: int
+    ready_object_count: int
+    state: str
+
+
 class DerivedSearchMaintenanceApplication:
     """Application boundary for rebuildable Object Knowledge search artifacts.
 
     Search Representation synchronization is deterministic and runtime-free.
-    Embedding synchronization requires an explicitly injected local provider and
-    never constructs or falls back to a cloud provider by itself. Vector Index
-    synchronization is intentionally left to N-04P-04.
+    Embedding synchronization requires an explicitly injected local provider.
+    Vector synchronization requires an explicitly injected Vector backend plus an
+    Embedding Space. No method constructs a cloud provider or silently changes
+    runtime backends.
     """
 
     SEARCH_REPRESENTATION_KIND = "search_representation"
     EMBEDDING_KIND = "embedding"
+    VECTOR_INDEX_KIND = "vector_index"
 
     def __init__(
         self,
@@ -62,10 +87,14 @@ class DerivedSearchMaintenanceApplication:
         *,
         search_representation_builder=None,
         embedding_provider=None,
+        vector_index=None,
+        embedding_space=None,
     ) -> None:
         self._repository = repository
         self._builder = search_representation_builder or SearchRepresentationBuilder(repository)
         self._embedding_provider = embedding_provider
+        self._vector_index = vector_index
+        self._embedding_space = embedding_space
 
     def _derived_state(self, object_id: str, kind: str):
         try:
@@ -97,6 +126,34 @@ class DerivedSearchMaintenanceApplication:
         if current_version_id is None:
             raise DerivedMaintenanceError("Object has no accepted current Version")
         return current_version_id
+
+    def _vector_runtime(self):
+        if self._vector_index is None:
+            raise DerivedMaintenanceRuntimeUnavailableError(
+                "Vector Index maintenance requires an explicitly injected Vector backend"
+            )
+        space = self._embedding_space
+        if space is None and self._embedding_provider is not None:
+            space = self._embedding_provider.space
+        if space is None:
+            raise DerivedMaintenanceRuntimeUnavailableError(
+                "Vector Index maintenance requires an explicitly selected Embedding Space"
+            )
+        return space, self._vector_index
+
+    def _vector_catalog_snapshot(self):
+        rows = self._repository.rows(
+            """SELECT id,current_version_id FROM objects
+               WHERE current_version_id IS NOT NULL ORDER BY id"""
+        )
+        return tuple(
+            (
+                row["id"],
+                row["current_version_id"],
+                self._repository.version_store.derived_states(row["id"]),
+            )
+            for row in rows
+        )
 
     def sync_search_representation(self, object_id: str) -> SearchRepresentationSyncResult:
         """Synchronize Search Representations for one current accepted Object Version.
@@ -316,5 +373,170 @@ class DerivedSearchMaintenanceApplication:
             reused_embedding_count=reused_count,
             created_embedding_count=created_count,
             changed=changed,
+            state=DerivedState.READY.value,
+        )
+
+    def sync_vector_index(self, object_id: str) -> VectorIndexSyncResult:
+        """Incrementally upsert membership-scoped Vector points for one Object.
+
+        Every accepted membership for the Object is re-upserted so historical points
+        remain queryable and their `is_current` metadata is refreshed after Version
+        promotion. Missing Embeddings are explicit failures; this method never creates
+        Embeddings or invokes an embedding provider.
+        """
+
+        space, vector_index = self._vector_runtime()
+        current_version_id = self._current_version_id(object_id)
+        search_state = self._search_representation_state(object_id)
+        embedding_state = self._derived_state(object_id, self.EMBEDDING_KIND)
+        vector_state = self._derived_state(object_id, self.VECTOR_INDEX_KIND)
+
+        for name, state in (
+            (self.SEARCH_REPRESENTATION_KIND, search_state),
+            (self.EMBEDDING_KIND, embedding_state),
+            (self.VECTOR_INDEX_KIND, vector_state),
+        ):
+            if state.target_version_id != current_version_id:
+                raise DerivedMaintenanceError(
+                    f"{name} target Version does not match the Object current Version"
+                )
+        if search_state.status is not DerivedState.READY:
+            raise DerivedMaintenanceError(
+                "Vector Index sync requires search_representation to be ready"
+            )
+        if embedding_state.status is not DerivedState.READY:
+            raise DerivedMaintenanceError("Vector Index sync requires embedding to be ready")
+
+        version_id = vector_state.target_version_id
+        revision = vector_state.revision
+        search_revision = search_state.revision
+        embedding_revision = embedding_state.revision
+        builder = KnowledgeVectorMaintenanceBuilder(self._repository, vector_index)
+
+        try:
+            point_count, written_count = builder.upsert_object(space, object_id)
+
+            current_search_state = self._search_representation_state(object_id)
+            current_embedding_state = self._derived_state(object_id, self.EMBEDDING_KIND)
+            if (
+                self._current_version_id(object_id) != version_id
+                or current_search_state.target_version_id != version_id
+                or current_search_state.revision != search_revision
+                or current_search_state.status is not DerivedState.READY
+                or current_embedding_state.target_version_id != version_id
+                or current_embedding_state.revision != embedding_revision
+                or current_embedding_state.status is not DerivedState.READY
+            ):
+                raise DerivedMaintenanceSupersededError(
+                    "Vector Index sync dependency changed while the maintenance attempt was running"
+                )
+        except DerivedMaintenanceSupersededError:
+            raise
+        except Exception as exc:
+            marked = self._repository.version_store.mark_derived_state(
+                object_id,
+                self.VECTOR_INDEX_KIND,
+                revision,
+                DerivedState.FAILED,
+                error=f"{type(exc).__name__}: {exc}",
+            )
+            if not marked:
+                raise DerivedMaintenanceSupersededError(
+                    "Vector Index sync failed after its derived revision was superseded"
+                ) from exc
+            raise DerivedMaintenanceError(
+                f"Vector Index sync failed: {type(exc).__name__}: {exc}"
+            ) from exc
+
+        marked = self._repository.version_store.mark_derived_state(
+            object_id,
+            self.VECTOR_INDEX_KIND,
+            revision,
+            DerivedState.READY,
+        )
+        if not marked:
+            raise DerivedMaintenanceSupersededError(
+                "Vector Index sync completed after its derived revision was superseded"
+            )
+
+        return VectorIndexSyncResult(
+            object_id=object_id,
+            version_id=version_id,
+            revision=revision,
+            space_id=space.space_id,
+            backend_key=vector_index.backend_key,
+            point_count=point_count,
+            written_point_count=written_count,
+            changed=vector_state.status is not DerivedState.READY,
+            state=DerivedState.READY.value,
+        )
+
+    def rebuild_vector_index(self) -> VectorIndexRebuildResult:
+        """Rebuild the complete Vector backend from SQLite memberships + Embeddings.
+
+        This is a recovery/full-maintenance operation. It does not generate missing
+        Embeddings. A catalog change during rebuild invalidates the attempt so no stale
+        revision is promoted to ready.
+        """
+
+        space, vector_index = self._vector_runtime()
+        before = self._vector_catalog_snapshot()
+        builder = KnowledgeVectorMaintenanceBuilder(self._repository, vector_index)
+
+        try:
+            metadata, point_count = builder.rebuild_backend(space)
+            if metadata.space_id != space.space_id:
+                raise ValueError("Vector backend metadata returned a different Embedding Space")
+            if metadata.points_count != point_count:
+                raise ValueError(
+                    "Vector backend metadata point count does not match rebuilt membership count"
+                )
+        except Exception as exc:
+            raise DerivedMaintenanceError(
+                f"Vector Index rebuild failed: {type(exc).__name__}: {exc}"
+            ) from exc
+
+        after = self._vector_catalog_snapshot()
+        if after != before:
+            raise DerivedMaintenanceSupersededError(
+                "Vector Index rebuild completed after the accepted Object catalog changed"
+            )
+
+        eligible = []
+        for object_id, current_version_id, states in before:
+            by_kind = {state.kind: state for state in states}
+            search_state = by_kind.get(self.SEARCH_REPRESENTATION_KIND)
+            embedding_state = by_kind.get(self.EMBEDDING_KIND)
+            vector_state = by_kind.get(self.VECTOR_INDEX_KIND)
+            if search_state is None or embedding_state is None or vector_state is None:
+                continue
+            if not all(
+                state.target_version_id == current_version_id
+                for state in (search_state, embedding_state, vector_state)
+            ):
+                continue
+            if search_state.status is not DerivedState.READY:
+                continue
+            if embedding_state.status is not DerivedState.READY:
+                continue
+            eligible.append((object_id, vector_state.revision))
+
+        for object_id, revision in eligible:
+            marked = self._repository.version_store.mark_derived_state(
+                object_id,
+                self.VECTOR_INDEX_KIND,
+                revision,
+                DerivedState.READY,
+            )
+            if not marked:
+                raise DerivedMaintenanceSupersededError(
+                    "Vector Index rebuild state promotion was superseded by a newer revision"
+                )
+
+        return VectorIndexRebuildResult(
+            space_id=space.space_id,
+            backend_key=vector_index.backend_key,
+            point_count=point_count,
+            ready_object_count=len(eligible),
             state=DerivedState.READY.value,
         )
