@@ -1,0 +1,156 @@
+{
+  "schema_version": "sgokb.n03-vertical-slice/1",
+  "dataset_id": "n03-real-data-v1",
+  "status": "prepared_local_execution_pending",
+  "db_policy": {
+    "mode": "evaluation_only",
+    "path": ".local/n03/sgokb-n03.sqlite",
+    "production_db_must_not_be_modified": true
+  },
+  "artifact_roots": {
+    "captures": ".local/n03/captures",
+    "package_build": ".local/n03/package-build",
+    "export": ".local/n03/export",
+    "incoming": ".local/n03/incoming",
+    "logs": ".local/n03/logs"
+  },
+  "objects": [
+    {
+      "object_id": "object-n03-saber",
+      "name": "Saber",
+      "class": "character",
+      "aliases": ["Artoria Pendragon"],
+      "sources": [
+        {
+          "source_key": "saber-wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Saber_(Fate/Stay_Night)",
+          "role": "secondary_reference",
+          "required": true
+        },
+        {
+          "source_key": "saber-fate-official",
+          "url": "https://www.fate-sn.com/ubw/sp/chara/",
+          "role": "official_character_profile",
+          "required": true
+        }
+      ],
+      "expected_search_queries": ["Saber", "Artoria Pendragon", "King of Knights"],
+      "expected_relation_semantics": [
+        {
+          "target_object_id": "object-n03-fate-stay-night",
+          "semantic": "character appears in / belongs to Fate/stay night",
+          "required_for_n03_import": false
+        }
+      ],
+      "similarity_rationale": "Compare with Ichigo Kurosaki as a supernatural combat-oriented fictional character while preserving clear differences in role, setting, and characterization."
+    },
+    {
+      "object_id": "object-n03-ichigo-kurosaki",
+      "name": "Ichigo Kurosaki",
+      "class": "character",
+      "aliases": [],
+      "sources": [
+        {
+          "source_key": "ichigo-wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ichigo_Kurosaki",
+          "role": "secondary_reference",
+          "required": true
+        },
+        {
+          "source_key": "ichigo-bleach-official",
+          "url": "https://bleach-anime.com/en/character/?chara=65-Official",
+          "role": "official_character_profile",
+          "required": true
+        }
+      ],
+      "expected_search_queries": ["Ichigo Kurosaki", "Substitute Soul Reaper", "Zangetsu"],
+      "expected_relation_semantics": [
+        {
+          "target_object_id": "object-n03-bleach",
+          "semantic": "character appears in / belongs to BLEACH",
+          "required_for_n03_import": false
+        }
+      ],
+      "similarity_rationale": "Compare with Saber as another supernatural combat-oriented character; expected similarity should arise from role and conflict themes rather than shared franchise identity."
+    },
+    {
+      "object_id": "object-n03-fate-stay-night",
+      "name": "Fate/stay night",
+      "class": "work",
+      "aliases": ["Fate/Stay Night"],
+      "sources": [
+        {
+          "source_key": "fate-stay-night-wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Fate/Stay_Night",
+          "role": "secondary_reference",
+          "required": true
+        }
+      ],
+      "expected_search_queries": ["Fate/stay night", "Holy Grail War", "visual novel"],
+      "expected_relation_semantics": [],
+      "similarity_rationale": "Compare with BLEACH as a Japanese supernatural fantasy work centered on recurring combat, while format, narrative structure, and franchise history remain distinct."
+    },
+    {
+      "object_id": "object-n03-bleach",
+      "name": "BLEACH",
+      "class": "work",
+      "aliases": ["Bleach"],
+      "sources": [
+        {
+          "source_key": "bleach-wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Bleach_(manga)",
+          "role": "secondary_reference",
+          "required": true
+        }
+      ],
+      "expected_search_queries": ["BLEACH", "Soul Reaper", "Tite Kubo"],
+      "expected_relation_semantics": [],
+      "similarity_rationale": "Compare with Fate/stay night as a supernatural Japanese work with combat and spiritual/fantasy systems, but with different medium and narrative structure."
+    },
+    {
+      "object_id": "object-n03-tsundere",
+      "name": "Tsundere",
+      "class": "concept",
+      "aliases": [],
+      "sources": [
+        {
+          "source_key": "tsundere-wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Tsundere",
+          "role": "reference_definition",
+          "required": true
+        }
+      ],
+      "expected_search_queries": ["Tsundere", "harsh personality warmer side", "character archetype"],
+      "expected_relation_semantics": [],
+      "similarity_rationale": "A character-development/archetype concept intended to remain distinguishable from the broader narrative-structure concept Hero's Journey."
+    },
+    {
+      "object_id": "object-n03-heros-journey",
+      "name": "Hero's Journey",
+      "class": "concept",
+      "aliases": ["Monomyth"],
+      "sources": [
+        {
+          "source_key": "heros-journey-wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Hero%27s_journey",
+          "role": "reference_definition",
+          "required": true
+        }
+      ],
+      "expected_search_queries": ["Hero's Journey", "Monomyth", "narrative pattern"],
+      "expected_relation_semantics": [],
+      "similarity_rationale": "A narrative-structure concept intentionally distinct from Tsundere; N-04 can combine both concepts for controlled character creation."
+    }
+  ],
+  "completion_requirements": {
+    "minimum_character_objects": 2,
+    "minimum_work_objects": 2,
+    "minimum_concept_objects": 2,
+    "minimum_multi_source_objects": 1,
+    "all_objects_require_real_web_capture": true,
+    "all_objects_require_accepted_version": true,
+    "record_source_snapshot_evidence_package_result_version_ids": true,
+    "record_human_ground_truth_notes": true,
+    "record_search_and_similarity_expectations": true
+  }
+}
