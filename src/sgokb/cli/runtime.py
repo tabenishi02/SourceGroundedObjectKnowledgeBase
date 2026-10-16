@@ -4,23 +4,28 @@ from __future__ import annotations
 
 import os
 
-from sgokb.application_read import KnowledgeReadApplication
+from sgokb.application_read import KnowledgeReadApplication, RetrievalRuntimeUnavailableError
 from sgokb.retrieval import QdrantVectorIndexAdapter, default_sentence_transformer_provider
 
 
 def semantic_runtime():
     """Build the frozen Phase I local semantic runtime; never fall back to cloud."""
 
-    provider = default_sentence_transformer_provider(
-        cache_folder=os.environ.get("SGOKB_MODEL_CACHE", ".local/models"),
-        local_files_only=os.environ.get("SGOKB_MODEL_LOCAL_ONLY", "0") == "1",
-    )
-    vector = QdrantVectorIndexAdapter(
-        url=os.environ.get("SGOKB_QDRANT_URL", "http://localhost:6333"),
-        grpc_port=int(os.environ.get("SGOKB_QDRANT_GRPC_PORT", "6334")),
-        prefer_grpc=os.environ.get("SGOKB_QDRANT_PREFER_GRPC", "1") != "0",
-        collection_prefix=os.environ.get("SGOKB_QDRANT_COLLECTION_PREFIX", "sgokb_vector"),
-    )
+    try:
+        provider = default_sentence_transformer_provider(
+            cache_folder=os.environ.get("SGOKB_MODEL_CACHE", ".local/models"),
+            local_files_only=os.environ.get("SGOKB_MODEL_LOCAL_ONLY", "0") == "1",
+        )
+        vector = QdrantVectorIndexAdapter(
+            url=os.environ.get("SGOKB_QDRANT_URL", "http://localhost:6333"),
+            grpc_port=int(os.environ.get("SGOKB_QDRANT_GRPC_PORT", "6334")),
+            prefer_grpc=os.environ.get("SGOKB_QDRANT_PREFER_GRPC", "1") != "0",
+            collection_prefix=os.environ.get("SGOKB_QDRANT_COLLECTION_PREFIX", "sgokb_vector"),
+        )
+    except (ImportError, RuntimeError) as exc:
+        if isinstance(exc, ImportError) or isinstance(exc.__cause__, ImportError):
+            raise RetrievalRuntimeUnavailableError(str(exc)) from exc
+        raise
     return provider, vector
 
 

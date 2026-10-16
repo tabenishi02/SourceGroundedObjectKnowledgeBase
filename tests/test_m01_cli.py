@@ -96,8 +96,7 @@ def test_system_integrity_and_migration_17(tmp_path, capsys):
     repo = Repository(db)
     try:
         assert repo.one(
-            "SELECT name FROM sqlite_master WHERE type='table' "
-            "AND name='registry_proposal_reviews'"
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='registry_proposal_reviews'"
         )
     finally:
         repo.close()
@@ -135,3 +134,49 @@ def test_sgokb_package_entrypoint_removed():
     pyproject = (Path(__file__).parents[1] / "pyproject.toml").read_text(encoding="utf-8")
     assert 'sgokb = "sgokb.cli:main"' in pyproject
     assert "sgokb-package" not in pyproject
+
+
+@pytest.mark.parametrize(
+    "factory", ["default_sentence_transformer_provider", "QdrantVectorIndexAdapter"]
+)
+@pytest.mark.parametrize("domain", ["search", "similar"])
+def test_optional_semantic_dependency_returns_exit_5(
+    tmp_path, capsys, monkeypatch, factory, domain
+):
+    from sgokb.cli import runtime
+
+    db = tmp_path / "optional.sqlite"
+    assert (
+        main(
+            ["--db", str(db), "object", "add", "--name", "Optional", "--primary-class", "character"]
+        )
+        == 0
+    )
+    obj, _ = _stdout_json(capsys)
+    monkeypatch.setattr(runtime, "default_sentence_transformer_provider", lambda **kwargs: object())
+
+    def missing_dependency(**kwargs):
+        raise RuntimeError("Optional provider dependency missing") from ModuleNotFoundError(
+            "fixture"
+        )
+
+    monkeypatch.setattr(runtime, factory, missing_dependency)
+    args = (
+        ["search", "Optional", "--mode", "semantic", "--semantic-runtime", "--require-full-runtime"]
+        if domain == "search"
+        else ["similar", "--object", obj["data"]["object_id"]]
+    )
+    assert main(["--db", str(db), *args]) == 5
+    payload = json.loads(capsys.readouterr().err)
+    assert payload["error"]["code"] == "retrieval_runtime_unavailable"
+
+
+def test_semantic_composition_does_not_mask_internal_errors(monkeypatch):
+    from sgokb.cli import runtime
+
+    def broken(**kwargs):
+        raise RuntimeError("Unexpected provider bug")
+
+    monkeypatch.setattr(runtime, "default_sentence_transformer_provider", broken)
+    with pytest.raises(RuntimeError, match="Unexpected provider bug"):
+        runtime.semantic_runtime()

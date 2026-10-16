@@ -2,11 +2,11 @@
 
 更新日: 2026-10-16
 
-- Status: **Active — M-01 / M-02 Complete, M-03 Ready**
+- Status: **Complete (2026-10-16)**
 - Phase: `Phase M — CLI / 操作フロー`
 - Previous phase: `Phase L — 旧Prototype移行・削除` — Complete
 - Previous closure: `docs/planning/PHASE_L_CLOSURE_AUDIT.md`
-- Current task: `M-03 [P1] 1 Object標準手順を1ページで実行可能にする`
+- Current task: なし（M-01〜M-03 Complete）
 - M-01 implementation branch: `task/m-01-object-centered-cli`
 
 ---
@@ -51,13 +51,13 @@ Phase LはCompleteであり、legacy cleanup残件はPhase Mを妨げない。
 |---|---|---|---|
 | M-01 | P0 | **Complete (2026-10-16)** | 新しいObject中心CLIを設計・実装する |
 | M-02 | P1 | **Complete (2026-10-16)** | 旧CLIとの互換性を決定する |
-| M-03 | P1 | **Ready** | 1 Object標準手順を1ページで実行可能にする |
+| M-03 | P1 | **Complete (2026-10-16)** | 1 Object標準手順を1ページで実行可能にする |
 
 実施順序は `M-01 → M-02 → M-03` とする。
 
 M-01でObject中心CLIのtaxonomy、side-effect境界、Output / Error / Exit contract、selector、Registry proposal、Search/MCP/System compositionを確定し、実装した。M-02では旧entrypointの互換方針を確定し、M-01 cutoverで`sgokb-package`を削除した。
 
-M-03の標準workflow自体は`docs/operations/OBJECT_STANDARD_WORKFLOW.md`へ定義済みである。次は新しい`sgokb`だけを使った1 Object end-to-end実行確認を行い、Phase M完了Gateを確認する。
+M-03の標準workflow自体は`docs/operations/OBJECT_STANDARD_WORKFLOW.md`へ定義済みである。新しい`sgokb`だけを使った1 Object end-to-end実行とMCP stdio readが成功し、Phase M完了Gateを満たした。受入結果は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。
 
 ---
 
@@ -431,7 +431,7 @@ Object登録 / 確認
 
 Human decision boundaryとして、Object Identity、External Export、ChatGPT外部工程、authoritative Result Import、review-required Result、Registry proposalを自動通過させない。
 
-M-03の次のGateは、新しい`sgokb`だけでこのworkflowを1 Object end-to-end完走し、内部DB操作と`sgokb-package`を必要としないことを確認することである。
+M-03では新しい`sgokb`だけでこのworkflowを1 Object end-to-end完走した。Result fixtureで通常のvalidate/review/importを通し、Render / Lexical Search / read-only MCPで同じaccepted Knowledgeを確認した。必須Gate全PASSにより、「日常運用で内部DB操作を必要としない」というPhase M完了条件を満たした。Semantic/Similarityはoptional runtime未構成のためSKIP。
 
 ---
 
