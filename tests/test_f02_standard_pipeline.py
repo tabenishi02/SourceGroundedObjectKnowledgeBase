@@ -14,8 +14,8 @@ def test_standard_cli_import_and_process_stop_at_canonical_evidence(tmp_path, ma
     db = tmp_path / "standard.sqlite"
     path = make_bundle()
 
-    assert main(["--db", str(db), "import", str(path)]) == 0
-    imported = json.loads(capsys.readouterr().out)[0]
+    assert main(["--db", str(db), "source", "import", str(path)]) == 0
+    imported = json.loads(capsys.readouterr().out)["data"][0]
     snapshot_id = imported["snapshot"]
 
     repo = Repository(db)
@@ -28,12 +28,12 @@ def test_standard_cli_import_and_process_stop_at_canonical_evidence(tmp_path, ma
     finally:
         repo.close()
 
-    assert main(["--db", str(db), "process", "--snapshot", snapshot_id]) == 0
-    processed = json.loads(capsys.readouterr().out)[0]
+    assert main(["--db", str(db), "source", "process", "--snapshot", snapshot_id]) == 0
+    processed = json.loads(capsys.readouterr().out)["data"][0]
     assert processed["evidence"] > 0
     evidence_id = processed["evidence_ids"][0]
-    assert main(["--db", str(db), "provenance", "evidence", evidence_id]) == 0
-    provenance = json.loads(capsys.readouterr().out)
+    assert main(["--db", str(db), "evidence", "provenance", evidence_id]) == 0
+    provenance = json.loads(capsys.readouterr().out)["data"]
     assert provenance["snapshot"]["snapshot_id"] == snapshot_id
     assert provenance["evidence"]["evidence_id"] == evidence_id
 
@@ -47,15 +47,15 @@ def test_standard_cli_import_and_process_stop_at_canonical_evidence(tmp_path, ma
     finally:
         repo.close()
 
-    assert main(["--db", str(db), "status"]) == 0
-    status = json.loads(capsys.readouterr().out)
+    assert main(["--db", str(db), "source", "status"]) == 0
+    status = json.loads(capsys.readouterr().out)["data"]
     assert status["sources"] == 1
     assert status["snapshots"] == 1
     assert status["evidence"] == processed["evidence"]
     assert "fragments" not in status
 
-    assert main(["--db", str(db), "snapshots"]) == 0
-    snapshots = json.loads(capsys.readouterr().out)
+    assert main(["--db", str(db), "source", "snapshots"]) == 0
+    snapshots = json.loads(capsys.readouterr().out)["data"]
     assert snapshots[0]["id"] == snapshot_id
     assert snapshots[0]["effective"] is True
 
@@ -73,15 +73,16 @@ def test_standard_cli_import_and_process_stop_at_canonical_evidence(tmp_path, ma
         ["coverage"],
         ["entity"],
         ["embed"],
-        ["search"],
         ["context"],
-        ["import", "capture.zip", "--legacy"],
-        ["process", "--legacy"],
-        ["status", "--legacy"],
-        ["snapshots", "--legacy"],
+        ["import", "capture.zip"],
+        ["process"],
+        ["status"],
+        ["snapshots"],
+        ["source", "import", "capture.zip", "--legacy"],
+        ["source", "process", "--legacy"],
         ["provenance", "fragment", "id"],
         ["provenance", "document", "id"],
-        ["--prompt-dir", "prompts", "status"],
+        ["--prompt-dir", "prompts", "source", "status"],
     ],
 )
 def test_retired_cli_surface_is_rejected(argv):
