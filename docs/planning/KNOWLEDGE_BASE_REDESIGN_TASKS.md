@@ -893,8 +893,9 @@ Preparation: `docs/planning/PHASE_L_PREPARATION.md`
   - `sgokb-package`はM-01 cutoverで削除した。
   - 成果物: `docs/decisions/M02_CLI_COMPATIBILITY_POLICY.md`
 
-- [ ] **M-03 [P1] 1 Object標準手順を1ページで実行可能にする**
-  - Object登録 → Evidence Package生成 → Drive → ChatGPT → Result Import → Search/MCP確認。
+- [x] **M-03 [P1] 1 Object標準手順を1ページで実行可能にする** — **Complete (2026-10-16)**
+  - Object登録 → Evidence Package生成 → 明示export → Result validate/review/import → Render / Lexical Search / SDK v2 MCP readを隔離DBで確認済み。実Drive送信・ChatGPT手動分析品質は未検証で、Result transportにはdeterministic fixtureを使用。
+  - 正本手順: `docs/operations/OBJECT_STANDARD_WORKFLOW.md`。受入結果: `docs/planning/M03_LOCAL_ACCEPTANCE.md`。
 
 **完了条件:** 日常運用で内部DB操作を必要としない。
 
@@ -1049,12 +1050,12 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A〜LはComplete。Phase LではL-01〜L-04のDecisionをL-05で実装し、旧runtime・001/002・互換surfaceをactive treeから削除した。現行canonical workflowとSample Rawは保持している。受入結果・既知制約は`docs/planning/PHASE_L_CLOSURE_AUDIT.md`を正本とする。
+Phase A〜MはComplete。Phase LではL-01〜L-04のDecisionをL-05で実装し、旧runtime・001/002・互換surfaceをactive treeから削除した。現行canonical workflowとSample Rawは保持している。受入結果・既知制約は`docs/planning/PHASE_L_CLOSURE_AUDIT.md`を正本とする。
 
 次の最優先Task（未着手）:
 
 ```text
-M-01 [P0] 新しいObject中心CLIを設計する
+N-01 [P0] Unit Testを新ドメインへ更新する
 ```
 
-Phase Mでは新Object中心CLIと操作フローを設計する。L-05では旧surface削除に必要な既存CLIの最小変更だけを行い、新しいObject CLIやPhase M実装は開始していない。
+Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。次はPhase Nへ引き渡す（今回未着手）。

@@ -4,7 +4,7 @@
 
 - Phase: `Phase M — CLI / 操作フロー`
 - Task: `M-03 [P1] 1 Object標準手順を1ページで実行可能にする`
-- Status: **Executable procedure ready / local acceptance pending**
+- Status: **Complete (2026-10-16)**
 - CLI contract: `docs/decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md`
 
 > 目的: 1 Objectを、内部SQLite操作・Python REPL・旧`sgokb-package`を使わず、Object登録からaccepted Knowledge、検索、MCP read確認まで新しい`sgokb`だけで処理する。
