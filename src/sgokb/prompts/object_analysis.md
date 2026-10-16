@@ -176,7 +176,20 @@ Never invent a stable Object ID.
 
 When Evidence identifies a potentially separate Object but the Package does not provide its existing stable ID, use `unresolved_references` with the label/class information supported by Evidence.
 
-Do not directly change Object Registry identity or classification. If analysis suggests a better target name, alias, Primary Class, or Additional Class, place it in `registry_proposals` if the Result Schema permits that proposal. A Registry proposal is not automatically accepted Knowledge.
+Do not directly change Object Registry identity or classification. If analysis suggests a Registry change, place it in `registry_proposals`. A Registry proposal is not automatically accepted Knowledge; it is reviewed and applied separately by the operator.
+
+Use the following standard `payload` shapes so an accepted proposal can be applied deterministically:
+
+- `object_name`: `{"name":"New canonical name"}`
+- `object_alias`: `{"value":"Alias","language":"ja","kind":"alias"}` (`language` / `kind` may be omitted)
+- `primary_class`: `{"class_id":"class:..."}` using an existing Class ID supplied by the Package
+- `additional_class`: `{"class_id":"class:...","action":"add"}` or `action:"remove"`
+- `new_class`: `{"key":"...","name":"...","assignment_policy":"primary_allowed","description":"...","parent_class_ids":[...]}`; omit `class_id` unless a stable ID is explicitly supplied
+- `new_facet`: `{"key":"...","name":"...","description":"...","is_common":false,"class_profiles":[{"class_id":"class:...","position":0,"inherit_to_descendants":true}]}`; omit `facet_id` unless explicitly supplied
+- `new_attribute`: `{"key":"...","name":"...","value_type":"string","description":"..."}`; omit `attribute_id` unless explicitly supplied
+- `new_relation_type`: `{"key":"...","name":"...","description":"..."}`; omit `relation_type_id` unless explicitly supplied
+
+Do not invent existing Class/Object IDs. Optional fields may be omitted when unsupported by Evidence. A proposal whose required payload fields cannot be grounded should not be emitted.
 
 ## 12. Class-specific and semantic discipline
 

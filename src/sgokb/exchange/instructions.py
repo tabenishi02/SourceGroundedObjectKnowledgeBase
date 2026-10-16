@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-INSTRUCTIONS_VERSION = "sgokb.object-analysis/1.0"
+INSTRUCTIONS_VERSION = "sgokb.object-analysis/1.1"
 
 
 @dataclass(frozen=True, slots=True)
