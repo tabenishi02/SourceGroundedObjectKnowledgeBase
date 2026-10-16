@@ -18,7 +18,6 @@ vector-qdrant = ["qdrant-client>=1.19,<2"]
 
 [project.scripts]
 sgokb = "sgokb.cli:main"
-sgokb-package = "sgokb.package_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

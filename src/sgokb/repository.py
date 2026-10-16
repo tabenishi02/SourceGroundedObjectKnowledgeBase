@@ -6,6 +6,7 @@ from pathlib import Path
 from .storage import (
     EmbeddingRepository,
     ObjectRepository,
+    RegistryProposalRepository,
     SemanticRepository,
     SourceRepository,
     VersionRepository,
@@ -28,6 +29,7 @@ class Repository:
             raise
         self.embedding_store = EmbeddingRepository(self.db)
         self.object_store = ObjectRepository(self.db)
+        self.registry_proposals = RegistryProposalRepository(self.db)
         self.semantic_store = SemanticRepository(self.db)
         self.source_store = SourceRepository(self.db)
         self.version_store = VersionRepository(self.db)

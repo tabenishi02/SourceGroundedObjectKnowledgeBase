@@ -879,22 +879,19 @@ Preparation: `docs/planning/PHASE_L_PREPARATION.md`
 
 # Phase M — CLI / 操作フロー
 
-- [ ] **M-01 [P0] 新しいObject中心CLIを設計する**
-  - `object add/list/show`
-  - `object relate`
-  - `package build`（local derived artifact）
-  - `package export`（external side effect）
-  - `result validate`
-  - `result import`（authoritative write）
-  - Registry proposal review / apply相当操作
-  - `search`
-  - `similar`
-  - `render`
-  - `mcp serve` 等。
-  - integrity / derived-index / backup / background-job status確認と、rebuild / restore補助操作を設計する。
+- [x] **M-01 [P0] 新しいObject中心CLIを設計・実装する** — **Complete (2026-10-16)**
+  - Domain namespace方式でpublic CLIを`sgokb`へ統一した。
+  - Object / Source / Evidence / Package / Result / Registry / Search / Similarity / Render / MCP / System操作を実装した。
+  - `object relate`はVersion / Evidence境界を迂回するため不採用とし、`object relations`をread-onlyで提供する。Relation writeはEvidence付きObject Result Importに限定する。
+  - stable Object ID優先selector、`sgokb.cli/1.0` Output/Error contract、exit code、side-effect分類を確定した。
+  - Registry proposalはaccept/rejectとexplicit applyを分離し、migration017でreview/apply auditを追加した。
+  - MCPはread-only stdio、Systemはintegrity / index / backup / restoreを提供する。durable job runner不在のため架空のbackground-job statusは追加しない。
+  - 成果物: `docs/decisions/M01_CLI_NAMESPACE_TAXONOMY.md`、`docs/decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md`
 
-- [ ] **M-02 [P1] 旧CLIとの互換性を決定する**
-  - deprecated warning期間を設けるか、Prototypeとして明示的に切るか判断する。
+- [x] **M-02 [P1] 旧CLIとの互換性を決定する** — **Complete (2026-10-16)**
+  - deprecated wrapperを長期維持せず、public entrypointを`sgokb` 1本へ統一する。
+  - `sgokb-package`はM-01 cutoverで削除した。
+  - 成果物: `docs/decisions/M02_CLI_COMPATIBILITY_POLICY.md`
 
 - [ ] **M-03 [P1] 1 Object標準手順を1ページで実行可能にする**
   - Object登録 → Evidence Package生成 → Drive → ChatGPT → Result Import → Search/MCP確認。

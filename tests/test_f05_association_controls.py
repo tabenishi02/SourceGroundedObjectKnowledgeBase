@@ -125,12 +125,12 @@ def test_cli_association_set_list_and_clear(tmp_path, make_bundle, capsys):
         )
         == 0
     )
-    set_result = json.loads(capsys.readouterr().out)
+    set_result = json.loads(capsys.readouterr().out)["data"]
     assert set_result["status"] == "candidate"
     assert set_result["subject_relationship"] == "mentioned_subject"
 
     assert main(["--db", str(path), "association", "list", "--object", object_id]) == 0
-    listed = json.loads(capsys.readouterr().out)
+    listed = json.loads(capsys.readouterr().out)["data"]
     assert [item["source_id"] for item in listed] == [source_id]
 
     assert (
@@ -148,7 +148,7 @@ def test_cli_association_set_list_and_clear(tmp_path, make_bundle, capsys):
         )
         == 0
     )
-    cleared = json.loads(capsys.readouterr().out)
+    cleared = json.loads(capsys.readouterr().out)["data"]
     assert cleared["cleared"] is True
 
 
@@ -198,7 +198,7 @@ def test_cli_evidence_manual_include_exclude_reaches_selection(tmp_path, make_bu
         )
         == 0
     )
-    selected = json.loads(capsys.readouterr().out)
+    selected = json.loads(capsys.readouterr().out)["data"]
     assert selected["controls"] == {
         "manual_include": [second_id],
         "manual_exclude": [first_id],
@@ -236,7 +236,7 @@ def test_association_suggest_cli_does_not_require_persistence(tmp_path, make_bun
         )
         == 0
     )
-    result = json.loads(capsys.readouterr().out)
+    result = json.loads(capsys.readouterr().out)["data"]
     assert result["suggestions"][0]["source_id"] == source_id
 
     repository = Repository(path)

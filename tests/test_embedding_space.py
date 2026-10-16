@@ -149,7 +149,6 @@ def test_i02_default_profile_is_frozen_to_harrier_06b():
     assert DEFAULT_EMBEDDING_MAX_SEQUENCE_LENGTH == 32768
 
 
-
 def test_migration_015_upgrades_i01_schema_without_losing_representations(tmp_path):
     path = tmp_path / "pre-i02.sqlite"
     db = sqlite3.connect(path)
@@ -182,7 +181,7 @@ def test_migration_015_upgrades_i01_schema_without_losing_representations(tmp_pa
 
     upgraded = Repository(path)
     try:
-        assert upgraded.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 16
+        assert upgraded.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 17
         assert upgraded.one(
             "SELECT content FROM search_representations WHERE id='representation-before-i02'"
         )["content"] == "stable representation"

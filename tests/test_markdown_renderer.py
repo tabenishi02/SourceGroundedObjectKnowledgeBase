@@ -5,8 +5,8 @@ import pytest
 from test_object_version_import import _import, _validate
 from test_result_validation import _build_and_stage, _valid_result
 
+from sgokb.cli import main as cli_main
 from sgokb.exchange import ObjectEvidencePackageBuilder, PackageTransferService
-from sgokb.package_cli import main as package_cli_main
 from sgokb.rendering import MarkdownRenderService, ObjectMarkdownRenderer
 from sgokb.repository import Repository
 from sgokb.storage import MarkdownRenderReadRepository, PackageBuildReadRepository
@@ -365,7 +365,7 @@ def test_renderer_rejects_candidate_version(tmp_path):
         repository.close()
 
 
-def test_package_cli_render_markdown_executes_managed_render(tmp_path, capsys):
+def test_cli_render_executes_managed_render(tmp_path, capsys):
     db_path = tmp_path / "sgokb.sqlite"
     repository = Repository(db_path)
     try:
@@ -375,11 +375,11 @@ def test_package_cli_render_markdown_executes_managed_render(tmp_path, capsys):
         repository.close()
 
     output_root = tmp_path / "cli-rendered"
-    exit_code = package_cli_main(
+    exit_code = cli_main(
         [
             "--db",
             str(db_path),
-            "render-markdown",
+            "render",
             "--version",
             version_id,
             "--output-root",
@@ -389,9 +389,9 @@ def test_package_cli_render_markdown_executes_managed_render(tmp_path, capsys):
     payload = json.loads(capsys.readouterr().out)
 
     assert exit_code == 0
-    assert payload["version_id"] == version_id
-    assert payload["derived_state_update"] == "ready"
-    assert Path(payload["output_path"]).is_file()
+    assert payload["data"]["version_id"] == version_id
+    assert payload["data"]["derived_state_update"] == "ready"
+    assert Path(payload["data"]["output_path"]).is_file()
 
     reopened = Repository(db_path)
     try:
