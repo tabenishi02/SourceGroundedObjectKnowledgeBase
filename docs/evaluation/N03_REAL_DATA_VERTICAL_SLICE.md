@@ -27,16 +27,16 @@ production DBからのcopyではなくfresh canonical DBから開始する。
 
 ## 2. Vertical Slice構成
 
-最低要件の6 Objectを次で固定する。
+最低要件の6 Objectを次で固定する。`object_key`はN-03評価manifest内部の安定キーであり、canonical `object_id`そのものではない。実`object_id`はpublic CLIの`object add`で発行された値をmanifestへ記録する。
 
-| Domain | Object ID | Name | Source数 |
+| Domain | object_key | Name | Source数 |
 |---|---|---|---:|
-| Character | `object-n03-saber` | Saber | 2 |
-| Character | `object-n03-ichigo-kurosaki` | Ichigo Kurosaki | 2 |
-| Work | `object-n03-fate-stay-night` | Fate/stay night | 1 |
-| Work | `object-n03-bleach` | BLEACH | 1 |
-| Concept | `object-n03-tsundere` | Tsundere | 1 |
-| Concept | `object-n03-heros-journey` | Hero's Journey | 1 |
+| Character | `saber` | Saber | 2 |
+| Character | `ichigo-kurosaki` | Ichigo Kurosaki | 2 |
+| Work | `fate-stay-night` | Fate/stay night | 1 |
+| Work | `bleach` | BLEACH | 1 |
+| Concept | `tsundere` | Tsundere | 1 |
+| Concept | `heros-journey` | Hero's Journey | 1 |
 
 合計8 Source Captureを基準とする。
 
@@ -100,15 +100,17 @@ Raw Capture本文やDB本体をrepositoryへcommitしない。
 
 ## 5. Object registration policy
 
-Object IDはmanifestの値を固定して使用する。
+public CLIのcanonical contractでは`object add`へ任意`object_id`を渡さない。各Objectは通常の`sgokb object add --name ... --primary-class ...`で登録し、発行されたstable Object IDをmanifestの`object_id`へ記録する。
+
+評価dataset側では次の`object_key`で実Object IDとの対応を固定する。
 
 ```text
-object-n03-saber
-object-n03-ichigo-kurosaki
-object-n03-fate-stay-night
-object-n03-bleach
-object-n03-tsundere
-object-n03-heros-journey
+saber
+ichigo-kurosaki
+fate-stay-night
+bleach
+tsundere
+heros-journey
 ```
 
 Class:
@@ -279,7 +281,7 @@ Reference Workstationで、少なくとも次を確認する。
 
 ```text
 fresh evaluation DB integrity PASS
-6 Objects registered
+6 Objects registered and generated stable Object IDs recorded
 8 real Web Captures imported
 6 Objects all have confirmed Source associations
 6 Packages built and validated
@@ -309,6 +311,7 @@ Reference Workstation実行がPASSしたら、本書へ実値を追記する。
 
 - `benchmark/n03-real-data-vertical-slice-v1.json`
   - statusを`complete`へ変更
+  - 各`object_key`の`object_id`へpublic CLIが発行したstable IDを記録
   - Capture / Source / Evidence / Package / Result / Versionの実IDまたはreproducibility metadataを追記
 - `docs/planning/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
   - N-03をCompleteへ変更
