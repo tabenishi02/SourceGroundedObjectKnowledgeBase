@@ -1,0 +1,176 @@
+{
+  "schema_version": "sgokb.n04-ai-use-cases/1",
+  "dataset_id": "n04-ai-use-cases-v1",
+  "source_dataset": "benchmark/n03-real-data-vertical-slice-v1.json",
+  "evaluation_db": ".local/n03/sgokb-n03.sqlite",
+  "status": "acceptance_spec",
+  "model_policy": {
+    "runtime": "local_chat_model_only",
+    "preferred_endpoint": "http://127.0.0.1:1234/v1",
+    "provider_preference": "existing LM Studio OpenAI-compatible local server when available",
+    "selection": "Freeze one already-installed general chat/instruct model before running the three cases. Use the same model for all cases. Do not switch per case. If the initially selected model cannot follow the response contract at all, one retry with a stronger already-installed local model is allowed, but both results must be recorded.",
+    "downloads": "Do not download a new large chat model solely to pass N-04 without recording why the existing local model was unusable.",
+    "cloud_inference": false,
+    "external_web_knowledge": false
+  },
+  "common_generation_contract": {
+    "factual_source": "Only the supplied SGOKB context may be used for factual claims about the evaluated Objects/Concepts.",
+    "insufficient_context": "State the limitation instead of filling factual gaps from model memory.",
+    "creative_exception": "Case 3 may invent new character details, but invented details must be explicitly distinguished from SGOKB-provided concept knowledge.",
+    "record": [
+      "endpoint",
+      "model_identifier",
+      "model_metadata_if_available",
+      "temperature",
+      "max_tokens",
+      "seed_if_supported",
+      "request",
+      "response",
+      "elapsed_seconds"
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "n04-roleplay-saber",
+      "title": "Character Data -> local LLM Roleplay",
+      "object_ids": [
+        "326a97cf-47aa-4760-a7f1-07bfe639fcf0"
+      ],
+      "context": {
+        "via": "MCP build_context",
+        "purpose": "roleplay",
+        "max_characters": 12000,
+        "include_attributes": true,
+        "include_relations": true,
+        "include_evidence_refs": false,
+        "require_current_version": true
+      },
+      "generation": {
+        "temperature": 0.2,
+        "max_tokens": 500,
+        "prompt": "Use the supplied SGOKB context as the only factual source. Reply in first person as Saber to this question: 'Who are you, what is your role here, and what is your connection to Shirou?' Keep the answer between 100 and 180 English words. Preserve facts in the context. If personality or backstory details are missing, keep the tone neutral rather than inventing them. Do not introduce facts from outside the supplied context."
+      },
+      "acceptance": {
+        "retrieval": [
+          "Context comes from the current accepted Saber Version through MCP build_context.",
+          "purpose=roleplay is preserved.",
+          "Context is non-empty and within budget.",
+          "No historical Version is silently substituted."
+        ],
+        "output": [
+          "The response is recognizably a first-person roleplay response rather than a factual dump.",
+          "At least two concrete factual details are traceable to the supplied context.",
+          "No material factual statement contradicts the supplied context.",
+          "No unsupported franchise/backstory detail is presented as fact.",
+          "When the context lacks personality detail, the response does not fabricate a detailed personality profile."
+        ],
+        "critical_failures": [
+          "Uses factual details that are absent from the supplied context and presents them as known facts.",
+          "Contradicts Saber identity/role/relationship information present in the context.",
+          "Requires external web/cloud knowledge to complete."
+        ]
+      }
+    },
+    {
+      "case_id": "n04-similar-work-comparison",
+      "title": "Similar Work retrieval -> AI comparative explanation",
+      "source_object_id": "d5824d33-7008-4121-9cfe-1f95a19667fd",
+      "expected_dataset_candidate_id": "57db855c-574a-4b38-b474-421c165894f1",
+      "retrieval": {
+        "via": "MCP find_similar_objects",
+        "source": "Fate/stay night",
+        "cross_class": false,
+        "limit": 5,
+        "require_current_scope": true,
+        "candidate_selection": "Use the highest-ranked returned current Work candidate. Do not hardcode the comparison target into the LLM step. Record whether it is BLEACH in this fixed N-03 dataset."
+      },
+      "context": {
+        "via": "MCP build_context",
+        "purpose": "comparison",
+        "max_characters": 24000,
+        "include_attributes": true,
+        "include_relations": false,
+        "include_evidence_refs": true,
+        "require_current_version": true
+      },
+      "generation": {
+        "temperature": 0.0,
+        "max_tokens": 700,
+        "prompt": "Using only the supplied SGOKB contexts for the two Works, write a concise comparative explanation with four headings: Shared points, Work A only, Work B only, and Limits of the available data. Use at least one grounded fact from each Work. You may make comparative inferences, but label them as interpretation rather than stored fact. Do not import outside franchise knowledge. If the context is too sparse for a strong conclusion, say so explicitly."
+      },
+      "acceptance": {
+        "retrieval": [
+          "The comparison target is produced by the real semantic Similarity path, not manually selected for the LLM prompt.",
+          "The selected candidate is a current Work and the Similarity operation is not degraded.",
+          "Both current accepted Work Versions are passed through purpose=comparison Context Builder.",
+          "Context budgets are respected and version identities are recorded."
+        ],
+        "output": [
+          "The response uses factual material from both Work contexts.",
+          "At least one comparison or contrast is expressed without inventing unsupported source facts.",
+          "Interpretive comparison is distinguishable from stored SGOKB facts.",
+          "The response acknowledges data limitations when the accepted Knowledge is sparse.",
+          "Similarity score is not described as truth probability, preference probability, or confidence."
+        ],
+        "critical_failures": [
+          "Comparison target is hardcoded instead of coming from Similarity retrieval.",
+          "Material outside-knowledge facts are introduced as if present in SGOKB.",
+          "Historical/non-current Knowledge is silently mixed into the comparison.",
+          "Similarity score semantics are misrepresented."
+        ]
+      }
+    },
+    {
+      "case_id": "n04-concept-combination-creative",
+      "title": "Concept A/B -> local LLM creative Character",
+      "object_ids": [
+        "8c83f986-f491-41a8-8645-9f71dd5874b9",
+        "fee32007-0f92-449a-ba21-4ec2f78d1cd4"
+      ],
+      "context": {
+        "via": "MCP build_context",
+        "purpose": "creative",
+        "max_characters": 24000,
+        "include_attributes": true,
+        "include_relations": true,
+        "include_evidence_refs": false,
+        "require_current_version": true
+      },
+      "generation": {
+        "temperature": 0.2,
+        "max_tokens": 900,
+        "prompt": "Use the supplied SGOKB contexts for Tsundere and Hero's Journey as the conceptual source. Create one original fictional character concept that deliberately combines both concepts. Output exactly three sections: Concept mapping, Original character, and Arc outline. In Concept mapping, identify which supplied idea from each SGOKB Concept is being used. In Original character and Arc outline, explicitly state that newly invented names, setting, events, and traits are creative additions rather than SGOKB facts. Do not add factual claims about the two source Concepts that are absent from the supplied context."
+      },
+      "acceptance": {
+        "retrieval": [
+          "Both Concept Objects are current accepted Versions retrieved through MCP build_context.",
+          "purpose=creative is preserved.",
+          "Both concepts contribute non-empty Knowledge to the Context.",
+          "Context remains within budget and contains no silent historical fallback."
+        ],
+        "output": [
+          "The Concept mapping visibly uses at least one grounded idea from Tsundere and one grounded idea from Hero's Journey.",
+          "The produced character is genuinely new rather than merely restating one of the source Objects.",
+          "Invented character details are clearly distinguished from SGOKB-provided concept facts.",
+          "The arc meaningfully combines the two concepts rather than mentioning one only superficially.",
+          "No unsupported factual claim about Tsundere or Hero's Journey is presented as SGOKB knowledge."
+        ],
+        "critical_failures": [
+          "One of the two Concepts is effectively unused.",
+          "Invented details are falsely attributed to SGOKB.",
+          "External web/cloud knowledge is required or used to complete the case."
+        ]
+      }
+    }
+  ],
+  "overall_gate": {
+    "retrieval_and_context": "All three cases must complete through the public read boundary with current accepted Versions and without direct consumer-side SQLite knowledge.",
+    "local_llm": "All three cases must produce a non-empty response using one frozen local chat model with no cloud inference.",
+    "grounding": "No case may contain a critical unsupported/contradictory factual claim under its rubric.",
+    "creative_separation": "Creative additions in Case 3 must be explicitly separated from SGOKB facts.",
+    "canonical_invariance": "The N-03 canonical Knowledge, current Version pointers, Evidence, and provenance must be unchanged before/after N-04.",
+    "integrity": "system integrity must pass after acceptance.",
+    "regression": "Full pytest must finish with 0 failed.",
+    "quality_boundary": "Formal retrieval ranking metrics remain N-06; N-04 judges whether the retrieved/contextualized Knowledge is sufficient for the three representative AI workflows."
+  }
+}
