@@ -7,7 +7,7 @@
 - Parent: `docs/planning/N04_PREREQUISITE_DERIVED_SEARCH_PIPELINE.md`
 - Contract: `docs/decisions/N04P01_DERIVED_SEARCH_LIFECYCLE_CONTRACT.md`
 - Branch: `phase-n/n04-prerequisite-derived-search`
-- Status: **Application facade implemented / CLI integration and Reference Workstation verification pending**
+- Status: **Complete (2026-10-17)**
 
 ## 1. Scope
 
@@ -304,3 +304,46 @@ N-04P-05 Complete / N-04P-06 Next
 ```
 
 へ進む。
+
+
+## 11. Reference Workstation verification — 2026-10-17
+
+通常のproject venvで以下を実行した。semantic focused testsはdeterministic fake local provider / fake exact Vector backendのみを使用し、network/cloudおよび実SentenceTransformer/Qdrantを必要としない。
+
+| Command | 実測結果 |
+|---|---|
+| `python -m pytest tests/test_n04p05_derived_cli.py -q` | 17 passed / 0 failed |
+| `python -m pytest tests/test_n04p04_vector_index_sync.py tests/test_n04p03_embedding_sync.py tests/test_n04p02_search_representation_sync.py -q` | 29 passed / 0 failed |
+| `python -m pytest tests/test_m01_cli.py tests/test_m03_standard_workflow.py tests/test_k03_semantic_index_boundary.py -q` | 20 passed / 0 failed |
+| `python -m pytest -q` | 353 passed / 3 skipped / 0 failed (132.73s) |
+| `python -m ruff check src/sgokb/application_derived.py src/sgokb/cli/main.py tests/test_n04p05_derived_cli.py` | PASS |
+| `python -m ruff format --check src/sgokb/application_derived.py src/sgokb/cli/main.py tests/test_n04p05_derived_cli.py` | PASS (3 files) |
+| `git diff --check` | PASS |
+
+3 skippedは既存optional Qdrant依存条件。新しいskip / xfailは追加していない。実Qdrantの動作・品質受入を今回の結果へ含めない。
+
+### 確認済みcontract
+
+- parserが両commandとoptional Object / semantic runtimeを受理する。
+- runtime-free status/syncはcomposition rootを呼ばない。statusはstate / revision / last_error / updated_at / current VersionとRepresentation countを返す。
+- runtime-free syncはSearch Representationのみready、Embedding / Vector / renderingはpendingを維持する。current accepted VersionのないObjectはbatch対象外。
+- explicit semantic syncはSearch Representation → Embedding → Vectorの順でready。再実行でもKnowledge、revision、membership Vector pointは同じで、Embeddingは再生成されない。既存契約上、Vector再upsertと同期確認時刻更新は許容する。
+- semantic statusはSpaceの全指定field、Embedding充足数、Vector metadataを返す。未作成/到達不能backendはavailable=false / diagnostic errorを返し、SQLite statusを維持する。
+- status前後のSQLite全table dump一致をruntime-free / semantic / backend diagnosticで確認した。providerのdocument生成も呼ばれない。
+- batchの先頭ObjectのVector failureでも後続Objectはready。通常success envelope内にpartial=trueとObject/stage errorを返し、exit 8。失敗してもcanonical Knowledgeは不変。
+- runtime composition不可はexit 5、unknown Objectはexit 3、accepted current Versionなしはexit 4。status/syncの双方で確認した。
+- `system index status`と`system index rebuild`の意味は変更していない。rebuildは既存EmbeddingのVector-only処理で、SQLite全table dumpとderived lifecycleが不変。P-04回帰でも公開Builderのlifecycle-neutral境界・missing Embedding拒否を確認した。
+- P-02〜P-04回帰はrevision guard、missing-only / reuse、Space isolation、membership identity、current/historical scopeを保持した。
+
+### 発見した問題と修正
+
+- 公開CLI parser/dispatch未接続: `DerivedSearchOperatorApplication`を呼ぶ経路を実装。semantic指定時のみruntimeを一度構成し、partialと既存exit contractへ接続した。
+- facadeのprivate maintenance helper依存: public `version_store.derived_states()`から対象kindを取得する形へ変更した。
+- focused test作成中の既存API名の誤りをpublic Read Applicationへ修正。冪等性を「upsertや確認時刻更新も起きない」とした過剰な期待は、canonical Knowledge / lifecycle revision / Vector identityの不変性とEmbedding reuseの検証へ修正した。productionの同期・revision契約は変更していない。
+- import順序と既存format差分をRuffで修正し、その後すべての指定testを実行した。
+
+### Completion decision
+
+全Gate PASSにより **N-04P-05 Complete (2026-10-17)**。次Taskは **N-04P-06 [P0] N-03実データでDerived Search Gateを受入する**。
+
+N-03実データへの正式適用は未実施。PR #39はDraftを維持し、PR #36〜#39はmergeしない。

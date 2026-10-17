@@ -222,11 +222,9 @@ class DerivedSearchOperatorApplication:
                     stages=tuple(stages),
                 )
             except DerivedMaintenanceError as exc:
-                try:
-                    state = self._maintenance._derived_state(row["id"], kind)
-                    status = state.status.value
-                except DerivedMaintenanceError:
-                    status = "blocked"
+                states = self._repository.version_store.derived_states(row["id"])
+                state = next((item for item in states if item.kind == kind), None)
+                status = state.status.value if state is not None else "blocked"
                 stages.append(DerivedSyncStageResult(kind=kind, status=status, error=str(exc)))
                 return DerivedObjectSyncResult(
                     object_id=row["id"],

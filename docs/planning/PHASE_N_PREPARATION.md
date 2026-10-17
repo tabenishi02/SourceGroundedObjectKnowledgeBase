@@ -2,12 +2,12 @@
 
 更新日: 2026-10-17
 
-- Status: **Active — N-03 Complete / N-04 prerequisite: N-04P-04 Complete / N-04P-05 Next**
+- Status: **Active — N-03 Complete / N-04 prerequisite: N-04P-05 Complete / N-04P-06 Next**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - Previous closure: `docs/planning/PHASE_M_CLOSURE_AUDIT.md`
 - Baseline: `7b4507ab5a80ebdb687c65d5e4627beb83806f3c`
-- Current task: `N-04P-05 [P0] Public CLI / Status contractを整備する`（Next / 未着手）
+- Current task: `N-04P-06 [P0] N-03実データでDerived Search Gateを受入する`（Next / 未着手）
 - N-04 AI use-case acceptance: prerequisite N-04P-01〜P-06完了待ち
 
 ---
@@ -412,14 +412,17 @@ N-03 Completeを維持する。N-04本体の正式開始前に`docs/planning/N04
 - N-04P-02: Complete（Reference Workstation検証PASS、Search Representation Application sync）。
 - N-04P-03: Complete（Incremental Embedding同期 / Reference Workstation検証PASS）。
 - N-04P-04: Complete（Vector Index同期 / rebuild / Reference Workstation検証PASS）。
-- N-04P-05: Next（Public CLI / Status）。
-- N-04P-06: Pending。
+- N-04P-05: Complete（Public CLI / Status、Reference Workstation全Gate PASS）。
+- N-04P-06: Next（N-03実データDerived Search Gate受入）。
 - N-04 AI use-case acceptance: prerequisite全体完了待ち。
 
-P-02はsemantic runtimeなしでKnowledge内容語Lexical Searchを成立させるApplication境界までの完了である。P-03で明示provider注入によるEmbedding同期まで完了した。P-04でVector同期 / rebuildまで完了した。public CLI / statusとN-03 real-dataへの正式適用は残っている。実測結果は`docs/planning/N04P02_SEARCH_REPRESENTATION_SYNC.md`を参照する。
+P-02はsemantic runtimeなしでKnowledge内容語Lexical Searchを成立させるApplication境界までの完了である。P-03で明示provider注入によるEmbedding同期まで完了した。P-04でVector同期 / rebuildまで完了した。P-05でpublic CLI / statusを完了し、N-03 real-dataへの正式適用はP-06へ残っている。実測結果は`docs/planning/N04P02_SEARCH_REPRESENTATION_SYNC.md`を参照する。
 
 
-N-04P-03もReference Workstationで全GateがPASSしCompleteとなった。provider未構成はpending維持、missing-only生成、Embedding reuse / Space isolation、failure時Knowledge保全、superseded成功/失敗のrevision guardを確認済み。詳細は`docs/planning/N04P03_INCREMENTAL_EMBEDDING_SYNC.md`。N-04本体は引き続きP-05 / P-06完了待ち。
+N-04P-03もReference Workstationで全GateがPASSしCompleteとなった。provider未構成はpending維持、missing-only生成、Embedding reuse / Space isolation、failure時Knowledge保全、superseded成功/失敗のrevision guardを確認済み。詳細は`docs/planning/N04P03_INCREMENTAL_EMBEDDING_SYNC.md`。N-04本体は引き続きP-06完了待ち。
 
 
-2026-10-17、N-04P-04も全GateがPASSしComplete。incremental current/historical metadata更新、missing Embedding拒否、revision guard、fresh full rebuild、Semantic/Similarity、Builder/既存CLIのlifecycle-neutral境界を確認した。実測結果は`docs/planning/N04P04_VECTOR_INDEX_SYNC_REBUILD.md`。次はP-05、N-04 AI use-case acceptanceはP-05 / P-06の完了待ち。
+2026-10-17、N-04P-04も全GateがPASSしComplete。incremental current/historical metadata更新、missing Embedding拒否、revision guard、fresh full rebuild、Semantic/Similarity、Builder/既存CLIのlifecycle-neutral境界を確認した。実測結果は`docs/planning/N04P04_VECTOR_INDEX_SYNC_REBUILD.md`。P-04受入時の次TaskはP-05だった。現在はP-05 Complete / P-06 Next。N-04 AI use-case acceptanceはP-06完了待ち。
+
+
+2026-10-17、N-04P-05の公開CLI接続と全Gate検証を完了した。`docs/planning/N04P05_PUBLIC_CLI_STATUS.md`を参照する。次TaskはN-04P-06 [P0] N-03実データでDerived Search Gateを受入する。実データ受入は未実施で、PR #39はDraft。
