@@ -924,7 +924,7 @@ Preparation: `docs/planning/PHASE_L_PREPARATION.md`
   - 8 real Capture / 6 Object / 6 valid Result / 6 accepted Versionを評価DBへ固定。identity lexical / Provenance / integrity / full pytest PASS。内容語検索は派生表現pendingの残課題。
   - 成果物: `docs/evaluation/N03_REAL_DATA_VERTICAL_SLICE.md`、`benchmark/n03-real-data-vertical-slice-v1.json`。
 
-**N-04 prerequisite: Derived Search同期経路**
+**N-04 prerequisite: Derived Search同期経路 — Complete (2026-10-18)**
 
 N-04本体の正式開始前にN-04P-01〜P-06を必須Gateとする。正本: `docs/planning/N04_PREREQUISITE_DERIVED_SEARCH_PIPELINE.md`。
 
@@ -935,9 +935,9 @@ N-04本体の正式開始前にN-04P-01〜P-06を必須Gateとする。正本: `
 | N-04P-03 | Complete | Incremental Embedding同期。成果物: `docs/planning/N04P03_INCREMENTAL_EMBEDDING_SYNC.md` |
 | N-04P-04 | Complete | Vector Index同期 / rebuild。成果物: `docs/planning/N04P04_VECTOR_INDEX_SYNC_REBUILD.md` |
 | N-04P-05 | Complete | Public CLI / Status。成果物: `docs/planning/N04P05_PUBLIC_CLI_STATUS.md` |
-| N-04P-06 | Next / 未着手 | N-03実データDerived Search Gate受入 |
+| N-04P-06 | Complete | 実モデル / 実Qdrant受入。成果物: `docs/planning/N04P06_REAL_DATA_DERIVED_SEARCH_ACCEPTANCE.md` |
 
-- [ ] **N-04 [P0] 3つの代表AI利用ケースを受入試験する** — **Prerequisite完了待ち**
+- [ ] **N-04 [P0] 3つの代表AI利用ケースを受入試験する** — **Next（Prerequisite Complete）**
   1. Character DataをローカルLLMへ渡しRoleplayできる。
   2. Work Dataから意味的に類似する別Workを検索し、AIが比較説明できる。
   3. Concept A/Bを取得し、ローカルLLMが両概念を組み合わせたCharacter創作に利用できる。
@@ -1073,7 +1073,7 @@ Phase A〜MはComplete。Phase LではL-01〜L-04のDecisionをL-05で実装し�
 次の最優先Task（未着手）:
 
 ```text
-N-04P-06 [P0] N-03実データでDerived Search Gateを受入する
+N-04 [P0] 3つの代表AI利用ケースを受入試験する
 ```
 
-Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01〜N-03のReference Workstation検証・dataset構築を完了し、N-04P-01〜P-05もCompleteとなり、次はN-04 prerequisiteのN-04P-06へ進む。N-04 AI利用ケース受入はP-01〜P-06完了待ち。内容語retrievalの派生表現pending制約はN-03評価記録を参照する。
+Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01〜N-03のReference Workstation検証・dataset構築を完了し、N-04P-01〜P-06もCompleteとなり、次はN-04本体へ進む。N-03の派生表現pending制約はP-06で解消した。未採用のKnowledge coverageと順位品質はN-06へ引き渡す。

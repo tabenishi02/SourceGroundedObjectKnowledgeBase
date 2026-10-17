@@ -1,12 +1,12 @@
 # N-04 Prerequisite — Derived Search Pipeline
 
-更新日: 2026-10-17
+更新日: 2026-10-18
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Position: `N-03 Complete` と `N-04` の間に置く必須Gate
 - Base: N-03 completed commit `da61d287c6ab97ef24e2062344510327a770d65e`
 - Branch: `phase-n/n04-prerequisite-derived-search`
-- Status: **Active — N-04P-05 Complete / N-04P-06 Next**
+- Status: **Complete (2026-10-18) — N-04P-01〜P-06 Complete**
 - Origin: N-03 real-data Vertical Sliceで、accepted Knowledgeは作成できたが内容語Lexical Searchが未成立し、`search_representation` derived stateがpendingのまま残ることを確認した。
 - Lifecycle contract: `docs/decisions/N04P01_DERIVED_SEARCH_LIFECYCLE_CONTRACT.md`
 
@@ -67,7 +67,7 @@ N-03では内部`SearchRepresentationBuilder`を直接呼ばず、公開CLI限�
 | N-04P-03 | P0 | **Complete (2026-10-16)** | Incremental Embedding同期経路を実装 |
 | N-04P-04 | P0 | **Complete (2026-10-17)** | Vector Index同期 / rebuild経路を完成 |
 | N-04P-05 | P0 | **Complete (2026-10-17)** | Public CLI / Status contractを実装 |
-| N-04P-06 | P0 | **Next / 未着手** | N-03実データでDerived Search Gateを受入 |
+| N-04P-06 | P0 | **Complete (2026-10-18)** | N-03実データでDerived Search Gateを受入 |
 
 ---
 
@@ -216,7 +216,7 @@ vector backend / indexed point count
 
 ---
 
-## N-04P-06 [P0] N-03実データでDerived Search Gateを受入する
+## N-04P-06 [P0] N-03実データでDerived Search Gateを受入する — Complete
 
 対象DB:
 
@@ -265,7 +265,7 @@ N-04P-04 Vector sync/rebuild            Complete
   ↓
 N-04P-05 Public CLI / status            Complete
   ↓
-N-04P-06 N-03 real-data acceptance       Next
+N-04P-06 N-03 real-data acceptance       Complete
   ↓
 N-04 AI use-case acceptance
 ```
@@ -330,23 +330,28 @@ N-04 prerequisite全体をCompleteとする条件:
 
 2026-10-16、Application syncのfocused 6ケース、Search回帰15 passed / 1 skipped、full suite 0 failed、指定Ruff / format / git diff --checkがPASSした。fixtureのStatement groundingを修正し、superseded成功/失敗双方のrevision guardとcanonical Knowledge不変を確認した。実測件数・詳細は`docs/planning/N04P02_SEARCH_REPRESENTATION_SYNC.md`を参照する。
 
-N-04P-02受入時の状態はP-03 Nextだった。現在はN-04P-01〜P-05 Complete / N-04P-06 Next。N-04 AI use-case acceptanceはprerequisite全体の完了待ちで、PR #39はDraftを維持する。
+N-04P-02受入時の状態はP-03 Nextだった。現在はN-04P-01〜P-06 Complete。N-04 AI use-case acceptanceはNextで、PR #39はDraftを維持する。
 
 
 ## N-04P-03 Reference Workstation acceptance
 
 2026-10-16、focused 9 passed、Embedding/Search回帰 23 passed / 1 skipped、P-02回帰 6 passed、full suite 322 passed / 3 skipped / 0 failed、指定Ruff / format / git diff --checkがPASSした。実測は`docs/planning/N04P03_INCREMENTAL_EMBEDDING_SYNC.md`を参照する。
 
-P-03受入時の状態はP-04 Nextだった。現在はN-04P-01〜P-05 Complete、P-06 Next。N-04 AI use-case acceptanceはprerequisite完了待ちで、PR #39はDraftを維持する。
+P-03受入時の状態はP-04 Nextだった。現在はN-04P-01〜P-06 Complete。N-04 AI use-case acceptanceはNextで、PR #39はDraftを維持する。
 
 
 ## N-04P-04 Reference Workstation acceptance
 
 2026-10-17、focused 14 passed、Vector/Similarity回帰 23 passed / 3 skipped、P-02/P-03 15 passed、N-02 3 passed、CLI 14 passed、full suite 336 passed / 3 skipped / 0 failed。Ruff / format / git diff --checkもPASS。詳細は`docs/planning/N04P04_VECTOR_INDEX_SYNC_REBUILD.md`。
 
-P-04受入時はN-04P-05 Nextだった。現在はN-04P-01〜P-05 Complete / N-04P-06 Next。公開Builderと既存Vector-only CLI rebuildがderived stateを直接変更しないことも保証した。N-04本体はprerequisite完了待ち、PR #39はDraftを維持する。
+P-04受入時はN-04P-05 Nextだった。現在はN-04P-01〜P-06 Complete。公開Builderと既存Vector-only CLI rebuildがderived stateを直接変更しないことも保証した。N-04本体はNext、PR #39はDraftを維持する。
 
 
 ## N-04P-05 Reference Workstation acceptance
 
-2026-10-17、focused 17 passed、P-02〜P-04回帰29 passed、CLI回帰20 passed、full suite 353 passed / 3 skipped / 0 failed。Ruff / format / git diff --checkもPASS。runtime-free、explicit semantic、read-only status、partial exit 8、runtime exit 5、selector exit 3/4、既存Vector-only rebuild境界を固定した。詳細は`docs/planning/N04P05_PUBLIC_CLI_STATUS.md`。N-04P-01〜P-05 Complete / N-04P-06 Next。PR #39はDraftを維持する。
+2026-10-17、focused 17 passed、P-02〜P-04回帰29 passed、CLI回帰20 passed、full suite 353 passed / 3 skipped / 0 failed。Ruff / format / git diff --checkもPASS。runtime-free、explicit semantic、read-only status、partial exit 8、runtime exit 5、selector exit 3/4、既存Vector-only rebuild境界を固定した。詳細は`docs/planning/N04P05_PUBLIC_CLI_STATUS.md`。P-05受入時はP-06 Next。現在はP-01〜P-06 Complete。PR #39はDraftを維持する。
+
+
+## N-04P-06 Reference Workstation acceptance
+
+2026-10-18、6 Object identity、backup/integrity、runtime-free同期、Lexical 18/20（grounded内容語6/6 rank 1）、実frozen Embedding / Qdrant同期、冪等性、Semantic 6件、Work Similarity両方向、canonical 52 table不変、full pytest 361 passed / 0 skipped / 0 failedを確認した。詳細は`docs/planning/N04P06_REAL_DATA_DERIVED_SEARCH_ACCEPTANCE.md`。N-04P-01〜P-06 Complete / prerequisite Complete。次TaskはN-04 [P0] 3つの代表AI利用ケースを受入試験する。PR #39はDraft維持。

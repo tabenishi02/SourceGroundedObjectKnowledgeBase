@@ -1,6 +1,6 @@
 # N-04P-06 Real-data Derived Search Acceptance
 
-更新日: 2026-10-17
+更新日: 2026-10-18
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-04P-06 [P0] N-03実データでDerived Search Gateを受入する`
@@ -8,7 +8,7 @@
 - Dataset: `benchmark/n03-real-data-vertical-slice-v1.json`
 - Evaluation DB: `.local/n03/sgokb-n03.sqlite`
 - Branch: `phase-n/n04-prerequisite-derived-search`
-- Status: **Acceptance execution pending / Reference Workstation required**
+- Status: **Complete (2026-10-18)**
 
 ## 1. Purpose
 
@@ -348,4 +348,136 @@ N-04P-06 Complete
 N-04 [P0] 3つの代表AI利用ケースを受入試験する
 ```
 
-PR #39はP-06完了記録を反映した後にprerequisite completionとしてReady化可否を判断する。PR #36〜#39を勝手にmergeしない。
+PR #39は今回Draftを維持する。Ready化・stacked PR統合は別途判断する。PR #36〜#39を勝手にmergeしない。
+
+
+## 9. Reference Workstation acceptance — 2026-10-18
+
+### Environment / dataset / backup
+
+- Windows 11 Home 10.0.26300、Python 3.10.6、GPU: NVIDIA GeForce RTX 4090（実runはCUDA device 0）、Quadro P1000。
+- Start head: `3abc52a060f881bb5dbe65fbace6beeab25eb3b3`。branchは本書冒頭の指定branchを維持した。
+- Evaluation DB: `.local/n03/sgokb-n03.sqlite`。production DBを開く操作は実施していない。
+- public CLI `system backup create --output .local/n04p06/sgokb-n03-before.sqlite`でbackupした。backupの`PRAGMA integrity_check=ok`、`foreign_key_check`違反0件。
+- benchmarkとのObject ID / name / class / aliases / accepted current Version照合6/6 PASS。Source / Snapshot / Normalization Run / Evidence ID集合とcount、confirmed association、Raw Capture hashを照合した。expected queryはbenchmarkのN-03 smoke記録と対応する。
+
+| Object | Stable Object ID | Accepted current Version ID |
+|---|---|---|
+| Saber | `326a97cf-47aa-4760-a7f1-07bfe639fcf0` | `fb0ab12a-5e11-4df7-983a-925da458a129` |
+| Ichigo Kurosaki | `3aec055e-e9f3-445d-a7a3-adb2b5864c6f` | `50ca186c-80a5-4447-bf71-216bbad8f1d6` |
+| Fate/stay night | `d5824d33-7008-4121-9cfe-1f95a19667fd` | `47f2b146-20a6-4d06-957f-904cc5ef39a9` |
+| BLEACH | `57db855c-574a-4b38-b474-421c165894f1` | `6e75aa45-9c13-42ef-87b4-923beac43bef` |
+| Tsundere | `8c83f986-f491-41a8-8645-9f71dd5874b9` | `98c16da1-a5a6-4d73-b919-bcadcc3df08f` |
+| Hero's Journey | `fee32007-0f92-449a-ba21-4ec2f78d1cd4` | `31e52190-fdb2-42da-8860-d4e0bbaa4de6` |
+
+DB file hashはderived変更により一致しない。WALの物理表現に依存しないcanonical比較を正式Gateとする。
+
+- `sgokb-n03.sqlite` SHA-256: `0e4760d46105efeb6d46729c513493d9ee816282cc8d0c283fed60de568eab3d`
+- `sgokb-n03-before.sqlite` SHA-256: `0850591afeda1ed1e50f38c3d75322dc374c49d4da4475ad5fd6b098cc3599d8`
+
+### Search Representation / canonical state
+
+初期6/6のSearch Representation / Embedding / Vector / renderingはpending。public CLI `system derived sync`（semantic runtimeなし）はexit 0 / partial=false / completed 6を返した。6/6のSearch Representationだけがreadyとなり、Embedding / Vector / renderingはpendingを維持した。
+
+最終状態は6/6のSearch Representation / Embedding / Vectorがready、renderingはpending（Search Gate対象外）。
+
+| Object | Memberships | Unique representations | Embeddings (active Space) | Missing |
+|---|---:|---:|---:|---:|
+| Saber | 4 | 4 | 4 | 0 |
+| Ichigo Kurosaki | 4 | 4 | 4 | 0 |
+| BLEACH | 4 | 4 | 4 | 0 |
+| Tsundere | 4 | 4 | 4 | 0 |
+| Fate/stay night | 4 | 4 | 4 | 0 |
+| Hero's Journey | 4 | 4 | 4 | 0 |
+
+### Lexical before / after
+
+全20 queryをpublic CLI `search <query> --mode lexical --limit 10`で再実行した。N-03の10/20 hitから18/20 hitへ改善し、既存identity queryはrank 1を維持した。
+
+| Object | Query | N-03 rank | P-06 rank | Classification |
+|---|---|---:|---:|---|
+| Saber | Saber | 1 | 1 | hit |
+| Saber | Artoria Pendragon | 1 | 1 | hit |
+| Saber | King of Knights | — | — | B: Knowledge coverage / N-06 |
+| Ichigo Kurosaki | Ichigo Kurosaki | 1 | 1 | hit |
+| Ichigo Kurosaki | Substitute Soul Reaper | — | 1 | hit |
+| Ichigo Kurosaki | Zangetsu | — | 1 | hit |
+| Fate/stay night | Fate/stay night | 1 | 1 | hit |
+| Fate/stay night | Fate/Stay Night | 1 | 1 | hit |
+| Fate/stay night | Holy Grail War | — | 1 | hit |
+| Fate/stay night | visual novel | — | 1 | hit |
+| BLEACH | BLEACH | 1 | 1 | hit |
+| BLEACH | Bleach | 1 | 1 | hit |
+| BLEACH | Soul Reaper | — | 1 | hit |
+| BLEACH | Tite Kubo | — | 1 | hit |
+| Tsundere | Tsundere | 1 | 1 | hit |
+| Tsundere | harsh personality warmer side | — | 1 | hit |
+| Tsundere | character archetype | — | — | B: Knowledge coverage / N-06 |
+| Hero's Journey | Hero's Journey | 1 | 1 | hit |
+| Hero's Journey | Monomyth | 1 | 1 | hit |
+| Hero's Journey | narrative pattern | — | 1 | hit |
+
+未hitの`King of Knights`と`character archetype`はcurrent accepted Knowledge / Representationに必要な内容が採用されていない分類Bで、N-06のKnowledge coverage課題へ引き渡す。Representationに情報があるのに検索不能という分類Aは0件。
+
+別途、6 ObjectごとにRepresentationへ実在するgrounded内容語（Servant contracted to Shirou / Substitute Soul Reaper / Holy Grail War / confronts Hollows / associated with aloofness / decisive crisis）を選び、全6件がLexical rank 1でhitした。
+
+### Real runtime / Embedding / Vector
+
+- Frozen model: `microsoft/harrier-oss-v1-0.6b`、revision `f9b9dc8d367d443f2479d27aa5d8d2850c0774ee`、dimension `1024`、provider `sentence-transformers`。
+- Embedding Space ID: `23027d8fcb47c6ffb9e95681742e4c0aa8d14b301b642a974159f05883204bbf`。
+- local model artifact downloadを1回実施した。cacheは`.local/models`。cloud inferenceは実施していない。
+- 最終runは`SGOKB_MODEL_LOCAL_ONLY=1`、`HF_HUB_OFFLINE=1`、`TRANSFORMERS_OFFLINE=1`。設定はGit管理外`runtime-environment.json`へ保存した。
+- Dependencies: torch 2.6.0+cu124, torchvision 0.21.0+cu124, torchaudio 2.6.0+cu124, sentence-transformers 6.1.0, transformers 5.20.1, qdrant-client 1.19.1。
+- 実Qdrant server 1.19.2、backend `qdrant`。既存`.local/qdrant-1.19.2/qdrant.exe`をlocalhost限定・telemetry無効で起動した。HTTP 6333 / gRPC 6334、prefer gRPC=1。
+- Collection: `sgokb_n03_eval_23027d8fcb47c6ffb9e95681`。prefix `sgokb_n03_eval`で評価用collectionを分離した。Qdrant dataは`.local/n04p06/qdrant/`。
+- `system derived status --semantic-runtime`前後のSQLite全table dumpは完全一致した。未作成collectionの診断を返しつつstatusは成功した。
+- `system derived sync --semantic-runtime`はexit 0 / partial=false / completed 6。全6 Objectが3段階ready、missing Embedding=0。
+- Embedding rows `24`、Vector membership points `24`。同じsyncを再実行してexit 0、created Embedding=0、Embedding row全内容・Vector ID/payload/vector・canonical Knowledge/current Version・derived revision/stateは不変。確認時刻更新と再upsertは既存契約どおり許容した。
+
+### Semantic / Similarity smoke
+
+各queryはgrounded contentから選び、public CLI `search <query> --mode semantic --semantic-runtime --require-full-runtime --limit 10`で実行した。全6件で実Qdrant semantic channelが成功し、degraded channelなし。全candidateはaccepted current Versionだった。
+
+| Target | Query | Target rank | Candidate count | Degraded |
+|---|---|---:|---:|---|
+| Saber | Servant contracted to Shirou | 1 | 6 | none |
+| Ichigo Kurosaki | Substitute Soul Reaper | 1 | 6 | none |
+| Fate/stay night | Holy Grail War | 1 | 6 | none |
+| BLEACH | confronts Hollows | 1 | 6 | none |
+| Tsundere | associated with aloofness | 1 | 6 | none |
+| Hero's Journey | decisive crisis | 1 | 6 | none |
+
+返却candidate一覧はGit管理外`semantic-smoke.json`へ保存した。順位は今回のsmoke観測値であり、Recall / NDCGや正式ranking quality合格を意味しない。
+
+public CLI `similar --object <Work ID> --limit 10`の両方向実測:
+
+- Fate/stay night → BLEACH (rank 1, cosine_similarity=0.646960)
+- BLEACH → Fate/stay night (rank 1, cosine_similarity=0.646960)
+
+全resultで`score_type=cosine_similarity`、class `work`、accepted current Version、cross_class=falseを確認した。相互rank 1をGateにはしていない。
+
+### Integrity / regression / issues
+
+canonical 52 table（Object / accepted Version / Facet / Statement / Attribute / Relation / Source / Snapshot / Evidence / grounding / provenanceを含む）は受入前後で完全一致。変更許容tableはSearch Representation / membership / FTS、Embedding Space / Embedding、object_derived_statesだけとして明示分類した。`canonical-before.json` / `canonical-after.json` / `canonical-comparison.json`を保存した。`system integrity`は前後ともPASS。
+
+| Verification | Result |
+|---|---|
+| Embedding provider focused + P-02〜P-05 regression | 55 passed / 0 failed |
+| `python -m pytest -q` (runtime dependencies installed, after fix) | 361 passed / 0 skipped / 0 failed (158.28s) |
+| Ruff check / format on changed Python | PASS |
+| `git diff --check` | PASS |
+
+full suiteの2 warningは既存Qdrant local-mode unit testのexact search診断で、実Qdrant受入をfakeへ置換したものではない。新規skip / xfailは追加していない。正式な検索品質、AI use-case品質、performance / recoveryは今回へ含めない。
+
+発見した問題:
+
+1. F: 既存venv PyTorch 2.4.1は導入されたTransformersの要件を満たさなかった。このvenv内だけCUDA PyTorch 2.6.0 / torchvision 0.21.0 / torchaudio 2.6.0へ更新した。system-wide packageを変更していない。既存の無関係なiopaint / huggingface-hub制約競合は環境ログへ記録し、iopaintの変更は行っていない。
+2. B: providerが固定revision / local-onlyをmodel_kwargsにだけ渡し、SentenceTransformer本体のconfig / tokenizer / module解決へ伝播していなかった。top-level revision / local_files_onlyも渡す最小修正を行い、offline fake encoder testと実pinned modelで確認した。モデルprofileやcanonical schemaは変更していない。
+3. 一時受入scriptのWindows文字コード・import漏れ・public class key（work）と内部IDの区別を補正した。production contractを弱める変更は行っていない。
+4. G: 上記2 queryのKnowledge coverageと正式ranking qualityはN-06へ引き渡す。
+
+### Completion decision
+
+全Gate PASSにより **N-04P-06 Complete (2026-10-18)**、**N-04 prerequisite Complete**。次Taskは **N-04 [P0] 3つの代表AI利用ケースを受入試験する**。
+
+証跡は`.local/n04p06/`、Raw / 評価DB / Qdrant data / model cacheはGit管理外。PR #39はDraft維持、PR #36〜#39はmergeしていない。
