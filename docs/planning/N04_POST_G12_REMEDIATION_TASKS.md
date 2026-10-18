@@ -1,14 +1,15 @@
 # N-04 Post-G12 Grounded Generation Remediation Tasks
 
-更新日: 2026-10-18
+更新日: 2026-10-19
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
 - Trigger: N-04G-12 formal v2 re-acceptance `0 / 3 Case PASS`
 - Formal run: `20261018T213810+0900`
-- Branch: `phase-n/n04-prerequisite-derived-search`
+- Branch of record: `main`
 - G-12 result: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
 - Root-cause / desk review / research: `docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md`
+- G-14 decision: `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
 - Current parent state: **N-04 Failed / N-05 blocked**
 
 ---
@@ -116,7 +117,7 @@ Retry: 1
 | Task | Priority | Status | Purpose |
 |---|---|---|---|
 | N-04G-13 | P0 | **Complete (2026-10-18)** | G-12 root-cause、横断desk review、外部repo/library調査、remediation scope定義 |
-| N-04G-14 | P0 | Pending | Atomic claim / semantic-role boundaryを再設計する |
+| N-04G-14 | P0 | **Complete (2026-10-19)** | Atomic claim / semantic-role boundaryを再設計する |
 | N-04G-15 | P0 | Pending | Output schema / presentation / deterministic rendering contractをhardeningする |
 | N-04G-16 | P0 | Pending | Source-fact / interpretation semantic validation architectureを再設計する |
 | N-04G-17 | P0 | Pending | Material sufficiency / use-case completion / terminal-render gateを再設計する |
@@ -153,38 +154,59 @@ docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md
 
 ## 6. N-04G-14 [P0] — Atomic claim / semantic-role boundary redesign
 
+**Status: Complete (2026-10-19)**
+
+正本:
+
+```text
+docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md
+```
+
 ### Goal
 
 Case 1型の「supported clause + unsupported clause」を1 verdictでPASSさせない。
 
-### Required decisions
+### Decisions
 
-- material unitを**1 atomic proposition**へ限定するnormative ruleを強化する。
-- generatorが非atomic unitを返した場合のdeterministic / semantic detection方法を決める。
-- atomizerによるsilent post-hoc分割を唯一のgrounding proofにしない。
-- `stylistic_expression`へmaterial source-world propositionを逃がせないようにする。
-- `context_limit`へsource-world factを混在させない。
-- `creative_addition`でsource Object / Conceptについて新たなfactを説明しない境界を強化する。
-- 必要なら`stylistic_expression`をN-04 formal baselineで禁止または極小化する。
+- `1 validation unit = 1 atomic semantic proposition`を必須invariantとした。
+- atomicityを「部分ごとに異なるgrounding verdictを持ち得るか」で定義した。
+- Atomicity Gateの結果を`ATOMIC / NON_ATOMIC / INDETERMINATE`とし、`ATOMIC`だけがsupport / derivation validationへ進める。
+- 異なるgrounding policyを必要とするmixed-role contentを同一unitへ混在させない。
+- content materiality / role boundary判定をmodel-declared `semantic_role`より優先する。
+- role mismatchをsilent reclassificationして救済せず、明示failureとして扱う。
+- post-hoc atomizerをdebug / audit補助に限定し、唯一のgrounding authorityにしない。
+- N-04 v3 formal baselineではmodel-authored `stylistic_expression`を禁止する。
+- `context_limit`をsupplied Contextの可用性に関するmeta / epistemic propositionへ限定する。
+- `creative_addition`へsource Object / Concept等のfactを混在させない。
+- `interpretation`をconclusion-onlyとし、source factual premiseを同一textへ埋め込まない。premise参照方式はG-16へ送る。
+- Atomicity / role-boundary failureを後段semantic verifierのpositive verdictでoverrideできない。
 
-### Candidate direction
+### G-12 Case 1 desk replay
 
 ```text
-Generator atomic unit
-   ↓
-Atomicity / proposition-risk gate
-   ├─ clearly atomic -> support validation
-   └─ multiple material propositions / ambiguous -> retry or INDETERMINATE
+supported clause + unsupported clause in one unit
+-> independent verdict split possible
+-> NON_ATOMIC
+-> support validationへ進まない
+-> no grounded PASS
 ```
 
-post-hoc LLM atomizerはdebug / audit用途には使用可能だが、claim omissionの可能性があるため単独authorityにしない。
+```text
+material relationship / duty / loyalty claim
++ declared stylistic_expression
+-> v3ではstylistic_expression自体がmodel output禁止
+-> content-first role checkでもsource-world material propositionを検出
+-> ROLE_VIOLATION
+-> no grounded PASS
+```
 
 ### Completion condition
 
-- [ ] atomicityのmachine-checkable invariantを定義。
-- [ ] material propositionのrole逃避対策を定義。
-- [ ] G-05 `all material proposition supported`を物理実装可能な形へ具体化。
-- [ ] Case 1保存evidenceで新設計ならFAILになることを机上確認。
+- [x] atomicityのmachine-checkable invariantを定義。
+- [x] material propositionのrole逃避対策を定義。
+- [x] G-05 `all material propositions supported`を物理実装可能なGate順序へ具体化。
+- [x] Case 1保存evidenceで新設計ならFAIL-CLOSEDになることを机上確認。
+- [x] production codeは未変更。
 
 ---
 
@@ -201,6 +223,8 @@ Case 3型のschema/parser mismatchをなくし、presentation metadataからsema
 - interpretation / creative separationをmodel任意labelに依存させない。
 - block roleとunit semantic roleの整合を可能な範囲でJSON Schemaへencodeする。
 - role別`support_refs` cardinalityも可能な範囲でschemaへencodeする。
+- G-14で決定した`stylistic_expression`禁止をv3 schemaへ反映する。
+- G-14のatomicity / homogeneous-role invariantをparser / validator contractへ反映可能なshapeにする。
 - LM Studioが使用可能なschema subsetをpreflightで検証する。
 - advanced conditional schemaへ依存しすぎず、必要ならcontract shape自体を単純化する。
 
@@ -429,7 +453,7 @@ G-12 valid formal FAIL
   ↓
 G-13 Root-cause / Desk review / Research Complete
   ↓
-G-14 Atomicity / Role Boundary
+G-14 Atomicity / Role Boundary Complete
   ↓
 G-15 Output / Presentation Contract
   ↓
