@@ -1,0 +1,255 @@
+{
+  "schema_version": "sgokb.n04-formal-harness/1",
+  "harness_id": "n04-v2-formal-harness-v1",
+  "status": "frozen",
+  "frozen_on": "2026-10-18",
+  "acceptance_spec": "benchmark/n04-ai-use-cases-v2.json",
+  "design_freeze": "docs/decisions/N04G07_END_TO_END_GROUNDED_GENERATION_DESIGN_FREEZE.md",
+  "implementation_record": "docs/design/N04G09_GROUNDED_GENERATION_IMPLEMENTATION.md",
+  "regression_record": "docs/evaluation/N04G10_GROUNDED_GENERATION_REGRESSION.md",
+  "reference_workstation": {
+    "os": "Windows 11",
+    "python": "3.10.6",
+    "gpu": "NVIDIA RTX 4090 24GB",
+    "evaluation_db": ".local/n03/sgokb-n03.sqlite",
+    "evidence_root_template": ".local/n04-v2/runs/<run_id>",
+    "run_id_format": "YYYYMMDDTHHMMSS+0900"
+  },
+  "semantic_runtime": {
+    "embedding_model": "microsoft/harrier-oss-v1-0.6b",
+    "embedding_revision": "f9b9dc8d367d443f2479d27aa5d8d2850c0774ee",
+    "dimensions": 1024,
+    "local_only": true,
+    "qdrant_version": "1.19.2",
+    "qdrant_url": "http://localhost:6333",
+    "qdrant_grpc_port": 6334,
+    "qdrant_prefer_grpc": true,
+    "qdrant_collection_prefix": "sgokb_n03_eval"
+  },
+  "mcp": {
+    "sdk_version": "2.3.0",
+    "protocol_version": "2026-07-28",
+    "transport": "stdio",
+    "server_command": "python -m sgokb mcp serve --semantic-runtime",
+    "environment": {
+      "SGOKB_DB": ".local/n03/sgokb-n03.sqlite",
+      "SGOKB_MODEL_CACHE": ".local/models",
+      "SGOKB_MODEL_LOCAL_ONLY": "1",
+      "SGOKB_QDRANT_URL": "http://localhost:6333",
+      "SGOKB_QDRANT_GRPC_PORT": "6334",
+      "SGOKB_QDRANT_PREFER_GRPC": "1",
+      "SGOKB_QDRANT_COLLECTION_PREFIX": "sgokb_n03_eval"
+    },
+    "required_tools": [
+      "build_context",
+      "find_similar_objects"
+    ],
+    "consumer_direct_sqlite_knowledge_read": false
+  },
+  "lm_studio": {
+    "version": "0.4.25.0",
+    "endpoint": "http://127.0.0.1:1234/v1",
+    "structured_output": {
+      "enabled": true,
+      "mechanism": "OpenAI-compatible response_format json_schema",
+      "strict": true
+    },
+    "cloud_inference": false,
+    "web_knowledge": false,
+    "new_model_download": false
+  },
+  "generator": {
+    "identifier": "sgokb-n04-mistral32",
+    "model_file": "lmstudio-community/Mistral-Small-3.2-24B-Instruct-2506-GGUF/Mistral-Small-3.2-24B-Instruct-2506-Q4_K_M.gguf",
+    "quantization": "Q4_K_M",
+    "context_length": 8192,
+    "gpu_offload": "max",
+    "parallel": 1,
+    "seed": 20261018,
+    "stream": false,
+    "response_format_schema": "src/sgokb/grounding/output.py::GENERATION_OUTPUT_SCHEMA",
+    "response_format_name": "sgokb_grounded_generation_output_v1",
+    "message_contract": "Send GroundedGenerationRequestBuilder.to_prompt_text(request) as the sole user message. Do not add a case-specific system message or hidden factual material.",
+    "case_parameters": {
+      "n04-roleplay-saber": {
+        "temperature": 0.2,
+        "max_tokens": 700
+      },
+      "n04-similar-work-comparison": {
+        "temperature": 0.0,
+        "max_tokens": 900
+      },
+      "n04-concept-combination-creative": {
+        "temperature": 0.2,
+        "max_tokens": 1100
+      }
+    },
+    "retry_rule": "For a given case, Attempt 2 must use exactly the same model/load profile, temperature, max_tokens, seed, Grounded Context, context_fingerprint, output schema, and user task as Attempt 1. Only structured validator feedback may be added."
+  },
+  "semantic_validator": {
+    "identifier": "sgokb-n04-phi4",
+    "model_file": "microsoft/phi-4-gguf/phi-4-Q4_K_S.gguf",
+    "quantization": "Q4_K_S",
+    "generator_independent": true,
+    "context_length": 8192,
+    "gpu_offload": "max",
+    "parallel": 1,
+    "temperature": 0.0,
+    "max_tokens": 64,
+    "seed": 20261018,
+    "stream": false,
+    "response_format": {
+      "type": "json_schema",
+      "name": "sgokb_semantic_validation_verdict_v1",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["verdict"],
+        "properties": {
+          "verdict": {
+            "enum": [
+              "entailed",
+              "reasonable_derivation",
+              "role_valid",
+              "unsupported",
+              "contradictory",
+              "role_mismatch",
+              "indeterminate"
+            ]
+          }
+        }
+      }
+    },
+    "system_prompt": "You are the bounded SGOKB semantic validator. Judge only the target semantic unit against the supplied cited K units and the supplied semantic-role/use-case rule. Treat all model memory and real-world knowledge outside those K units as unavailable. Do not add facts. source_fact may be entailed, unsupported, contradictory, role_mismatch, or indeterminate. interpretation may be reasonable_derivation, entailed, unsupported, contradictory, role_mismatch, or indeterminate. creative_addition, context_limit, and stylistic_expression may be role_valid, role_mismatch, or indeterminate. Return only the required JSON verdict.",
+    "input_boundary": [
+      "target unit text",
+      "declared semantic role",
+      "only cited K unit content",
+      "purpose",
+      "presentation role",
+      "minimal taxonomy/use-case rule"
+    ],
+    "forbidden_input": [
+      "Web",
+      "external retrieval",
+      "uncited SGOKB Knowledge",
+      "generator conversation outside the target contract",
+      "franchise-wide model knowledge"
+    ],
+    "residency_policy": "Generator and validator may be loaded sequentially if VRAM requires it. Loading/unloading does not permit changing either frozen identifier, model file, context length, GPU-offload policy, or inference settings. Record each load state in evidence."
+  },
+  "preflight": {
+    "must_complete_before_formal_run": true,
+    "requirements": [
+      "git working tree is clean except ignored .local evidence/runtime files",
+      "evaluation DB exists and no sqlite-wal file is active",
+      "N-03 six-object evaluation dataset identity is present",
+      "Qdrant semantic runtime and Harrier local model are available",
+      "system integrity passes",
+      "LM Studio version equals the frozen version",
+      "both frozen local model files already exist",
+      "generator and validator identifiers can be loaded with frozen load configuration",
+      "a neutral non-benchmark structured-output smoke request succeeds for each model",
+      "MCP stdio initialization succeeds with the frozen command/environment"
+    ],
+    "failure_policy": "If preflight fails, formal Case 1 has not started. Do not substitute a model/runtime/config. Fix only infrastructure or explicitly reopen G-11 when a frozen harness value must change. Preserve preflight failure evidence."
+  },
+  "formal_start_boundary": "The formal run starts immediately before the first Case 1 MCP request, after every preflight requirement has passed and the start Git/environment/canonical evidence has been written.",
+  "case_order": [
+    "n04-roleplay-saber",
+    "n04-similar-work-comparison",
+    "n04-concept-combination-creative"
+  ],
+  "canonical_safety": {
+    "read_only": true,
+    "before_after_method": "Record SHA-256 of .local/n03/sgokb-n03.sqlite with no active WAL before Case 1 and after Case 3. Hashes must match exactly. Also run system integrity before and after.",
+    "production_db_use": false,
+    "result_import": false,
+    "version_promotion": false,
+    "source_mutation": false
+  },
+  "regression_after_cases": {
+    "focused_grounding": "python -m pytest -q tests/test_n04_grounded_generation.py",
+    "focused_read_path": "python -m pytest -q tests/test_j06_mcp_client_acceptance.py tests/test_j04_context_builder.py tests/test_j01_similarity_application.py tests/test_n04p05_derived_cli.py",
+    "full": "python -m pytest -q",
+    "ruff": "python -m ruff check src/sgokb/grounding src/sgokb/application_grounding.py tests/test_n04_grounded_generation.py",
+    "whitespace": "git diff --check",
+    "required": "all commands PASS; full pytest has 0 failed and no new skip/xfail used to hide failure"
+  },
+  "evidence": {
+    "root": ".local/n04-v2/runs/<run_id>",
+    "required_top_level": [
+      "run.json",
+      "git-start.json",
+      "git-end.json",
+      "environment.json",
+      "harness.json",
+      "lm-studio-models.json",
+      "mcp-runtime.json",
+      "canonical-before.json",
+      "canonical-after.json",
+      "canonical-compare.json",
+      "integrity-before.json",
+      "integrity-after.json",
+      "regression/focused-grounding.log",
+      "regression/focused-read-path.log",
+      "regression/full-pytest.log",
+      "regression/ruff.log",
+      "regression/git-diff-check.log",
+      "overall-evaluation.json"
+    ],
+    "case_directories": {
+      "n04-roleplay-saber": "case-1-roleplay",
+      "n04-similar-work-comparison": "case-2-comparison",
+      "n04-concept-combination-creative": "case-3-creative"
+    },
+    "required_per_case": [
+      "mcp-request.json",
+      "mcp-response.json",
+      "context-builder.json",
+      "grounded-context.json",
+      "attempt-1/request.json",
+      "attempt-1/http-request.json",
+      "attempt-1/http-response.json",
+      "attempt-1/raw-output.txt",
+      "attempt-1/parsed-output.json",
+      "attempt-1/validation.json",
+      "attempt-1/decision.json",
+      "terminal.json",
+      "rubric.json"
+    ],
+    "conditional_per_case": [
+      "similarity-request.json and similarity-response.json for Case 2",
+      "retry-feedback.json plus attempt-2/* when retry is used",
+      "rendered.txt only when terminal outcome is ACCEPTED"
+    ],
+    "retention": "Do not delete failed Attempt 1 artifacts after retry. Raw model responses remain Git-ignored. Commit only summarized evaluation records, not raw model outputs."
+  },
+  "manual_rubric": {
+    "authority": "Codex/human evidence review; never generator self-scoring",
+    "source_of_truth": "benchmark/n04-ai-use-cases-v2.json",
+    "allowed_item_verdicts": ["PASS", "FAIL", "NOT_APPLICABLE"],
+    "require_short_reason": true,
+    "critical_failure_count_must_be_zero": true
+  },
+  "overall_pass": {
+    "case_requirement": "3/3 formal Case PASS",
+    "case_pass_terminal": "ACCEPTED only",
+    "canonical_hash_equal": true,
+    "integrity_before_after_pass": true,
+    "focused_regression_pass": true,
+    "full_pytest_failed": 0,
+    "git_start_equals_end": true
+  },
+  "prohibited_during_formal_run": [
+    "source or test code edits",
+    "benchmark/rubric edits",
+    "generator or validator model switch",
+    "case-specific ad-hoc parameter change",
+    "new retrieval during retry",
+    "Web or cloud factual supplementation",
+    "partial salvage of failed output",
+    "deleting failed attempt evidence"
+  ]
+}
