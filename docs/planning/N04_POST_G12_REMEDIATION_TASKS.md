@@ -10,6 +10,7 @@
 - G-12 result: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
 - Root-cause / desk review / research: `docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md`
 - G-14 decision: `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
+- G-15 decision: `docs/decisions/N04G15_OUTPUT_SCHEMA_PRESENTATION_RENDERER_HARDENING.md`
 - Current parent state: **N-04 Failed / N-05 blocked**
 
 ---
@@ -118,7 +119,7 @@ Retry: 1
 |---|---|---|---|
 | N-04G-13 | P0 | **Complete (2026-10-18)** | G-12 root-cause、横断desk review、外部repo/library調査、remediation scope定義 |
 | N-04G-14 | P0 | **Complete (2026-10-19)** | Atomic claim / semantic-role boundaryを再設計する |
-| N-04G-15 | P0 | Pending | Output schema / presentation / deterministic rendering contractをhardeningする |
+| N-04G-15 | P0 | **Complete (2026-10-19)** | Output schema / presentation / deterministic rendering contractをhardeningする |
 | N-04G-16 | P0 | Pending | Source-fact / interpretation semantic validation architectureを再設計する |
 | N-04G-17 | P0 | Pending | Material sufficiency / use-case completion / terminal-render gateを再設計する |
 | N-04G-18 | P0 | Pending | G-14〜G-17を統合してPost-G12 Design Freezeを行う |
@@ -212,37 +213,48 @@ material relationship / duty / loyalty claim
 
 ## 7. N-04G-15 [P0] — Output schema / presentation / renderer hardening
 
+**Status: Complete (2026-10-19)**
+
+正本:
+
+```text
+docs/decisions/N04G15_OUTPUT_SCHEMA_PRESENTATION_RENDERER_HARDENING.md
+```
+
 ### Goal
 
 Case 3型のschema/parser mismatchをなくし、presentation metadataからsemantic contentがvalidation bypassしないようにする。
 
-### Required decisions
+### Decisions
 
-- model-generated `label`をnormative contentから外すか、固定enum / constへ限定する。
-- rendererのheadingは`presentation_role`から**deterministically**生成する。
-- interpretation / creative separationをmodel任意labelに依存させない。
-- block roleとunit semantic roleの整合を可能な範囲でJSON Schemaへencodeする。
-- role別`support_refs` cardinalityも可能な範囲でschemaへencodeする。
-- G-14で決定した`stylistic_expression`禁止をv3 schemaへ反映する。
-- G-14のatomicity / homogeneous-role invariantをparser / validator contractへ反映可能なshapeにする。
-- LM Studioが使用可能なschema subsetをpreflightで検証する。
-- advanced conditional schemaへ依存しすぎず、必要ならcontract shape自体を単純化する。
+- model-generated free-form `label`をv3 normative output contractから削除する。
+- heading / separatorは`presentation_role`からtrusted deterministic rendererが生成する。
+- visible LLM-authored semantic textをvalidated `unit.text`だけに限定する。
+- block role / unit semantic role matrixを定義し、構造的なrole mismatchを前段でreject可能にする。
+- `source_fact`は`support_refs >= 1`、`creative_addition` / `context_limit`は`support_refs=[]`をschemaへencodeする方針とした。
+- G-14に従い`stylistic_expression`をv3 model output enumから除外する。
+- role-specific block schemaをv3 baselineの第一候補とする。
+- provider schemaとapplication parserを同一canonical logical schemaから導出し、parser-local hidden structural ruleを禁止する。
+- provider structured-output capabilityをformal runtime前にpreflightする。
+- schema errorで`json_path / block_id / unit_id / failure_detail / expected_rule`を保持可能にする。
+- G-12 Case 3 `label=null`とfree-form label injectionを新contractで構造的に除去する。
+- breaking changeのため`sgokb.grounded-generation-output.v2`へのrevisionを予約し、最終version/shapeはG-18でfreezeする。
 
 ### Required invariant
 
 ```text
 rendered semantic content
-  = validated unit.text
-  + SGOKB deterministic fixed headings/separators only
+  = successfully validated unit.text
+  + SGOKB-controlled fixed presentation tokens only
 ```
-
-LLM-generated arbitrary labelをrenderしない。
 
 ### Completion condition
 
-- [ ] Case 3 `label=null`がgeneration-time constraintまたはdeterministic rendererで安全に処理される。
-- [ ] arbitrary label textがrendered factual content bypassにならない。
-- [ ] schema / parser / rendererのruleが単一正本から導出される。
+- [x] Case 3 `label=null` failureをcontract-levelで除去する設計を確定。
+- [x] arbitrary model label textがrendered factual content bypassにならない設計を確定。
+- [x] schema / parser / rendererのstructural ruleを単一正本から導出する原則を確定。
+- [x] G-14 semantic boundaryとの責務分離を確定。
+- [x] production codeは未変更。
 
 ---
 
@@ -455,7 +467,7 @@ G-13 Root-cause / Desk review / Research Complete
   ↓
 G-14 Atomicity / Role Boundary Complete
   ↓
-G-15 Output / Presentation Contract
+G-15 Output / Presentation Contract Complete
   ↓
 G-16 Semantic Validation Architecture
   ↓
