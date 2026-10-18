@@ -4,7 +4,7 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
-- Current Status: **N-04 Failed — N-04G-01〜G-08 Complete / next N-04G-09 Implementation**
+- Current Status: **N-04 Failed — N-04G-01〜G-09 Complete / next N-04G-10 Automated Test / Regression**
 - Branch: `phase-n/n04-prerequisite-derived-search`
 - Failed baseline: `benchmark/n04-ai-use-cases-v1.json`
 - Frozen v2 acceptance spec: `benchmark/n04-ai-use-cases-v2.json`
@@ -18,6 +18,7 @@
 - G-06: `docs/decisions/N04G06_VALIDATION_FAILURE_HANDLING_POLICY.md`
 - G-07: `docs/decisions/N04G07_END_TO_END_GROUNDED_GENERATION_DESIGN_FREEZE.md`
 - G-08: `docs/decisions/N04G08_N04_V2_ACCEPTANCE_SPEC_FREEZE.md`
+- G-09: `docs/design/N04G09_GROUNDED_GENERATION_IMPLEMENTATION.md`
 
 ---
 
@@ -149,7 +150,7 @@ canonical KnowledgeをN-04 PASS目的で追加・改変しない。
 | N-04G-06 | P0 | **Complete (2026-10-18)** | retry / reject / insufficient policy |
 | N-04G-07 | P0 | **Complete (2026-10-18)** | End-to-End Design Freeze |
 | N-04G-08 | P0 | **Complete (2026-10-18)** | N-04 v2 benchmark / acceptance freeze |
-| N-04G-09 | P0 | Pending | Frozen grounded-generation designを実装 |
+| N-04G-09 | P0 | **Complete (2026-10-18)** | Frozen grounded-generation designを実装 |
 | N-04G-10 | P0 | Pending | automated test / regression |
 | N-04G-11 | P0 | Pending | formal re-acceptance harness / evidence freeze |
 | N-04G-12 | P0 | Pending | Reference Workstation formal re-acceptance |
@@ -334,29 +335,46 @@ P0意味設計のsilent driftは禁止。変更にはG-07 reopenが必要。
 
 ## N-04G-09 [P0] Frozen grounded-generation designを実装する
 
-### Scope
+**Status: Complete (2026-10-18)**  
+**Implementation record:** `docs/design/N04G09_GROUNDED_GENERATION_IMPLEMENTATION.md`
 
-- Grounded Context projection / K mapping
-- grounded generation request / output parser / schema
-- Hybrid validator
-- semantic validator adapter
-- deterministic renderer
-- retry / terminal outcome controller
-- evidence logger
+### Implemented components
 
-### 禁止
+```text
+src/sgokb/grounding/context.py
+src/sgokb/grounding/request.py
+src/sgokb/grounding/output.py
+src/sgokb/grounding/validation.py
+src/sgokb/grounding/failure.py
+src/sgokb/grounding/render.py
+src/sgokb/grounding/evidence.py
+src/sgokb/grounding/__init__.py
+src/sgokb/application_grounding.py
+```
 
-- benchmark case固有hardcode
-- canonical Knowledge追加でのPASS誘導
-- N-06 ranking tuningの混在
-- silent cloud / Web fallback
-- G-07/G-08 semanticsのsilent変更
+### Implementation summary
+
+- `GroundedContextProjector`: Context Builder outputからdeterministic K mapping / SHA-256 context fingerprintを生成。
+- `GroundedGenerationRequestBuilder`: provider-neutral generation request / exact output schema / retry feedbackを構成。
+- `sgokb.grounded-generation-output.v1`: strict JSON Schema / parserを実装。
+- `GroundingValidator`: V0〜V5 Hybrid validationとfail-closed semantic adapter boundaryを実装。
+- `GroundingFailureController`: max 1 retry、4 terminal outcomes、structured retry feedbackを実装。
+- `DeterministicRenderer`: validation PASSしたunit textだけを決定論的にrender。
+- `GroundingEvidenceLogger`: attempt artifact保存helperを実装。
+- `GroundedGenerationApplication`: SGOKB-owned contract componentをFacadeとして統合。
+- canonical DB / Retrieval / Context Builder selection / MCP inference責務は変更していない。
+- benchmark case固有hardcode、Web/cloud fallback、partial salvageは追加していない。
 
 ### Completion
 
-- Frozen Design / v2 specとのtraceability。
-- 3 use case共通実装。
-- existing read boundary維持。
+- [x] Frozen Design / v2 specとのtraceabilityを文書化。
+- [x] 3 use caseに依存しない共通componentとして実装。
+- [x] existing MCP / Knowledge read boundaryを維持。
+- [x] canonical schema migrationなし。
+- [x] provider / model-specific runtimeをSGOKB contract層へ混入させていない。
+- [x] G-10へautomated verification観点を引き渡した。
+
+正式なcompile / focused test / full pytest / regression判定はN-04G-10で実施する。
 
 ---
 
@@ -456,7 +474,7 @@ N-04G-07 Design Freeze Complete
        ↓
 N-04G-08 Acceptance Freeze Complete
        ↓
-N-04G-09 Implementation
+N-04G-09 Implementation Complete
        ↓
 N-04G-10 Automated Test / Regression
        ↓
@@ -499,6 +517,6 @@ Creative visible scope separation: 採用
 ## 9. 次に実施するTask
 
 ```text
-N-04G-09 [P0]
-採用したgrounded-generation designを実装する
+N-04G-10 [P0]
+automated test / regressionを追加・実施する
 ```
