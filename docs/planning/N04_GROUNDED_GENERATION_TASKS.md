@@ -4,13 +4,14 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
-- Current Status: **N-04 Failed — N-04G-02 Complete / next N-04G-03**
+- Current Status: **N-04 Failed — N-04G-03 Complete / next N-04G-04**
 - Branch: `phase-n/n04-prerequisite-derived-search`
 - Failure baseline: `benchmark/n04-ai-use-cases-v1.json`
 - Acceptance record: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
 - Design handoff: `docs/planning/N04_GROUNDED_GENERATION_HANDOFF.md`
 - N-04G-01 Decision: `docs/decisions/N04G01_GROUNDED_GENERATION_RESPONSIBILITY_BOUNDARY.md`
 - N-04G-02 Decision: `docs/decisions/N04G02_CLAIM_TAXONOMY_AND_USE_CASE_BOUNDARIES.md`
+- N-04G-03 Decision: `docs/decisions/N04G03_CONTEXT_GROUNDING_REFERENCE_CONTRACT.md`
 
 ---
 
@@ -122,7 +123,7 @@ Knowledge coverage不足やretrieval ranking品質はN-06との境界を維持�
 | N-04G-00 | P0 | **Complete (2026-10-18)** | N-04 Completion Gate確認とremediation Task分解 |
 | N-04G-01 | P0 | **Complete (2026-10-18)** | grounded-generationの責務所有者と保証レベルを確定 |
 | N-04G-02 | P0 | **Complete (2026-10-18)** | claim taxonomyと用途別意味境界を確定 |
-| N-04G-03 | P0 | Pending | Context grounding / reference contractを設計 |
+| N-04G-03 | P0 | **Complete (2026-10-18)** | Context grounding / reference contractを設計 |
 | N-04G-04 | P0 | Pending | generation / output contractを設計 |
 | N-04G-05 | P0 | Pending | grounding validation方式を設計 |
 | N-04G-06 | P0 | Pending | validation failure時のretry / reject / insufficient policyを設計 |
@@ -144,33 +145,13 @@ N-05へ進めるのは**N-04G-12でN-04 Completeが確認された後**とする
 **Status: Complete (2026-10-18)**  
 **Decision record:** `docs/decisions/N04G01_GROUNDED_GENERATION_RESPONSIBILITY_BOUNDARY.md`
 
-### 目的
+### Decision summary
 
-最初に「誰がgrounded outputを保証するか」を決める。
-
-比較対象例:
-
-- SGOKB Application capability
-- MCP Tool capability
-- SGOKB提供consumer library
-- 外部client responsibility + contractのみ提供
-- 上記のhybrid
-
-同時に保証レベルを比較する。
-
-例:
-
-- Context deliveryまで保証
-- generation contractまで保証
-- output validationまで保証
-- validation failure handlingまで保証
-
-### 必須検討
-
-- MCPはKnowledge Access Layerであり推論主体ではない、という既存方針との整合。
-- ChatGPT / local LLM / UPDS / Other Clientsへ適用可能なmodel-independent contractの範囲。
-- 特定provider / modelへSGOKB本体を密結合させない方法。
-- consumer実装ミスをどこまでSGOKB側が防ぐべきか。
+- **Hybrid方式を採用**: `SGOKB-owned contract + consumer-owned orchestration + untrusted LLM`。
+- SGOKB Application側がgrounding contract / conformance semanticsの正本を所有する。
+- MCPはtransport/schema adapterのまま維持し、LLM generation主体にしない。
+- Consumerがmodel runtime / invocation / workflow enforcementを担当する。
+- LLM raw outputはgroundedとみなさず、SGOKB-defined Gateを満たした出力だけを`SGOKB-grounded`として扱える。
 
 ### 完了条件
 
@@ -179,25 +160,12 @@ N-05へ進めるのは**N-04G-12でN-04 Completeが確認された後**とする
 - [x] 「何をSGOKBが保証し、何を保証しないか」が明記されている。
 - [x] N-04G-02以降が責務境界を前提に設計できる。
 
-### Decision summary
-
-- **Hybrid方式を採用**: `SGOKB-owned contract + consumer-owned orchestration + untrusted LLM`。
-- SGOKB Application側がgrounding contract / conformance semanticsの正本を所有する。
-- MCPはtransport/schema adapterのまま維持し、LLM generation主体にしない。
-- Consumerがmodel runtime / invocation / workflow enforcementを担当する。
-- LLM raw outputはgroundedとみなさず、SGOKB-defined Gateを満たした出力だけを`SGOKB-grounded`として扱える。
-- Fact ID / Structured Output / validator実装 / retry方式は本Taskで採用せず、N-04G-02〜G-06へ委ねる。
-
 ---
 
 ## N-04G-02 [P0] claim taxonomyと用途別意味境界を確定する
 
 **Status: Complete (2026-10-18)**  
 **Decision record:** `docs/decisions/N04G02_CLAIM_TAXONOMY_AND_USE_CASE_BOUNDARIES.md`
-
-### 目的
-
-生成文中の情報を、少なくともN-04の3用途で一貫して分類できる意味モデルを決める。
 
 ### Decision summary
 
@@ -225,56 +193,47 @@ contradictory
 
 さらに、semantic role自体が許容されてもstored factとの境界が曖昧な場合を`separation_violation`として扱う。
 
-用途別の核心境界:
-
-- **Roleplay**: supported source factと非事実的styleは許容。Context外backstory / stable personality / canonical-looking eventは不可。
-- **Comparison**: supported source factとgrounded interpretationを許容。interpretationはstored factから区別し、external premiseを使わない。
-- **Creative**: source Concept factはgroundedである必要があるが、新規Character / setting / event等はcreative additionとして許容。source knowledgeとの境界を明示する。
-
 ### 完了条件
 
 - [x] claim / output semantic分類と各定義が確定している。
 - [x] grounding状態をsemantic roleから分離している。
 - [x] 3 use caseそれぞれの許容 / 要分離 / 禁止境界を例示している。
-- [x] Roleplayのstyleとunsupported backstoryを区別している。
-- [x] Comparisonのstored fact / interpretation / unsupported external factを区別している。
-- [x] Creativeのsource Concept knowledge / creative additionを区別している。
-- [x] Context不足を安全に表明する`context_limit`を正常classとして定義している。
 - [x] Case 1〜3のv1 failureを新taxonomyで一意に説明している。
 
 ---
 
 ## N-04G-03 [P0] Context grounding / reference contractを設計する
 
+**Status: Complete (2026-10-18)**  
+**Decision record:** `docs/decisions/N04G03_CONTEXT_GROUNDING_REFERENCE_CONTRACT.md`
+
 ### 目的
 
 LLMへ渡したKnowledgeと生成claimを、必要な強さで追跡できるContext表現を決める。
 
-比較対象例:
+### Decision summary
 
-- 現行Context本文のみ
-- canonical Statement ID
-- Context-local Fact ID
-- Evidence ID
-- Context-local ID + canonical metadata
-- 引用可能なnormalized fact representation
-- その他のreference方式
-
-Fact ID / Statement ID採用を前提にしない。
-
-### 必須検討
-
-- identityをContext Builder本体が付与するかconsumer側で付与するか。
-- canonical internal IDを外部consumerへ露出する必要性。
-- claim-level provenanceに必要なmetadata。
-- roleplay / comparison / creativeで同じreference contractを使えるか。
-- Context budgetへの影響。
+- **Context-local Grounding Reference + canonical identity metadata**方式を採用する。
+- LLM-facing referenceは`K1`, `K2`, ...とし、1 grounded Context内だけで有効とする。
+- 各`K*`は`object_id` / `resolved_version_id` / `source_kind` / canonical target identityへ必ず追跡可能にする。
+- `source_kind`は最低限`object_field / statement / attribute / relation`を扱う。
+- canonical Statement ID等はbackend metadataとして保持するが、LLMへ直接引用させる標準方式にはしない。
+- Evidence IDは一次grounding referenceにせず、provenance / audit用secondary metadataとする。
+- `context_fingerprint + ref_id`でContext-local namespaceを識別する。
+- J-04 Context Builderのselection後にreference projectionを行い、既存budget selection semanticsを変えない。
+- Context-local referenceはtraceabilityであり、reference存在だけをsemantic supportの証明にはしない。
+- contract概念名を`sgokb.grounded-context.v1`とする。
+- canonical schema変更、新規persistent Fact IDは不要とする。
 
 ### 完了条件
 
-- 採用方式と不採用主要案の理由が記録されている。
-- Contextからclaim supportを追跡する方法が定義されている。
-- canonical schema変更が必要か不要かが明示されている。
+- [x] 採用方式と不採用主要案の理由が記録されている。
+- [x] Contextからclaim supportを追跡する方法が定義されている。
+- [x] Object / Version / Knowledge itemへのcanonical traceabilityが定義されている。
+- [x] Roleplay / Comparison / Creativeで共通reference namespaceを使うことを確定している。
+- [x] Evidence / provenanceとの関係を分離している。
+- [x] Context budgetへの影響方針を確定している。
+- [x] canonical schema変更不要、新規persistent Fact ID不要と明示している。
 
 ---
 
@@ -608,7 +567,7 @@ N-04G-01 Responsibility / guarantee boundary Complete
        ↓
 N-04G-02 Claim taxonomy Complete
        ↓
-N-04G-03 Context grounding / reference contract
+N-04G-03 Context grounding / reference contract Complete
        ↓
 N-04G-04 Generation / output contract
        ↓
@@ -641,26 +600,18 @@ N-04G-03〜G-06は設計上相互依存するため、検討中の往復は許�
 
 ## 10. Candidate案の扱い
 
-`docs/planning/N04_GROUNDED_GENERATION_HANDOFF.md`にある以下はすべて未採用候補のまま開始する。
+`docs/planning/N04_GROUNDED_GENERATION_HANDOFF.md`にある候補は、各Taskで比較して採否を決める。
 
-- Fact ID / Statement ID引用
-- Structured Output
-- Post-generation grounding validator
-- Retry contract
-- Creative mode policy
-
-各Taskで比較対象として扱い、Taskの開始前提にはしない。
-
-特定案を採用する場合は、少なくとも次を記録する。
+N-04G-03時点ではFact / Statement identity候補について次を確定した。
 
 ```text
-Decision
-Alternatives considered
-Why selected
-Why alternatives rejected/deferred
-Architecture impact
-Acceptance impact
+Context-local K* reference + canonical identity metadata: 採用
+canonical ID direct citation: 一次referenceとして不採用
+Evidence ID direct citation: 一次referenceとして不採用
+persistent new Fact ID: 不採用
 ```
+
+Structured Output、Post-generation grounding validator、Retry contract、Creative mode policyの最終形は後続Taskで決める。
 
 ---
 
@@ -669,8 +620,8 @@ Acceptance impact
 次のTaskは以下とする。
 
 ```text
-N-04G-03 [P0]
-Context grounding / reference contractを設計する
+N-04G-04 [P0]
+generation / output contractを設計する
 ```
 
-N-04G-02で確定した2軸taxonomyを前提に、source factとinterpretation premiseを供給Contextへ追跡できるreference方式を比較・決定する。
+N-04G-03で確定した`K*` reference contractとN-04G-02 taxonomyを前提に、LLMへ何を要求し、human-facing responseとvalidation metadataをどの形で返させるかを決定する。
