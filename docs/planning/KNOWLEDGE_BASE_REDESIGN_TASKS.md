@@ -903,8 +903,10 @@ Preparation: `docs/planning/PHASE_L_PREPARATION.md`
 
 # Phase N — Test / Evaluation / Acceptance
 
-- [ ] **N-01 [P0] Unit Testを新ドメインへ更新する**
+- [x] **N-01 [P0] Unit Testを新ドメインへ更新する** — **Complete (2026-10-16)**
   - Object / Relation / Facet / Version / Validation / Retrieval。
+  - canonical coverage audit、Relation acceptance/immutability補完、Package Transfer既知failure解消、Reference Workstationのfull pytest / 対象RuffがPASS。
+  - 成果物: `docs/planning/N01_UNIT_TEST_COVERAGE.md`。
 
 - [ ] **N-02 [P0] Integration Testを追加する**
   - Capture → Evidence → Package。
@@ -1055,7 +1057,7 @@ Phase A〜MはComplete。Phase LではL-01〜L-04のDecisionをL-05で実装し�
 次の最優先Task（未着手）:
 
 ```text
-N-01 [P0] Unit Testを新ドメインへ更新する
+N-02 [P0] Integration Testを追加する
 ```
 
-Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。次はPhase Nへ引き渡す（今回未着手）。
+Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01のReference Workstation検証を完了し、次はN-02（未着手）へ進む。

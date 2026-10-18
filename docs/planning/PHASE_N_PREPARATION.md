@@ -2,12 +2,12 @@
 
 更新日: 2026-10-16
 
-- Status: **Ready**
+- Status: **Active — N-01 Complete / N-02 Next**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - Previous closure: `docs/planning/PHASE_M_CLOSURE_AUDIT.md`
 - Baseline: `7b4507ab5a80ebdb687c65d5e4627beb83806f3c`
-- First task: `N-01 [P0] Unit Testを新ドメインへ更新する`
+- Current task: `N-02 [P0] Integration Testを追加する`（Next / 未着手）
 
 ---
 
@@ -49,7 +49,7 @@ Phase Nでは範囲を広げ、次を評価する。
 
 Phase Nへ引き継ぐ既知制約:
 
-1. Package Transferの既知test failureが1件ある。
+1. Package Transferの既知test failureはN-01で同一サイズtamper fixtureにより解消し、Reference WorkstationでPASSした。production validation orderは変更していない。
 2. Reference WorkstationではM-03時点でlocal embedding / vector optional runtimeが未構成。
 3. M-03ではChatGPT分析品質を評価していない。
 4. M-03のResultはdeterministic fixtureであり、実データVertical Sliceではない。
@@ -61,8 +61,8 @@ Phase Nへ引き継ぐ既知制約:
 
 | Task | Priority | Status | 主目的 |
 |---|---|---|---|
-| N-01 | P0 | **Ready / first** | Unit TestをObject / Relation / Facet / Version / Validation / Retrievalへ整理・補完 |
-| N-02 | P0 | Pending | cross-domain Integrationを追加 |
+| N-01 | P0 | **Complete (2026-10-16)** | Unit TestをObject / Relation / Facet / Version / Validation / Retrievalへ整理・補完 |
+| N-02 | P0 | **Next / 未着手** | cross-domain Integrationを追加 |
 | N-03 | P0 | Pending | Character / Work / Conceptの実データVertical Slice |
 | N-04 | P0 | Pending | 代表AI利用ケース3件の受入 |
 | N-05 | P0 | Pending | 1 Object自動処理時間の計測 |
@@ -139,7 +139,7 @@ N-01開始時に次を再確認する。
 tests/test_package_transfer.py::test_stage_rejects_unexpected_files_and_hash_mismatch
 ```
 
-現在はfile size mismatchがhash mismatchより先に検出されるためmessage期待値と差がある。
+開始時はfile size mismatchがhash mismatchより先に検出されるためmessage期待値と差があった。N-01では同一サイズのtamperに修正し、SHA-256 mismatch branchを正規に検証した。既知failureは解消済み。
 
 Phase Nでは、
 
@@ -147,7 +147,7 @@ Phase Nでは、
 - test期待値が過剰にmessage順序へ依存しているか
 - security/integrity上hash検証順序を変える必要があるか
 
-を判断して正規に解消する。単なるxfail化で隠さない。
+を判断する方針とした。N-01ではproduction検証順序とtest期待値を維持し、fixtureだけを修正した。xfail化はしていない。
 
 ---
 
@@ -370,7 +370,7 @@ Phase N完了条件:
 
 Phase Nへ移行可能。
 
-開始時点:
+開始時点（履歴。N-01完了後の現在状態はsection 14を参照）:
 
 - Phase M正式Task残件: **0**
 - public CLI / standard workflow: **accepted**
@@ -378,3 +378,10 @@ Phase Nへ移行可能。
 - Phase N implementation: **未着手**
 
 N-01ではまずTest inventoryとcoverage gapを確定し、その後にtest変更へ進む。
+
+
+## 14. N-01 runtime verification完了
+
+2026-10-16、Reference Workstationで対象test 11件とfull suite、指定RuffがPASSし、N-01をCompleteとした。Relationのgrounding / accepted immutabilityが現行contractと一致し、Package Transfer既知failureも解消した。詳細と件数は`docs/planning/N01_UNIT_TEST_COVERAGE.md`を参照する。
+
+次TaskはN-02（未着手）。Phase N全体のComplete判定はN-02〜N-07とclosure auditの完了後に行う。
