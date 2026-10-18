@@ -12,6 +12,7 @@ from typing import Any
 from .grounding import (
     DeterministicRenderer,
     GroundedContextProjector,
+    GroundedGenerationRequestBuilder,
     GroundingFailureController,
     GroundingValidator,
     SemanticValidatorAdapter,
@@ -20,16 +21,33 @@ from .grounding import (
 
 
 class GroundedGenerationApplication:
-    """Compose projection, parsing, validation, failure handling and rendering."""
+    """Compose the SGOKB-owned pieces of the frozen grounded-generation flow."""
 
     def __init__(self, semantic_validator: SemanticValidatorAdapter | None = None) -> None:
         self.projector = GroundedContextProjector()
+        self.request_builder = GroundedGenerationRequestBuilder()
         self.validator = GroundingValidator(semantic_validator)
         self.failure_controller = GroundingFailureController()
         self.renderer = DeterministicRenderer()
 
     def project_context(self, context_builder_output: dict[str, Any]) -> dict[str, Any]:
         return self.projector.project(context_builder_output)
+
+    def build_request(
+        self,
+        *,
+        user_task: str,
+        grounded_context: dict[str, Any],
+        retry_feedback: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        return self.request_builder.build(
+            user_task=user_task,
+            grounded_context=grounded_context,
+            retry_feedback=retry_feedback,
+        )
+
+    def request_prompt_text(self, request: dict[str, Any]) -> str:
+        return self.request_builder.to_prompt_text(request)
 
     @staticmethod
     def parse_output(raw_output: str | dict[str, Any]) -> dict[str, Any]:
