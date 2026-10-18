@@ -916,11 +916,13 @@ Preparation: `docs/planning/PHASE_L_PREPARATION.md`
   - MCP → Retrieval Core。
   - Reference Workstationで追加3 test / full suite / 対象Ruff・formatがPASS。成果物: `docs/planning/N02_INTEGRATION_TESTS.md`。
 
-- [ ] **N-03 [P0] 実データVertical Sliceを作る**
+- [x] **N-03 [P0] 実データVertical Sliceを作る** — **Complete (2026-10-16)**
   - Character 2件以上。
   - Work 2件以上。
   - Concept 2件以上。
   - 複数Sourceを持つObjectを含める。
+  - 8 real Capture / 6 Object / 6 valid Result / 6 accepted Versionを評価DBへ固定。identity lexical / Provenance / integrity / full pytest PASS。内容語検索は派生表現pendingの残課題。
+  - 成果物: `docs/evaluation/N03_REAL_DATA_VERTICAL_SLICE.md`、`benchmark/n03-real-data-vertical-slice-v1.json`。
 
 - [ ] **N-04 [P0] 3つの代表AI利用ケースを受入試験する**
   1. Character DataをローカルLLMへ渡しRoleplayできる。
@@ -1058,7 +1060,7 @@ Phase A〜MはComplete。Phase LではL-01〜L-04のDecisionをL-05で実装し�
 次の最優先Task（未着手）:
 
 ```text
-N-03 [P0] real-data Vertical Slice
+N-04 [P0] 3つの代表AI利用ケースを受入試験する
 ```
 
-Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01 / N-02のReference Workstation検証を完了し、次はN-03 real-data Vertical Slice（未着手）へ進む。
+Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01〜N-03のReference Workstation検証・dataset構築を完了し、次はN-04 AI利用ケース受入（未着手）へ進む。内容語retrievalの派生表現pending制約はN-03評価記録を参照する。

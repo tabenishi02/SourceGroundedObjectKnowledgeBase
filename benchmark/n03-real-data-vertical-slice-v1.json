@@ -1,0 +1,1670 @@
+{
+  "schema_version": "sgokb.n03-vertical-slice/1",
+  "dataset_id": "n03-real-data-v1",
+  "status": "complete",
+  "db_policy": {
+    "mode": "evaluation_only",
+    "path": ".local/n03/sgokb-n03.sqlite",
+    "production_db_must_not_be_modified": true
+  },
+  "artifact_roots": {
+    "captures": ".local/n03/captures",
+    "package_build": ".local/n03/package-build",
+    "export": ".local/n03/export",
+    "incoming": ".local/n03/incoming",
+    "logs": ".local/n03/logs"
+  },
+  "objects": [
+    {
+      "object_key": "saber",
+      "object_id": "326a97cf-47aa-4760-a7f1-07bfe639fcf0",
+      "name": "Saber",
+      "class": "character",
+      "aliases": [
+        "Artoria Pendragon"
+      ],
+      "sources": [
+        {
+          "source_key": "saber-wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Saber_(Fate/Stay_Night)",
+          "role": "secondary_reference",
+          "required": true,
+          "capture_filename": "20261016T105720575Z_36a27057-d025-4f26-ba76-0ac798903326.webcapture.zip",
+          "capture_sha256": "525543ea00b326e0ccebdea8609c25f4349da9b0e4637171e2f9933d5b6361f2",
+          "capture_bytes": 2683114,
+          "source_id": "657cd6ac-4e53-432b-9077-5fcd96be5b8c",
+          "snapshot_id": "36a27057-d025-4f26-ba76-0ac798903326",
+          "normalization_run_id": "35f658fb-7327-4d16-85f9-8816d272cb75",
+          "evidence_count": 82,
+          "evidence_ids": [
+            "5ae924fd-8e1d-47c0-bba2-d87549f3ca4a",
+            "0d1b19eb-1587-469b-94c5-f9c78333629b",
+            "09694eb9-65b4-4e4d-844c-badb8f1b14a9",
+            "e188f979-a952-4e61-a0b4-977fd099ffd2",
+            "56f7d917-a72d-46d5-9401-39fd9ca694a0",
+            "8a7de4f9-d019-416c-aea3-d754ba3d7fd9",
+            "8fcd0aa3-4e40-435f-93ac-dc501aae71f9",
+            "5d44fb3d-1c0c-492a-b51d-b8e486723c30",
+            "6bccbd81-cc47-46e0-9ea5-5fac78995968",
+            "b702a0fc-4cc6-43f0-bb68-7808b90579f0",
+            "284ea2e0-3ed6-4965-9183-ed8c6b510201",
+            "8f220512-b4ec-4de4-a9f1-ed9d5adc0549",
+            "3c68f91a-dd6d-4962-923b-cc98da2029bd",
+            "032a807d-729d-4379-a78c-6e19662eb672",
+            "ca84e094-47f8-4751-b0ee-7a3723955245",
+            "13755847-d335-4c73-9202-e96ff8bc9872",
+            "338fce5f-8bc3-49a3-ae82-b8785ed4e1b5",
+            "8acc29ea-154d-4e5d-86ce-a048d41cae2c",
+            "6c54b8bc-3ae1-4dd3-add0-f2e33dff6e61",
+            "60ddf176-51f6-4aaf-9376-3766a9b52434",
+            "1b2374dc-2932-4e2e-a8af-d69dfce9f9c3",
+            "2172bdde-11d7-4e8b-8d41-8f634ada8972",
+            "29234fa4-a124-4d0a-aa0c-07d8ca1a87fc",
+            "9bc89c71-057e-416d-a265-3c771437ff47",
+            "9d1ffea2-e8eb-470a-819c-85a8deac64f7",
+            "578d57ac-c6d9-47a5-a845-4e935ff615ef",
+            "c202bdbc-794b-4c5a-8215-ffacf50b2107",
+            "6bb34dd7-42c6-4fbc-b63f-6ab830fa8608",
+            "fe14ed49-9a19-4096-b198-91e3e17ce7fe",
+            "e36d7827-2c0d-4685-acbd-fcb804d6dac2",
+            "6058de80-908f-461e-870b-5ed37a7c699d",
+            "4d16ea3d-617d-4b8e-9b9e-e06d5f9a7f72",
+            "e26a7823-f95e-4ceb-92e3-43e84b62caed",
+            "33f1dddf-08b9-45b4-9a9a-90bbd6d0b4ae",
+            "71ea2724-f276-4de9-8387-9818de2b3693",
+            "1f29b5b4-f9ae-4f7f-820f-8e68efd2de4d",
+            "31866768-fbce-494e-afb1-ea4cc50a5b8c",
+            "336546da-395b-4820-ac00-c8c7d3c69c46",
+            "12df9437-5101-4286-a97c-a64b72685d51",
+            "c7b361a0-a17a-4951-bc27-a0f1008cc55e",
+            "6da8c010-f1d8-4f57-99df-b0bee7e8a4aa",
+            "dec5cb82-6bc7-4480-aa90-d6c0961e153a",
+            "e519dbf2-0c7a-4a2b-b2d4-1fdd2ecbd89b",
+            "8d6c3916-37a0-47b9-bea2-b6ea0b0013d0",
+            "9da1b192-2968-4c57-8307-3cd4e77bee89",
+            "f03907a2-ff03-4a79-a7eb-e717e7363ed2",
+            "45bb2086-aee4-44d5-80c1-6c0063bca872",
+            "269f7a4d-e98c-48ea-9c7a-26d7cb2d6a03",
+            "43afb6db-ff0c-4acf-9412-76b78876a762",
+            "f5cc1022-cab6-4d5a-a6a1-f7adad875cc1",
+            "2e55a479-9713-459f-b41f-012999f46f8f",
+            "cf07d628-e30a-4d22-add3-46212db23601",
+            "8ee2b638-81b3-4322-a458-af2db67833b7",
+            "907e609f-1f88-4505-b0da-f2f1f9658f8e",
+            "01247e20-8bb9-4b3e-b5c9-53b7da3b42be",
+            "79a15aab-f70f-4c22-a7cd-5b2a99e11903",
+            "39806ef3-e456-4456-a82a-f90a7132d603",
+            "e6da2b3f-e1b6-488a-93ac-7d1772a8b110",
+            "bea59069-a28b-413b-9068-c53dec511c4e",
+            "7adbf082-2224-4597-a875-29d1df6e2ef5",
+            "d0ce6998-3831-4146-9459-b2d216ebd159",
+            "8b622dd6-cae0-4f99-a5c9-6ec3f7a07f57",
+            "8f2467e2-3356-498f-984f-3fef4c8d82f4",
+            "f7c81180-74cb-4f4e-8859-c651f7fc33e4",
+            "8b126025-e097-4b30-8efc-6b61818cd7a1",
+            "b95d4fc2-b23b-4698-9b38-af2e8b2020f2",
+            "0ef43fbb-ce47-44e4-8a08-79c509a05dc6",
+            "074bce77-543f-4cc0-ab47-16f568c4752b",
+            "047bbba1-12d7-4bc8-8e95-f57d0fa5eb1f",
+            "479da140-892c-41fa-ae30-ed9900c97576",
+            "ce670c42-3e7e-457e-aec5-1fa7a19c1ee3",
+            "ba00cb9d-779e-428a-a1fc-4e9533c1462b",
+            "d5e60d90-49bf-4de0-9892-bf23fa01df62",
+            "42807440-3f07-40be-a336-4f8e4c40d27a",
+            "a07dc9fe-c90d-481c-ace2-a2697f38af4f",
+            "51a2c763-5ea3-4036-a9be-7f1f518e19f0",
+            "ac7d2926-45eb-43a3-b697-81c2b16816c9",
+            "6a6c3f68-cd5f-4827-8d1d-dee010c35d1d",
+            "249f583d-de24-4150-8811-838646045614",
+            "757039f8-18ee-4fcf-bda9-42e5d26e2742",
+            "b4d82d72-e7c6-4c01-924f-a2bd125de3a0",
+            "140655b0-0791-465b-b759-a05ae22c7e83"
+          ],
+          "effective_snapshot": true,
+          "effective_run": true,
+          "captured_at": "2026-10-16T10:57:20.575Z",
+          "actual_url": "https://en.wikipedia.org/wiki/Saber_(Fate/Stay_Night)",
+          "capture_completeness": "partial",
+          "capture_components": {
+            "main_dom": "success",
+            "metadata": "success",
+            "structured_data": "success",
+            "frames": "success",
+            "shadow_dom": "partial",
+            "mhtml": "success"
+          },
+          "capture_warnings": [
+            {
+              "code": "closed_shadow_dom_unobservable",
+              "component": "shadow_dom"
+            }
+          ],
+          "association_status": "confirmed",
+          "effective_run_verification": "Matching run in public evidence candidates scoped to effective_snapshot_and_run"
+        },
+        {
+          "source_key": "saber-fate-official",
+          "url": "https://www.fate-sn.com/ubw/sp/chara/",
+          "role": "official_character_profile",
+          "required": true,
+          "capture_filename": "20261016T105742757Z_05cf2856-d157-48ab-8e6b-036005009a07.webcapture.zip",
+          "capture_sha256": "4d72af5384b4a52c9ddd6066377c6d8b02d72348dcd728ee52c8fa1e12bb5044",
+          "capture_bytes": 1581603,
+          "source_id": "74b6c333-82e8-4b47-9306-be0b0cf0fb8f",
+          "snapshot_id": "05cf2856-d157-48ab-8e6b-036005009a07",
+          "normalization_run_id": "446b7a53-67a0-48d7-88d5-e77b1356f13b",
+          "evidence_count": 7,
+          "evidence_ids": [
+            "e28cf1e6-44d0-43c4-a445-bdcfd699351f",
+            "644a6ea3-6599-4a7d-8740-d14d6ee78eeb",
+            "f1af3cf9-8d99-41d9-b079-0014066cdc2e",
+            "933dd69a-66c9-4107-89eb-a9f91a59f0c3",
+            "c7bc5086-bfb8-4c4b-a262-80561d7ed663",
+            "60f4d98d-db40-40cd-be98-4f22b58fa6cb",
+            "9b99ce12-7124-437b-a343-dc976ee0be2b"
+          ],
+          "effective_snapshot": true,
+          "effective_run": true,
+          "captured_at": "2026-10-16T10:57:42.757Z",
+          "actual_url": "https://www.fate-sn.com/ubw/sp/chara/",
+          "capture_completeness": "partial",
+          "capture_components": {
+            "main_dom": "success",
+            "metadata": "success",
+            "structured_data": "success",
+            "frames": "success",
+            "shadow_dom": "partial",
+            "mhtml": "success"
+          },
+          "capture_warnings": [
+            {
+              "code": "closed_shadow_dom_unobservable",
+              "component": "shadow_dom"
+            }
+          ],
+          "association_status": "confirmed",
+          "effective_run_verification": "Matching run in public evidence candidates scoped to effective_snapshot_and_run"
+        }
+      ],
+      "expected_search_queries": [
+        "Saber",
+        "Artoria Pendragon",
+        "King of Knights"
+      ],
+      "expected_relation_semantics": [
+        {
+          "target_object_key": "fate-stay-night",
+          "semantic": "character appears in / belongs to Fate/stay night",
+          "required_for_n03_import": false
+        }
+      ],
+      "similarity_rationale": "Compare with Ichigo Kurosaki as a supernatural combat-oriented fictional character while preserving clear differences in role, setting, and characterization.",
+      "alias_grounding": {
+        "Artoria Pendragon": "56f7d917-a72d-46d5-9401-39fd9ca694a0"
+      },
+      "confirmed_source_count": 2,
+      "normalized_evidence_count": 89,
+      "package": {
+        "package_id": "pkg_27c3d92e-65d4-417b-ae3e-a13b2ab2e03d",
+        "manifest_sha256": "10cb5d677b3fa658941387e1b3c3d61967d1de469fdcb271466d7cb35f9df08b",
+        "base_version_id": null,
+        "included_source_ids": [
+          "657cd6ac-4e53-432b-9077-5fcd96be5b8c",
+          "74b6c333-82e8-4b47-9306-be0b0cf0fb8f",
+          "c653fc93-3ccc-4b22-ac67-f2d8a7cfb131"
+        ],
+        "included_evidence_ids": [
+          "56f7d917-a72d-46d5-9401-39fd9ca694a0",
+          "c7bc5086-bfb8-4c4b-a262-80561d7ed663",
+          "dec5cb82-6bc7-4480-aa90-d6c0961e153a",
+          "60f4d98d-db40-40cd-be98-4f22b58fa6cb",
+          "296293df-dc00-4f4a-a4a7-805a4caf8c4e",
+          "e188f979-a952-4e61-a0b4-977fd099ffd2",
+          "c202bdbc-794b-4c5a-8215-ffacf50b2107",
+          "284ea2e0-3ed6-4965-9183-ed8c6b510201",
+          "f7c81180-74cb-4f4e-8859-c651f7fc33e4",
+          "39806ef3-e456-4456-a82a-f90a7132d603",
+          "9da1b192-2968-4c57-8307-3cd4e77bee89"
+        ],
+        "evidence_count": 11,
+        "reviewed_explicit_include": [
+          "56f7d917-a72d-46d5-9401-39fd9ca694a0",
+          "c7bc5086-bfb8-4c4b-a262-80561d7ed663"
+        ],
+        "preflight_disposition": "allow",
+        "export_destination": ".local/n03/export",
+        "provenance_verified_evidence_count": 11
+      },
+      "result": {
+        "receipt_id": "b9b4f213-851a-474e-a7e9-8ad6334a36c9",
+        "result_sha256": "32d218c6024b5269a8a0f689d7cdeafd98e93c613b8b8398714d23e190bc206f",
+        "validation_state": "valid",
+        "validation_findings": [],
+        "review_state": "ready_to_import",
+        "accepted_version_id": "fb0ab12a-5e11-4df7-983a-925da458a129",
+        "summary": "Saber, also identified as Artoria Pendragon, is a fictional character in Type-Moon's Fate/stay night visual novel.",
+        "populated_facets": [
+          "facet:role"
+        ],
+        "grounding_count": 2,
+        "statement_count": 2,
+        "attribute_count": 0,
+        "relation_count": 0,
+        "all_grounding_in_package": true
+      },
+      "ground_truth_notes": {
+        "review_status": "Codex-curated evidence notes for human reference; no independent human quality adjudication or model confidence score",
+        "identity_notes": "Saber, also identified as Artoria Pendragon, is a fictional character in Type-Moon's Fate/stay night visual novel.",
+        "key_grounded_facts": [
+          {
+            "fact": "Saber, also identified as Artoria Pendragon, is a fictional character in Type-Moon's Fate/stay night visual novel.",
+            "evidence_ids": [
+              "56f7d917-a72d-46d5-9401-39fd9ca694a0"
+            ]
+          },
+          {
+            "fact": "In the Unlimited Blade Works official profile, Saber is a sword-wielding Servant contracted to Shirou.",
+            "evidence_ids": [
+              "c7bc5086-bfb8-4c4b-a262-80561d7ed663"
+            ]
+          }
+        ],
+        "source_disagreement_or_scope_notes": "Wikipedia covers multiple visual-novel routes; official Fate page is the UBW roster. Only the Saber entry in the roster supports the official statement. Do not merge route-specific behavior or other roster members into Saber.",
+        "expected_search_queries": [
+          "Saber",
+          "Artoria Pendragon",
+          "King of Knights"
+        ],
+        "expected_relation_semantics": [
+          {
+            "target_object_key": "fate-stay-night",
+            "semantic": "character appears in / belongs to Fate/stay night",
+            "required_for_n03_import": false
+          }
+        ],
+        "similarity_rationale": "Compare with Ichigo Kurosaki as a supernatural combat-oriented fictional character while preserving clear differences in role, setting, and characterization. This is a later evaluation hypothesis, not a measured similarity result.",
+        "known_unsupported_or_out_of_scope_items": [
+          "Unpopulated Facets are not_analyzed; no full character/personality reconstruction claimed.",
+          "No suitable Relation Type was in the Package; relation semantics remain notes, without Registry changes.",
+          "Content-query lexical probes did not hit because derived Search Representations remain pending; canonical name/alias identity reads passed. Semantic/Hybrid/Similarity quality is deferred to N06.",
+          "No N04 AI-output quality or independent human scoring was performed."
+        ]
+      },
+      "lexical_smoke": [
+        {
+          "query": "Saber",
+          "target_found": true,
+          "target_rank": 1,
+          "identity_required": true
+        },
+        {
+          "query": "Artoria Pendragon",
+          "target_found": true,
+          "target_rank": 1,
+          "identity_required": true
+        },
+        {
+          "query": "King of Knights",
+          "target_found": false,
+          "target_rank": null,
+          "identity_required": false
+        }
+      ],
+      "status": "complete"
+    },
+    {
+      "object_key": "ichigo-kurosaki",
+      "object_id": "3aec055e-e9f3-445d-a7a3-adb2b5864c6f",
+      "name": "Ichigo Kurosaki",
+      "class": "character",
+      "aliases": [],
+      "sources": [
+        {
+          "source_key": "ichigo-wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ichigo_Kurosaki",
+          "role": "secondary_reference",
+          "required": true,
+          "capture_filename": "20261016T105746831Z_e8684c3e-72e5-4350-bfd7-72178803cad5.webcapture.zip",
+          "capture_sha256": "198555c7e3ff0f831f2ccae98dabc5cf8eeb150c8bbdabdb330044737eae24db",
+          "capture_bytes": 2076278,
+          "source_id": "30e8eb6c-0402-452f-8c67-dbd2217085e4",
+          "snapshot_id": "e8684c3e-72e5-4350-bfd7-72178803cad5",
+          "normalization_run_id": "da0e1640-266f-4357-8d0c-e4d8a1059140",
+          "evidence_count": 56,
+          "evidence_ids": [
+            "198b05e9-ce8a-410b-b6e9-e9d2c5ceda23",
+            "63918126-5144-4525-84c1-4f64a1783eb8",
+            "7edb54a6-def6-48dd-9c1a-ed4c004d83a5",
+            "5505933a-6cb9-4698-a229-b764cb202428",
+            "26b9b642-e9fc-4fde-a23e-9b4fc5af3287",
+            "9a4d2600-affb-4abf-9ada-102794ec3bcd",
+            "f82332db-657a-4c44-a776-0ef6a4817d74",
+            "a36e3850-9bfc-4074-bb48-875215b943af",
+            "97b6c499-1c4f-496c-af48-e0052c699232",
+            "603777b7-96c5-4cd6-a0c9-468a78fa0b20",
+            "2b81a032-eac5-4c63-b71c-84ec99715014",
+            "4c438e86-5cfd-4895-b712-9e2085c231a9",
+            "47fe192b-136c-4bac-9737-c9686b771122",
+            "2bce2f36-a7c4-43b2-aca3-8a982b1dd46b",
+            "8179d308-f348-476b-9852-17c7fed9a686",
+            "d60e7c29-3a11-47a5-b5ef-f2ef9b7d43a8",
+            "ef7fc2d6-95bc-47db-b98d-1d97ea59ac40",
+            "81ef49f3-45c6-47ae-879e-65dbbcec8815",
+            "8eaa45ea-9b41-4bbf-8201-bcebee3158b9",
+            "16267239-987a-4108-9d71-43e9e1c7524b",
+            "885cd240-6939-4966-88a9-8790c164a3a1",
+            "05b58610-2fd7-4fd4-8e1f-439f27b9f2e2",
+            "968116fd-0067-4bc0-a015-2c1c9f3ceb10",
+            "b8a99c1a-dcdc-4f50-b6d9-c1060609c645",
+            "79e67d1c-1444-417c-9fc5-34e86e10d305",
+            "24c72296-6c1e-448c-95d1-0d05abc8bdc0",
+            "2899a876-89e3-439e-8d0f-cf62cdec81b6",
+            "6d4c62bf-4ba5-4dcb-8a41-45e91904c5eb",
+            "b6dacbde-7e81-4fca-9cfa-46867b77d98e",
+            "995f92a0-1a9a-485c-b168-dbf2d749d3f2",
+            "0f1a4054-eecd-4b37-8381-7fe93c514593",
+            "bf695720-c9f0-4f6f-85f0-5a7dd69b79d7",
+            "c6c2c8e0-b61d-49ad-9500-d121fcc59488",
+            "dff3f425-9d9d-4863-b7fc-6b402af9fe35",
+            "a01bcb8d-bee3-4826-a697-92d5cb1c304b",
+            "d5594b50-e9c1-4e5c-97d6-b8b1ea355d7e",
+            "c1c89dba-9e3e-4041-ac75-8f4557cf09b0",
+            "b3751127-4176-466c-b92f-6ea1956099a4",
+            "038922f4-26df-4c77-8e5e-9942098f1463",
+            "eb2e8a85-1c14-465c-9db3-c3f13b55a074",
+            "9996aeec-6e0b-452f-ba96-f9d1d52c11af",
+            "f95cb7aa-7762-4c69-a625-0609b4218537",
+            "5ca12fd0-5d64-4962-bc23-27108f78c1f2",
+            "445ce227-29a2-435d-9c29-1be9ff161911",
+            "27613aa3-c743-4f55-aeb6-cf790f8e2fbe",
+            "867c9a71-50ae-4634-963a-43942161cd9a",
+            "36c84ab4-3b92-485d-98ca-15040e21cc51",
+            "903acf73-16f1-4606-8529-66162aabb1bf",
+            "22faa71b-60a0-44b8-a5ef-f2a8c50f673f",
+            "637a87f2-c06f-41a7-a77d-9ced9a6eafa8",
+            "544c06dd-6925-4563-bbbf-080925e9fd6a",
+            "b1e06fd8-02fd-40c7-9871-aa0a74666162",
+            "d89a925d-72a8-43dd-b208-36c54f7eabf1",
+            "dd2f3412-511d-4055-9b3f-ac6daadfe907",
+            "882a8e49-7404-469d-bb72-faa24a90dfb0",
+            "47c53f10-db43-4303-9e70-1e72b27a8c99"
+          ],
+          "effective_snapshot": true,
+          "effective_run": true,
+          "captured_at": "2026-10-16T10:57:46.831Z",
+          "actual_url": "https://en.wikipedia.org/wiki/Ichigo_Kurosaki",
+          "capture_completeness": "partial",
+          "capture_components": {
+            "main_dom": "success",
+            "metadata": "success",
+            "structured_data": "success",
+            "frames": "success",
+            "shadow_dom": "partial",
+            "mhtml": "success"
+          },
+          "capture_warnings": [
+            {
+              "code": "closed_shadow_dom_unobservable",
+              "component": "shadow_dom"
+            }
+          ],
+          "association_status": "confirmed",
+          "effective_run_verification": "Matching run in public evidence candidates scoped to effective_snapshot_and_run"
+        },
+        {
+          "source_key": "ichigo-bleach-official",
+          "url": "https://bleach-anime.com/en/character/?chara=65-Official",
+          "role": "official_character_profile",
+          "required": true,
+          "capture_filename": "20261016T105751068Z_1dc8f032-88a5-48ef-83b1-f4fd5a6c69f3.webcapture.zip",
+          "capture_sha256": "faa4c67479cc1c8339fa0bb8180118d3a6c9606d97472eff9ebda4ccb73ab692",
+          "capture_bytes": 20519176,
+          "source_id": "6a34805d-2781-44a3-af0c-e1be87a0732b",
+          "snapshot_id": "1dc8f032-88a5-48ef-83b1-f4fd5a6c69f3",
+          "normalization_run_id": "abab9428-45d2-45c0-8cc5-bc3d0be9d4ff",
+          "evidence_count": 41,
+          "evidence_ids": [
+            "2926a199-68c1-46aa-9e7c-cac9b5e9db8a",
+            "68318bf3-18ac-40b8-ab47-733d8816d38b",
+            "891715a1-5495-4611-8ce3-68f0b76dc1fc",
+            "cc4ea935-e99b-4b7a-b1ed-f5e400848397",
+            "83223256-ba75-43ae-966e-6c59c4fc1212",
+            "0f89c1b8-57a0-4294-92e1-bc8b6c660165",
+            "9d0c0411-55e8-4000-baff-8e5061db9449",
+            "27c019e3-b32b-4a86-b6f9-71562df317dd",
+            "ea73b43a-2eda-4a02-bed8-697b692ecc67",
+            "1ca55058-55df-4838-97ed-57319371c8f2",
+            "ef5b5d6f-410c-45ba-8e81-0366828769a5",
+            "32709e75-03e5-47d4-be44-0082bd5499c4",
+            "67a8c5e0-de9d-4881-810b-559816eeb7f1",
+            "486c4206-f057-48b3-bf4c-570367ba2d61",
+            "1822901b-b548-46c7-8242-7fed82458706",
+            "2da0af48-386b-4b14-9293-12b1d46abdd9",
+            "7effc108-2d14-4dd3-981b-7f8d6b30ce09",
+            "ab85c67c-c376-40ef-9524-bd85417c34f3",
+            "f954f985-c928-4b19-a29f-cae1d846f8cd",
+            "937d4fa4-f24e-43d5-90bf-6b209580c10b",
+            "6577522a-8b58-4ec6-8822-0fdbf9804f20",
+            "d2c80330-a14e-4937-935c-22b1619455b8",
+            "5e7bbe13-4256-46d4-8726-951d635b0094",
+            "e6ec4247-a8e5-4025-931a-6d56b23027ec",
+            "2840b978-74ba-4e72-95e1-95ac48eee7ce",
+            "01fcfdcb-39c6-4aaf-8141-6d297c1f26ba",
+            "72cfe049-b50f-4df4-82f4-a2dd061deed3",
+            "15d5937c-2eef-4f86-a18a-9c47bcb19cd9",
+            "cefbf91e-2175-4ccf-b3f1-93b1d4ad5884",
+            "43e3f804-e466-4633-99fb-b3b657d69493",
+            "05668ffc-0548-423d-9cd6-7c84f8bf8dfa",
+            "4a5eea65-b2f1-4c1a-bfa7-0cb678a0e71d",
+            "65ca8439-3eb2-4126-9d1c-aac2c52a259d",
+            "e48c8e4d-8972-474f-9e2e-13ea33eea8fe",
+            "795fa977-ad3f-4f9d-af89-9ad6bac4a62b",
+            "78f1404c-cd03-4d9d-9813-1cc0b0eac31e",
+            "a83d36dd-ccfe-4c78-b24c-e272895f0274",
+            "518128a4-8ff2-44fd-a717-d2b08c7b1f84",
+            "fe223001-f18e-40b2-8d6e-28e397673ef5",
+            "c306b845-d391-4729-bce3-4009a4d58115",
+            "b41702c1-38b2-4ced-bb78-c331197ccfa5"
+          ],
+          "effective_snapshot": true,
+          "effective_run": true,
+          "captured_at": "2026-10-16T10:57:51.068Z",
+          "actual_url": "https://bleach-anime.com/en/character/?chara=65-Official",
+          "capture_completeness": "partial",
+          "capture_components": {
+            "main_dom": "success",
+            "metadata": "success",
+            "structured_data": "success",
+            "frames": "success",
+            "shadow_dom": "partial",
+            "mhtml": "success"
+          },
+          "capture_warnings": [
+            {
+              "code": "closed_shadow_dom_unobservable",
+              "component": "shadow_dom"
+            }
+          ],
+          "association_status": "confirmed",
+          "effective_run_verification": "Matching run in public evidence candidates scoped to effective_snapshot_and_run"
+        }
+      ],
+      "expected_search_queries": [
+        "Ichigo Kurosaki",
+        "Substitute Soul Reaper",
+        "Zangetsu"
+      ],
+      "expected_relation_semantics": [
+        {
+          "target_object_key": "bleach",
+          "semantic": "character appears in / belongs to BLEACH",
+          "required_for_n03_import": false
+        }
+      ],
+      "similarity_rationale": "Compare with Saber as another supernatural combat-oriented character; expected similarity should arise from role and conflict themes rather than shared franchise identity.",
+      "alias_grounding": {},
+      "confirmed_source_count": 2,
+      "normalized_evidence_count": 97,
+      "package": {
+        "package_id": "pkg_9cf8b4c7-1e49-4047-a9ca-5cfc23cd8d5a",
+        "manifest_sha256": "40268e39e93742677ceca2ca1123e71f95075410eec16382abd096bbfe92e6d2",
+        "base_version_id": null,
+        "included_source_ids": [
+          "30e8eb6c-0402-452f-8c67-dbd2217085e4",
+          "6a34805d-2781-44a3-af0c-e1be87a0732b",
+          "8ab4641f-2e2f-4dea-b214-3a1aefbfe68d"
+        ],
+        "included_evidence_ids": [
+          "26b9b642-e9fc-4fde-a23e-9b4fc5af3287",
+          "83223256-ba75-43ae-966e-6c59c4fc1212",
+          "198b05e9-ce8a-410b-b6e9-e9d2c5ceda23",
+          "01fcfdcb-39c6-4aaf-8141-6d297c1f26ba",
+          "7db34f87-4475-4b03-97c1-49fa29d3b65b",
+          "d89a925d-72a8-43dd-b208-36c54f7eabf1",
+          "903acf73-16f1-4606-8529-66162aabb1bf",
+          "5505933a-6cb9-4698-a229-b764cb202428",
+          "637a87f2-c06f-41a7-a77d-9ced9a6eafa8",
+          "bf695720-c9f0-4f6f-85f0-5a7dd69b79d7",
+          "22faa71b-60a0-44b8-a5ef-f2a8c50f673f",
+          "038922f4-26df-4c77-8e5e-9942098f1463",
+          "05b58610-2fd7-4fd4-8e1f-439f27b9f2e2",
+          "47fe192b-136c-4bac-9737-c9686b771122"
+        ],
+        "evidence_count": 14,
+        "reviewed_explicit_include": [
+          "26b9b642-e9fc-4fde-a23e-9b4fc5af3287",
+          "83223256-ba75-43ae-966e-6c59c4fc1212"
+        ],
+        "preflight_disposition": "allow",
+        "export_destination": ".local/n03/export",
+        "provenance_verified_evidence_count": 14
+      },
+      "result": {
+        "receipt_id": "d54275d8-70ef-4154-b6f4-5324d3e1814d",
+        "result_sha256": "087f73029d3d9f6149ba598c194a44f7e738fd9adbad885509e5fe8ff9daa00c",
+        "validation_state": "valid",
+        "validation_findings": [],
+        "review_state": "ready_to_import",
+        "accepted_version_id": "50ca186c-80a5-4447-bf71-216bbad8f1d6",
+        "summary": "Ichigo Kurosaki is the protagonist of Tite Kubo's Bleach manga and its adaptations.",
+        "populated_facets": [
+          "facet:role"
+        ],
+        "grounding_count": 2,
+        "statement_count": 2,
+        "attribute_count": 0,
+        "relation_count": 0,
+        "all_grounding_in_package": true
+      },
+      "ground_truth_notes": {
+        "review_status": "Codex-curated evidence notes for human reference; no independent human quality adjudication or model confidence score",
+        "identity_notes": "Ichigo Kurosaki is the protagonist of Tite Kubo's Bleach manga and its adaptations.",
+        "key_grounded_facts": [
+          {
+            "fact": "Ichigo Kurosaki is the protagonist of Tite Kubo's Bleach manga and its adaptations.",
+            "evidence_ids": [
+              "26b9b642-e9fc-4fde-a23e-9b4fc5af3287"
+            ]
+          },
+          {
+            "fact": "Ichigo becomes a Substitute Soul Reaper after meeting Rukia Kuchiki; the official profile identifies his Zanpakuto as Zangetsu.",
+            "evidence_ids": [
+              "83223256-ba75-43ae-966e-6c59c4fc1212"
+            ]
+          }
+        ],
+        "source_disagreement_or_scope_notes": "Wikipedia covers manga and adaptations; official roster is TYBW-specific. Use only Ichigo's profile in the multi-character block. Official English text has a ja normalization language tag; explicit statement language is en. No conflict adjudication was performed.",
+        "expected_search_queries": [
+          "Ichigo Kurosaki",
+          "Substitute Soul Reaper",
+          "Zangetsu"
+        ],
+        "expected_relation_semantics": [
+          {
+            "target_object_key": "bleach",
+            "semantic": "character appears in / belongs to BLEACH",
+            "required_for_n03_import": false
+          }
+        ],
+        "similarity_rationale": "Compare with Saber as another supernatural combat-oriented character; expected similarity should arise from role and conflict themes rather than shared franchise identity. This is a later evaluation hypothesis, not a measured similarity result.",
+        "known_unsupported_or_out_of_scope_items": [
+          "Unpopulated Facets are not_analyzed; no full character/personality reconstruction claimed.",
+          "No suitable Relation Type was in the Package; relation semantics remain notes, without Registry changes.",
+          "Content-query lexical probes did not hit because derived Search Representations remain pending; canonical name/alias identity reads passed. Semantic/Hybrid/Similarity quality is deferred to N06.",
+          "No N04 AI-output quality or independent human scoring was performed."
+        ]
+      },
+      "lexical_smoke": [
+        {
+          "query": "Ichigo Kurosaki",
+          "target_found": true,
+          "target_rank": 1,
+          "identity_required": true
+        },
+        {
+          "query": "Substitute Soul Reaper",
+          "target_found": false,
+          "target_rank": null,
+          "identity_required": false
+        },
+        {
+          "query": "Zangetsu",
+          "target_found": false,
+          "target_rank": null,
+          "identity_required": false
+        }
+      ],
+      "status": "complete"
+    },
+    {
+      "object_key": "fate-stay-night",
+      "object_id": "d5824d33-7008-4121-9cfe-1f95a19667fd",
+      "name": "Fate/stay night",
+      "class": "work",
+      "aliases": [
+        "Fate/Stay Night"
+      ],
+      "sources": [
+        {
+          "source_key": "fate-stay-night-wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Fate/Stay_Night",
+          "role": "secondary_reference",
+          "required": true,
+          "capture_filename": "20261016T105813284Z_e9c7f4d2-3f7e-4940-b698-a934e78947a5.webcapture.zip",
+          "capture_sha256": "ad9b2d58671d3cd53913efc328a3b546b8e253a0097bd4554d99bd09e025dd4e",
+          "capture_bytes": 3401171,
+          "source_id": "c653fc93-3ccc-4b22-ac67-f2d8a7cfb131",
+          "snapshot_id": "e9c7f4d2-3f7e-4940-b698-a934e78947a5",
+          "normalization_run_id": "1ba6fa64-e57e-49d7-99cd-bf441b375511",
+          "evidence_count": 102,
+          "evidence_ids": [
+            "4f935edd-5f02-43c0-99b2-0336acc14a92",
+            "98488dbf-6384-4042-86e3-1652ae18c841",
+            "f4bcf992-1351-4f2c-84a5-3aea2afb0dcd",
+            "3984b0d8-ccd5-4e6a-9496-144a5763dca1",
+            "023bf5d9-5028-4bc5-aaa4-f3301a3a3a55",
+            "7695d263-f262-44b1-aa44-2079b2da2dff",
+            "ed1b418e-e90f-471f-bcc2-08630029b021",
+            "ac0a3c5c-93b5-47d9-956d-766eee0d2e95",
+            "83a1db67-d0b0-4449-903b-972a550f9075",
+            "3842f680-e307-406f-b0ca-101e69a36287",
+            "2916bb10-8536-45bd-a91c-ce4a0f3aa0b7",
+            "b4eb7f23-231b-4f24-9181-3e94c905a704",
+            "0cf6b0cb-0ef7-428e-8c46-3afabeac9edc",
+            "1fcee361-6fcb-4fe8-a5a6-aadb1d82e341",
+            "9117c150-fc12-4ec1-a66b-250e671ad880",
+            "c9345802-20e6-4509-8a9e-61ac4576dbea",
+            "296293df-dc00-4f4a-a4a7-805a4caf8c4e",
+            "d88d9a34-1988-4991-a7de-e7fc862d7603",
+            "910a7c80-a52f-41bb-aa10-b5d952cbd5fd",
+            "c8be9f25-6877-42e9-969e-c3fde2f7dd08",
+            "7346a02c-14b5-4f14-ba2a-5e82cc26eb79",
+            "c9c3298a-81f2-4386-b14e-739c23e4af7c",
+            "b61a1c73-fd4c-450b-a2c6-7d711c064592",
+            "052bd184-5fee-4b58-bdd5-338113ce9743",
+            "636a97cf-332c-4219-aec3-330e808881ac",
+            "c788fcd7-0e82-48bc-9fd4-bf9974d7262b",
+            "b2a5fc48-0704-4afc-b179-3dd27e855df2",
+            "1a2bae93-cb60-4d27-8fd2-0db9ce9d47e8",
+            "4668e7bd-abcf-4a56-b803-6c5de9a05676",
+            "b8ab4648-b1db-4a32-8626-d0cb304d1f0e",
+            "e1343dba-9bf2-40c1-bc26-5586d5231970",
+            "82eb8512-1d7d-4938-a202-fd518aee8866",
+            "0d659358-7262-443c-81ca-a1c261dcaf43",
+            "5e010890-1478-4238-90d9-f3127908c3c8",
+            "d485de85-3b54-48de-8b12-bcc5d0c5192f",
+            "6134d3af-7422-41bb-bc67-1bcf9cb32887",
+            "16565bac-f97f-4527-96f8-77fd1764a9d3",
+            "e09e4d47-fbd6-49d7-910a-0ec89ba42776",
+            "5904c5ae-fc4e-4e55-b0aa-16865da96ed2",
+            "c1fdde37-9b14-4c25-8f07-7a9b1a164858",
+            "85d362f5-9627-48af-b596-259dfd40cb10",
+            "42408b18-823a-45a0-b4ac-c5cdc2005641",
+            "ec66fa41-1b2d-4364-91c7-acb30542309d",
+            "149b0cd5-1ddc-495c-8902-45c187aeb11e",
+            "bfa45053-db6d-4280-8dbe-385d3e9da037",
+            "16f3aa4d-d13a-4331-a4e9-a2344ab2a872",
+            "fe46441f-aa55-48f1-bc4f-0d9d8f4322e3",
+            "b1d1eb72-e062-47b8-9756-cfae57b5086a",
+            "c8971078-2e8c-455b-bda0-87ba3c722c75",
+            "d3b34ab9-7010-405f-a9cd-9527afd7bf14",
+            "942b2782-9381-46ee-8686-42f84522dcf7",
+            "e0be8040-01c9-495c-ae4e-24d2825f0969",
+            "602358a8-2b80-439a-93bb-5568fe8d5001",
+            "805957fc-cac4-4f1a-8a9d-4f3229febd32",
+            "5e03f0ba-c611-497a-85c0-08beffb93066",
+            "436abee2-9cb6-44f4-86fb-70fa7deb26fe",
+            "f9215cb7-6a7b-4a9e-b4a8-66bdcdffb594",
+            "910f542d-0027-4fdd-8e64-4cde335f39aa",
+            "68ee1257-3903-4fe7-bd52-251cf223d528",
+            "30f55bd7-a61b-4984-86e9-5731b1e3b59d",
+            "77a4c42e-71ae-4aaf-9973-395d87395372",
+            "981c3906-44d0-4772-9ee5-5793ed4027cb",
+            "fc00da30-d771-4ef9-addc-890c61ddc2a2",
+            "13886052-75ee-43ed-91c9-225dd0994639",
+            "c197de18-09b1-43b9-bf58-55a59c4ee48b",
+            "58b950ab-7db1-4ba0-832b-e19150864ef5",
+            "45c32715-5dd1-4a52-a0ca-81c45adc8cd3",
+            "45dd4a5a-82de-4218-b014-429a9c486dbd",
+            "969c91d8-df74-476a-97e7-fcb5007f08f1",
+            "88ff1555-0865-4da3-8f36-c60dcea15310",
+            "9c83f20c-9e10-4fd7-b51b-6875e2bdae07",
+            "d43ee247-f938-4613-aa89-540e5d13c9b9",
+            "4e187974-ed07-4f0d-93fc-8ee543268dcb",
+            "6da47e8e-f6de-464c-8e27-1e15b5c3608b",
+            "3350ad35-59ad-4f99-8dde-d767ba7ef024",
+            "6050a34c-3c97-44df-bf4a-09ecc85dd09e",
+            "cc802e17-d44d-4b0c-a365-c338f061490e",
+            "f993cf58-dc03-4a90-97d8-eb93c4afa1bb",
+            "023f36dd-44d8-4c7e-94f4-0b6ca9fbf5b6",
+            "d7f2df80-e540-498f-b7f2-ff049a25a24d",
+            "78355767-d022-4771-9fdc-d3a73acbc72d",
+            "ada19e35-b844-4d34-9c12-8040e8e4726e",
+            "f3572b9d-ed4f-4795-a8b1-6f48739208bf",
+            "e5c0eb29-44b4-4ec7-99b9-a2020ea33655",
+            "fb729c3f-6259-4ec5-acfa-16e743078358",
+            "6e2b546d-ef55-47c7-8f45-e3e324e78280",
+            "9fbdaf40-26ef-4404-825b-ea733d779d4b",
+            "26b033c7-11f0-419c-a8f7-ec5153c9091f",
+            "6719fdcb-48e2-4c94-8599-fb5bb54cf76f",
+            "110dfdf1-0eb7-4564-ac0a-79950fd590e1",
+            "d879cd4e-a1ff-49aa-81c0-9b28698bb75f",
+            "4fabc190-43eb-4102-a579-9478c2fdf9a0",
+            "568d75ee-c1b2-462d-b77d-b8aa03e0200c",
+            "aca24a5a-7432-489d-b617-6aa5cf836a67",
+            "190d26c8-ca2e-41c8-9c4a-b251eded21a7",
+            "857f7d39-7e7e-4f3d-93f4-49c25e7322ad",
+            "6d0166b0-1c53-475a-ae59-1c50d7c9a013",
+            "5d7414b5-9a47-43cd-8c6e-7c763c17425a",
+            "e8644f69-0ce1-4376-85e9-8a8f5976e2b4",
+            "562d30a5-d675-42c2-9630-c0ba6dd1ecb6",
+            "22ceca5a-06f8-4b75-9f84-55af7ec665a8",
+            "56beb1df-ee98-4e69-9a51-74470472a65f"
+          ],
+          "effective_snapshot": true,
+          "effective_run": true,
+          "captured_at": "2026-10-16T10:58:13.284Z",
+          "actual_url": "https://en.wikipedia.org/wiki/Fate/Stay_Night",
+          "capture_completeness": "partial",
+          "capture_components": {
+            "main_dom": "success",
+            "metadata": "success",
+            "structured_data": "success",
+            "frames": "success",
+            "shadow_dom": "partial",
+            "mhtml": "success"
+          },
+          "capture_warnings": [
+            {
+              "code": "closed_shadow_dom_unobservable",
+              "component": "shadow_dom"
+            }
+          ],
+          "association_status": "confirmed",
+          "effective_run_verification": "Matching run in public evidence candidates scoped to effective_snapshot_and_run"
+        }
+      ],
+      "expected_search_queries": [
+        "Fate/stay night",
+        "Holy Grail War",
+        "visual novel"
+      ],
+      "expected_relation_semantics": [],
+      "similarity_rationale": "Compare with BLEACH as a Japanese supernatural fantasy work centered on recurring combat, while format, narrative structure, and franchise history remain distinct.",
+      "alias_grounding": {
+        "Fate/Stay Night": "023bf5d9-5028-4bc5-aaa4-f3301a3a3a55"
+      },
+      "confirmed_source_count": 1,
+      "normalized_evidence_count": 102,
+      "package": {
+        "package_id": "pkg_bbf1d990-0eeb-46f7-b7d0-202c2cd47fee",
+        "manifest_sha256": "0ed676d97962533b18375ad96aeb9fd035b8f74915f50d400a78608a142f4be6",
+        "base_version_id": null,
+        "included_source_ids": [
+          "c653fc93-3ccc-4b22-ac67-f2d8a7cfb131",
+          "74b6c333-82e8-4b47-9306-be0b0cf0fb8f",
+          "657cd6ac-4e53-432b-9077-5fcd96be5b8c"
+        ],
+        "included_evidence_ids": [
+          "023bf5d9-5028-4bc5-aaa4-f3301a3a3a55",
+          "e09e4d47-fbd6-49d7-910a-0ec89ba42776",
+          "e28cf1e6-44d0-43c4-a445-bdcfd699351f",
+          "d0ce6998-3831-4146-9459-b2d216ebd159",
+          "190d26c8-ca2e-41c8-9c4a-b251eded21a7",
+          "d43ee247-f938-4613-aa89-540e5d13c9b9",
+          "6d0166b0-1c53-475a-ae59-1c50d7c9a013",
+          "85d362f5-9627-48af-b596-259dfd40cb10",
+          "4e187974-ed07-4f0d-93fc-8ee543268dcb",
+          "f4bcf992-1351-4f2c-84a5-3aea2afb0dcd",
+          "26b033c7-11f0-419c-a8f7-ec5153c9091f",
+          "149b0cd5-1ddc-495c-8902-45c187aeb11e",
+          "45dd4a5a-82de-4218-b014-429a9c486dbd"
+        ],
+        "evidence_count": 13,
+        "reviewed_explicit_include": [
+          "023bf5d9-5028-4bc5-aaa4-f3301a3a3a55"
+        ],
+        "preflight_disposition": "allow",
+        "export_destination": ".local/n03/export",
+        "provenance_verified_evidence_count": 13
+      },
+      "result": {
+        "receipt_id": "e14d69b6-8b24-4b33-916e-997a56561206",
+        "result_sha256": "80cfaca3b53dc214bec78d39a581fd91ad935cf272f43a8e4f0f1619ab4c2709",
+        "validation_state": "valid",
+        "validation_findings": [],
+        "review_state": "ready_to_import",
+        "accepted_version_id": "47f2b146-20a6-4d06-957f-904cc5ef39a9",
+        "summary": "Fate/stay night is a Japanese visual novel developed by Type-Moon.",
+        "populated_facets": [
+          "facet:overall"
+        ],
+        "grounding_count": 2,
+        "statement_count": 2,
+        "attribute_count": 0,
+        "relation_count": 0,
+        "all_grounding_in_package": true
+      },
+      "ground_truth_notes": {
+        "review_status": "Codex-curated evidence notes for human reference; no independent human quality adjudication or model confidence score",
+        "identity_notes": "Fate/stay night is a Japanese visual novel developed by Type-Moon.",
+        "key_grounded_facts": [
+          {
+            "fact": "Fate/stay night is a Japanese visual novel developed by Type-Moon.",
+            "evidence_ids": [
+              "023bf5d9-5028-4bc5-aaa4-f3301a3a3a55"
+            ]
+          },
+          {
+            "fact": "The story follows Shirou Emiya in the Holy Grail War and branches into Fate, Unlimited Blade Works, and Heaven's Feel routes.",
+            "evidence_ids": [
+              "023bf5d9-5028-4bc5-aaa4-f3301a3a3a55"
+            ]
+          }
+        ],
+        "source_disagreement_or_scope_notes": "The Work is the original visual novel; versions and anime/manga adaptations are not separate Objects in this slice. Route details remain scoped to this Work.",
+        "expected_search_queries": [
+          "Fate/stay night",
+          "Holy Grail War",
+          "visual novel"
+        ],
+        "expected_relation_semantics": [],
+        "similarity_rationale": "Compare with BLEACH as a Japanese supernatural fantasy work centered on recurring combat, while format, narrative structure, and franchise history remain distinct. This is a later evaluation hypothesis, not a measured similarity result.",
+        "known_unsupported_or_out_of_scope_items": [
+          "Unpopulated Facets are not_analyzed; no full character/personality reconstruction claimed.",
+          "No suitable Relation Type was in the Package; relation semantics remain notes, without Registry changes.",
+          "Content-query lexical probes did not hit because derived Search Representations remain pending; canonical name/alias identity reads passed. Semantic/Hybrid/Similarity quality is deferred to N06.",
+          "No N04 AI-output quality or independent human scoring was performed."
+        ]
+      },
+      "lexical_smoke": [
+        {
+          "query": "Fate/stay night",
+          "target_found": true,
+          "target_rank": 1,
+          "identity_required": true
+        },
+        {
+          "query": "Fate/Stay Night",
+          "target_found": true,
+          "target_rank": 1,
+          "identity_required": true
+        },
+        {
+          "query": "Holy Grail War",
+          "target_found": false,
+          "target_rank": null,
+          "identity_required": false
+        },
+        {
+          "query": "visual novel",
+          "target_found": false,
+          "target_rank": null,
+          "identity_required": false
+        }
+      ],
+      "status": "complete"
+    },
+    {
+      "object_key": "bleach",
+      "object_id": "57db855c-574a-4b38-b474-421c165894f1",
+      "name": "BLEACH",
+      "class": "work",
+      "aliases": [
+        "Bleach"
+      ],
+      "sources": [
+        {
+          "source_key": "bleach-wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Bleach_(manga)",
+          "role": "secondary_reference",
+          "required": true,
+          "capture_filename": "20261016T105816791Z_f750721c-8d7b-4fdd-bb1b-1642adbb4f8e.webcapture.zip",
+          "capture_sha256": "c66677b2f3dea58043d7202f2f6abbb2850ddcb3bd859bd5b2ed43d09189aac5",
+          "capture_bytes": 3431845,
+          "source_id": "8ab4641f-2e2f-4dea-b214-3a1aefbfe68d",
+          "snapshot_id": "f750721c-8d7b-4fdd-bb1b-1642adbb4f8e",
+          "normalization_run_id": "298470a1-418f-4353-8e0d-5821ab8150cb",
+          "evidence_count": 88,
+          "evidence_ids": [
+            "16813584-8d41-4d1d-9dea-17a28d5c03f6",
+            "57855cbf-b989-4cd6-930f-86ae3b061330",
+            "f7072361-71d4-436c-b9c3-83d6e4742b6a",
+            "ff5d1f03-021e-4d47-9cc9-26a057f77224",
+            "eb02a9e8-4bf8-4a30-ab47-f9338741c4d9",
+            "f0bb9686-2e3c-421c-9ea2-f3b4a7918c7f",
+            "db161c8f-858e-4278-b607-e9f8b643713f",
+            "6f3acfdd-e4b1-4522-88ad-a6450b05a031",
+            "7acfb5e5-3f26-49bb-9f3e-f5ca2d407504",
+            "521da28b-9445-44cc-a629-b7e3eb0fbd92",
+            "5c3e089d-110f-4160-be78-b0b27cd5e206",
+            "0aa7b417-6c28-4da3-ab50-af285b4017b0",
+            "a8f0fce6-c3dd-4582-8487-73947cf97e1c",
+            "c08959ae-b270-4704-a35b-4285a2233717",
+            "819908d9-99b7-4561-9ffa-badcd9f4320f",
+            "f1f25030-e59f-4787-b4ed-c138103a1fdf",
+            "9fc2d62d-7a7f-4444-bc41-cb5bf294e92f",
+            "8320f0d4-9954-4735-a893-5fb66f0a9d1a",
+            "00e8d8db-3cec-439d-a698-468b4676e0fe",
+            "10856dc4-5c2b-4cec-86f3-4b4c3a75db71",
+            "7970cb40-8538-4d36-9f24-c51371f5dcec",
+            "4a5f0180-e84f-4e34-8942-1c5036d64367",
+            "5246664a-a90e-416c-9b18-37558a150594",
+            "7e283c4a-6988-442e-aede-05bd6d7e634c",
+            "f944467d-054c-43ac-953e-46c98a78e0b3",
+            "000ae940-66bc-4b74-9e32-07b8fd6669ec",
+            "a0ff63f9-4daf-42a7-bf92-56480261c5e6",
+            "4533052a-74f6-46a6-bf4d-502aa89224d2",
+            "1ccbe8e1-0459-476a-8c75-f55ef8c1552b",
+            "009a46a3-b8d2-467e-8ba4-3fcddd301dca",
+            "0ecba5b3-7d7f-45a3-b1b3-ad66301f0f68",
+            "0eb7a700-a2fb-4543-a986-c80652c791c0",
+            "b4c8ee1b-3952-4bae-a1d6-81c608514629",
+            "4d3e7451-bc28-4227-999a-9db4ee6a5530",
+            "3119472e-ad84-4f57-bc62-8b90bb4abef8",
+            "5d988c62-e8cb-409a-99e1-da926cc064d9",
+            "6a435ea8-7ffe-40cb-b5e9-6ea6c7a4fd73",
+            "00df2c4e-25c6-4ec2-9e23-83477281fa16",
+            "7db34f87-4475-4b03-97c1-49fa29d3b65b",
+            "a1a32741-6413-4ee5-9648-23da5621348c",
+            "e1d9cb67-7d1d-48f1-9d74-9a8fcf7ce767",
+            "932ac466-b580-42d0-b1b4-819407d38d34",
+            "f6f90dc1-a755-4986-8049-fcafffe5fe13",
+            "1738cc97-e5cd-4e45-b97f-617058817060",
+            "b7660ee4-f8d5-4380-84c2-d8dff1cd92d1",
+            "dfd78290-6758-49ef-945e-085aa4858302",
+            "a2927d11-57a0-4aa7-9170-c93af2f40dba",
+            "200c2ffe-5ab1-43f0-9f5c-2e421dba0dd4",
+            "025cd130-8f03-4ec7-9803-183b952432f9",
+            "24b78bc4-1253-4432-b79c-cceb05f148f2",
+            "8ee7ee52-ff9d-4a49-a69f-625a2c7e70f5",
+            "56c03c9a-fa72-47aa-b1bf-b1c640d14dc6",
+            "2b2c56fc-3772-47a9-b837-a6aba2faa7d7",
+            "b9164f24-e7cd-428f-b4d9-fce5a82f7e85",
+            "1cf597e1-3e4d-4de0-b9a7-ad61db824eb7",
+            "29239009-98dc-4c6f-a28a-8e5e75a468c3",
+            "19fefde0-0f2e-44bc-90ec-3d26aaf62515",
+            "7e773a0a-ddb3-44cf-a263-cf52532db44d",
+            "95a3c472-3209-4573-b1ee-d6259ab069f8",
+            "07936c57-ffc4-4ff7-83f8-b28520d4e4b6",
+            "c04f0c6e-00d1-47ff-9f81-1007e61acb60",
+            "4954b5d9-0ef6-4c8d-84af-a4ee74c38d9a",
+            "069d4f0e-9fbe-4bf1-9703-4af5b9ee5cc5",
+            "b07001c7-18e2-43a8-894e-24d1d42e186e",
+            "06dd1fcd-b6ea-4d32-9079-5d9facbe9721",
+            "25b985f4-5ced-4e3b-8e36-201e29084c9d",
+            "aa38697c-f652-40f2-8e25-1f1ed66eaedc",
+            "6333936b-c49c-4ae1-a0af-91e9e24c6630",
+            "b55b349f-f5c9-4d33-960c-4d4b2a76dcb8",
+            "d22a6fdb-6610-473f-80cb-4ad48f770c22",
+            "7001df38-be25-4b0c-afca-bcca856cf78c",
+            "2edc4c12-2113-4744-a1bd-e7e67bd421f4",
+            "62707a70-ec7c-41c1-8a37-4d034e22c32a",
+            "15d27b51-df24-4389-b45e-b39b3095b737",
+            "402406f0-9c41-4896-a4be-68082cada9ce",
+            "ffc9a4dd-9f79-41e8-ac76-d7a02ca3201f",
+            "fff6d3af-0cdd-4167-afe4-41a91919b110",
+            "76ffb149-1489-4df0-b87d-9ed0eab00fe4",
+            "f4083d7a-690c-4a27-a4c1-60b1ef500c68",
+            "12143ab3-70a1-4d06-8299-752b7d510198",
+            "a3b91c62-44cd-4e53-952b-6749c2c858a4",
+            "03e507f0-6dac-4a2a-8e7f-034408355e91",
+            "1518524b-f23a-4c3e-82fa-6fc366b2b2b5",
+            "56e9e271-85dc-4aa1-b259-7f95037b8b9d",
+            "074886e8-184e-40d5-9cc2-eb08f9f983e4",
+            "618e1c23-bfc8-4843-9de8-e091778d61d4",
+            "7b9a5faf-c1c1-46a6-993f-f9ac6f5ad1a8",
+            "c69e2883-48f6-4a4b-a773-6d5d2bfdd037"
+          ],
+          "effective_snapshot": true,
+          "effective_run": true,
+          "captured_at": "2026-10-16T10:58:16.791Z",
+          "actual_url": "https://en.wikipedia.org/wiki/Bleach_(manga)",
+          "capture_completeness": "partial",
+          "capture_components": {
+            "main_dom": "success",
+            "metadata": "success",
+            "structured_data": "success",
+            "frames": "success",
+            "shadow_dom": "partial",
+            "mhtml": "success"
+          },
+          "capture_warnings": [
+            {
+              "code": "closed_shadow_dom_unobservable",
+              "component": "shadow_dom"
+            }
+          ],
+          "association_status": "confirmed",
+          "effective_run_verification": "Matching run in public evidence candidates scoped to effective_snapshot_and_run"
+        }
+      ],
+      "expected_search_queries": [
+        "BLEACH",
+        "Soul Reaper",
+        "Tite Kubo"
+      ],
+      "expected_relation_semantics": [],
+      "similarity_rationale": "Compare with Fate/stay night as a supernatural Japanese work with combat and spiritual/fantasy systems, but with different medium and narrative structure.",
+      "alias_grounding": {
+        "Bleach": "eb02a9e8-4bf8-4a30-ab47-f9338741c4d9"
+      },
+      "confirmed_source_count": 1,
+      "normalized_evidence_count": 88,
+      "package": {
+        "package_id": "pkg_3987ff91-d281-42d3-9a1a-a3e8528a6536",
+        "manifest_sha256": "0f07e85952be28084cf6ade4e44715a044a066fd80ae91a405dcd39e2b85b9ac",
+        "base_version_id": null,
+        "included_source_ids": [
+          "8ab4641f-2e2f-4dea-b214-3a1aefbfe68d",
+          "6a34805d-2781-44a3-af0c-e1be87a0732b",
+          "30e8eb6c-0402-452f-8c67-dbd2217085e4"
+        ],
+        "included_evidence_ids": [
+          "eb02a9e8-4bf8-4a30-ab47-f9338741c4d9",
+          "1ccbe8e1-0459-476a-8c75-f55ef8c1552b",
+          "01fcfdcb-39c6-4aaf-8141-6d297c1f26ba",
+          "36c84ab4-3b92-485d-98ca-15040e21cc51",
+          "56e9e271-85dc-4aa1-b259-7f95037b8b9d",
+          "0ecba5b3-7d7f-45a3-b1b3-ad66301f0f68",
+          "5d988c62-e8cb-409a-99e1-da926cc064d9",
+          "15d27b51-df24-4389-b45e-b39b3095b737",
+          "402406f0-9c41-4896-a4be-68082cada9ce",
+          "4954b5d9-0ef6-4c8d-84af-a4ee74c38d9a",
+          "62707a70-ec7c-41c1-8a37-4d034e22c32a",
+          "16813584-8d41-4d1d-9dea-17a28d5c03f6"
+        ],
+        "evidence_count": 12,
+        "reviewed_explicit_include": [
+          "eb02a9e8-4bf8-4a30-ab47-f9338741c4d9"
+        ],
+        "preflight_disposition": "allow",
+        "export_destination": ".local/n03/export",
+        "provenance_verified_evidence_count": 12
+      },
+      "result": {
+        "receipt_id": "066a73b6-9349-4d26-a9e6-c688f9d58543",
+        "result_sha256": "12001ead73b76c10b7c07459ad1ad49f889b48843d63dc821cdabd4fa1307f26",
+        "validation_state": "valid",
+        "validation_findings": [],
+        "review_state": "ready_to_import",
+        "accepted_version_id": "6e75aa45-9c13-42ef-87b4-923beac43bef",
+        "summary": "BLEACH is a Japanese manga series written and illustrated by Tite Kubo.",
+        "populated_facets": [
+          "facet:overall"
+        ],
+        "grounding_count": 2,
+        "statement_count": 2,
+        "attribute_count": 0,
+        "relation_count": 0,
+        "all_grounding_in_package": true
+      },
+      "ground_truth_notes": {
+        "review_status": "Codex-curated evidence notes for human reference; no independent human quality adjudication or model confidence score",
+        "identity_notes": "BLEACH is a Japanese manga series written and illustrated by Tite Kubo.",
+        "key_grounded_facts": [
+          {
+            "fact": "BLEACH is a Japanese manga series written and illustrated by Tite Kubo.",
+            "evidence_ids": [
+              "eb02a9e8-4bf8-4a30-ab47-f9338741c4d9"
+            ]
+          },
+          {
+            "fact": "The story follows Ichigo Kurosaki after he gains Soul Reaper powers from Rukia Kuchiki and confronts Hollows.",
+            "evidence_ids": [
+              "eb02a9e8-4bf8-4a30-ab47-f9338741c4d9"
+            ]
+          }
+        ],
+        "source_disagreement_or_scope_notes": "The Work is the manga, not the TYBW anime or unrelated chemical bleaching. Adaptations are out of scope for the two accepted statements.",
+        "expected_search_queries": [
+          "BLEACH",
+          "Soul Reaper",
+          "Tite Kubo"
+        ],
+        "expected_relation_semantics": [],
+        "similarity_rationale": "Compare with Fate/stay night as a supernatural Japanese work with combat and spiritual/fantasy systems, but with different medium and narrative structure. This is a later evaluation hypothesis, not a measured similarity result.",
+        "known_unsupported_or_out_of_scope_items": [
+          "Unpopulated Facets are not_analyzed; no full character/personality reconstruction claimed.",
+          "No suitable Relation Type was in the Package; relation semantics remain notes, without Registry changes.",
+          "Content-query lexical probes did not hit because derived Search Representations remain pending; canonical name/alias identity reads passed. Semantic/Hybrid/Similarity quality is deferred to N06.",
+          "No N04 AI-output quality or independent human scoring was performed."
+        ]
+      },
+      "lexical_smoke": [
+        {
+          "query": "BLEACH",
+          "target_found": true,
+          "target_rank": 1,
+          "identity_required": true
+        },
+        {
+          "query": "Bleach",
+          "target_found": true,
+          "target_rank": 1,
+          "identity_required": true
+        },
+        {
+          "query": "Soul Reaper",
+          "target_found": false,
+          "target_rank": null,
+          "identity_required": false
+        },
+        {
+          "query": "Tite Kubo",
+          "target_found": false,
+          "target_rank": null,
+          "identity_required": false
+        }
+      ],
+      "status": "complete"
+    },
+    {
+      "object_key": "tsundere",
+      "object_id": "8c83f986-f491-41a8-8645-9f71dd5874b9",
+      "name": "Tsundere",
+      "class": "concept",
+      "aliases": [],
+      "sources": [
+        {
+          "source_key": "tsundere-wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Tsundere",
+          "role": "reference_definition",
+          "required": true,
+          "capture_filename": "20261016T105819799Z_af3e767c-b043-4d30-ae0c-99c1ac4d8fb7.webcapture.zip",
+          "capture_sha256": "d747b87e994b63db9b25d7c9a0547133da9bf9fbd1e73ae0e2eb52f8b24d5f71",
+          "capture_bytes": 1669132,
+          "source_id": "380aec7f-e3aa-4650-a8a5-578b036d680f",
+          "snapshot_id": "af3e767c-b043-4d30-ae0c-99c1ac4d8fb7",
+          "normalization_run_id": "d6e29645-e6a3-4cdc-b174-e2d365647f88",
+          "evidence_count": 24,
+          "evidence_ids": [
+            "85aea758-2692-4c64-8240-4783901d6e96",
+            "5b1270eb-ac4c-4e92-840e-477b71c3229d",
+            "32ccc4fd-5039-4aa0-b090-7f98475997b7",
+            "96665780-ed55-4134-89a2-c1d60de46e6c",
+            "f0aa50f0-155a-4932-b97c-ea682b456fdd",
+            "ce08ce9c-4735-4e56-9407-bb9d56ee87a2",
+            "e2005b75-4e27-4d19-a279-a187a5d12306",
+            "bd85f790-3747-45f5-a698-d674335e241a",
+            "82bba843-e5ee-4816-9273-411bbe4fd8be",
+            "6c3cd71c-638e-4462-835a-c3788fb1664e",
+            "4d949dae-01b2-489c-90de-72719143a5fe",
+            "e5980fe2-57e9-4229-bb00-e88b42130988",
+            "a6dd76d7-0cb1-4ad5-8b4f-549f7d8e2226",
+            "6c176fea-d788-4596-837a-9a90d0a8cd54",
+            "5028690c-d641-4a42-bf5a-58b40d11981d",
+            "3833538f-4487-4816-9daf-ff80175140f4",
+            "2958524c-1c44-4525-8550-bd074e5d72a1",
+            "a25ed9aa-9072-4f46-9b04-a45aeee756a0",
+            "dc79e5c1-1c2a-4088-87e6-574fc1807520",
+            "be876d6d-9d19-4248-843e-b0fe3c2aad52",
+            "d138a50d-80ca-4775-b487-80d0b1fc428e",
+            "4783d9e5-0cec-49d4-ae73-872360aa1d38",
+            "7a4936b5-bd04-4d3e-876d-42704d2573ec",
+            "547a60be-adb0-420c-bcc5-5ec3cb797569"
+          ],
+          "effective_snapshot": true,
+          "effective_run": true,
+          "captured_at": "2026-10-16T10:58:19.799Z",
+          "actual_url": "https://en.wikipedia.org/wiki/Tsundere",
+          "capture_completeness": "partial",
+          "capture_components": {
+            "main_dom": "success",
+            "metadata": "success",
+            "structured_data": "success",
+            "frames": "success",
+            "shadow_dom": "partial",
+            "mhtml": "success"
+          },
+          "capture_warnings": [
+            {
+              "code": "closed_shadow_dom_unobservable",
+              "component": "shadow_dom"
+            }
+          ],
+          "association_status": "confirmed",
+          "effective_run_verification": "Matching run in public evidence candidates scoped to effective_snapshot_and_run"
+        }
+      ],
+      "expected_search_queries": [
+        "Tsundere",
+        "harsh personality warmer side",
+        "character archetype"
+      ],
+      "expected_relation_semantics": [],
+      "similarity_rationale": "A character-development/archetype concept intended to remain distinguishable from the broader narrative-structure concept Hero's Journey.",
+      "alias_grounding": {},
+      "confirmed_source_count": 1,
+      "normalized_evidence_count": 24,
+      "package": {
+        "package_id": "pkg_d942b1b9-a02c-4342-83ef-174a016b968f",
+        "manifest_sha256": "3f7e3f15be146e5bc9287914a5878069b3826185dcde7eb7258cd5b5abcbc632",
+        "base_version_id": null,
+        "included_source_ids": [
+          "380aec7f-e3aa-4650-a8a5-578b036d680f"
+        ],
+        "included_evidence_ids": [
+          "96665780-ed55-4134-89a2-c1d60de46e6c",
+          "82bba843-e5ee-4816-9273-411bbe4fd8be",
+          "be876d6d-9d19-4248-843e-b0fe3c2aad52",
+          "a6dd76d7-0cb1-4ad5-8b4f-549f7d8e2226",
+          "e2005b75-4e27-4d19-a279-a187a5d12306",
+          "85aea758-2692-4c64-8240-4783901d6e96",
+          "bd85f790-3747-45f5-a698-d674335e241a",
+          "f0aa50f0-155a-4932-b97c-ea682b456fdd",
+          "a25ed9aa-9072-4f46-9b04-a45aeee756a0",
+          "ce08ce9c-4735-4e56-9407-bb9d56ee87a2",
+          "2958524c-1c44-4525-8550-bd074e5d72a1",
+          "5028690c-d641-4a42-bf5a-58b40d11981d"
+        ],
+        "evidence_count": 12,
+        "reviewed_explicit_include": [
+          "96665780-ed55-4134-89a2-c1d60de46e6c"
+        ],
+        "preflight_disposition": "allow",
+        "export_destination": ".local/n03/export",
+        "provenance_verified_evidence_count": 12
+      },
+      "result": {
+        "receipt_id": "59fae454-1fed-4ea4-aebc-dd9da73e97e0",
+        "result_sha256": "77445e5deddaa836f041986979aeaa6c2fa6ffa86e5904bef9f7e29c799a24d2",
+        "validation_state": "valid",
+        "validation_findings": [],
+        "review_state": "ready_to_import",
+        "accepted_version_id": "98c16da1-a5a6-4d73-b919-bcadcc3df08f",
+        "summary": "Tsundere is a Japanese term for a character-development pattern: a character initially marked by a harsh personality gradually reveals a warmer side.",
+        "populated_facets": [
+          "facet:overall"
+        ],
+        "grounding_count": 2,
+        "statement_count": 2,
+        "attribute_count": 0,
+        "relation_count": 0,
+        "all_grounding_in_package": true
+      },
+      "ground_truth_notes": {
+        "review_status": "Codex-curated evidence notes for human reference; no independent human quality adjudication or model confidence score",
+        "identity_notes": "Tsundere is a Japanese term for a character-development pattern: a character initially marked by a harsh personality gradually reveals a warmer side.",
+        "key_grounded_facts": [
+          {
+            "fact": "Tsundere is a Japanese term for a character-development pattern: a character initially marked by a harsh personality gradually reveals a warmer side.",
+            "evidence_ids": [
+              "96665780-ed55-4134-89a2-c1d60de46e6c"
+            ]
+          },
+          {
+            "fact": "The term combines tsun tsun, associated with aloofness, and dere dere, associated with affection.",
+            "evidence_ids": [
+              "96665780-ed55-4134-89a2-c1d60de46e6c"
+            ]
+          }
+        ],
+        "source_disagreement_or_scope_notes": "This is a descriptive character-development term. No diagnosis, universal personality claim, or automatic classification of Saber/Ichigo is asserted.",
+        "expected_search_queries": [
+          "Tsundere",
+          "harsh personality warmer side",
+          "character archetype"
+        ],
+        "expected_relation_semantics": [],
+        "similarity_rationale": "A character-development/archetype concept intended to remain distinguishable from the broader narrative-structure concept Hero's Journey. This is a later evaluation hypothesis, not a measured similarity result.",
+        "known_unsupported_or_out_of_scope_items": [
+          "Unpopulated Facets are not_analyzed; no full character/personality reconstruction claimed.",
+          "No suitable Relation Type was in the Package; relation semantics remain notes, without Registry changes.",
+          "Content-query lexical probes did not hit because derived Search Representations remain pending; canonical name/alias identity reads passed. Semantic/Hybrid/Similarity quality is deferred to N06.",
+          "No N04 AI-output quality or independent human scoring was performed."
+        ]
+      },
+      "lexical_smoke": [
+        {
+          "query": "Tsundere",
+          "target_found": true,
+          "target_rank": 1,
+          "identity_required": true
+        },
+        {
+          "query": "harsh personality warmer side",
+          "target_found": false,
+          "target_rank": null,
+          "identity_required": false
+        },
+        {
+          "query": "character archetype",
+          "target_found": false,
+          "target_rank": null,
+          "identity_required": false
+        }
+      ],
+      "status": "complete"
+    },
+    {
+      "object_key": "heros-journey",
+      "object_id": "fee32007-0f92-449a-ba21-4ec2f78d1cd4",
+      "name": "Hero's Journey",
+      "class": "concept",
+      "aliases": [
+        "Monomyth"
+      ],
+      "sources": [
+        {
+          "source_key": "heros-journey-wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Hero%27s_journey",
+          "role": "reference_definition",
+          "required": true,
+          "capture_filename": "20261016T105822769Z_49b02329-e395-4b85-9c5b-cf9a520852a5.webcapture.zip",
+          "capture_sha256": "e7fadde0379de6d3b283c31eec6d6d404f9b33040dd16a6c0125cbc147f52e69",
+          "capture_bytes": 2023675,
+          "source_id": "2b1532a8-c5f0-49ca-9b86-54402d7cb544",
+          "snapshot_id": "49b02329-e395-4b85-9c5b-cf9a520852a5",
+          "normalization_run_id": "64e1b7de-eadb-420b-91d4-64bacb296db4",
+          "evidence_count": 115,
+          "evidence_ids": [
+            "b2464ba2-e103-4f45-adf9-97d513c543ec",
+            "c2348004-2fa7-497f-b870-7512f22c2c4b",
+            "91ceb813-5ef1-40e5-b1b4-9791e0ce279c",
+            "59a9c96c-76fd-4b4f-bb92-048d912d0ab1",
+            "5d7ea633-7886-479d-95d6-8a72a59f1a0f",
+            "04ecb9cf-3610-4bd9-9d86-8949859e26a8",
+            "88e68d88-386f-4b4f-bc54-1693db3e4af1",
+            "af0367c0-f937-457e-a10a-5874625f7d7f",
+            "e952ec96-fe88-4721-89a1-d22fb992674c",
+            "11e9efbc-3120-4a8f-ad62-55e027e4c45b",
+            "ff34d872-fbe6-4bf2-8106-a31753797026",
+            "753e1d2c-5fe0-4939-84a4-b071d68fad05",
+            "35487ea8-ffd0-4330-a0de-1c4853298657",
+            "d8c8ef60-fcfd-4f51-8bd4-419b264b1072",
+            "f902c345-b898-4ae5-ace4-951b25bb2811",
+            "1e229f28-a704-4990-bcea-085b3369c370",
+            "2724573d-ffa9-49bb-9e10-876f9e483964",
+            "a3a979d5-b375-4cbd-a5df-e1c1e739d708",
+            "882de4ad-a86f-4414-a3d0-eefd891a3682",
+            "6682111f-1b68-4415-8fb0-51e950ca5bc8",
+            "579e473f-763f-4fc5-b2a3-dcc74b57bead",
+            "64e5a04f-d973-4639-b63a-35cfafb39939",
+            "3d07c73b-b726-411b-9613-142b98f60d2e",
+            "56348e72-bb57-4667-ab2d-ad4b9e47c642",
+            "833599ac-a352-46c6-bbb5-b4f9c239c5dd",
+            "f383ab28-0429-4486-b608-d47be6798dcf",
+            "6332db9a-48a6-46c5-8a15-faf1dc38406c",
+            "e29f76e1-96a4-4047-b465-4e205ef700b3",
+            "eb3798e4-9630-4563-9c21-9fa6445b194c",
+            "2c02d1f7-6809-44b2-b815-2a37a0152b96",
+            "3f73c96a-143d-463c-96e9-df8d44035f57",
+            "2be2ba70-fc6d-4872-a044-b2baf65134a6",
+            "28e703ab-4422-467f-a226-24e5136b90ad",
+            "cfe377e3-1171-4e24-9931-c0bef58d09c0",
+            "d1b1ffaa-2ce6-4a4e-8e23-f4dbf59b672d",
+            "d8c747ba-4cc7-4b80-99b8-bffad203dc88",
+            "a1dc8bad-8ac2-4ccf-87eb-fbd64d497da6",
+            "7f713dff-b0b4-41ef-9b7b-807710f4940c",
+            "1e529b28-bfe0-43bc-a894-8b5e0c7f8ef5",
+            "d0b581d5-1b08-42ba-87ca-b69f86536982",
+            "3580df22-3eae-4720-94e4-1c6e936f72dc",
+            "1b6b2a3c-a3ba-4ab6-8c74-79671fa7df79",
+            "d401be0e-a11f-41e9-bb45-df5b9952b267",
+            "fdb7af50-0ce2-4974-a86f-e07bb1267e76",
+            "72515413-2f42-42eb-bd06-6afeb4f09e3e",
+            "5d05014d-e161-4601-aeab-36ef4961fb13",
+            "ee16db86-ecca-4ac7-b4d3-024877ec4073",
+            "885b7244-52bf-4577-b18f-09e0af8cdc05",
+            "b3b99621-553b-4d4a-8799-6e1254cfbe86",
+            "b91ea72e-30be-4220-9cdb-372cef61134c",
+            "dc2eb7e7-a08c-4ac4-a27b-5a2a803b3317",
+            "4f3c24bb-b7fd-460d-a0ec-2552ccacf1dc",
+            "981bc08a-84ed-4488-b668-7e3c7f9b78e9",
+            "fbf5c8ee-c71f-4433-94b3-89ad4409800d",
+            "47976f26-15e2-4eae-965a-857aa55d5796",
+            "c84584b2-6e76-47ec-8325-d67b5029bce3",
+            "a7aa4d2e-1467-42ba-be3a-54c5f42407f2",
+            "4373d82b-b20e-4016-b167-fbc511ef5a55",
+            "13c28a23-bfd0-4c6c-85bf-633afc520d3c",
+            "cfc6b747-6910-4dce-8850-a78cd4c20251",
+            "098723c7-59e3-47e0-b1d6-e72c9aea7c87",
+            "e747b373-6c55-43fc-8135-9d5393ac2c4b",
+            "b098ac32-df51-4dbb-a8d2-09c5c93ed81d",
+            "8b685e19-1725-4b42-ae02-2d0c2b630e9d",
+            "c3c7ee9c-360e-4b37-9468-cd994e37d390",
+            "7122d97a-9a0f-48eb-9f38-5eff7156e452",
+            "68a8f01a-b3f0-40ed-a4f8-40a8319b8b45",
+            "8944890e-278f-44f7-ae27-a6707fac1dd7",
+            "e3e0fbd6-dfb1-4d54-8ef9-145a0269a4f9",
+            "4a18f682-acc2-4e52-b2f0-9b767e6ea61c",
+            "28db0b92-f58c-44a8-98c4-2d5262df4d23",
+            "4d402974-d34b-45f7-b53c-707b9d4c4189",
+            "0f9921f4-c7bf-414f-ba78-8ef624418987",
+            "97525769-fc28-4d5f-9038-59de27daaec6",
+            "b711176f-75f9-4054-bca3-469b94c234b3",
+            "652d5979-ae07-456e-99b8-25b0522ff5f7",
+            "c39b74e0-c9ac-4b06-a97e-92c59869a38d",
+            "181d43b0-5df6-4abb-846b-0a91af0cf616",
+            "81624d89-4a14-420f-a3cf-17ae2707a4bd",
+            "f88ecfa8-1cff-4a00-b43c-13e6bc7a7cdf",
+            "d400e007-ae25-46ec-8141-a46d2c43bbe2",
+            "fa549977-9f64-4cef-99be-ac2278ba6166",
+            "c5dfcb0f-5c22-4983-8802-4dfd42dbeac3",
+            "034250c0-ad45-47a8-b55e-e4b1fcfabbae",
+            "5e657cab-11a3-40e6-8641-5acf9e29242e",
+            "136c2ba6-a20a-436b-aba1-789559b8b247",
+            "91ba43d2-b325-47f2-a0bf-588c0e4bc53b",
+            "c778be3f-886c-4106-b1e6-0ac4d5c94fb9",
+            "df9cc98a-a1c9-4a19-9aef-182a29eb8278",
+            "3ade5332-be98-4ff9-850e-f0e847e8b0b0",
+            "ed35eb90-6786-499f-8cd4-1ac2acf10e60",
+            "479c3d4e-de52-4ae4-b029-978155debbc1",
+            "4f15259b-b17b-4799-836e-fa3bacf1eb9e",
+            "c363c0a8-6bc0-44a7-9da2-0219c7c8e997",
+            "5c09556e-30be-43aa-9c47-f7354419c75d",
+            "77035557-a4a5-4d2a-8d12-5e22318b0763",
+            "868fd79b-769e-4fc8-88b2-311c81af06e1",
+            "ad0e3d2c-afda-4e0c-8f31-8c223f1ee33d",
+            "ee9adbd4-d510-455b-b89d-47d6189f9613",
+            "3c927305-202f-4826-92c3-6ffc14ee0204",
+            "005e962f-e31b-41ed-bb56-145ce89dc519",
+            "b03e88c8-ceb8-4fb3-a083-863d87e18cf0",
+            "f812fc35-7125-4a3f-97aa-902f5db19dfc",
+            "90a39cb2-799b-4815-9f14-3e11916cc274",
+            "6a09a4c6-38cc-49bb-b135-ae73a82ae66a",
+            "ce603fd0-2462-45f2-957c-f427f0a6a5e3",
+            "1393c61b-da5d-41c2-b43f-c344b36fa469",
+            "a3f28fd7-e51f-4284-b5d1-beff9e2f4faf",
+            "37f4d13c-55de-4f13-835e-c5290e909658",
+            "08438373-6acb-4b21-afdc-ec2b6c999e0d",
+            "01631854-12c3-4f78-af99-e066d5b0b15f",
+            "a1e6ffe8-da06-4439-b8d7-ed7bb9675680",
+            "fdb8cfd2-ea5b-4b12-8ba1-821079eab2f4",
+            "5fac5309-4bda-482f-9144-fef91707d9f9",
+            "ef855eea-2db8-4d2a-9c02-94a6035b4ed5"
+          ],
+          "effective_snapshot": true,
+          "effective_run": true,
+          "captured_at": "2026-10-16T10:58:22.769Z",
+          "actual_url": "https://en.wikipedia.org/wiki/Hero%27s_journey",
+          "capture_completeness": "partial",
+          "capture_components": {
+            "main_dom": "success",
+            "metadata": "success",
+            "structured_data": "success",
+            "frames": "success",
+            "shadow_dom": "partial",
+            "mhtml": "success"
+          },
+          "capture_warnings": [
+            {
+              "code": "closed_shadow_dom_unobservable",
+              "component": "shadow_dom"
+            }
+          ],
+          "association_status": "confirmed",
+          "effective_run_verification": "Matching run in public evidence candidates scoped to effective_snapshot_and_run"
+        }
+      ],
+      "expected_search_queries": [
+        "Hero's Journey",
+        "Monomyth",
+        "narrative pattern"
+      ],
+      "expected_relation_semantics": [],
+      "similarity_rationale": "A narrative-structure concept intentionally distinct from Tsundere; N-04 can combine both concepts for controlled character creation.",
+      "alias_grounding": {
+        "Monomyth": "91ceb813-5ef1-40e5-b1b4-9791e0ce279c"
+      },
+      "confirmed_source_count": 1,
+      "normalized_evidence_count": 115,
+      "package": {
+        "package_id": "pkg_06ccc95c-2a1a-4191-ac9d-cf5734ac2541",
+        "manifest_sha256": "5168a4fdbad2aba07478e3a65cd5c83b9438ad175e50f3053fc884640511f051",
+        "base_version_id": null,
+        "included_source_ids": [
+          "2b1532a8-c5f0-49ca-9b86-54402d7cb544"
+        ],
+        "included_evidence_ids": [
+          "91ceb813-5ef1-40e5-b1b4-9791e0ce279c",
+          "af0367c0-f937-457e-a10a-5874625f7d7f",
+          "e952ec96-fe88-4721-89a1-d22fb992674c",
+          "c5dfcb0f-5c22-4983-8802-4dfd42dbeac3",
+          "005e962f-e31b-41ed-bb56-145ce89dc519",
+          "5d7ea633-7886-479d-95d6-8a72a59f1a0f",
+          "97525769-fc28-4d5f-9038-59de27daaec6",
+          "b2464ba2-e103-4f45-adf9-97d513c543ec",
+          "8944890e-278f-44f7-ae27-a6707fac1dd7",
+          "4d402974-d34b-45f7-b53c-707b9d4c4189",
+          "37f4d13c-55de-4f13-835e-c5290e909658",
+          "034250c0-ad45-47a8-b55e-e4b1fcfabbae"
+        ],
+        "evidence_count": 12,
+        "reviewed_explicit_include": [
+          "91ceb813-5ef1-40e5-b1b4-9791e0ce279c"
+        ],
+        "preflight_disposition": "allow",
+        "export_destination": ".local/n03/export",
+        "provenance_verified_evidence_count": 12
+      },
+      "result": {
+        "receipt_id": "442a8afd-970f-41f1-8515-cf9e62a34492",
+        "result_sha256": "2c5a32b7f965e01f5877226a88018b66f53c3e0f09bb63bfe274bcb87c9d2485",
+        "validation_state": "valid",
+        "validation_findings": [],
+        "review_state": "ready_to_import",
+        "accepted_version_id": "31e52190-fdb2-42da-8860-d4e0bbaa4de6",
+        "summary": "Hero's Journey, also called Monomyth, is a narrative pattern in narratology and comparative mythology.",
+        "populated_facets": [
+          "facet:overall"
+        ],
+        "grounding_count": 2,
+        "statement_count": 2,
+        "attribute_count": 0,
+        "relation_count": 0,
+        "all_grounding_in_package": true
+      },
+      "ground_truth_notes": {
+        "review_status": "Codex-curated evidence notes for human reference; no independent human quality adjudication or model confidence score",
+        "identity_notes": "Hero's Journey, also called Monomyth, is a narrative pattern in narratology and comparative mythology.",
+        "key_grounded_facts": [
+          {
+            "fact": "Hero's Journey, also called Monomyth, is a narrative pattern in narratology and comparative mythology.",
+            "evidence_ids": [
+              "91ceb813-5ef1-40e5-b1b4-9791e0ce279c"
+            ]
+          },
+          {
+            "fact": "The pattern follows a hero through adventure, a decisive crisis, and a return in a changed state.",
+            "evidence_ids": [
+              "91ceb813-5ef1-40e5-b1b4-9791e0ce279c"
+            ]
+          }
+        ],
+        "source_disagreement_or_scope_notes": "This is a comparative narrative template. It is not asserted to fit every story; Campbell's interpretations and scholarly criticism were not evaluated.",
+        "expected_search_queries": [
+          "Hero's Journey",
+          "Monomyth",
+          "narrative pattern"
+        ],
+        "expected_relation_semantics": [],
+        "similarity_rationale": "A narrative-structure concept intentionally distinct from Tsundere; N-04 can combine both concepts for controlled character creation. This is a later evaluation hypothesis, not a measured similarity result.",
+        "known_unsupported_or_out_of_scope_items": [
+          "Unpopulated Facets are not_analyzed; no full character/personality reconstruction claimed.",
+          "No suitable Relation Type was in the Package; relation semantics remain notes, without Registry changes.",
+          "Content-query lexical probes did not hit because derived Search Representations remain pending; canonical name/alias identity reads passed. Semantic/Hybrid/Similarity quality is deferred to N06.",
+          "No N04 AI-output quality or independent human scoring was performed."
+        ]
+      },
+      "lexical_smoke": [
+        {
+          "query": "Hero's Journey",
+          "target_found": true,
+          "target_rank": 1,
+          "identity_required": true
+        },
+        {
+          "query": "Monomyth",
+          "target_found": true,
+          "target_rank": 1,
+          "identity_required": true
+        },
+        {
+          "query": "narrative pattern",
+          "target_found": false,
+          "target_rank": null,
+          "identity_required": false
+        }
+      ],
+      "status": "complete"
+    }
+  ],
+  "completion_requirements": {
+    "minimum_character_objects": 2,
+    "minimum_work_objects": 2,
+    "minimum_concept_objects": 2,
+    "minimum_multi_source_objects": 1,
+    "all_objects_require_real_web_capture": true,
+    "all_objects_require_accepted_version": true,
+    "record_generated_stable_object_ids": true,
+    "record_source_snapshot_evidence_package_result_version_ids": true,
+    "record_human_ground_truth_notes": true,
+    "record_search_and_similarity_expectations": true
+  },
+  "completed_at": "2026-10-16T11:08:48.649871+00:00",
+  "capture_execution": {
+    "method": "Real Chromium page; unchanged WebPageCapture captureDocument/buildBundle functions; CDP Page.captureSnapshot MHTML",
+    "browser_version": "155.0.8059.40",
+    "extension_version": "0.1.0",
+    "native_messaging_exercised": false,
+    "source_substitutions": [],
+    "scripts": {
+      "extensions/web-page-capture/extension/src/capture/dom.js": "666b8817bf3ba2a2e13144766587f00325e70c721c32db1032e390917e442eaf",
+      "extensions/web-page-capture/extension/src/shared/bundle.js": "d581c4ce0bddb4fe424894149a7e0f1b79ff6f74786fb64b2ffafee9c27adf9d"
+    }
+  },
+  "verification": {
+    "fresh_db": true,
+    "objects": 6,
+    "character_objects": 2,
+    "work_objects": 2,
+    "concept_objects": 2,
+    "real_capture_count": 8,
+    "source_count": 8,
+    "normalized_evidence_count": 515,
+    "distinct_packages": 6,
+    "valid_results": 6,
+    "accepted_current_versions": 6,
+    "grounded_statements": 12,
+    "package_evidence_provenance_checks": 74,
+    "integrity": {
+      "ok": true,
+      "sqlite_integrity": [
+        "ok"
+      ],
+      "foreign_key_violations": [],
+      "schema_migrations": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ]
+    },
+    "lexical_identity_smoke": "PASS: all 6 canonical names and 4 aliases resolve target at rank 1",
+    "content_query_probes": "10/10 did not hit; derived Search Representation pending. Not treated as N03 identity gate or as a retrieval-quality pass.",
+    "retrieval_gold_status": "candidate expectations only; not N06 quality gold acceptance",
+    "pytest": {
+      "passed": 307,
+      "skipped": 3,
+      "failed": 0,
+      "duration_seconds": 93.07
+    },
+    "git_diff_check": "PASS",
+    "production_code_changed": false,
+    "direct_sql_mutations": false,
+    "cli_only_canonical_workflow": true
+  }
+}
