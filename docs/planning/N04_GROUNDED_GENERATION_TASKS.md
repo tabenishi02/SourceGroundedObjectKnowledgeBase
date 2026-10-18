@@ -4,11 +4,12 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
-- Current Status: **N-04 Failed — grounded-generation remediation / re-acceptance required**
+- Current Status: **N-04 Failed — N-04G-01 Complete / next N-04G-02**
 - Branch: `phase-n/n04-prerequisite-derived-search`
 - Failure baseline: `benchmark/n04-ai-use-cases-v1.json`
 - Acceptance record: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
 - Design handoff: `docs/planning/N04_GROUNDED_GENERATION_HANDOFF.md`
+- N-04G-01 Decision: `docs/decisions/N04G01_GROUNDED_GENERATION_RESPONSIBILITY_BOUNDARY.md`
 
 ---
 
@@ -118,7 +119,7 @@ Knowledge coverage不足やretrieval ranking品質はN-06との境界を維持�
 | Task | Priority | Status | 主目的 |
 |---|---|---|---|
 | N-04G-00 | P0 | **Complete (2026-10-18)** | N-04 Completion Gate確認とremediation Task分解 |
-| N-04G-01 | P0 | Pending | grounded-generationの責務所有者と保証レベルを確定 |
+| N-04G-01 | P0 | **Complete (2026-10-18)** | grounded-generationの責務所有者と保証レベルを確定 |
 | N-04G-02 | P0 | Pending | claim taxonomyと用途別意味境界を確定 |
 | N-04G-03 | P0 | Pending | Context grounding / reference contractを設計 |
 | N-04G-04 | P0 | Pending | generation / output contractを設計 |
@@ -138,6 +139,9 @@ N-05へ進めるのは**N-04G-12でN-04 Completeが確認された後**とする
 # 5. Design Tasks
 
 ## N-04G-01 [P0] grounded-generationの責務所有者と保証レベルを確定する
+
+**Status: Complete (2026-10-18)**  
+**Decision record:** `docs/decisions/N04G01_GROUNDED_GENERATION_RESPONSIBILITY_BOUNDARY.md`
 
 ### 目的
 
@@ -169,10 +173,19 @@ N-05へ進めるのは**N-04G-12でN-04 Completeが確認された後**とする
 
 ### 完了条件
 
-- 責務境界図または責務表が確定している。
-- SGOKB / MCP / consumer / LLMそれぞれの責務が明記されている。
-- 「何をSGOKBが保証し、何を保証しないか」が明記されている。
-- N-04G-02以降が責務境界を前提に設計できる。
+- [x] 責務境界図または責務表が確定している。
+- [x] SGOKB / MCP / consumer / LLMそれぞれの責務が明記されている。
+- [x] 「何をSGOKBが保証し、何を保証しないか」が明記されている。
+- [x] N-04G-02以降が責務境界を前提に設計できる。
+
+### Decision summary
+
+- **Hybrid方式を採用**: `SGOKB-owned contract + consumer-owned orchestration + untrusted LLM`。
+- SGOKB Application側がgrounding contract / conformance semanticsの正本を所有する。
+- MCPはtransport/schema adapterのまま維持し、LLM generation主体にしない。
+- Consumerがmodel runtime / invocation / workflow enforcementを担当する。
+- LLM raw outputはgroundedとみなさず、SGOKB-defined Gateを満たした出力だけを`SGOKB-grounded`として扱える。
+- Fact ID / Structured Output / validator実装 / retry方式は本Taskで採用せず、N-04G-02〜G-06へ委ねる。
 
 ---
 
@@ -568,7 +581,7 @@ freeze済みv2 acceptance spec / harnessだけを使用し、3ケースをRefere
 ```text
 N-04G-00 Complete
        ↓
-N-04G-01 Responsibility / guarantee boundary
+N-04G-01 Responsibility / guarantee boundary Complete
        ↓
 N-04G-02 Claim taxonomy
        ↓
@@ -633,10 +646,8 @@ Acceptance impact
 次のTaskは以下とする。
 
 ```text
-N-04G-01 [P0]
-grounded-generationの責務所有者と保証レベルを確定する
+N-04G-02 [P0]
+claim taxonomyと用途別意味境界を確定する
 ```
 
-このTaskではまだFact ID、Structured Output、validator、retryの採否を決めない。
-
-まず責務境界を確定し、その境界を前提としてN-04G-02以降を進める。
+N-04G-01で確定した責務境界を前提に、生成文中のclaim分類とRoleplay / Comparison / Creativeそれぞれの許容・要ラベル・禁止境界を決める。
