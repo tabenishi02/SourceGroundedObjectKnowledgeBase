@@ -908,12 +908,13 @@ Preparation: `docs/planning/PHASE_L_PREPARATION.md`
   - canonical coverage audit、Relation acceptance/immutability補完、Package Transfer既知failure解消、Reference Workstationのfull pytest / 対象RuffがPASS。
   - 成果物: `docs/planning/N01_UNIT_TEST_COVERAGE.md`。
 
-- [ ] **N-02 [P0] Integration Testを追加する**
+- [x] **N-02 [P0] Integration Testを追加する** — **Complete (2026-10-16)**
   - Capture → Evidence → Package。
   - Result → Validate → Import → Version。
   - Import → Object / Facet / Statement Embed → Index update → Search。
   - 同一representation hashのVector reuseとVersion scope更新。
   - MCP → Retrieval Core。
+  - Reference Workstationで追加3 test / full suite / 対象Ruff・formatがPASS。成果物: `docs/planning/N02_INTEGRATION_TESTS.md`。
 
 - [ ] **N-03 [P0] 実データVertical Sliceを作る**
   - Character 2件以上。
@@ -1057,7 +1058,7 @@ Phase A〜MはComplete。Phase LではL-01〜L-04のDecisionをL-05で実装し�
 次の最優先Task（未着手）:
 
 ```text
-N-02 [P0] Integration Testを追加する
+N-03 [P0] real-data Vertical Slice
 ```
 
-Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01のReference Workstation検証を完了し、次はN-02（未着手）へ進む。
+Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01 / N-02のReference Workstation検証を完了し、次はN-03 real-data Vertical Slice（未着手）へ進む。
