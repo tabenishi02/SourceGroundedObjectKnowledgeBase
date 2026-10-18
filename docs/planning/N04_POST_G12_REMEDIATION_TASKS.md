@@ -12,6 +12,7 @@
 - G-14 decision: `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
 - G-15 decision: `docs/decisions/N04G15_OUTPUT_SCHEMA_PRESENTATION_RENDERER_HARDENING.md`
 - G-16 decision: `docs/decisions/N04G16_SEMANTIC_VALIDATION_ARCHITECTURE_REDESIGN.md`
+- G-17 decision: `docs/decisions/N04G17_MATERIAL_SUFFICIENCY_TERMINAL_RENDER_GATE_REDESIGN.md`
 - Current parent state: **N-04 Failed / N-05 blocked**
 
 ---
@@ -122,7 +123,7 @@ Retry: 1
 | N-04G-14 | P0 | **Complete (2026-10-19)** | Atomic claim / semantic-role boundaryを再設計する |
 | N-04G-15 | P0 | **Complete (2026-10-19)** | Output schema / presentation / deterministic rendering contractをhardeningする |
 | N-04G-16 | P0 | **Complete (2026-10-19, design)** | Source-fact / interpretation semantic validation architectureを再設計する |
-| N-04G-17 | P0 | Pending | Material sufficiency / use-case completion / terminal-render gateを再設計する |
+| N-04G-17 | P0 | **Complete (2026-10-19, design)** | Material sufficiency / use-case completion / terminal-render gateを再設計する |
 | N-04G-18 | P0 | Pending | G-14〜G-17を統合してPost-G12 Design Freezeを行う |
 | N-04G-19 | P0 | Pending | Frozen remediation designを実装し、candidate verifierを統合する |
 | N-04G-20 | P0 | Pending | Adversarial / replay / verifier benchmark / regression testを実施する |
@@ -164,39 +165,19 @@ docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md
 docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md
 ```
 
-### Goal
-
-Case 1型の「supported clause + unsupported clause」を1 verdictでPASSさせない。
-
 ### Decisions
 
 - `1 validation unit = 1 atomic semantic proposition`を必須invariantとした。
-- atomicityを「部分ごとに異なるgrounding verdictを持ち得るか」で定義した。
 - Atomicity Gateの結果を`ATOMIC / NON_ATOMIC / INDETERMINATE`とし、`ATOMIC`だけがsupport / derivation validationへ進める。
-- 異なるgrounding policyを必要とするmixed-role contentを同一unitへ混在させない。
+- mixed-role contentを同一unitへ混在させない。
 - content materiality / role boundary判定をmodel-declared `semantic_role`より優先する。
-- role mismatchをsilent reclassificationして救済せず、明示failureとして扱う。
-- post-hoc atomizerをdebug / audit補助に限定し、唯一のgrounding authorityにしない。
-- N-04 v3 formal baselineではmodel-authored `stylistic_expression`を禁止する。
+- role mismatchをsilent reclassificationして救済しない。
+- post-hoc atomizerを唯一のgrounding authorityにしない。
+- v3 formal baselineではmodel-authored `stylistic_expression`を禁止する。
 - `context_limit`をsupplied Contextの可用性に関するmeta / epistemic propositionへ限定する。
-- `creative_addition`へsource Object / Concept等のfactを混在させない。
-- `interpretation`をconclusion-onlyとし、source factual premiseを同一textへ埋め込まない。
+- `creative_addition`へsource Object / Concept factを混在させない。
+- `interpretation`はconclusion-onlyとし、source factual premiseを同一textへ埋め込まない。
 - Atomicity / role-boundary failureを後段semantic verifierのpositive verdictでoverrideできない。
-
-### G-12 Case 1 desk replay
-
-```text
-supported clause + unsupported clause in one unit
--> NON_ATOMIC
--> support validationへ進まない
--> no grounded PASS
-```
-
-```text
-material claim declared stylistic_expression
--> role invalid / v3 enum outside contract
--> no grounded PASS
-```
 
 ### Completion condition
 
@@ -223,11 +204,10 @@ docs/decisions/N04G15_OUTPUT_SCHEMA_PRESENTATION_RENDERER_HARDENING.md
 - model-generated free-form `label`をv3 normative output contractから削除する。
 - heading / separatorは`presentation_role`からtrusted deterministic rendererが生成する。
 - visible LLM-authored semantic textをvalidated `unit.text`だけに限定する。
-- block role / unit semantic role matrixを定義し、構造的なrole mismatchを前段でreject可能にする。
+- block role / unit semantic role matrixを定義する。
 - G-14に従い`stylistic_expression`をv3 model output enumから除外する。
 - role-specific block schemaをv3 baselineの第一候補とする。
 - provider schemaとapplication parserを同一canonical logical schemaから導出する。
-- provider structured-output capabilityをformal runtime前にpreflightする。
 - schema errorで`json_path / block_id / unit_id / failure_detail / expected_rule`を保持可能にする。
 - G-12 Case 3 `label=null`とfree-form label injectionを新contractで構造的に除去する。
 - breaking changeのため`sgokb.grounded-generation-output.v2`へのrevisionを予約し、最終version/shapeはG-18でfreezeする。
@@ -259,10 +239,6 @@ rendered semantic content
 docs/decisions/N04G16_SEMANTIC_VALIDATION_ARCHITECTURE_REDESIGN.md
 ```
 
-### Goal
-
-single general-purpose LLM judgeを最終grounding authorityにせず、source fact supportとinterpretation derivationを異なるvalidation pipelineへ分離する。
-
 ### Decisions — Source fact
 
 ```text
@@ -279,10 +255,10 @@ composition / disagreement policy
 - AlignScoreをsecondary benchmark candidateとした。
 - V3 deterministic-supportedはsemantic verifier不要。
 - V3 unresolvedはspecialized fact verifierへ渡す。
-- N-04 v3 formal baselineではspecialized positive + independent bounded LLM `ENTAILED`のagreementをsemantic support条件とする方向を採用する。
+- v3 formal baselineではspecialized positive + independent bounded LLM `ENTAILED`のagreementをsemantic support条件とする方向を採用する。
 - specialized negativeをgeneral LLMのpositive verdictで救済しない。
 - verifier disagreement / ambiguity / unavailableをPASSへ倒さない。
-- scoreを校正済みtruth probabilityとして扱わず、model/revisionごとのSGOKB benchmarkでthresholdをfreezeする。
+- scoreを校正済みtruth probabilityとして扱わず、SGOKB benchmarkでthresholdをfreezeする。
 
 ### Decisions — Interpretation
 
@@ -298,25 +274,12 @@ bounded derivation judge
 - `premise_unit_ids[]`で既に`supported`のsource_fact unitを参照する。
 - premiseはv3 baselineではsource_factのみ。interpretation chainingは許可しない。
 - unsupported / contradictory / indeterminate premiseがあればderivation judgeへ進めない。
-- derivation judgeは「atomic conclusionがvalidated premisesだけからreasonableに導けるか」のみを判定する。
+- derivation judgeはatomic conclusionがvalidated premisesだけから合理的に導けるかだけを判定する。
 - hidden external premiseを必要とするconclusionは`derived_supported`にしない。
-
-### G-12 replay consequence
-
-```text
-Case 1 U2 -> G-14 NON_ATOMIC -> V4Fへ到達しない
-Case 1 U3 -> G-14/G-15 role invalid -> V4Fへ到達しない
-Case 2 unsupported premise -> source_fact validationで停止
-Case 2 hidden premise -> derivation-only judgeでno derived_supported
-```
 
 ### Offline benchmark gate
 
-特定MiniCheck/AlignScore checkpoint・thresholdはG-16時点ではproduction採用していない。
-
-G-19/G-20でReference Workstation上にcandidateを統合し、G-12 replay/adversarial setを使ってoffline benchmarkを実施する。
-
-必須原則:
+特定MiniCheck/AlignScore checkpoint・thresholdはG-16時点ではproduction採用していない。G-19/G-20でcandidateを統合し、G-12 replay/adversarial setを使ってoffline benchmarkを実施する。
 
 - required negative/replay caseを1件でもsupport扱いするprofileをformal baselineへ採用しない。
 - false-positive最小化を優先する。
@@ -337,41 +300,77 @@ G-19/G-20でReference Workstation上にcandidateを統合し、G-12 replay/adver
 
 ## 9. N-04G-17 [P0] — Material sufficiency / terminal / render gate redesign
 
-### Goal
+**Status: Complete (2026-10-19, design)**
 
-`validation PASS`と`use-caseを実際に完遂した`を分離し、Machine `ACCEPTED`が過度に広くならないようにする。
-
-現在のfallback material sufficiencyは、material roleが1 unitでもあればtrueになり得る。
-
-### Required decisions
-
-- `MaterialRequirementGate`または同等componentを導入する。
-- generic purpose invariantとbenchmark-specific acceptance requirementを分離する。
-- comparisonの両Object coverage。
-- creativeの両Concept source grounding + creative addition存在。
-- roleplayの必要grounded fact数等、formal case-specific requirementはharnessから明示する。
-- rendererをterminal decisionへbindする。
-
-推奨:
+正本:
 
 ```text
-Grounding PASS
-   ↓
-Material Requirement PASS
-   ↓
-Terminal ACCEPTED
-   ↓
-Renderer
+docs/decisions/N04G17_MATERIAL_SUFFICIENCY_TERMINAL_RENDER_GATE_REDESIGN.md
 ```
 
-`validation PASS`だけではnormal responseをrenderしない。
+### Goal
+
+`Grounding PASS`と`use-case completion`を分離し、Machine `ACCEPTED`およびrenderer permissionをfail-closedにする。
+
+### Decisions
+
+```text
+Grounding Validation PASS
+        ↓
+Material Requirement Gate PASS
+        ↓
+Terminal ACCEPTED
+        ↓
+NORMAL Renderer
+```
+
+- `MaterialRequirementGate`を独立componentとして導入する設計を確定。
+- `Grounding PASS`だけでは`ACCEPTED`にしない。
+- purpose-level generic requirementとN-04 benchmark-specific requirement profileを分離する。
+- source coverageはvalidated `source_fact`のK ref / source-object mappingからdeterministically算出する。
+- Comparisonはrequired両Object/Workのsource coverageを要求する。
+- Creativeはrequired両Conceptのsource coverage + `creative_addition`存在を要求する。
+- Roleplayのgeneric coreはsupported source material存在、formal Case 1の最低2 facts等はharness profileから注入する。
+- Material verdictを`PASS / FAIL_REPAIRABLE / FAIL_CONTEXT_INSUFFICIENT / INDETERMINATE`へ分離する方向を採用。
+- `INSUFFICIENT_CONTEXT`はvalidated `context_limit`-only safe responseへ限定する。
+- partial normal answer + insufficiency noticeはv3 baselineでは不採用。
+- rendererをterminal decision / output identityへbindする。
+- `REJECTED / SYSTEM_FAILURE`はnormal render不可。
+- render modeを`NORMAL / CONTEXT_LIMIT_ONLY / NONE`へ分離する。
+- output/context/run/attempt binding identityをterminal/render authorizationに保持する方向を採用。
+
+### G-12 replay consequence
+
+```text
+Case 1 grounding false acceptance
+-> G-14/G-16でGrounding PASS不可
+-> Material Gateへ進まない
+-> no ACCEPTED / no NORMAL render
+```
+
+```text
+Case 2 one-side-only grounded comparison
+-> source coverage incomplete
+-> Material FAIL
+-> no ACCEPTED
+```
+
+```text
+Case 3 one-Concept-only grounding or no creative addition
+-> Material FAIL
+-> no ACCEPTED
+```
 
 ### Completion condition
 
-- [ ] ACCEPTED条件がG-06の意味と一致。
-- [ ] materially insufficient outputをACCEPTEDにしない。
-- [ ] REJECTED / SYSTEM_FAILUREはrender不能。
-- [ ] INSUFFICIENT_CONTEXTはcontext-limit専用safe render pathのみ。
+- [x] ACCEPTED条件をG-06の意味と整合する形でGrounding PASS + Material PASSへ強化。
+- [x] materially insufficient outputをACCEPTEDにしない。
+- [x] generic purpose invariantとbenchmark-specific profileを分離。
+- [x] comparison / creative source coverageをmachine-check可能にした。
+- [x] REJECTED / SYSTEM_FAILUREをrender不能とした。
+- [x] INSUFFICIENT_CONTEXTをcontext-limit-only safe render pathへ限定。
+- [x] terminal/output identity renderer bindingを定義。
+- [x] production codeは未変更。
 
 ---
 
@@ -393,6 +392,8 @@ Freeze対象:
 - material requirement gate
 - terminal/render relationship
 - retry feedback structure
+- context-limit-only safe terminal path
+- output/terminal/render identity binding
 
 ---
 
@@ -441,8 +442,10 @@ G-12 evidenceをgold regression fixtureへ変換可能な最小synthetic testcas
 10. materially incomplete but grounded response -> not ACCEPTED
 11. validation PASS but terminal REJECTED/SYSTEM_FAILURE -> renderer refuses
 12. source fact verifier disagreement -> INDETERMINATE/FAIL-CLOSED
-13. G-12 Case 1/2/3 failure shapes all regress correctly
-14. existing G-10 tests remain PASS or are deliberately migrated with documented reason
+13. INSUFFICIENT_CONTEXT + mixed normal material -> safe renderer refuses
+14. attempt/output binding mismatch -> render authorization denied
+15. G-12 Case 1/2/3 failure shapes all regress correctly
+16. existing G-10 tests remain PASS or are deliberately migrated with documented reason
 
 Verifier benchmark must additionally include:
 
@@ -477,6 +480,8 @@ Formal run前にfreeze:
 - source-fact verifier threshold profile
 - independent source-fact LLM judge
 - interpretation derivation judge
+- material requirement profiles
+- terminal/render policy
 - runtime/settings
 - structured-output mechanism
 - retry policy
@@ -500,6 +505,8 @@ N-04 Complete requires:
 3 / 3 formal Case PASS
 + no unsupported rendered material claim
 + no role escape
++ material requirement PASS
++ terminal/render authorization PASS
 + canonical invariance
 + integrity PASS
 + focused/adversarial/verifier regression PASS
@@ -521,7 +528,7 @@ G-15 Output / Presentation Contract Complete
   ↓
 G-16 Semantic Validation Architecture Complete
   ↓
-G-17 Material / Terminal / Render Gate
+G-17 Material / Terminal / Render Gate Complete
   ↓
 G-18 Post-G12 Design Freeze
   ↓
