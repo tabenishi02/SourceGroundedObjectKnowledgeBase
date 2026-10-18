@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -42,4 +44,4 @@ jobs:
         run: python -m ruff check src/sgokb/grounding src/sgokb/application_grounding.py tests/test_n04_grounded_generation.py
 
       - name: Git whitespace check
-        run: git diff --check HEAD^
+        run: git diff --check HEAD^ HEAD
