@@ -1,13 +1,14 @@
 # Source Grounded Object Knowledge Base — Phase N Preparation
 
-更新日: 2026-10-16
+更新日: 2026-10-18
 
-- Status: **Active — N-03 Complete / N-04 Next**
+- Status: **Active — N-03 Complete / N-04 prerequisite Complete / N-04 Failed**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - Previous closure: `docs/planning/PHASE_M_CLOSURE_AUDIT.md`
 - Baseline: `7b4507ab5a80ebdb687c65d5e4627beb83806f3c`
-- Current task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`（Next / 未着手）
+- Current task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`（Failed / grounding再受入が必要）
+- N-04 AI use-case acceptance: Failed（2026-10-18、Context外claim）
 
 ---
 
@@ -64,7 +65,7 @@ Phase Nへ引き継ぐ既知制約:
 | N-01 | P0 | **Complete (2026-10-16)** | Unit TestをObject / Relation / Facet / Version / Validation / Retrievalへ整理・補完 |
 | N-02 | P0 | **Complete (2026-10-16)** | cross-domain Integrationを追加 |
 | N-03 | P0 | **Complete (2026-10-16)** | Character / Work / Conceptの実データVertical Slice |
-| N-04 | P0 | **Next / 未着手** | 代表AI利用ケース3件の受入 |
+| N-04 | P0 | **Failed (2026-10-18)** | 代表AI利用ケース3件の受入 |
 | N-05 | P0 | Pending | 1 Object自動処理時間の計測 |
 | N-06 | P0 | Pending | Retrieval / Vector Backend品質評価 |
 | N-07 | P1 | Pending | Failure / Recovery試験 |
@@ -398,6 +399,38 @@ N-02完了時の次TaskはN-03だった。現在の状態はsection 16を参照�
 
 2026-10-16、8 real Web Captureをfresh評価DBへ取り込み、Character / Work / Concept各2 Object、6 Package / valid Result / accepted current Versionを固定した。全74 Package EvidenceのProvenance、全12 Statement grounding、canonical name / alias lexical smoke、system integrity、full pytest（307 passed / 3 skipped / 0 failed）がPASSした。
 
-N-03 Complete / N-04 Next。成果物は`docs/evaluation/N03_REAL_DATA_VERTICAL_SLICE.md`と`benchmark/n03-real-data-vertical-slice-v1.json`。Raw / DB / Package / Result / logsはGit管理外。
+N-03完了時の状態はN-04 Nextだった。現在はN-04 prerequisite Complete / N-04 Failed（section 17参照）。成果物は`docs/evaluation/N03_REAL_DATA_VERTICAL_SLICE.md`と`benchmark/n03-real-data-vertical-slice-v1.json`。Raw / DB / Package / Result / logsはGit管理外。
 
-内容語検索10 probeはSearch Representationがpendingのため未ヒットで、派生生成経路とretrieval品質は未受入。N-04の検索依存ケースではこの制約を先に解消・受入する。identity smokeの成功をsemantic品質やAI出力品質の成功へ拡大しない。N-04〜N-07とclosure auditを残し、Phase N全体は継続中。
+N-03受入時、内容語検索10 probeはSearch Representationがpendingのため未ヒットだった。P-06で派生生成経路を受け入れ、8 queryがhitへ改善した。残る2 queryはaccepted Knowledge coverage課題としてN-06へ送る。identity smokeの成功をsemantic品質やAI出力品質の成功へ拡大しない。N-04〜N-07とclosure auditを残し、Phase N全体は継続中。
+
+
+## 17. N-04 Derived Search prerequisite完了状態
+
+N-03 Completeを維持する。N-04本体の正式開始前に`docs/planning/N04_PREREQUISITE_DERIVED_SEARCH_PIPELINE.md`のN-04P-01〜P-06を必須Gateとして処理する。
+
+- N-04P-01: Complete（lifecycle contract）。
+- N-04P-02: Complete（Reference Workstation検証PASS、Search Representation Application sync）。
+- N-04P-03: Complete（Incremental Embedding同期 / Reference Workstation検証PASS）。
+- N-04P-04: Complete（Vector Index同期 / rebuild / Reference Workstation検証PASS）。
+- N-04P-05: Complete（Public CLI / Status、Reference Workstation全Gate PASS）。
+- N-04P-06: Complete（2026-10-18、実runtime受入PASS）。
+- N-04 AI use-case acceptance: Failed（prerequisite全体Completeは維持）。
+
+P-02はsemantic runtimeなしでKnowledge内容語Lexical Searchを成立させるApplication境界までの完了である。P-03で明示provider注入によるEmbedding同期まで完了した。P-04でVector同期 / rebuildまで完了した。P-05でpublic CLI / statusを完了し、P-06でN-03 real-dataへの正式適用を完了した。実測結果は`docs/planning/N04P02_SEARCH_REPRESENTATION_SYNC.md`を参照する。
+
+
+N-04P-03もReference Workstationで全GateがPASSしCompleteとなった。provider未構成はpending維持、missing-only生成、Embedding reuse / Space isolation、failure時Knowledge保全、superseded成功/失敗のrevision guardを確認済み。詳細は`docs/planning/N04P03_INCREMENTAL_EMBEDDING_SYNC.md`。P-06完了時にN-04本体の開始条件を満たした。その後のN-04実測結果はsection 18を参照する。
+
+
+2026-10-17、N-04P-04も全GateがPASSしComplete。incremental current/historical metadata更新、missing Embedding拒否、revision guard、fresh full rebuild、Semantic/Similarity、Builder/既存CLIのlifecycle-neutral境界を確認した。実測結果は`docs/planning/N04P04_VECTOR_INDEX_SYNC_REBUILD.md`。P-04受入時の次TaskはP-05だった。現在はP-01〜P-06 Complete。N-04 AI use-case acceptanceはFailed（section 18参照）。
+
+
+2026-10-17、N-04P-05の公開CLI接続と全Gate検証を完了した。`docs/planning/N04P05_PUBLIC_CLI_STATUS.md`を参照する。P-05受入時の次TaskはP-06だった。現在はP-06もComplete、PR #39はDraft。
+
+
+2026-10-18、N-04P-06の実モデル / 実Qdrant受入を完了した。canonical不変・integrity・全回帰PASS。`docs/planning/N04P06_REAL_DATA_DERIVED_SEARCH_ACCEPTANCE.md`を参照する。N-04 prerequisite Complete、次TaskはN-04 [P0] 3つの代表AI利用ケースを受入試験する。
+
+
+## 18. N-04 AI use-case runtime acceptance
+
+2026-10-18、実MCP stdio / current Context / local LLMで全3ケースを実施した。Phi-4から既存Mistral Small 3.2へ許可された1回だけ切替し、同じprompt/rubricで3ケース全部を再試験した。最終Case 1/2にcriticalなContext外claim、Case 3に創作範囲明示不足が残り、N-04はFailed。canonical不変・integrity・focused/full pytestはPASS。正本は`docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`。N-05へ進めず、N-04をopenのまま保持する。

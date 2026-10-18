@@ -14,6 +14,11 @@ import httpx
 
 from sgokb.application import Application
 from sgokb.application_admin import ObjectAdminApplication, ObjectSelectorError
+from sgokb.application_derived import DerivedSearchOperatorApplication
+from sgokb.application_maintenance import (
+    DerivedMaintenanceError,
+    DerivedMaintenanceRuntimeUnavailableError,
+)
 from sgokb.application_read import (
     KnowledgeReadApplication,
     KnowledgeRequestError,
@@ -321,6 +326,12 @@ def parser() -> argparse.ArgumentParser:
     system_actions = system.add_subparsers(dest="action", required=True)
     system_actions.add_parser("status")
     system_actions.add_parser("integrity")
+    derived = system_actions.add_parser("derived")
+    derived_actions = derived.add_subparsers(dest="subaction", required=True)
+    for action in ("status", "sync"):
+        operation = derived_actions.add_parser(action)
+        operation.add_argument("--object", dest="object_id")
+        operation.add_argument("--semantic-runtime", action="store_true")
     index = system_actions.add_parser("index")
     index_actions = index.add_subparsers(dest="subaction", required=True)
     index_actions.add_parser("status")
@@ -388,9 +399,7 @@ def _source_dispatch(repository, args):
 
     if args.action == "import":
         targets = (
-            [args.path]
-            if args.path.is_file()
-            else sorted(args.path.rglob("*.webcapture.zip"))
+            [args.path] if args.path.is_file() else sorted(args.path.rglob("*.webcapture.zip"))
         )
     else:
         targets = (
@@ -413,9 +422,7 @@ def _source_dispatch(repository, args):
             output.append(value)
         except Exception as exc:
             failed = True
-            output.append(
-                {"input": str(target), "error": type(exc).__name__, "reason": str(exc)}
-            )
+            output.append({"input": str(target), "error": type(exc).__name__, "reason": str(exc)})
     return output, failed
 
 
@@ -443,9 +450,7 @@ def _object_dispatch(repository, args, admin: ObjectAdminApplication):
     if args.action == "alias":
         if args.subaction == "list":
             return admin.aliases(object_id)
-        return admin.add_alias(
-            object_id, args.value, language=args.language, kind=args.kind
-        )
+        return admin.add_alias(object_id, args.value, language=args.language, kind=args.kind)
     if args.action == "class":
         if args.subaction == "set-primary":
             return admin.set_primary_class(object_id, args.class_ref)
@@ -598,19 +603,21 @@ def _result_dispatch(repository, args):
     if args.action == "detect":
         return [item.to_dict() for item in receipts.detect(args.incoming_root)]
     if args.action == "receive":
-        return receipts.receive(
-            args.result, args.package_id, args.incoming_root
-        ).to_dict()
+        return receipts.receive(args.result, args.package_id, args.incoming_root).to_dict()
     if args.action == "list":
         return list(audit.result_receipts(args.package_id))
     if args.action == "pending":
         return list(audit.pending_result_receipts())
     if args.action == "validate":
-        return ResultValidationService(repository, audit).validate_receipt(
-            args.receipt_id,
-            incoming_root=args.incoming_root,
-            force=args.force,
-        ).to_dict()
+        return (
+            ResultValidationService(repository, audit)
+            .validate_receipt(
+                args.receipt_id,
+                incoming_root=args.incoming_root,
+                force=args.force,
+            )
+            .to_dict()
+        )
     if args.action == "review":
         report = DiffReviewService(repository, audit).review_result(
             args.receipt_id,
@@ -654,9 +661,7 @@ def _version_dispatch(repository, args):
 
 def _search_dispatch(repository, args):
     if args.require_full_runtime and not args.semantic_runtime:
-        raise RetrievalRuntimeUnavailableError(
-            "--require-full-runtime requires --semantic-runtime"
-        )
+        raise RetrievalRuntimeUnavailableError("--require-full-runtime requires --semantic-runtime")
     read = build_read_application(repository, with_semantic=args.semantic_runtime)
     filters = ObjectSearchFilters(
         primary_class=args.primary_class,
@@ -723,6 +728,18 @@ def _system_dispatch(repository, db_path: Path, args):
         return system_status(repository, db_path)
     if args.action == "integrity":
         return integrity(repository)
+    if args.action == "derived":
+        runtime = {}
+        if args.semantic_runtime:
+            try:
+                provider, vector = semantic_runtime()
+            except Exception as exc:
+                raise DerivedMaintenanceRuntimeUnavailableError(str(exc)) from exc
+            runtime = {"embedding_provider": provider, "vector_index": vector}
+        application = DerivedSearchOperatorApplication(repository, **runtime)
+        if args.subaction == "status":
+            return application.status(args.object_id)
+        return application.sync(args.object_id, semantic=args.semantic_runtime)
     if args.action == "index":
         if args.subaction == "status":
             return index_status(repository)
@@ -737,6 +754,13 @@ def _system_dispatch(repository, db_path: Path, args):
 
 
 def _error_exit(exc: Exception) -> tuple[str, int]:
+    if isinstance(exc, DerivedMaintenanceRuntimeUnavailableError):
+        return "derived_runtime_unavailable", EXIT_RUNTIME
+    if isinstance(exc, DerivedMaintenanceError):
+        message = str(exc).lower()
+        if "unknown" in message or "not found" in message:
+            return "not_found", EXIT_NOT_FOUND
+        return "precondition_failed", EXIT_BLOCKED
     if isinstance(exc, ObjectSelectorError):
         return getattr(exc, "code", "object_selector_error"), EXIT_NOT_FOUND
     if isinstance(exc, RetrievalRuntimeUnavailableError):
@@ -757,10 +781,7 @@ def _error_exit(exc: Exception) -> tuple[str, int]:
         text = str(exc).lower()
         if any(word in text for word in ("not found", "unknown ", "ambiguous")):
             return "not_found", EXIT_NOT_FOUND
-        if any(
-            word in text
-            for word in ("requires explicit", "blocked", "review acknowledgement")
-        ):
+        if any(word in text for word in ("requires explicit", "blocked", "review acknowledgement")):
             return "precondition_failed", EXIT_BLOCKED
         return "invalid_input", EXIT_INPUT
     return "internal_error", 1
@@ -834,6 +855,8 @@ def main(argv=None) -> int:
             return 0
         else:
             data = _system_dispatch(repository, db_path, args)
+            if args.action == "derived" and args.subaction == "sync":
+                partial = data.partial
 
         return emit_success(
             command,

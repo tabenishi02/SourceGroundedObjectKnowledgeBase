@@ -36,7 +36,7 @@ from .evidence_search import (
     EvidenceSearchResponse,
     EvidenceSearchResult,
 )
-from .hybrid_search import HybridObjectSearch, KnowledgeVectorIndexBuilder
+from .hybrid_search import HybridObjectSearch
 from .package import (
     EvidenceBudget,
     EvidencePackageSelector,
@@ -46,6 +46,18 @@ from .package import (
 )
 from .search_representation import BuiltSearchRepresentation, SearchRepresentationBuilder
 from .similarity import ObjectSimilaritySearch
+from .vector_index import (
+    DEFAULT_QDRANT_EF_CONSTRUCT,
+    DEFAULT_QDRANT_FULL_SCAN_THRESHOLD,
+    DEFAULT_QDRANT_HNSW_M,
+    DEFAULT_QDRANT_INDEXING_THRESHOLD,
+    DEFAULT_QDRANT_SEARCH_EF,
+    DEFAULT_VECTOR_INDEX_BACKEND,
+    QdrantVectorIndexAdapter,
+)
+from .vector_maintenance import KnowledgeVectorMaintenanceBuilder
+
+KnowledgeVectorIndexBuilder = KnowledgeVectorMaintenanceBuilder
 
 __all__ = [
     "CONTEXT_BUILDER_CONTRACT_VERSION",
@@ -73,6 +85,7 @@ __all__ = [
     "ranked_retrieval_metrics",
     "HybridObjectSearch",
     "KnowledgeVectorIndexBuilder",
+    "KnowledgeVectorMaintenanceBuilder",
     "EvidenceBudget",
     "EvidenceCandidate",
     "EvidencePackageSelector",
@@ -96,13 +109,3 @@ __all__ = [
     "QdrantVectorIndexAdapter",
     "estimate_tokens",
 ]
-
-from .vector_index import (
-    DEFAULT_QDRANT_EF_CONSTRUCT,
-    DEFAULT_QDRANT_FULL_SCAN_THRESHOLD,
-    DEFAULT_QDRANT_HNSW_M,
-    DEFAULT_QDRANT_INDEXING_THRESHOLD,
-    DEFAULT_QDRANT_SEARCH_EF,
-    DEFAULT_VECTOR_INDEX_BACKEND,
-    QdrantVectorIndexAdapter,
-)

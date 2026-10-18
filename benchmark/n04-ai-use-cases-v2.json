@@ -1,0 +1,310 @@
+{
+  "schema_version": "sgokb.n04-ai-use-cases/2",
+  "dataset_id": "n04-ai-use-cases-v2",
+  "status": "acceptance_spec_frozen",
+  "frozen_on": "2026-10-18",
+  "inherits_failed_baseline": "benchmark/n04-ai-use-cases-v1.json",
+  "source_dataset": "benchmark/n03-real-data-vertical-slice-v1.json",
+  "evaluation_db": ".local/n03/sgokb-n03.sqlite",
+  "design_freeze": "docs/decisions/N04G07_END_TO_END_GROUNDED_GENERATION_DESIGN_FREEZE.md",
+  "contract_versions": {
+    "context_builder": "sgokb.context-builder.v1",
+    "grounded_context": "sgokb.grounded-context.v1",
+    "generation_output": "sgokb.grounded-generation-output.v1",
+    "validation": "sgokb.grounding-validation.v1",
+    "failure_policy": "sgokb.grounding-failure-policy.v1"
+  },
+  "model_policy": {
+    "generator": {
+      "runtime": "local_chat_model_only",
+      "preferred_endpoint": "http://127.0.0.1:1234/v1",
+      "selection": "Freeze exactly one already-installed local general chat/instruct model before the formal run. Use the same generator model, runtime, endpoint, quantization, context configuration, and generation settings for all three cases and for both attempts when retry occurs.",
+      "case_specific_switching": false,
+      "retry_model_switching": false,
+      "cloud_inference": false,
+      "external_web_knowledge": false
+    },
+    "semantic_validator": {
+      "policy": "Use deterministic validation first. For V4 semantic validation, freeze one generator-independent local semantic validator runtime/model/settings before the formal run when an LLM judge is required. Do not select validators per case. Same-model self-check alone cannot certify grounding.",
+      "cloud_inference": false,
+      "external_web_knowledge": false,
+      "exact_identifier_frozen_by": "N-04G-11 formal harness freeze"
+    }
+  },
+  "generation_policy": {
+    "max_generation_attempts_per_case": 2,
+    "max_retries_per_case": 1,
+    "retry_invariants": [
+      "same context_fingerprint",
+      "same Grounded Context and K reference mapping",
+      "same generator model/runtime/endpoint/settings",
+      "same generation output contract version",
+      "same user task and case rubric"
+    ],
+    "retry_feedback": "Only structured validation failure feedback may be added. Do not add new retrieval results, Web knowledge, external facts, alternate models, or cloud inference.",
+    "partial_salvage": false,
+    "rendering": "Only validated structured semantic unit text may be rendered. Do not generate a separate model-authored final_response.",
+    "retry_pass_policy": "Attempt 2 may satisfy the Case PASS only when it reaches ACCEPTED under all frozen invariants, all Attempt 1/2 artifacts are preserved, and every case-specific acceptance gate is satisfied. Attempt 1 failure remains part of the evidence."
+  },
+  "terminal_outcomes": {
+    "ACCEPTED": "Validation PASS with sufficient content; eligible for Case PASS if the case-specific rubric also passes.",
+    "INSUFFICIENT_CONTEXT": "Safe validated context-limit outcome; not a critical hallucination failure, but does not satisfy N-04 Case PASS because the representative workflow was not completed.",
+    "REJECTED": "Grounding or contract failure remained after the allowed retry, or a non-recoverable grounding failure occurred; Case FAIL.",
+    "SYSTEM_FAILURE": "Infrastructure, canonical/reference integrity, or validator availability/capability failure; Case FAIL and not a generator-quality PASS/FAIL signal."
+  },
+  "common_generation_contract": {
+    "factual_source": "Only the supplied SGOKB Grounded Context may support source-world factual claims.",
+    "context_binding": "The output context_fingerprint must exactly match the supplied grounded context.",
+    "output_shape": "Return only sgokb.grounded-generation-output.v1 structured semantic units. Do not emit free prose outside the envelope and do not emit a separate final_response.",
+    "semantic_roles": [
+      "source_fact",
+      "interpretation",
+      "creative_addition",
+      "context_limit",
+      "stylistic_expression"
+    ],
+    "support_rule": "source_fact and interpretation units must declare the material K references in support_refs. creative_addition, context_limit, and stylistic_expression normally use an empty support_refs list.",
+    "grounding_disposition": "The generator must not self-certify supported/unsupported status. Grounding disposition is assigned by the validator.",
+    "insufficient_context": "Use context_limit instead of filling source-world factual gaps from model memory.",
+    "separation": "Interpretation and creative additions must appear in presentation scopes that remain visibly distinct from stored SGOKB facts.",
+    "record": [
+      "git_head",
+      "runtime",
+      "endpoint",
+      "generator_model_identifier",
+      "generator_model_metadata",
+      "validator_model_identifier_if_used",
+      "validator_model_metadata_if_used",
+      "temperature",
+      "max_tokens",
+      "seed_if_supported",
+      "MCP request/response",
+      "Grounded Context and K mapping",
+      "context_fingerprint",
+      "attempt 1 request/raw structured response/validation",
+      "retry feedback and attempt 2 artifacts if used",
+      "terminal outcome",
+      "rendered response if ACCEPTED",
+      "case evaluation"
+    ]
+  },
+  "validation_policy": {
+    "stages": [
+      "V0 Contract / Parse",
+      "V1 Reference Integrity",
+      "V2 Taxonomy / Use-case Policy",
+      "V3 Deterministic Support",
+      "V4 Bounded Semantic Support",
+      "V5 Aggregate Verdict"
+    ],
+    "aggregate_verdicts": [
+      "PASS",
+      "FAIL",
+      "INDETERMINATE"
+    ],
+    "grounded_certification": "fail_closed",
+    "indeterminate_is_pass": false,
+    "failure_classes": [
+      "VALIDATION_CONTRACT_ERROR",
+      "REFERENCE_INTEGRITY_ERROR",
+      "MISSING_REQUIRED_SUPPORT",
+      "UNSUPPORTED_CLAIM",
+      "CONTRADICTORY_CLAIM",
+      "ROLE_MISMATCH",
+      "SEPARATION_VIOLATION",
+      "CREATIVE_SCOPE_VIOLATION",
+      "SEMANTIC_INDETERMINATE",
+      "VALIDATOR_UNAVAILABLE"
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "n04-roleplay-saber",
+      "title": "Character Data -> local LLM Roleplay",
+      "object_ids": [
+        "326a97cf-47aa-4760-a7f1-07bfe639fcf0"
+      ],
+      "context": {
+        "via": "MCP build_context -> Grounding Reference Projection",
+        "purpose": "roleplay",
+        "max_characters": 12000,
+        "include_attributes": true,
+        "include_relations": true,
+        "include_evidence_refs": false,
+        "require_current_version": true,
+        "require_grounded_context_contract": "sgokb.grounded-context.v1"
+      },
+      "generation": {
+        "temperature": 0.2,
+        "max_tokens": 700,
+        "task": "Reply in first person as Saber to: 'Who are you, what is your role here, and what is your connection to Shirou?' Keep the rendered answer approximately 100 to 180 English words when sufficient context exists.",
+        "contract_requirements": [
+          "Use source_fact units with K support for source-world facts.",
+          "Use stylistic_expression only when it adds no material source-world proposition.",
+          "Do not invent missing personality, backstory, franchise events, hidden identity details, or relationship details.",
+          "Use context_limit when the supplied context cannot support a requested factual detail.",
+          "Normally use a main presentation block; do not expose K/U IDs in the rendered prose."
+        ]
+      },
+      "acceptance": {
+        "retrieval": [
+          "Context comes from the current accepted Saber Version through MCP build_context.",
+          "purpose=roleplay is preserved.",
+          "Context is non-empty and within budget.",
+          "No historical Version is silently substituted.",
+          "Grounded Context has a context_fingerprint and traceable K references."
+        ],
+        "output": [
+          "Terminal outcome is ACCEPTED.",
+          "The rendered response is recognizably first-person roleplay rather than a factual dump.",
+          "At least two concrete source_fact units are validated as supported from supplied K references.",
+          "No material factual unit is contradictory or unsupported.",
+          "No unsupported franchise/backstory detail is presented as source fact.",
+          "When personality/backstory coverage is missing, the output does not fabricate a detailed canonical personality or history.",
+          "Rendered content consists only of validated unit text."
+        ],
+        "critical_failures": [
+          "Any unsupported or contradictory material source-world fact survives into an ACCEPTED/rendered response.",
+          "Uses external Web/cloud knowledge or changes generator model/settings during the case.",
+          "A non-validated model-generated final prose path is used.",
+          "Historical/non-current Knowledge is silently substituted."
+        ]
+      }
+    },
+    {
+      "case_id": "n04-similar-work-comparison",
+      "title": "Similar Work retrieval -> AI comparative explanation",
+      "source_object_id": "d5824d33-7008-4121-9cfe-1f95a19667fd",
+      "expected_dataset_candidate_id": "57db855c-574a-4b38-b474-421c165894f1",
+      "retrieval": {
+        "via": "MCP find_similar_objects",
+        "source": "Fate/stay night",
+        "cross_class": false,
+        "limit": 5,
+        "require_current_scope": true,
+        "candidate_selection": "Use the highest-ranked returned current Work candidate. Do not hardcode the comparison target into the LLM step. Record whether it is BLEACH in this fixed N-03 dataset."
+      },
+      "context": {
+        "via": "MCP build_context -> Grounding Reference Projection",
+        "purpose": "comparison",
+        "max_characters": 24000,
+        "include_attributes": true,
+        "include_relations": false,
+        "include_evidence_refs": true,
+        "require_current_version": true,
+        "require_grounded_context_contract": "sgokb.grounded-context.v1"
+      },
+      "generation": {
+        "temperature": 0.0,
+        "max_tokens": 900,
+        "task": "Using only the two supplied SGOKB Grounded Contexts, provide a concise comparison covering shared points, Work A only, Work B only, interpretation, and limits where applicable.",
+        "contract_requirements": [
+          "Use at least one validated source_fact from each Work.",
+          "Put comparative inference in an interpretation presentation block with material K premises.",
+          "Do not import outside franchise facts as premises.",
+          "Do not treat Similarity score as truth probability, preference probability, or confidence.",
+          "Use context_limit when the accepted Knowledge is too sparse for a requested conclusion."
+        ]
+      },
+      "acceptance": {
+        "retrieval": [
+          "The comparison target comes from the actual Similarity path rather than manual selection.",
+          "The selected candidate is a current Work and the Similarity operation is not degraded.",
+          "Both current accepted Work Versions pass through purpose=comparison Context Builder.",
+          "Context budgets and version identities are preserved.",
+          "Grounded Context K mappings are recorded for both Works."
+        ],
+        "output": [
+          "Terminal outcome is ACCEPTED.",
+          "At least one validated supported source_fact from each Work is used.",
+          "At least one comparison or contrast is expressed.",
+          "Interpretation is visibly separated from stored SGOKB facts and is validated as derived_supported from cited premises.",
+          "No material outside-knowledge source fact or unsupported interpretation premise survives.",
+          "Data limitations are acknowledged when relevant.",
+          "Similarity score semantics are not misrepresented.",
+          "Rendered content consists only of validated unit text."
+        ],
+        "critical_failures": [
+          "Comparison target is hardcoded instead of coming from Similarity retrieval.",
+          "Any material outside-knowledge fact is introduced as if present in SGOKB.",
+          "An interpretation depends on an unsupported external factual premise.",
+          "Interpretation is presented indistinguishably from stored fact.",
+          "Historical/non-current Knowledge is silently mixed.",
+          "Similarity score semantics are misrepresented."
+        ]
+      }
+    },
+    {
+      "case_id": "n04-concept-combination-creative",
+      "title": "Concept A/B -> local LLM creative Character",
+      "object_ids": [
+        "8c83f986-f491-41a8-8645-9f71dd5874b9",
+        "fee32007-0f92-449a-ba21-4ec2f78d1cd4"
+      ],
+      "context": {
+        "via": "MCP build_context -> Grounding Reference Projection",
+        "purpose": "creative",
+        "max_characters": 24000,
+        "include_attributes": true,
+        "include_relations": true,
+        "include_evidence_refs": false,
+        "require_current_version": true,
+        "require_grounded_context_contract": "sgokb.grounded-context.v1"
+      },
+      "generation": {
+        "temperature": 0.2,
+        "max_tokens": 1100,
+        "task": "Use the supplied SGOKB contexts for Tsundere and Hero's Journey as source Concept knowledge and create one original fictional character concept that deliberately combines both.",
+        "contract_requirements": [
+          "Use at least one source_fact with K support from each Concept.",
+          "Keep source Concept knowledge outside the creative presentation block unless it is clearly being restated as grounded source knowledge.",
+          "Put newly invented names, setting, events, traits, and arc material in a visible creative presentation block as creative_addition units.",
+          "Do not require factual K support for valid creative_addition units.",
+          "Do not add factual claims about the two source Concepts that are absent from supplied K units."
+        ]
+      },
+      "acceptance": {
+        "retrieval": [
+          "Both Concept Objects are current accepted Versions retrieved through MCP build_context.",
+          "purpose=creative is preserved.",
+          "Both Concepts contribute non-empty Knowledge to the Context.",
+          "Context remains within budget with no silent historical fallback.",
+          "Grounded Context has recorded K references for both Concepts."
+        ],
+        "output": [
+          "Terminal outcome is ACCEPTED.",
+          "At least one validated grounded source idea from Tsundere and one from Hero's Journey is used.",
+          "The produced character is genuinely new rather than a restatement of one source Object.",
+          "The character/arc meaningfully combines both Concepts.",
+          "Invented character details are visibly separated in creative presentation scope and validated as permissible creative_addition units.",
+          "No unsupported factual claim about Tsundere or Hero's Journey is presented as SGOKB knowledge.",
+          "Rendered content consists only of validated unit text."
+        ],
+        "critical_failures": [
+          "One of the two Concepts is effectively unused.",
+          "Invented details are presented indistinguishably from SGOKB source facts.",
+          "External Web/cloud knowledge is used to complete the case.",
+          "Unsupported source Concept facts survive into an ACCEPTED/rendered response."
+        ]
+      }
+    }
+  ],
+  "formal_case_verdict": {
+    "PASS": "Terminal outcome is ACCEPTED and every retrieval/context/output gate for the case passes. Attempt 2 ACCEPTED is allowed only under the frozen retry policy with complete evidence.",
+    "FAIL": "Terminal outcome is INSUFFICIENT_CONTEXT, REJECTED, or SYSTEM_FAILURE; or any critical failure/output/retrieval gate fails even if validation otherwise produced PASS."
+  },
+  "overall_gate": {
+    "three_case_requirement": "All three cases must receive formal Case PASS. There is no majority or partial-pass rule.",
+    "retrieval_and_context": "All three cases complete through the public read boundary with current accepted Versions and without direct consumer-side SQLite Knowledge reads.",
+    "generator_consistency": "One frozen local generator model/runtime/settings set is used for every case and every retry attempt.",
+    "validator_consistency": "The same frozen validation implementation and, when V4 requires an LLM judge, the same frozen independent local semantic validator policy is used across cases.",
+    "grounding": "No ACCEPTED/rendered case contains a critical unsupported or contradictory source-world factual claim.",
+    "interpretation_separation": "Case 2 interpretation is visibly separated and validated from grounded premises.",
+    "creative_separation": "Case 3 creative additions are visibly separated from SGOKB source facts.",
+    "retry": "At most two generation attempts per case; no model/Web/cloud/context fallback is allowed during retry.",
+    "canonical_invariance": "N-03 canonical Knowledge, current Version pointers, Evidence, and provenance are unchanged before/after N-04.",
+    "integrity": "system integrity passes after acceptance.",
+    "regression": "Full pytest finishes with 0 failed and does not hide new failures with skip/xfail.",
+    "quality_boundary": "Formal retrieval ranking metrics remain N-06; N-04 judges representative grounded AI workflow completion, not retrieval ranking quality."
+  }
+}

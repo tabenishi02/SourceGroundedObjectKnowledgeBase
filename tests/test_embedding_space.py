@@ -139,7 +139,7 @@ def test_exact_cosine_baseline_is_backend_independent():
     scores = exact_cosine_scores([1.0, 0.0], [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])
     assert scores[0] == pytest.approx(1.0)
     assert scores[1] == pytest.approx(0.0)
-    assert scores[2] == pytest.approx(2 ** -0.5)
+    assert scores[2] == pytest.approx(2**-0.5)
 
 
 def test_i02_default_profile_is_frozen_to_harrier_06b():
@@ -182,12 +182,63 @@ def test_migration_015_upgrades_i01_schema_without_losing_representations(tmp_pa
     upgraded = Repository(path)
     try:
         assert upgraded.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 17
-        assert upgraded.one(
-            "SELECT content FROM search_representations WHERE id='representation-before-i02'"
-        )["content"] == "stable representation"
+        assert (
+            upgraded.one(
+                "SELECT content FROM search_representations WHERE id='representation-before-i02'"
+            )["content"]
+            == "stable representation"
+        )
         assert upgraded.one("SELECT count(*) AS n FROM search_embedding_spaces")["n"] == 0
         assert upgraded.one("SELECT count(*) AS n FROM search_representation_embeddings")["n"] == 0
         assert upgraded.one("PRAGMA integrity_check")["integrity_check"] == "ok"
         assert not upgraded.rows("PRAGMA foreign_key_check")
     finally:
         upgraded.close()
+
+
+def test_sentence_transformer_loads_all_components_from_pinned_offline_cache(monkeypatch):
+    import sys
+    from types import SimpleNamespace
+
+    from sgokb.retrieval.embedding import SentenceTransformerEmbeddingProvider
+
+    calls = []
+    transformer = SimpleNamespace(
+        get_embedding_dimension=lambda: 1024,
+        auto_model=SimpleNamespace(config=SimpleNamespace(_commit_hash=DEFAULT_EMBEDDING_REVISION)),
+    )
+
+    class Encoder:
+        max_seq_length = 32768
+
+        def __init__(self, model, **kwargs):
+            calls.append((model, kwargs))
+
+        def __getitem__(self, index):
+            assert index == 0
+            return transformer
+
+    monkeypatch.setattr(
+        "sgokb.retrieval.embedding.metadata", SimpleNamespace(version=lambda name: "6.1.0")
+    )
+    monkeypatch.setitem(
+        sys.modules, "torch", SimpleNamespace(cuda=SimpleNamespace(is_available=lambda: False))
+    )
+    monkeypatch.setitem(
+        sys.modules, "sentence_transformers", SimpleNamespace(SentenceTransformer=Encoder)
+    )
+    provider = SentenceTransformerEmbeddingProvider(
+        DEFAULT_EMBEDDING_MODEL,
+        revision=DEFAULT_EMBEDDING_REVISION,
+        local_files_only=True,
+        cache_folder="offline-cache",
+    )
+    model, kwargs = calls[0]
+    assert model == DEFAULT_EMBEDDING_MODEL
+    assert kwargs["revision"] == DEFAULT_EMBEDDING_REVISION
+    assert kwargs["local_files_only"] is True
+    assert kwargs["cache_folder"] == "offline-cache"
+    assert kwargs["model_kwargs"]["revision"] == DEFAULT_EMBEDDING_REVISION
+    assert kwargs["model_kwargs"]["local_files_only"] is True
+    assert provider.space.model_revision == DEFAULT_EMBEDDING_REVISION
+    assert provider.space.dimension == 1024

@@ -101,6 +101,8 @@ class SentenceTransformerEmbeddingProvider:
             model,
             device=self.device,
             cache_folder=cache_folder,
+            revision=revision,
+            local_files_only=local_files_only,
             truncate_dim=truncate_dim,
             model_kwargs=model_kwargs,
         )
