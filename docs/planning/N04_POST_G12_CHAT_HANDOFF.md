@@ -5,12 +5,12 @@
 - Project: `Source Grounded Object Knowledge Base (SGOKB)`
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Current branch of record: `main`
-- Branch state: **Phase M / Phase N task work integrated into main; G-14 documentation is based on main**
+- Branch state: **Phase M / Phase N task work integrated into main; G-14/G-15 design documentation is based on main**
 - Parent task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
 - Current N-04 state: **Failed / not Complete**
 - N-05: **blocked**
-- Completed remediation task: **N-04G-14 [P0] Atomic claim / semantic-role boundary redesign**
-- Next task: **N-04G-15 [P0] Output schema / presentation / deterministic rendering contract hardening**
+- Completed remediation task: **N-04G-15 [P0] Output schema / presentation / renderer hardening**
+- Next task: **N-04G-16 [P0] Semantic validation architecture redesign**
 
 ---
 
@@ -44,7 +44,7 @@ PR #39 -> dd7fd60fc8f30059803652b25fc22186ad9101bf
 
 Phase M branchesはPR #32〜#35ですでにmainへmerge済みだった。古いbranch refが残っていても、再mergeしない。
 
-G-14作業はこの統合済み`main`をbaseとして開始した。
+G-14/G-15作業はこの統合済み`main`を正本として実施した。
 
 ---
 
@@ -180,7 +180,51 @@ G-14ではproduction codeを変更していない。
 
 ---
 
-## 7. Post-G12 remediation task chain
+## 7. N-04G-15で確定した設計
+
+正本:
+
+```text
+docs/decisions/N04G15_OUTPUT_SCHEMA_PRESENTATION_RENDERER_HARDENING.md
+```
+
+主要Decision:
+
+1. model-generated free-form `label`をv3 normative output contractから削除する。
+2. `Interpretation` / `Creative addition` / `Context limit`等のheadingはtrusted rendererが`presentation_role`から決定論的に生成する。
+3. rendererへ到達するLLM-authored semantic textをvalidated `unit.text`だけに限定する。
+4. v3 baselineではblock role / unit semantic roleを原則1対1にする。
+5. `source_fact`はsupport ref必須、`creative_addition` / `context_limit`はsupport refなしをschemaへencodeする方向を固定した。
+6. G-14に従い`stylistic_expression`をv3 model output enumから除外する。
+7. role-specific block schemaを第一候補とし、provider/application間のhidden conditional ruleを減らす。
+8. providerへ渡すschemaとapplication parserを同一canonical logical schemaから導出する。
+9. parser-local hidden structural ruleは禁止する。
+10. provider structured-output capabilityはformal v3前にpreflightする。
+11. schema failureは`json_path / block_id / unit_id / failure_detail / expected_rule`を保持可能にする。
+12. breaking changeのため`sgokb.grounded-generation-output.v2`へのrevisionを予約し、最終version/shapeはG-18でfreezeする。
+
+G-12 Case 3 desk replay:
+
+```text
+creative block + label=null
+-> v3ではlabel field自体が存在しない
+-> deterministic rendererがtrusted headingを生成
+-> missing/null label retry loopの原因が消える
+```
+
+free-form label injectionについても:
+
+```text
+unknown label field
+-> contract violation / additionalProperties=false
+-> rendererへ到達しない
+```
+
+G-15ではproduction codeを変更していない。
+
+---
+
+## 8. Post-G12 remediation task chain
 
 正本:
 
@@ -193,7 +237,7 @@ Task:
 ```text
 N-04G-13  Root-cause / desk review / research       Complete
 N-04G-14  Atomic claim / semantic-role redesign     Complete
-N-04G-15  Output / presentation contract hardening  Pending
+N-04G-15  Output / presentation contract hardening  Complete
 N-04G-16  Semantic validation architecture          Pending
 N-04G-17  Material / terminal / render gate         Pending
 N-04G-18  Post-G12 Design Freeze                    Pending
@@ -207,37 +251,38 @@ N-04 CompleteはG-22で3/3 Case PASS + safety/regression Gate全PASS後のみ。
 
 ---
 
-## 8. 次のTask — N-04G-15
+## 9. 次のTask — N-04G-16
 
 Task:
 
 ```text
-N-04G-15 [P0]
-Output schema / presentation / deterministic rendering contractをhardeningする
+N-04G-16 [P0]
+Semantic validation architecture redesign
 ```
 
 目的:
 
-- Case 3のJSON Schema / parser mismatchを解消する。
-- model-generated presentation metadataからsemantic contentがvalidationを迂回しないようにする。
-- G-14で決定したatomicity / role-boundaryをv3 output contractへ物理化する。
+- Phi-4単独judgeのfalse acceptanceを最終grounding proofにしない。
+- source fact verificationとinterpretation derivation verificationを分離する。
+- G-14でconclusion-onlyとしたinterpretationを、validated premise unit参照で物理化する。
 
 最低検討事項:
 
-- model-generated `label`を削除するか、trusted fixed valueへ限定する。
-- renderer headingを`presentation_role`からdeterministically生成する。
-- arbitrary label textをrendered semantic contentへ入れない。
-- block role / semantic role / support ref cardinalityを可能な範囲でschemaへencodeする。
-- v3 schemaからmodel-authored `stylistic_expression`を除外する。
-- atomic unit / homogeneous roleをparser / validatorが扱いやすいcontract shapeへする。
-- `context_limit`をfree-form textのままにするかstructured reason code化するか決める。
-- LM Studio Structured Outputで使用可能なJSON Schema subsetをpreflight可能にする。
+- source fact verifier candidate（MiniCheck / AlignScore / frozen independent LLM judge等）の比較。
+- G-12保存claim/K pairを使ったoffline benchmark方針。
+- deterministic exact support後のunresolved claimに対するverifier chain。
+- verifier disagreement / indeterminateをPASSへ倒さないpolicy。
+- interpretationの`premise_unit_ids`等の物理contract。
+- premise unitが全てvalidated source factであることのdeterministic確認。
+- comparisonで両Object premise coverageが必要なclaimの検査。
+- hidden external premiseをderived-supportedへ昇格させない構造。
+- atomicity classifierのsemantic componentをsource-fact verifierとどう分離するか。
 
-G-15も設計Taskであり、Design Freeze前にproduction codeを変更しない。
+G-16も設計Taskであり、G-18 Design Freeze前にproduction codeを変更しない。
 
 ---
 
-## 9. 変更してはいけない境界
+## 10. 変更してはいけない境界
 
 具体的failure evidenceがない限り次を変更しない。
 
@@ -258,24 +303,24 @@ rubricを緩和してPASSさせない。
 
 ---
 
-## 10. 新チャットで最初に確認する文書
+## 11. 新チャットで最初に確認する文書
 
 優先順:
 
 1. `docs/planning/N04_POST_G12_CHAT_HANDOFF.md`
 2. `docs/planning/N04_POST_G12_REMEDIATION_TASKS.md`
-3. `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
-4. `docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md`
-5. `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
-6. `docs/decisions/N04G04_GENERATION_OUTPUT_CONTRACT.md`
-7. `docs/decisions/N04G05_GROUNDING_VALIDATION_DESIGN.md`
-8. `docs/decisions/N04G07_END_TO_END_GROUNDED_GENERATION_DESIGN_FREEZE.md`
-9. `src/sgokb/grounding/output.py`
-10. `src/sgokb/grounding/validation.py`
+3. `docs/decisions/N04G15_OUTPUT_SCHEMA_PRESENTATION_RENDERER_HARDENING.md`
+4. `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
+5. `docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md`
+6. `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
+7. `docs/decisions/N04G04_GENERATION_OUTPUT_CONTRACT.md`
+8. `docs/decisions/N04G05_GROUNDING_VALIDATION_DESIGN.md`
+9. `src/sgokb/grounding/validation.py`
+10. `tests/test_n04_grounded_generation.py`
 
 ---
 
-## 11. 新チャット開始用prompt
+## 12. 新チャット開始用prompt
 
 ```text
 SourceGroundedObjectKnowledgeBaseのPhase N / N-04 post-G12 remediationをこのチャットへ引き継ぎます。
@@ -286,16 +331,17 @@ GitHubはmainを正本として確認してください。過去のPhase N stack
 
 - docs/planning/N04_POST_G12_CHAT_HANDOFF.md
 - docs/planning/N04_POST_G12_REMEDIATION_TASKS.md
+- docs/decisions/N04G15_OUTPUT_SCHEMA_PRESENTATION_RENDERER_HARDENING.md
 - docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md
 - docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md
 - docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md
 
-現在、N-04G-14までComplete、N-04はFailed、N-05はblockedです。
+現在、N-04G-15までComplete、N-04はFailed、N-05はblockedです。
 
 次Taskは:
-N-04G-15 [P0] Output schema / presentation / deterministic rendering contractをhardeningする
+N-04G-16 [P0] Semantic validation architecture redesign
 
 です。
 
-G-14のatomicity / semantic-role boundary DecisionとG-12 Case 3保存evidenceを前提に、G-15を実施してください。設計Taskなので、Design Freeze前にproduction codeを変更しないでください。
+G-14/G-15 DecisionとG-12 Case 1/2保存evidenceを前提に、G-16を実施してください。設計Taskなので、G-18 Design Freeze前にproduction codeを変更しないでください。
 ```
