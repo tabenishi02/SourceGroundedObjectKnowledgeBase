@@ -4,10 +4,11 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
-- Current Status: **N-04 Failed — N-04G-01〜G-10 Complete / next N-04G-11 Formal Harness Freeze**
+- Current Status: **N-04 Failed — N-04G-01〜G-11 Complete / next N-04G-12 Formal Re-Acceptance**
 - Branch: `phase-n/n04-prerequisite-derived-search`
 - Failed baseline: `benchmark/n04-ai-use-cases-v1.json`
 - Frozen v2 acceptance spec: `benchmark/n04-ai-use-cases-v2.json`
+- Frozen formal harness: `benchmark/n04-v2-formal-harness-v1.json`
 - Acceptance record: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
 - Design handoff: `docs/planning/N04_GROUNDED_GENERATION_HANDOFF.md`
 - G-01: `docs/decisions/N04G01_GROUNDED_GENERATION_RESPONSIBILITY_BOUNDARY.md`
@@ -18,8 +19,10 @@
 - G-06: `docs/decisions/N04G06_VALIDATION_FAILURE_HANDLING_POLICY.md`
 - G-07: `docs/decisions/N04G07_END_TO_END_GROUNDED_GENERATION_DESIGN_FREEZE.md`
 - G-08: `docs/decisions/N04G08_N04_V2_ACCEPTANCE_SPEC_FREEZE.md`
+- G-08/G-11 clarification: `docs/decisions/N04G08_G11_GENERATION_SETTINGS_CLARIFICATION.md`
 - G-09: `docs/design/N04G09_GROUNDED_GENERATION_IMPLEMENTATION.md`
 - G-10: `docs/evaluation/N04G10_GROUNDED_GENERATION_REGRESSION.md`
+- G-11: `docs/decisions/N04G11_FORMAL_REACCEPTANCE_HARNESS_FREEZE.md`
 
 ---
 
@@ -37,6 +40,7 @@ G-08以降の正式再受入仕様は次を正本とする。
 
 ```text
 benchmark/n04-ai-use-cases-v2.json
+benchmark/n04-v2-formal-harness-v1.json
 ```
 
 v2はv1の3代表caseと核心rubricを継承し、G-07 Frozen Designを追加したものである。rubric緩和による見かけのPASSは禁止する。
@@ -57,7 +61,8 @@ v2はv1の3代表caseと核心rubricを継承し、G-07 Frozen Designを追加�
 
 ### Generator / Validation
 
-- formal runでは1つのfrozen local generator model/runtime/settingsを全case / retryで使用する。
+- formal runでは1つのfrozen local generator model/runtime/load profileを全caseで使用する。
+- case別temperature / max_tokensはFrozen v2 benchmark値を使用し、同一caseのretry前後では完全固定する。
 - silent cloud / Web / external factual supplementation禁止。
 - `sgokb.grounded-generation-output.v1`のstructured semantic unitsを使用する。
 - `sgokb.grounding-validation.v1`のHybrid validationを通す。
@@ -153,7 +158,7 @@ canonical KnowledgeをN-04 PASS目的で追加・改変しない。
 | N-04G-08 | P0 | **Complete (2026-10-18)** | N-04 v2 benchmark / acceptance freeze |
 | N-04G-09 | P0 | **Complete (2026-10-18)** | Frozen grounded-generation designを実装 |
 | N-04G-10 | P0 | **Complete (2026-10-18)** | automated test / regression |
-| N-04G-11 | P0 | Pending | formal re-acceptance harness / evidence freeze |
+| N-04G-11 | P0 | **Complete (2026-10-18)** | formal re-acceptance harness / evidence freeze |
 | N-04G-12 | P0 | Pending | Reference Workstation formal re-acceptance |
 
 N-05へ進めるのはN-04G-12でN-04 Completeが確認された後とする。
@@ -301,7 +306,8 @@ P0意味設計のsilent driftは禁止。変更にはG-07 reopenが必要。
 
 **Status: Complete (2026-10-18)**  
 **Decision:** `docs/decisions/N04G08_N04_V2_ACCEPTANCE_SPEC_FREEZE.md`  
-**Machine spec:** `benchmark/n04-ai-use-cases-v2.json`
+**Machine spec:** `benchmark/n04-ai-use-cases-v2.json`  
+**G-11 clarification:** `docs/decisions/N04G08_G11_GENERATION_SETTINGS_CLARIFICATION.md`
 
 ### Decision summary
 
@@ -310,7 +316,8 @@ P0意味設計のsilent driftは禁止。変更にはG-07 reopenが必要。
 - Grounded Context / K mappingをformal evidenceへ追加する。
 - structured semantic units + deterministic renderingを必須化する。
 - Hybrid validationを必須化する。
-- generator modelはformal run前に1つへfreezeし、formal run中のmodel switchを禁止する。
+- generator model/runtime/load profileはformal run前に1つへfreezeし、formal run中のmodel switchを禁止する。
+- case別temperature / max_tokensはv2 machine spec値を固定し、同一caseのretry前後で変更しない。
 - v1のmodel-switch retry ruleはv2では廃止する。
 - semantic validatorは必要時にgenerator-independentなfixed local validator policyを使用する。
 - max generation attempts = 2 / max retry = 1をfreezeする。
@@ -329,6 +336,7 @@ P0意味設計のsilent driftは禁止。変更にはG-07 reopenが必要。
 - [x] retry PASS / insufficient / terminal outcomeのCase判定を固定。
 - [x] 3 / 3 Overall PASSを固定。
 - [x] G-09〜G-11への引き渡しを定義。
+- [x] G-11でgeneration-settings wording ambiguityをbinding clarificationした。
 
 ---
 
@@ -388,32 +396,7 @@ src/sgokb/application_grounding.py
 tests/test_n04_grounded_generation.py
 ```
 
-### Verified branches
-
-- v2 output parse / malformed output / duplicate unit ID
-- deterministic Grounded Context / K mapping / fingerprint
-- Context projection input non-mutation
-- current / historical Version binding isolation
-- supported / unsupported / contradictory source facts
-- interpretation semantic derivation / visible separation
-- creative addition / creative scope separation
-- context_limit / `INSUFFICIENT_CONTEXT`
-- semantic validator unavailable / fail-closed `SYSTEM_FAILURE`
-- unknown K reference integrity
-- bounded single retry / retry exhausted `REJECTED`
-- deterministic rendering / partial salvage prohibition
-- evidence artifact writer
-- Application facade composition
-
 ### Final automated result
-
-GitHub Actions isolated regression run:
-
-```text
-run_id = 39124414421
-job_id = 117666427823
-CPython 3.11.17 / Ubuntu 24.04.5
-```
 
 ```text
 compileall: PASS
@@ -422,8 +405,6 @@ full pytest: 382 passed / 0 failed / 0 skipped
 ruff: PASS
 git diff --check: PASS
 ```
-
-Full suite warningは既存Qdrant local-mode behaviorの2件のみで、failureではない。
 
 Temporary GitHub Actions workflowは実行後に削除した。Formal Reference Workstation acceptanceはG-11/G-12へ残す。
 
@@ -443,26 +424,77 @@ Temporary GitHub Actions workflowは実行後に削除した。Formal Reference 
 
 ## N-04G-11 [P0] Formal Harness Freeze
 
-具体値へfreezeする:
+**Status: Complete (2026-10-18)**  
+**Decision:** `docs/decisions/N04G11_FORMAL_REACCEPTANCE_HARNESS_FREEZE.md`  
+**Machine harness:** `benchmark/n04-v2-formal-harness-v1.json`
 
-- evaluation DB / dataset
-- MCP route
-- actual generator model/runtime/settings
-- actual semantic validator model/runtime/settings if used
-- exact generation prompt / schema
-- retry policy
-- deterministic renderer rule
-- exact evidence paths
-- canonical before / after procedure
-- integrity / pytest procedure
+### Frozen actual runtime
 
-formal run開始後にcase単位のmodel / rubric / retry cherry-pickを禁止する。
+Generator:
+
+```text
+LM Studio 0.4.25.0
+http://127.0.0.1:1234/v1
+sgokb-n04-mistral32
+Mistral Small 3.2 24B Instruct Q4_K_M
+context 8192 / GPU offload=max / parallel=1 / seed=20261018
+```
+
+Semantic validator:
+
+```text
+LM Studio 0.4.25.0
+sgokb-n04-phi4
+Phi-4 Q4_K_S
+context 8192 / GPU offload=max / parallel=1
+temperature=0.0 / max_tokens=64 / seed=20261018
+```
+
+GeneratorとvalidatorはVRAM上必要ならsequential load/unload可。ただしidentifier / model file / load config / inference settings変更禁止。
+
+### Frozen case settings
+
+```text
+Case 1: temperature=0.2 / max_tokens=700
+Case 2: temperature=0.0 / max_tokens=900
+Case 3: temperature=0.2 / max_tokens=1100
+```
+
+同一caseのAttempt 1 / Attempt 2で完全一致させる。
+
+### Frozen harness boundary
+
+- N-03 evaluation DB / Harrier / Qdrant profileを固定。
+- MCP stdio command / environmentを固定。
+- LM Studio structured JSON Schema outputをformal pathで使用。
+- V4 semantic judge prompt / verdict enumを固定。
+- preflight完了後のCase 1最初のMCP requestをformal startと定義。
+- case orderをRoleplay -> Comparison -> Creativeに固定。
+- max retry=1 / max attempts=2を維持。
+- evidence rootを`.local/n04-v2/runs/<run_id>/`へ固定。
+- canonical safetyはevaluation DB SHA-256 before/after一致 + integrity before/after PASSを要求。
+- G-12後にReference Workstation focused/full regressionを再実行する。
+- final rubric authorityはbenchmark rubricに対するCodex/human evidence reviewとし、model self-scoreを採用しない。
+
+### Completion
+
+- [x] actual generatorをFreeze。
+- [x] actual generator-independent semantic validatorをFreeze。
+- [x] case-specific generation settingsをFreeze。
+- [x] exact MCP / retrieval runtimeをFreeze。
+- [x] structured-output / validator protocolをFreeze。
+- [x] preflight / formal-start boundaryをFreeze。
+- [x] exact evidence treeをFreeze。
+- [x] canonical before/after procedureをFreeze。
+- [x] Reference Workstation regression procedureをFreeze。
+- [x] formal run prohibited actionsをFreeze。
+- [x] G-12へ引き渡し可能。
 
 ---
 
 ## N-04G-12 [P0] Formal N-04 Re-Acceptance
 
-Frozen v2 spec / harnessだけを使用する。
+Frozen v2 spec / G-11 harnessだけを使用する。
 
 必須evidence:
 
@@ -519,7 +551,7 @@ N-04G-09 Implementation Complete
        ↓
 N-04G-10 Automated Test / Regression Complete
        ↓
-N-04G-11 Formal Harness Freeze
+N-04G-11 Formal Harness Freeze Complete
        ↓
 N-04G-12 Formal N-04 Re-Acceptance
        ↓
@@ -558,6 +590,6 @@ Creative visible scope separation: 採用
 ## 9. 次に実施するTask
 
 ```text
-N-04G-11 [P0]
-formal re-acceptance harness / evidence手順をfreezeする
+N-04G-12 [P0]
+Reference Workstation formal N-04 v2 re-acceptanceを実施し、N-04 Complete判定を行う
 ```
