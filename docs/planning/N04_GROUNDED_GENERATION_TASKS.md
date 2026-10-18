@@ -4,7 +4,7 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
-- Current Status: **N-04 Failed — N-04G-04 / G-05 Complete / next N-04G-06**
+- Current Status: **N-04 Failed — N-04G-01〜G-06 Complete / next N-04G-07 Design Freeze**
 - Branch: `phase-n/n04-prerequisite-derived-search`
 - Failure baseline: `benchmark/n04-ai-use-cases-v1.json`
 - Acceptance record: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
@@ -14,6 +14,7 @@
 - N-04G-03 Decision: `docs/decisions/N04G03_CONTEXT_GROUNDING_REFERENCE_CONTRACT.md`
 - N-04G-04 Decision: `docs/decisions/N04G04_GENERATION_OUTPUT_CONTRACT.md`
 - N-04G-05 Decision: `docs/decisions/N04G05_GROUNDING_VALIDATION_DESIGN.md`
+- N-04G-06 Decision: `docs/decisions/N04G06_VALIDATION_FAILURE_HANDLING_POLICY.md`
 
 ---
 
@@ -89,7 +90,7 @@ N-04 v1でこの領域のproduction defectは確認されていない。追加�
 
 ### 2.5 Evaluation Evidence Gate
 
-- MCP request / response、Context、LLM request / response、model metadata、evaluationを保存する。
+- MCP request / response、Grounded Context / K mapping、LLM request / raw structured response、model metadata、validation、retry履歴、rendered responseを保存する。
 - factual responseはatomic claim単位でContext supportを照合できる状態にする。
 - creative detailはgrounded factと別分類する。
 - LLM自身のself-evaluationだけで最終PASSを決めない。
@@ -114,7 +115,7 @@ N-04 v1でこの領域のproduction defectは確認されていない。追加�
 
 Knowledge coverage不足やretrieval ranking品質はN-06との境界を維持する。
 
-正しい挙動は、coverage不足をmodel memoryで補うことではなく、必要なら`insufficient context`を表現することである。
+正しい挙動は、coverage不足をmodel memoryで補うことではなく、必要なら`context_limit` / `INSUFFICIENT_CONTEXT`を表現することである。
 
 ---
 
@@ -128,7 +129,7 @@ Knowledge coverage不足やretrieval ranking品質はN-06との境界を維持�
 | N-04G-03 | P0 | **Complete (2026-10-18)** | Context grounding / reference contractを設計 |
 | N-04G-04 | P0 | **Complete (2026-10-18)** | generation / output contractを設計 |
 | N-04G-05 | P0 | **Complete (2026-10-18)** | grounding validation方式を設計 |
-| N-04G-06 | P0 | Pending | validation failure時のretry / reject / insufficient policyを設計 |
+| N-04G-06 | P0 | **Complete (2026-10-18)** | validation failure時のretry / reject / insufficient policyを設計 |
 | N-04G-07 | P0 | Pending | End-to-End designを統合しDesign Freeze |
 | N-04G-08 | P0 | Pending | N-04 v2 benchmark / acceptance specを固定 |
 | N-04G-09 | P0 | Pending | 採用設計を実装 |
@@ -138,7 +139,7 @@ Knowledge coverage不足やretrieval ranking品質はN-06との境界を維持�
 
 N-05へ進めるのは**N-04G-12でN-04 Completeが確認された後**とする。
 
-N-04G-05はN-04G-04より先に設計した。これはG-03〜G-06が相互依存するため許容される設計上の往復である。G-05 requirementsをG-04へ反映し、現在は両Taskが整合した状態でCompleteしている。
+N-04G-03〜G-06は相互依存するため設計上の往復を許容した。G-05を先に設計してG-04へvalidator要件を返す往復を完了し、G-06を含めて現在G-01〜G-06は個別Decisionとして揃っている。次のG-07でEnd-to-End整合を確認してDesign Freezeする。
 
 ---
 
@@ -159,10 +160,9 @@ N-04G-05はN-04G-04より先に設計した。これはG-03〜G-06が相互依�
 
 ### 完了条件
 
-- [x] 責務境界図または責務表が確定している。
-- [x] SGOKB / MCP / consumer / LLMそれぞれの責務が明記されている。
-- [x] 「何をSGOKBが保証し、何を保証しないか」が明記されている。
-- [x] N-04G-02以降が責務境界を前提に設計できる。
+- [x] SGOKB / MCP / Consumer / LLMの責務境界が確定している。
+- [x] SGOKBが保証する範囲 / 保証しない範囲が確定している。
+- [x] G-02以降が責務境界を前提に設計できる。
 
 ---
 
@@ -172,8 +172,6 @@ N-04G-05はN-04G-04より先に設計した。これはG-03〜G-06が相互依�
 **Decision record:** `docs/decisions/N04G02_CLAIM_TAXONOMY_AND_USE_CASE_BOUNDARIES.md`
 
 ### Decision summary
-
-単純なflat taxonomyではなく、次の**2軸taxonomy**を採用する。
 
 #### Axis A — Semantic Role
 
@@ -195,14 +193,10 @@ unsupported
 contradictory
 ```
 
-さらに、semantic role自体が許容されてもstored factとの境界が曖昧な場合を`separation_violation`として扱う。
-
-### 完了条件
-
-- [x] claim / output semantic分類と各定義が確定している。
-- [x] grounding状態をsemantic roleから分離している。
-- [x] 3 use caseそれぞれの許容 / 要分離 / 禁止境界を例示している。
-- [x] Case 1〜3のv1 failureを新taxonomyで一意に説明している。
+- `separation_violation`をstored fact / interpretation / creative境界のpresentation failureとして扱う。
+- Roleplay / Comparison / Creativeの許容・要分離・禁止境界を固定した。
+- Context不足を安全に表す`context_limit`を正常classとして定義した。
+- N-04 v1 Case 1〜3を新taxonomyで説明できる。
 
 ---
 
@@ -215,25 +209,13 @@ contradictory
 
 - **Context-local Grounding Reference + canonical identity metadata**方式を採用する。
 - LLM-facing referenceは`K1`, `K2`, ...とし、1 grounded Context内だけで有効とする。
-- 各`K*`は`object_id` / `resolved_version_id` / `source_kind` / canonical target identityへ必ず追跡可能にする。
-- `source_kind`は最低限`object_field / statement / attribute / relation`を扱う。
-- canonical Statement ID等はbackend metadataとして保持するが、LLMへ直接引用させる標準方式にはしない。
-- Evidence IDは一次grounding referenceにせず、provenance / audit用secondary metadataとする。
+- 各`K*`は`object_id` / `resolved_version_id` / `source_kind` / canonical target identityへ追跡可能にする。
 - `context_fingerprint + ref_id`でContext-local namespaceを識別する。
+- Evidence IDは一次referenceではなくprovenance / audit用secondary metadataとする。
 - J-04 Context Builderのselection後にreference projectionを行い、既存budget selection semanticsを変えない。
-- Context-local referenceはtraceabilityであり、reference存在だけをsemantic supportの証明にはしない。
+- reference存在だけをsemantic supportの証明にしない。
 - contract概念名を`sgokb.grounded-context.v1`とする。
-- canonical schema変更、新規persistent Fact IDは不要とする。
-
-### 完了条件
-
-- [x] 採用方式と不採用主要案の理由が記録されている。
-- [x] Contextからclaim supportを追跡する方法が定義されている。
-- [x] Object / Version / Knowledge itemへのcanonical traceabilityが定義されている。
-- [x] Roleplay / Comparison / Creativeで共通reference namespaceを使うことを確定している。
-- [x] Evidence / provenanceとの関係を分離している。
-- [x] Context budgetへの影響方針を確定している。
-- [x] canonical schema変更不要、新規persistent Fact ID不要と明示している。
+- canonical schema変更、新規persistent Fact IDは不要。
 
 ---
 
@@ -248,30 +230,15 @@ contradictory
 - output contractを`sgokb.grounded-generation-output.v1`とする。
 - LLMは`blocks[] -> units[]`のstructured envelopeを生成する。
 - 各unitは`unit_id / semantic_role / text / support_refs[]`を持つ。
-- `source_fact / interpretation`はN-04G-03の`K*`をsupportとして宣言する。
-- `creative_addition / context_limit / stylistic_expression`は原則`support_refs=[]`とする。
+- `source_fact / interpretation`は`K*`をsupportとして宣言する。
 - Grounding DispositionはLLMへ自己申告させず、G-05 validatorが判定する。
-- LLMに検証用claimsと別の`final_response`を生成させない。
-- validated `unit.text`だけをConsumerが決定論的にrenderし、human-facing responseとvalidation metadataの乖離を防ぐ。
-- `interpretation / creative`はpresentation blockを分離し、人間にも区別可能にする。
-- provider-native Structured Outputはoptional optimizationであり、SGOKB contractを特定providerへ依存させない。
-- malformed / schema違反outputはG-05 V0 failureとし、heuristicでsilent repairしない。
-- 2-stage LLM rendererはbaselineとして不採用とする。
-- canonical schema変更は不要。
-
-### 完了条件
-
-- [x] generation input / output contractを具体化している。
-- [x] natural language only / inline citation / dual-output / 2-stage / deterministic renderingを比較している。
-- [x] atomic semantic unitと`K*` support mappingを定義している。
-- [x] LLMにGrounding Dispositionを自己申告させないことを固定している。
-- [x] human-facing responseとvalidation metadataの乖離を構造的に防止している。
-- [x] Roleplay / Comparison / Creativeの3 use case例を示している。
-- [x] interpretation / creative scope separationを機械的かつ人間向けに表現可能にしている。
-- [x] malformed outputの扱いをV0 failureとして定義している。
-- [x] provider-native Structured Outputをoptional optimizationとして分離している。
-- [x] G-05 validator input requirementを満たしている。
-- [x] canonical schema変更不要と明示している。
+- LLMに別の`final_response`を生成させない。
+- validated `unit.text`だけをConsumerが決定論的にrenderする。
+- `interpretation / creative`はvisible presentation blockで分離する。
+- provider-native Structured Outputはoptional optimizationとする。
+- malformed outputはV0 failureとしsilent repairしない。
+- 2-stage LLM rendererはbaselineとして不採用。
+- canonical schema変更不要。
 
 ---
 
@@ -285,15 +252,12 @@ contradictory
 - **deterministic validation + bounded semantic validationのHybrid方式**を採用する。
 - V0 Contract / Parse、V1 Reference Integrity、V2 Taxonomy / Use-case Policy、V3 Deterministic Support、V4 Bounded Semantic Support、V5 Aggregate Verdictの段階に分ける。
 - `K*` reference存在だけをsupport proofにしない。
-- exact / structuredに確定できるsupportはdeterministicに処理し、paraphrase / interpretation等の未解決部分だけsemantic validatorへ渡す。
-- semantic validatorへはclaimとcited K内容等の必要最小限だけを渡し、Web / external Knowledgeをgrounding根拠に使わせない。
-- generator自身のsame-model self-checkだけを最終Gateにしない。
-- formal semantic GateでLLM judgeを使う場合は原則generatorから独立した固定local validatorを使用する。
-- validation verdictを`PASS / FAIL / INDETERMINATE`で表し、`INDETERMINATE`をgrounded PASSへ昇格しない。
+- exact / structured supportはdeterministicに処理し、paraphrase / interpretation等の未解決部分だけsemantic validatorへ渡す。
+- semantic validatorへはclaim / cited K等の必要最小限だけを渡し、Web / external Knowledgeを根拠に使わせない。
+- same-model self-checkだけを最終Gateにしない。
+- verdictを`PASS / FAIL / INDETERMINATE`で表し、`INDETERMINATE`をgrounded PASSへ昇格しない。
 - `SGOKB-grounded`認定はfail-closedとする。
-- Creative detailそのものにはfactual supportを要求せず、source Knowledgeとのseparationを検証する。
 - validation contract概念名を`sgokb.grounding-validation.v1`とする。
-- canonical / Retrieval変更は不要。
 
 ### Failure classes
 
@@ -310,57 +274,44 @@ SEMANTIC_INDETERMINATE
 VALIDATOR_UNAVAILABLE
 ```
 
-### 完了条件
-
-- [x] validation strengthをHybrid方式に確定している。
-- [x] deterministic / semantic validation stageの入力・出力境界を定義している。
-- [x] unsupported factual claim detectionを定義している。
-- [x] interpretationのpremise / derivation support判定を定義している。
-- [x] creative additionの誤検出を避けるruleを定義している。
-- [x] same-model self-checkを唯一の最終Gateとして不採用にしている。
-- [x] validator uncertaintyを`indeterminate`として表現している。
-- [x] grounding certificationをfail-closedにしている。
-- [x] failure classesとvalidator result contractの概念形を定義している。
-- [x] N-04 v1 Case 1〜3を検出または正しく許容できる理由を説明している。
-- [x] G-04 output contractと整合している。
-
 ---
 
 ## N-04G-06 [P0] validation failure時のretry / reject / insufficient policyを設計する
 
-### 目的
+**Status: Complete (2026-10-18)**  
+**Decision record:** `docs/decisions/N04G06_VALIDATION_FAILURE_HANDLING_POLICY.md`
 
-生成またはvalidationが失敗した場合の正式挙動を決める。
+### Decision summary
 
-比較対象例:
-
-- 即Reject
-- unsupported claimを除去して再生成
-- 同一model retry
-- 別local model fallback
-- insufficient contextとして終了
-- 部分結果を返す
-
-retry採用自体を前提にしない。
-
-### 必須検討
-
-- retryを行う場合の上限。
-- retryへ渡してよいvalidation feedback。
-- model cherry-pickを防ぐ条件。
-- silent cloud / Web fallback禁止の維持。
-- retryで偶然PASSするまで繰り返す評価汚染の防止。
-- failure evidenceの保存。
-- G-05の`PASS / FAIL / INDETERMINATE`とfailure classごとのaction対応。
-- G-04 malformed output / structured contract failure時のaction。
-- `context_limit`を正常終了、partial result、insufficientのどれとして扱うか。
+- **bounded single retry + fail-closed terminal handling**を採用する。
+- 1 grounded-generation runのLLM再生成retryは**最大1回**とする（generation attemptは最大2回）。
+- Retryでは`context_fingerprint / Grounded Context / purpose / generator model / runtime / generation settings / contract version`を固定する。
+- Retryへ追加できるのはvalidatorの構造化failure feedbackだけであり、新規retrieval / Web / external Knowledgeを追加しない。
+- Retryで別local model / cloud modelへfallbackしない。
+- Retryはfailing unit patchではなくstructured output全体を再生成する。
+- validation FAIL outputのsafe-looking unitだけをsilentに部分renderしない。
+- terminal outcomeを`ACCEPTED / INSUFFICIENT_CONTEXT / REJECTED / SYSTEM_FAILURE`に分ける。
+- `context_limit`はvalidation failureではなく、Context不足を安全に表す正常outputとする。
+- `INSUFFICIENT_CONTEXT`はproduction上の安全な正常終了になり得るが、N-04 Caseの最低quality Gateを自動的にPASSさせない。
+- generator由来で修正可能な`VALIDATION_CONTRACT_ERROR / MISSING_REQUIRED_SUPPORT / UNSUPPORTED_CLAIM / CONTRADICTORY_CLAIM / ROLE_MISMATCH / SEPARATION_VIOLATION / CREATIVE_SCOPE_VIOLATION`等は最大1回retry対象とする。
+- stale context / broken canonical mapping / validator unavailable等のsystem failureはgenerator retryせず`SYSTEM_FAILURE`へ分離する。
+- semantic indeterminateがgenerator wording由来なら1回retry、validator capability / availability由来ならsystem failureとして扱う。
+- attempt 1 / retry request / retry response / validation結果をすべてevidenceとして保存する。
+- failure policy概念名を`sgokb.grounding-failure-policy.v1`とする。
 
 ### 完了条件
 
-- failure classごとの正式actionが決まっている。
-- retryを採用する場合は上限・記録・fallback条件が固定されている。
-- retryを採用しない場合も、その理由とReject behaviorが固定されている。
-- structured generation / validation / rendering flowとの整合が確認されている。
+- [x] 即Reject / unlimited retry / model fallback / partial salvage / bounded retryを比較している。
+- [x] retry上限を1回に固定している。
+- [x] same Context / model / settings invariantを固定している。
+- [x] failure class / causeごとのretry eligibilityを定義している。
+- [x] retry feedbackへ渡してよい情報 / 禁止情報を定義している。
+- [x] silent cloud / Web / model fallbackを禁止している。
+- [x] whole-output regenerationとpartial salvage禁止を定義している。
+- [x] `INSUFFICIENT_CONTEXT / REJECTED / SYSTEM_FAILURE`の意味境界を定義している。
+- [x] evidence保存を必須化している。
+- [x] N-04 v1 Case 1〜3への適用を説明している。
+- [x] canonical / Retrieval / MCP境界変更不要を確認している。
 
 ---
 
@@ -385,26 +336,32 @@ Local LLM
         ↓
 Structured Semantic Units
         ↓
-Validation / classification
+Hybrid Validation
         ↓
-Accept / Retry / Reject / Insufficient
-        ↓ PASS only
+Failure Policy
+  ├─ PASS → ACCEPTED / INSUFFICIENT_CONTEXT
+  ├─ retryable → one retry
+  ├─ grounding failure → REJECTED
+  └─ system failure → SYSTEM_FAILURE
+        ↓ accepted only
 Deterministic Rendering
 ```
 
 ### 必須検討
 
 - Case 1 / 2 / 3のend-to-end walkthrough。
+- G-01〜G-06間の用語 / contract / sequence矛盾解消。
 - canonical Knowledge / Retrieval / MCP境界への影響。
 - N-06へ残すKnowledge coverage / retrieval quality課題との分離。
 - model-independent部分とmodel-specific tuning部分の分離。
-- logging / observability / evidence保存。
+- retryを含むlogging / observability / evidence保存。
+- retry PASSをformal N-04 v2でどう評価するかをG-08へ引き渡せること。
 
 ### 完了条件
 
 - architecture / sequence / data contractが矛盾なく統合されている。
 - 未決P0設計論点が残っていない。
-- Candidate A〜Eを含む主要案について採用 / 不採用Decisionが記録されている。
+- Candidate案の採用 / 不採用Decisionが統合記録されている。
 - 実装scopeをN-04G-09へ渡せる。
 
 ---
@@ -431,9 +388,11 @@ benchmark/n04-ai-use-cases-v2.json
 
 - v1の核心Gateを緩めない。
 - v1→v2で何が変更されたかを明記する。
-- generation protocol / output contract / validation / failure handlingの採用仕様を記録する。
+- grounded context / generation / output / validation / failure handling contractを記録する。
 - 同じ3代表use caseを継承する。
-- model policyを明記する。
+- generator / validator model policyを明記する。
+- max generation attempts = 2をfreezeする。
+- retry PASSをCase PASSとして認める条件をDesign Freezeと整合させて固定する。
 - PASS / FAIL判定が再現可能である。
 
 ### 完了条件
@@ -453,22 +412,16 @@ benchmark/n04-ai-use-cases-v2.json
 
 N-04G-07 / G-08でfreezeした仕様だけを実装する。
 
-### Scope
+### Scope候補
 
-実装場所はN-04G-01で決定した責務境界に従う。
-
-例:
-
-- SGOKB application component
-- consumer helper / library
-- acceptance harness component
-- Context presentation adapter
+- SGOKB application grounding component
+- consumer helper / acceptance harness
+- Context presentation adapter / K mapping
 - grounded generation output parser / schema
-- validator
+- Hybrid validator
 - deterministic renderer
-- retry controller
-
-上記は候補であり、すべてを実装する前提ではない。
+- retry / failure policy controller
+- evidence logger
 
 ### 禁止
 
@@ -488,10 +441,6 @@ N-04G-07 / G-08でfreezeした仕様だけを実装する。
 
 ## N-04G-10 [P0] automated test / regressionを追加・実施する
 
-### 目的
-
-formal local-LLM再受入の前に、grounded-generation contractの機械的部分をdeterministicに検証する。
-
 ### 最低限のtest観点
 
 - supported factual claim
@@ -499,11 +448,13 @@ formal local-LLM再受入の前に、grounded-generation contractの機械的部
 - contradictory claim
 - interpretation classification
 - creative addition classification
-- insufficient context
+- context limit / insufficient context
 - malformed structured output
 - final renderingとvalidated unitの一致
 - validation failure path
-- retry / reject path（採用した場合）
+- retry once / retry exhausted
+- non-retryable system failure
+- partial salvageが発生しないこと
 - current / historical isolationを壊していないこと
 - canonical mutationが発生しないこと
 
@@ -518,19 +469,15 @@ formal local-LLM再受入の前に、grounded-generation contractの機械的部
 
 ## N-04G-11 [P0] formal re-acceptance harness / evidence手順をfreezeする
 
-### 目的
-
-N-04G-12開始後に評価条件を動かさないよう、実行手順とevidence形式を先に固定する。
-
 ### 必須固定項目
 
 - evaluation DB / N-03 dataset
 - MCP transport / public read route
 - semantic runtime
-- model selection policy
-- generation settings
+- generator model / settings
+- validator model / settings
 - v2 prompt / structured output contract
-- validator / retry policy
+- retry policy / max attempts
 - deterministic rendering rule
 - raw artifact保存先
 - atomic claim evaluation手順
@@ -541,7 +488,7 @@ N-04G-12開始後に評価条件を動かさないよう、実行手順とeviden
 
 - formal runの実行順序が1本に固定されている。
 - 失敗時の分類と記録方法が決まっている。
-- formal run開始後にcase単位でmodel / rubric / protocolをcherry-pickできない。
+- formal run開始後にcase単位でmodel / rubric / protocol / retry回数をcherry-pickできない。
 
 ---
 
@@ -556,13 +503,13 @@ freeze済みv2 acceptance spec / harnessだけを使用し、3ケースをRefere
 ### 必須記録
 
 - Git head / working tree / environment
-- model / runtime metadata
+- generator / validator model / runtime metadata
 - MCP request / response
 - Grounded Context / K mapping
-- raw LLM structured response
-- validation結果
-- rendered human response
-- retry履歴（存在する場合）
+- attempt 1 request / raw structured response / validation
+- retry feedback / attempt 2 request / response / validation（存在する場合）
+- terminal outcome
+- rendered human response（存在する場合）
 - atomic claim support評価
 - canonical before / after snapshot
 - system integrity
@@ -609,7 +556,7 @@ N-04G-04 Generation / output contract Complete
        ↓
 N-04G-05 Validation design Complete
        ↓
-N-04G-06 Failure handling
+N-04G-06 Failure handling Complete
        ↓
 N-04G-07 Design Freeze
        ↓
@@ -628,17 +575,9 @@ N-04 Complete
 N-05
 ```
 
-原則として上から順に実施する。
-
-N-04G-03〜G-06は設計上相互依存するため、検討中の往復は許容する。G-05を先に設計してG-04へrequirementsを返す往復は完了した。次はG-06を実施し、G-07 Design FreezeでG-01〜G-06を統合する。
-
 ---
 
-## 10. Candidate案の扱い
-
-`docs/planning/N04_GROUNDED_GENERATION_HANDOFF.md`にある候補は、各Taskで比較して採否を決める。
-
-現時点のDecision:
+## 10. Candidate案の現在の採否
 
 ```text
 Context-local K* reference + canonical identity metadata: 採用
@@ -651,7 +590,11 @@ separate model-generated final_response: 不採用
 provider-native Structured Output: optional optimization
 Hybrid post-generation grounding validator: 採用
 same-model self-check only: 最終Gateとして不採用
-Retry contract: G-06で決定
+bounded single retry: 採用
+unlimited retry: 不採用
+retry中の別model / cloud / Web fallback: 不採用
+validation FAIL outputのpartial salvage: baselineとして不採用
+valid context_limit / INSUFFICIENT_CONTEXT: 採用
 Creative presentation: visible creative block separationを採用
 ```
 
@@ -662,8 +605,8 @@ Creative presentation: visible creative block separationを採用
 次のTaskは以下とする。
 
 ```text
-N-04G-06 [P0]
-validation failure時のretry / reject / insufficient policyを設計する
+N-04G-07 [P0]
+End-to-End grounded-generation designを統合しDesign Freezeする
 ```
 
-G-04 structured generation contractとG-05 Hybrid validationが揃ったため、次に`PASS / FAIL / INDETERMINATE`およびfailure classごとの正式なworkflow action、retry上限、insufficient behaviorを確定する。
+N-04G-01〜G-06の個別Decisionが揃ったため、次に責務・taxonomy・K* reference・structured generation・Hybrid validation・bounded single retryを1つの実装可能なsequence / data contractへ統合し、P0設計論点をfreezeする。
