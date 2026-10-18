@@ -4,7 +4,7 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
-- Current Status: **N-04 Failed — N-04G-01〜G-11 Complete / next N-04G-12 Formal Re-Acceptance**
+- Current Status: **N-04 Failed — N-04G-01〜G-12 Complete / 0 of 3 formal v2 Case PASS / N-05 blocked**
 - Branch: `phase-n/n04-prerequisite-derived-search`
 - Failed baseline: `benchmark/n04-ai-use-cases-v1.json`
 - Frozen v2 acceptance spec: `benchmark/n04-ai-use-cases-v2.json`
@@ -159,9 +159,9 @@ canonical KnowledgeをN-04 PASS目的で追加・改変しない。
 | N-04G-09 | P0 | **Complete (2026-10-18)** | Frozen grounded-generation designを実装 |
 | N-04G-10 | P0 | **Complete (2026-10-18)** | automated test / regression |
 | N-04G-11 | P0 | **Complete (2026-10-18)** | formal re-acceptance harness / evidence freeze |
-| N-04G-12 | P0 | Pending | Reference Workstation formal re-acceptance |
+| N-04G-12 | P0 | Complete (executed; N-04 Failed) | Reference Workstation formal re-acceptance |
 
-N-05へ進めるのはN-04G-12でN-04 Completeが確認された後とする。
+N-05へ進めるのはN-04 Completeが確認された後とする。G-12は実行完了したがformal v2は0/3 Case PASSであり、N-05は引き続きblocked。
 
 ---
 
@@ -496,6 +496,17 @@ Case 3: temperature=0.2 / max_tokens=1100
 
 Frozen v2 spec / G-11 harnessだけを使用する。
 
+**Complete (formal execution, 2026-10-18) / N-04 Failed / N-05 blocked.**
+
+run_id `20261018T213810+0900`、start/end HEAD `843c0332456a7857d567510b4a15162b645293ce`。Valid formal run、Case 1 ACCEPTED/formal FAIL/retry 0、Case 2 REJECTED/formal FAIL/retry 1、Case 3 REJECTED/formal FAIL/retry 1。全retrieval/context Gate PASSだが、unsupported factのfalse acceptance、unsupported interpretation premise、visible label欠落が残った。
+
+Canonical SHA-256 before/after一致、integrity前後PASS、focused 21 + 27 passed、full 382 passed / 0 skipped / 0 failed、Ruff / diff check PASS。formal中のtracked fileとHEADは不変。実行時SYSTEM/HARNESS defectによる無効化やG-11 infrastructure reopenは不要。
+
+- 結果: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md` のG-12 v2 execution record。
+- 状態: `docs/evaluation/N04G12_FORMAL_REACCEPTANCE_STATUS.md`。
+- 全失敗Attemptを含む証跡: `.local/n04-v2/runs/20261018T213810+0900/` (Git-ignored)。
+- 次: semantic false acceptance / material stylistic claim / interpretation premises / label生成・retryの別途設計・実装修正を検討する。本runではFrozen条件を変更しない。
+
 必須evidence:
 
 ```text
@@ -516,7 +527,7 @@ full pytest
 
 N-04 Completeには3 / 3 Case PASS + safety/regression Gate全PASSが必要。
 
-完了後:
+N-04が3/3 Case PASSで合格した場合のみ:
 
 - N-04 acceptance recordをv2 resultで更新。
 - `PHASE_N_PREPARATION.md` N-04 Complete。
@@ -553,11 +564,13 @@ N-04G-10 Automated Test / Regression Complete
        ↓
 N-04G-11 Formal Harness Freeze Complete
        ↓
-N-04G-12 Formal N-04 Re-Acceptance
+N-04G-12 Complete (executed; N-04 Failed)
        ↓
-N-04 Complete
+Failure remediation / future re-acceptance planning
        ↓
-N-05
+N-04 Complete only after all gates PASS
+       ↓
+N-05 (currently blocked)
 ```
 
 ---
@@ -590,6 +603,7 @@ Creative visible scope separation: 採用
 ## 9. 次に実施するTask
 
 ```text
-N-04G-12 [P0]
-Reference Workstation formal N-04 v2 re-acceptanceを実施し、N-04 Complete判定を行う
+N-04 remains Failed / N-05 blocked
+G-12 failure evidenceを基に別途remediation / 再受入計画を決める
+Frozen G-07/G-08/G-11の変更や追加formal runは本Taskでは行わない
 ```

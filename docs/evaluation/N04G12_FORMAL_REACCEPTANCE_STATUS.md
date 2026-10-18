@@ -4,114 +4,65 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-04G-12 [P0] Reference WorkstationでN-04を正式再受入する`
-- Status: **Blocked before formal start — Reference Workstation execution pending**
+- Status: **Complete — valid formal re-acceptance executed; 0/3 Case PASS**
 - N-04 status: **Failed / not Complete**
+- N-05 status: **blocked**
 - Frozen acceptance spec: `benchmark/n04-ai-use-cases-v2.json`
 - Frozen harness: `benchmark/n04-v2-formal-harness-v1.json`
 - Codex handoff: `docs/planning/N04G12_CODEX_REFERENCE_WORKSTATION_HANDOFF.md`
+- Detailed result: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md` (G-12 v2 execution record)
 
----
+## 1. Execution decision
 
-## 1. Decision
+Reference Workstation上で全preflightをPASSし、G-11 frozen条件で正式実行した。以前のChatGPT remote-command利用上限によるformal未開始状態は、今回のCodexローカル実行で解消した。GitHub Actions等の代替環境は使用していない。
 
-2026-10-18、このChatGPT sessionからReference Workstation上でG-12 formal re-acceptanceを開始しようとした。
+- run_id: `20261018T213810+0900`
+- start/end HEAD: `843c0332456a7857d567510b4a15162b645293ce` (identical)
+- branch: `phase-n/n04-prerequisite-derived-search`
+- formal start: `2026-10-18T21:41:05.251722+09:00`
+- generator: `sgokb-n04-mistral32`
+- semantic validator: `sgokb-n04-phi4`
+- evidence root: `.local/n04-v2/runs/20261018T213810+0900/` (Git-ignored)
 
-Desktop Commander device:
+MCP public read boundaryからKnowledgeを取得し、Case 2は実際のSimilarity rank 1のBLEACHを選んだ。Generator sole-user request、strict schema、bounded semantic validation、production failure controller / retry feedback / deterministic rendererを使用した。Context/model/settings/rubric/retry policyは変更していない。formal中のtracked file / HEAD / harness / local helper hash不変を記録した。
+
+## 2. Case results
+
+| Case | Terminal | Formal verdict | Retry | Failure |
+|---|---|---|---|---|
+| 1 Roleplay | ACCEPTED | FAIL | 0 | Unsupported Holy Grail War fact and relationship claims survived validation/rendering. |
+| 2 Comparison | REJECTED | FAIL | 1 | Attempt 1 unsupported claim; Attempt 2 missing support refs; unsupported interpretive premises. |
+| 3 Creative | REJECTED | FAIL | 1 | Both attempts failed V0 missing visible presentation label. |
+
+Attempt 1を含む全evidenceを保存した。各caseの`rubric.json`でFrozen retrieval/output/critical項目を手動評価し、model自己採点は使用していない。Case 2/3の拒否結果はrenderしなかった。
+
+Formal runは**valid**。SYSTEM/HARNESS defectによる無効化はなく、実行infrastructureを理由とするG-11 reopenは不要。実モデルのgrounding/validation/generation contract failuresを保存した。
+
+## 3. Safety / regression
 
 ```text
-FNB1Main
-Status: Online
+canonical before SHA-256: 0e4760d46105efeb6d46729c513493d9ee816282cc8d0c283fed60de568eab3d
+canonical after SHA-256:  0e4760d46105efeb6d46729c513493d9ee816282cc8d0c283fed60de568eab3d
+canonical equal: true
+integrity before / after: PASS / PASS
+focused grounding pytest: 21 passed / 0 failed
+focused read-path pytest: 27 passed / 0 failed
+full pytest: 382 passed / 0 skipped / 0 failed (2 local-Qdrant warnings)
+ruff: PASS
+git diff --check: PASS
+start HEAD == end HEAD: true
 ```
 
-は確認できたが、remote command execution時にDesktop Commanderの月間利用上限へ到達しており、ローカルcommand実行は開始できなかった。
+正確なcommandsと結果はacceptance record、全stdout/stderr/exit codeはrun rootの`regression/`に保存。`overall-evaluation.json`と`git-end.json`を完成させた後に、今回のGit-managed documentationを更新した。Raw model output、DB、local evidenceはcommitしない。
 
-そのため、G-11でFreezeしたReference Workstation / local LM Studio / local Qdrant / local evaluation DB条件を満たすformal runは**未開始**である。
-
-これは:
-
-- N-04 Case failure
-- generator failure
-- validator failure
-- MCP failure
-- SGOKB defect
-
-のいずれでもない。
-
-Formal start boundaryはG-11で「全preflight PASS後、start evidenceを書き終えた後のCase 1最初のMCP request直前」と定義されているため、その境界には到達していない。
-
----
-
-## 2. Why no substitute environment was used
-
-G-12をGitHub Actions等へ置き換えて実行しない。
-
-G-11ではformal harnessとして次がFreezeされている。
-
-- Reference Workstation Windows 11
-- Python 3.10.6
-- RTX 4090 24GB
-- local LM Studio 0.4.25.0
-- frozen generator `sgokb-n04-mistral32`
-- frozen semantic validator `sgokb-n04-phi4`
-- local N-03 evaluation DB
-- local Harrier/Qdrant profile
-- MCP stdio read boundary
-
-別環境での代替実行はG-11 harness violationとなり、formal N-04 v2 resultとして扱えない。
-
----
-
-## 3. Action taken
-
-Reference Workstation上のCodexへ引き渡せる実行指示を作成した。
+## 4. Completion and next action
 
 ```text
-docs/planning/N04G12_CODEX_REFERENCE_WORKSTATION_HANDOFF.md
-```
-
-このhandoffには次を含む。
-
-- repository sync / preflight
-- Frozen runtime values
-- formal start boundary
-- local-only generator / semantic validator
-- structured-output schema
-- MCP public read path
-- Case 1 / 2 / 3 exact flow
-- single retry policy
-- evidence tree
-- canonical SHA-256 before/after
-- system integrity before/after
-- Reference Workstation focused/full regression
-- final rubric
-- PASS/FAIL時のpost-run documentation update
-- ChatGPTへ返すresult payload
-
----
-
-## 4. State preservation
-
-G-12未実行のため、次は変更しない。
-
-```text
-N-04 = Failed / open
-N-04G-12 = not Complete
+N-04G-12 = Complete (formal re-acceptance executed)
+N-04 = Failed / not Complete
 N-05 = blocked
+P-06 = Complete (unchanged)
 PR #39 = Draft / unmerged
 ```
 
-G-07 / G-08 / G-11 Frozen semanticsも変更しない。
-
----
-
-## 5. Next action
-
-Reference Workstation上のCodexへ:
-
-```text
-docs/planning/N04G12_CODEX_REFERENCE_WORKSTATION_HANDOFF.md
-```
-
-の「Codexへ渡す指示文」を渡し、formal runを実行する。
-
-Codexからformal resultとpost-run commit SHAが返った後、ChatGPTがGitHub上の更新とevidence summaryを照合してN-04の最終状態を確認する。
+3/3 Case PASS条件を満たさないためN-04をCompleteへ変更しない。次はfailure evidenceに基づく別途remediation / 再受入計画の決定。Unsupported clauseのsemantic false acceptance、material claimのstylistic誤分類、interpretation premise validation、visible label生成・retryを検討対象とする。この実行ではsource/test/benchmark/DecisionやFrozen条件を変更せず、追加model/parameter fallbackも行っていない。

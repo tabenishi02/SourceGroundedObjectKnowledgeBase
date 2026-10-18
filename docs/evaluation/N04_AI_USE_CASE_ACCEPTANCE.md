@@ -5,7 +5,9 @@
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
 - Source dataset: `benchmark/n03-real-data-vertical-slice-v1.json`
-- Acceptance spec: `benchmark/n04-ai-use-cases-v1.json`
+- Baseline acceptance spec: `benchmark/n04-ai-use-cases-v1.json`
+- Current frozen acceptance spec: `benchmark/n04-ai-use-cases-v2.json`
+- Formal harness: `benchmark/n04-v2-formal-harness-v1.json`
 - Evaluation DB: `.local/n03/sgokb-n03.sqlite`
 - Branch: `phase-n/n04-prerequisite-derived-search`
 - Prerequisite: **N-04P-01〜P-06 Complete**
@@ -673,3 +675,75 @@ MCP `find_similar_objects`から最上位current Workを選択した。sourceは
 - N-06へ: P-06未hitの`King of Knights` / `character archetype`、少数Workだけのranking観測、未分析Facet / personality / comparative coverageを引き渡す。今回のSimilarity rank 1を正式ranking品質合格とは扱わない。
 
 **Completion decision: N-04 Failed (2026-10-18)、N-05へは移行しない。** SGOKB transport / Context / Similarity / read-only contractにproduction defectは観測していない。合格には、同じgroundingとcreative-separation条件を満たす再受入が必要である。
+
+
+## N-04G-12 — Frozen v2 formal re-acceptance (2026-10-18)
+
+**G-12 Complete (formal re-acceptance executed) / N-04 Failed / N-05 blocked.**
+
+### Execution identity and validity
+
+- run_id: `20261018T213810+0900`
+- Formal start: `2026-10-18T21:41:05.251722+09:00`, immediately before the first Case 1 MCP request after all preflight/start evidence was saved.
+- Start/end HEAD: `843c0332456a7857d567510b4a15162b645293ce` (identical).
+- Branch: `phase-n/n04-prerequisite-derived-search`, fast-forward synchronized before preflight; working tree clean at formal start/end.
+- Evidence root: `.local/n04-v2/runs/20261018T213810+0900/` (Git-ignored).
+- Windows 11 / Python 3.10.6 / RTX 4090 24GB / LM Studio 0.4.25.0; generator `sgokb-n04-mistral32` and semantic validator `sgokb-n04-phi4` used with the exact G-11 load profiles, seeds and case parameters.
+- Harrier pinned revision/local-only and Qdrant 1.19.2 used through MCP SDK 2.3.0, protocol 2026-07-28, `python -m sgokb mcp serve --semantic-runtime`.
+- No cloud/Web/other-model fallback. Consumer Knowledge inputs came only from MCP public read tools, not direct SQLite reads. Preflight SQL was restricted to dataset identity safety checks and did not supply AI Knowledge.
+- All Git-managed files, frozen harness and local execution/review helper hashes remained unchanged throughout formal execution. All required/conditional artifacts exist; `overall-evaluation.json` and `git-end.json` were saved before documentation changes.
+- Formal run **valid**. No execution SYSTEM/HARNESS defect invalidated the run; infrastructure does not require G-11 reopening. Product/semantic-validation failures below require separate remediation review, not changes to this frozen run.
+
+A separate preflight-only attempt (`20261018T213643+0900`) failed before any formal Case request: its identity-only read connection left an empty WAL sidecar. SQLite checkpoint/close returned `(0, 0, 0)` and removed the sidecar. The Git-ignored helper connection lifecycle was corrected before repeating preflight; no frozen setting or tracked file changed. Failed preflight evidence remains in its original run directory. The successful formal run passed the complete preflight, including neutral structured-output smoke tests for both frozen models.
+
+### Manual formal rubric and terminal outcomes
+
+Each frozen retrieval/output/critical-failure item was reviewed against the saved Context, K mapping, raw units, validation and rendered output, independently of model verdicts. Each case's `rubric.json` records PASS/FAIL/NOT_APPLICABLE, reasons, unit/K references and evidence paths. Machine ACCEPTED alone does not establish formal PASS.
+
+| Case | Machine terminal | Attempts / retries | Formal verdict | Finding |
+|---|---|---|---|---|
+| 1 Saber roleplay | ACCEPTED | 1 / 0 | FAIL | Unsupported material facts survived validation and rendering. |
+| 2 Similar Work comparison | REJECTED | 2 / 1 | FAIL | Unsupported claim on Attempt 1; missing support refs on Attempt 2; unsupported interpretation premises also observed. |
+| 3 Concept combination | REJECTED | 2 / 1 | FAIL | Both attempts failed V0 `missing_presentation_label`; creative block label remained null. |
+
+All retrieval/context gates passed: current accepted Versions, correct purposes, traceable K references and budgets (Case 1: 640/12000; Case 2: 1513/24000; Case 3: 1299/24000), with no truncation or historical fallback.
+
+**Case 1:** U1/K4 is grounded. U2 cites K5, which supports sword-wielding Servant contracted to Shirou, but not the additional Holy Grail War battle claim. Phi-4 nevertheless returned `entailed`. U3 asserts duty/loyalty and a deeper relationship without K support under `stylistic_expression`; Phi-4 returned `role_valid`. These unsupported propositions reached `rendered.txt`. No direct contradiction was required for FAIL: unsupported material facts alone violate the frozen gate. No manual retry was added after the controller returned ACCEPTED.
+
+Evidence: `case-1-roleplay/grounded-context.json`, `attempt-1/raw-output.txt`, `attempt-1/semantic-validator/unit-002/`, `unit-003/`, `attempt-1/validation.json`, `rendered.txt`, `rubric.json` beneath the run root.
+
+**Case 2:** actual MCP `find_similar_objects` rank 1 selected BLEACH (current Work), score `0.6469602584838867`, `score_type=cosine_similarity`; the comparison target was not hardcoded. Attempt 1 U2 failed V4 `UNSUPPORTED_CLAIM`. The single permitted retry used unchanged Context/model/settings/task/schema plus only production `build_retry_feedback()`. Attempt 2 U1 had empty support refs and failed V2 `MISSING_REQUIRED_SUPPORT`; its fantasy-genre claim was unsupported. U7's destiny/personal-growth/linear-narrative premises were absent from K5/K10 despite a machine `derived_supported` classification. Interpretation was structurally separated; similarity score semantics were not misrepresented. Neither rejected attempt was rendered.
+
+Evidence: `case-2-comparison/similarity-request.json`, `similarity-response.json`, `candidate-selection.json`, `retry-feedback.json`, both `attempt-*/` trees, `terminal.json`, `rubric.json`.
+
+**Case 3:** both Concepts contributed grounded ideas, and raw candidates combined them in a new fictional character/arc. However, B2 `presentation_role=creative` retained `label=null` in both attempts; Attempt 2 also omitted the interpretation label. Production parsing rejected both at V0 `VALIDATION_CONTRACT_ERROR / missing_presentation_label`, before semantic validation. No repair, partial salvage, further retry or rendering occurred. Invented character events are intentional creative material; they are not classified as unsupported source Concept facts. The failure is the required visible presentation contract, not a lack of source citations for permissible invention.
+
+Evidence: `case-3-creative/attempt-1/raw-output.txt`, `attempt-2/raw-output.txt`, both parse-error/validation/decision records, `retry-feedback.json`, `terminal.json`, `rubric.json`.
+
+### Canonical safety and Reference Workstation regressions
+
+Canonical DB was quiescent without an active WAL at both hash observations:
+
+```text
+before SHA-256: 0e4760d46105efeb6d46729c513493d9ee816282cc8d0c283fed60de568eab3d
+after SHA-256:  0e4760d46105efeb6d46729c513493d9ee816282cc8d0c283fed60de568eab3d
+equal: true
+```
+
+`system integrity` before/after: **PASS**, SQLite integrity `ok`, foreign-key violations 0.
+
+| Exact regression command | Reference Workstation result |
+|---|---|
+| `python -m pytest -q tests/test_n04_grounded_generation.py` | 21 passed / 0 failed (0.55s) |
+| `python -m pytest -q tests/test_j06_mcp_client_acceptance.py tests/test_j04_context_builder.py tests/test_j01_similarity_application.py tests/test_n04p05_derived_cli.py` | 27 passed / 0 failed (8.22s) |
+| `python -m pytest -q` | 382 passed / 0 skipped / 0 failed (132.68s) |
+| `python -m ruff check src/sgokb/grounding src/sgokb/application_grounding.py tests/test_n04_grounded_generation.py` | PASS |
+| `git diff --check` | PASS |
+
+All five exit codes were 0; stdout/stderr/results are in `regression/`. Full pytest emitted two local-Qdrant warnings about payload indexes and exact-search parameters; no tests failed, skipped or were weakened to pass. Regression success does not override the real-model formal rubric failures.
+
+### Completion decision and next work
+
+**0/3 formal Case PASS; N-04 remains Failed / not Complete. N-04G-12 is Complete as an executed valid formal re-acceptance; N-05 remains blocked.** P-06 remains Complete.
+
+Separate design/implementation review must address (1) semantic false acceptance of unsupported clauses in multi-proposition source facts, (2) material relationship claims misclassified as stylistic expression, (3) unsupported interpretation premises, and (4) generation/retry adherence to visible-label requirements. This run does not implement those changes or authorize a new acceptance condition. Preserve G-07/G-08/G-11 and all failed attempts; any future changes/re-acceptance require a separately agreed plan. No G-11 infrastructure change was necessary for this execution.
