@@ -4,7 +4,7 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
-- Current Status: **N-04 Failed — N-04G-01〜G-09 Complete / next N-04G-10 Automated Test / Regression**
+- Current Status: **N-04 Failed — N-04G-01〜G-10 Complete / next N-04G-11 Formal Harness Freeze**
 - Branch: `phase-n/n04-prerequisite-derived-search`
 - Failed baseline: `benchmark/n04-ai-use-cases-v1.json`
 - Frozen v2 acceptance spec: `benchmark/n04-ai-use-cases-v2.json`
@@ -19,6 +19,7 @@
 - G-07: `docs/decisions/N04G07_END_TO_END_GROUNDED_GENERATION_DESIGN_FREEZE.md`
 - G-08: `docs/decisions/N04G08_N04_V2_ACCEPTANCE_SPEC_FREEZE.md`
 - G-09: `docs/design/N04G09_GROUNDED_GENERATION_IMPLEMENTATION.md`
+- G-10: `docs/evaluation/N04G10_GROUNDED_GENERATION_REGRESSION.md`
 
 ---
 
@@ -151,7 +152,7 @@ canonical KnowledgeをN-04 PASS目的で追加・改変しない。
 | N-04G-07 | P0 | **Complete (2026-10-18)** | End-to-End Design Freeze |
 | N-04G-08 | P0 | **Complete (2026-10-18)** | N-04 v2 benchmark / acceptance freeze |
 | N-04G-09 | P0 | **Complete (2026-10-18)** | Frozen grounded-generation designを実装 |
-| N-04G-10 | P0 | Pending | automated test / regression |
+| N-04G-10 | P0 | **Complete (2026-10-18)** | automated test / regression |
 | N-04G-11 | P0 | Pending | formal re-acceptance harness / evidence freeze |
 | N-04G-12 | P0 | Pending | Reference Workstation formal re-acceptance |
 
@@ -374,29 +375,69 @@ src/sgokb/application_grounding.py
 - [x] provider / model-specific runtimeをSGOKB contract層へ混入させていない。
 - [x] G-10へautomated verification観点を引き渡した。
 
-正式なcompile / focused test / full pytest / regression判定はN-04G-10で実施する。
-
 ---
 
 ## N-04G-10 [P0] Automated Test / Regression
 
-最低限:
+**Status: Complete (2026-10-18)**  
+**Evaluation record:** `docs/evaluation/N04G10_GROUNDED_GENERATION_REGRESSION.md`
 
-- v2 output parse
-- K reference integrity
-- supported / unsupported / contradictory
-- interpretation / separation
-- creative addition / separation
-- context_limit / insufficient
-- malformed output
-- retry once / retry exhausted
-- system failure
-- deterministic rendering
-- partial salvageなし
-- canonical non-mutation
-- current / historical isolation
+### Added focused test
 
-focused test PASS + full pytest 0 failedを要求する。
+```text
+tests/test_n04_grounded_generation.py
+```
+
+### Verified branches
+
+- v2 output parse / malformed output / duplicate unit ID
+- deterministic Grounded Context / K mapping / fingerprint
+- Context projection input non-mutation
+- current / historical Version binding isolation
+- supported / unsupported / contradictory source facts
+- interpretation semantic derivation / visible separation
+- creative addition / creative scope separation
+- context_limit / `INSUFFICIENT_CONTEXT`
+- semantic validator unavailable / fail-closed `SYSTEM_FAILURE`
+- unknown K reference integrity
+- bounded single retry / retry exhausted `REJECTED`
+- deterministic rendering / partial salvage prohibition
+- evidence artifact writer
+- Application facade composition
+
+### Final automated result
+
+GitHub Actions isolated regression run:
+
+```text
+run_id = 39124414421
+job_id = 117666427823
+CPython 3.11.17 / Ubuntu 24.04.5
+```
+
+```text
+compileall: PASS
+focused pytest: 21 passed / 0 failed
+full pytest: 382 passed / 0 failed / 0 skipped
+ruff: PASS
+git diff --check: PASS
+```
+
+Full suite warningは既存Qdrant local-mode behaviorの2件のみで、failureではない。
+
+Temporary GitHub Actions workflowは実行後に削除した。Formal Reference Workstation acceptanceはG-11/G-12へ残す。
+
+### Completion
+
+- [x] focused grounded-generation tests追加。
+- [x] G-10最低test観点をcovered。
+- [x] compileall PASS。
+- [x] focused test PASS。
+- [x] full pytest 0 failed / 0 skipped。
+- [x] ruff PASS。
+- [x] git diff --check PASS。
+- [x] new skip / xfailでfailureを隠していない。
+- [x] G-11へformal harness freezeを引き渡せる。
 
 ---
 
@@ -476,7 +517,7 @@ N-04G-08 Acceptance Freeze Complete
        ↓
 N-04G-09 Implementation Complete
        ↓
-N-04G-10 Automated Test / Regression
+N-04G-10 Automated Test / Regression Complete
        ↓
 N-04G-11 Formal Harness Freeze
        ↓
@@ -517,6 +558,6 @@ Creative visible scope separation: 採用
 ## 9. 次に実施するTask
 
 ```text
-N-04G-10 [P0]
-automated test / regressionを追加・実施する
+N-04G-11 [P0]
+formal re-acceptance harness / evidence手順をfreezeする
 ```
