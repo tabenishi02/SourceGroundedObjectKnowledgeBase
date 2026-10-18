@@ -4,12 +4,13 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
-- Current Status: **N-04 Failed — N-04G-01 Complete / next N-04G-02**
+- Current Status: **N-04 Failed — N-04G-02 Complete / next N-04G-03**
 - Branch: `phase-n/n04-prerequisite-derived-search`
 - Failure baseline: `benchmark/n04-ai-use-cases-v1.json`
 - Acceptance record: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
 - Design handoff: `docs/planning/N04_GROUNDED_GENERATION_HANDOFF.md`
 - N-04G-01 Decision: `docs/decisions/N04G01_GROUNDED_GENERATION_RESPONSIBILITY_BOUNDARY.md`
+- N-04G-02 Decision: `docs/decisions/N04G02_CLAIM_TAXONOMY_AND_USE_CASE_BOUNDARIES.md`
 
 ---
 
@@ -120,7 +121,7 @@ Knowledge coverage不足やretrieval ranking品質はN-06との境界を維持�
 |---|---|---|---|
 | N-04G-00 | P0 | **Complete (2026-10-18)** | N-04 Completion Gate確認とremediation Task分解 |
 | N-04G-01 | P0 | **Complete (2026-10-18)** | grounded-generationの責務所有者と保証レベルを確定 |
-| N-04G-02 | P0 | Pending | claim taxonomyと用途別意味境界を確定 |
+| N-04G-02 | P0 | **Complete (2026-10-18)** | claim taxonomyと用途別意味境界を確定 |
 | N-04G-03 | P0 | Pending | Context grounding / reference contractを設計 |
 | N-04G-04 | P0 | Pending | generation / output contractを設計 |
 | N-04G-05 | P0 | Pending | grounding validation方式を設計 |
@@ -191,33 +192,55 @@ N-05へ進めるのは**N-04G-12でN-04 Completeが確認された後**とする
 
 ## N-04G-02 [P0] claim taxonomyと用途別意味境界を確定する
 
+**Status: Complete (2026-10-18)**  
+**Decision record:** `docs/decisions/N04G02_CLAIM_TAXONOMY_AND_USE_CASE_BOUNDARIES.md`
+
 ### 目的
 
 生成文中の情報を、少なくともN-04の3用途で一貫して分類できる意味モデルを決める。
 
-検討対象例:
+### Decision summary
 
-- grounded fact
-- interpretation / derived comparison
-- creative addition
-- insufficient context
-- unsupported claim
-- harmless stylistic phrasing / roleplay演出
+単純なflat taxonomyではなく、次の**2軸taxonomy**を採用する。
 
-名称・粒度は未決であり、この例をそのまま採用する必要はない。
+#### Axis A — Semantic Role
 
-### 必須検討
+```text
+source_fact
+interpretation
+creative_addition
+context_limit
+stylistic_expression
+```
 
-- Roleplayで許容される演出とunsupported backstoryの境界。
-- Comparisonで許容される推論とstored factの境界。
-- Creativeで許容される新規創作とsource Concept factの境界。
-- material factual claimと、grounding Gateへ影響しない表現上の装飾の境界。
+#### Axis B — Grounding Disposition
+
+```text
+supported
+derived_supported
+not_applicable
+unsupported
+contradictory
+```
+
+さらに、semantic role自体が許容されてもstored factとの境界が曖昧な場合を`separation_violation`として扱う。
+
+用途別の核心境界:
+
+- **Roleplay**: supported source factと非事実的styleは許容。Context外backstory / stable personality / canonical-looking eventは不可。
+- **Comparison**: supported source factとgrounded interpretationを許容。interpretationはstored factから区別し、external premiseを使わない。
+- **Creative**: source Concept factはgroundedである必要があるが、新規Character / setting / event等はcreative additionとして許容。source knowledgeとの境界を明示する。
 
 ### 完了条件
 
-- claim分類と各分類の定義が確定している。
-- 3 use caseそれぞれについて許容 / 要ラベル / 禁止の境界が例示されている。
-- Case 1〜3のv1 failureを新taxonomyで一意に説明できる。
+- [x] claim / output semantic分類と各定義が確定している。
+- [x] grounding状態をsemantic roleから分離している。
+- [x] 3 use caseそれぞれの許容 / 要分離 / 禁止境界を例示している。
+- [x] Roleplayのstyleとunsupported backstoryを区別している。
+- [x] Comparisonのstored fact / interpretation / unsupported external factを区別している。
+- [x] Creativeのsource Concept knowledge / creative additionを区別している。
+- [x] Context不足を安全に表明する`context_limit`を正常classとして定義している。
+- [x] Case 1〜3のv1 failureを新taxonomyで一意に説明している。
 
 ---
 
@@ -583,7 +606,7 @@ N-04G-00 Complete
        ↓
 N-04G-01 Responsibility / guarantee boundary Complete
        ↓
-N-04G-02 Claim taxonomy
+N-04G-02 Claim taxonomy Complete
        ↓
 N-04G-03 Context grounding / reference contract
        ↓
@@ -646,8 +669,8 @@ Acceptance impact
 次のTaskは以下とする。
 
 ```text
-N-04G-02 [P0]
-claim taxonomyと用途別意味境界を確定する
+N-04G-03 [P0]
+Context grounding / reference contractを設計する
 ```
 
-N-04G-01で確定した責務境界を前提に、生成文中のclaim分類とRoleplay / Comparison / Creativeそれぞれの許容・要ラベル・禁止境界を決める。
+N-04G-02で確定した2軸taxonomyを前提に、source factとinterpretation premiseを供給Contextへ追跡できるreference方式を比較・決定する。
