@@ -9,7 +9,7 @@
 - Evaluation DB: `.local/n03/sgokb-n03.sqlite`
 - Branch: `phase-n/n04-prerequisite-derived-search`
 - Prerequisite: **N-04P-01〜P-06 Complete**
-- Status: **Acceptance execution pending / Reference Workstation local LLM required**
+- Status: **Failed (2026-10-18) — critical grounding failures; not Complete**
 
 ## 1. Purpose
 
@@ -555,3 +555,121 @@ Next: N-05 [P0] 1 Object自動処理時間を測定する
 ```
 
 N-05とN-06はN-03完了後に一部並行可能だが、Task master上の次Taskは基本順序に従いN-05とする。
+
+
+## 18. Reference Workstation execution — 2026-10-18
+
+### Decision
+
+**N-04 Failed。Completeにしない。** Retrieval / Context / local inference / integrity / automated regressionは成立したが、最終モデルのCase 1 / Case 2にcriticalなContext外factual claimが残った。Case 3もArc outlineの創作範囲の明示要件を満たさなかった。promptやrubricを緩めず、許可された1回のモデル切替を消費した時点で終了した。
+
+N-04P-01〜P-06 Completeは維持する。N-05への移行条件は満たしていない。PR #39はDraftを維持し、PR #36〜#39はmergeしない。
+
+### Environment / frozen model / public boundary
+
+- Windows 11 Home 10.0.26300、Python 3.10.6、RTX 4090。start head: `56d34a4d3e155a01af52b268c3e04240a84da2ec`。
+- Evaluation DB: `.local/n03/sgokb-n03.sqlite`。production DBへの操作なし。
+- P-06のHarrier model `microsoft/harrier-oss-v1-0.6b` / revision `f9b9dc8d367d443f2479d27aa5d8d2850c0774ee` / 1024 dimensions / local-onlyを維持。Qdrant 1.19.2、HTTP 6333 / gRPC 6334、collection prefix `sgokb_n03_eval`を再利用した。
+- 開始時の6 Object、Search Representation / Embedding / Vector 6/6 ready、missing Embedding=0、Qdrant available、integrity PASSをpublic CLIで確認した。
+- LM Studio 0.4.25.0、endpoint `http://127.0.0.1:1234/v1`。cloud inference / Web Searchによる補完なし。新規chat model downloadなし。
+- 初回は既存Phi-4 Q4_K_S（`microsoft/phi-4-gguf/phi-4-Q4_K_S.gguf`、identifier `sgokb-n04-phi4`）。context 8192、GPU offload=max。
+- 1回だけ既存のより大きいgeneral instruct model Mistral Small 3.2 24B Instruct Q4_K_M（`lmstudio-community/Mistral-Small-3.2-24B-Instruct-2506-GGUF/Mistral-Small-3.2-24B-Instruct-2506-Q4_K_M.gguf`、identifier `sgokb-n04-mistral32`）へ切替。context 8192、parallel=1、GPU offload=max。
+- 初回の基本response contract違反（語数不足、interpretationのラベル不足、creative addition明示不足）を切替理由とし、初回のunsupported claimも別途FAILとして保存した。3ケースすべてを同じ最終モデルで再試験し、case別model選択はしていない。
+- benchmark promptは原文のまま。temperature / max_tokensはCase 1=0.2/500、Case 2=0.0/700、Case 3=0.2/900。各requestへseed=20261018を送信した（決定性の品質保証ではない）。3 responseともfinish_reason=stop、非空。
+- MCP Python SDK 2.3.0、protocol `2026-07-28`、stdio transport、server sgokb 0.2.0。Local SDK client → `sgokb mcp serve --semantic-runtime` → MCPReadAdapter → KnowledgeReadApplicationの実chainを使用した。
+- consumerはSQLiteをqueryせず、AI入力をMCP Toolのstructured Contextだけから構成した。DB before/after読取りはconsumerと分離した検証scriptだけが担当した。
+
+### Initial Phi-4 attempt
+
+3ケースともFAILとしてraw出力、Context、request、claim照合、rubricを`.local/n04/attempt-1-phi4/`へ保全した。
+
+- Case 1: first-personと最低2 factは成立したが、指定100〜180語に不足し、ContextにないShirouの姓や他Servantとの戦闘設定を追加した。
+- Case 2: 両Workのfactと限界表示は使えたが、Contextにないmagical servants等を追加し、解釈を明示しなかった。
+- Case 3: 概念統合と新規Characterは成立したが、創作detailの明示範囲が不足した。
+
+### Final Case 1 — Saber Roleplay
+
+MCP `build_context`はpurpose=roleplay、640/12000 characters、truncated=false、current accepted Versionを返した。summary identity-1とrole grounded-1により、Saber / Artoria Pendragon、Fate/stay nightのfictional character、sword-wielding Servant、Shirouとのcontractを含む。personality等はnot_analyzed。
+
+最終出力はfirst-personでidentity / sword / contractを使ったが、Holy Grail WarでShirouのprotectorとして戦う設定と、Artoriaの正体が作中で広く知られていない設定を追加した。これらは実際に供給したSaber Contextにない。ほかのObject Contextやmodel memoryで補ってよいという契約にはしていない。
+
+atomic claim照合抜粋:
+
+| Claim | Context support | Supported |
+|---|---|---|
+| Saber = Artoria Pendragon | summary identity-1 | true |
+| sword-wielding Servant contracted to Shirou | role grounded-1 | true |
+| ShirouのprotectorとしてHoly Grail Warで共闘する | supplied Saber Contextにはない | false |
+| Artoriaの正体は作中で広く知られていない | supplied Saber Contextにはない | false |
+
+**Case 1 FAIL / G: critical unsupported franchise/backstory facts。** personalityの薄さ自体はfailureにしていない。
+
+### Final Case 2 — Similar Work → comparison
+
+MCP `find_similar_objects`から最上位current Workを選択した。sourceはFate/stay night、candidateはBLEACH、rank 1、score 0.646960258、score_type `cosine_similarity`。candidateをLLM入力でhardcodeしていない。
+
+両Workはcurrent accepted Version、purpose=comparison、1513/24000 characters、truncated=false、Evidence refsあり、Relationsなし。
+
+出力は指定4 headings、両Workのmedium / author / protagonist / branching等とdata limitationを使った。しかし、Contextにない以下をstored fact同様に述べた。
+
+- magiが歴史上のHeroesを召喚してHoly Grailのため戦うこと。
+- Hollowsがmalevolent spiritsであること。
+- Soul Reapersがhuman worldとafterlifeのbalanceを維持すること。
+- 両protagonistがextraordinary powersを得るという共通化（Shirou側は供給Contextで未支持）。
+
+**Case 2 FAIL / G: critical outside-knowledge claims、E: interpretation labeling不足。** cosine similarityをtruth / confidence / preference probabilityと誤説明してはいない。
+
+### Final Case 3 — Concept combination
+
+両Conceptはcurrent accepted Version、purpose=creative、1299/24000 characters、truncated=false。Tsundereのharsh-to-warmとHero's Journeyのadventure / crisis / changed returnがContextにある。
+
+出力はKaelani Solarisという新規Characterとinterstellar engineerの物語を作り、冷淡さから信頼・温かさへの変化を危機と帰還に統合した。Original characterのname / setting / background / appearance / personalityはCreative additionと明示した。
+
+一方、Arc outline内の新規eventには、それらもSGOKB factではなくcreative additionだという明示がない。benchmark promptが両sectionで要求したexplicit separationには未達だった。十二段階の物語・rogue AI等は意図された創作として分類し、それ自体をhallucinationにはしていない。Concept mappingにunsupportedなsource factを追加したという判定でもない。
+
+**Case 3 FAIL / E: explicit Arc outline labeling contract未達。critical unsupported-source-claimなし。**
+
+### Final model rubric — Codex review
+
+モデル自己採点ではなく、保存されたContext / raw response / 同一benchmark rubricをCodexが照合した。
+
+| Case | Item | Result | Reason |
+|---|---|---|---|
+| Case 1 | first_person | PASS | Uses I am as Saber. |
+| Case 1 | two_concrete_context_facts | PASS | Alias identity, sword-wielding Servant, and Shirou contract are grounded. |
+| Case 1 | no_material_context_contradiction | PASS | No direct contradiction; absent support is separately failed. |
+| Case 1 | no_outside_franchise_backstory_facts | FAIL | Holy Grail War protection/battle role and secret identity are not in this supplied Saber Context. |
+| Case 1 | no_detailed_personality_from_memory | PASS | Explicitly acknowledges missing personality and background details. |
+| Case 2 | fact_from_each_Work | PASS | Uses visual novel/Type-Moon and manga/Tite Kubo facts plus both protagonists. |
+| Case 2 | comparison_or_contrast | PASS | Contrasts media and route structure and mentions shared Japanese origin. |
+| Case 2 | interpretation_separate_from_stored_fact | FAIL | Shared extraordinary-powers framing is not labeled interpretation and is not supported for Shirou. |
+| Case 2 | coverage_limits | PASS | Explicitly describes sparse data and not_analyzed themes/relationships. |
+| Case 2 | no_outside_franchise_knowledge | FAIL | Adds magi summoning historical Heroes, Grail battle details, Hollows as spirits, and human/afterlife balance not in either Context. |
+| Case 2 | cosine_score_semantics | PASS | Does not characterize the score as truth/confidence/preference probability. |
+| Case 3 | Tsundere_grounded_idea | PASS | Mapping uses harsh personality gradually revealing warmth. |
+| Case 3 | Hero_Journey_grounded_idea | PASS | Mapping uses adventure, decisive crisis, changed return. |
+| Case 3 | integrates_both_in_design_and_arc | PASS | Aloof engineer learns trust during crisis and returns warmer. |
+| Case 3 | new_original_character | PASS | Invents Kaelani Solaris, setting, engineer/cybernetic arm and quest. |
+| Case 3 | explicit_creative_additions_in_both_sections | FAIL | Original character details are labeled Creative addition; Arc outline does not explicitly state its invented events are non-SGOKB creative additions as required by the unchanged prompt. |
+| Case 3 | no_unsupported_Concept_fact_attributed_to_SGOKB | PASS | Concept mapping stays within two supplied statements; invented arc stages are not explicitly claimed to be stored Concept facts. |
+
+各caseのatomic claim / creative-vs-grounded分類と短い理由はGit管理外`evaluation.json`へ保存した。
+
+### Safety / regression
+
+- canonical 52 tableとderived tableの全内容はbefore/after完全一致。Object stable IDs / current Version / accepted Knowledge / Facet / Statement / Attribute / Relation / Source / Snapshot / Evidence / grounding / provenanceも不変。
+- `system integrity`は前後ともPASS。foreign key違反0件。
+- 指定focused regression: **27 passed / 0 failed** (6.74s)。
+- full pytest: **361 passed / 0 skipped / 0 failed** (128.28s)。
+- production code / test / benchmark prompt / rubricは変更していない。新規skip / xfailなし。`git diff --check` PASS。
+- raw request / response / Context / model metadata / logsは`.local/n04/`に保存し、Gitへ追加しない。
+
+### Issues / handoff
+
+- Dは解消: LM Studio起動時に継承された`ELECTRON_RUN_AS_NODE=1`を、service子processだけで外した。親環境は復元した。新規runtime/modelは導入していない。
+- I: LM Studio `load`にはfile pathではなくmodel key `phi-4`が必要だった。同じmodelで引数だけ訂正したため、これはmodel切替に数えていない。
+- E/G: 同じ固定Contextだけからfactを選ぶというlocal modelの指示追従・groundingが不十分。2モデルのfailureを残し、追加切替やprompt調整で結果を隠していない。
+- F: Saberはidentityとroleの2 Statementだけでpersonality未分析。両Workもsummary/overall以外の比較材料が薄い。利用可能性はあるが、このcoverage不足をmodel memoryで埋めることは許容しない。
+- N-06へ: P-06未hitの`King of Knights` / `character archetype`、少数Workだけのranking観測、未分析Facet / personality / comparative coverageを引き渡す。今回のSimilarity rank 1を正式ranking品質合格とは扱わない。
+
+**Completion decision: N-04 Failed (2026-10-18)、N-05へは移行しない。** SGOKB transport / Context / Similarity / read-only contractにproduction defectは観測していない。合格には、同じgroundingとcreative-separation条件を満たす再受入が必要である。

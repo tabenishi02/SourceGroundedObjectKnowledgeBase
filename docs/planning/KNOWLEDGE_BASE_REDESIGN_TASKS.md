@@ -937,10 +937,11 @@ N-04本体の正式開始前にN-04P-01〜P-06を必須Gateとする。正本: `
 | N-04P-05 | Complete | Public CLI / Status。成果物: `docs/planning/N04P05_PUBLIC_CLI_STATUS.md` |
 | N-04P-06 | Complete | 実モデル / 実Qdrant受入。成果物: `docs/planning/N04P06_REAL_DATA_DERIVED_SEARCH_ACCEPTANCE.md` |
 
-- [ ] **N-04 [P0] 3つの代表AI利用ケースを受入試験する** — **Next（Prerequisite Complete）**
+- [ ] **N-04 [P0] 3つの代表AI利用ケースを受入試験する** — **Failed (2026-10-18) / 再受入が必要**
   1. Character DataをローカルLLMへ渡しRoleplayできる。
   2. Work Dataから意味的に類似する別Workを検索し、AIが比較説明できる。
   3. Concept A/Bを取得し、ローカルLLMが両概念を組み合わせたCharacter創作に利用できる。
+  - 実MCP/local LLM受入ではCase 1/2のcriticalなContext外claimとCase 3の創作範囲明示不足によりFailed。canonical/integrity/regressionはPASS。成果物: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`。N-05へ進めない。
 
 - [ ] **N-05 [P0] 1 Object自動処理時間を測定する**
   - B-06で定義したpre-analysis local segment + post-analysis local segmentを計測対象とする。
@@ -1070,10 +1071,10 @@ O  Documentation / Release / Cleanup
 
 Phase A〜MはComplete。Phase LではL-01〜L-04のDecisionをL-05で実装し、旧runtime・001/002・互換surfaceをactive treeから削除した。現行canonical workflowとSample Rawは保持している。受入結果・既知制約は`docs/planning/PHASE_L_CLOSURE_AUDIT.md`を正本とする。
 
-次の最優先Task（未着手）:
+次の最優先Task（N-04はFailed / 再受入が必要）:
 
 ```text
 N-04 [P0] 3つの代表AI利用ケースを受入試験する
 ```
 
-Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01〜N-03のReference Workstation検証・dataset構築を完了し、N-04P-01〜P-06もCompleteとなり、次はN-04本体へ進む。N-03の派生表現pending制約はP-06で解消した。未採用のKnowledge coverageと順位品質はN-06へ引き渡す。
+Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01〜N-03のReference Workstation検証・dataset構築を完了し、N-04P-01〜P-06もCompleteとなり、N-04本体を実施したがgrounding条件でFailedとなり、同Taskを未完了として維持する。N-03の派生表現pending制約はP-06で解消した。未採用のKnowledge coverageと順位品質はN-06へ引き渡す。
