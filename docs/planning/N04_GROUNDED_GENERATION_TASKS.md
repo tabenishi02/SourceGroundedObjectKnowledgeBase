@@ -4,7 +4,7 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
-- Current Status: **N-04 Failed — N-04G-05 Complete / N-04G-04 Pending / next N-04G-04**
+- Current Status: **N-04 Failed — N-04G-04 / G-05 Complete / next N-04G-06**
 - Branch: `phase-n/n04-prerequisite-derived-search`
 - Failure baseline: `benchmark/n04-ai-use-cases-v1.json`
 - Acceptance record: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
@@ -12,6 +12,7 @@
 - N-04G-01 Decision: `docs/decisions/N04G01_GROUNDED_GENERATION_RESPONSIBILITY_BOUNDARY.md`
 - N-04G-02 Decision: `docs/decisions/N04G02_CLAIM_TAXONOMY_AND_USE_CASE_BOUNDARIES.md`
 - N-04G-03 Decision: `docs/decisions/N04G03_CONTEXT_GROUNDING_REFERENCE_CONTRACT.md`
+- N-04G-04 Decision: `docs/decisions/N04G04_GENERATION_OUTPUT_CONTRACT.md`
 - N-04G-05 Decision: `docs/decisions/N04G05_GROUNDING_VALIDATION_DESIGN.md`
 
 ---
@@ -125,7 +126,7 @@ Knowledge coverage不足やretrieval ranking品質はN-06との境界を維持�
 | N-04G-01 | P0 | **Complete (2026-10-18)** | grounded-generationの責務所有者と保証レベルを確定 |
 | N-04G-02 | P0 | **Complete (2026-10-18)** | claim taxonomyと用途別意味境界を確定 |
 | N-04G-03 | P0 | **Complete (2026-10-18)** | Context grounding / reference contractを設計 |
-| N-04G-04 | P0 | Pending | generation / output contractを設計 |
+| N-04G-04 | P0 | **Complete (2026-10-18)** | generation / output contractを設計 |
 | N-04G-05 | P0 | **Complete (2026-10-18)** | grounding validation方式を設計 |
 | N-04G-06 | P0 | Pending | validation failure時のretry / reject / insufficient policyを設計 |
 | N-04G-07 | P0 | Pending | End-to-End designを統合しDesign Freeze |
@@ -137,7 +138,7 @@ Knowledge coverage不足やretrieval ranking品質はN-06との境界を維持�
 
 N-05へ進めるのは**N-04G-12でN-04 Completeが確認された後**とする。
 
-N-04G-05はN-04G-04より先に設計した。これはG-03〜G-06が相互依存するため許容される設計上の往復であり、G-05からG-04へoutput contract要件をフィードバックする。次TaskはG-04とし、G-04完了後にG-06へ進む。
+N-04G-05はN-04G-04より先に設計した。これはG-03〜G-06が相互依存するため許容される設計上の往復である。G-05 requirementsをG-04へ反映し、現在は両Taskが整合した状態でCompleteしている。
 
 ---
 
@@ -210,10 +211,6 @@ contradictory
 **Status: Complete (2026-10-18)**  
 **Decision record:** `docs/decisions/N04G03_CONTEXT_GROUNDING_REFERENCE_CONTRACT.md`
 
-### 目的
-
-LLMへ渡したKnowledgeと生成claimを、必要な強さで追跡できるContext表現を決める。
-
 ### Decision summary
 
 - **Context-local Grounding Reference + canonical identity metadata**方式を採用する。
@@ -242,38 +239,39 @@ LLMへ渡したKnowledgeと生成claimを、必要な強さで追跡できるCon
 
 ## N-04G-04 [P0] generation / output contractを設計する
 
-### 目的
+**Status: Complete (2026-10-18)**  
+**Decision record:** `docs/decisions/N04G04_GENERATION_OUTPUT_CONTRACT.md`
 
-LLMへ何を要求し、どの形で生成結果を返させるかを決める。
+### Decision summary
 
-比較対象例:
-
-- natural-language responseのみ
-- citation付きnatural language
-- Structured Output
-- claim metadata + final response
-- 2-stage generation
-- deterministic intermediate representation + final rendering
-
-Structured Outputや2-stage generationを前提にしない。
-
-### 必須検討
-
-- factual claim / interpretation / creative additionをどう表現するか。
-- 人間向け最終文章と機械検証用情報を同時に生成するか分離するか。
-- 自由なRoleplay / Creative品質を不必要に損なわずgroundingを維持する方法。
-- malformed outputの扱い。
-- **G-05 feedback:** validatorがmachine-addressableなatomic semantic unitを取得できること。
-- **G-05 feedback:** 各unitのsemantic roleと`source_fact / interpretation`のsupport `K*`を対応付けられること。
-- **G-05 feedback:** creative / interpretation scopeのseparationを機械的に評価可能にすること。
-- **G-05 feedback:** final human-readable responseとvalidation metadataの対応を失わないこと。
+- **single-pass structured semantic units + deterministic rendering**方式を採用する。
+- output contractを`sgokb.grounded-generation-output.v1`とする。
+- LLMは`blocks[] -> units[]`のstructured envelopeを生成する。
+- 各unitは`unit_id / semantic_role / text / support_refs[]`を持つ。
+- `source_fact / interpretation`はN-04G-03の`K*`をsupportとして宣言する。
+- `creative_addition / context_limit / stylistic_expression`は原則`support_refs=[]`とする。
+- Grounding DispositionはLLMへ自己申告させず、G-05 validatorが判定する。
+- LLMに検証用claimsと別の`final_response`を生成させない。
+- validated `unit.text`だけをConsumerが決定論的にrenderし、human-facing responseとvalidation metadataの乖離を防ぐ。
+- `interpretation / creative`はpresentation blockを分離し、人間にも区別可能にする。
+- provider-native Structured Outputはoptional optimizationであり、SGOKB contractを特定providerへ依存させない。
+- malformed / schema違反outputはG-05 V0 failureとし、heuristicでsilent repairしない。
+- 2-stage LLM rendererはbaselineとして不採用とする。
+- canonical schema変更は不要。
 
 ### 完了条件
 
-- generation input / output contractが具体化されている。
-- 3 use caseへ適用した出力例がある。
-- 機械検証可能性と人間向け可読性のtrade-offが評価されている。
-- G-05 validator input requirementを満たしている。
+- [x] generation input / output contractを具体化している。
+- [x] natural language only / inline citation / dual-output / 2-stage / deterministic renderingを比較している。
+- [x] atomic semantic unitと`K*` support mappingを定義している。
+- [x] LLMにGrounding Dispositionを自己申告させないことを固定している。
+- [x] human-facing responseとvalidation metadataの乖離を構造的に防止している。
+- [x] Roleplay / Comparison / Creativeの3 use case例を示している。
+- [x] interpretation / creative scope separationを機械的かつ人間向けに表現可能にしている。
+- [x] malformed outputの扱いをV0 failureとして定義している。
+- [x] provider-native Structured Outputをoptional optimizationとして分離している。
+- [x] G-05 validator input requirementを満たしている。
+- [x] canonical schema変更不要と明示している。
 
 ---
 
@@ -324,7 +322,7 @@ VALIDATOR_UNAVAILABLE
 - [x] grounding certificationをfail-closedにしている。
 - [x] failure classesとvalidator result contractの概念形を定義している。
 - [x] N-04 v1 Case 1〜3を検出または正しく許容できる理由を説明している。
-- [x] G-04へoutput contract要件をフィードバックしている。
+- [x] G-04 output contractと整合している。
 
 ---
 
@@ -354,12 +352,15 @@ retry採用自体を前提にしない。
 - retryで偶然PASSするまで繰り返す評価汚染の防止。
 - failure evidenceの保存。
 - G-05の`PASS / FAIL / INDETERMINATE`とfailure classごとのaction対応。
+- G-04 malformed output / structured contract failure時のaction。
+- `context_limit`を正常終了、partial result、insufficientのどれとして扱うか。
 
 ### 完了条件
 
 - failure classごとの正式actionが決まっている。
 - retryを採用する場合は上限・記録・fallback条件が固定されている。
 - retryを採用しない場合も、その理由とReject behaviorが固定されている。
+- structured generation / validation / rendering flowとの整合が確認されている。
 
 ---
 
@@ -376,13 +377,19 @@ SGOKB current Knowledge
         ↓
 MCP / Context Builder
         ↓
-Grounded-generation consumer protocol
+Grounded Context / K* references
+        ↓
+Consumer Generation Request
         ↓
 Local LLM
+        ↓
+Structured Semantic Units
         ↓
 Validation / classification
         ↓
 Accept / Retry / Reject / Insufficient
+        ↓ PASS only
+Deterministic Rendering
 ```
 
 ### 必須検討
@@ -456,7 +463,9 @@ N-04G-07 / G-08でfreezeした仕様だけを実装する。
 - consumer helper / library
 - acceptance harness component
 - Context presentation adapter
+- grounded generation output parser / schema
 - validator
+- deterministic renderer
 - retry controller
 
 上記は候補であり、すべてを実装する前提ではない。
@@ -491,7 +500,8 @@ formal local-LLM再受入の前に、grounded-generation contractの機械的部
 - interpretation classification
 - creative addition classification
 - insufficient context
-- malformed output
+- malformed structured output
+- final renderingとvalidated unitの一致
 - validation failure path
 - retry / reject path（採用した場合）
 - current / historical isolationを壊していないこと
@@ -519,8 +529,9 @@ N-04G-12開始後に評価条件を動かさないよう、実行手順とeviden
 - semantic runtime
 - model selection policy
 - generation settings
-- v2 prompt / output contract
+- v2 prompt / structured output contract
 - validator / retry policy
+- deterministic rendering rule
 - raw artifact保存先
 - atomic claim evaluation手順
 - before / after canonical snapshot
@@ -547,9 +558,10 @@ freeze済みv2 acceptance spec / harnessだけを使用し、3ケースをRefere
 - Git head / working tree / environment
 - model / runtime metadata
 - MCP request / response
-- Context
-- raw LLM request / response
+- Grounded Context / K mapping
+- raw LLM structured response
 - validation結果
+- rendered human response
 - retry履歴（存在する場合）
 - atomic claim support評価
 - canonical before / after snapshot
@@ -593,9 +605,9 @@ N-04G-02 Claim taxonomy Complete
        ↓
 N-04G-03 Context grounding / reference contract Complete
        ↓
-N-04G-04 Generation / output contract Pending
+N-04G-04 Generation / output contract Complete
        ↓
-N-04G-05 Validation design Complete (designed early; feeds requirements back to G-04)
+N-04G-05 Validation design Complete
        ↓
 N-04G-06 Failure handling
        ↓
@@ -618,7 +630,7 @@ N-05
 
 原則として上から順に実施する。
 
-N-04G-03〜G-06は設計上相互依存するため、検討中の往復は許容する。今回はG-05を先に設計し、validation requirementsをG-04へ返した。G-04 / G-06を完了し、N-04G-07 Design Freezeまでに矛盾を解消する。
+N-04G-03〜G-06は設計上相互依存するため、検討中の往復は許容する。G-05を先に設計してG-04へrequirementsを返す往復は完了した。次はG-06を実施し、G-07 Design FreezeでG-01〜G-06を統合する。
 
 ---
 
@@ -633,11 +645,14 @@ Context-local K* reference + canonical identity metadata: 採用
 canonical ID direct citation: 一次referenceとして不採用
 Evidence ID direct citation: 一次referenceとして不採用
 persistent new Fact ID: 不採用
+single-pass structured semantic units + deterministic rendering: 採用
+separate model-generated final_response: 不採用
+2-stage LLM renderer: baselineとして不採用
+provider-native Structured Output: optional optimization
 Hybrid post-generation grounding validator: 採用
 same-model self-check only: 最終Gateとして不採用
-Structured Output / Generation contract: G-04で決定
 Retry contract: G-06で決定
-Creative presentation policy: G-04 / G-06 / G-07で最終統合
+Creative presentation: visible creative block separationを採用
 ```
 
 ---
@@ -647,8 +662,8 @@ Creative presentation policy: G-04 / G-06 / G-07で最終統合
 次のTaskは以下とする。
 
 ```text
-N-04G-04 [P0]
-generation / output contractを設計する
+N-04G-06 [P0]
+validation failure時のretry / reject / insufficient policyを設計する
 ```
 
-N-04G-05を先に設計したため、G-04ではG-02 taxonomy、G-03 `K*` referenceに加えて、G-05 validatorが必要とするmachine-addressable atomic unit / role / support mapping / separation metadataを満たすoutput contractを決定する。
+G-04 structured generation contractとG-05 Hybrid validationが揃ったため、次に`PASS / FAIL / INDETERMINATE`およびfailure classごとの正式なworkflow action、retry上限、insufficient behaviorを確定する。
