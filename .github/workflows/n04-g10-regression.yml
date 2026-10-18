@@ -1,0 +1,45 @@
+name: N04 G10 Regression
+
+on:
+  push:
+    branches:
+      - phase-n/n04-prerequisite-derived-search
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev,mcp,fast-embedding,vector-qdrant]'
+
+      - name: Compile grounding implementation
+        run: python -m compileall -q src/sgokb/grounding src/sgokb/application_grounding.py tests/test_n04_grounded_generation.py
+
+      - name: Focused N-04 grounded-generation tests
+        run: python -m pytest -q tests/test_n04_grounded_generation.py
+
+      - name: Full regression suite
+        run: python -m pytest -q
+
+      - name: Ruff focused implementation
+        run: python -m ruff check src/sgokb/grounding src/sgokb/application_grounding.py tests/test_n04_grounded_generation.py
+
+      - name: Git whitespace check
+        run: git diff --check HEAD^
