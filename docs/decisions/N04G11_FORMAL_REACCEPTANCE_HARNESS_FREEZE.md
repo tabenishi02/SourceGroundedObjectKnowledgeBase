@@ -56,7 +56,7 @@ Case 3: temperature=0.2 / max_tokens=1100
 
 これはrubric、retry回数、failure semantics、case inputの変更ではない。G-07はretry前後のgeneration settings固定を要求しており、3 caseのtemperature/max_tokens同一化は要求していないため、G-07 Design Freezeはreopenしない。
 
-G-08文書の該当説明は本clarificationに合わせて修正する。
+Freeze history preservationのためG-08 original本文は直接書き換えず、binding clarification `docs/decisions/N04G08_G11_GENERATION_SETTINGS_CLARIFICATION.md` を追加し、G-12では本clarificationを併読する。
 
 ---
 
