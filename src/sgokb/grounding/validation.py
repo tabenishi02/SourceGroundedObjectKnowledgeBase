@@ -12,7 +12,11 @@ GROUNDING_VALIDATION_CONTRACT_VERSION = "sgokb.grounding-validation.v1"
 
 
 class SemanticValidatorAdapter(Protocol):
-    """Bounded semantic judge for unresolved source facts / interpretations."""
+    """Bounded semantic judge over only the claim and supplied K units.
+
+    The implementation may return the G-05 minimum verdicts plus ``role_valid``
+    for non-factual semantic-role boundary checks.
+    """
 
     def validate(
         self,
@@ -163,7 +167,7 @@ class GroundingValidator:
         if any(item["system_failure"] for item in failures):
             return self._result("INDETERMINATE", output, unit_results, failures)
 
-        # V2/V3/V4 — unit policy and support
+        # V2/V3/V4 — unit policy, deterministic support and bounded semantics
         for block in output["blocks"]:
             presentation_role = block["presentation_role"]
             for unit in block["units"]:
@@ -205,31 +209,19 @@ class GroundingValidator:
                     )
                     continue
 
-                if role not in {"source_fact", "interpretation"}:
-                    unit_results.append(
-                        {
-                            "unit_id": unit_id,
-                            "semantic_role": role,
-                            "grounding_disposition": "not_applicable",
-                            "validation_stage": "V2",
-                        }
-                    )
-                    continue
-
                 support_units = [support_by_ref[ref] for ref in refs]
-                deterministic = self._deterministic_support(unit, support_units)
-                if deterministic == "supported":
-                    unit_results.append(
-                        {
-                            "unit_id": unit_id,
-                            "semantic_role": role,
-                            "grounding_disposition": (
-                                "supported" if role == "source_fact" else "derived_supported"
-                            ),
-                            "validation_stage": "V3",
-                        }
-                    )
-                    continue
+                if role == "source_fact":
+                    deterministic = self._deterministic_support(unit, support_units)
+                    if deterministic == "supported":
+                        unit_results.append(
+                            {
+                                "unit_id": unit_id,
+                                "semantic_role": role,
+                                "grounding_disposition": "supported",
+                                "validation_stage": "V3",
+                            }
+                        )
+                        continue
 
                 semantic = self._semantic_support(
                     unit,
@@ -237,14 +229,40 @@ class GroundingValidator:
                     purpose=output["purpose"],
                     presentation_role=presentation_role,
                 )
-                if semantic in {"entailed", "reasonable_derivation"}:
+
+                if role == "source_fact" and semantic == "entailed":
                     unit_results.append(
                         {
                             "unit_id": unit_id,
                             "semantic_role": role,
-                            "grounding_disposition": (
-                                "supported" if role == "source_fact" else "derived_supported"
-                            ),
+                            "grounding_disposition": "supported",
+                            "validation_stage": "V4",
+                        }
+                    )
+                    continue
+                if role == "interpretation" and semantic in {
+                    "reasonable_derivation",
+                    "entailed",
+                }:
+                    unit_results.append(
+                        {
+                            "unit_id": unit_id,
+                            "semantic_role": role,
+                            "grounding_disposition": "derived_supported",
+                            "validation_stage": "V4",
+                        }
+                    )
+                    continue
+                if role in {
+                    "creative_addition",
+                    "context_limit",
+                    "stylistic_expression",
+                } and semantic == "role_valid":
+                    unit_results.append(
+                        {
+                            "unit_id": unit_id,
+                            "semantic_role": role,
+                            "grounding_disposition": "not_applicable",
                             "validation_stage": "V4",
                         }
                     )
@@ -261,7 +279,11 @@ class GroundingValidator:
                     failure_class = "CONTRADICTORY_CLAIM"
                     failure_code = "claim_contradicts_refs"
                 elif semantic == "role_mismatch":
-                    failure_class = "ROLE_MISMATCH"
+                    failure_class = (
+                        "CREATIVE_SCOPE_VIOLATION"
+                        if role == "creative_addition"
+                        else "ROLE_MISMATCH"
+                    )
                     failure_code = "semantic_role_mismatch"
                 elif semantic in {"indeterminate", "validator_unavailable"}:
                     failure_class = (
@@ -379,8 +401,6 @@ class GroundingValidator:
         output_unit: dict[str, Any],
         support_units: list[dict[str, Any]],
     ) -> str:
-        if output_unit["semantic_role"] != "source_fact":
-            return "unresolved"
         claim = _normalize_text(output_unit["text"])
         for support in support_units:
             for candidate in _support_texts(support):
@@ -397,7 +417,7 @@ class GroundingValidator:
         presentation_role: str,
     ) -> str:
         if self.semantic_validator is None:
-            return "indeterminate"
+            return "validator_unavailable"
         try:
             verdict = self.semantic_validator.validate(
                 text=output_unit["text"],
@@ -411,6 +431,7 @@ class GroundingValidator:
         allowed = {
             "entailed",
             "reasonable_derivation",
+            "role_valid",
             "unsupported",
             "contradictory",
             "role_mismatch",
