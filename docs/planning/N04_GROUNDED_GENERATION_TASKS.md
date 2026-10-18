@@ -4,9 +4,10 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
-- Current Status: **N-04 Failed — N-04G-01〜G-07 Complete / next N-04G-08 Acceptance Freeze**
+- Current Status: **N-04 Failed — N-04G-01〜G-08 Complete / next N-04G-09 Implementation**
 - Branch: `phase-n/n04-prerequisite-derived-search`
-- Failure baseline: `benchmark/n04-ai-use-cases-v1.json`
+- Failed baseline: `benchmark/n04-ai-use-cases-v1.json`
+- Frozen v2 acceptance spec: `benchmark/n04-ai-use-cases-v2.json`
 - Acceptance record: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
 - Design handoff: `docs/planning/N04_GROUNDED_GENERATION_HANDOFF.md`
 - G-01: `docs/decisions/N04G01_GROUNDED_GENERATION_RESPONSIBILITY_BOUNDARY.md`
@@ -16,6 +17,7 @@
 - G-05: `docs/decisions/N04G05_GROUNDING_VALIDATION_DESIGN.md`
 - G-06: `docs/decisions/N04G06_VALIDATION_FAILURE_HANDLING_POLICY.md`
 - G-07: `docs/decisions/N04G07_END_TO_END_GROUNDED_GENERATION_DESIGN_FREEZE.md`
+- G-08: `docs/decisions/N04G08_N04_V2_ACCEPTANCE_SPEC_FREEZE.md`
 
 ---
 
@@ -23,12 +25,19 @@
 
 N-04で判明したgrounded-generation failureを解消し、N-04を正式Completeへ戻すまでの実施順序とTask completion conditionを管理する。
 
-N-04自体の最終Completion Gateは次を正本とし、rubricを緩めない。
+N-04 v1のFailed baselineは変更しない。
 
-- `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
-- `benchmark/n04-ai-use-cases-v1.json`
+```text
+benchmark/n04-ai-use-cases-v1.json
+```
 
-v1はFailed baselineとして保持し、G-08でFrozen Designを評価可能なv2 acceptance specを別途作成する。
+G-08以降の正式再受入仕様は次を正本とする。
+
+```text
+benchmark/n04-ai-use-cases-v2.json
+```
+
+v2はv1の3代表caseと核心rubricを継承し、G-07 Frozen Designを追加したものである。rubric緩和による見かけのPASSは禁止する。
 
 ---
 
@@ -37,56 +46,83 @@ v1はFailed baselineとして保持し、G-08でFrozen Designを評価可能なv
 ### Retrieval / Context
 
 - 3 caseすべてMCP public read boundaryを通る。
-- AI consumerはdirect SQLite queryを使わない。
+- AI consumerはdirect SQLite Knowledge readを行わない。
 - current accepted Versionのみを既定利用する。
 - historical Versionをsilentに混入しない。
 - Case 2比較対象はactual Similarity retrievalから選ぶ。
-- Context Builderのpurpose / budget contractを満たす。
+- Context Builder purpose / budget contractを満たす。
+- Grounded Contextは`context_fingerprint + K*`でtrace可能である。
 
-### Local LLM
+### Generator / Validation
 
-- formal runでは同じfrozen generator modelを3 caseで使う。
-- silent cloud fallback禁止。
-- Web / external Knowledgeによるfact補完禁止。
-- Context不足をmodel memoryで穴埋めしない。
+- formal runでは1つのfrozen local generator model/runtime/settingsを全case / retryで使用する。
+- silent cloud / Web / external factual supplementation禁止。
+- `sgokb.grounded-generation-output.v1`のstructured semantic unitsを使用する。
+- `sgokb.grounding-validation.v1`のHybrid validationを通す。
+- `INDETERMINATE`をgrounded PASSへ昇格しない。
+- generation retryは各case最大1回、generation attempt最大2回。
+- retry中のContext / generator model / settings変更禁止。
 
 ### Output Quality
 
 **Case 1 Roleplay**
 
-- first-person roleplayとして成立。
+- first-person roleplay。
 - Context内具体factを最低2件利用。
-- Contextと矛盾しない。
+- unsupported / contradictory source-world fact = 0。
 - Context外franchise / backstory factを追加しない。
 
 **Case 2 Comparison**
 
-- 両WorkのContextから最低1件ずつfactual materialを利用。
-- 最低1つの比較 / 対比。
-- interpretationをstored factから分離。
-- Context外franchise fact禁止。
-- Similarity scoreのtruth / confidence化禁止。
+- 両Workから最低1件ずつgrounded factual material。
+- comparison / contrastあり。
+- interpretationをstored factからvisibleに分離。
+- interpretation premiseはgrounded。
+- Similarity score semantic misuseなし。
 
 **Case 3 Creative**
 
-- 両Conceptのgrounded ideaを利用。
-- 新規Character / arcへ統合。
-- creative additionをSGOKB factから分離。
-- source ConceptへContext外factを追加しない。
+- 両Conceptからgrounded ideaを利用。
+- 両Conceptを新規Character / arcへ統合。
+- creative additionをsource Knowledgeからvisibleに分離。
+- source Concept unsupported fact = 0。
 
-### Safety / Evidence
+### Terminal outcome / Formal Case PASS
 
-- canonical Knowledge不変。
-- current pointer / Evidence / Provenance不変。
-- system integrity PASS。
-- full pytest 0 failed。
-- Grounded Context / K mapping、raw structured response、validation、retry、rendered responseを保存。
+formal Case PASSに利用できるterminal outcomeは`ACCEPTED`のみ。
+
+```text
+ACCEPTED             -> rubricを全て満たせばCase PASS候補
+INSUFFICIENT_CONTEXT -> safe outcomeだがCase FAIL
+REJECTED             -> Case FAIL
+SYSTEM_FAILURE       -> Case FAIL
+```
+
+Attempt 2で`ACCEPTED`になった場合も、Frozen retry policyを満たしAttempt 1を含む全evidenceを保存していればCase PASSを認める。
+
+### Overall PASS
+
+```text
+3 / 3 Case PASS required
+```
+
+加えて:
+
+- canonical before / after invariance
+- system integrity PASS
+- focused grounding regression PASS
+- full pytest = 0 failed
+- new skip / xfailでfailureを隠さない
+
+を要求する。
+
+Retrieval ranking formal metricsはN-06へ残す。
 
 ---
 
-## 3. Fixed boundaries
+## 3. 設計上の固定境界
 
-N-04対策だけを理由に次を再設計しない。
+N-04 remediationだけを理由に次を再設計しない。
 
 - Object identity
 - current accepted Version semantics
@@ -94,11 +130,9 @@ N-04対策だけを理由に次を再設計しない。
 - Evidence / Provenance
 - Version immutability
 - Retrieval / Similarity基本contract
-- MCP = Knowledge Access Layer
+- MCPをKnowledge Access Layerとする境界
 
-Knowledge coverage / ranking qualityはN-06へ残す。
-
-Context不足時の正しい挙動はmodel memory補完ではなく、必要に応じて`context_limit / INSUFFICIENT_CONTEXT`とする。
+canonical KnowledgeをN-04 PASS目的で追加・改変しない。
 
 ---
 
@@ -106,36 +140,38 @@ Context不足時の正しい挙動はmodel memory補完ではなく、必要に�
 
 | Task | Priority | Status | 主目的 |
 |---|---|---|---|
-| N-04G-00 | P0 | **Complete (2026-10-18)** | Completion Gate確認 / Task分解 |
-| N-04G-01 | P0 | **Complete (2026-10-18)** | 責務所有者 / 保証レベル |
-| N-04G-02 | P0 | **Complete (2026-10-18)** | claim taxonomy / use-case境界 |
-| N-04G-03 | P0 | **Complete (2026-10-18)** | Context grounding / reference |
+| N-04G-00 | P0 | **Complete (2026-10-18)** | N-04 Completion Gate確認とremediation Task分解 |
+| N-04G-01 | P0 | **Complete (2026-10-18)** | grounded-generation責務 / guarantee boundary |
+| N-04G-02 | P0 | **Complete (2026-10-18)** | claim taxonomy / use-case boundary |
+| N-04G-03 | P0 | **Complete (2026-10-18)** | Grounded Context / reference contract |
 | N-04G-04 | P0 | **Complete (2026-10-18)** | generation / output contract |
-| N-04G-05 | P0 | **Complete (2026-10-18)** | grounding validation |
+| N-04G-05 | P0 | **Complete (2026-10-18)** | grounding validation design |
 | N-04G-06 | P0 | **Complete (2026-10-18)** | retry / reject / insufficient policy |
-| N-04G-07 | P0 | **Complete (2026-10-18)** | End-to-End統合 / Design Freeze |
-| N-04G-08 | P0 | Pending | v2 benchmark / acceptance spec Freeze |
-| N-04G-09 | P0 | Pending | Frozen Design実装 |
+| N-04G-07 | P0 | **Complete (2026-10-18)** | End-to-End Design Freeze |
+| N-04G-08 | P0 | **Complete (2026-10-18)** | N-04 v2 benchmark / acceptance freeze |
+| N-04G-09 | P0 | Pending | Frozen grounded-generation designを実装 |
 | N-04G-10 | P0 | Pending | automated test / regression |
-| N-04G-11 | P0 | Pending | formal harness / evidence Freeze |
+| N-04G-11 | P0 | Pending | formal re-acceptance harness / evidence freeze |
 | N-04G-12 | P0 | Pending | Reference Workstation formal re-acceptance |
 
-N-05へ進むのはG-12でN-04 Completeを確認した後とする。
+N-05へ進めるのはN-04G-12でN-04 Completeが確認された後とする。
 
 ---
 
-# 5. Frozen Design Summary
+# 5. Completed Design / Acceptance Decisions
 
-## G-01 Responsibility
+## N-04G-01 — Responsibility boundary
 
-**SGOKB-owned contract + consumer-owned orchestration + untrusted LLM**を採用。
+**Decision:** `SGOKB-owned contract + consumer-owned orchestration + untrusted LLM`
 
-- SGOKB Application: grounding semanticsのOwner。
-- MCP: transport / Knowledge Accessのみ。
-- Consumer: model invocation / validation / retry / rendering実行。
-- LLM: best-effort generator。raw outputはgroundedではない。
+- SGOKBがgrounding semantics / conformance contractを所有する。
+- MCPはKnowledge Access / transport adapterのまま。
+- Consumerがruntime invocation / validation / retry / evidence保存を実行する。
+- raw LLM outputはgroundedではない。
 
-## G-02 Taxonomy
+---
+
+## N-04G-02 — Claim taxonomy
 
 Semantic Role:
 
@@ -157,50 +193,42 @@ unsupported
 contradictory
 ```
 
-`interpretation / creative_addition`はstored factからpresentation上分離する。
+Interpretation / creative additionはstored factからvisibleに分離する。
 
-## G-03 Grounded Context
+---
+
+## N-04G-03 — Grounded Context / K references
+
+**採用:** Context-local `K*` + canonical identity metadata。
 
 ```text
 sgokb.grounded-context.v1
+context_fingerprint + K1 / K2 / ...
 ```
 
-- LLM-facing referenceは`K1 / K2 / ...`。
-- `context_fingerprint + K*`でnamespaceを識別。
-- KはObject / resolved Version / canonical Knowledge itemへtrace可能。
-- Evidence IDは一次generation referenceではない。
-- canonical schema変更 / persistent Fact ID追加不要。
+新規persistent Fact ID / canonical schema変更は不要。
 
-## G-04 Generation / Output
+---
+
+## N-04G-04 — Generation / Output
+
+**採用:** single-pass structured semantic units + deterministic rendering。
 
 ```text
 sgokb.grounded-generation-output.v1
+blocks[] -> units[]
+unit_id / semantic_role / text / support_refs[]
 ```
 
-**single-pass structured semantic units + deterministic rendering**を採用。
-
-```text
-blocks[]
-  units[]
-    unit_id
-    semantic_role
-    text
-    support_refs[]
-```
-
-- 別のmodel-generated `final_response`は禁止。
-- Grounding DispositionをLLMに自己申告させない。
+- model-generated別`final_response`は禁止。
 - validated `unit.text`だけをrenderする。
-- interpretation / creativeはvisible block separation。
-- malformed outputをsilent repairしない。
+- provider-native Structured Outputはoptional optimization。
 
-## G-05 Validation
+---
 
-```text
-sgokb.grounding-validation.v1
-```
+## N-04G-05 — Validation
 
-Hybrid validation:
+**採用:** deterministic + bounded semantic Hybrid validation。
 
 ```text
 V0 Contract / Parse
@@ -219,21 +247,19 @@ FAIL
 INDETERMINATE
 ```
 
-`INDETERMINATE`はPASSへ昇格しない。Same-model self-checkだけを最終Gateにしない。
+Grounding certificationはfail-closed。
 
-## G-06 Failure handling
+---
 
-```text
-sgokb.grounding-failure-policy.v1
-```
+## N-04G-06 — Failure handling
 
-**bounded single retry + fail-closed terminal handling**を採用。
+**採用:** bounded single retry + fail-closed terminal handling。
 
-- generation attempt最大2回。
-- retry時もContext / model / runtime / settings / contract固定。
-- retry追加情報はstructured failure feedbackのみ。
-- new retrieval / Web /別model / cloud fallback禁止。
-- partial salvage禁止。
+- max retry = 1
+- max generation attempts = 2
+- retry中Context / model / settings固定
+- validation feedback以外の追加Knowledge禁止
+- partial salvage禁止
 
 Terminal outcome:
 
@@ -246,219 +272,170 @@ SYSTEM_FAILURE
 
 ---
 
-# 6. N-04G-07 Design Freeze
+## N-04G-07 — End-to-End Design Freeze
+
+**Status:** Accepted / Design Frozen。
+
+Frozen sequence:
+
+```text
+Canonical Knowledge
+  -> Context Builder
+  -> Grounded Context / K*
+  -> Consumer
+  -> Local LLM
+  -> Structured Semantic Units
+  -> Hybrid Validation
+  -> Failure Policy
+  -> ACCEPTED only
+  -> Deterministic Rendering
+```
+
+P0意味設計のsilent driftは禁止。変更にはG-07 reopenが必要。
+
+---
+
+## N-04G-08 — v2 Acceptance Freeze
 
 **Status: Complete (2026-10-18)**  
-**Decision record:** `docs/decisions/N04G07_END_TO_END_GROUNDED_GENERATION_DESIGN_FREEZE.md`
+**Decision:** `docs/decisions/N04G08_N04_V2_ACCEPTANCE_SPEC_FREEZE.md`  
+**Machine spec:** `benchmark/n04-ai-use-cases-v2.json`
 
-Frozen End-to-End sequence:
+### Decision summary
 
-```text
-Canonical SGOKB Knowledge
-        ↓
-MCP / KnowledgeReadApplication / Context Builder
-        ↓
-sgokb.context-builder.v1
-        ↓
-Grounding Reference Projection
-        ↓
-sgokb.grounded-context.v1
-        ↓
-Consumer Generation Request
-        ↓
-Untrusted Local LLM
-        ↓
-sgokb.grounded-generation-output.v1
-        ↓
-sgokb.grounding-validation.v1
-        ↓
-sgokb.grounding-failure-policy.v1
-  ├─ PASS → ACCEPTED / INSUFFICIENT_CONTEXT
-  ├─ retryable → one retry
-  ├─ grounding failure → REJECTED
-  └─ system failure → SYSTEM_FAILURE
-        ↓ ACCEPTED only
-Deterministic Rendering
-```
+- v1をFailed baselineとして不変保持する。
+- v2は同じ3代表case / 同じ核心quality Gateを継承する。
+- Grounded Context / K mappingをformal evidenceへ追加する。
+- structured semantic units + deterministic renderingを必須化する。
+- Hybrid validationを必須化する。
+- generator modelはformal run前に1つへfreezeし、formal run中のmodel switchを禁止する。
+- v1のmodel-switch retry ruleはv2では廃止する。
+- semantic validatorは必要時にgenerator-independentなfixed local validator policyを使用する。
+- max generation attempts = 2 / max retry = 1をfreezeする。
+- retry PASSはFrozen retry invariantと完全evidenceを満たす場合に限りCase PASSを認める。
+- `INSUFFICIENT_CONTEXT`はsafe terminal outcomeだがN-04 Case PASSには数えない。
+- formal Case PASSは`ACCEPTED + all case gates + critical failure 0`を要求する。
+- Overall N-04 v2 PASSは3 / 3 Case PASSを要求する。
+- formal run開始後のrubric / model / protocol / retry policy cherry-pickを禁止する。
 
-### Design Freeze invariants
+### Completion condition
 
-1. AI inputのdirect SQLite禁止。
-2. silent historical Version mixing禁止。
-3. Web / external fact supplementation禁止。
-4. raw LLM outputをgrounded扱いしない。
-5. K reference存在だけをsupport proofにしない。
-6. validation外のmodel-generated final proseを持たない。
-7. unvalidated unitをgrounded contentとしてrenderしない。
-8. unlimited retry禁止。
-9. retry chain内のmodel / cloud fallback禁止。
-10. failed outputのpartial salvage禁止。
-11. grounded-generationからcanonical mutationしない。
-12. N-04 rubricをPASS目的で緩和しない。
-
-### Candidate統合採否
-
-```text
-Context-local K + canonical metadata: 採用
-canonical ID direct citation: primaryとして不採用
-Evidence ID direct citation: primaryとして不採用
-persistent Fact ID: 不採用
-single-pass structured units: 採用
-separate final_response: 不採用
-2-stage LLM renderer: baseline不採用
-deterministic renderer: 採用
-Hybrid validator: 採用
-same-model self-check only: 不採用
-bounded single retry: 採用
-unlimited retry: 不採用
-model/cloud/Web retry fallback: 不採用
-partial salvage: baseline不採用
-context_limit / INSUFFICIENT_CONTEXT: 採用
-Creative addition: visible separation付きで採用
-```
-
-### Architecture impact
-
-canonical DB migration、Evidence / Provenance redesign、Retrieval ranking redesign、MCP推論主体化はいずれも不要。
-
-G-09 implementation scopeとして以下を想定する。
-
-```text
-GroundedContextProjector
-GroundedGenerationContract / parser
-GroundingValidator
-SemanticValidatorAdapter
-GroundingFailureController
-DeterministicRenderer
-GroundingEvidenceLogger
-```
-
-物理class / module名は変更可能だが、Frozen responsibility / semanticsは変更しない。
-
-### Open P0 issue
-
-**なし。**
-
-exact JSON Schema、物理module配置、具体generator / validator model、generation parameters、formal evidence naming等は後続Taskで固定するoperation / implementation detailである。
-
-Frozen semanticsと衝突する変更が必要になった場合、G-07を明示的にreopenして再Decisionする。
+- [x] v1 Failed baseline不変。
+- [x] `benchmark/n04-ai-use-cases-v2.json`作成。
+- [x] G-07 Frozen Designと一致。
+- [x] generator / validator policy定義。
+- [x] retry PASS / insufficient / terminal outcomeのCase判定を固定。
+- [x] 3 / 3 Overall PASSを固定。
+- [x] G-09〜G-11への引き渡しを定義。
 
 ---
 
-# 7. N-04G-08 [P0] v2 benchmark / acceptance specを固定する
+# 6. Implementation / Formal Acceptance Tasks
 
-### 方針
+## N-04G-09 [P0] Frozen grounded-generation designを実装する
 
-`benchmark/n04-ai-use-cases-v1.json`はFailed baselineとして変更しない。
-
-新規v2 specでG-07 Frozen Designを評価可能にする。
-
-最低限freezeする項目:
-
-- same 3 use cases
-- v1 core quality Gate維持
-- four grounded-generation contract versions
-- generator / validator model policy
-- generation / validator settings
-- max generation attempts = 2
-- retry PASSの扱い
-- `INSUFFICIENT_CONTEXT / REJECTED / SYSTEM_FAILURE`のCase評価
-- artifact / evidence requirement
-- formal run開始後のrubric / model / retry policy変更禁止
-
-Retry attempt 2がvalidation PASSしuse-case quality Gateも満たす場合、workflow上は`ACCEPTED`になり得る。attempt countは必ず記録する。
-
-`INSUFFICIENT_CONTEXT`はgrounding-safeな終了になり得るが、Case quality Gateを自動PASSさせない。
-
----
-
-# 8. N-04G-09 [P0] Frozen Designを実装する
-
-実装候補:
+### Scope
 
 - Grounded Context projection / K mapping
-- context fingerprint
-- generation request / output schema
+- grounded generation request / output parser / schema
 - Hybrid validator
-- bounded semantic validator adapter
+- semantic validator adapter
 - deterministic renderer
 - retry / terminal outcome controller
-- evidence logging
+- evidence logger
 
-禁止:
+### 禁止
 
-- benchmark固有hardcode
-- N-06 ranking tuning混在
+- benchmark case固有hardcode
+- canonical Knowledge追加でのPASS誘導
+- N-06 ranking tuningの混在
 - silent cloud / Web fallback
-- canonical Knowledge追加で見かけのPASSを作ること
+- G-07/G-08 semanticsのsilent変更
+
+### Completion
+
+- Frozen Design / v2 specとのtraceability。
+- 3 use case共通実装。
+- existing read boundary維持。
 
 ---
 
-# 9. N-04G-10 [P0] automated test / regression
+## N-04G-10 [P0] Automated Test / Regression
 
-最低観点:
+最低限:
 
-- supported / unsupported / contradictory source fact
-- interpretation support
-- creative addition separation
-- context limit
-- malformed structured output
-- K / fingerprint integrity
-- deterministic rendering一致
-- retry once / exhausted
-- non-retryable system failure
-- partial salvageなし
-- current / historical isolation
-- canonical mutationなし
-
-full pytestは`0 failed`必須。
-
----
-
-# 10. N-04G-11 [P0] formal harness / evidence Freeze
-
-formal run前に固定する。
-
-- evaluation DB / N-03 dataset
-- MCP public read route
-- generator model / runtime / settings
-- validator model / runtime / settings
-- prompt / structured output schema
-- retry policy
+- v2 output parse
+- K reference integrity
+- supported / unsupported / contradictory
+- interpretation / separation
+- creative addition / separation
+- context_limit / insufficient
+- malformed output
+- retry once / retry exhausted
+- system failure
 - deterministic rendering
-- artifact保存先 / naming
-- before / after canonical snapshot
-- integrity / pytest手順
+- partial salvageなし
+- canonical non-mutation
+- current / historical isolation
 
-Caseごとのmodel / rubric / protocol / retry回数cherry-pickは禁止。
+focused test PASS + full pytest 0 failedを要求する。
 
 ---
 
-# 11. N-04G-12 [P0] Formal Re-Acceptance
+## N-04G-11 [P0] Formal Harness Freeze
 
-3 caseをfreeze済みv2 spec / harnessだけで実行する。
+具体値へfreezeする:
+
+- evaluation DB / dataset
+- MCP route
+- actual generator model/runtime/settings
+- actual semantic validator model/runtime/settings if used
+- exact generation prompt / schema
+- retry policy
+- deterministic renderer rule
+- exact evidence paths
+- canonical before / after procedure
+- integrity / pytest procedure
+
+formal run開始後にcase単位のmodel / rubric / retry cherry-pickを禁止する。
+
+---
+
+## N-04G-12 [P0] Formal N-04 Re-Acceptance
+
+Frozen v2 spec / harnessだけを使用する。
 
 必須evidence:
 
-- Git / environment
-- generator / validator metadata
-- MCP request / response
-- Grounded Context / K mapping
-- attempt 1 request / response / validation
-- retry attempt artifacts（存在時）
-- terminal outcome
-- rendered response
-- atomic claim support evaluation
-- canonical before / after
-- integrity
-- focused regression
-- full pytest
+```text
+Git/environment
+generator/validator metadata
+MCP request/response
+Grounded Context / K mapping
+attempt 1 request/output/validation
+retry artifacts if used
+terminal outcome
+rendered response if ACCEPTED
+atomic claim evaluation
+canonical before/after
+system integrity
+focused regression
+full pytest
+```
 
-Critical Gateを1件でも満たさなければN-04 Completeにしない。
+N-04 Completeには3 / 3 Case PASS + safety/regression Gate全PASSが必要。
+
+完了後:
+
+- N-04 acceptance recordをv2 resultで更新。
+- `PHASE_N_PREPARATION.md` N-04 Complete。
+- `KNOWLEDGE_BASE_REDESIGN_TASKS.md` N-04 Complete。
+- PR #39最終状態更新。
+- N-05へ進行可能とする。
 
 ---
 
-## 12. Task dependency
+## 7. Task dependency
 
 ```text
 N-04G-00 Complete
@@ -477,7 +454,7 @@ N-04G-06 Complete
        ↓
 N-04G-07 Design Freeze Complete
        ↓
-N-04G-08 v2 Acceptance Freeze
+N-04G-08 Acceptance Freeze Complete
        ↓
 N-04G-09 Implementation
        ↓
@@ -485,7 +462,7 @@ N-04G-10 Automated Test / Regression
        ↓
 N-04G-11 Formal Harness Freeze
        ↓
-N-04G-12 Formal Re-Acceptance
+N-04G-12 Formal N-04 Re-Acceptance
        ↓
 N-04 Complete
        ↓
@@ -494,11 +471,34 @@ N-05
 
 ---
 
-## 13. 次に実施するTask
+## 8. Candidate採否 — Frozen
 
 ```text
-N-04G-08 [P0]
-N-04 v2 benchmark / acceptance specを固定する
+Context-local K* + canonical metadata: 採用
+persistent new Fact ID: 不採用
+canonical ID direct citation: 一次referenceとして不採用
+Evidence ID direct citation: 一次referenceとして不採用
+single-pass structured semantic units: 採用
+deterministic renderer: 採用
+separate model-generated final_response: 不採用
+2-stage LLM renderer: baseline不採用
+Hybrid post-generation validator: 採用
+same-model self-check only: 最終Gateとして不採用
+bounded single retry: 採用
+unlimited retry: 不採用
+retry中のmodel/cloud/Web fallback: 不採用
+partial salvage: baseline不採用
+valid context_limit / INSUFFICIENT_CONTEXT: 採用
+INSUFFICIENT_CONTEXTをN-04 Case PASSに数える: 不採用
+retry後ACCEPTEDをCase PASS候補にする: 条件付き採用
+Creative visible scope separation: 採用
 ```
 
-G-07でFrozenしたEnd-to-End contractを、formal run開始前に再現可能なv2 benchmark / acceptance specificationへ変換する。
+---
+
+## 9. 次に実施するTask
+
+```text
+N-04G-09 [P0]
+採用したgrounded-generation designを実装する
+```
