@@ -23,6 +23,7 @@ from .output import (
     parse_generation_output,
 )
 from .render import DeterministicRenderer
+from .request import GroundedGenerationRequestBuilder
 from .validation import (
     GROUNDING_VALIDATION_CONTRACT_VERSION,
     GroundingValidator,
@@ -45,6 +46,7 @@ __all__ = [
     "DeterministicRenderer",
     "GenerationOutputContractError",
     "GroundedContextProjector",
+    "GroundedGenerationRequestBuilder",
     "GroundingEvidenceLogger",
     "GroundingFailureController",
     "GroundingValidator",
