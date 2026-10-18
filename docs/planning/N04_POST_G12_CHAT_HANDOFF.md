@@ -1,15 +1,16 @@
 # N-04 Post-G12 Chat Handoff
 
-更新日: 2026-10-18
+更新日: 2026-10-19
 
 - Project: `Source Grounded Object Knowledge Base (SGOKB)`
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Current branch of record: `main`
-- Branch state: **Phase M / Phase N task work merged into main; open PR = 0**
+- Branch state: **Phase M / Phase N task work integrated into main; G-14 documentation is based on main**
 - Parent task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
 - Current N-04 state: **Failed / not Complete**
 - N-05: **blocked**
-- Next task: **N-04G-14 [P0] Atomic claim / semantic-role boundary redesign**
+- Completed remediation task: **N-04G-14 [P0] Atomic claim / semantic-role boundary redesign**
+- Next task: **N-04G-15 [P0] Output schema / presentation / deterministic rendering contract hardening**
 
 ---
 
@@ -17,7 +18,7 @@
 
 別チャットでN-04 post-G12 remediationを継続するための開始点を固定する。
 
-新しいチャットでは、過去のstacked branchを再利用せず`main`を正本として確認する。
+新しいチャットでは、過去のPhase N stacked branchを再利用せず`main`を正本として確認する。
 
 ---
 
@@ -43,9 +44,7 @@ PR #39 -> dd7fd60fc8f30059803652b25fc22186ad9101bf
 
 Phase M branchesはPR #32〜#35ですでにmainへmerge済みだった。古いbranch refが残っていても、再mergeしない。
 
-統合後、open PRは0件。
-
-今後の作業は`main`から開始する。
+G-14作業はこの統合済み`main`をbaseとして開始した。
 
 ---
 
@@ -101,8 +100,6 @@ git diff --check = PASS
 - material relationship claimが`stylistic_expression`として`role_valid`を通過。
 - unsupported contentが`ACCEPTED`後にrenderされた。
 
-最重要問題。
-
 ### Case 2 — interpretation / support failure
 
 - Attempt 1 unsupported claim。
@@ -132,7 +129,7 @@ git diff --check = PASS
 9. multi-object use-case coverageをcore machine Gateで保証していない。
 10. focused testsにreal-model false-positive型adversarial caseが不足。
 
-詳細:
+正本:
 
 ```text
 docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md
@@ -140,29 +137,46 @@ docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md
 
 ---
 
-## 6. 外部調査の主要結論
+## 6. N-04G-14で確定した設計
 
-G-13では次を参考にした。
+正本:
 
 ```text
-FActScore
-Ragas Faithfulness
-Amazon RAGChecker
-MiniCheck
-AlignScore
-DeepEval
-LM Studio Structured Output
-JSON Schema Draft 2020-12 / python-jsonschema
+docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md
 ```
 
-共通して有力な方向:
+主要Decision:
 
-- whole-responseではなくatomic claim / statement単位で検証する。
-- claimとsupplied contextのentailmentを個別評価する。
-- retrieval failureとgeneration / faithfulness failureを分離する。
-- structured outputはsyntax/shape enforcementでありsemantic groundingの代替ではない。
+1. `1 validation unit = 1 atomic semantic proposition`を必須invariantとした。
+2. 部分ごとに異なるgrounding verdictを持ち得るunitは`NON_ATOMIC`とする。
+3. `ATOMIC`だけがsupport / derivation validationへ進める。`NON_ATOMIC / INDETERMINATE`はgrounded PASS不可。
+4. content materiality / role boundary判定をmodel-declared `semantic_role`より優先する。
+5. mixed-role unitを禁止する。
+6. role mismatchをsilent reclassificationで救済しない。
+7. post-hoc atomizerを唯一のgrounding authorityにしない。
+8. N-04 v3 formal baselineではmodel-authored `stylistic_expression`を禁止する。
+9. `context_limit`をsupplied Contextの可用性に関するmeta / epistemic propositionへ限定する。
+10. `creative_addition`にsource Object / Concept等のfactを混在させない。
+11. `interpretation`はconclusion-onlyとし、premiseは別validated source-fact unitとして扱う方向を固定した。物理参照方式はG-16で決める。
+12. Atomicity / role-boundary failureは後段semantic verifierのpositive verdictでoverrideできない。
 
-MiniCheckはsource-fact verifier候補としてG-16でoffline benchmark候補とする。
+G-12 Case 1 desk replay:
+
+```text
+supported clause + unsupported clause
+-> NON_ATOMIC
+-> support validationへ進まない
+-> no grounded PASS
+```
+
+```text
+material claim disguised as stylistic_expression
+-> v3 role自体がmodel output禁止
+-> content-first role checkでもROLE_VIOLATION
+-> no grounded PASS
+```
+
+G-14ではproduction codeを変更していない。
 
 ---
 
@@ -178,7 +192,7 @@ Task:
 
 ```text
 N-04G-13  Root-cause / desk review / research       Complete
-N-04G-14  Atomic claim / semantic-role redesign     Pending
+N-04G-14  Atomic claim / semantic-role redesign     Complete
 N-04G-15  Output / presentation contract hardening  Pending
 N-04G-16  Semantic validation architecture          Pending
 N-04G-17  Material / terminal / render gate         Pending
@@ -193,28 +207,33 @@ N-04 CompleteはG-22で3/3 Case PASS + safety/regression Gate全PASS後のみ。
 
 ---
 
-## 8. 次のTask — N-04G-14
+## 8. 次のTask — N-04G-15
+
+Task:
+
+```text
+N-04G-15 [P0]
+Output schema / presentation / deterministic rendering contractをhardeningする
+```
 
 目的:
 
-```text
-supported clause + unsupported clause
-```
-
-を1 verdictでfalse acceptしないatomic claim / semantic-role boundaryへ再設計する。
+- Case 3のJSON Schema / parser mismatchを解消する。
+- model-generated presentation metadataからsemantic contentがvalidationを迂回しないようにする。
+- G-14で決定したatomicity / role-boundaryをv3 output contractへ物理化する。
 
 最低検討事項:
 
-- material unitを1 atomic propositionへ限定するmachine-checkable invariant。
-- non-atomic / ambiguous unitの扱いをRetry / INDETERMINATEへ倒す条件。
-- post-hoc atomizerを唯一のgrounding authorityにしない。
-- `stylistic_expression`へmaterial factを逃がさない。
-- `context_limit`へのsource-world fact混在を防ぐ。
-- `creative_addition`がsource Concept/Objectについてunsupported factを説明しない境界。
-- v3 formal baselineで`stylistic_expression`を禁止または極小化する案の比較。
-- G-12 Case 1保存evidenceを新設計へ当てた机上判定。
+- model-generated `label`を削除するか、trusted fixed valueへ限定する。
+- renderer headingを`presentation_role`からdeterministically生成する。
+- arbitrary label textをrendered semantic contentへ入れない。
+- block role / semantic role / support ref cardinalityを可能な範囲でschemaへencodeする。
+- v3 schemaからmodel-authored `stylistic_expression`を除外する。
+- atomic unit / homogeneous roleをparser / validatorが扱いやすいcontract shapeへする。
+- `context_limit`をfree-form textのままにするかstructured reason code化するか決める。
+- LM Studio Structured Outputで使用可能なJSON Schema subsetをpreflight可能にする。
 
-このTaskは設計Taskであり、先にproduction codeを変更しない。
+G-15も設計Taskであり、Design Freeze前にproduction codeを変更しない。
 
 ---
 
@@ -245,14 +264,14 @@ rubricを緩和してPASSさせない。
 
 1. `docs/planning/N04_POST_G12_CHAT_HANDOFF.md`
 2. `docs/planning/N04_POST_G12_REMEDIATION_TASKS.md`
-3. `docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md`
-4. `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
-5. `docs/decisions/N04G04_GENERATION_OUTPUT_CONTRACT.md`
-6. `docs/decisions/N04G05_GROUNDING_VALIDATION_DESIGN.md`
-7. `docs/decisions/N04G07_END_TO_END_GROUNDED_GENERATION_DESIGN_FREEZE.md`
-8. `src/sgokb/grounding/output.py`
-9. `src/sgokb/grounding/validation.py`
-10. `tests/test_n04_grounded_generation.py`
+3. `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
+4. `docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md`
+5. `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
+6. `docs/decisions/N04G04_GENERATION_OUTPUT_CONTRACT.md`
+7. `docs/decisions/N04G05_GROUNDING_VALIDATION_DESIGN.md`
+8. `docs/decisions/N04G07_END_TO_END_GROUNDED_GENERATION_DESIGN_FREEZE.md`
+9. `src/sgokb/grounding/output.py`
+10. `src/sgokb/grounding/validation.py`
 
 ---
 
@@ -261,19 +280,22 @@ rubricを緩和してPASSさせない。
 ```text
 SourceGroundedObjectKnowledgeBaseのPhase N / N-04 post-G12 remediationをこのチャットへ引き継ぎます。
 
-まずmainブランチの以下を確認してください。
+GitHubはmainを正本として確認してください。過去のPhase N stacked branchは使わないでください。
+
+まず以下を確認してください。
 
 - docs/planning/N04_POST_G12_CHAT_HANDOFF.md
 - docs/planning/N04_POST_G12_REMEDIATION_TASKS.md
+- docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md
 - docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md
 - docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md
 
-現在、N-04G-13までComplete、N-04はFailed、N-05はblockedです。
+現在、N-04G-14までComplete、N-04はFailed、N-05はblockedです。
 
 次Taskは:
-N-04G-14 [P0] Atomic claim / semantic-role boundaryを再設計する
+N-04G-15 [P0] Output schema / presentation / deterministic rendering contractをhardeningする
 
 です。
 
-G-12保存evidenceとG-13 desk reviewを前提に、まずG-14で決定が必要な論点を整理してください。設計Taskなので、私が実装を指示するまではproduction codeを変更しないでください。
+G-14のatomicity / semantic-role boundary DecisionとG-12 Case 3保存evidenceを前提に、G-15を実施してください。設計Taskなので、Design Freeze前にproduction codeを変更しないでください。
 ```
