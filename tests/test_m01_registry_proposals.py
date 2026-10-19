@@ -20,8 +20,7 @@ def test_registry_proposal_requires_accept_then_explicit_apply(tmp_path):
         ]
         receipt, incoming, report = _validate(repository, audit, manifest, tmp_path, result)
         assert any(
-            finding.code == "registry_proposal_requires_review"
-            and finding.severity == "review"
+            finding.code == "registry_proposal_requires_review" and finding.severity == "review"
             for finding in report.findings
         )
         imported = _import(

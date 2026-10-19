@@ -131,9 +131,7 @@ def test_phase_g_initial_object_round_trip_reaches_pending_validation_without_im
         transfer = PackageTransferService()
         staged = transfer.stage_from_directory(workspace, tmp_path / "staging")
         audit = PackageExchangeAuditRepository(repository.db)
-        staged_manifest = json.loads(
-            Path(staged.path, "manifest.json").read_text(encoding="utf-8")
-        )
+        staged_manifest = json.loads(Path(staged.path, "manifest.json").read_text(encoding="utf-8"))
         audit.record_staged(staged_manifest, staged.path, staged.preflight.to_dict())
 
         exported = transfer.export(staged.path, tmp_path / "DriveSync")
@@ -209,9 +207,7 @@ def test_update_package_serializes_current_object_and_protects_historical_ground
         assert manifest["artifacts"]["current_object_path"] == "current_object.json"
         assert old_evidence_id in manifest["evidence"]["included_evidence_ids"]
         old_item = next(
-            item
-            for item in manifest["evidence"]["items"]
-            if item["evidence_id"] == old_evidence_id
+            item for item in manifest["evidence"]["items"] if item["evidence_id"] == old_evidence_id
         )
         assert "carry_forward" in old_item["package_roles"]
         assert old_item["selected_by"] == "protected"

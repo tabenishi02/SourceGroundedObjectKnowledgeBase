@@ -12,8 +12,7 @@ class EvidenceEmbedder:
         if query:
             return [[1.0, 0.0] for _ in texts]
         return [
-            [1.0, 0.0] if "winter protector" in text.casefold() else [0.0, 1.0]
-            for text in texts
+            [1.0, 0.0] if "winter protector" in text.casefold() else [0.0, 1.0] for text in texts
         ]
 
 
@@ -57,12 +56,8 @@ def test_evidence_search_uses_effective_generation_by_default(tmp_path):
             current_snapshot,
             "The winter protector watches the northern gate.",
         )
-        repo.source_store.select_effective_snapshot(
-            source_id, current_snapshot, reason="fixture"
-        )
-        repo.source_store.select_effective_run(
-            current_snapshot, current_run, reason="fixture"
-        )
+        repo.source_store.select_effective_snapshot(source_id, current_snapshot, reason="fixture")
+        repo.source_store.select_effective_run(current_snapshot, current_run, reason="fixture")
 
         old_snapshot = repo.source_store.create_snapshot(
             source_id,

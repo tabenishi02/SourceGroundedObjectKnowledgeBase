@@ -74,6 +74,7 @@ class ObjectSearchResponse:
     results: tuple[ObjectSearchResult, ...]
     degraded_channels: tuple[str, ...] = ()
 
+
 @dataclass(frozen=True, slots=True)
 class SimilarObjectResult:
     object_id: str
@@ -98,4 +99,3 @@ class ObjectSimilarityResponse:
     facet: str | None
     cross_class: bool
     results: tuple[SimilarObjectResult, ...]
-

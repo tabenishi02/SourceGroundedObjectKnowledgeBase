@@ -98,9 +98,7 @@ class EvidenceSearch:
             if association_status not in {"candidate", "confirmed", "excluded"}:
                 raise ValueError("Unknown Source/Object association status")
             statuses = {association_status}
-        associated = {
-            row["source_id"] for row in associations if row["status"] in statuses
-        }
+        associated = {row["source_id"] for row in associations if row["status"] in statuses}
         if explicit:
             return tuple(source_id for source_id in explicit if source_id in associated)
         return tuple(sorted(associated))

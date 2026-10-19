@@ -28,10 +28,10 @@ class GroundedGenerationRequestBuilder:
     ) -> dict[str, Any]:
         if not user_task.strip():
             raise ValueError("Grounded generation requires a non-empty user task")
-        if (
-            grounded_context.get("grounded_context_contract_version")
-            != GROUNDED_CONTEXT_CONTRACT_VERSION
-            or not GroundedContextProjector.verify(grounded_context)
+        if grounded_context.get(
+            "grounded_context_contract_version"
+        ) != GROUNDED_CONTEXT_CONTRACT_VERSION or not GroundedContextProjector.verify(
+            grounded_context
         ):
             raise ValueError("Grounded generation requires a valid sgokb.grounded-context.v1")
 

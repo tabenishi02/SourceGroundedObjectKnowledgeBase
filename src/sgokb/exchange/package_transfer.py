@@ -16,10 +16,7 @@ from .instructions import INSTRUCTIONS_VERSION
 from .object_result import load_object_result_schema
 from .package_manifest import validate_package_manifest, with_manifest_sha256
 
-
-_PRIVATE_KEY_PATTERN = re.compile(
-    rb"-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----"
-)
+_PRIVATE_KEY_PATTERN = re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----")
 _TOKEN_PATTERNS = (
     ("openai_api_key", re.compile(rb"\bsk-[A-Za-z0-9_-]{20,}\b")),
     ("github_token", re.compile(rb"\bgh[pousr]_[A-Za-z0-9]{30,}\b")),
@@ -174,7 +171,9 @@ def _package_contract_findings(root: Path, manifest: Mapping[str, Any]) -> tuple
     return tuple(findings)
 
 
-def inspect_package(package_dir: str | Path, destination: str | Path | None = None) -> PackagePreflight:
+def inspect_package(
+    package_dir: str | Path, destination: str | Path | None = None
+) -> PackagePreflight:
     """Verify a finalized Package and produce an export-oriented preflight summary."""
 
     root = Path(package_dir).resolve()
@@ -243,10 +242,9 @@ def inspect_package(package_dir: str | Path, destination: str | Path | None = No
             existing = destination_root / str(package_id)
             try:
                 existing_manifest = _load_manifest(existing)
-                same = (
-                    existing_manifest.get("integrity", {}).get("manifest_sha256")
-                    == manifest.get("integrity", {}).get("manifest_sha256")
-                )
+                same = existing_manifest.get("integrity", {}).get(
+                    "manifest_sha256"
+                ) == manifest.get("integrity", {}).get("manifest_sha256")
                 if not same:
                     reasons.append("destination_package_id_collision")
             except Exception:
@@ -275,10 +273,14 @@ def inspect_package(package_dir: str | Path, destination: str | Path | None = No
 
     return PackagePreflight(
         package_id=str(manifest.get("package_id")) if manifest.get("package_id") else None,
-        manifest_sha256=(manifest.get("integrity") or {}).get("manifest_sha256") if manifest else None,
+        manifest_sha256=(manifest.get("integrity") or {}).get("manifest_sha256")
+        if manifest
+        else None,
         target_object_id=(manifest.get("target") or {}).get("object_id") if manifest else None,
         target_name=(manifest.get("target") or {}).get("name") if manifest else None,
-        base_version_id=(manifest.get("binding") or {}).get("base_version_id") if manifest else None,
+        base_version_id=(manifest.get("binding") or {}).get("base_version_id")
+        if manifest
+        else None,
         schema_version=manifest.get("schema_version") if manifest else None,
         evidence_count=len((manifest.get("evidence") or {}).get("included_evidence_ids", [])),
         source_count=len((manifest.get("evidence") or {}).get("included_source_ids", [])),
@@ -316,7 +318,10 @@ class PackageTransferService:
         if actual != expected:
             missing = sorted(expected - actual)
             unexpected = sorted(actual - expected)
-            raise ValueError(f"Package build directory scope mismatch: missing={missing}, unexpected={unexpected}")
+            raise ValueError(
+                f"Package build directory scope mismatch: missing={missing}, "
+                f"unexpected={unexpected}"
+            )
 
         for item in manifest["files"]:
             relative = str(item["path"])
@@ -366,9 +371,13 @@ class PackageTransferService:
                 # A manifest-declared blocked policy may still be locally staged, but
                 # integrity/security problems must never become a finalized Package.
                 policy_reasons = set((manifest.get("export_preflight") or {}).get("reasons", []))
-                non_policy = [reason for reason in preflight.reasons if reason not in policy_reasons]
+                non_policy = [
+                    reason for reason in preflight.reasons if reason not in policy_reasons
+                ]
                 if non_policy:
-                    raise ValueError("Staged Package failed integrity/security checks: " + "; ".join(non_policy))
+                    raise ValueError(
+                        "Staged Package failed integrity/security checks: " + "; ".join(non_policy)
+                    )
             os.replace(temporary, final)
         except Exception:
             shutil.rmtree(temporary, ignore_errors=True)
@@ -438,7 +447,10 @@ class PackageTransferService:
             raise
 
         final_check = inspect_package(final)
-        if final_check.disposition == "blocked" or final_check.manifest_sha256 != preflight.manifest_sha256:
+        if (
+            final_check.disposition == "blocked"
+            or final_check.manifest_sha256 != preflight.manifest_sha256
+        ):
             raise ValueError("Final exported Package failed verification")
         return PackageExportResult(
             package_id=preflight.package_id,

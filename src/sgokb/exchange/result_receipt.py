@@ -132,7 +132,9 @@ def _binding_findings(
     return findings
 
 
-def _load_staged_manifest(package_record: Mapping[str, Any]) -> tuple[dict[str, Any] | None, str | None]:
+def _load_staged_manifest(
+    package_record: Mapping[str, Any],
+) -> tuple[dict[str, Any] | None, str | None]:
     try:
         staged = Path(str(package_record["staged_path"]))
         manifest = json.loads((staged / "manifest.json").read_text(encoding="utf-8"))
@@ -140,7 +142,9 @@ def _load_staged_manifest(package_record: Mapping[str, Any]) -> tuple[dict[str, 
         return None, "staged_package_manifest_unavailable"
     if manifest.get("package_id") != package_record["package_id"]:
         return None, "staged_package_manifest_package_id_mismatch"
-    if (manifest.get("integrity") or {}).get("manifest_sha256") != package_record["manifest_sha256"]:
+    if (manifest.get("integrity") or {}).get("manifest_sha256") != package_record[
+        "manifest_sha256"
+    ]:
         return None, "staged_package_manifest_hash_mismatch"
     return manifest, None
 
@@ -151,7 +155,9 @@ class ResultReceiptService:
     def __init__(self, audit: PackageExchangeAuditRepository):
         self.audit = audit
 
-    def detect(self, incoming_root: str | Path = DEFAULT_INCOMING_ROOT) -> tuple[DetectedResult, ...]:
+    def detect(
+        self, incoming_root: str | Path = DEFAULT_INCOMING_ROOT
+    ) -> tuple[DetectedResult, ...]:
         """List exact `drop/<package_id>/result.json` candidates without modifying them."""
 
         drop = Path(incoming_root).resolve() / "drop"

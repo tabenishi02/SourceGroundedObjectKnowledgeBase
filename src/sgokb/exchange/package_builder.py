@@ -173,7 +173,9 @@ class ObjectEvidencePackageBuilder:
         ]
         if current_snapshot is not None:
             raw = artifacts["current_object.json"]
-            files.append(_file_entry("current_object.json", "current_object", "application/json", raw))
+            files.append(
+                _file_entry("current_object.json", "current_object", "application/json", raw)
+            )
         schema_raw = artifacts["schema/object-result-v1.schema.json"]
         files.append(
             _file_entry(
@@ -373,10 +375,7 @@ class ObjectEvidencePackageBuilder:
             candidate = item.candidate
             key = (candidate.source_id, candidate.snapshot_id, candidate.run_id)
             generations.setdefault(key, []).append(item)
-        paths = {
-            key: f"evidence/source_{index:03d}.md"
-            for index, key in enumerate(generations, 1)
-        }
+        paths = {key: f"evidence/source_{index:03d}.md" for index, key in enumerate(generations, 1)}
         artifacts = {
             paths[key]: self._render_generation(key, items).encode("utf-8")
             for key, items in generations.items()
@@ -436,7 +435,9 @@ class ObjectEvidencePackageBuilder:
         return "\n".join(lines).rstrip() + "\n"
 
     @staticmethod
-    def _write_workspace(build_root: str | Path, package_id: str, artifacts: dict[str, bytes]) -> Path:
+    def _write_workspace(
+        build_root: str | Path, package_id: str, artifacts: dict[str, bytes]
+    ) -> Path:
         root = Path(build_root).resolve()
         root.mkdir(parents=True, exist_ok=True)
         final = root / package_id

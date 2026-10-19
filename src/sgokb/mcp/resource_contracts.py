@@ -64,10 +64,7 @@ def object_resource_uri(object_id: str) -> str:
 
 
 def object_version_resource_uri(object_id: str, version_id: str) -> str:
-    return (
-        f"sgokb://object/{_encode_segment(object_id)}/version/"
-        f"{_encode_segment(version_id)}"
-    )
+    return f"sgokb://object/{_encode_segment(object_id)}/version/{_encode_segment(version_id)}"
 
 
 def evidence_resource_uri(evidence_id: str) -> str:

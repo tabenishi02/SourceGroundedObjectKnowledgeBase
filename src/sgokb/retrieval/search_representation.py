@@ -329,9 +329,7 @@ class SearchRepresentationBuilder:
             (row["source_id"], row["snapshot_id"]),
         ).fetchall()
         for item in classifications:
-            lines.append(
-                f"Source {self._clean(item['axis'])}: {self._clean(item['value'])}"
-            )
+            lines.append(f"Source {self._clean(item['axis'])}: {self._clean(item['value'])}")
         self._append(lines, "Evidence", row["content"])
         return BuiltSearchRepresentation(
             SearchRepresentationKind.EVIDENCE,
@@ -339,6 +337,7 @@ class SearchRepresentationBuilder:
             self.BUILDER_VERSION,
             "\n".join(lines),
         )
+
     def _persist(self, built: BuiltSearchRepresentation) -> str:
         return self.repository.semantic_store.get_or_create_search_representation(
             built.kind,
