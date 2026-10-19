@@ -29,7 +29,12 @@
     "required_positive_count": 2,
     "negative_specificity": 1.0,
     "positive_recall": 0.8,
-    "reference_workstation_reproduction": false
+    "reference_workstation_reproduction": true,
+    "reference_workstation_result": {
+      "path": "benchmark/results/n04g21r-minicheck-offline-reference-workstation.json",
+      "sha256": "621da76085e41d2a5b66001c28f1b326785a291db600f0875e2de36e2e081576",
+      "run_id": "20261019T233552+0900"
+    }
   },
   "independent_source_fact_judge": {
     "runtime": "LM Studio OpenAI-compatible local server",
@@ -84,8 +89,8 @@
   "hash": {
     "algorithm": "sha256-canonical-json",
     "payload_scope": "all fields except hash/status/design_freeze",
-    "value": "9be125732508a089d24e596e1d82f400adcc5740e2ca665c0187ad5abcf2a317"
+    "value": "01eedf64791b71466cee815ad8f44289d2fd4a5859f1bf76041a5ef91847c034"
   },
-  "status": "freeze_candidate_pending_reference_workstation_verification",
+  "status": "frozen",
   "design_freeze": "docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md"
 }

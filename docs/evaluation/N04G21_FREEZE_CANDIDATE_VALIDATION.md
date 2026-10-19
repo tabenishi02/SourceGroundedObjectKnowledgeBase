@@ -1,6 +1,15 @@
 # N-04G-21 Freeze Candidate Validation
 
-更新日: 2026-10-19
+更新日: 2026-10-20
+
+- Current final status: **PASS / G-21 Complete / Frozen (2026-10-20)**
+- Reference Workstation proof: `20261019T233552+0900`, `docs/evaluation/N04G21R_SELECTED_VERIFIER_RUNTIME_LOCAL_PROOF.md`.
+- Final local gates: offline proof, runtime preflight, focused 37 / contract 7 / full 405 passed, repo-wide Ruff and diff PASS; post-Freeze contracts 7 passed.
+- G-21R Complete / PASS; G-22 NEXT / unblocked; N-04 Failed / N-05 blocked.
+
+## Retained historical candidate validation — 2026-10-19
+
+The following original GitHub candidate-only validation and BLOCKED status are retained as historical evidence. They are superseded for final disposition by the Reference Workstation record above; no prior result is deleted or silently rewritten.
 
 - Status: **PASS for repository/static engineering candidate validation**
 - G-21 final status: **Prepared / BLOCKED before final Reference Workstation Freeze**

@@ -1,7 +1,7 @@
 {
   "schema_version": "sgokb.n04-ai-use-cases/3",
   "dataset_id": "n04-ai-use-cases-v3",
-  "status": "freeze_candidate_pending_reference_workstation_verification",
+  "status": "frozen",
   "prepared_on": "2026-10-19",
   "inherits_historical_spec": "benchmark/n04-ai-use-cases-v2.json",
   "source_dataset": "benchmark/n03-real-data-vertical-slice-v1.json",
