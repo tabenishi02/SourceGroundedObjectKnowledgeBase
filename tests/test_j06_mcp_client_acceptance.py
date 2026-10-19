@@ -64,9 +64,7 @@ async def _run_local_stdio_client_acceptance_surface() -> None:
         assert object_result["data"]["resolved_version_id"] == "version:alpha:v1"
 
         batch_result = _structured(
-            await client.call_tool(
-                "get_objects", {"object_ids": ["object:alpha", "object:beta"]}
-            )
+            await client.call_tool("get_objects", {"object_ids": ["object:alpha", "object:beta"]})
         )
         assert [item["object_id"] for item in batch_result["data"]["objects"]] == [
             "object:alpha",

@@ -138,13 +138,9 @@ def test_mcp_adapter_only_delegates_to_application_port():
 
     assert adapter.contract_version == APPLICATION_READ_CONTRACT_VERSION
     assert adapter.search_objects("query", mode="lexical") == {"search": "query"}
-    assert adapter.find_similar_objects("object:1", facet="personality") == {
-        "similar": "object:1"
-    }
+    assert adapter.find_similar_objects("object:1", facet="personality") == {"similar": "object:1"}
     assert adapter.get_object("object:1", version_id="version:1") == {"object_id": "object:1"}
-    assert adapter.get_objects(("object:1", "object:2")) == {
-        "objects": ["object:1", "object:2"]
-    }
+    assert adapter.get_objects(("object:1", "object:2")) == {"objects": ["object:1", "object:2"]}
     assert adapter.get_object_relations("object:1") == {"relations": "object:1"}
     assert adapter.get_object_evidence("object:1", semantic=False) == {"evidence": "object:1"}
     assert not hasattr(adapter, "repository")

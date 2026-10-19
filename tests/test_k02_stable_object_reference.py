@@ -26,9 +26,7 @@ def _evidence(repo: Repository) -> str:
         "sha-k02-reference",
         128,
     )
-    run_id = repo.source_store.create_normalization_run(
-        snapshot_id, "text", "1", [artifact_id]
-    )
+    run_id = repo.source_store.create_normalization_run(snapshot_id, "text", "1", [artifact_id])
     return repo.source_store.add_evidence(
         run_id,
         "K-02 grounded evidence",
@@ -90,8 +88,7 @@ def _get_character(adapter: MCPReadAdapter, object_id: str, *, version_id: str |
 
 def _facet_texts(payload: dict) -> dict[str, str]:
     return {
-        facet["key"]: facet["statements"][0]["text"]
-        for facet in payload["knowledge"]["facets"]
+        facet["key"]: facet["statements"][0]["text"] for facet in payload["knowledge"]["facets"]
     }
 
 
@@ -124,9 +121,7 @@ def test_k02_stable_object_reference_survives_version_update_and_rename(tmp_path
             "include_relations": False,
             "include_evidence_refs": False,
         }
-        assert _facet_texts(initial) == {
-            facet: f"{facet} knowledge from v1" for facet in FACETS
-        }
+        assert _facet_texts(initial) == {facet: f"{facet} knowledge from v1" for facet in FACETS}
 
         # Consumer-shaped reference: this is the logical metadata K-01 requires UPDS
         # to retain.  It must not be rewritten when SGOKB advances current Knowledge.
@@ -153,18 +148,14 @@ def test_k02_stable_object_reference_survives_version_update_and_rename(tmp_path
         assert current["object_id"] == object_id
         assert current["resolved_version_id"] == version_2
         assert current["is_current"] is True
-        assert _facet_texts(current) == {
-            facet: f"{facet} knowledge from v2" for facet in FACETS
-        }
+        assert _facet_texts(current) == {facet: f"{facet} knowledge from v2" for facet in FACETS}
 
         pinned = _get_character(adapter, object_id, version_id=version_1)
         assert pinned["object_id"] == object_id
         assert pinned["requested_version_id"] == version_1
         assert pinned["resolved_version_id"] == version_1
         assert pinned["is_current"] is False
-        assert _facet_texts(pinned) == {
-            facet: f"{facet} knowledge from v1" for facet in FACETS
-        }
+        assert _facet_texts(pinned) == {facet: f"{facet} knowledge from v1" for facet in FACETS}
 
         assert upds_reference == original_reference
         assert upds_reference["sgokb_object_id"] == object_id

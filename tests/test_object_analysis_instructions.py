@@ -100,7 +100,10 @@ def test_registry_proposal_payload_conventions_match_canonical_vocabularies():
     assert '"assignment_policy":"primary_eligible"' in rendered
     assert "`structural`, `primary_eligible`, or `additional_only`" in rendered
     assert '"value_type":"text"' in rendered
-    assert "`text`, `integer`, `real`, `boolean`, `date`, `datetime`, `identifier`, `enum`, or `json`" in rendered
+    assert (
+        "`text`, `integer`, `real`, `boolean`, `date`, `datetime`, `identifier`, `enum`, or `json`"
+        in rendered
+    )
     assert "primary_allowed" not in rendered
     assert '"value_type":"string"' not in rendered
 

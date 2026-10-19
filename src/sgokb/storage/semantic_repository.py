@@ -395,9 +395,7 @@ class SemanticRepository:
             )
         return membership_id
 
-    def link_evidence_search_representation(
-        self, representation_id: str, evidence_id: str
-    ) -> str:
+    def link_evidence_search_representation(self, representation_id: str, evidence_id: str) -> str:
         evidence = self.db.execute(
             "SELECT source_id,snapshot_id,run_id FROM evidence_records WHERE id=?",
             (evidence_id,),
@@ -495,9 +493,7 @@ class SemanticRepository:
         sql += " ORDER BY m.object_id,m.version_id,m.target_kind,m.facet_id,m.statement_id,m.id"
         return tuple(dict(row) for row in self.db.execute(sql, parameters))
 
-    def evidence_search_memberships(
-        self, *, evidence_id: str | None = None
-    ) -> tuple[dict, ...]:
+    def evidence_search_memberships(self, *, evidence_id: str | None = None) -> tuple[dict, ...]:
         if evidence_id is None:
             rows = self.db.execute(
                 "SELECT * FROM evidence_search_representation_memberships ORDER BY evidence_id,id"

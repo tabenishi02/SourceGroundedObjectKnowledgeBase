@@ -426,4 +426,3 @@ def test_qdrant_adapter_supports_overall_and_facet_similarity(repo, space):
     assert overall.results[0].matched_facet is None
     assert facet.results[0].object_id == target
     assert facet.results[0].matched_facet == "personality"
-

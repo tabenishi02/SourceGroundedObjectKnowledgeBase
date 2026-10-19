@@ -81,9 +81,7 @@ def _accepted_version(
     personality = repo.semantic_store.facet_by_key("personality").facet_id
     values = repo.semantic_store.facet_by_key("values").facet_id
     repo.semantic_store.set_version_facet(version_id, personality, FacetStatus.CONTENT)
-    repo.semantic_store.set_version_facet(
-        version_id, values, FacetStatus.INSUFFICIENT_EVIDENCE
-    )
+    repo.semantic_store.set_version_facet(version_id, values, FacetStatus.INSUFFICIENT_EVIDENCE)
     temporal_scope_id = None
     if with_temporal:
         temporal_scope_id = repo.semantic_store.create_temporal_scope(
@@ -134,9 +132,7 @@ def test_builder_covers_all_four_representation_kinds_and_hash_is_deterministic(
     object_id = repo.object_store.create_object(
         "架空太郎", _class_id(repo), aliases=["Taro Example"]
     )
-    version = _accepted_version(
-        repo, object_id, evidence["evidence_id"], version_id="version-a"
-    )
+    version = _accepted_version(repo, object_id, evidence["evidence_id"], version_id="version-a")
     builder = SearchRepresentationBuilder(repo)
 
     overall = builder.build_object_overall(version["version_id"])
@@ -153,17 +149,16 @@ def test_builder_covers_all_four_representation_kinds_and_hash_is_deterministic(
     representation_id = builder.materialize_evidence(evidence["evidence_id"])
     stored = repo.semantic_store.search_representation(representation_id)
     assert stored.content == evidence_representation.content
-    assert stored.content_hash == hashlib.sha256(
-        evidence_representation.content.encode("utf-8")
-    ).hexdigest()
+    assert (
+        stored.content_hash
+        == hashlib.sha256(evidence_representation.content.encode("utf-8")).hexdigest()
+    )
 
 
 def test_statement_builder_adds_semantic_context_without_stable_ids(repo):
     evidence = _evidence(repo)
     object_id = repo.object_store.create_object("架空太郎", _class_id(repo))
-    version = _accepted_version(
-        repo, object_id, evidence["evidence_id"], version_id="version-a"
-    )
+    version = _accepted_version(repo, object_id, evidence["evidence_id"], version_id="version-a")
 
     built = SearchRepresentationBuilder(repo).build_statement(version["statement_id"])
     assert built.content == "\n".join(
@@ -184,9 +179,7 @@ def test_statement_builder_adds_semantic_context_without_stable_ids(repo):
 def test_non_content_facets_do_not_get_semantic_representations(repo):
     evidence = _evidence(repo)
     object_id = repo.object_store.create_object("架空太郎", _class_id(repo))
-    version = _accepted_version(
-        repo, object_id, evidence["evidence_id"], version_id="version-a"
-    )
+    version = _accepted_version(repo, object_id, evidence["evidence_id"], version_id="version-a")
     builder = SearchRepresentationBuilder(repo)
 
     assert builder.build_facet(version["version_id"], version["values"]) is None

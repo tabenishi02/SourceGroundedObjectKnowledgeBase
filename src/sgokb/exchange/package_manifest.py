@@ -177,9 +177,7 @@ def _semantic_issues(manifest: Mapping[str, Any]) -> list[str]:
         if isinstance(item.get("path"), str)
     }
     generation_file_paths = [
-        generation.get("file_path")
-        for generation in generations
-        if isinstance(generation, Mapping)
+        generation.get("file_path") for generation in generations if isinstance(generation, Mapping)
     ]
     if len(generation_file_paths) != len(set(generation_file_paths)):
         issues.append("source_generations must use one distinct file per Source generation")
@@ -285,9 +283,7 @@ def _semantic_issues(manifest: Mapping[str, Any]) -> list[str]:
 def validate_package_manifest(manifest: Mapping[str, Any]) -> tuple[str, ...]:
     """Return deterministic structural + cross-field validation issues."""
 
-    validator = Draft202012Validator(
-        load_package_manifest_schema(), format_checker=FormatChecker()
-    )
+    validator = Draft202012Validator(load_package_manifest_schema(), format_checker=FormatChecker())
     issues = [
         f"schema:{'/'.join(map(str, error.absolute_path)) or '$'}:{error.message}"
         for error in sorted(

@@ -7,7 +7,6 @@ from sgokb.exchange.result_receipt import ResultReceiptService
 from sgokb.repository import Repository
 from sgokb.storage import PackageExchangeAuditRepository
 
-
 PACKAGE_ID = "pkg_123e4567-e89b-42d3-a456-426614174000"
 MANIFEST_HASH = "a" * 64
 
@@ -106,9 +105,7 @@ def test_receive_preserves_exact_bytes_and_requests_validation(tmp_path):
     try:
         source = tmp_path / "result.json"
         raw = _write_result(source, _result(manifest))
-        receipt = ResultReceiptService(audit).receive(
-            source, PACKAGE_ID, tmp_path / "incoming"
-        )
+        receipt = ResultReceiptService(audit).receive(source, PACKAGE_ID, tmp_path / "incoming")
 
         assert receipt.intake_state == "ready_for_validation"
         assert receipt.validation_state == "pending"
@@ -128,9 +125,7 @@ def test_receive_keeps_malformed_json_for_h01_instead_of_importing_it(tmp_path):
     try:
         source = tmp_path / "result.json"
         source.write_text("{not json", encoding="utf-8")
-        receipt = ResultReceiptService(audit).receive(
-            source, PACKAGE_ID, tmp_path / "incoming"
-        )
+        receipt = ResultReceiptService(audit).receive(source, PACKAGE_ID, tmp_path / "incoming")
 
         assert receipt.intake_state == "needs_review"
         assert "invalid_json" in receipt.intake_findings
@@ -147,9 +142,7 @@ def test_binding_mismatch_is_routing_finding_not_authoritative_validation(tmp_pa
         value["binding"]["manifest_sha256"] = "b" * 64
         source = tmp_path / "result.json"
         _write_result(source, value)
-        receipt = ResultReceiptService(audit).receive(
-            source, PACKAGE_ID, tmp_path / "incoming"
-        )
+        receipt = ResultReceiptService(audit).receive(source, PACKAGE_ID, tmp_path / "incoming")
 
         assert receipt.intake_state == "needs_review"
         assert "routing_mismatch:manifest_sha256" in receipt.intake_findings
@@ -163,9 +156,7 @@ def test_missing_export_audit_is_visible_but_result_is_preserved(tmp_path):
     try:
         source = tmp_path / "result.json"
         _write_result(source, _result(manifest))
-        receipt = ResultReceiptService(audit).receive(
-            source, PACKAGE_ID, tmp_path / "incoming"
-        )
+        receipt = ResultReceiptService(audit).receive(source, PACKAGE_ID, tmp_path / "incoming")
 
         assert receipt.intake_state == "needs_review"
         assert "package_has_no_export_audit" in receipt.intake_findings
@@ -219,9 +210,7 @@ def test_only_exact_result_json_is_standard_receipt_artifact(tmp_path):
         source = tmp_path / "result.md"
         _write_result(source, _result(manifest))
         with pytest.raises(ValueError, match="named result.json"):
-            ResultReceiptService(audit).receive(
-                source, PACKAGE_ID, tmp_path / "incoming"
-            )
+            ResultReceiptService(audit).receive(source, PACKAGE_ID, tmp_path / "incoming")
     finally:
         repository.close()
 
@@ -233,9 +222,7 @@ def test_unknown_package_is_rejected_before_result_is_copied(tmp_path):
         source = tmp_path / "result.json"
         source.write_text("{}", encoding="utf-8")
         with pytest.raises(ValueError, match="Unknown Package ID"):
-            ResultReceiptService(audit).receive(
-                source, PACKAGE_ID, tmp_path / "incoming"
-            )
+            ResultReceiptService(audit).receive(source, PACKAGE_ID, tmp_path / "incoming")
         assert not (tmp_path / "incoming" / "received").exists()
     finally:
         repository.close()

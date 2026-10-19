@@ -219,8 +219,7 @@ def test_manifest_rejects_unsafe_or_unlisted_evidence_file_paths():
     manifest["files"][2]["path"] = "..\\outside.md"
     manifest = with_manifest_sha256(manifest)
     assert any(
-        "unsafe Package-relative path" in issue
-        for issue in validate_package_manifest(manifest)
+        "unsafe Package-relative path" in issue for issue in validate_package_manifest(manifest)
     )
 
 

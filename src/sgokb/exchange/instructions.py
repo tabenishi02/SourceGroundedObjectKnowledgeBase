@@ -73,9 +73,7 @@ _PRIMARY_OBJECTIVES = {
         "作品の内容、テーマ、世界観、構成、表現上の特徴、登場要素、受容を、作品内描写と"
         "外部評価を混同せず整理する。"
     ),
-    "adaptation": (
-        "原作・他版との関係を前提に、継承点、変更点、媒体固有要素を区別して整理する。"
-    ),
+    "adaptation": ("原作・他版との関係を前提に、継承点、変更点、媒体固有要素を区別して整理する。"),
     "work_edition": (
         "版・remake・改訂版として、基底Workとの共通点と版固有差分、時点・edition scopeを整理する。"
     ),
@@ -200,7 +198,11 @@ def _class_objectives(context: ObjectAnalysisInstructionContext) -> str:
         if goal:
             lines.append(f"- Additional `{_inline(additional.key)}`: {goal}")
         else:
-            meaning = _inline(additional.description) if additional.description else _inline(additional.name)
+            meaning = (
+                _inline(additional.description)
+                if additional.description
+                else _inline(additional.name)
+            )
             lines.append(
                 f"- Additional `{_inline(additional.key)}`: Cross-cutting classificationとして"
                 f"「{meaning}」の意味境界を追加し、Primary Classを置換しない。"
@@ -228,7 +230,7 @@ def _attribute_profile(context: ObjectAnalysisInstructionContext) -> str:
         description = f" — {_inline(attribute.description)}" if attribute.description else ""
         lines.append(
             f"- `{_inline(attribute.attribute_id)}` / {_inline(attribute.name)} "
-            f"({ _inline(attribute.key) }; type=`{_inline(attribute.value_type)}`){description}"
+            f"({_inline(attribute.key)}; type=`{_inline(attribute.value_type)}`){description}"
         )
     return "\n".join(lines)
 

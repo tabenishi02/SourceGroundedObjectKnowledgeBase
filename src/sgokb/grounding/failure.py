@@ -243,11 +243,7 @@ class GroundingFailureController:
             raise ValueError("No grounding/material failure is available for retry feedback")
 
         failed_units = sorted(
-            {
-                item["unit_id"]
-                for item in failures
-                if isinstance(item.get("unit_id"), str)
-            }
+            {item["unit_id"] for item in failures if isinstance(item.get("unit_id"), str)}
         )
         feedback: dict[str, Any] = {
             "retry_policy_version": self.contract_version,

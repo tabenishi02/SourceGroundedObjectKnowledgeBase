@@ -18,9 +18,7 @@ class ObjectAdminApplication:
         self.repository = repository
         self.objects = repository.object_store
 
-    def resolve_object_id(
-        self, *, object_id: str | None = None, name: str | None = None
-    ) -> str:
+    def resolve_object_id(self, *, object_id: str | None = None, name: str | None = None) -> str:
         if bool(object_id) == bool(name):
             raise ObjectSelectorError("Specify exactly one of --object or --name")
         if object_id:
