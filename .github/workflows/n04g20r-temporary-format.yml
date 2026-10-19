@@ -1,4 +1,4 @@
-name: N04G20R final residual Ruff remediation
+name: N04G20R targeted residual Ruff remediation
 
 on:
   pull_request:
@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-      - name: Split residual long literals without reformatting
+      - name: Split targeted long literals without changing values
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -28,34 +28,65 @@ jobs:
 
           path = Path("src/sgokb/exchange/instructions.py")
           lines = path.read_text(encoding="utf-8").splitlines()
-
-          def chunks(value: str, width: int = 38) -> list[str]:
-              return [value[i : i + width] for i in range(0, len(value), width)]
-
+          target_keys = {
+              "series",
+              "franchise",
+              "event",
+              "product",
+              "taxon",
+              "concept",
+              "theme",
+              "ideology",
+              "continuity",
+              "software",
+              "service",
+              "phenomenon",
+              "writing_system",
+              "capability",
+              "temporal_entity",
+              "symbolic_system",
+          }
           dict_line = re.compile(r'^(\s*)"([^"]+)": "([^"]+)",$')
-          string_line = re.compile(r'^(\s*)"([^"]+)"$')
+
+          def split_value(value: str) -> tuple[str, str]:
+              midpoint = len(value) // 2
+              return value[:midpoint], value[midpoint:]
+
           out = []
+          split_creative_next = False
           for line in lines:
-              if len(line) <= 100:
+              match = dict_line.match(line)
+              if match and match.group(2) in target_keys:
+                  indent, key, value = match.groups()
+                  left, right = split_value(value)
+                  out.extend(
+                      [
+                          f'{indent}"{key}": (',
+                          f'{indent}    "{left}"',
+                          f'{indent}    "{right}"',
+                          f"{indent}),",
+                      ]
+                  )
+                  continue
+              if line.strip() == '"creative_work": (':
+                  split_creative_next = True
                   out.append(line)
                   continue
-              match = dict_line.match(line)
-              if match:
-                  indent, key, value = match.groups()
-                  out.append(f'{indent}"{key}": (')
-                  out.extend(f'{indent}    "{part}"' for part in chunks(value))
-                  out.append(f"{indent}),")
-                  continue
-              match = string_line.match(line)
-              if match:
-                  indent, value = match.groups()
-                  out.extend(f'{indent}"{part}"' for part in chunks(value))
+              if split_creative_next and line.strip().startswith('"') and line.strip().endswith('"'):
+                  indent = line[: len(line) - len(line.lstrip())]
+                  value = line.strip()[1:-1]
+                  left, right = split_value(value)
+                  out.append(f'{indent}"{left}"')
+                  out.append(f'{indent}"{right}"')
+                  split_creative_next = False
                   continue
               out.append(line)
 
           path.write_text("\n".join(out) + "\n", encoding="utf-8")
           PY
-      - name: Commit final residual fixes
+          python -m pip install "ruff>=0.9,<1"
+          python -m ruff check src/sgokb/exchange/instructions.py
+      - name: Commit targeted residual fixes
         run: |
           if git diff --quiet; then
             exit 0
@@ -63,5 +94,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/sgokb/exchange/instructions.py
-          git commit -m "style: split residual long instruction literals"
+          git commit -m "style: resolve final instruction literal lint"
           git push origin HEAD:phase-n/n04g20r-ruff-baseline
