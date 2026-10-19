@@ -1,0 +1,316 @@
+{
+  "schema_version": "sgokb.n04-formal-harness/2",
+  "harness_id": "n04-v3-formal-harness-v1",
+  "status": "freeze_candidate_pending_reference_workstation_verification",
+  "prepared_on": "2026-10-19",
+  "base_main_sha": "95145f21f8f3f62ed9cf18d189920c49107a6b06",
+  "acceptance_spec": {
+    "path": "benchmark/n04-ai-use-cases-v3.json",
+    "sha256": "322d7b5b13c63e28b6326828f4b80f803b5ff81b924e58571a3811bffee03af6"
+  },
+  "design_freeze": "docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md",
+  "material_profiles": {
+    "path": "benchmark/n04-v3-material-profiles-v1.json",
+    "file_sha256": "57aeae88ad567966f3615a5f288e89864fd1fa920accd27652b229f5ae51e13d",
+    "canonical_payload_sha256": "44ac430ebf6af60123671fbd29985bd9f036fb11907c937d6c0b4f7523a872b4"
+  },
+  "source_fact_verifier_profile": {
+    "path": "benchmark/n04-v3-source-fact-verifier-profile-v1.json",
+    "file_sha256": "01a0a23a2ca7764f224ed378fe3b30c23250a133cb49b76c3a7ff0599985db20",
+    "canonical_payload_sha256": "9be125732508a089d24e596e1d82f400adcc5740e2ca665c0187ad5abcf2a317"
+  },
+  "reference_workstation": {
+    "device": "FNB1Main",
+    "os_family": "Windows 11",
+    "python": "3.10.6",
+    "gpu": "NVIDIA RTX 4090 24GB",
+    "evaluation_db": ".local/n03/sgokb-n03.sqlite",
+    "evidence_root_template": ".local/n04-v3/runs/<run_id>",
+    "run_id_format": "YYYYMMDDTHHMMSS+0900",
+    "os_build": "record_at_preflight",
+    "local_runtime_lock": "must be captured and frozen before this candidate can become status=frozen"
+  },
+  "semantic_runtime": {
+    "embedding_model": "microsoft/harrier-oss-v1-0.6b",
+    "embedding_revision": "f9b9dc8d367d443f2479d27aa5d8d2850c0774ee",
+    "dimensions": 1024,
+    "local_only": true,
+    "qdrant_version": "1.19.2",
+    "qdrant_url": "http://localhost:6333",
+    "qdrant_grpc_port": 6334,
+    "qdrant_prefer_grpc": true,
+    "qdrant_collection_prefix": "sgokb_n03_eval"
+  },
+  "mcp": {
+    "sdk_version": "2.3.0",
+    "protocol_version": "2026-07-28",
+    "transport": "stdio",
+    "server_command": "python -m sgokb mcp serve --semantic-runtime",
+    "consumer_direct_sqlite_knowledge_read": false,
+    "required_tools": [
+      "build_context",
+      "find_similar_objects"
+    ],
+    "environment": {
+      "SGOKB_DB": ".local/n03/sgokb-n03.sqlite",
+      "SGOKB_MODEL_CACHE": ".local/models",
+      "SGOKB_MODEL_LOCAL_ONLY": "1",
+      "SGOKB_QDRANT_URL": "http://localhost:6333",
+      "SGOKB_QDRANT_GRPC_PORT": "6334",
+      "SGOKB_QDRANT_PREFER_GRPC": "1",
+      "SGOKB_QDRANT_COLLECTION_PREFIX": "sgokb_n03_eval"
+    }
+  },
+  "lm_studio": {
+    "version": "0.4.25.0",
+    "endpoint": "http://127.0.0.1:1234/v1",
+    "structured_output": {
+      "mechanism": "OpenAI-compatible response_format json_schema",
+      "strict": true,
+      "provider_schema_source": "src/sgokb/grounding/output.py::GENERATION_OUTPUT_SCHEMA",
+      "provider_schema_sha256": "1fc7674ee9c42ca60feecd1796ec186f970f88e5600f3839d25d851735a1b990",
+      "response_format_name": "sgokb_grounded_generation_output_v2"
+    },
+    "cloud_inference": false,
+    "web_knowledge": false,
+    "formal_network_fact_supplementation": false
+  },
+  "generator": {
+    "identifier": "sgokb-n04-mistral32",
+    "model_file": "lmstudio-community/Mistral-Small-3.2-24B-Instruct-2506-GGUF/Mistral-Small-3.2-24B-Instruct-2506-Q4_K_M.gguf",
+    "quantization": "Q4_K_M",
+    "context_length": 8192,
+    "gpu_offload": "max",
+    "parallel": 1,
+    "seed": 20261018,
+    "stream": false,
+    "same_model_all_cases": true,
+    "same_model_all_attempts": true,
+    "case_parameters": {
+      "n04-roleplay-saber": {
+        "temperature": 0.2,
+        "max_tokens": 700
+      },
+      "n04-similar-work-comparison": {
+        "temperature": 0.0,
+        "max_tokens": 900
+      },
+      "n04-concept-combination-creative": {
+        "temperature": 0.2,
+        "max_tokens": 1100
+      }
+    },
+    "message_contract": "GroundedGenerationRequestBuilder.to_prompt_text(request) is the sole user task message. No hidden factual material or case-specific system factual injection."
+  },
+  "bounded_semantic_model": {
+    "runtime": "LM Studio OpenAI-compatible local server",
+    "identifier": "sgokb-n04-phi4",
+    "model_file": "microsoft/phi-4-gguf/phi-4-Q4_K_S.gguf",
+    "quantization": "Q4_K_S",
+    "context_length": 8192,
+    "gpu_offload": "max",
+    "parallel": 1,
+    "temperature": 0.0,
+    "max_tokens": 64,
+    "seed": 20261018,
+    "stream": false,
+    "generator_independent": true,
+    "used_for": [
+      "atomicity_role_validator",
+      "independent_source_fact_judge",
+      "interpretation_derivation_judge"
+    ],
+    "network_knowledge": false,
+    "input_boundary": "Only the target proposition plus the stage-specific supplied support/premise/rule payload. No Web, uncited SGOKB Knowledge, or generator conversation."
+  },
+  "atomicity_role_validator": {
+    "model_ref": "bounded_semantic_model",
+    "response_schema": {
+      "atomicity_verdict": [
+        "ATOMIC",
+        "NON_ATOMIC",
+        "INDETERMINATE"
+      ],
+      "role_boundary_verdict": [
+        "ROLE_VALID",
+        "ROLE_VIOLATION",
+        "INDETERMINATE"
+      ]
+    },
+    "policy": "Content-first. If independently judgeable parts could receive different support/role verdicts, classify NON_ATOMIC. Material source-world propositions cannot escape via creative/context-limit or removed stylistic roles."
+  },
+  "source_fact_validation": {
+    "specialized_profile_ref": "source_fact_verifier_profile",
+    "independent_judge_model_ref": "bounded_semantic_model",
+    "composition": "V3 deterministic support first; otherwise MiniCheck >=0.50 yields only SUPPORTED_CANDIDATE; candidate must also receive ENTAILED from Phi-4. Any negative/disagreement/indeterminate/unavailable is no PASS."
+  },
+  "interpretation_derivation_judge": {
+    "model_ref": "bounded_semantic_model",
+    "verdicts": [
+      "REASONABLE_DERIVATION",
+      "UNSUPPORTED_DERIVATION",
+      "CONTRADICTORY",
+      "INDETERMINATE"
+    ],
+    "input": "Only validated source_fact premise texts/metadata from premise_unit_ids plus atomic conclusion and purpose.",
+    "external_hidden_premises": false
+  },
+  "retry_terminal": {
+    "failure_policy_contract": "sgokb.grounding-failure-policy.v2",
+    "max_generation_attempts": 2,
+    "max_retries": 1,
+    "retry_invariants": [
+      "same grounded context",
+      "same context_fingerprint",
+      "same purpose",
+      "same generator model/runtime/settings",
+      "same output contract/schema",
+      "same material requirement profile"
+    ],
+    "retry_addition_only": "structured failure/repair feedback",
+    "terminal_outcomes": [
+      "ACCEPTED",
+      "INSUFFICIENT_CONTEXT",
+      "REJECTED",
+      "SYSTEM_FAILURE"
+    ],
+    "formal_case_pass_terminal": "ACCEPTED",
+    "insufficient_context_formal_case_pass": false,
+    "render_modes": {
+      "ACCEPTED": "NORMAL",
+      "INSUFFICIENT_CONTEXT": "CONTEXT_LIMIT_ONLY",
+      "REJECTED": "NONE",
+      "SYSTEM_FAILURE": "NONE"
+    }
+  },
+  "preflight": {
+    "formal_run_must_not_start_until_all_pass": true,
+    "requirements": [
+      "Git working tree clean except ignored .local evidence/runtime files.",
+      "All tracked freeze files match the SHA-256 identities in this harness.",
+      "GENERATION_OUTPUT_SCHEMA hash equals the frozen provider_schema_sha256.",
+      "Evaluation DB exists, has no active WAL, and N-03 six-object dataset identities are present.",
+      "Harrier/Qdrant/MCP identities match the frozen profile and system integrity passes.",
+      "LM Studio version/endpoint and both GGUF model identities/load profiles match exactly.",
+      "Neutral output-v2 structured-output smoke succeeds for generator and Phi-4.",
+      "MiniCheck source repository revision is exact.",
+      "MiniCheck model cache resolves exactly to the pinned Hugging Face model revision and formal scoring can run offline.",
+      "Reference Workstation MiniCheck replay of benchmark/n04g20-source-fact-verifier-v1.json has required negative false-positive count 0 and required positive supported 2/2 at threshold 0.50.",
+      "Exact installed Python package/runtime versions for MiniCheck/Torch/Transformers/Hugging Face/NLTK are captured into reference-runtime-lock.json and remain unchanged for the formal run.",
+      "MCP stdio initialization succeeds with the frozen command/environment."
+    ],
+    "failure_policy": "Any mismatch is PRE-FORMAL BLOCKED/SYSTEM preflight failure. Do not substitute a model, revision, threshold, runtime, schema, or package version without reopening G-21."
+  },
+  "formal_start_boundary": "Immediately before the first Case 1 MCP request, after all preflight requirements and start evidence are saved.",
+  "case_order": [
+    "n04-roleplay-saber",
+    "n04-similar-work-comparison",
+    "n04-concept-combination-creative"
+  ],
+  "evidence": {
+    "root": ".local/n04-v3/runs/<run_id>",
+    "required_top_level": [
+      "run.json",
+      "git-start.json",
+      "git-end.json",
+      "environment.json",
+      "reference-runtime-lock.json",
+      "harness.json",
+      "acceptance-spec.json",
+      "material-profiles.json",
+      "verifier-profile.json",
+      "schema-identity.json",
+      "lm-studio-models.json",
+      "minicheck-runtime.json",
+      "minicheck-screening.json",
+      "mcp-runtime.json",
+      "canonical-before.json",
+      "canonical-after.json",
+      "canonical-compare.json",
+      "integrity-before.json",
+      "integrity-after.json",
+      "regression/focused-replay.log",
+      "regression/full-pytest.log",
+      "regression/ruff.log",
+      "regression/git-diff-check.log",
+      "overall-evaluation.json"
+    ],
+    "case_directories": {
+      "n04-roleplay-saber": "case-1-roleplay",
+      "n04-similar-work-comparison": "case-2-comparison",
+      "n04-concept-combination-creative": "case-3-creative"
+    },
+    "required_per_attempt": [
+      "request.json",
+      "http-request.json",
+      "http-response.json",
+      "raw-output.txt",
+      "parsed-output.json",
+      "output-binding.json",
+      "validation.json",
+      "atomicity-role.json",
+      "source-fact-verifier.json",
+      "source-fact-judge.json",
+      "interpretation-derivation.json",
+      "material-result.json",
+      "decision.json"
+    ],
+    "required_per_case": [
+      "mcp-request.json",
+      "mcp-response.json",
+      "context-builder.json",
+      "grounded-context.json",
+      "terminal.json",
+      "rubric.json"
+    ],
+    "conditional": [
+      "Case 2 similarity-request.json/similarity-response.json/candidate-selection.json",
+      "retry-feedback.json and attempt-2/* when retry is used",
+      "rendered.txt only for ACCEPTED",
+      "context-limit-rendered.txt only for INSUFFICIENT_CONTEXT"
+    ],
+    "failed_attempt_retention": true,
+    "raw_outputs_git_ignored": true
+  },
+  "canonical_safety": {
+    "read_only": true,
+    "before_after_method": "Quiescent SHA-256 of .local/n03/sgokb-n03.sqlite plus system integrity before/after.",
+    "hashes_must_match": true,
+    "production_db_use": false,
+    "result_import": false,
+    "version_promotion": false,
+    "source_mutation": false
+  },
+  "regression_after_cases": {
+    "focused_replay": "python -m pytest -q tests/test_n04_grounded_generation.py tests/test_n04g20_adversarial_regression.py",
+    "full": "python -m pytest -q",
+    "ruff": "python -m ruff check .",
+    "whitespace": "git diff --check",
+    "required": "all PASS; full pytest 0 failed; no skip/xfail or rule relaxation added to hide failure"
+  },
+  "overall_pass": {
+    "cases": "3/3 formal Case PASS",
+    "unsupported_rendered_material_claims": 0,
+    "role_escape": 0,
+    "canonical_hash_equal": true,
+    "integrity_before_after_pass": true,
+    "focused_replay_pass": true,
+    "repository_wide_ruff_pass": true,
+    "full_pytest_failed": 0,
+    "git_start_equals_end": true
+  },
+  "prohibited_during_formal_run": [
+    "source/test/benchmark/freeze edits",
+    "model/revision/threshold/package substitution",
+    "case-specific ad-hoc parameter changes",
+    "new retrieval during retry",
+    "Web/cloud factual supplementation",
+    "partial salvage",
+    "deleting failed attempt evidence"
+  ],
+  "unresolved_before_freeze": [
+    "Reference Workstation exact MiniCheck local snapshot/revision availability has not been verified in this session because Desktop Commander monthly usage is exhausted.",
+    "Reference Workstation MiniCheck benchmark reproduction at the frozen threshold has not been executed in this session.",
+    "Exact local Python package versions for the MiniCheck runtime have not been captured in this session."
+  ]
+}
