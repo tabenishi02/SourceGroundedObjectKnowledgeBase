@@ -9,10 +9,10 @@
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 - G-21: **Complete / Frozen (verified 2026-10-20)**
-- Current task: **N-04G-22 [P0] Formal v3 Re-Acceptance — NEXT / unblocked; not started**
+- Current task: **Review G-22 valid formal FAIL; remediation decision pending (N-05 blocked)**
 - G-21V: **Complete / MiniCheck selected (2026-10-19)**
 - G-21R: **Complete / PASS — new run 20261019T233552+0900**
-- G-22: **NEXT / unblocked; not started**
+- G-22: **Complete / valid formal FAIL — run 20261020T030904+0900 (0/3 PASS)**
 
 ---
 
@@ -32,7 +32,7 @@ G-20R Repository-wide Ruff remediation         Complete / PASS
 G-21 v3 acceptance / harness freeze            Complete / Frozen
 G-21V Verifier candidate evaluation            Complete / MiniCheck selected
 G-21R Selected verifier runtime/local proof    Complete / PASS (new run)
-G-22 Formal v3 re-acceptance                   NEXT / unblocked (not started)
+G-22 Formal v3 re-acceptance                   Complete / valid formal FAIL (0/3 PASS)
 ```
 
 N-04はG-22で3/3 formal Case PASSするまでCompleteにしない。
@@ -304,7 +304,7 @@ Standard SGOKB venvへ無理にverifier dependenciesを混在させない。
 
 ## 10. Exact next work
 
-**N-04G-22 Formal v3 Re-Acceptance is NEXT / unblocked, but has not started.** Begin only under its formal execution instructions; do not rerun candidate selection or alter the Frozen semantics/profile/rubric.
+**N-04G-22 is Complete / valid formal FAIL (0/3 Case PASS).** Run `20261020T030904+0900` finished with all cases REJECTED after one retry each. No output rendered; unsupported rendered claims/accepted role escapes 0. Canonical/integrity and engineering Gates PASS (focused 37, contracts 10, full 408, Ruff/diff). Read `docs/evaluation/N04G22_FORMAL_V3_REACCEPTANCE.md` and the preserved local `overall-evaluation.json`/case rubrics before deciding remediation. Do not rerun or alter Frozen conditions to improve the result.
 
 G-21R new run `20261019T233552+0900` passed exact offline proof: socket counters 0/0, required negative FP 0/11, required positives 2/2, recall 0.8, specificity 1.0, all 17 G-21V verdicts/scores equal. Runtime preflight and canonical invariance PASS; focused 37 + contract 7 + full 405 tests PASS; repo-wide Ruff/diff PASS; post-Freeze contracts 7 PASS.
 
@@ -314,7 +314,7 @@ The previous F841 blocker was repaired only after explicit user authorization an
 
 Read `docs/evaluation/N04G21R_SELECTED_VERIFIER_RUNTIME_LOCAL_PROOF.md`, `docs/decisions/N04G21_V3_ACCEPTANCE_REFERENCE_WORKSTATION_HARNESS_FREEZE.md` and the four Frozen v3 JSONs before G-22.
 
-G-21V Complete; G-21R Complete / PASS; G-21 Complete / Frozen; G-22 NEXT / unblocked. N-04 remains Failed / not Complete; N-05 remains blocked until G-22 formally passes.
+G-21V Complete; G-21R Complete / PASS; G-21 Complete / Frozen; G-22 Complete / valid formal FAIL. N-04 remains Failed / not Complete; N-05 remains blocked. Next is failure review: unsupported raw premises, generation atomicity/presentation-role errors and bounded role-classifier INDETERMINATE behavior. No automatic G-21 reopen or rubric/threshold/profile change is authorized by this result.
 
 ---
 
