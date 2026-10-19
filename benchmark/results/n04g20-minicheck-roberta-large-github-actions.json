@@ -1,0 +1,59 @@
+{
+  "result_id": "n04g20-minicheck-roberta-large-github-actions-20261019",
+  "status": "candidate_screening_pass",
+  "formal_local_runtime_evidence": false,
+  "workflow_run_id": 39198589270,
+  "artifact_id": 12162723330,
+  "artifact_digest": "sha256:5188a5a40b7c0376e92f7f9c868295f0a84043b19255e3db3a5b34d1d9a705fb",
+  "runner": {
+    "os": "Ubuntu 24.04.5 LTS",
+    "python": "3.10.22",
+    "device_class": "GitHub-hosted CPU runner"
+  },
+  "minicheck_source": {
+    "repository": "Liyan06/MiniCheck",
+    "repository_revision": "b58b9fa69acbd1015ec970fa65dd752413a053d2",
+    "model_name": "roberta-large",
+    "model_repo": "lytang/MiniCheck-RoBERTa-Large"
+  },
+  "benchmark_id": "n04g20-source-fact-verifier-v1",
+  "necessary_gate": "required negative/replay false-positive = 0",
+  "recommended_threshold_candidate": 0.5,
+  "recommended_threshold_metrics": {
+    "required_negative_false_positive_count": 0,
+    "required_negative_false_positive_ids": [],
+    "required_positive_supported_count": 2,
+    "required_positive_count": 2,
+    "negative_specificity": 1.0,
+    "positive_recall": 0.8
+  },
+  "threshold_results": [
+    {"threshold": 0.5, "required_negative_false_positive_count": 0, "required_positive_supported_count": 2, "required_positive_count": 2, "negative_specificity": 1.0, "positive_recall": 0.8},
+    {"threshold": 0.6, "required_negative_false_positive_count": 0, "required_positive_supported_count": 2, "required_positive_count": 2, "negative_specificity": 1.0, "positive_recall": 0.8},
+    {"threshold": 0.7, "required_negative_false_positive_count": 0, "required_positive_supported_count": 2, "required_positive_count": 2, "negative_specificity": 1.0, "positive_recall": 0.8},
+    {"threshold": 0.8, "required_negative_false_positive_count": 0, "required_positive_supported_count": 2, "required_positive_count": 2, "negative_specificity": 1.0, "positive_recall": 0.8},
+    {"threshold": 0.85, "required_negative_false_positive_count": 0, "required_positive_supported_count": 2, "required_positive_count": 2, "negative_specificity": 1.0, "positive_recall": 0.8},
+    {"threshold": 0.9, "required_negative_false_positive_count": 0, "required_positive_supported_count": 2, "required_positive_count": 2, "negative_specificity": 1.0, "positive_recall": 0.8},
+    {"threshold": 0.95, "required_negative_false_positive_count": 0, "required_positive_supported_count": 2, "required_positive_count": 2, "negative_specificity": 1.0, "positive_recall": 0.6}
+  ],
+  "case_scores": {
+    "positive-direct-contract": 0.9850599765777588,
+    "positive-faithful-paraphrase": 0.9804297685623169,
+    "positive-concept-paraphrase": 0.4232332408428192,
+    "positive-journey-paraphrase": 0.9654542803764343,
+    "g12-case1-holy-grail-protector": 0.016363289207220078,
+    "g12-case1-secret-identity": 0.06630746275186539,
+    "g12-case2-magi-summon-heroes": 0.026211673393845558,
+    "g12-case2-hollows-malevolent": 0.013668157160282135,
+    "g12-case2-soul-reaper-balance": 0.014772201888263226,
+    "g12-case2-extraordinary-powers": 0.0056716445833444595,
+    "adversarial-high-overlap-extra-detail": 0.06862808018922806,
+    "adversarial-supported-subject-wrong-predicate": 0.019899433478713036,
+    "adversarial-negation-flip": 0.17914004623889923,
+    "adversarial-temporal-causal-embellishment": 0.020104488357901573,
+    "adversarial-concept-extra-theory": 0.00656207324936986,
+    "borderline-contract-rephrasing": 0.9230990409851074,
+    "borderline-overclaim": 0.09144749492406845
+  },
+  "interpretation": "This result screens MiniCheck RoBERTa-large as eligible for later local-runtime evaluation. It does not freeze the final checkpoint revision, threshold profile, independent LLM judge, or Reference Workstation runtime."
+}
