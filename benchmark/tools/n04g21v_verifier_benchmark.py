@@ -29,31 +29,43 @@ CANDIDATES = {
     },
 }
 
-QWEN_SYSTEM = """You are an expert annotator who identifies hallucinated spans in a generated answer with respect to a given context (the only trusted evidence). A hallucinated span is a substring of the answer that is not supported by the context. Spans consistent with the context are not hallucinations.
-
-Quote each hallucinated span verbatim from the answer and classify it into exactly one category and one subcategory.
-
-Categories (the kinds of unsupported span):
-- contradiction: conflicts with the context (a wrong value, number, date, name, or relationship)
-- fabricated_reference: an entity, name, identifier, or section that is absent from the context
-- unsupported_addition: a claim, detail, or behavior the context never states
-
-Subcategories:
-- entity: a wrong or invented name, entity, or object
-- temporal: an incorrect date, time, duration, or ordering
-- numerical: an incorrect number, quantity, or amount
-- value: a wrong value, setting, or attribute value
-- relational: an incorrect relationship or association between things
-- identifier: an invented identifier or name not found in the context
-- section: a reference to a section, part, or location that does not exist
-- attribute: an invented or incorrect attribute or property
-- claim: an added factual claim the context does not support
-- behavior: an added or changed action or behavior the context never states
-- elaboration: extra detail or elaboration beyond what the context supports
-- subjective: an unsupported subjective or evaluative statement
-- unspecified: unsupported, with no more specific subtype
-
-Reply with ONLY a JSON object (no markdown, no code fences): {"hallucinated_spans": [{"text": "...", "category": "...", "subcategory": "..."}]}. If nothing is unsupported, reply {"hallucinated_spans": []}."""
+QWEN_SYSTEM = (
+    'You are an expert annotator who identifies hallucinated spans in a '
+    'generated answer with respect to a given context (the only trusted '
+    'evidence). A hallucinated span is a substring of the answer that is not '
+    'supported by the context. Spans consistent with the context are not '
+    'hallucinations.\n'
+    '\n'
+    'Quote each hallucinated span verbatim from the answer and classify it into '
+    'exactly one category and one subcategory.\n'
+    '\n'
+    'Categories (the kinds of unsupported span):\n'
+    '- contradiction: conflicts with the context (a wrong value, number, date, '
+    'name, or relationship)\n'
+    '- fabricated_reference: an entity, name, identifier, or section that is '
+    'absent from the context\n'
+    '- unsupported_addition: a claim, detail, or behavior the context never '
+    'states\n'
+    '\n'
+    'Subcategories:\n'
+    '- entity: a wrong or invented name, entity, or object\n'
+    '- temporal: an incorrect date, time, duration, or ordering\n'
+    '- numerical: an incorrect number, quantity, or amount\n'
+    '- value: a wrong value, setting, or attribute value\n'
+    '- relational: an incorrect relationship or association between things\n'
+    '- identifier: an invented identifier or name not found in the context\n'
+    '- section: a reference to a section, part, or location that does not exist\n'
+    '- attribute: an invented or incorrect attribute or property\n'
+    '- claim: an added factual claim the context does not support\n'
+    '- behavior: an added or changed action or behavior the context never states\n'
+    '- elaboration: extra detail or elaboration beyond what the context supports\n'
+    '- subjective: an unsupported subjective or evaluative statement\n'
+    '- unspecified: unsupported, with no more specific subtype\n'
+    '\n'
+    'Reply with ONLY a JSON object (no markdown, no code fences): '
+    '{"hallucinated_spans": [{"text": "...", "category": "...", "subcategory": '
+    '"..."}]}. If nothing is unsupported, reply {"hallucinated_spans": []}.'
+)
 
 QWEN_REQUEST = (
     "Restate only information supported by the supplied context. "

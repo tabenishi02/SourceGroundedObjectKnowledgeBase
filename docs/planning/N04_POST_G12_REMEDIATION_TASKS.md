@@ -49,8 +49,8 @@
 | N-04G-20 | P0 | **Complete (verification) / historical Gate FAIL** | Adversarial / replay / verifier benchmark / regression |
 | N-04G-20R | P0 | **Complete / PASS (2026-10-19)** | Repository-wide Ruff remediation + engineering Gate rerun |
 | N-04G-21 | P0 | **Prepared / BLOCKED before final Freeze (2026-10-19)** | v3 acceptance spec / Reference Workstation harness freeze |
-| N-04G-21V | P0 | **Planned / NEXT** | Specialized source-fact verifier candidate evaluation |
-| N-04G-21R | P0 | **Blocked by G-21V** | Selected verifier runtime preparation + Reference Workstation offline proof |
+| N-04G-21V | P0 | **Complete / MiniCheck selected (2026-10-19)** | Specialized source-fact verifier candidate evaluation |
+| N-04G-21R | P0 | **NEXT / unblocked** | Selected verifier runtime preparation + Reference Workstation offline proof |
 | N-04G-22 | P0 | **Blocked by G-21** | Formal v3 re-acceptance |
 
 N-04 CompleteはN-04G-22で全Gate PASS後のみ可能とする。
@@ -213,7 +213,11 @@ Codexは指示どおりdownload / install / alternate runtime substitution / cor
 
 ## 7. N-04G-21V — Verifier Candidate Evaluation
 
-**Status: Planned / NEXT**
+**Status: Complete / MiniCheck selected (2026-10-19)**
+
+Reference Workstation run `20261019T212717+0900`: MiniCheck FP 0 / required positive 2/2 / recall 0.8、mmBERT FP 0 / 2/2 / recall 0.6、Qwen FP 0 / 1/2 / recall 0.6。全candidate specificity 1.0、Qwen x3 repeatability PASS / parser errors 0。事前tie-breakのpositive recallによりMiniCheckを選定。G-20 regression 15 passed、G-21 candidate 4 passed、full 402 passed、repo-wide Ruff / diff check PASS。標準venv不変。
+
+成果物: `docs/evaluation/N04G21V_VERIFIER_CANDIDATE_EVALUATION.md` と `benchmark/results/n04g21v-*-reference-workstation.json`。G-21Rのoffline proofは未実行であり、G-21 / G-22はblockedを維持。
 
 Authoritative plan:
 
@@ -281,7 +285,7 @@ latency / VRAM / diagnostic value
 
 ## 9. N-04G-21R — Selected Verifier Runtime Preparation / Local Proof
 
-**Status: Blocked by G-21V**
+**Status: NEXT / unblocked**
 
 Winner選定後にのみ実施する。
 

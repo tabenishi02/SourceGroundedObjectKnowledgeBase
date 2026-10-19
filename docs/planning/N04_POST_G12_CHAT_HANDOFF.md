@@ -9,8 +9,9 @@
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 - G-21: **Prepared / BLOCKED before final Freeze**
-- Current task: **N-04G-21V [P0] Specialized Source-Fact Verifier Candidate Evaluation**
-- G-21R: **blocked by G-21V**
+- Current task: **N-04G-21R [P0] Selected verifier runtime preparation / offline proof**
+- G-21V: **Complete / MiniCheck selected (2026-10-19)**
+- G-21R: **NEXT / unblocked**
 - G-22: **blocked by G-21**
 
 ---
@@ -29,8 +30,8 @@ G-19 Frozen v3 implementation                  Complete
 G-20 Adversarial / verifier regression         Complete / historical Gate FAIL
 G-20R Repository-wide Ruff remediation         Complete / PASS
 G-21 v3 acceptance / harness freeze            Prepared / BLOCKED before Freeze
-G-21V Verifier candidate evaluation            Planned / NEXT
-G-21R Selected verifier runtime/local proof    BLOCKED by G-21V
+G-21V Verifier candidate evaluation            Complete / MiniCheck selected
+G-21R Selected verifier runtime/local proof    NEXT / unblocked
 G-22 Formal v3 re-acceptance                   BLOCKED by G-21
 ```
 
@@ -274,7 +275,7 @@ Atomic unit内にunsupported spanが1つでもあればpartial salvageせずunit
 
 ## 9. G-21R after winner selection
 
-G-21R is blocked until G-21V selects a winner.
+G-21V has selected MiniCheck; G-21R is NEXT / unblocked. G-21R offline proof is not yet executed.
 
 Preferred isolated runtime layout:
 
@@ -303,16 +304,17 @@ Standard SGOKB venvへ無理にverifier dependenciesを混在させない。
 
 ## 10. Exact next work
 
-Execute **N-04G-21V** first.
+Execute **N-04G-21R** next; do not rerun/tune G-21V to change the winner.
 
-1. G-20 corpusをimmutable baselineとして使用。
-2. MiniCheck / LettuceDetect v2 mmBERT / LettuceDetect v2 Qwen 2Bを同一caseで実測。
-3. candidateごとの事前定義decision surfaceを使用。
-4. critical false-positive / positives / recall / failure category / latency / VRAM / dependency / offline pinningを記録。
-5. predetermined handling matrixに従ってwinnerを選定またはG-21VをBLOCKEDにする。
-6. winner選定後にのみG-21Rへ進む。
-7. G-21R local proof PASS後にG-21をComplete / Frozenへ変更する。
-8. その後G-22 formal v3 re-acceptanceへ進む。
+G-21V run `20261019T212717+0900` selected MiniCheck by the pre-frozen positive-recall tie-break (0.8 versus mmBERT 0.6). Qwen required positives were 1/2 despite repeatability/parser PASS. All required negative FP counts were 0. Engineering results: 15 + 4 focused passed, full 402 passed, repo-wide Ruff and diff check PASS. Standard venv unchanged.
+
+Result authority: `docs/evaluation/N04G21V_VERIFIER_CANDIDATE_EVALUATION.md` and four `benchmark/results/n04g21v-*-reference-workstation.json` artifacts.
+
+1. Retain MiniCheck source `b58b9fa69acbd1015ec970fa65dd752413a053d2` and model `74c8919647e61ed0f71bc177d94f10930f090068`, threshold >=0.50.
+2. Prepare/lock the dedicated verifier runtime without modifying standard SGOKB venv.
+3. Obtain G-21R network-independent/local-files-only proof; comparison download-enabled results do not substitute for it.
+4. Only after that proof passes may G-21 become Complete / Frozen and G-22 become unblocked.
+5. N-04 remains Failed / not Complete, N-05 blocked until G-22 fully passes.
 
 ---
 
