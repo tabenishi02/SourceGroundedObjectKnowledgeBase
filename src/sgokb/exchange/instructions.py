@@ -77,17 +77,41 @@ _PRIMARY_OBJECTIVES = {
     "work_edition": (
         "版・remake・改訂版として、基底Workとの共通点と版固有差分、時点・edition scopeを整理する。"
     ),
-    "series": "複数Work/Componentを束ねるSeriesとして、構成、継続性、共通テーマ・世界観、関係を整理する。",
-    "franchise": "媒体横断IP/Franchiseとして、構成作品群、continuity、共有要素、派生関係を整理する。",
+    "series": (
+        "複数Work/Componentを束ねるSeriesと"
+        "して、構成、継続性、共通テーマ・世界観、関係を整理する。"
+    ),
+    "franchise": (
+        "媒体横断IP/Franchiseとして、構成作品群、"
+        "continuity、共有要素、派生関係を整理する。"
+    ),
     "place": "場所として、位置・構造・機能・利用・歴史・関連Objectを、時間変化を含めて整理する。",
     "world": "World/Universeとして、構造、設定、制度、地理、歴史、continuity境界を整理する。",
-    "event": "Eventとして、発生時点、参加者、原因・経過・結果・影響を、推論と明示記述を分離して整理する。",
+    "event": (
+        "Eventとして、発生時点、参加者、原因・経過・"
+        "結果・影響を、推論と明示記述を分離して整理する。"
+    ),
     "artifact": "個別Artifactとして、由来、構造、機能、利用、所有・関連、状態変化を整理する。",
-    "product": "Product/Modelとして、仕様、用途、版・release差、提供状態、関連製品を時点付きで整理する。",
-    "taxon": "Taxonとして、定義、分類、特徴、分布・生態、関連TaxonをSourceの分類体系差に注意して整理する。",
-    "concept": "Conceptとして、定義、性質、適用範囲、含意、関連概念、用法差を明示記述と解釈に分けて整理する。",
-    "theme": "Theme/Motifとして、定義、表現、反復パターン、作品内機能、解釈をEvidence-groundedに整理する。",
-    "ideology": "Ideology/Doctrineとして、中心命題、価値、規範、目的、実践、派生・対立概念を帰属付きで整理する。",
+    "product": (
+        "Product/Modelとして、仕様、用途、版・re"
+        "lease差、提供状態、関連製品を時点付きで整理する。"
+    ),
+    "taxon": (
+        "Taxonとして、定義、分類、特徴、分布・生態、関連T"
+        "axonをSourceの分類体系差に注意して整理する。"
+    ),
+    "concept": (
+        "Conceptとして、定義、性質、適用範囲、含意、"
+        "関連概念、用法差を明示記述と解釈に分けて整理する。"
+    ),
+    "theme": (
+        "Theme/Motifとして、定義、表現、反復パターン、作品"
+        "内機能、解釈をEvidence-groundedに整理する。"
+    ),
+    "ideology": (
+        "Ideology/Doctrineとして、中心命題、価値"
+        "、規範、目的、実践、派生・対立概念を帰属付きで整理する。"
+    ),
     "trait": "Traitとして、意味境界、典型的表れ、条件・例外、関連概念を整理する。",
     "emotion": "Emotionとして、定義、誘因、表出、作用、関連状態を整理する。",
     "motivation": "Motivationとして、目的、誘因、持続条件、行動との関係、競合動機を整理する。",
@@ -96,14 +120,29 @@ _PRIMARY_OBJECTIVES = {
     "process": "Processとして、目的、入力、段階、条件、出力、例外を順序関係を保って整理する。",
     "period": "Periodとして、時間境界、特徴、主要Event/Object、前後関係を整理する。",
     "timeline": "Timelineとして、時系列順序、分岐・並行関係、基準時点を明示して整理する。",
-    "continuity": "Continuity/World-lineとして、適用範囲、分岐点、共有・非共有設定を混同せず整理する。",
+    "continuity": (
+        "Continuity/World-lineとして、適"
+        "用範囲、分岐点、共有・非共有設定を混同せず整理する。"
+    ),
     "system": "Systemとして、目的、構成要素、規則、入出力、相互作用、制約を整理する。",
-    "software": "Softwareとして、機能、構成、version/release差、依存関係、運用条件を時点付きで整理する。",
-    "service": "Serviceとして、提供機能、対象、運用形態、状態・変更、依存関係を時点付きで整理する。",
+    "software": (
+        "Softwareとして、機能、構成、version/r"
+        "elease差、依存関係、運用条件を時点付きで整理する。"
+    ),
+    "service": (
+        "Serviceとして、提供機能、対象、運用形"
+        "態、状態・変更、依存関係を時点付きで整理する。"
+    ),
     "material": "Materialとして、組成・性質、用途、挙動、条件依存性を整理する。",
-    "phenomenon": "Phenomenonとして、定義、発生条件、過程、観測特徴、影響を因果推論と明示記述に分けて整理する。",
+    "phenomenon": (
+        "Phenomenonとして、定義、発生条件、過程、"
+        "観測特徴、影響を因果推論と明示記述に分けて整理する。"
+    ),
     "language": "Languageとして、分類、使用主体、構造、語彙・文法上の特徴、歴史・変種を整理する。",
-    "writing_system": "Writing Systemとして、文字体系、対応言語、構造、表記規則、歴史・変種を整理する。",
+    "writing_system": (
+        "Writing Systemとして、文字体系、"
+        "対応言語、構造、表記規則、歴史・変種を整理する。"
+    ),
 }
 
 
@@ -113,22 +152,41 @@ _ANCESTOR_OBJECTIVES = {
         "FictionalEntityとして、作品内事実・設定と現実世界の事実を混同せず、continuity/edition差を保持する。"
     ),
     "creative_work": (
-        "CreativeWork familyとして、作品内容と制作・公開metadata、批評・受容を別のknowledge kindとして区別する。"
+        "CreativeWork familyとして、作品内容と制作・公開met"
+        "adata、批評・受容を別のknowledge kindとして区別する。"
     ),
     "work_component": (
         "WorkComponentとして、親Work/Series内での位置、範囲、固有内容と全体への役割を区別する。"
     ),
     "place": "Place familyとして、位置・包含・機能・時間変化を必要に応じて構造化する。",
     "artifact": "Artifact familyとして、物理/人工物のIdentity、機能、状態、所有・関連を区別する。",
-    "taxon": "Taxon familyとして、分類階層・分類体系差と個体Objectを混同しない。",
-    "concept": "Concept familyとして、定義・用法・解釈・関連概念の境界を明示する。",
-    "capability": "Capability familyとして、できること、条件、制約、効果を主体Objectそのものと分離する。",
+    "taxon": (
+        "Taxon familyとして、分類階層・"
+        "分類体系差と個体Objectを混同しない。"
+    ),
+    "concept": (
+        "Concept familyとして、定義"
+        "・用法・解釈・関連概念の境界を明示する。"
+    ),
+    "capability": (
+        "Capability familyとして、できること、"
+        "条件、制約、効果を主体Objectそのものと分離する。"
+    ),
     "process": "Process familyとして、段階・順序・条件・結果を、単なるEvent instanceと区別する。",
-    "temporal_entity": "TemporalEntity familyとして、valid time、前後関係、分岐をVersion作成時刻と分離する。",
+    "temporal_entity": (
+        "TemporalEntity familyとして、valid"
+        " time、前後関係、分岐をVersion作成時刻と分離する。"
+    ),
     "system": "System familyとして、構成要素・規則・相互作用・境界を個別componentと区別する。",
     "material": "Material familyとして、組成・性質・用途を個別ArtifactのIdentityと区別する。",
-    "phenomenon": "Phenomenon familyとして、反復可能な現象型と個別Eventを区別する。",
-    "symbolic_system": "SymbolicSystem familyとして、記号体系・規則・使用文脈を利用主体と分離する。",
+    "phenomenon": (
+        "Phenomenon familyとして、"
+        "反復可能な現象型と個別Eventを区別する。"
+    ),
+    "symbolic_system": (
+        "SymbolicSystem familyとして"
+        "、記号体系・規則・使用文脈を利用主体と分離する。"
+    ),
 }
 
 
