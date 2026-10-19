@@ -11,7 +11,7 @@
   "design_freeze": "docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md",
   "material_profiles": {
     "path": "benchmark/n04-v3-material-profiles-v1.json",
-    "file_sha256": "57aeae88ad567966f3615a5f288e89864fd1fa920accd27652b229f5ae51e13d",
+    "file_sha256": "cbc2d1db099bd3267bff32644cb520c832435ee5e8ee9c210d868d0e2abe1267",
     "canonical_payload_sha256": "44ac430ebf6af60123671fbd29985bd9f036fb11907c937d6c0b4f7523a872b4"
   },
   "source_fact_verifier_profile": {
