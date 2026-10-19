@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - phase-n/n04g20r-ruff-baseline
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
