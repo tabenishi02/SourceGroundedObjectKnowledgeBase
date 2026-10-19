@@ -3,7 +3,8 @@
 更新日: 2026-10-20
 
 - Task: `N-04G-22 [P0] Formal v3 Re-Acceptance`
-- Status: **Execution handoff prepared / formal run not started**
+- Status: **Execution completed / valid formal FAIL (2026-10-20; 0/3 Case PASS)**
+- Result: `docs/evaluation/N04G22_FORMAL_V3_REACCEPTANCE.md`; run `20261020T030904+0900`. N-04 Failed / not Complete; N-05 blocked. The execution procedure below is retained unchanged.
 - Branch: `phase-n/n04g22-formal-reacceptance`
 - Base main: `1d0fce208b0b38f5483f3e1c658d7445b30759c6`
 - Frozen acceptance: `benchmark/n04-ai-use-cases-v3.json`

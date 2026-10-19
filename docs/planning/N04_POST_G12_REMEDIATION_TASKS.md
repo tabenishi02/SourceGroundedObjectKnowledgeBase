@@ -51,7 +51,7 @@
 | N-04G-21 | P0 | **Complete / Frozen (verified 2026-10-20)** | v3 acceptance spec / Reference Workstation harness freeze |
 | N-04G-21V | P0 | **Complete / MiniCheck selected (2026-10-19)** | Specialized source-fact verifier candidate evaluation |
 | N-04G-21R | P0 | **Complete / PASS (new run 20261019T233552+0900)** | Selected verifier runtime preparation + Reference Workstation offline proof |
-| N-04G-22 | P0 | **NEXT / unblocked** | Formal v3 re-acceptance |
+| N-04G-22 | P0 | **Complete / valid formal FAIL (2026-10-20; 0/3 PASS)** | Formal v3 re-acceptance |
 
 N-04 CompleteはN-04G-22で全Gate PASS後のみ可能とする。
 
@@ -327,7 +327,9 @@ J. focused/replay + full pytest + repo-wide Ruff + diff check
 
 ## 10. N-04G-22 — Formal v3 Re-Acceptance
 
-**Status: NEXT / unblocked; not started**
+**Status: Complete / valid formal FAIL (2026-10-20; 0/3 Case PASS)**
+
+Run `20261020T030904+0900`: all cases REJECTED after one retry each; no output rendered. Canonical/integrity and engineering Gates PASS (focused 37, contracts 10, full 408; Ruff/diff PASS). Material not satisfied. N-04 Failed / not Complete and N-05 blocked. Result: `docs/evaluation/N04G22_FORMAL_V3_REACCEPTANCE.md`.
 
 Same three representative use cases are retained。
 
@@ -404,9 +406,11 @@ Do not relax G-18, verifier false-positive Gate, Reference Workstation proof req
 G-21V Complete / MiniCheck selected
   -> G-21R Complete / exact offline proof PASS
   -> G-21 Complete / Frozen
-  -> G-22 NEXT / unblocked (not executed)
-  -> N-04 Complete only after G-22 3/3 formal PASS
+  -> G-22 Complete / valid formal FAIL (0/3 Case PASS; run 20261020T030904+0900)
+  -> N-04 Failed / not Complete (formal acceptance not met)
   -> N-05 (currently blocked)
 ```
 
-Earlier candidate/blocked descriptions and procedures above are retained as historical preparation context. Current machine authority is the Frozen JSON set; current status authority is the table and final G-21R record above.
+Earlier candidate/blocked descriptions and procedures above are retained as historical preparation context. Current machine authority is the Frozen JSON set; current status authority is the table and G-22 result above.
+
+Next: review preserved G-22 generation/atomicity/role/output-contract failures before deciding separately authorized remediation. No automatic G-21 reopen or frozen profile/rubric change; N-05 remains blocked.
