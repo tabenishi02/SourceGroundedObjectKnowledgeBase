@@ -1,0 +1,332 @@
+{
+  "benchmark_id": "n04g20-source-fact-verifier-v1",
+  "candidate_id": "lettucedect-v2-mmbert-base",
+  "candidate_metadata": {
+    "resolved_model_revision": "8831ce063dff760b01efe4519b4188f5ee2456f2"
+  },
+  "cases": [
+    {
+      "bucket": "positive",
+      "case_id": "positive-direct-contract",
+      "claim": "Saber is contracted to Shirou.",
+      "document": "Saber is a sword-wielding Servant contracted to Shirou.",
+      "expected": "SUPPORTED",
+      "required": true,
+      "unsupported_spans": [],
+      "verdict": "SUPPORTED"
+    },
+    {
+      "bucket": "positive",
+      "case_id": "positive-faithful-paraphrase",
+      "claim": "Saber has a contract with Shirou.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "SUPPORTED",
+      "required": true,
+      "unsupported_spans": [],
+      "verdict": "SUPPORTED"
+    },
+    {
+      "bucket": "positive",
+      "case_id": "positive-concept-paraphrase",
+      "claim": "A tsundere may begin coldly and later show warmer affection.",
+      "document": "Tsundere combines initially cold behavior with warmer affection.",
+      "expected": "SUPPORTED",
+      "required": false,
+      "unsupported_spans": [],
+      "verdict": "SUPPORTED"
+    },
+    {
+      "bucket": "positive",
+      "case_id": "positive-journey-paraphrase",
+      "claim": "The Hero's Journey includes departure, trials, and a return.",
+      "document": "The Hero's Journey describes a departure, trials, and return structure.",
+      "expected": "SUPPORTED",
+      "required": false,
+      "unsupported_spans": [
+        {
+          "end": 50,
+          "max_unsupported_probability": 0.510391354560852,
+          "start": 46,
+          "text": " and"
+        },
+        {
+          "end": 59,
+          "max_unsupported_probability": 0.5188916921615601,
+          "start": 52,
+          "text": " return"
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_replay",
+      "case_id": "g12-case1-holy-grail-protector",
+      "claim": "Saber fights as Shirou's protector throughout the Holy Grail War.",
+      "document": "Saber is a sword-wielding Servant contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "required": true,
+      "unsupported_spans": [
+        {
+          "end": 64,
+          "max_unsupported_probability": 0.9028643369674683,
+          "start": 5,
+          "text": " fights as Shirou's protector throughout the Holy Grail War"
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_replay",
+      "case_id": "g12-case1-secret-identity",
+      "claim": "Artoria Pendragon's true identity is not widely known in the story.",
+      "document": "Saber is also known as Artoria Pendragon. Saber is a sword-wielding Servant contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "required": true,
+      "unsupported_spans": [
+        {
+          "end": 67,
+          "max_unsupported_probability": 0.9252098202705383,
+          "start": 0,
+          "text": "Artoria Pendragon's true identity is not widely known in the story."
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_replay",
+      "case_id": "g12-case2-magi-summon-heroes",
+      "claim": "Magi summon historical Heroes to fight for the Holy Grail.",
+      "document": "Fate/stay night is a visual novel. Shirou Emiya is its protagonist.",
+      "expected": "UNSUPPORTED",
+      "required": true,
+      "unsupported_spans": [
+        {
+          "end": 57,
+          "max_unsupported_probability": 0.7068610787391663,
+          "start": 0,
+          "text": "Magi summon historical Heroes to fight for the Holy Grail"
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_replay",
+      "case_id": "g12-case2-hollows-malevolent",
+      "claim": "Hollows are malevolent spirits.",
+      "document": "BLEACH is a manga by Tite Kubo. Ichigo Kurosaki is its protagonist.",
+      "expected": "UNSUPPORTED",
+      "required": true,
+      "unsupported_spans": [
+        {
+          "end": 30,
+          "max_unsupported_probability": 0.7717418074607849,
+          "start": 0,
+          "text": "Hollows are malevolent spirits"
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_replay",
+      "case_id": "g12-case2-soul-reaper-balance",
+      "claim": "Soul Reapers maintain the balance between the human world and the afterlife.",
+      "document": "BLEACH is a manga by Tite Kubo. Ichigo Kurosaki is its protagonist.",
+      "expected": "UNSUPPORTED",
+      "required": true,
+      "unsupported_spans": [
+        {
+          "end": 75,
+          "max_unsupported_probability": 0.6492928862571716,
+          "start": 0,
+          "text": "Soul Reapers maintain the balance between the human world and the afterlife"
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_replay",
+      "case_id": "g12-case2-extraordinary-powers",
+      "claim": "Both protagonists gain extraordinary powers.",
+      "document": "Fate/stay night has Shirou Emiya as protagonist. BLEACH has Ichigo Kurosaki as protagonist.",
+      "expected": "UNSUPPORTED",
+      "required": true,
+      "unsupported_spans": [
+        {
+          "end": 43,
+          "max_unsupported_probability": 0.8868324160575867,
+          "start": 0,
+          "text": "Both protagonists gain extraordinary powers"
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_adversarial",
+      "case_id": "adversarial-high-overlap-extra-detail",
+      "claim": "Saber is permanently contracted to Shirou as his sworn protector.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "required": true,
+      "unsupported_spans": [
+        {
+          "end": 64,
+          "max_unsupported_probability": 0.7719722390174866,
+          "start": 44,
+          "text": " his sworn protector"
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_adversarial",
+      "case_id": "adversarial-supported-subject-wrong-predicate",
+      "claim": "Saber is Shirou's sibling.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "required": true,
+      "unsupported_spans": [
+        {
+          "end": 26,
+          "max_unsupported_probability": 0.9542632699012756,
+          "start": 0,
+          "text": "Saber is Shirou's sibling."
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_adversarial",
+      "case_id": "adversarial-negation-flip",
+      "claim": "Saber is not contracted to Shirou.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "required": true,
+      "unsupported_spans": [
+        {
+          "end": 33,
+          "max_unsupported_probability": 0.6695798635482788,
+          "start": 8,
+          "text": " not contracted to Shirou"
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_adversarial",
+      "case_id": "adversarial-temporal-causal-embellishment",
+      "claim": "Saber became contracted to Shirou because he summoned her during the Holy Grail War.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "required": true,
+      "unsupported_spans": [
+        {
+          "end": 83,
+          "max_unsupported_probability": 0.8194848895072937,
+          "start": 41,
+          "text": " he summoned her during the Holy Grail War"
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_adversarial",
+      "case_id": "adversarial-concept-extra-theory",
+      "claim": "The Hero's Journey requires exactly twelve stages and always ends in personal enlightenment.",
+      "document": "The Hero's Journey describes a departure, trials, and return structure.",
+      "expected": "UNSUPPORTED",
+      "required": true,
+      "unsupported_spans": [
+        {
+          "end": 91,
+          "max_unsupported_probability": 0.9427584409713745,
+          "start": 9,
+          "text": "s Journey requires exactly twelve stages and always ends in personal enlightenment"
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "threshold_probe",
+      "case_id": "borderline-contract-rephrasing",
+      "claim": "Saber serves under a contractual bond with Shirou.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "SUPPORTED",
+      "required": false,
+      "unsupported_spans": [
+        {
+          "end": 37,
+          "max_unsupported_probability": 0.5819324254989624,
+          "start": 20,
+          "text": " contractual bond"
+        },
+        {
+          "end": 46,
+          "max_unsupported_probability": 0.5044779181480408,
+          "start": 42,
+          "text": " Shi"
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "threshold_probe",
+      "case_id": "borderline-overclaim",
+      "claim": "Saber's primary duty is to protect Shirou because of their contract.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "required": false,
+      "unsupported_spans": [
+        {
+          "end": 41,
+          "max_unsupported_probability": 0.6051639318466187,
+          "start": 34,
+          "text": " Shirou"
+        }
+      ],
+      "verdict": "UNSUPPORTED"
+    }
+  ],
+  "decision_surface": "one or more unsupported answer-token spans => no PASS",
+  "metrics": {
+    "candidate_gate_pass": true,
+    "indeterminate_count": 0,
+    "indeterminate_ids": [],
+    "negative_specificity": 1.0,
+    "positive_recall": 0.6,
+    "required_negative_false_positive_count": 0,
+    "required_negative_false_positive_ids": [],
+    "required_positive_count": 2,
+    "required_positive_supported_count": 2,
+    "required_positive_supported_ids": [
+      "positive-direct-contract",
+      "positive-faithful-paraphrase"
+    ]
+  },
+  "model_repo": "KRLabsOrg/lettucedect-v2-mmbert-base",
+  "note": "N-04G-21V candidate-selection evidence only. Final G-21 freeze still requires isolated offline Reference Workstation proof.",
+  "runtime": {
+    "cuda": {
+      "cuda_available": true,
+      "device_capability": [
+        8,
+        9
+      ],
+      "device_name": "NVIDIA GeForce RTX 4090",
+      "torch_cuda_build": "12.4",
+      "torch_version": "2.6.0+cu124"
+    },
+    "elapsed_seconds": 47.89637550001498,
+    "packages": {
+      "accelerate": "1.4.0",
+      "huggingface_hub": "1.33.0",
+      "minicheck": "0.1.0",
+      "nltk": "3.10.3",
+      "tokenizers": "0.23.3",
+      "torch": "2.6.0+cu124",
+      "transformers": "5.20.1"
+    },
+    "peak_vram_mib": 1201.94921875,
+    "platform": "Windows-10-10.0.26300-SP0",
+    "python": "3.10.6 (tags/v3.10.6:9c7b4bd, Aug  1 2022, 21:53:49) [MSC v.1932 64 bit (AMD64)]"
+  }
+}

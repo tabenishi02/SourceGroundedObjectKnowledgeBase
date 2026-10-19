@@ -1,0 +1,76 @@
+{
+  "benchmark_id": "n04g20-source-fact-verifier-v1",
+  "candidates": [
+    {
+      "candidate_gate_pass": true,
+      "candidate_id": "lettucedect-v2-mmbert-base",
+      "candidate_metadata": {
+        "resolved_model_revision": "8831ce063dff760b01efe4519b4188f5ee2456f2"
+      },
+      "dependency_complexity_rank": 1,
+      "elapsed_seconds": 47.89637550001498,
+      "indeterminate_count": 0,
+      "model_repo": "KRLabsOrg/lettucedect-v2-mmbert-base",
+      "negative_specificity": 1.0,
+      "peak_vram_mib": 1201.94921875,
+      "positive_recall": 0.6,
+      "required_negative_false_positive_count": 0,
+      "required_negative_false_positive_ids": [],
+      "required_positive_count": 2,
+      "required_positive_supported_count": 2,
+      "source_path": "benchmark\\results\\n04g21v-lettucedect-v2-mmbert-base-reference-workstation.json"
+    },
+    {
+      "candidate_gate_pass": false,
+      "candidate_id": "lettucedect-v2-qwen-2b",
+      "candidate_metadata": {
+        "qwen_repeats": 3,
+        "repeatability_failure_ids": [],
+        "repeatability_pass": true,
+        "resolved_model_revision": "4511d95c6a5f24df1e810a097685d068208cb149"
+      },
+      "dependency_complexity_rank": 3,
+      "elapsed_seconds": 1048.6641486000153,
+      "indeterminate_count": 0,
+      "model_repo": "KRLabsOrg/lettucedect-v2-qwen-2b",
+      "negative_specificity": 1.0,
+      "peak_vram_mib": 3681.56298828125,
+      "positive_recall": 0.6,
+      "required_negative_false_positive_count": 0,
+      "required_negative_false_positive_ids": [],
+      "required_positive_count": 2,
+      "required_positive_supported_count": 1,
+      "source_path": "benchmark\\results\\n04g21v-lettucedect-v2-qwen-2b-reference-workstation.json"
+    },
+    {
+      "candidate_gate_pass": true,
+      "candidate_id": "minicheck-roberta-large",
+      "candidate_metadata": {
+        "resolved_model_revision_after": "74c8919647e61ed0f71bc177d94f10930f090068",
+        "resolved_model_revision_before": "74c8919647e61ed0f71bc177d94f10930f090068",
+        "source_revision": "b58b9fa69acbd1015ec970fa65dd752413a053d2",
+        "threshold": 0.5
+      },
+      "dependency_complexity_rank": 2,
+      "elapsed_seconds": 105.66994300001534,
+      "indeterminate_count": 0,
+      "model_repo": "lytang/MiniCheck-RoBERTa-Large",
+      "negative_specificity": 1.0,
+      "peak_vram_mib": 1366.07666015625,
+      "positive_recall": 0.8,
+      "required_negative_false_positive_count": 0,
+      "required_negative_false_positive_ids": [],
+      "required_positive_count": 2,
+      "required_positive_supported_count": 2,
+      "source_path": "benchmark\\results\\n04g21v-minicheck-roberta-large-reference-workstation.json"
+    }
+  ],
+  "disposition": "SELECT_FOR_G21R",
+  "eligible_candidates_in_tie_break_order": [
+    "minicheck-roberta-large",
+    "lettucedect-v2-mmbert-base"
+  ],
+  "safety_invariant": "Any required unsupported claim accepted as supported disqualifies that candidate. Do not post-hoc change candidate decision surfaces or corpus labels.",
+  "selected_candidate_for_g21r": "minicheck-roberta-large",
+  "selection_rationale": "One or more candidates passed the frozen safety Gate. Selection follows the pre-frozen tie-break order: positive recall, indeterminate/runtime failures, dependency complexity, measured latency, measured VRAM, then historical-evidence preference. Selection remains subject to G-21R isolated offline Reference Workstation proof."
+}

@@ -1,0 +1,4 @@
+# These artifact byte hashes are frozen against LF Git blobs.
+/benchmark/n04-ai-use-cases-v3.json text eol=lf
+/benchmark/n04-v3-material-profiles-v1.json text eol=lf
+/benchmark/n04-v3-source-fact-verifier-profile-v1.json text eol=lf
