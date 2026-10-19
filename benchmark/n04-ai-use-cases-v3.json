@@ -1,0 +1,177 @@
+{
+  "schema_version": "sgokb.n04-ai-use-cases/3",
+  "dataset_id": "n04-ai-use-cases-v3",
+  "status": "freeze_candidate_pending_reference_workstation_verification",
+  "prepared_on": "2026-10-19",
+  "inherits_historical_spec": "benchmark/n04-ai-use-cases-v2.json",
+  "source_dataset": "benchmark/n03-real-data-vertical-slice-v1.json",
+  "evaluation_db": ".local/n03/sgokb-n03.sqlite",
+  "design_freeze": "docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md",
+  "material_profiles": {
+    "path": "benchmark/n04-v3-material-profiles-v1.json",
+    "canonical_payload_sha256": "44ac430ebf6af60123671fbd29985bd9f036fb11907c937d6c0b4f7523a872b4"
+  },
+  "contract_versions": {
+    "context_builder": "sgokb.context-builder.v1",
+    "grounded_context": "sgokb.grounded-context.v1",
+    "generation_output": "sgokb.grounded-generation-output.v2",
+    "validation": "sgokb.grounding-validation.v2",
+    "material_requirement": "sgokb.material-requirement.v1",
+    "failure_policy": "sgokb.grounding-failure-policy.v2"
+  },
+  "common_rules": {
+    "local_only": true,
+    "cloud_inference": false,
+    "web_fact_supplementation": false,
+    "consumer_direct_sqlite_knowledge_read": false,
+    "max_generation_attempts": 2,
+    "max_retries": 1,
+    "partial_salvage": false,
+    "formal_case_pass_terminal": "ACCEPTED",
+    "insufficient_context_is_formal_case_pass": false,
+    "rendered_semantic_content": "validated unit.text plus trusted fixed presentation only",
+    "critical_unsupported_rendered_claims_allowed": 0,
+    "model_self_scoring_authoritative": false
+  },
+  "cases": [
+    {
+      "case_id": "n04-roleplay-saber",
+      "title": "Character Data -> local LLM Roleplay",
+      "object_ids": [
+        "326a97cf-47aa-4760-a7f1-07bfe639fcf0"
+      ],
+      "context": {
+        "purpose": "roleplay",
+        "max_characters": 12000,
+        "include_attributes": true,
+        "include_relations": true,
+        "include_evidence_refs": false,
+        "require_current_version": true
+      },
+      "generation": {
+        "temperature": 0.2,
+        "max_tokens": 700,
+        "task": "Reply in first person as Saber to: 'Who are you, what is your role here, and what is your connection to Shirou?' Keep the rendered answer approximately 100 to 180 English words when sufficient context exists."
+      },
+      "material_profile_id": "n04-v3-case-1-roleplay",
+      "formal_acceptance": [
+        "Terminal action is ACCEPTED and render_mode is NORMAL.",
+        "At least two supported source_fact units cover the frozen Saber object.",
+        "The rendered answer is first-person roleplay.",
+        "No unsupported or contradictory material source-world proposition is rendered.",
+        "No personality, backstory, event, hidden-identity, or relationship fact is imported from model memory.",
+        "If supplied Context cannot satisfy material requirements, the machine may use the frozen context-limit path, but the formal Case verdict remains FAIL."
+      ],
+      "critical_failures": [
+        "Any unsupported material source-world claim reaches rendered output.",
+        "Any role-boundary escape or non-atomic mixed proposition is machine accepted.",
+        "External Web/cloud/model-memory factual supplementation is used.",
+        "Historical/non-current Knowledge is substituted."
+      ]
+    },
+    {
+      "case_id": "n04-similar-work-comparison",
+      "title": "Similar Work retrieval -> grounded comparison",
+      "source_object_id": "d5824d33-7008-4121-9cfe-1f95a19667fd",
+      "expected_dataset_candidate_id": "57db855c-574a-4b38-b474-421c165894f1",
+      "retrieval": {
+        "via": "MCP find_similar_objects",
+        "cross_class": false,
+        "limit": 5,
+        "require_current_scope": true,
+        "candidate_selection": "Use actual current Work rank-1 candidate; do not substitute the frozen expected ID when retrieval differs."
+      },
+      "context": {
+        "purpose": "comparison",
+        "max_characters": 24000,
+        "include_attributes": true,
+        "include_relations": false,
+        "include_evidence_refs": true,
+        "require_current_version": true
+      },
+      "generation": {
+        "temperature": 0.0,
+        "max_tokens": 900,
+        "task": "Using only the two supplied SGOKB Grounded Contexts, provide a concise comparison covering both Works and at least one grounded interpretation."
+      },
+      "material_profile_id": "n04-v3-case-2-comparison",
+      "formal_acceptance": [
+        "Terminal action is ACCEPTED and render_mode is NORMAL.",
+        "Actual Similarity rank-1 current Work equals the frozen dataset candidate ID.",
+        "At least one supported source_fact from each frozen Work object is present.",
+        "At least one interpretation unit is derived_supported and its premise graph covers both Works.",
+        "No unsupported external factual premise or material outside-knowledge claim is rendered.",
+        "Similarity score is not described as truth, confidence, or preference probability."
+      ],
+      "critical_failures": [
+        "Comparison target is hardcoded/substituted rather than obtained from Similarity retrieval.",
+        "One-sided source coverage reaches ACCEPTED.",
+        "Interpretation depends on an unsupported premise.",
+        "Any outside-franchise fact is rendered as grounded fact.",
+        "Historical/non-current Knowledge is mixed."
+      ]
+    },
+    {
+      "case_id": "n04-concept-combination-creative",
+      "title": "Concept A/B -> grounded creative synthesis",
+      "object_ids": [
+        "8c83f986-f491-41a8-8645-9f71dd5874b9",
+        "fee32007-0f92-449a-ba21-4ec2f78d1cd4"
+      ],
+      "context": {
+        "purpose": "creative",
+        "max_characters": 24000,
+        "include_attributes": true,
+        "include_relations": true,
+        "include_evidence_refs": false,
+        "require_current_version": true
+      },
+      "generation": {
+        "temperature": 0.2,
+        "max_tokens": 1100,
+        "task": "Use the supplied SGOKB contexts for Tsundere and Hero's Journey as source Concept knowledge and create one original fictional character concept that deliberately combines both."
+      },
+      "material_profile_id": "n04-v3-case-3-creative",
+      "formal_acceptance": [
+        "Terminal action is ACCEPTED and render_mode is NORMAL.",
+        "At least one supported source_fact covers Tsundere and at least one covers Hero's Journey.",
+        "At least one valid creative_addition unit is present.",
+        "The new character/arc meaningfully combines both Concepts.",
+        "Creative additions remain role-separated from grounded source Concept facts.",
+        "No unsupported fact about either source Concept is rendered as SGOKB Knowledge."
+      ],
+      "critical_failures": [
+        "Either frozen source Concept lacks supported source_fact coverage.",
+        "No creative_addition reaches validated output.",
+        "Creative text smuggles a source-world Concept claim across the role boundary.",
+        "External Web/cloud factual supplementation is used."
+      ]
+    }
+  ],
+  "formal_case_verdict": {
+    "PASS": "Terminal ACCEPTED plus every retrieval/context/material/output gate and manual evidence review passes.",
+    "FAIL": "INSUFFICIENT_CONTEXT, REJECTED, SYSTEM_FAILURE, any critical failure, or any required rubric item failure."
+  },
+  "overall_gate": {
+    "three_case_requirement": "3/3 formal Case PASS",
+    "unsupported_rendered_material_claims": 0,
+    "role_escape": 0,
+    "canonical_before_after_equal": true,
+    "integrity_before_after_pass": true,
+    "focused_replay_regression_pass": true,
+    "repository_wide_ruff_pass": true,
+    "full_pytest_failed": 0,
+    "git_start_equals_end": true
+  },
+  "manual_review": {
+    "authority": "Codex/human evidence review independent of generator and semantic judges",
+    "required": true,
+    "claim_level_review": true,
+    "allowed_verdicts": [
+      "PASS",
+      "FAIL",
+      "NOT_APPLICABLE"
+    ],
+    "machine_ACCEPTED_is_not_sufficient_alone": true
+  }
+}
