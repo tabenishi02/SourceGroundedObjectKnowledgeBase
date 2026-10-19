@@ -1,8 +1,9 @@
 # N-04G-21R Selected Verifier Runtime Preparation / Local Proof
 
-更新日: 2026-10-19
+更新日: 2026-10-20
 
-- Status: **Prepared / awaiting Reference Workstation offline execution**
+- Status: **Complete / PASS — new formal run 20261019T233552+0900; all G-21 Gates PASS**
+- Initial preparation status: **Prepared / awaiting Reference Workstation offline execution**
 - Parent: `N-04G-21 [P0] v3 Acceptance / Reference Workstation Harness Freeze`
 - Selected verifier: `MiniCheck RoBERTa-large`
 - Selection evidence: `docs/evaluation/N04G21V_VERIFIER_CANDIDATE_EVALUATION.md`
@@ -133,3 +134,23 @@ Freeze update must include exact Reference Workstation runtime lock, local repro
 ## Historical evidence retention
 
 G-12, G-20/G-20R, G-21V, prior G-21 BLOCKED evidence, and failed G-21R attempts are immutable historical evidence and must not be deleted or overwritten.
+
+
+## Reference Workstation execution — 2026-10-19
+
+run_id `20261019T231409+0900`: exact source/model identities, clean source, local snapshot/NLTK, threshold >=0.50 and offline Gate PASS. Python socket counters are 0/0; required negative FP 0, required positives 2/2, recall 0.8, specificity 1.0. G-21V verdicts and scores match all 17 cases exactly; maximum absolute score delta is 0. Standard venv, corpus/test/runner boundary hashes and model cache remain unchanged.
+
+Mistral output-v2 smoke, Phi-4 bounded atomicity/role smoke on a neutral output-v2 unit, MCP/Harrier/Qdrant/integrity/schema/Object identity all PASS. Focused pytest 37 passed, G-21/G-21R tests 7 passed, full 405 passed; diff check PASS. Repo-wide Ruff FAILS on pre-existing F841 in `tests/test_n04g21r_offline_proof_contract.py:29`.
+
+Outcome B applies: **G-21R Complete / PASS; G-21 BLOCKED; G-22 blocked**. Offline boundary forbids editing that test during this proof, so no fix, lint relaxation or silent boundary reset was performed. All-Gate-PASS-only commit/push/Ready condition is unmet.
+
+Detailed record: `docs/evaluation/N04G21R_SELECTED_VERIFIER_RUNTIME_LOCAL_PROOF.md`. Proof: `benchmark/results/n04g21r-minicheck-offline-reference-workstation.json`. Prior preparation failure evidence is preserved under `.local/n04-v3/runtime/verifier/runs/20261019T225703+0900/`; successful proof and failed Ruff logs remain under `.local/n04-v3/runtime/verifier/runs/20261019T231409+0900/`.
+
+
+## Authorized new attempt and final Freeze — verified 2026-10-20
+
+The user authorized removing only the unused assignment before a new offline boundary. Run `20261019T233552+0900` used the existing exact formal runtime without download/install/update. All offline identities/gates PASS, network counters 0/0, required negative FP 0/11, required positives 2/2, recall 0.8, specificity 1.0, G-21V verdicts/scores exactly equal. Standard venv, boundary files and both prior run directories are unchanged.
+
+All remaining G-21 preflight PASS; focused 37, contract 7, full 405 tests PASS; repo-wide Ruff and diff PASS. After Freeze, bound proof/runtime/hash contracts 7 PASS again. Candidate statuses are now `frozen`, reproduction true, runtime lock captured, unresolved items empty and hashes recalculated. **G-21R Complete / PASS; G-21 Complete / Frozen; G-22 NEXT / unblocked; N-04 Failed / N-05 blocked.**
+
+The preceding 20261019T231409 result and Ruff BLOCKED note remain a historical record; no old failure or PASS evidence was overwritten. Current proof/hash authority: `docs/evaluation/N04G21R_SELECTED_VERIFIER_RUNTIME_LOCAL_PROOF.md` and the tracked offline JSON.

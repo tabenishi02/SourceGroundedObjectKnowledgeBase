@@ -27,7 +27,6 @@ def test_g21r_runner_matches_selected_profile() -> None:
 
 
 def test_g21r_runner_forces_offline_environment() -> None:
-    runner = load_runner()
     source = RUNNER.read_text(encoding="utf-8")
     for variable in (
         "HF_HUB_OFFLINE",

@@ -1,8 +1,9 @@
 # N-04G-21 v3 Acceptance / Reference Workstation Harness Freeze
 
-更新日: 2026-10-19
+更新日: 2026-10-20
 
-- Status: **Prepared / BLOCKED before final Freeze**
+- Status: **Complete / Frozen — Reference Workstation proof verified 2026-10-20**
+- Historical preparation status: **Prepared / BLOCKED before final Freeze**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
 - Base main SHA: `95145f21f8f3f62ed9cf18d189920c49107a6b06`
@@ -10,6 +11,17 @@
 - Design authority: `docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md`
 - G-20 verifier screening: `docs/evaluation/N04G20_ADVERSARIAL_REPLAY_VERIFIER_BENCHMARK_REGRESSION.md`
 - G-20R engineering Gate: `docs/evaluation/N04G20R_RUFF_BASELINE_REMEDIATION_AND_GATE_RERUN.md`
+
+
+## Current final decision — 2026-10-20
+
+G-21R run `20261019T233552+0900` passes exact selected MiniCheck offline proof and every remaining runtime/engineering Gate. **G-21 Complete / Frozen; G-21R Complete / PASS; G-22 NEXT / unblocked. N-04 remains Failed / not Complete; N-05 blocked.**
+
+Source/model pins and threshold >=0.50 are unchanged. Socket attempts 0/0, required negative FP 0/11, required positives 2/2, recall 0.8, specificity 1.0, all G-21V verdicts/scores equal. Mistral/Phi-4 smoke, MCP/Harrier/Qdrant/integrity/schema/Object identity PASS; canonical SHA-256 identical; focused 37 + contract 7 + full 405 tests PASS, repo-wide Ruff/diff PASS, post-Freeze contracts 7 PASS.
+
+All four JSON artifacts are `frozen`; verifier reproduction true; complete exact runtime lock recorded in harness; unresolved items empty. File and canonical hashes are recalculated and machine-bound. Full hash table, provenance, authorized pre-boundary lint fix and preserved historical attempts are recorded in `docs/evaluation/N04G21R_SELECTED_VERIFIER_RUNTIME_LOCAL_PROOF.md`. G-18 semantics, model profiles and historical evidence remain unchanged. G-22 has not started.
+
+The original sections 1–17 below are retained as the **historical candidate-preparation / BLOCKED record**, not the current final disposition. Their pending checkboxes and candidate values describe that earlier state. The current authoritative machine values are the Frozen JSON and current proof above.
 
 ---
 

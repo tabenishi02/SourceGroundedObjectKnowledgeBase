@@ -104,7 +104,9 @@ def test_g21_candidate_pins_generator_judges_and_verifier_without_gate_relaxatio
     assert verifier["specialized_verifier"]["threshold_operator"] == ">="
     assert verifier["screening_evidence"]["required_negative_false_positive_count"] == 0
     assert verifier["screening_evidence"]["required_positive_supported_count"] == 2
-    assert not verifier["screening_evidence"]["reference_workstation_reproduction"]
+    assert verifier["screening_evidence"]["reference_workstation_reproduction"] == (
+        verifier["status"] == "frozen"
+    )
     assert harness["retry_terminal"]["max_retries"] == 1
     assert harness["retry_terminal"]["formal_case_pass_terminal"] == "ACCEPTED"
     assert not harness["retry_terminal"]["insufficient_context_formal_case_pass"]
@@ -117,10 +119,36 @@ def test_g21_candidate_is_not_falsely_marked_frozen_before_local_verification():
     material = _load(MATERIAL)
     verifier = _load(VERIFIER)
 
-    expected = "freeze_candidate_pending_reference_workstation_verification"
-    assert harness["status"] == expected
-    assert acceptance["status"] == expected
-    assert material["status"] == expected
-    assert verifier["status"] == expected
+    statuses = {document["status"] for document in (harness, acceptance, material, verifier)}
+    assert len(statuses) == 1
     assert harness["preflight"]["formal_run_must_not_start_until_all_pass"]
-    assert len(harness["unresolved_before_freeze"]) == 3
+    if harness["status"] == "freeze_candidate_pending_reference_workstation_verification":
+        assert len(harness["unresolved_before_freeze"]) == 3
+        assert not verifier["screening_evidence"]["reference_workstation_reproduction"]
+        return
+
+    assert statuses == {"frozen"}
+    assert harness["unresolved_before_freeze"] == []
+    assert verifier["screening_evidence"]["reference_workstation_reproduction"]
+    proof_ref = verifier["screening_evidence"]["reference_workstation_result"]
+    proof_path = ROOT / proof_ref["path"]
+    assert _file_sha256(proof_path) == proof_ref["sha256"]
+    proof = _load(proof_path)
+    assert proof["status"] == "PASS"
+    assert proof["source_identity"] == {
+        "revision": verifier["specialized_verifier"]["source_repository_revision"],
+        "clean": True,
+    }
+    assert proof["model_identity"]["resolved_main_revision"] == (
+        verifier["specialized_verifier"]["model_repository_revision"]
+    )
+    assert proof["network_attempts"] == {"socket_connect": 0, "create_connection": 0}
+    assert proof["threshold"] == 0.5
+    assert proof["metrics"]["required_negative_false_positive_count"] == 0
+    assert proof["metrics"]["required_positive_supported_count"] == 2
+    assert proof["metrics"]["required_positive_count"] == 2
+    assert proof["comparison_with_g21v"]["all_verdicts_equal"]
+    runtime_lock = harness["reference_workstation"]["local_runtime_lock"]
+    assert runtime_lock["standard_sgokb_venv_unchanged"]
+    assert runtime_lock["verifier_packages"] == proof["runtime"]["packages"]
+    assert runtime_lock["verifier_cuda"] == proof["runtime"]["cuda"]

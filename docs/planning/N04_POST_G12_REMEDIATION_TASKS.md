@@ -1,6 +1,6 @@
 # N-04 Post-G12 Grounded Generation Remediation Tasks
 
-更新日: 2026-10-19
+更新日: 2026-10-20
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent Task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
@@ -48,10 +48,10 @@
 | N-04G-19 | P0 | **Complete (2026-10-19, implementation)** | Frozen v3 implementation + verifier adapter boundary |
 | N-04G-20 | P0 | **Complete (verification) / historical Gate FAIL** | Adversarial / replay / verifier benchmark / regression |
 | N-04G-20R | P0 | **Complete / PASS (2026-10-19)** | Repository-wide Ruff remediation + engineering Gate rerun |
-| N-04G-21 | P0 | **Prepared / BLOCKED before final Freeze (2026-10-19)** | v3 acceptance spec / Reference Workstation harness freeze |
+| N-04G-21 | P0 | **Complete / Frozen (verified 2026-10-20)** | v3 acceptance spec / Reference Workstation harness freeze |
 | N-04G-21V | P0 | **Complete / MiniCheck selected (2026-10-19)** | Specialized source-fact verifier candidate evaluation |
-| N-04G-21R | P0 | **NEXT / unblocked** | Selected verifier runtime preparation + Reference Workstation offline proof |
-| N-04G-22 | P0 | **Blocked by G-21** | Formal v3 re-acceptance |
+| N-04G-21R | P0 | **Complete / PASS (new run 20261019T233552+0900)** | Selected verifier runtime preparation + Reference Workstation offline proof |
+| N-04G-22 | P0 | **NEXT / unblocked** | Formal v3 re-acceptance |
 
 N-04 CompleteはN-04G-22で全Gate PASS後のみ可能とする。
 
@@ -126,7 +126,7 @@ G-20の元のrepo-wide Ruff FAILはhistorical evidenceとして保持し、G-20R
 
 ---
 
-## 5. N-04G-21 freeze candidate prepared
+## 5. N-04G-21 historical freeze candidate preparation
 
 Authoritative freeze-candidate record:
 
@@ -285,7 +285,13 @@ latency / VRAM / diagnostic value
 
 ## 9. N-04G-21R — Selected Verifier Runtime Preparation / Local Proof
 
-**Status: NEXT / unblocked**
+**Status: Complete / PASS; G-21 Complete / Frozen (verified 2026-10-20).**
+
+New Reference Workstation run `20261019T233552+0900` passes all offline and remaining preflight/engineering Gates: exact source/model, network 0/0, required negative FP 0/11, required positives 2/2, recall 0.8, specificity 1.0, all 17 G-21V verdicts/scores equal. Standard venv and boundary hashes unchanged. Mistral/Phi-4 smoke and MCP/Harrier/Qdrant/integrity/schema/Object identity PASS; canonical hash equal; focused 37 / contract 7 / full 405 passed; repo-wide Ruff/diff PASS. Post-Freeze contracts 7 passed again.
+
+Four candidate JSONs are Frozen, reproduction true, exact runtime lock bound, unresolved items empty; file/canonical hashes recomputed. **G-22 is NEXT / unblocked, not executed.** Evidence: `docs/evaluation/N04G21R_SELECTED_VERIFIER_RUNTIME_LOCAL_PROOF.md` and tracked proof JSON.
+
+Historical prior run `20261019T231409+0900` passed MiniCheck proof but was engineering-blocked by F841. The user then authorized removing only the unused assignment before a new boundary. Both old run directories, their original PASS/failure evidence and all earlier historical records are intact. The preparation syntax-failure run `20261019T225703+0900` is also retained.
 
 Winner選定後にのみ実施する。
 
@@ -321,7 +327,7 @@ J. focused/replay + full pytest + repo-wide Ruff + diff check
 
 ## 10. N-04G-22 — Formal v3 Re-Acceptance
 
-**Status: Blocked by G-21**
+**Status: NEXT / unblocked; not started**
 
 Same three representative use cases are retained。
 
@@ -390,3 +396,17 @@ Without new failure evidence, do not change:
 - G-20/G-20R historical evidence
 
 Do not relax G-18, verifier false-positive Gate, Reference Workstation proof requirement, or engineering Gates merely to obtain PASS.
+
+
+## Current dependency after G-21 final Freeze — 2026-10-20
+
+```text
+G-21V Complete / MiniCheck selected
+  -> G-21R Complete / exact offline proof PASS
+  -> G-21 Complete / Frozen
+  -> G-22 NEXT / unblocked (not executed)
+  -> N-04 Complete only after G-22 3/3 formal PASS
+  -> N-05 (currently blocked)
+```
+
+Earlier candidate/blocked descriptions and procedures above are retained as historical preparation context. Current machine authority is the Frozen JSON set; current status authority is the table and final G-21R record above.

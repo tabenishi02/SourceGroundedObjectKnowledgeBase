@@ -1,0 +1,456 @@
+{
+  "cases": [
+    {
+      "bucket": "positive",
+      "case_id": "positive-direct-contract",
+      "claim": "Saber is contracted to Shirou.",
+      "document": "Saber is a sword-wielding Servant contracted to Shirou.",
+      "expected": "SUPPORTED",
+      "model_pred_label": 1,
+      "required": true,
+      "support_prob_per_chunk": [
+        0.9850599765777588
+      ],
+      "support_probability": 0.9850599765777588,
+      "used_chunks": [
+        "Saber is a sword-wielding Servant contracted to Shirou."
+      ],
+      "verdict": "SUPPORTED"
+    },
+    {
+      "bucket": "positive",
+      "case_id": "positive-faithful-paraphrase",
+      "claim": "Saber has a contract with Shirou.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "SUPPORTED",
+      "model_pred_label": 1,
+      "required": true,
+      "support_prob_per_chunk": [
+        0.9804297685623169
+      ],
+      "support_probability": 0.9804297685623169,
+      "used_chunks": [
+        "Saber is contracted to Shirou."
+      ],
+      "verdict": "SUPPORTED"
+    },
+    {
+      "bucket": "positive",
+      "case_id": "positive-concept-paraphrase",
+      "claim": "A tsundere may begin coldly and later show warmer affection.",
+      "document": "Tsundere combines initially cold behavior with warmer affection.",
+      "expected": "SUPPORTED",
+      "model_pred_label": 0,
+      "required": false,
+      "support_prob_per_chunk": [
+        0.42323359847068787
+      ],
+      "support_probability": 0.42323359847068787,
+      "used_chunks": [
+        "Tsundere combines initially cold behavior with warmer affection."
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "positive",
+      "case_id": "positive-journey-paraphrase",
+      "claim": "The Hero's Journey includes departure, trials, and a return.",
+      "document": "The Hero's Journey describes a departure, trials, and return structure.",
+      "expected": "SUPPORTED",
+      "model_pred_label": 1,
+      "required": false,
+      "support_prob_per_chunk": [
+        0.9654542803764343
+      ],
+      "support_probability": 0.9654542803764343,
+      "used_chunks": [
+        "The Hero's Journey describes a departure, trials, and return structure."
+      ],
+      "verdict": "SUPPORTED"
+    },
+    {
+      "bucket": "negative_replay",
+      "case_id": "g12-case1-holy-grail-protector",
+      "claim": "Saber fights as Shirou's protector throughout the Holy Grail War.",
+      "document": "Saber is a sword-wielding Servant contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "model_pred_label": 0,
+      "required": true,
+      "support_prob_per_chunk": [
+        0.01636313833296299
+      ],
+      "support_probability": 0.01636313833296299,
+      "used_chunks": [
+        "Saber is a sword-wielding Servant contracted to Shirou."
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_replay",
+      "case_id": "g12-case1-secret-identity",
+      "claim": "Artoria Pendragon's true identity is not widely known in the story.",
+      "document": "Saber is also known as Artoria Pendragon. Saber is a sword-wielding Servant contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "model_pred_label": 0,
+      "required": true,
+      "support_prob_per_chunk": [
+        0.0663071796298027
+      ],
+      "support_probability": 0.0663071796298027,
+      "used_chunks": [
+        "Saber is also known as Artoria Pendragon. Saber is a sword-wielding Servant contracted to Shirou."
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_replay",
+      "case_id": "g12-case2-magi-summon-heroes",
+      "claim": "Magi summon historical Heroes to fight for the Holy Grail.",
+      "document": "Fate/stay night is a visual novel. Shirou Emiya is its protagonist.",
+      "expected": "UNSUPPORTED",
+      "model_pred_label": 0,
+      "required": true,
+      "support_prob_per_chunk": [
+        0.026211654767394066
+      ],
+      "support_probability": 0.026211654767394066,
+      "used_chunks": [
+        "Fate/stay night is a visual novel. Shirou Emiya is its protagonist."
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_replay",
+      "case_id": "g12-case2-hollows-malevolent",
+      "claim": "Hollows are malevolent spirits.",
+      "document": "BLEACH is a manga by Tite Kubo. Ichigo Kurosaki is its protagonist.",
+      "expected": "UNSUPPORTED",
+      "model_pred_label": 0,
+      "required": true,
+      "support_prob_per_chunk": [
+        0.013668183237314224
+      ],
+      "support_probability": 0.013668183237314224,
+      "used_chunks": [
+        "BLEACH is a manga by Tite Kubo. Ichigo Kurosaki is its protagonist."
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_replay",
+      "case_id": "g12-case2-soul-reaper-balance",
+      "claim": "Soul Reapers maintain the balance between the human world and the afterlife.",
+      "document": "BLEACH is a manga by Tite Kubo. Ichigo Kurosaki is its protagonist.",
+      "expected": "UNSUPPORTED",
+      "model_pred_label": 0,
+      "required": true,
+      "support_prob_per_chunk": [
+        0.01477221678942442
+      ],
+      "support_probability": 0.01477221678942442,
+      "used_chunks": [
+        "BLEACH is a manga by Tite Kubo. Ichigo Kurosaki is its protagonist."
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_replay",
+      "case_id": "g12-case2-extraordinary-powers",
+      "claim": "Both protagonists gain extraordinary powers.",
+      "document": "Fate/stay night has Shirou Emiya as protagonist. BLEACH has Ichigo Kurosaki as protagonist.",
+      "expected": "UNSUPPORTED",
+      "model_pred_label": 0,
+      "required": true,
+      "support_prob_per_chunk": [
+        0.005671650171279907
+      ],
+      "support_probability": 0.005671650171279907,
+      "used_chunks": [
+        "Fate/stay night has Shirou Emiya as protagonist. BLEACH has Ichigo Kurosaki as protagonist."
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_adversarial",
+      "case_id": "adversarial-high-overlap-extra-detail",
+      "claim": "Saber is permanently contracted to Shirou as his sworn protector.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "model_pred_label": 0,
+      "required": true,
+      "support_prob_per_chunk": [
+        0.06862813234329224
+      ],
+      "support_probability": 0.06862813234329224,
+      "used_chunks": [
+        "Saber is contracted to Shirou."
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_adversarial",
+      "case_id": "adversarial-supported-subject-wrong-predicate",
+      "claim": "Saber is Shirou's sibling.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "model_pred_label": 0,
+      "required": true,
+      "support_prob_per_chunk": [
+        0.019899476319551468
+      ],
+      "support_probability": 0.019899476319551468,
+      "used_chunks": [
+        "Saber is contracted to Shirou."
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_adversarial",
+      "case_id": "adversarial-negation-flip",
+      "claim": "Saber is not contracted to Shirou.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "model_pred_label": 0,
+      "required": true,
+      "support_prob_per_chunk": [
+        0.17913998663425446
+      ],
+      "support_probability": 0.17913998663425446,
+      "used_chunks": [
+        "Saber is contracted to Shirou."
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_adversarial",
+      "case_id": "adversarial-temporal-causal-embellishment",
+      "claim": "Saber became contracted to Shirou because he summoned her during the Holy Grail War.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "model_pred_label": 0,
+      "required": true,
+      "support_prob_per_chunk": [
+        0.02010449394583702
+      ],
+      "support_probability": 0.02010449394583702,
+      "used_chunks": [
+        "Saber is contracted to Shirou."
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "negative_adversarial",
+      "case_id": "adversarial-concept-extra-theory",
+      "claim": "The Hero's Journey requires exactly twelve stages and always ends in personal enlightenment.",
+      "document": "The Hero's Journey describes a departure, trials, and return structure.",
+      "expected": "UNSUPPORTED",
+      "model_pred_label": 0,
+      "required": true,
+      "support_prob_per_chunk": [
+        0.006562088616192341
+      ],
+      "support_probability": 0.006562088616192341,
+      "used_chunks": [
+        "The Hero's Journey describes a departure, trials, and return structure."
+      ],
+      "verdict": "UNSUPPORTED"
+    },
+    {
+      "bucket": "threshold_probe",
+      "case_id": "borderline-contract-rephrasing",
+      "claim": "Saber serves under a contractual bond with Shirou.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "SUPPORTED",
+      "model_pred_label": 1,
+      "required": false,
+      "support_prob_per_chunk": [
+        0.9230995178222656
+      ],
+      "support_probability": 0.9230995178222656,
+      "used_chunks": [
+        "Saber is contracted to Shirou."
+      ],
+      "verdict": "SUPPORTED"
+    },
+    {
+      "bucket": "threshold_probe",
+      "case_id": "borderline-overclaim",
+      "claim": "Saber's primary duty is to protect Shirou because of their contract.",
+      "document": "Saber is contracted to Shirou.",
+      "expected": "UNSUPPORTED",
+      "model_pred_label": 0,
+      "required": false,
+      "support_prob_per_chunk": [
+        0.09144706279039383
+      ],
+      "support_probability": 0.09144706279039383,
+      "used_chunks": [
+        "Saber is contracted to Shirou."
+      ],
+      "verdict": "UNSUPPORTED"
+    }
+  ],
+  "comparison_with_g21v": {
+    "all_verdicts_equal": true,
+    "cases": [
+      {
+        "case_id": "positive-direct-contract",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "positive-faithful-paraphrase",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "positive-concept-paraphrase",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "positive-journey-paraphrase",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "g12-case1-holy-grail-protector",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "g12-case1-secret-identity",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "g12-case2-magi-summon-heroes",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "g12-case2-hollows-malevolent",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "g12-case2-soul-reaper-balance",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "g12-case2-extraordinary-powers",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "adversarial-high-overlap-extra-detail",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "adversarial-supported-subject-wrong-predicate",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "adversarial-negation-flip",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "adversarial-temporal-causal-embellishment",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "adversarial-concept-extra-theory",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "borderline-contract-rephrasing",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      },
+      {
+        "case_id": "borderline-overclaim",
+        "probability_delta": 0.0,
+        "verdict_equal": true
+      }
+    ],
+    "max_abs_probability_delta": 0.0
+  },
+  "formal_network_policy": "offline/local-files-only",
+  "metrics": {
+    "negative_specificity": 1.0,
+    "positive_recall": 0.8,
+    "required_negative_false_positive_count": 0,
+    "required_negative_false_positive_ids": [],
+    "required_positive_count": 2,
+    "required_positive_supported_count": 2,
+    "required_positive_supported_ids": [
+      "positive-direct-contract",
+      "positive-faithful-paraphrase"
+    ]
+  },
+  "model_identity": {
+    "repository": "lytang/MiniCheck-RoBERTa-Large",
+    "resolved_main_revision": "74c8919647e61ed0f71bc177d94f10930f090068",
+    "snapshot_files": [
+      "added_tokens.json",
+      "config.json",
+      "merges.txt",
+      "pytorch_model.bin",
+      "special_tokens_map.json",
+      "tokenizer.json",
+      "tokenizer_config.json",
+      "vocab.json"
+    ],
+    "snapshot_path": ".local/n04-v3/runtime/verifier/hf-cache/models--lytang--MiniCheck-RoBERTa-Large/snapshots/74c8919647e61ed0f71bc177d94f10930f090068"
+  },
+  "network_attempts": {
+    "create_connection": 0,
+    "socket_connect": 0
+  },
+  "nltk_resources": {
+    "punkt": ".local/n04-v3/runtime/verifier/nltk-data/tokenizers/punkt",
+    "punkt_tab": ".local/n04-v3/runtime/verifier/nltk-data/tokenizers/punkt_tab"
+  },
+  "offline_environment": {
+    "HF_DATASETS_OFFLINE": "1",
+    "HF_HUB_OFFLINE": "1",
+    "NLTK_DATA": ".local/n04-v3/runtime/verifier/nltk-data",
+    "TRANSFORMERS_OFFLINE": "1"
+  },
+  "runtime": {
+    "cuda": {
+      "device_capability": [
+        8,
+        9
+      ],
+      "device_name": "NVIDIA GeForce RTX 4090",
+      "torch_cuda_build": "12.4"
+    },
+    "elapsed_seconds": 1.6556949999649078,
+    "packages": {
+      "accelerate": "1.4.0",
+      "huggingface_hub": "1.33.0",
+      "minicheck": "0.1.0",
+      "nltk": "3.10.3",
+      "tokenizers": "0.23.3",
+      "torch": "2.6.0+cu124",
+      "transformers": "5.20.1"
+    },
+    "peak_vram_mib": 1366.07666015625,
+    "platform": "Windows-10-10.0.26300-SP0",
+    "python": "3.10.6 (tags/v3.10.6:9c7b4bd, Aug  1 2022, 21:53:49) [MSC v.1932 64 bit (AMD64)]"
+  },
+  "source_identity": {
+    "clean": true,
+    "revision": "b58b9fa69acbd1015ec970fa65dd752413a053d2"
+  },
+  "status": "PASS",
+  "task": "N-04G-21R",
+  "threshold": 0.5
+}

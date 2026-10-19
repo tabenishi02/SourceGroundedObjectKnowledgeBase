@@ -1,6 +1,6 @@
 # N-04 Post-G12 Chat Handoff
 
-更新日: 2026-10-19
+更新日: 2026-10-20
 
 - Project: `Source Grounded Object Knowledge Base (SGOKB)`
 - Phase: `Phase N — Test / Evaluation / Acceptance`
@@ -8,11 +8,11 @@
 - Parent task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
-- G-21: **Prepared / BLOCKED before final Freeze**
-- Current task: **N-04G-21R [P0] Selected verifier runtime preparation / offline proof**
+- G-21: **Complete / Frozen (verified 2026-10-20)**
+- Current task: **N-04G-22 [P0] Formal v3 Re-Acceptance — NEXT / unblocked; not started**
 - G-21V: **Complete / MiniCheck selected (2026-10-19)**
-- G-21R: **NEXT / unblocked**
-- G-22: **blocked by G-21**
+- G-21R: **Complete / PASS — new run 20261019T233552+0900**
+- G-22: **NEXT / unblocked; not started**
 
 ---
 
@@ -29,10 +29,10 @@ G-18 Post-G12 v3 Design Freeze                 Complete / Frozen
 G-19 Frozen v3 implementation                  Complete
 G-20 Adversarial / verifier regression         Complete / historical Gate FAIL
 G-20R Repository-wide Ruff remediation         Complete / PASS
-G-21 v3 acceptance / harness freeze            Prepared / BLOCKED before Freeze
+G-21 v3 acceptance / harness freeze            Complete / Frozen
 G-21V Verifier candidate evaluation            Complete / MiniCheck selected
-G-21R Selected verifier runtime/local proof    NEXT / unblocked
-G-22 Formal v3 re-acceptance                   BLOCKED by G-21
+G-21R Selected verifier runtime/local proof    Complete / PASS (new run)
+G-22 Formal v3 re-acceptance                   NEXT / unblocked (not started)
 ```
 
 N-04はG-22で3/3 formal Case PASSするまでCompleteにしない。
@@ -275,7 +275,7 @@ Atomic unit内にunsupported spanが1つでもあればpartial salvageせずunit
 
 ## 9. G-21R after winner selection
 
-G-21V has selected MiniCheck; G-21R is NEXT / unblocked. G-21R offline proof is not yet executed.
+G-21V selected MiniCheck; new G-21R offline proof and all engineering Gates PASS. G-21 is Complete / Frozen; G-22 is NEXT / unblocked.
 
 Preferred isolated runtime layout:
 
@@ -304,17 +304,17 @@ Standard SGOKB venvへ無理にverifier dependenciesを混在させない。
 
 ## 10. Exact next work
 
-Execute **N-04G-21R** next; do not rerun/tune G-21V to change the winner.
+**N-04G-22 Formal v3 Re-Acceptance is NEXT / unblocked, but has not started.** Begin only under its formal execution instructions; do not rerun candidate selection or alter the Frozen semantics/profile/rubric.
 
-G-21V run `20261019T212717+0900` selected MiniCheck by the pre-frozen positive-recall tie-break (0.8 versus mmBERT 0.6). Qwen required positives were 1/2 despite repeatability/parser PASS. All required negative FP counts were 0. Engineering results: 15 + 4 focused passed, full 402 passed, repo-wide Ruff and diff check PASS. Standard venv unchanged.
+G-21R new run `20261019T233552+0900` passed exact offline proof: socket counters 0/0, required negative FP 0/11, required positives 2/2, recall 0.8, specificity 1.0, all 17 G-21V verdicts/scores equal. Runtime preflight and canonical invariance PASS; focused 37 + contract 7 + full 405 tests PASS; repo-wide Ruff/diff PASS; post-Freeze contracts 7 PASS.
 
-Result authority: `docs/evaluation/N04G21V_VERIFIER_CANDIDATE_EVALUATION.md` and four `benchmark/results/n04g21v-*-reference-workstation.json` artifacts.
+Frozen source/model pins remain `b58b9fa69acbd1015ec970fa65dd752413a053d2` / `74c8919647e61ed0f71bc177d94f10930f090068`, threshold >=0.50. All four candidate JSONs are `frozen`; local reproduction true, runtime lock bound, unresolved items empty and hashes recomputed. Standard venv and test/corpus/runner boundary hashes are unchanged.
 
-1. Retain MiniCheck source `b58b9fa69acbd1015ec970fa65dd752413a053d2` and model `74c8919647e61ed0f71bc177d94f10930f090068`, threshold >=0.50.
-2. Prepare/lock the dedicated verifier runtime without modifying standard SGOKB venv.
-3. Obtain G-21R network-independent/local-files-only proof; comparison download-enabled results do not substitute for it.
-4. Only after that proof passes may G-21 become Complete / Frozen and G-22 become unblocked.
-5. N-04 remains Failed / not Complete, N-05 blocked until G-22 fully passes.
+The previous F841 blocker was repaired only after explicit user authorization and before the new boundary. Runs `20261019T225703+0900` and `20261019T231409+0900`, including original failure/PASS evidence, remain unchanged. G-12/G-20/G-20R/G-21V and prior G-21 BLOCKED evidence are retained.
+
+Read `docs/evaluation/N04G21R_SELECTED_VERIFIER_RUNTIME_LOCAL_PROOF.md`, `docs/decisions/N04G21_V3_ACCEPTANCE_REFERENCE_WORKSTATION_HARNESS_FREEZE.md` and the four Frozen v3 JSONs before G-22.
+
+G-21V Complete; G-21R Complete / PASS; G-21 Complete / Frozen; G-22 NEXT / unblocked. N-04 remains Failed / not Complete; N-05 remains blocked until G-22 formally passes.
 
 ---
 
