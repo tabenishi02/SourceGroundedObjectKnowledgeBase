@@ -310,63 +310,11 @@ def _schema_failure_code(exc: ValidationError) -> str:
     return "schema_violation"
 
 
-def _validate_cross_item_invariants(payload: dict[str, Any]) -> None:
-    blocks = payload["blocks"]
-    block_ids: set[str] = set()
-    unit_ids: set[str] = set()
-    presentation_roles: set[str] = set()
-
-    for block_index, block in enumerate(blocks):
-        block_id = block["block_id"]
-        presentation_role = block["presentation_role"]
-        if block_id in block_ids:
-            raise GenerationOutputContractError(
-                f"Duplicate block_id: {block_id}",
-                failure_code="duplicate_block_id",
-                json_path=f"$.blocks[{block_index}].block_id",
-                block_id=block_id,
-                expected_rule="block_id must be unique within one output envelope",
-            )
-        block_ids.add(block_id)
-
-        if presentation_role in presentation_roles:
-            raise GenerationOutputContractError(
-                f"Duplicate presentation_role: {presentation_role}",
-                failure_code="duplicate_presentation_role",
-                json_path=f"$.blocks[{block_index}].presentation_role",
-                block_id=block_id,
-                expected_rule="each presentation_role may occur at most once",
-            )
-        presentation_roles.add(presentation_role)
-
-        for unit_index, unit in enumerate(block["units"]):
-            unit_id = unit["unit_id"]
-            if unit_id in unit_ids:
-                raise GenerationOutputContractError(
-                    f"Duplicate unit_id: {unit_id}",
-                    failure_code="duplicate_unit_id",
-                    json_path=f"$.blocks[{block_index}].units[{unit_index}].unit_id",
-                    block_id=block_id,
-                    unit_id=unit_id,
-                    expected_rule="unit_id must be unique within one output envelope",
-                )
-            unit_ids.add(unit_id)
-
-    if "context_limit" in presentation_roles and len(blocks) != 1:
-        raise GenerationOutputContractError(
-            "context_limit output must be exclusive",
-            failure_code="context_limit_mixed_output",
-            json_path="$.blocks",
-            expected_rule="context_limit block may not coexist with normal response blocks",
-        )
-
-
 def parse_generation_output(raw: str | dict[str, Any]) -> dict[str, Any]:
-    """Parse and validate the normative v2 structured LLM output.
+    """Parse against the same JSON Schema exposed to the structured-output provider.
 
-    Free prose and hidden parser-only structural rules are rejected. The same
-    ``GENERATION_OUTPUT_SCHEMA`` object is intended for provider constraints and
-    application validation.
+    Cross-item identity invariants that JSON Schema cannot express are validated
+    explicitly by GroundingValidator V0 rather than hidden inside this parser.
     """
 
     if isinstance(raw, str):
@@ -420,5 +368,4 @@ def parse_generation_output(raw: str | dict[str, Any]) -> dict[str, Any]:
             expected_rule=f"jsonschema:{exc.validator}",
         ) from exc
 
-    _validate_cross_item_invariants(payload)
     return payload
