@@ -42,7 +42,7 @@
   },
   "hash": {
     "algorithm": "sha256-canonical-json",
-    "payload_scope": "all fields except hash",
+    "payload_scope": "all fields except hash/status/design_freeze",
     "value": "44ac430ebf6af60123671fbd29985bd9f036fb11907c937d6c0b4f7523a872b4"
   },
   "status": "freeze_candidate_pending_reference_workstation_verification",
