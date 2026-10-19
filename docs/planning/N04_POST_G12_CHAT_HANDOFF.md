@@ -8,16 +8,18 @@
 - Parent task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
 - Current N-04 state: **Failed / not Complete**
 - N-05: **blocked**
-- Completed remediation task: **N-04G-17 [P0] Material sufficiency / terminal / render gate redesign**
-- Next task: **N-04G-18 [P0] Post-G12 Design Freeze**
+- Completed remediation task: **N-04G-18 [P0] Post-G12 Design Freeze**
+- Next task: **N-04G-19 [P0] Frozen remediation design implementation**
 
 ---
 
-## 1. このhandoffの目的
+## 1. Purpose
 
 別チャットでN-04 post-G12 remediationを継続するための開始点を固定する。
 
 GitHubは`main`を正本とする。過去のPhase N stacked branchは再利用しない。
+
+G-18までの設計はFreeze済み。G-19以降でsilent design driftしない。
 
 ---
 
@@ -32,15 +34,11 @@ Generator: sgokb-n04-mistral32
 Semantic validator: sgokb-n04-phi4
 ```
 
-結果:
-
 | Case | Machine terminal | Formal verdict | Retry |
 |---|---|---|---|
 | Saber Roleplay | ACCEPTED | FAIL | 0 |
 | Similar Work Comparison | REJECTED | FAIL | 1 |
 | Concept Combination Creative | REJECTED | FAIL | 1 |
-
-Overall:
 
 ```text
 0 / 3 Case PASS
@@ -64,7 +62,7 @@ Retrieval / MCP / Context Builder / canonical safetyを今回のfailure原因と
 
 ---
 
-## 3. G-12 / G-13で確定した主要failure
+## 3. G-12 / G-13 failure summary
 
 ### Case 1
 
@@ -76,243 +74,353 @@ Retrieval / MCP / Context Builder / canonical safetyを今回のfailure原因と
 ### Case 2
 
 - unsupported source claim。
-- retryではsupport refs欠落。
+- retryでsupport refs欠落。
 - unsupported / hidden interpretation premiseが`derived_supported`相当へ進み得た。
 
 ### Case 3
 
-- creative / interpretation blockの`label=null`。
-- provider JSON Schemaでは合法、Python parserでは違法というcontract mismatch。
+- `label=null`がprovider schemaでは合法、application parserでは違法。
+- same mismatchのままretryし、repair不能loopになった。
 
-### Additional gaps
+Additional gaps:
 
-- atomicityがinstruction-only。
+- atomicity instruction-only。
 - support-free role escape。
-- one general LLM judgeへsource fact / interpretation責務を圧縮。
-- material sufficiency fallbackが弱い。
-- rendererがterminal decisionへbindされていない。
-- multi-object use-case coverageがmachine Gate化されていない。
+- source fact / interpretationをone general LLM judgeへ圧縮。
+- weak material sufficiency fallback。
+- renderer not terminal-bound。
+- multi-object coverage not machine-gated。
 
 ---
 
-## 4. G-14 — Atomic claim / semantic-role boundary
+## 4. G-14〜G-17 completed decisions
 
-正本:
+### G-14 — Atomicity / role boundary
 
 ```text
 docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md
 ```
 
-主要Decision:
-
-- `1 validation unit = 1 atomic semantic proposition`。
+- `1 unit = 1 atomic semantic proposition`。
 - `ATOMIC / NON_ATOMIC / INDETERMINATE` Gate。
-- `ATOMIC`だけsupport / derivation validationへ進める。
-- content materialityをmodel-declared semantic roleより優先。
+- content-first role boundary。
 - mixed-role unit禁止。
-- silent reclassification禁止。
-- post-hoc atomizerをgrounding sole authorityにしない。
 - v3 model-authored `stylistic_expression`禁止。
-- `context_limit` / `creative_addition`境界を狭くする。
-- interpretationはconclusion-only。
+- interpretation conclusion-only。
+- Gate failureをsemantic judge positiveでoverride不可。
 
----
-
-## 5. G-15 — Output schema / presentation / renderer hardening
-
-正本:
+### G-15 — Output / presentation
 
 ```text
 docs/decisions/N04G15_OUTPUT_SCHEMA_PRESENTATION_RENDERER_HARDENING.md
 ```
 
-主要Decision:
+- model free-form `label`削除。
+- trusted deterministic headings。
+- role-specific block schema。
+- provider/application schema single source of truth。
+- hidden parser-only structural rules禁止。
 
-- model-generated free-form `label`削除。
-- headingはtrusted rendererが`presentation_role`から生成。
-- visible LLM semantic textはvalidated `unit.text`のみ。
-- role-specific block schemaを第一候補。
-- provider schemaとapplication parserを同一canonical logical schemaから導出。
-- v3 output contractはbreaking revisionとして`sgokb.grounded-generation-output.v2`候補。
-- final version/shapeはG-18でfreeze。
-
----
-
-## 6. G-16 — Semantic validation architecture
-
-正本:
+### G-16 — Semantic validation
 
 ```text
 docs/decisions/N04G16_SEMANTIC_VALIDATION_ARCHITECTURE_REDESIGN.md
 ```
 
-Source fact path:
+Source fact:
 
 ```text
-V3 deterministic support
+V3 deterministic
   ↓ unresolved
 specialized source-fact verifier
-  ↓ supported candidate
+  ↓ SUPPORTED_CANDIDATE
 independent bounded LLM judge
-  ↓
-composition / disagreement policy
+  ↓ ENTAILED agreement
+supported
 ```
 
-- MiniCheck familyをprimary benchmark candidate。
-- AlignScoreをsecondary candidate。
-- specialized negativeをgeneral LLMで救済しない。
-- disagreement / ambiguity / unavailableはPASS不可。
-- final checkpoint / thresholdはまだproduction採用していない。
-- G-19/G-20 offline benchmarkを必須Gateとする。
-
-Interpretation path:
+Interpretation:
 
 ```text
-validated source_fact units
-  ↓
-premise_unit_ids integrity gate
+validated source_fact
+  ↓ premise_unit_ids
+Premise Integrity Gate
   ↓
 bounded derivation judge
 ```
 
-- direct K `support_refs`をinterpretation grounding proofとして使わない。
-- premiseはsupported source_factのみ。
-- interpretation chainingはv3 baselineでは禁止。
-- hidden external premiseは`derived_supported`不可。
+- MiniCheck family primary benchmark candidate。
+- AlignScore secondary candidate。
+- verifier disagreement / unavailable / indeterminateはPASS不可。
+- exact checkpoint/thresholdはG-20 benchmark後G-21でfreeze。
 
----
-
-## 7. G-17 — Material sufficiency / terminal / render gate
-
-正本:
+### G-17 — Material / terminal / render
 
 ```text
 docs/decisions/N04G17_MATERIAL_SUFFICIENCY_TERMINAL_RENDER_GATE_REDESIGN.md
 ```
 
-主要Decision:
-
 ```text
 Grounding PASS
    ↓
-Material Requirement Gate PASS
+Material Requirement PASS
    ↓
 Terminal ACCEPTED
    ↓
-NORMAL deterministic renderer
+Render authorization
 ```
 
-### Material Requirement Gate
-
-- Grounding correctnessとuse-case completionを分離。
-- validated metadata / source coverage / requirement profileからdeterministic-firstに判定。
-- generic production requirementとN-04 benchmark-specific thresholdを分離。
-
-### Roleplay
-
-- core: supported source materialが必要。
-- N-04 Case 1:最低2 grounded source facts等をharness profileから注入。
-
-### Comparison
-
-- required両Object/Workからsupported source fact coverageが必要。
-- required comparison interpretationがあるprofileではinterpretationも必要。
-- interpretation premise coverageはG-16 `premise_unit_ids`から追跡。
-
-### Creative
-
-- required両Conceptからsupported source fact coverageが必要。
-- `creative_addition`が最低1件必要。
-
-### Terminal / render
-
-```text
-ACCEPTED             -> NORMAL render
-INSUFFICIENT_CONTEXT -> CONTEXT_LIMIT_ONLY safe render
-REJECTED             -> no grounded render
-SYSTEM_FAILURE       -> no grounded render
-```
-
-- `Grounding PASS`だけではACCEPTED不可。
-- `INSUFFICIENT_CONTEXT`はv3 baselineでvalidated `context_limit`-only outputに限定。
-- partial normal answer + insufficiency noticeは不採用。
-- rendererはterminal decision / same output / context / run / attempt identityへbindする。
-- current `render(output, validation)`だけでは不十分。
-
-G-17ではproduction codeを変更していない。
+- Comparison: required全Object source coverage。
+- Creative: required全Concept source coverage + creative addition。
+- Roleplay formal minimum factsはharness profile。
+- `INSUFFICIENT_CONTEXT` = context-limit-only safe path。
+- `REJECTED / SYSTEM_FAILURE`はgrounded render不可。
+- output/context/run/attempt identity binding必須。
 
 ---
 
-## 8. Current remediation chain
+## 5. G-18 — Post-G12 v3 Design Freeze
+
+正本:
 
 ```text
-N-04G-13  Root-cause / desk review / research         Complete
-N-04G-14  Atomic claim / semantic-role redesign       Complete
-N-04G-15  Output / presentation contract hardening    Complete
-N-04G-16  Semantic validation architecture            Complete (design)
-N-04G-17  Material / terminal / render gate            Complete (design)
-N-04G-18  Post-G12 Design Freeze                       Pending
-N-04G-19  Implementation + verifier candidate          Pending
-N-04G-20  Adversarial / verifier benchmark/regression  Pending
-N-04G-21  v3 acceptance / harness freeze               Pending
-N-04G-22  Formal v3 re-acceptance                      Pending
+docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md
+```
+
+Status:
+
+```text
+N-04G-18 = Complete
+Post-G12 v3 Design = Frozen
+```
+
+### Frozen contract versions
+
+```text
+sgokb.context-builder.v1              unchanged
+sgokb.grounded-context.v1             unchanged
+sgokb.grounded-generation-output.v2   revised
+sgokb.grounding-validation.v2         revised
+sgokb.material-requirement.v1         new
+sgokb.grounding-failure-policy.v2     revised
+```
+
+### Frozen output v2 shape
+
+```text
+main
+  -> source_fact(text, support_refs[])
+
+interpretation
+  -> interpretation(text, premise_unit_ids[])
+
+creative
+  -> creative_addition(text)
+
+context_limit
+  -> context_limit(limit_code)
+```
+
+Removed:
+
+```text
+model free-form label
+model-authored stylistic_expression
+interpretation direct K support_refs
+free-form model-authored context-limit prose
+```
+
+### Context-limit clarification
+
+G-14では`context_limit`をsupplied Contextに関するmaterial epistemic propositionと定義していた一方、G-16ではfree-form textのtruth verification pathが独立していなかった。
+
+G-18でこのgapを閉じた。
+
+v3 baseline:
+
+```text
+limit_code = material_requirements_not_satisfied
+```
+
+のみをgeneratorが出し、Material Gateが本当に必要materialがContextへ存在しないことを確認した場合だけ`INSUFFICIENT_CONTEXT`へ進む。
+
+Human-visible不足説明はtrusted safe rendererが生成する。
+
+Context-limit outputはexclusiveであり、main / interpretation / creativeと混在できない。
+
+### Frozen Gate sequence
+
+```text
+Output v2
+  ↓
+V0 Structural Contract
+  ↓
+V1 Reference Integrity
+  ↓
+V2 Atomicity / Role / Scope
+  ↓
+V3 Deterministic Source Support
+  ↓
+V4F Source Fact / V4I Interpretation
+  ↓
+V5 Grounding Aggregate
+  ↓
+Material Requirement Gate
+  ↓
+Failure / Retry / Terminal v2
+  ↓
+Render authorization
+```
+
+`Grounding PASS`だけではACCEPTEDでもrenderableでもない。
+
+### Frozen identity binding
+
+Validation / Material / Terminal / Rendererは同一candidateへ最低限:
+
+```text
+context_fingerprint
+output_contract_version
+attempt
+output_digest
+```
+
+でbindする。
+
+`output_digest`はparsed output canonical JSONのSHA-256。
+
+### Frozen formal requirement profile structure
+
+Case 1:
+
+```text
+required_source_objects = [Saber]
+minimum_supported_source_fact_units = 2
+```
+
+Case 2:
+
+```text
+required_source_objects = [Work A, Work B]
+minimum_source_fact_per_object = 1
+minimum_interpretation_units = 1
+require_cross_source_interpretation = true
+```
+
+Case 3:
+
+```text
+required_source_objects = [Tsundere, Hero's Journey]
+minimum_source_fact_per_object = 1
+minimum_creative_addition_units = 1
+```
+
+concrete stable Object IDsはG-21 harnessでfreezeする。
+
+### Failure taxonomy additions
+
+```text
+ATOMICITY_VIOLATION
+ATOMICITY_INDETERMINATE
+ROLE_BOUNDARY_VIOLATION
+ROLE_BOUNDARY_INDETERMINATE
+VERIFIER_DISAGREEMENT
+PREMISE_INTEGRITY_ERROR
+UNSUPPORTED_DERIVATION
+SOURCE_COVERAGE_MISSING
+COMPARISON_COVERAGE_INCOMPLETE
+CREATIVE_SOURCE_COVERAGE_INCOMPLETE
+CREATIVE_ADDITION_MISSING
+CONTEXT_LIMIT_NOT_JUSTIFIED
+MATERIAL_REQUIREMENT_INDETERMINATE
+RENDER_AUTHORIZATION_DENIED
+OUTPUT_DECISION_BINDING_MISMATCH
+```
+
+---
+
+## 6. Current remediation chain
+
+```text
+N-04G-13  Root-cause / desk review / research          Complete
+N-04G-14  Atomic claim / semantic-role redesign        Complete
+N-04G-15  Output / presentation contract hardening     Complete
+N-04G-16  Semantic validation architecture             Complete (design)
+N-04G-17  Material / terminal / render gate             Complete (design)
+N-04G-18  Post-G12 v3 Design Freeze                     Complete / Frozen
+N-04G-19  Frozen design implementation                  Pending ← NEXT
+N-04G-20  Adversarial / verifier benchmark/regression   Pending
+N-04G-21  v3 acceptance / harness freeze                Pending
+N-04G-22  Formal v3 re-acceptance                       Pending
 ```
 
 N-04 CompleteはG-22で3/3 Case PASS + safety/regression Gate全PASS後のみ。
 
 ---
 
-## 9. Next task — N-04G-18
+## 7. Next task — N-04G-19
 
 ```text
-N-04G-18 [P0]
-Post-G12 Design Freeze
+N-04G-19 [P0]
+Frozen remediation design implementation
 ```
 
-目的:
+実装scope最低候補:
 
-G-14〜G-17の個別Decisionを1つの実装可能なend-to-end contractへ統合し、旧G-02/G-04/G-05/G-06/G-07とのreopen / override / preserve関係を明示する。
+```text
+src/sgokb/grounding/output.py
+src/sgokb/grounding/request.py
+src/sgokb/grounding/validation.py
+src/sgokb/grounding/failure.py
+src/sgokb/grounding/render.py
+src/sgokb/application_grounding.py
+```
 
-最低freeze対象:
+必要に応じて新規:
 
-- atomicity contract
-- semantic-role boundary
-- final structured output contract version / shape
-- role-specific block schema
-- interpretation `premise_unit_ids`
-- source-fact verifier composition
-- verifier disagreement policy
-- material requirement contract/profile
-- bounded retryとの統合
-- terminal outcome mapping
-- context-limit-only safe path
-- renderer authorization / render mode
-- output/context/run/attempt identity binding
-- failure taxonomy / retry feedback fields
-- G-19 implementation scope
+```text
+atomicity.py
+material_gate.py
+fact_checker.py / semantic_verifier.py
+```
 
-G-18も設計Taskであり、freeze完了まではproduction codeを変更しない。
+G-19 requirements:
+
+- output v2 logical schemaを実装。
+- role-specific unit shapesを実装。
+- context-limit exclusive structured safe pathを実装。
+- output digest utilityを単一化。
+- Atomicity / Role Gateを実装。
+- V4F source-fact / V4I interpretationを分離。
+- Material Requirement Gateを実装。
+- failure-policy v2 / render modes / identity bindingを実装。
+- provider/application schema single source of truthを維持。
+- source-fact verifierはG-20 benchmark可能なadapterとして統合。
+- G-20前に特定checkpoint/thresholdをfinal production authorityと宣言しない。
+- canonical DB / MCP ownershipは変更しない。
+
+G-19からproduction code変更を開始してよい。
 
 ---
 
-## 10. Read first in next chat
+## 8. Read first in next chat
 
-1. `docs/planning/N04_POST_G12_CHAT_HANDOFF.md`
+1. `docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md`
 2. `docs/planning/N04_POST_G12_REMEDIATION_TASKS.md`
-3. `docs/decisions/N04G17_MATERIAL_SUFFICIENCY_TERMINAL_RENDER_GATE_REDESIGN.md`
-4. `docs/decisions/N04G16_SEMANTIC_VALIDATION_ARCHITECTURE_REDESIGN.md`
-5. `docs/decisions/N04G15_OUTPUT_SCHEMA_PRESENTATION_RENDERER_HARDENING.md`
-6. `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
-7. `docs/decisions/N04G06_VALIDATION_FAILURE_HANDLING_POLICY.md`
-8. `docs/decisions/N04G07_END_TO_END_GROUNDED_GENERATION_DESIGN_FREEZE.md`
-9. `docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md`
+3. `docs/planning/N04_POST_G12_CHAT_HANDOFF.md`
+4. `docs/decisions/N04G17_MATERIAL_SUFFICIENCY_TERMINAL_RENDER_GATE_REDESIGN.md`
+5. `docs/decisions/N04G16_SEMANTIC_VALIDATION_ARCHITECTURE_REDESIGN.md`
+6. `docs/decisions/N04G15_OUTPUT_SCHEMA_PRESENTATION_RENDERER_HARDENING.md`
+7. `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
+8. `docs/decisions/N04G06_VALIDATION_FAILURE_HANDLING_POLICY.md`
+9. `docs/decisions/N04G07_END_TO_END_GROUNDED_GENERATION_DESIGN_FREEZE.md`
 10. `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
 
 ---
 
-## 11. Protected boundaries
+## 9. Protected boundaries
 
-具体的failure evidenceがない限り次を変更しない。
+具体的failure evidenceまたはexplicit Freeze reopenなしに変更しない。
 
 ```text
 Object identity
@@ -325,6 +433,7 @@ MCP read boundary
 Context Builder selection / budget
 N-03 dataset
 G-12 failed evidence
+G-18 Frozen semantic contract
 ```
 
 rubricを緩和してPASSさせない。
