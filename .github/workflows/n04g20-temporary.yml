@@ -1,0 +1,73 @@
+name: N04G20 temporary verification
+
+on:
+  push:
+    branches:
+      - phase-n/n04g20-adversarial-verifier-regression
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install project
+        run: python -m pip install -e ".[dev]"
+      - name: G20 focused and replay tests
+        run: python -m pytest tests/test_n04_grounded_generation.py tests/test_n04g20_adversarial_regression.py -q
+      - name: Full pytest
+        run: python -m pytest -q
+      - name: Ruff
+        run: python -m ruff check .
+      - name: Diff check
+        run: |
+          git fetch origin main
+          git diff --check origin/main...HEAD
+
+  minicheck-roberta-large:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install CPU benchmark runtime
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install accelerate
+          python -m pip install "minicheck @ git+https://github.com/Liyan06/MiniCheck.git@b58b9fa69acbd1015ec970fa65dd752413a053d2"
+          python -m nltk.downloader punkt punkt_tab
+      - name: Run MiniCheck RoBERTa-large benchmark
+        env:
+          CUDA_VISIBLE_DEVICES: ""
+        run: |
+          python benchmark/tools/n04g20_minicheck_benchmark.py \
+            --corpus benchmark/n04g20-source-fact-verifier-v1.json \
+            --model roberta-large \
+            --cache-dir .cache/minicheck \
+            --output n04g20-minicheck-roberta-large.json
+      - name: Enforce necessary G21 verifier gate
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("n04g20-minicheck-roberta-large.json").read_text())
+          print("recommended_threshold_candidate=", report["recommended_threshold_candidate"])
+          if not report["candidate_has_eligible_threshold"]:
+              raise SystemExit("MiniCheck candidate has no threshold satisfying required negative FP=0 and required positives")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: n04g20-minicheck-roberta-large
+          path: n04g20-minicheck-roberta-large.json
+          if-no-files-found: warn
