@@ -1,0 +1,91 @@
+{
+  "schema_version": "sgokb.n04-source-fact-verifier-profile/1",
+  "profile_id": "n04-v3-minicheck-roberta-large-threshold-0.50",
+  "specialized_verifier": {
+    "family": "MiniCheck",
+    "source_repository": "Liyan06/MiniCheck",
+    "source_repository_revision": "b58b9fa69acbd1015ec970fa65dd752413a053d2",
+    "model_alias": "roberta-large",
+    "model_repository": "lytang/MiniCheck-RoBERTa-Large",
+    "model_repository_revision": "74c8919647e61ed0f71bc177d94f10930f090068",
+    "max_model_length": 512,
+    "chunk_size": 400,
+    "batch_size": 16,
+    "device": "cuda:0",
+    "formal_network_policy": "offline/local-files-only",
+    "cache_revision_requirement": "The local Hugging Face cache ref used by revision=main must resolve exactly to model_repository_revision before formal execution.",
+    "supported_threshold": 0.5,
+    "threshold_operator": ">=",
+    "positive_normalized_verdict": "SUPPORTED_CANDIDATE",
+    "negative_normalized_verdict": "UNSUPPORTED"
+  },
+  "screening_evidence": {
+    "benchmark": "benchmark/n04g20-source-fact-verifier-v1.json",
+    "result": "benchmark/results/n04g20-minicheck-roberta-large-github-actions.json",
+    "result_git_blob_sha": "65d451210010007d692a639521526a329334025b",
+    "workflow_run_id": 39198589270,
+    "required_negative_false_positive_count": 0,
+    "required_positive_supported_count": 2,
+    "required_positive_count": 2,
+    "negative_specificity": 1.0,
+    "positive_recall": 0.8,
+    "reference_workstation_reproduction": false
+  },
+  "independent_source_fact_judge": {
+    "runtime": "LM Studio OpenAI-compatible local server",
+    "lm_studio_version": "0.4.25.0",
+    "endpoint": "http://127.0.0.1:1234/v1",
+    "identifier": "sgokb-n04-phi4",
+    "model_file": "microsoft/phi-4-gguf/phi-4-Q4_K_S.gguf",
+    "quantization": "Q4_K_S",
+    "context_length": 8192,
+    "gpu_offload": "max",
+    "parallel": 1,
+    "temperature": 0.0,
+    "max_tokens": 64,
+    "seed": 20261018,
+    "stream": false,
+    "verdicts": [
+      "ENTAILED",
+      "UNSUPPORTED",
+      "CONTRADICTORY",
+      "INDETERMINATE"
+    ],
+    "input_boundary": [
+      "claim_text",
+      "exact cited support unit content",
+      "minimal support identity metadata"
+    ],
+    "forbidden_input": [
+      "Web",
+      "external retrieval",
+      "uncited SGOKB Knowledge",
+      "generator conversation",
+      "franchise/world knowledge outside cited supports"
+    ]
+  },
+  "composition": {
+    "deterministic_support_precedes_specialized_verifier": true,
+    "specialized_negative_can_be_overridden": false,
+    "specialized_positive_requires_independent_judge": "ENTAILED",
+    "disagreement_is_pass": false,
+    "indeterminate_is_pass": false,
+    "required_component_unavailable": "SYSTEM_FAILURE"
+  },
+  "reference_workstation_gate": {
+    "required_before_profile_can_be_frozen": true,
+    "benchmark_must_run_on_reference_workstation": true,
+    "required_negative_false_positive_count": 0,
+    "required_positive_supported_count": 2,
+    "required_positive_count": 2,
+    "exact_model_revision_must_be_verified_local": true,
+    "offline_replay_required": true
+  },
+  "hash": {
+    "algorithm": "sha256-canonical-json",
+    "payload_scope": "all fields except hash/status/design_freeze",
+    "value": "9be125732508a089d24e596e1d82f400adcc5740e2ca665c0187ad5abcf2a317"
+  },
+  "status": "freeze_candidate_pending_reference_workstation_verification",
+  "design_freeze": "docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md"
+}
