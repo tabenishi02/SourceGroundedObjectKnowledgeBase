@@ -1,0 +1,50 @@
+{
+  "schema_version": "sgokb.n04-material-profiles/1",
+  "profile_set_id": "n04-v3-material-profiles-v1",
+  "profiles": {
+    "n04-v3-case-1-roleplay": {
+      "purpose": "roleplay",
+      "required_source_objects": [
+        "326a97cf-47aa-4760-a7f1-07bfe639fcf0"
+      ],
+      "minimum_supported_source_fact_units": 2
+    },
+    "n04-v3-case-2-comparison": {
+      "purpose": "comparison",
+      "required_source_objects": [
+        "d5824d33-7008-4121-9cfe-1f95a19667fd",
+        "57db855c-574a-4b38-b474-421c165894f1"
+      ],
+      "minimum_source_fact_per_object": 1,
+      "minimum_interpretation_units": 1,
+      "require_cross_source_interpretation": true,
+      "candidate_selection": {
+        "method": "MCP find_similar_objects rank-1 current Work",
+        "expected_frozen_dataset_candidate_id": "57db855c-574a-4b38-b474-421c165894f1",
+        "hardcoded_candidate_substitution": false,
+        "mismatch_action": "CASE_FAIL"
+      }
+    },
+    "n04-v3-case-3-creative": {
+      "purpose": "creative",
+      "required_source_objects": [
+        "8c83f986-f491-41a8-8645-9f71dd5874b9",
+        "fee32007-0f92-449a-ba21-4ec2f78d1cd4"
+      ],
+      "minimum_source_fact_per_object": 1,
+      "minimum_creative_addition_units": 1
+    }
+  },
+  "context_insufficiency_policy": {
+    "required_material_present_but_omitted": "FAIL_REPAIRABLE",
+    "required_material_absent_from_grounded_context": "FAIL_CONTEXT_INSUFFICIENT",
+    "formal_case_pass_for_insufficient_context": false
+  },
+  "hash": {
+    "algorithm": "sha256-canonical-json",
+    "payload_scope": "all fields except hash",
+    "value": "44ac430ebf6af60123671fbd29985bd9f036fb11907c937d6c0b4f7523a872b4"
+  },
+  "status": "freeze_candidate_pending_reference_workstation_verification",
+  "design_freeze": "docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md"
+}
