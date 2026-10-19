@@ -8,8 +8,9 @@
 - Parent task: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
-- Current task: **N-04G-21 [P0] v3 Acceptance / Reference Workstation Harness Freeze**
-- Current G-21 state: **Prepared / BLOCKED before final Freeze**
+- G-21: **Prepared / BLOCKED before final Freeze**
+- Current task: **N-04G-21V [P0] Specialized Source-Fact Verifier Candidate Evaluation**
+- G-21R: **blocked by G-21V**
 - G-22: **blocked by G-21**
 
 ---
@@ -28,7 +29,9 @@ G-19 Frozen v3 implementation                  Complete
 G-20 Adversarial / verifier regression         Complete / historical Gate FAIL
 G-20R Repository-wide Ruff remediation         Complete / PASS
 G-21 v3 acceptance / harness freeze            Prepared / BLOCKED before Freeze
-G-22 Formal v3 re-acceptance                   BLOCKED
+G-21V Verifier candidate evaluation            Planned / NEXT
+G-21R Selected verifier runtime/local proof    BLOCKED by G-21V
+G-22 Formal v3 re-acceptance                   BLOCKED by G-21
 ```
 
 N-04はG-22で3/3 formal Case PASSするまでCompleteにしない。
@@ -45,13 +48,21 @@ Semantic validator: sgokb-n04-phi4
 Overall: 0 / 3 Case PASS
 ```
 
-G-12 failure evidenceは削除・上書きしない。
+Core failure:
 
-G-12でproduction defectが確認されなかったcanonical / MCP / Retrieval / Context Builderは、具体的な新failure evidenceなしに変更しない。
+```text
+unsupported but plausible material claim
+  ↓
+general semantic judge false-positive
+  ↓
+unsafe acceptance
+```
+
+G-12 failed evidenceは削除・上書きしない。
 
 ---
 
-## 3. G-18 Frozen architecture
+## 3. G-18 Frozen architecture remains unchanged
 
 Read first:
 
@@ -59,52 +70,50 @@ Read first:
 docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md
 ```
 
-Frozen contracts:
+Relevant source-fact path:
 
 ```text
-sgokb.context-builder.v1
-sgokb.grounded-context.v1
-sgokb.grounded-generation-output.v2
-sgokb.grounding-validation.v2
-sgokb.material-requirement.v1
-sgokb.grounding-failure-policy.v2
+V3 deterministic exact/structured support
+  ↓ unresolved only
+specialized source-fact verifier
+  ↓ supported candidate only
+independent bounded source-fact judge
+  ↓ ENTAILED only
+supported
 ```
 
-Do not reintroduce:
+Frozenなのはこのcompositionとfail-closed semanticsである。
 
-```text
-stylistic_expression
-model free-form labels
-free-form context-limit prose
-interpretation direct K support
-partial salvage
-validation-only renderer authorization
-```
+**MiniCheckという特定製品そのものはFrozen semantic contractではない。**
+
+G-19の`SourceFactVerifierAdapter`を通じてcandidate implementationを交換可能とする。
 
 ---
 
-## 4. G-20 / G-20R evidence
+## 4. G-20 / G-20R baseline evidence
 
-G-20 MiniCheck screening:
+MiniCheck baseline:
 
 ```text
-MiniCheck source revision:
+source revision:
   b58b9fa69acbd1015ec970fa65dd752413a053d2
-model: lytang/MiniCheck-RoBERTa-Large
-threshold candidate: 0.50
+model:
+  lytang/MiniCheck-RoBERTa-Large
+threshold:
+  >= 0.50
 required negative/replay false-positive: 0
 required positive supported: 2/2
 negative specificity: 1.0
 positive recall: 0.8
 ```
 
-Persistent evidence:
+Persistent result:
 
 ```text
 benchmark/results/n04g20-minicheck-roberta-large-github-actions.json
 ```
 
-G-20R final engineering Gate:
+G-20R:
 
 ```text
 run_id: 39224975505
@@ -114,19 +123,13 @@ repository-wide Ruff: PASS
 git diff --check: PASS
 ```
 
-Original G-20 repo-wide Ruff failure remains historical evidence; G-20R separately resolves that blocker。
+MiniCheckは有効baselineだが、G-21Vで2026年candidateと比較してからfinal verifierを選ぶ。
 
 ---
 
-## 5. G-21 freeze candidate artifacts
+## 5. G-21 freeze candidate
 
-Authoritative status document:
-
-```text
-docs/decisions/N04G21_V3_ACCEPTANCE_REFERENCE_WORKSTATION_HARNESS_FREEZE.md
-```
-
-Candidate artifacts:
+Existing candidate artifacts remain intentionally not frozen:
 
 ```text
 benchmark/n04-ai-use-cases-v3.json
@@ -136,218 +139,194 @@ benchmark/n04-v3-source-fact-verifier-profile-v1.json
 tests/test_n04g21_harness_freeze_candidate.py
 ```
 
-All candidate JSONs intentionally remain:
+Status:
 
 ```text
 freeze_candidate_pending_reference_workstation_verification
 ```
 
-They must not be changed to`frozen`until the local Gate passes。
+Generator, Phi-4 bounded judges, provider schema, Material profiles, retry, terminal and renderer semantics remain unchanged。
+
+MiniCheck-specific profile is now treated as **provisional baseline candidate**, not final frozen verifier identity。
 
 ---
 
-## 6. Candidate runtime/profile
+## 6. Reference Workstation local verification already performed
 
-### Generator
+Codex performed a real-machine inventory on 2026-10-19.
 
 ```text
-LM Studio 0.4.25.0
-endpoint: http://127.0.0.1:1234/v1
-identifier: sgokb-n04-mistral32
-model: Mistral Small 3.2 24B Instruct Q4_K_M
-context: 8192
-GPU offload: max
-parallel: 1
-seed: 20261018
+Python                  3.10.6
+PyTorch                 2.6.0+cu124
+CUDA build              12.4
+Transformers            5.20.1
+huggingface_hub         1.33.0
+tokenizers              0.23.3
+GPU                     RTX 4090 / CUDA available
+MiniCheck               not installed in standard venv
+NLTK                    not installed in standard venv
+specified model snapshot not found in inspected cache
+specified main ref       not found in inspected cache
 ```
 
-Case settings:
+Evidence:
 
 ```text
-roleplay:   temperature 0.2 / max_tokens 700
-comparison: temperature 0.0 / max_tokens 900
-creative:   temperature 0.2 / max_tokens 1100
+.local/n04-v3/g21-verification/20261019T184220+0900/
+  reference-runtime-lock.json
+  minicheck-runtime.json
+  minicheck-screening.json
+  overall-evaluation.json
 ```
 
-### Bounded semantic model
+No download/install/substitution/corpus replay was performed.
+
+Conclusion:
 
 ```text
-identifier: sgokb-n04-phi4
-model: Phi-4 Q4_K_S
-context: 8192
-GPU offload: max
-parallel: 1
-temperature: 0.0
-max_tokens: 64
-seed: 20261018
+Reference Workstation is usable.
+Formal verifier runtime is not prepared yet.
+G-21 remains BLOCKED.
 ```
 
-Stage-specific adapters:
+---
+
+## 7. G-21V research decision
+
+Read first:
 
 ```text
-AtomicityRoleValidatorAdapter
-SourceFactJudgeAdapter
-InterpretationDerivationJudgeAdapter
+docs/decisions/N04G21V_SOURCE_FACT_VERIFIER_CANDIDATE_EVALUATION_PLAN.md
 ```
 
-### Specialized source-fact verifier
+Initial candidates:
 
 ```text
-MiniCheck source revision:
-  b58b9fa69acbd1015ec970fa65dd752413a053d2
-model repo:
-  lytang/MiniCheck-RoBERTa-Large
-model revision candidate:
-  74c8919647e61ed0f71bc177d94f10930f090068
-threshold: >= 0.50
-formal network policy: offline / local-files-only
+A. MiniCheck RoBERTa-large
+B. LettuceDetect v2 mmBERT-base
+C. LettuceDetect v2 Qwen-2B
 ```
 
-Composition:
+Summary:
+
+- MiniCheck: 2024系document-grounded fact verifier。SGOKB G-20 baseline PASS済み。
+- LettuceDetect v2 mmBERT: 2026、約0.3Bの非生成encoder、unsupported spanをtoken/span単位で検出。
+- LettuceDetect v2 Qwen 2B: 2026、generative typed-span detector、structured JSONでunsupported span/categoryを返す。
+- Granite Guardian 4.1 8B: groundedness judgeとして有力だが、initial first-stage verifier候補ではなくsecond-line research candidate。
+
+SGOKBでは一般benchmarkよりcritical false-positiveを優先する。
 
 ```text
-deterministic support
-  ↓ unresolved only
-MiniCheck SUPPORTED_CANDIDATE
+critical/G-12 false-positive = 0
   ↓
-Phi-4 ENTAILED
+required positives PASS
   ↓
-supported
-```
-
-Any negative/disagreement/indeterminate/unavailable is no PASS。
-
----
-
-## 7. Formal material profiles
-
-### Case 1
-
-```text
-Saber: 326a97cf-47aa-4760-a7f1-07bfe639fcf0
-minimum supported source facts: 2
-```
-
-### Case 2
-
-```text
-Fate/stay night: d5824d33-7008-4121-9cfe-1f95a19667fd
-expected rank-1 Work in fixed dataset:
-BLEACH: 57db855c-574a-4b38-b474-421c165894f1
-minimum source fact per Work: 1
-minimum interpretation: 1
-cross-source interpretation: required
-```
-
-Actual Similarity resultを使い、expected IDと違う場合にBLEACHをhardcode/substituteしない。
-
-### Case 3
-
-```text
-Tsundere: 8c83f986-f491-41a8-8645-9f71dd5874b9
-Hero's Journey: fee32007-0f92-449a-ba21-4ec2f78d1cd4
-minimum source fact per Concept: 1
-minimum creative addition: 1
+positive recall / adversarial robustness
+  ↓
+offline pinning / reproducibility
+  ↓
+dependency / latency / VRAM
 ```
 
 ---
 
-## 8. Provider / retry / terminal candidate
+## 8. Predetermined result handling
 
-Provider:
-
-```text
-LM Studio OpenAI-compatible response_format json_schema
-strict=true
-schema source:
-  src/sgokb/grounding/output.py::GENERATION_OUTPUT_SCHEMA
-schema sha256:
-  1fc7674ee9c42ca60feecd1796ec186f970f88e5600f3839d25d851735a1b990
-```
-
-Retry:
+Success:
 
 ```text
-attempt 1 + retry 1 = maximum 2
-same Context/fingerprint/purpose/model/settings/schema/material profile
-only structured repair feedback may be added
+MiniCheck clear winner
+  -> MiniCheck select -> G-21R
+
+mmBERT clear winner
+  -> adapter candidate switch -> G-20 replay -> G-21R
+
+Qwen 2B only safe winner
+  -> additional repeatability/strict-schema Gate -> then select or remain blocked
+
+MiniCheck/mmBERT safety tie
+  -> positive recall -> reproducibility -> dependency -> latency
+  -> still tied: prefer lower-change MiniCheck
 ```
 
-Terminal:
+Failure:
 
 ```text
-ACCEPTED             -> NORMAL
-INSUFFICIENT_CONTEXT -> CONTEXT_LIMIT_ONLY
-REJECTED             -> NONE
-SYSTEM_FAILURE       -> NONE
+all candidates critical FP > 0
+  -> G-21V BLOCKED; no Gate relaxation; research additional candidates
+
+FP=0 but required positives fail
+  -> reject as over-conservative / unusable
+
+exact revision cannot be pinned
+  -> no silent latest substitution
+
+GitHub Actions != Reference Workstation
+  -> Reference Workstation proof is authority; investigate and block Freeze
+
+G-22 unsupported claim recurrence
+  -> preserve FAIL and reopen responsible stage; never relax rubric
 ```
 
-Formal Case PASS requires`ACCEPTED`。
-
-`INSUFFICIENT_CONTEXT`is a safe machine terminal but formal Case FAIL。
+Atomic unit内にunsupported spanが1つでもあればpartial salvageせずunit全体をno PASSとする。
 
 ---
 
-## 9. Why G-21 remains blocked
+## 9. G-21R after winner selection
 
-2026-10-19にDesktop Commander device listではReference Workstation`FNB1Main`はOnlineだった。
+G-21R is blocked until G-21V selects a winner.
 
-しかしcommand executionを開始するとDesktop Commander monthly usage limitによりtool callが拒否され、tool側からretry/reconnectしないよう指示された。
+Preferred isolated runtime layout:
 
-そのため次のrequired local proofは未取得。
+```text
+.local/n04-v3/runtime/verifier/
+  venv/
+  source/
+  models/
+  hf-cache/
+  lock/
+```
 
-1. MiniCheck exact local source/model revision verification。
-2. Reference Workstation上のG-20 verifier corpus offline replay at threshold0.50。
-3. MiniCheck/Torch/Transformers/Hugging Face/NLTK exact installed package lock。
+Preparation and proof are separate:
 
-GitHub Actions screeningだけでこれらを代用してG-21をCompleteにしてはならない。
+```text
+network-enabled exact source/model preparation
+  ↓
+dependency lock
+  ↓
+network-independent / local-files-only formal replay
+```
+
+Standard SGOKB venvへ無理にverifier dependenciesを混在させない。
 
 ---
 
 ## 10. Exact next work
 
-Reference Workstation command executionが利用可能になったら、candidate profileを変更せず実施する。
+Execute **N-04G-21V** first.
 
-```text
-A. exact runtime/package inventory
-B. MiniCheck source revision verification
-C. local HF cache model revision verification
-D. offline G-20 verifier corpus replay
-E. threshold0.50 required negative FP=0 / positive=2/2
-F. Mistral/Phi-4 output-v2 structured-output neutral smoke
-G. MCP/Harrier/Qdrant/system integrity preflight
-H. focused/replay tests
-I. full pytest
-J. repository-wide Ruff
-K. git diff --check
-```
-
-全PASS時:
-
-```text
-candidate JSON status -> frozen
-unresolved_before_freeze -> empty
-runtime lock -> harnessへ反映
-G-21 -> Complete / Frozen
-G-22 -> unblocked / NEXT
-```
-
-Candidateと異なるruntime/model/revision/thresholdが必要ならG-21をreopenする。
+1. G-20 corpusをimmutable baselineとして使用。
+2. MiniCheck / LettuceDetect v2 mmBERT / LettuceDetect v2 Qwen 2Bを同一caseで実測。
+3. candidateごとの事前定義decision surfaceを使用。
+4. critical false-positive / positives / recall / failure category / latency / VRAM / dependency / offline pinningを記録。
+5. predetermined handling matrixに従ってwinnerを選定またはG-21VをBLOCKEDにする。
+6. winner選定後にのみG-21Rへ進む。
+7. G-21R local proof PASS後にG-21をComplete / Frozenへ変更する。
+8. その後G-22 formal v3 re-acceptanceへ進む。
 
 ---
 
 ## 11. Read first next time
 
-1. `docs/decisions/N04G21_V3_ACCEPTANCE_REFERENCE_WORKSTATION_HARNESS_FREEZE.md`
-2. `benchmark/n04-v3-formal-harness-v1.json`
-3. `benchmark/n04-v3-source-fact-verifier-profile-v1.json`
-4. `benchmark/n04-v3-material-profiles-v1.json`
-5. `benchmark/n04-ai-use-cases-v3.json`
-6. `docs/planning/N04_POST_G12_REMEDIATION_TASKS.md`
-7. `docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md`
-8. `docs/evaluation/N04G20_ADVERSARIAL_REPLAY_VERIFIER_BENCHMARK_REGRESSION.md`
-9. `docs/evaluation/N04G20R_RUFF_BASELINE_REMEDIATION_AND_GATE_RERUN.md`
-10. `tests/test_n04g21_harness_freeze_candidate.py`
+1. `docs/decisions/N04G21V_SOURCE_FACT_VERIFIER_CANDIDATE_EVALUATION_PLAN.md`
+2. `docs/planning/N04_POST_G12_REMEDIATION_TASKS.md`
+3. `docs/decisions/N04G21_V3_ACCEPTANCE_REFERENCE_WORKSTATION_HARNESS_FREEZE.md`
+4. `docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md`
+5. `docs/evaluation/N04G20_ADVERSARIAL_REPLAY_VERIFIER_BENCHMARK_REGRESSION.md`
+6. `docs/evaluation/N04G20R_RUFF_BASELINE_REMEDIATION_AND_GATE_RERUN.md`
+7. `benchmark/n04g20-source-fact-verifier-v1.json`
+8. `benchmark/n04-v3-source-fact-verifier-profile-v1.json`
+9. `tests/test_n04g21_harness_freeze_candidate.py`
 
 ---
 
@@ -367,7 +346,8 @@ Context Builder selection / budget
 N-03 dataset
 G-12 failed evidence
 G-18 Frozen grounded-generation semantics
+Material / retry / terminal / renderer semantics
 G-20/G-20R historical evidence
 ```
 
-Do not relax formal rubric, MiniCheck required false-positive Gate, Reference Workstation proof requirement, or engineering Gates merely to advance G-22。
+Do not relax formal rubric, verifier false-positive Gate, Reference Workstation proof requirement, or engineering Gates merely to advance G-22。
