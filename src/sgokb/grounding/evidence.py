@@ -39,3 +39,24 @@ class GroundingEvidenceLogger:
             self.write_json(base / "response.json", response),
             self.write_json(base / "validation.json", validation),
         )
+
+    def write_v3_decision(
+        self,
+        case_id: str,
+        attempt: int,
+        *,
+        material_result: Any,
+        terminal_decision: Any,
+        rendered_output: str | None = None,
+    ) -> tuple[Path, Path, Path | None]:
+        if attempt not in {1, 2}:
+            raise ValueError("grounded-generation attempt must be 1 or 2")
+        base = Path(case_id) / f"attempt-{attempt}"
+        material_path = self.write_json(base / "material-result.json", material_result)
+        terminal_path = self.write_json(base / "terminal-decision.json", terminal_decision)
+        rendered_path: Path | None = None
+        if rendered_output is not None:
+            rendered_path = self.root / base / "rendered-response.txt"
+            rendered_path.parent.mkdir(parents=True, exist_ok=True)
+            rendered_path.write_text(rendered_output + "\n", encoding="utf-8")
+        return material_path, terminal_path, rendered_path
