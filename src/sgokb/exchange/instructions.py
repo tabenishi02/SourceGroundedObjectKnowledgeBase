@@ -148,7 +148,10 @@ def _inline(value: str) -> str:
 
 def _class_label(profile: AnalysisClassProfile) -> str:
     description = f" — {_inline(profile.description)}" if profile.description else ""
-    return f"`{_inline(profile.class_id)}` / {_inline(profile.name)} ({_inline(profile.key)}){description}"
+    return (
+        f"`{_inline(profile.class_id)}` / {_inline(profile.name)} "
+        f"({_inline(profile.key)}){description}"
+    )
 
 
 def _target_profile(context: ObjectAnalysisInstructionContext) -> str:
@@ -176,7 +179,8 @@ def _class_objectives(context: ObjectAnalysisInstructionContext) -> str:
     if primary_goal is None:
         meaning = _inline(primary.description) if primary.description else _inline(primary.name)
         primary_goal = (
-            f"Primary ClassのRegistry意味（{meaning}）に沿って、このObjectをそのClassとして特徴付ける"
+            f"Primary ClassのRegistry意味（{meaning}）に沿って、"
+            "このObjectをそのClassとして特徴付ける"
             "Evidence-grounded Knowledgeを整理する。"
         )
     lines.append(f"- Primary `{_inline(primary.key)}`: {primary_goal}")
@@ -217,7 +221,8 @@ def _facet_profile(context: ObjectAnalysisInstructionContext) -> str:
     for facet in context.effective_facets:
         description = f" — {_inline(facet.description)}" if facet.description else ""
         lines.append(
-            f"- `{_inline(facet.facet_id)}` / {_inline(facet.name)} ({_inline(facet.key)}){description}"
+            f"- `{_inline(facet.facet_id)}` / {_inline(facet.name)} "
+            f"({_inline(facet.key)}){description}"
         )
     return "\n".join(lines)
 
@@ -256,7 +261,9 @@ def _update_mode(context: ObjectAnalysisInstructionContext) -> str:
         )
     return (
         f"**Mode: full-snapshot update from base `{_inline(context.base_version_id)}`.** "
-        "Evaluate `current_object.json` against all included carry-forward and newly retrieved Evidence."
+        "Evaluate `current_object.json` against all"
+        " included carry-forward and newly retrieve"
+        "d Evidence."
     )
 
 

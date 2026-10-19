@@ -319,7 +319,8 @@ class PackageTransferService:
             missing = sorted(expected - actual)
             unexpected = sorted(actual - expected)
             raise ValueError(
-                f"Package build directory scope mismatch: missing={missing}, unexpected={unexpected}"
+                f"Package build directory scope mismatch: missing={missing}, "
+                f"unexpected={unexpected}"
             )
 
         for item in manifest["files"]:

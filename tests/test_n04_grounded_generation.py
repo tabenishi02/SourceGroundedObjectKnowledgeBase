@@ -608,8 +608,8 @@ def test_comparison_full_flow_accepts_and_renders_only_validated_text():
     assert decision["action"] == TERMINAL_ACCEPTED
     assert decision["render_mode"] == RENDER_MODE_NORMAL
     assert (
-        rendered
-        == "Work A emphasizes conflict. Work B emphasizes cooperation.\n\nInterpretation\nThe supplied facts describe different thematic emphases."
+        rendered == "Work A emphasizes conflict. Work B emphasizes cooperation.\n\n"
+        "Interpretation\nThe supplied facts describe different thematic emphases."
     )
 
 
