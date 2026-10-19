@@ -56,12 +56,22 @@ class GroundedGenerationRequestBuilder:
                     "Return only the structured JSON envelope; no separate final prose.",
                     "Keep each material text unit to one atomic semantic proposition.",
                     "main blocks contain source_fact(text, support_refs) units only.",
-                    "interpretation blocks contain interpretation(text, premise_unit_ids) units only.",
-                    "interpretation premises must reference source_fact units from the same output.",
+                    (
+                        "interpretation blocks contain "
+                        "interpretation(text, premise_unit_ids) units only."
+                    ),
+                    (
+                        "interpretation premises must reference source_fact units "
+                        "from the same output."
+                    ),
                     "creative blocks contain creative_addition(text) units only.",
                     "Do not put source-world facts inside creative_addition text.",
                     "Do not emit stylistic_expression or any free-form presentation label.",
-                    "Use an exclusive context_limit block with limit_code=material_requirements_not_satisfied when supplied Context cannot meet the requirement profile.",
+                    (
+                        "Use an exclusive context_limit block with "
+                        "limit_code=material_requirements_not_satisfied when supplied "
+                        "Context cannot meet the requirement profile."
+                    ),
                     "Do not mix context_limit with main, interpretation, or creative blocks.",
                     "Do not self-declare grounding disposition, confidence, or validator verdicts.",
                 ],
