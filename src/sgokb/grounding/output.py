@@ -339,9 +339,7 @@ def parse_generation_output(raw: str | dict[str, Any]) -> dict[str, Any]:
 
     if isinstance(payload, dict) and isinstance(payload.get("blocks"), list):
         roles = [
-            block.get("presentation_role")
-            for block in payload["blocks"]
-            if isinstance(block, dict)
+            block.get("presentation_role") for block in payload["blocks"] if isinstance(block, dict)
         ]
         if "context_limit" in roles and len(payload["blocks"]) != 1:
             raise GenerationOutputContractError(

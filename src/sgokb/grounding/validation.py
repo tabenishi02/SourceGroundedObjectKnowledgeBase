@@ -132,9 +132,7 @@ def _cross_item_contract_failures(output: dict[str, Any]) -> list[dict[str, Any]
                         "duplicate_unit_id",
                         unit_id=unit_id,
                         retryable=True,
-                        json_path=(
-                            f"$.blocks[{block_index}].units[{unit_index}].unit_id"
-                        ),
+                        json_path=(f"$.blocks[{block_index}].units[{unit_index}].unit_id"),
                         block_id=block_id,
                         expected_rule="unit_id must be unique within one output envelope",
                     )
@@ -486,9 +484,7 @@ class GroundingValidator:
                     {
                         "unit_id": premise_id,
                         "support_refs": list(premise_unit.get("support_refs", [])),
-                        "source_object_ids": list(
-                            premise_result.get("source_object_ids", [])
-                        ),
+                        "source_object_ids": list(premise_result.get("source_object_ids", [])),
                     }
                 )
 
@@ -807,11 +803,7 @@ class GroundingValidator:
                 }
             ),
             "premise_support_refs": sorted(
-                {
-                    ref
-                    for metadata in premise_metadata
-                    for ref in metadata.get("support_refs", [])
-                }
+                {ref for metadata in premise_metadata for ref in metadata.get("support_refs", [])}
             ),
         }
 

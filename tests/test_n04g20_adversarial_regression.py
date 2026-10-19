@@ -167,8 +167,15 @@ def comparison_context() -> dict:
     return context(
         "comparison",
         [
-            object_payload("fate", "Fate/stay night", "fate-fact", "Shirou Emiya is the protagonist of Fate/stay night."),
-            object_payload("bleach", "BLEACH", "bleach-fact", "Ichigo Kurosaki is the protagonist of BLEACH."),
+            object_payload(
+                "fate",
+                "Fate/stay night",
+                "fate-fact",
+                "Shirou Emiya is the protagonist of Fate/stay night.",
+            ),
+            object_payload(
+                "bleach", "BLEACH", "bleach-fact", "Ichigo Kurosaki is the protagonist of BLEACH."
+            ),
         ],
     )
 
@@ -242,9 +249,7 @@ def creative(unit_id: str, text: str) -> dict:
     return {
         "block_id": "B3",
         "presentation_role": "creative",
-        "units": [
-            {"unit_id": unit_id, "semantic_role": "creative_addition", "text": text}
-        ],
+        "units": [{"unit_id": unit_id, "semantic_role": "creative_addition", "text": text}],
     }
 
 
@@ -349,8 +354,7 @@ def test_creative_block_source_concept_claim_hits_role_boundary_gate() -> None:
     ).validate(ctx, output)
     assert validation["verdict"] == "FAIL"
     assert any(
-        item["failure_class"] == "ROLE_BOUNDARY_VIOLATION"
-        for item in validation["failures"]
+        item["failure_class"] == "ROLE_BOUNDARY_VIOLATION" for item in validation["failures"]
     )
 
 
