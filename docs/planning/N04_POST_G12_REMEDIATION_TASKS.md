@@ -12,7 +12,8 @@
 - G-19 implementation: `docs/evaluation/N04G19_FROZEN_REMEDIATION_DESIGN_IMPLEMENTATION.md`
 - G-20 verification: `docs/evaluation/N04G20_ADVERSARIAL_REPLAY_VERIFIER_BENCHMARK_REGRESSION.md`
 - G-20R remediation: `docs/evaluation/N04G20R_RUFF_BASELINE_REMEDIATION_AND_GATE_RERUN.md`
-- G-21 decision: `docs/decisions/N04G21_V3_ACCEPTANCE_REFERENCE_WORKSTATION_HARNESS_FREEZE.md`
+- G-21 freeze candidate: `docs/decisions/N04G21_V3_ACCEPTANCE_REFERENCE_WORKSTATION_HARNESS_FREEZE.md`
+- G-21V verifier selection plan: `docs/decisions/N04G21V_SOURCE_FACT_VERIFIER_CANDIDATE_EVALUATION_PLAN.md`
 - Current parent state: **N-04 Failed / N-05 blocked**
 
 ---
@@ -29,6 +30,8 @@
 8. Reference Workstation local proof前にexternal verifier profileをfinal freeze扱いしない。
 9. G-12で正常だったcanonical / MCP / Retrieval / Context Builderを新evidenceなしに変更しない。
 10. pre-existing engineering debtやtooling制約を理由にGate条件をsilentに変更しない。
+11. specialized verifierの製品選定とG-18 Frozen semanticsを混同しない。
+12. candidate比較結果を見てからthreshold / rubric / required Gateを都合よく変更しない。
 
 ---
 
@@ -46,6 +49,8 @@
 | N-04G-20 | P0 | **Complete (verification) / historical Gate FAIL** | Adversarial / replay / verifier benchmark / regression |
 | N-04G-20R | P0 | **Complete / PASS (2026-10-19)** | Repository-wide Ruff remediation + engineering Gate rerun |
 | N-04G-21 | P0 | **Prepared / BLOCKED before final Freeze (2026-10-19)** | v3 acceptance spec / Reference Workstation harness freeze |
+| N-04G-21V | P0 | **Planned / NEXT** | Specialized source-fact verifier candidate evaluation |
+| N-04G-21R | P0 | **Blocked by G-21V** | Selected verifier runtime preparation + Reference Workstation offline proof |
 | N-04G-22 | P0 | **Blocked by G-21** | Formal v3 re-acceptance |
 
 N-04 CompleteはN-04G-22で全Gate PASS後のみ可能とする。
@@ -72,13 +77,27 @@ creative       -> creative_addition(text)
 context_limit  -> context_limit(limit_code)
 ```
 
-G-21はこの意味設計を変更しない。
+G-21V/G-21Rはこの意味設計を変更しない。
+
+Frozen requirementは次である。
+
+```text
+V3 deterministic support
+  ↓ unresolved only
+specialized source-fact verifier
+  ↓ supported candidate only
+independent bounded source-fact judge
+  ↓ ENTAILED only
+supported
+```
+
+特定製品としてMiniCheckを使い続けること自体はFrozen semanticsではない。
 
 ---
 
-## 4. G-20 / G-20R evidence entering G-21
+## 4. G-20 / G-20R evidence entering G-21V
 
-G-20 verifier candidate screening:
+G-20 verifier baseline screening:
 
 ```text
 MiniCheck source revision:
@@ -90,6 +109,8 @@ required positive supported: 2 / 2
 negative specificity: 1.0
 positive recall: 0.8
 ```
+
+この結果はMiniCheckを比較baselineに残す十分なevidenceであるが、2026年時点の他candidateを比較せずfinal verifierとして永久固定する根拠にはしない。
 
 G-20R final engineering Gate:
 
@@ -107,7 +128,7 @@ G-20の元のrepo-wide Ruff FAILはhistorical evidenceとして保持し、G-20R
 
 ## 5. N-04G-21 freeze candidate prepared
 
-Authoritative status record:
+Authoritative freeze-candidate record:
 
 ```text
 docs/decisions/N04G21_V3_ACCEPTANCE_REFERENCE_WORKSTATION_HARNESS_FREEZE.md
@@ -123,39 +144,17 @@ benchmark/n04-v3-source-fact-verifier-profile-v1.json
 tests/test_n04g21_harness_freeze_candidate.py
 ```
 
-All candidate JSON status:
+All candidate JSON status remains:
 
 ```text
 freeze_candidate_pending_reference_workstation_verification
 ```
 
-### Generator candidate
+Generator / bounded semantic model / provider schema / Material profiles / retry / terminal / renderer candidates remain unchanged。
 
-```text
-LM Studio 0.4.25.0
-sgokb-n04-mistral32
-Mistral Small 3.2 24B Instruct Q4_K_M
-context 8192 / GPU offload max / parallel 1 / seed 20261018
-```
+### Specialized source-fact verifier profile
 
-### Bounded semantic model candidate
-
-```text
-sgokb-n04-phi4
-Phi-4 Q4_K_S
-context 8192 / GPU offload max / parallel 1
-temperature 0.0 / max_tokens 64 / seed 20261018
-```
-
-Used through separate bounded adapters for:
-
-```text
-atomicity / role
-independent source-fact judge
-interpretation derivation judge
-```
-
-### Specialized source-fact verifier candidate
+G-21で準備したMiniCheck profileは**provisional baseline candidate**として保持する。
 
 ```text
 MiniCheck source revision:
@@ -165,102 +164,158 @@ model repo:
 model revision candidate:
   74c8919647e61ed0f71bc177d94f10930f090068
 threshold: 0.50 (>=)
-formal network policy: offline / local-files-only
 ```
 
-MiniCheck positive aloneはgrounding authorityではない。Phi-4 independent judge `ENTAILED`とのagreementを必須とする。
-
-### Provider schema candidate
-
-```text
-src/sgokb/grounding/output.py::GENERATION_OUTPUT_SCHEMA
-sha256:
-  1fc7674ee9c42ca60feecd1796ec186f970f88e5600f3839d25d851735a1b990
-```
+G-21V完了前にこれをfinal frozen verifierとして扱わない。
 
 ---
 
-## 6. Formal material profiles / stable Objects
+## 6. Reference Workstation verification result after G-21 preparation
 
-### Case 1
+2026-10-19、CodexによるReference Workstation実機確認を実施した。
 
-```text
-Saber
-326a97cf-47aa-4760-a7f1-07bfe639fcf0
-minimum supported source facts = 2
-```
-
-### Case 2
+確認結果:
 
 ```text
-Fate/stay night
-d5824d33-7008-4121-9cfe-1f95a19667fd
-
-expected fixed-dataset rank-1 Work: BLEACH
-57db855c-574a-4b38-b474-421c165894f1
-
-minimum source fact per Work = 1
-minimum interpretation = 1
-cross-source interpretation = required
+Python                  3.10.6
+PyTorch                 2.6.0+cu124
+CUDA build              12.4
+Transformers            5.20.1
+huggingface_hub         1.33.0
+tokenizers              0.23.3
+GPU                     RTX 4090 / CUDA available
+MiniCheck               not installed in standard venv
+NLTK                    not installed in standard venv
+specified model snapshot not present in inspected cache
+specified main ref       not present in inspected cache
 ```
 
-Actual Similarity rank-1を使う。expected IDと異なる場合、BLEACHをsubstituteせずCase FAILにする。
-
-### Case 3
+Evidence root:
 
 ```text
-Tsundere
-8c83f986-f491-41a8-8645-9f71dd5874b9
-
-Hero's Journey
-fee32007-0f92-449a-ba21-4ec2f78d1cd4
-
-minimum source fact per Concept = 1
-minimum creative addition = 1
+.local/n04-v3/g21-verification/20261019T184220+0900/
 ```
+
+Evidence:
+
+```text
+reference-runtime-lock.json
+minicheck-runtime.json
+minicheck-screening.json
+overall-evaluation.json
+```
+
+Codexは指示どおりdownload / install / alternate runtime substitution / corpus replayを行わず停止した。
+
+この結果から、blockerはReference Workstation故障ではなく、**formal verifier runtimeがまだ準備されていないこと**と確定した。
 
 ---
 
-## 7. Why G-21 is not Complete yet
+## 7. N-04G-21V — Verifier Candidate Evaluation
 
-2026-10-19、Reference Workstation `FNB1Main`はDesktop Commander上でOnlineだった。
+**Status: Planned / NEXT**
 
-しかしRemote Desktop Commanderは月次利用上限に達しており、command executionが拒否された。tool側はretry/reconnectしないよう明示したため、本作業では実機commandを継続しない。
-
-その結果、G-21 final freezeに必要な次の3項目が未実測である。
-
-1. Reference Workstation MiniCheck exact local source/model revision。
-2. threshold0.50でのG-20 verifier corpus offline replay。
-3. MiniCheck/Torch/Transformers/Hugging Face/NLTK等exact installed package version lock。
-
-GitHub Actions screeningはcandidate evidenceでありlocal-only formal proofではないため、これを理由にG-21をCompleteへ変更しない。
-
----
-
-## 8. Remaining G-21 Gate
-
-Reference Workstation command executionが可能になった時点で、候補を変更せず以下を実行する。
+Authoritative plan:
 
 ```text
-A. exact runtime/package inventory
-B. MiniCheck source revision verification
-C. local HF cache model revision verification
-D. network-disabled/offline G-20 verifier corpus replay
-E. threshold 0.50:
-     required negative false-positive = 0
-     required positive supported = 2/2
-F. generator/Phi-4 output-v2 neutral structured-output smoke
-G. MCP/Harrier/Qdrant/integrity preflight
-H. focused/replay + full pytest + repo-wide Ruff + diff check
+docs/decisions/N04G21V_SOURCE_FACT_VERIFIER_CANDIDATE_EVALUATION_PLAN.md
 ```
 
-全PASS時のみcandidate statusを`frozen`へ変更し、G-21をComplete、G-22をunblockする。
+Initial candidates:
 
-Runtime/model/revision/thresholdのsubstitutionが必要ならG-21をreopenして再評価する。
+```text
+A. MiniCheck RoBERTa-large
+B. LettuceDetect v2 mmBERT-base
+C. LettuceDetect v2 Qwen-2B
+```
+
+Research finding:
+
+- MiniCheckは2024年系document-grounded fact verifierで、G-20 SGOKB corpusでbaseline GateをPASS済み。
+- LettuceDetect v2 mmBERTは2026年の非生成型encoderで、unsupported spanをtoken/span単位で検出する。
+- LettuceDetect v2 Qwen 2Bは2026年のgenerative typed-span detectorで、unsupported spanとcategoryをstructured outputできる。
+- Granite Guardian 4.1 8Bは有力groundedness judgeだが、first-stage lightweight verifierよりPhi-4側のjudge候補に近いためinitial setから外す。
+
+Selection priority:
+
+```text
+critical/G-12 false-positive = 0
+  ↓
+required positives PASS
+  ↓
+positive recall / adversarial robustness
+  ↓
+offline reproducibility
+  ↓
+dependency/runtime simplicity
+  ↓
+latency / VRAM / diagnostic value
+```
+
+公開benchmark順位だけでwinnerを決めない。
 
 ---
 
-## 9. N-04G-22 — Formal v3 Re-Acceptance
+## 8. Predetermined result handling
+
+比較実行前に主要分岐を固定する。
+
+### Success
+
+- MiniCheckが明確に勝つ -> MiniCheckを正式選定しG-21Rへ。
+- mmBERTが明確に勝つ -> adapter candidateをmmBERTへ差し替え、G-20 replay後G-21Rへ。
+- Qwen 2BだけがPASS -> repeatability / strict schema / temperature 0 / runtime Gateを追加確認してから採否判断。
+- MiniCheckとmmBERTが同率 -> positive recall、offline pinning、dependency、latencyの順でtie-breakし、なお同等なら変更量の少ないMiniCheck。
+
+### Failure
+
+- 全candidateにcritical FPあり -> G-21V BLOCKED、Gateを緩めず追加candidate調査。
+- FP 0だがrequired positivesをreject -> 実用性不足として不採用。
+- exact revision固定不能 -> silent latest substitution禁止、不採用または新candidateとして再評価。
+- GitHub ActionsとReference Workstation結果不一致 -> Reference Workstationをformal authorityとして原因調査、Freeze禁止。
+- G-22でunsupported claim再発 -> G-22 FAILを保存し、原因stageへ戻す。rubric緩和禁止。
+
+詳細はG-21V planを参照する。
+
+---
+
+## 9. N-04G-21R — Selected Verifier Runtime Preparation / Local Proof
+
+**Status: Blocked by G-21V**
+
+Winner選定後にのみ実施する。
+
+Standard SGOKB venvへ直接依存を追加せず、formal verifier専用runtimeを隔離することを第一候補とする。
+
+```text
+.local/n04-v3/runtime/verifier/
+  venv/
+  source/
+  models/
+  hf-cache/
+  lock/
+```
+
+Procedure:
+
+```text
+A. exact source revision取得
+B. exact model snapshot取得
+C. dedicated venv / dependency lock構築
+D. preparation完了後にnetwork-independent modeへ移行
+E. G-20 corpus offline replay
+F. selected candidateのcritical FP=0 / required positives PASS確認
+G. exact package/runtime lock保存
+H. generator/Phi-4 smoke
+I. MCP/Harrier/Qdrant/integrity preflight
+J. focused/replay + full pytest + repo-wide Ruff + diff check
+```
+
+全PASS時のみG-21 candidateを最終Freezeする。
+
+---
+
+## 10. N-04G-22 — Formal v3 Re-Acceptance
 
 **Status: Blocked by G-21**
 
@@ -283,7 +338,7 @@ N-04 Complete requires:
 
 ---
 
-## 10. Dependency
+## 11. Dependency
 
 ```text
 G-12 valid formal FAIL
@@ -296,9 +351,11 @@ G-20 Verification Complete / historical Gate FAIL
   ↓
 G-20R Engineering blocker remediation Complete / PASS
   ↓
-G-21 freeze candidate Prepared
+G-21 freeze candidate Prepared / not Frozen
   ↓
-Reference Workstation local verifier/runtime verification
+G-21V verifier candidate evaluation
+  ↓ winner selected
+G-21R dedicated runtime preparation + Reference Workstation offline proof
   ↓ PASS only
 G-21 Complete / Frozen
   ↓
@@ -311,7 +368,7 @@ N-05
 
 ---
 
-## 11. Protected boundaries
+## 12. Protected boundaries
 
 Without new failure evidence, do not change:
 
@@ -321,9 +378,11 @@ Without new failure evidence, do not change:
 - MCP read-only boundary
 - Context Builder budget / purpose selection
 - Similarity ranking algorithm
+- N-03 fixed dataset
 - N-06 retrieval-quality metrics
 - G-12 historical failed evidence
 - G-18 Frozen grounded-generation semantics
+- Material / retry / terminal / renderer semantics
 - G-20/G-20R historical evidence
 
 Do not relax G-18, verifier false-positive Gate, Reference Workstation proof requirement, or engineering Gates merely to obtain PASS.
