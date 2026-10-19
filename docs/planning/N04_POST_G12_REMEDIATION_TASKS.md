@@ -11,6 +11,7 @@
 - G-18 freeze: `docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md`
 - G-19 implementation: `docs/evaluation/N04G19_FROZEN_REMEDIATION_DESIGN_IMPLEMENTATION.md`
 - G-20 verification: `docs/evaluation/N04G20_ADVERSARIAL_REPLAY_VERIFIER_BENCHMARK_REGRESSION.md`
+- G-20R remediation: `docs/evaluation/N04G20R_RUFF_BASELINE_REMEDIATION_AND_GATE_RERUN.md`
 - Current parent state: **N-04 Failed / N-05 blocked**
 
 ---
@@ -42,8 +43,8 @@
 | N-04G-18 | P0 | **Complete (2026-10-19, Design Frozen)** | Post-G12 v3 Design Freeze |
 | N-04G-19 | P0 | **Complete (2026-10-19, implementation)** | Frozen v3 design implementation + verifier adapter boundary |
 | N-04G-20 | P0 | **Complete (verification) / Gate FAIL (2026-10-19)** | Adversarial / replay / verifier benchmark / regression |
-| N-04G-20R | P0 | **Pending / NEXT** | Repository-wide Ruff baseline remediation + G-20 engineering Gate rerun |
-| N-04G-21 | P0 | **Blocked** | v3 acceptance spec / Reference Workstation harness freeze |
+| N-04G-20R | P0 | **Complete / PASS (2026-10-19)** | Repository-wide Ruff baseline remediation + G-20 engineering Gate rerun |
+| N-04G-21 | P0 | **Pending / NEXT** | v3 acceptance spec / Reference Workstation harness freeze |
 | N-04G-22 | P0 | Pending | Formal v3 re-acceptance |
 
 N-04 CompleteはN-04G-22で全Gate PASS後のみ可能とする。
@@ -122,7 +123,7 @@ Exact verifier runtime/profileはG-20/G-21へ残した。
 
 ## 5. G-20 verification result
 
-**Status: Complete (verification executed) / Overall Gate FAIL**
+**Status: Complete (verification executed) / Overall Gate FAIL at G-20 execution**
 
 正本:
 
@@ -130,7 +131,7 @@ Exact verifier runtime/profileはG-20/G-21へ残した。
 docs/evaluation/N04G20_ADVERSARIAL_REPLAY_VERIFIER_BENCHMARK_REGRESSION.md
 ```
 
-Final GitHub Actions run:
+G-20 GitHub Actions run:
 
 ```text
 run_id: 39198589270
@@ -141,6 +142,8 @@ git diff --check: PASS
 repository-wide Ruff: FAIL — 180 errors
 MiniCheck RoBERTa-large screening: PASS necessary candidate Gate
 ```
+
+G-20のRuff blockerはG-20Rで後から解消した。G-20のhistorical result自体は上書きしない。
 
 ### G-12 replay / adversarial
 
@@ -227,67 +230,45 @@ required negative/replay false-positive = 0
 
 ---
 
-## 7. G-20 Gate failure reason
+## 7. G-20R result
 
-Task masterはG-20 engineering Gateとして:
+**Status: Complete / PASS**
 
-```text
-full pytest
-Ruff
-git diff --check
-```
-
-を要求している。
-
-Final runではrepo-wide:
+正本:
 
 ```text
-python -m ruff check .
+docs/evaluation/N04G20R_RUFF_BASELINE_REMEDIATION_AND_GATE_RERUN.md
 ```
 
-が`180 errors`を検出した。
+G-20で検出されたrepo-wide Ruff `180 errors`を、Ruff設定・Gate条件を緩和せず修復した。
 
-G-20 changed Python filesだけのRuffはPASSしたが、この事実を理由にrequired `Ruff`をchanged-scopeへ読み替えない。
-
-代表的なlint debt:
+使用しなかった回避策:
 
 ```text
-extensions/web-page-capture/*
-src/sgokb/exchange/*
-src/sgokb/grounding/render.py
-tests/test_n04_grounded_generation.py
-その他既存test
+ignore / per-file-ignore
+noqa
+rule disable
+line-length緩和
+changed-scope-onlyへのGate変更
 ```
 
-したがってG-20 Overall GateはFAILであり、G-21はblockedとする。
+Final GitHub Actions engineering Gate:
+
+```text
+run_id: 39224975505
+focused/replay: 37 passed
+full pytest: 388 passed / 5 skipped / 0 failed
+repository-wide Ruff: PASS — All checks passed!
+git diff --check: PASS
+```
+
+Verifier pathの意味変更は行っていないため、G-20 MiniCheck screening evidenceはG-21で再利用可能とする。
+
+G-20RによりG-20 engineering blockerは解消した。
 
 ---
 
-## 8. N-04G-20R [P0] — Repository-wide Ruff baseline remediation + Gate rerun
-
-**Status: Pending / NEXT**
-
-Goal:
-
-G-20で発見されたrepository-wide lint baseline failureを、semantic behaviorを変更せず解消し、G-20 engineering Gateを再実行する。
-
-Required work:
-
-1. current mainのRuff 180 errorsを分類する。
-2. import order / unused import / line-length / formatting等をstyle-only修正する。
-3. 振る舞い変更が必要になるlintはstyle remediationと混在させず個別判断する。
-4. `python -m ruff check .` -> PASS。
-5. `tests/test_n04_grounded_generation.py + tests/test_n04g20_adversarial_regression.py` -> PASS。
-6. full pytest -> 0 failed。
-7. `git diff --check` -> PASS。
-8. G-20 provider/application V0 fixを維持する。
-9. verifier pathに意味変更がなければG-20 MiniCheck screening evidenceは再利用可能。意味変更があればbenchmarkを再runする。
-
-G-20R PASS後にのみG-21をunblockする。
-
----
-
-## 9. Reference Workstation runtime boundary
+## 8. Reference Workstation runtime boundary
 
 G-20実行時、Remote Desktop Commanderは月次利用上限に達していたためReference Workstation上のlocal verifier screeningは実行できなかった。
 
@@ -297,11 +278,13 @@ G-21 freeze前にexact local runtime/profileを確定する必要がある。
 
 ---
 
-## 10. N-04G-21 — v3 Acceptance / Harness Freeze
+## 9. N-04G-21 — v3 Acceptance / Harness Freeze
 
-**Status: Blocked by G-20R**
+**Status: Pending / NEXT**
 
-Unblock後にfreeze:
+G-20R PASSによりengineering dependencyはunblocked。
+
+Formal run前にfreeze:
 
 - generator model/runtime/settings
 - source-fact verifier exact checkpoint/revision
@@ -320,7 +303,7 @@ G-20 empirical verifier Gate未達profileはfreezeしない。
 
 ---
 
-## 11. N-04G-22 — Formal v3 Re-Acceptance
+## 10. N-04G-22 — Formal v3 Re-Acceptance
 
 **Status: Pending**
 
@@ -342,7 +325,7 @@ N-04 Complete requires:
 
 ---
 
-## 12. Dependency
+## 11. Dependency
 
 ```text
 G-12 valid formal FAIL
@@ -351,11 +334,11 @@ G-13..G-18 design/remediation Complete
   ↓
 G-19 Implementation Complete
   ↓
-G-20 Verification Complete / Gate FAIL (repo-wide Ruff)
+G-20 Verification Complete / historical Gate FAIL (repo-wide Ruff)
   ↓
-G-20R Repository-wide Ruff remediation + Gate rerun  ← NEXT
-  ↓ PASS only
-G-21 v3 Acceptance + Harness Freeze
+G-20R Repository-wide Ruff remediation + Gate rerun Complete / PASS
+  ↓
+G-21 v3 Acceptance + Harness Freeze  ← NEXT
   ↓
 G-22 Formal v3 Re-Acceptance
   ↓
@@ -366,7 +349,7 @@ N-05
 
 ---
 
-## 13. Protected boundaries
+## 12. Protected boundaries
 
 Without new failure evidence, do not change:
 
@@ -380,4 +363,4 @@ Without new failure evidence, do not change:
 - G-12 historical failed evidence
 - G-18 Frozen grounded-generation semantics
 
-Do not relax G-18 or G-20 engineering Gate merely to obtain PASS.
+Do not relax G-18, G-20, or G-20R Gates merely to obtain PASS.
