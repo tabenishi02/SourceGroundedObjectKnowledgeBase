@@ -8,9 +8,9 @@
 - Formal run: `20261018T213810+0900`
 - Branch of record: `main`
 - G-12 result: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
-- Root-cause review: `docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md`
 - G-18 freeze: `docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md`
 - G-19 implementation: `docs/evaluation/N04G19_FROZEN_REMEDIATION_DESIGN_IMPLEMENTATION.md`
+- G-20 verification: `docs/evaluation/N04G20_ADVERSARIAL_REPLAY_VERIFIER_BENCHMARK_REGRESSION.md`
 - Current parent state: **N-04 Failed / N-05 blocked**
 
 ---
@@ -20,13 +20,13 @@
 1. G-12 failed evidenceを削除・上書きしない。
 2. N-04をG-22成功前にCompleteへ変更しない。
 3. N-05をblockedのまま維持する。
-4. v1 / v2 failed acceptance historyを保持する。
-5. rubric / contractを実行後に緩めてPASSさせない。
-6. generator / verifierをuntrusted or fallible componentとして扱う。
-7. deterministicに防げるfailureをLLM judgeへ委ねない。
-8. claim / premise / material / terminal / render各境界でfail-closedにする。
-9. exact external verifier profileはbenchmark合格前にproduction authority化しない。
-10. G-12で正常だったcanonical / MCP / Retrieval / Context Builderを新evidenceなしに変更しない。
+4. rubric / contract / engineering Gateを実行後に緩めてPASSさせない。
+5. generator / verifierをuntrusted or fallible componentとして扱う。
+6. deterministicに防げるfailureをLLM judgeへ委ねない。
+7. claim / premise / material / terminal / render各境界でfail-closedにする。
+8. exact external verifier profileはbenchmark合格前にproduction authority化しない。
+9. G-12で正常だったcanonical / MCP / Retrieval / Context Builderを新evidenceなしに変更しない。
+10. pre-existing engineering debtがGateを妨げる場合も、Gate条件をsilentに変更せずremediation taskを追加する。
 
 ---
 
@@ -41,90 +41,16 @@
 | N-04G-17 | P0 | **Complete (2026-10-19, design)** | Material sufficiency / terminal / render gate redesign |
 | N-04G-18 | P0 | **Complete (2026-10-19, Design Frozen)** | Post-G12 v3 Design Freeze |
 | N-04G-19 | P0 | **Complete (2026-10-19, implementation)** | Frozen v3 design implementation + verifier adapter boundary |
-| N-04G-20 | P0 | **Pending / NEXT** | Adversarial / replay / verifier benchmark / regression |
-| N-04G-21 | P0 | Pending | v3 acceptance spec / Reference Workstation harness freeze |
+| N-04G-20 | P0 | **Complete (verification) / Gate FAIL (2026-10-19)** | Adversarial / replay / verifier benchmark / regression |
+| N-04G-20R | P0 | **Pending / NEXT** | Repository-wide Ruff baseline remediation + G-20 engineering Gate rerun |
+| N-04G-21 | P0 | **Blocked** | v3 acceptance spec / Reference Workstation harness freeze |
 | N-04G-22 | P0 | Pending | Formal v3 re-acceptance |
 
 N-04 CompleteはN-04G-22で全Gate PASS後のみ可能とする。
 
 ---
 
-## 3. G-13〜G-17 result summary
-
-### G-13
-
-G-12から次を主要root causeとして確定した。
-
-```text
-atomicity instruction-only
-support-free role escape
-single general semantic judge
-schema/parser mismatch
-unvalidated free-form label rendering
-weak material sufficiency
-renderer not bound to terminal outcome
-missing multi-object completion gate
-```
-
-### G-14
-
-```text
-1 unit = 1 atomic semantic proposition
-ATOMIC + ROLE_VALID only -> support/derivation path
-```
-
-model-authored `stylistic_expression`をv3 baselineから除外し、content-first role boundaryを採用した。
-
-### G-15
-
-- free-form model `label`削除。
-- trusted deterministic heading。
-- role-specific block/unit schema。
-- provider/application schema単一正本。
-
-### G-16
-
-Source fact:
-
-```text
-V3 deterministic support
-  ↓ unresolved
-specialized source-fact verifier
-  ↓ SUPPORTED_CANDIDATE
-independent bounded judge
-  ↓ ENTAILED agreement
-supported
-```
-
-Interpretation:
-
-```text
-validated source_fact
-  ↓ premise_unit_ids
-Premise Integrity Gate
-  ↓
-bounded derivation judge
-```
-
-### G-17
-
-```text
-Grounding PASS
-  ↓
-Material Requirement PASS
-  ↓
-Terminal ACCEPTED
-  ↓
-Render authorization
-```
-
-Comparison/Creativeのmulti-source coverageとRoleplay formal minimumをmachine-check可能なprofileへ分離した。
-
----
-
-## 4. G-18 — Post-G12 Design Freeze
-
-**Status: Complete / Design Frozen**
+## 3. G-18 Frozen v3 baseline
 
 正本:
 
@@ -132,7 +58,7 @@ Comparison/Creativeのmulti-source coverageとRoleplay formal minimumをmachine-
 docs/decisions/N04G18_POST_G12_GROUNDED_GENERATION_V3_DESIGN_FREEZE.md
 ```
 
-Frozen contract identities:
+Frozen contracts:
 
 ```text
 sgokb.context-builder.v1              unchanged
@@ -152,7 +78,7 @@ creative       -> creative_addition(text)
 context_limit  -> context_limit(limit_code)
 ```
 
-Validation / Material / Terminal / Renderer candidate identity:
+Candidate identity:
 
 ```text
 context_fingerprint
@@ -163,9 +89,9 @@ output_digest
 
 ---
 
-## 5. G-19 — Frozen remediation implementation
+## 4. G-19 implementation
 
-**Status: Complete (2026-10-19, implementation)**
+**Status: Complete**
 
 正本:
 
@@ -175,86 +101,135 @@ docs/evaluation/N04G19_FROZEN_REMEDIATION_DESIGN_IMPLEMENTATION.md
 
 Implemented:
 
-```text
-src/sgokb/grounding/output.py
-src/sgokb/grounding/request.py
-src/sgokb/grounding/verifiers.py
-src/sgokb/grounding/validation.py
-src/sgokb/grounding/material_gate.py
-src/sgokb/grounding/failure.py
-src/sgokb/grounding/render.py
-src/sgokb/grounding/evidence.py
-src/sgokb/grounding/__init__.py
-src/sgokb/application_grounding.py
-tests/test_n04_grounded_generation.py
-```
+- output v2 schema/parser + digest/binding。
+- Atomicity/Role adapter boundary。
+- V4F specialized verifier + independent source-fact judge boundary。
+- V4I premise graph / derivation judge boundary。
+- `MaterialRequirementGate`。
+- failure policy v2。
+- terminal-bound deterministic renderer。
+- evidence/Application facade wiring。
 
-Key results:
-
-- output v2 schema/parser implemented。
-- canonical output digest + binding implemented。
-- Atomicity/Role adapter boundary implemented。
-- V4F specialized verifier + independent judge composition implemented。
-- V4I premise graph / derivation path implemented。
-- `MaterialRequirementGate` implemented。
-- failure policy v2 + render modes implemented。
-- terminal-bound renderer implemented。
-- exclusive structured context-limit path implemented。
-- application facade / evidence helper wired。
-- focused v3 tests migrated。
-
-Focused isolated/equivalent verification:
+G-19 focused smoke:
 
 ```text
 22 passed
 ```
 
-This does **not** replace G-20 full regression / real verifier benchmark.
-
-Exact MiniCheck/AlignScore checkpoint/revision/threshold and exact model runtimes remain unfrozen.
+Exact verifier runtime/profileはG-20/G-21へ残した。
 
 ---
 
-## 6. N-04G-20 — Adversarial / Replay / Verifier Benchmark / Regression
+## 5. G-20 verification result
 
-**Status: Pending / NEXT**
+**Status: Complete (verification executed) / Overall Gate FAIL**
 
-Required functional/adversarial checks:
-
-1. supported + unsupported clause in one unit -> no PASS。
-2. material fact disguised as style -> no PASS。
-3. creative block containing source Concept fact -> no role PASS。
-4. unsupported interpretation premise -> no derived_supported。
-5. one-side-only comparison -> no Material PASS。
-6. arbitrary model label -> contract rejection / no unvalidated render。
-7. materially incomplete grounded output -> no ACCEPTED。
-8. unjustified context-limit -> no INSUFFICIENT_CONTEXT。
-9. justified exclusive context-limit -> CONTEXT_LIMIT_ONLY render only。
-10. REJECTED / SYSTEM_FAILURE -> renderer refuses。
-11. attempt/output digest mismatch -> renderer refuses。
-12. source-fact verifier disagreement -> no Grounding PASS。
-13. G-12 Case 1/2/3 replay -> no false acceptance。
-14. provider/application schema preflight -> no hidden mismatch。
-
-Verifier benchmark must include at least:
+正本:
 
 ```text
-supported direct claim
-supported paraphrase
-unsupported material extra detail
-G-12 unsupported atomic claims
-high-overlap unsupported relation/event
-contradiction / negation flip
-threshold indeterminate-band cases
+docs/evaluation/N04G20_ADVERSARIAL_REPLAY_VERIFIER_BENCHMARK_REGRESSION.md
 ```
 
-Candidate eligibility for G-21:
+Final GitHub Actions run:
+
+```text
+run_id: 39198589270
+focused/replay: 37 passed
+full pytest: 388 passed / 5 skipped / 0 failed
+G-20 changed-scope Ruff: PASS
+git diff --check: PASS
+repository-wide Ruff: FAIL — 180 errors
+MiniCheck RoBERTa-large screening: PASS necessary candidate Gate
+```
+
+### G-12 replay / adversarial
+
+Machine regression化した最低範囲:
+
+1. supported + unsupported clause in one unit -> no PASS。
+2. material fact disguised as style -> schema reject。
+3. creative block source Concept claim -> no role PASS。
+4. unsupported interpretation premise -> no derived_supported。
+5. one-side-only comparison -> no Material PASS。
+6. arbitrary model label -> contract reject / no render。
+7. materially incomplete grounded output -> no ACCEPTED。
+8. unjustified context-limit -> no INSUFFICIENT_CONTEXT。
+9. justified exclusive context-limit -> safe render only。
+10. REJECTED / SYSTEM_FAILURE -> renderer refuses。
+11. attempt/output digest mismatch -> renderer refuses。
+12. verifier disagreement -> no Grounding PASS。
+13. G-12 Case 1/2/3 failure shapes -> no false acceptance path。
+14. provider/application contract mismatch preflight。
+
+### G-20 implementation correction
+
+G-19 parserに残っていたprovider JSON Schema外のcross-item uniqueness ruleを発見した。
+
+```text
+duplicate_block_id
+duplicate_unit_id
+duplicate_presentation_role
+```
+
+G-20でこれらをparser-local hidden ruleからexplicit Grounding Validation V0へ移動した。
+
+```text
+provider JSON Schema == application parse surface
+        ↓
+V0 SGOKB identity invariant
+```
+
+意味制約は削除せず、G-12 Case 3型のprovider/parser mismatchを防ぐ責務配置へ修正した。
+
+---
+
+## 6. G-20 verifier candidate screening
+
+Corpus:
+
+```text
+benchmark/n04g20-source-fact-verifier-v1.json
+```
+
+Runner:
+
+```text
+benchmark/tools/n04g20_minicheck_benchmark.py
+```
+
+Persistent screening evidence:
+
+```text
+benchmark/results/n04g20-minicheck-roberta-large-github-actions.json
+```
+
+GitHub Actions diagnostic candidate:
+
+```text
+MiniCheck repo revision: b58b9fa69acbd1015ec970fa65dd752413a053d2
+model: lytang/MiniCheck-RoBERTa-Large
+threshold candidate: 0.50
+required negative/replay false-positive: 0
+required positive supported: 2 / 2
+negative specificity: 1.0
+positive recall: 0.8
+```
+
+必要条件:
 
 ```text
 required negative/replay false-positive = 0
 ```
 
-Required engineering checks:
+を満たしたため、MiniCheck RoBERTa-largeは**G-21 local-runtime evaluationへ持ち込めるcandidate**とする。
+
+ただしproduction adoption / exact checkpoint / threshold profile / independent judge / local-only runtimeは未freeze。
+
+---
+
+## 7. G-20 Gate failure reason
+
+Task masterはG-20 engineering Gateとして:
 
 ```text
 full pytest
@@ -262,15 +237,71 @@ Ruff
 git diff --check
 ```
 
-G-20 may fix implementation/test defects found by these checks, but must not silently relax the G-18 Frozen semantics.
+を要求している。
+
+Final runではrepo-wide:
+
+```text
+python -m ruff check .
+```
+
+が`180 errors`を検出した。
+
+G-20 changed Python filesだけのRuffはPASSしたが、この事実を理由にrequired `Ruff`をchanged-scopeへ読み替えない。
+
+代表的なlint debt:
+
+```text
+extensions/web-page-capture/*
+src/sgokb/exchange/*
+src/sgokb/grounding/render.py
+tests/test_n04_grounded_generation.py
+その他既存test
+```
+
+したがってG-20 Overall GateはFAILであり、G-21はblockedとする。
 
 ---
 
-## 7. N-04G-21 — v3 Acceptance / Harness Freeze
+## 8. N-04G-20R [P0] — Repository-wide Ruff baseline remediation + Gate rerun
 
-**Status: Pending**
+**Status: Pending / NEXT**
 
-Formal run前にfreeze:
+Goal:
+
+G-20で発見されたrepository-wide lint baseline failureを、semantic behaviorを変更せず解消し、G-20 engineering Gateを再実行する。
+
+Required work:
+
+1. current mainのRuff 180 errorsを分類する。
+2. import order / unused import / line-length / formatting等をstyle-only修正する。
+3. 振る舞い変更が必要になるlintはstyle remediationと混在させず個別判断する。
+4. `python -m ruff check .` -> PASS。
+5. `tests/test_n04_grounded_generation.py + tests/test_n04g20_adversarial_regression.py` -> PASS。
+6. full pytest -> 0 failed。
+7. `git diff --check` -> PASS。
+8. G-20 provider/application V0 fixを維持する。
+9. verifier pathに意味変更がなければG-20 MiniCheck screening evidenceは再利用可能。意味変更があればbenchmarkを再runする。
+
+G-20R PASS後にのみG-21をunblockする。
+
+---
+
+## 9. Reference Workstation runtime boundary
+
+G-20実行時、Remote Desktop Commanderは月次利用上限に達していたためReference Workstation上のlocal verifier screeningは実行できなかった。
+
+GitHub Actions verifier resultはcandidate screening evidenceであり、local-only formal runtime proofではない。
+
+G-21 freeze前にexact local runtime/profileを確定する必要がある。
+
+---
+
+## 10. N-04G-21 — v3 Acceptance / Harness Freeze
+
+**Status: Blocked by G-20R**
+
+Unblock後にfreeze:
 
 - generator model/runtime/settings
 - source-fact verifier exact checkpoint/revision
@@ -282,14 +313,14 @@ Formal run前にfreeze:
 - provider structured-output mechanism/schema hash
 - retry/terminal policy
 - evidence tree
-- G-20 adversarial/verifier preflight result
+- G-20/G-20R engineering result
 - formal rubric
 
-G-20 empirical Gate未達profileをfreezeしない。
+G-20 empirical verifier Gate未達profileはfreezeしない。
 
 ---
 
-## 8. N-04G-22 — Formal v3 Re-Acceptance
+## 11. N-04G-22 — Formal v3 Re-Acceptance
 
 **Status: Pending**
 
@@ -311,27 +342,19 @@ N-04 Complete requires:
 
 ---
 
-## 9. Dependency
+## 12. Dependency
 
 ```text
 G-12 valid formal FAIL
   ↓
-G-13 Root-cause / Research Complete
-  ↓
-G-14 Atomicity / Role Boundary Complete
-  ↓
-G-15 Output / Presentation Complete
-  ↓
-G-16 Semantic Validation Complete
-  ↓
-G-17 Material / Terminal / Render Complete
-  ↓
-G-18 Post-G12 Design Freeze Complete
+G-13..G-18 design/remediation Complete
   ↓
 G-19 Implementation Complete
   ↓
-G-20 Adversarial / Verifier Benchmark / Regression  ← NEXT
+G-20 Verification Complete / Gate FAIL (repo-wide Ruff)
   ↓
+G-20R Repository-wide Ruff remediation + Gate rerun  ← NEXT
+  ↓ PASS only
 G-21 v3 Acceptance + Harness Freeze
   ↓
 G-22 Formal v3 Re-Acceptance
@@ -343,7 +366,7 @@ N-05
 
 ---
 
-## 10. Explicit non-goals / protected boundaries
+## 13. Protected boundaries
 
 Without new failure evidence, do not change:
 
@@ -355,5 +378,6 @@ Without new failure evidence, do not change:
 - Similarity ranking algorithm
 - N-06 retrieval-quality metrics
 - G-12 historical failed evidence
+- G-18 Frozen grounded-generation semantics
 
-Do not relax G-18 Frozen semantics merely to obtain PASS.
+Do not relax G-18 or G-20 engineering Gate merely to obtain PASS.
