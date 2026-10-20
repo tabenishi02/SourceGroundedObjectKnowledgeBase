@@ -11,6 +11,7 @@
 - E3 proposition contract: `docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
 - E4 role matrix: `docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
 - E4 machine-readable matrix: `benchmark/n04g23ae-role-compatibility-v1.json`
+- E5 classifier plan: `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 
@@ -30,8 +31,8 @@ G-23A-E Gate Responsibility Decomposition           In Progress
   ├─ E2 v4 V2 Responsibility Boundary               Complete
   ├─ E3 Structured Proposition Contract             Complete
   ├─ E4 Role Provenance / Compatibility Matrix      Complete
-  ├─ E5 Residual Classifier Evaluation Design       NEXT
-  ├─ E6 47-Gold Desk Replay                         Planned
+  ├─ E5 Residual Classifier Evaluation Design       Complete
+  ├─ E6 47-Gold Desk Replay                         NEXT
   └─ E7 Integration / Unblock Review                Planned
   ↓ ACCEPTED only
 G-23B Stage 1 Grounded Content Planner contract     blocked by G-23A-E
@@ -70,9 +71,9 @@ Historical G-18/G-21/G-22 artifacts remain immutable evidence.
 | N-04G-23A-E1 | P0 | Complete | 47 Gold responsibility mapping |
 | N-04G-23A-E2 | P0 | Complete | V2 authority/order boundary |
 | N-04G-23A-E3 | P0 | Complete | Semi-structured Proposition contract |
-| N-04G-23A-E4 | P0 | **Complete** | application-owned role provenance / deterministic compatibility matrix |
-| N-04G-23A-E5 | P0 | **NEXT** | residual classifier scope/evaluation |
-| N-04G-23A-E6 | P0 | Planned | 47-Gold desk replay / coverage |
+| N-04G-23A-E4 | P0 | Complete | application-owned role provenance / deterministic compatibility matrix |
+| N-04G-23A-E5 | P0 | **Complete** | residual classifier scope/evaluation design |
+| N-04G-23A-E6 | P0 | **NEXT** | 47-Gold desk replay / coverage |
 | N-04G-23A-E7 | P0 | Planned | integration / G-23B unblock review |
 | N-04G-23B | P0 | Blocked by G-23A-E | Stage 1 Content Planner contract |
 | N-04G-23C | P0 | Planned | Certified Content contract |
@@ -128,70 +129,88 @@ Application-owned envelope
   + optional non-authoritative semantic anchors
 ```
 
-Candidate / Validation / Certified Contentは別artifact。model-authored free textはschemaだけでatomic PASSとしない。
+Candidate / Validation / Certified Content are separate artifacts. Model-authored free text is not considered atomic merely because it satisfies JSON Schema.
 
 ## 6. E4 result
 
-Application-owned path provenanceをnormalized roleのdeterministic authorityにした。
+Application-owned path provenance is the normalized-role authority.
 
 ```text
-stage1_fact_candidate
-  -> source_fact
-
-certified_fact_materialization
-  -> source_fact
-
-stage2_interpretation_candidate
-  -> interpretation
-
-stage2_creative_candidate
-  -> creative_addition
-
-system_context_limit
-  -> context_limit
+stage1_fact_candidate             -> source_fact
+certified_fact_materialization    -> source_fact
+stage2_interpretation_candidate   -> interpretation
+stage2_creative_candidate         -> creative_addition
+system_context_limit              -> context_limit
 ```
 
-Purpose policy:
+Known purpose/presentation/binding/ownership mismatch is deterministic `POLICY_FAIL`; model-authored `stylistic_expression` remains forbidden. Policy PASS is not a semantic content proof.
 
-- source_fact: roleplay / comparison / creativeで許可
-- interpretation: 3用途でdeterministic banしないがResidual semantic + derivation validation必須
-- creative_addition: creativeのみ許可
-- context_limit: 3用途で許可、system/application-owned and exclusive
+## 7. E5 result
 
-Presentation/binding policy:
+Residual semantic work is split into two independent tasks:
 
-- Stage 1 fact candidateはpresentationなし
-- Certified fact materializationのみ`main`
-- Interpretationは`interpretation` presentation + `premise_fact_ids[]`
-- Creativeは`creative` presentation、support/premise grounding bindingなし
-- Context limitは`context_limit` exclusive
-- model-authored `stylistic_expression`は再導入しない
+```text
+V2-R-A Residual Atomicity
+V2-R-C Residual Content Type
+```
 
-Policy PASSはcontent semantic proofではない。model-authored fact / interpretation / creativeはE5で定義するV2-Rを必要とする。
+V2-R-A labels:
 
-## 7. E5 immediate scope
+```text
+ATOMIC
+NON_ATOMIC
+AMBIGUOUS
+```
 
-E5はE1〜E4でstructural/deterministicへ移せなかった自然言語意味境界だけをV2-Rへ限定する。
+V2-R-C labels:
 
-Required decisions:
+```text
+SOURCE_FACT_CONTENT
+INTERPRETATION_CONTENT
+CREATIVE_CONTENT
+CONTEXT_LIMIT_CONTENT
+MIXED_CONTENT
+AMBIGUOUS
+```
 
-1. residual semantic taxonomy
-2. atomicity residual checkとrole/content classifierの分離可否
-3. classifier input最小化
-4. expected roleをinputへ見せるかcontent-only classification後比較するか
-5. dataset expansion beyond 47 Gold
-6. minimal pairs / paraphrases / role swaps / purpose swaps / compound-split fixtures
-7. pattern-family holdout
-8. bounded LLM / encoder / cross-encoder / cascade比較
-9. abstention/ambiguity fail-closed semantics
-10. zero critical false-pass Gate
-11. Reference Workstation runtime候補
+Key rules:
+
+- expected role/purpose/presentation are hidden from classifier input;
+- content-only result is compared with E4 expected role after classification;
+- V2-R does not decide truth/support/derivation;
+- Atomicity and Content Type use separate datasets/models/tasks;
+- Frozen 47 Gold is final confirmation control, not repeated threshold-fitting data;
+- split by pattern-family + lineage group, not random rows;
+- compare encoder classifier / cross-encoder / lightweight classifier against historical bounded-LLM baseline;
+- deterministic-first cascade is mandatory architecture;
+- Atomicity critical false-pass = 0;
+- Content critical wrong-compatible false-pass = 0;
+- `AMBIGUOUS/UNAVAILABLE` fail closed;
+- if all candidates fail, return `VALID_FAIL_NO_SELECTION` rather than relaxing Gate.
+
+## 8. E6 immediate scope
+
+Apply E2-E5 to the same Frozen 47 Gold before production implementation.
+
+For each case record:
+
+```text
+V2-S structural outcome
+V2-P normalized role
+V2-D deterministic outcome
+V2-R-A required? expected result
+V2-R-C required? expected content class / compatibility
+historical broad-judge error prevented by construction?
+remaining probabilistic decision?
+```
+
+E6 does not assume a classifier has already met production accuracy. It measures how much decision responsibility has moved from a broad joint LLM Judge into structural/deterministic authorities and narrow independent classifiers.
 
 Deliverable:
 
-`docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
+`docs/evaluation/N04G23AE_V4_GATE_DESK_REPLAY.md`
 
-## 8. Protected boundaries
+## 9. Protected boundaries
 
 Do not change without new evidence:
 
@@ -201,6 +220,7 @@ Do not change without new evidence:
 - E2 authority order
 - E3 Semi-structured proposition contract
 - E4 application-owned role provenance
+- E5 zero-critical-FP / fail-closed selection policy
 - MiniCheck threshold merely to improve acceptance
 - Retrieval / Similarity / Context Builder
 - canonical DB
@@ -210,6 +230,6 @@ Do not change without new evidence:
 - unsupported rendered claim prohibition
 - fail-closed semantics
 
-## 9. Immediate next task
+## 10. Immediate next task
 
-**N-04G-23A-E5 — Residual Classifier Scope / Evaluation Design**
+**N-04G-23A-E6 — 47-Gold Desk Replay / Coverage Analysis**
