@@ -6,9 +6,9 @@
 - Trigger: `N-04G-22 Formal v3 Re-Acceptance` valid formal FAIL (`0 / 3 Case PASS`)
 - Adopted architecture: `docs/decisions/N04G23_TWO_STAGE_GROUNDED_GENERATION_ARCHITECTURE.md`
 - Gate responsibility redesign: `docs/decisions/N04G23AE_ATOMICITY_ROLE_GATE_RESPONSIBILITY_DECOMPOSITION.md`
-- G-23A-E tasks: `docs/planning/phases/N/N04/post-g12/N04G23AE_GATE_RESPONSIBILITY_DECOMPOSITION_TASKS.md`
 - E1 mapping: `docs/evaluation/N04G23AE_47_GOLD_RESPONSIBILITY_MAP.md`
 - E2 boundary: `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
+- E3 proposition contract: `docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 
@@ -26,8 +26,8 @@ G-23A-R Judge Candidate Evaluation                  Complete / valid FAIL / no s
 G-23A-E Gate Responsibility Decomposition           In Progress
   ├─ E1 47-Gold Responsibility Mapping              Complete
   ├─ E2 v4 V2 Responsibility Boundary               Complete
-  ├─ E3 Structured Proposition Contract             NEXT
-  ├─ E4 Role Provenance / Compatibility Matrix      Planned
+  ├─ E3 Structured Proposition Contract             Complete
+  ├─ E4 Role Provenance / Compatibility Matrix      NEXT
   ├─ E5 Residual Classifier Evaluation Design       Planned
   ├─ E6 47-Gold Desk Replay                         Planned
   └─ E7 Integration / Unblock Review                Planned
@@ -55,36 +55,34 @@ N-04 Complete
 N-05 unblocked
 ```
 
-G-18/G-21/G-22のv3 artifact/evidenceはhistorical authorityとして保持し、直接書き換えない。
+Historical G-18/G-21/G-22 artifacts remain immutable evidence.
 
 ## 2. Task table
 
 | Task | Priority | Status | Purpose |
 |---|---|---|---|
-| N-04G-23 | P0 | **Complete / Architecture Accepted** | 2段階LLM生成をv4方針として採用 |
-| N-04G-23A | P0 | **Complete / valid benchmark** | Atomicity / Role GoldでPhi-4を診断 |
-| N-04G-23A-R | P0 | **Complete / valid FAIL / no candidate selected** | frozen Gold/Gateで代替judge候補評価 |
-| N-04G-23A-E | P0 | **In Progress** | Gateをstructural / deterministic / residual semanticへ責務分解 |
-| N-04G-23A-E1 | P0 | **Complete** | 47 Gold全件のresponsibility mapping |
-| N-04G-23A-E2 | P0 | **Complete** | v4 V2 responsibility boundary / authority / order |
-| N-04G-23A-E3 | P0 | **NEXT** | Structured Proposition intermediate contract設計 |
-| N-04G-23A-E4 | P0 | Planned | application-owned role provenance / deterministic compatibility matrix設計 |
-| N-04G-23A-E5 | P0 | Planned | residual semantic classifier scope / dataset / evaluation設計 |
-| N-04G-23A-E6 | P0 | Planned | 同じ47 Goldでdesk replay / coverage分析 |
-| N-04G-23A-E7 | P0 | Planned | integration decision / G-23B unblock review |
-| N-04G-23B | P0 | **Blocked by G-23A-E** | Stage 1 `Grounded Content Planner` contract |
-| N-04G-23C | P0 | Planned | Certification / `Certified Content` contract |
-| N-04G-23D | P0 | Planned | Stage 2 `Presentation Generator` contract |
-| N-04G-23E | P0 | Planned | provider schema capability + stage-local retry |
-| N-04G-23F | P0 | Planned | v4 integrated Design Freeze |
-| N-04G-24 | P0 | Blocked by G-23F | Frozen v4 implementation |
-| N-04G-25 | P0 | Blocked by G-24 | dev benchmark / regression |
-| N-04G-26 | P0 | Blocked by G-25 | Reference Workstation v4 Freeze |
+| N-04G-23 | P0 | Complete / Architecture Accepted | 2-stage LLM generation adopted for v4 |
+| N-04G-23A | P0 | Complete / valid benchmark | diagnose Atomicity / Role judge |
+| N-04G-23A-R | P0 | Complete / valid FAIL / no candidate selected | evaluate alternate judge candidates |
+| N-04G-23A-E | P0 | **In Progress** | decompose Gate responsibilities |
+| N-04G-23A-E1 | P0 | Complete | 47 Gold responsibility mapping |
+| N-04G-23A-E2 | P0 | Complete | V2 authority/order boundary |
+| N-04G-23A-E3 | P0 | **Complete** | Structured Proposition contract |
+| N-04G-23A-E4 | P0 | **NEXT** | role provenance / deterministic compatibility matrix |
+| N-04G-23A-E5 | P0 | Planned | residual classifier scope/evaluation |
+| N-04G-23A-E6 | P0 | Planned | 47-Gold desk replay / coverage |
+| N-04G-23A-E7 | P0 | Planned | integration / G-23B unblock review |
+| N-04G-23B | P0 | Blocked by G-23A-E | Stage 1 Content Planner contract |
+| N-04G-23C | P0 | Planned | Certified Content contract |
+| N-04G-23D | P0 | Planned | Stage 2 Presentation Generator contract |
+| N-04G-23E | P0 | Planned | provider schema + stage-local retry |
+| N-04G-23F | P0 | Planned | v4 Design Freeze |
+| N-04G-24 | P0 | Blocked by G-23F | implementation |
+| N-04G-25 | P0 | Blocked by G-24 | dev benchmark/regression |
+| N-04G-26 | P0 | Blocked by G-25 | Reference Workstation freeze |
 | N-04G-27 | P0 | Blocked by G-26 | Formal v4 Re-Acceptance |
 
-## 3. G-23A-E1 result
-
-47 Gold全部を既存Gold変更なしで分類した。
+## 3. E1 result
 
 ```text
 STRUCTURAL              20
@@ -100,9 +98,9 @@ Critical without owner    0
 Gold label changes        0
 ```
 
-## 4. G-23A-E2 result
+## 4. E2 result
 
-E2でv4 V2のauthority/orderを固定した。
+v4 V2 authorities:
 
 ```text
 V2-S  Structural Proposition Gate
@@ -111,105 +109,95 @@ V2-D  Deterministic Compatibility Gate
 V2-R  Residual Semantic Gate
 ```
 
-Order:
+Earlier structural/policy failure cannot be overridden by later semantic/support PASS. `MIXED_CONTENT` fails; `AMBIGUOUS/INDETERMINATE` fails closed.
+
+## 5. E3 result
+
+Selected contract family: **Option B — Semi-structured proposition record**.
+
+Core structure:
 
 ```text
-Structured Proposition Candidate
-  ↓
-V2-S
-  ↓
-V2-P
-  ↓
-V2-D
-  ↓
-V2-R if required
-  ↓
-V3+ Support / Derivation
+Application-owned envelope
+  ├─ contract/context/purpose
+  ├─ stage/path provenance
+  ├─ attempt/retry lineage
+  └─ proposition identity
+        ↓
+Path-specific payload
+  ├─ one claim_text
+  ├─ optional non-authoritative anchors
+  └─ support_refs OR premise_fact_ids as allowed by path
 ```
 
-Normative rules:
+Key decisions:
 
-- structural/policy failureは後段classifier/supportでoverride不可。
-- role provenanceはapplication/stage pathがauthority。
-- known stage/purpose/presentation/premise/support mismatchはdeterministic hard reject。
-- compound-risk signalは単独verdictではなくResidual review/retryのtrigger。
-- model-authored content typeがconstructionだけで証明できない場合はResidual Semantic必須。
-- `MIXED_CONTENT`はFAIL。
-- `AMBIGUOUS/INDETERMINATE`はfail-closed。
-- V2はtruth/support/entailmentを判定しない。
-- retryはfailed proposition本文とauthorityを含むstage-local evidenceを使う。
+- no generator-owned semantic-role authority;
+- candidate / validation / certification are separate artifacts;
+- Stage 1 source fact uses `support_refs[]`;
+- Stage 2 interpretation uses certified `premise_fact_ids[]`, not raw K refs as proof;
+- support and premise bindings cannot coexist;
+- application/system-owned deterministic records may be `PASS_BY_CONSTRUCTION`;
+- model-authored free-text starts as `REVIEW_REQUIRED` unless later construction path proves otherwise;
+- residual atomicity resolves review-required records in E5 design;
+- no silent post-hoc atomization;
+- fully normalized subject/predicate/object ontology is not adopted for the common contract.
+
+## 6. E4 immediate scope
+
+Design exact application-owned role provenance and deterministic compatibility matrix.
+
+Minimum paths:
+
+```text
+stage1_fact_candidate
+stage2_interpretation_candidate
+stage2_creative_candidate
+system_context_limit
+```
+
+Matrix dimensions:
+
+```text
+path / normalized role
+purpose
+presentation_role
+support requirement
+premise requirement
+model/system ownership
+```
+
+Required outputs:
+
+- exact path -> normalized role mapping;
+- allowed purpose and presentation mapping;
+- required/forbidden support/premise fields;
+- system-only restrictions;
+- deterministic failure codes;
+- explicit construction paths allowed to skip residual semantic classification, if any.
 
 Deliverable:
 
-`docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
-
-## 5. G-23A-E3 immediate scope
-
-E3はE2の`V2-S`を実体化するStructured Proposition intermediate contractを設計する。
-
-Required decisions:
-
-1. minimal / semi-structured / fully normalizedの比較
-2. proposition ID / lifetime / uniqueness
-3. stage/path provenance binding
-4. text / subject/entity / predicate hint等のrepresentation
-5. support_refs / premise_fact_ids
-6. purpose / context fingerprint binding
-7. certification ownership
-8. rejected / ambiguous representation
-9. renderingとの分離
-10. `V2-S PASS / REVIEW_REQUIRED / FAIL` construction rule
-11. どのpathなら`V2-R = NOT_REQUIRED`を許せるか
-12. G-14 no-silent-post-hoc-atomizationとの整合
-
-Deliverable:
-
-`docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
-
-## 6. Following G-23A-E tasks
-
-E4: Role Provenance / Compatibility Matrix
-
-- stage1 fact / stage2 interpretation / stage2 creative / system context-limit paths
-- normalized role, purpose, presentation, premise/support requirements
-- deterministic violations never delegated to classifier merely for convenience
-
-E5: Residual Classifier Evaluation Design
-
-- bounded semantic taxonomy
-- dataset expansion beyond 47 Gold
-- pattern-family holdout
-- compare bounded LLM, encoder/sequence classifier, cross-encoder and deterministic-first cascade
-
-E6: 47-Gold Desk Replay
-
-- apply new responsibility model to same Gold
-- measure how many critical decisions are removed from broad probabilistic judge dependence
-
-E7: Integration Decision
-
-- accept/reject G-23A-E
-- unblock G-23B only if accepted
+`docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
 
 ## 7. Protected boundaries
 
-Without new evidence, do not change:
+Do not change without new evidence:
 
-- Object / Version identity
-- Source / Evidence / Provenance
-- canonical DB
-- MCP read-only boundary
-- Retrieval / Similarity
-- Context Builder selection/budget
-- N-03 dataset
-- G-12/G-20/G-21/G-22/G-23A/G-23A-R historical evidence
-- frozen 47 Gold labels/required/critical flags
+- frozen 47 Gold labels/flags and G-23A/G-23A-R evidence
+- G-14 safety intent / no silent post-hoc atomization
+- G-23 two-stage architecture
 - MiniCheck threshold merely to improve acceptance
+- Retrieval / Similarity / Context Builder
+- canonical DB
+- Source / Evidence / Provenance
+- Object / Version identity
+- MCP read-only boundary
 - unsupported rendered claim prohibition
 - fail-closed semantics
 
 ## 8. Immediate next task
 
-**N-04G-23A-E3 — Structured Proposition Contract Design**
+**N-04G-23A-E4 — Role Provenance / Compatibility Matrix Design**
 
-E2でresponsibility boundaryは固定された。次はV2-Sのinput contractとconstruction proofを設計し、どのrecordを機械的にPASS/REVIEW_REQUIRED/FAILへ送るかを確定する。
+E3 fixed the candidate structure and field ownership. E4 now makes role provenance and all metadata-known compatibility decisions deterministic before residual semantic classification.
