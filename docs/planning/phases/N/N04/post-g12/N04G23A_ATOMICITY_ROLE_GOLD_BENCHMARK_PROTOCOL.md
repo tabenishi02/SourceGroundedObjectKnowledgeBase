@@ -2,7 +2,8 @@
 
 更新日: 2026-10-20
 
-- Status: **Prepared / execution pending**
+- Status: **Complete / execution and engineering verified**
+- Run: `20261020T151126+0900`; evaluation: `docs/evaluation/N04G23A_ATOMICITY_ROLE_GOLD_BENCHMARK.md`. Protocol/Gates below are unchanged.
 - Parent: `N-04G-23 Two-Stage Grounded Generation Architecture`
 - Trigger: G-22 valid formal FAIL, especially Case 2 `role-INDETERMINATE` on faithful source-fact restatements
 - Normative boundary: `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`

@@ -5,6 +5,8 @@
 - Branch: `phase-n/n04g23a-atomicity-role-gold-benchmark`
 - Base main: `1ff6483c8d9d5760138ecd3dbb45989182d2c986`
 - Task: `N-04G-23A Atomicity / Role Gold Benchmark`
+- Execution: **Complete / all profiles executed; engineering PASS**
+- Run: `20261020T151126+0900`; result: `docs/evaluation/N04G23A_ATOMICITY_ROLE_GOLD_BENCHMARK.md`. Original procedure below is retained.
 - Reference Workstation: FNB1Main / Windows 11 / RTX 4090
 - Historical G-22 run: `20261020T030904+0900`
 - Production code change: **禁止**

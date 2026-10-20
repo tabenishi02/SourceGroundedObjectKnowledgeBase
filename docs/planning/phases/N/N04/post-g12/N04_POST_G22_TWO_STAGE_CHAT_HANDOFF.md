@@ -9,7 +9,9 @@
 - N-05: **blocked**
 - G-22: **Complete / valid formal FAIL (0/3 PASS)**
 - G-23: **Complete / Architecture Accepted**
-- Current task: **N-04G-23A — Atomicity / Role Gold Benchmark**
+- G-23A: **Complete / valid benchmark; engineering PASS**
+- Current task: **N-04G-23A-R Judge Candidate Evaluation (next blocker; G-23A Complete)**
+- G-23B: **blocked pending G-23A-R**
 
 ## Read first
 
@@ -78,9 +80,13 @@ G-22で確認された主failure:
 
 ---
 
-## Immediate next task — G-23A
+## G-23A result and next blocker
 
-`Atomicity / Role Gold Set v1`を作成する。
+Run `20261020T151126+0900`: 47 Gold cases, 27 exact G-22 units, 41 required / 6 optional. Exact prompt provenance 19/19; historical joint reproduction 57/57. All profiles ran 3 repeats; inputs/model unchanged. P1 and P2 fail Safety/Required-valid; P1/P1P required joint stability 18/123. Additional judge candidate evaluation is required; no tested Phi-4 profile is adopted.
+
+Read `docs/evaluation/N04G23A_ATOMICITY_ROLE_GOLD_BENCHMARK.md`. Final engineering PASS: G-23A tests 10, full pytest 418, Ruff/diff. G-23A-R is the next blocker; G-23B is blocked until judge evaluation resolves V2. Retain two-stage architecture, frozen Gold/Gates and N-04 Failed / N-05 blocked.
+
+The original benchmark preparation context below is retained.
 
 Gold origin:
 
@@ -106,7 +112,8 @@ Critical rule:
 ## Following tasks
 
 ```text
-G-23A Atomicity / Role Gold Benchmark
+G-23A Atomicity / Role Gold Benchmark (Complete / Phi-4 insufficient)
+G-23A-R Judge Candidate Evaluation (NEXT blocker)
 G-23B Stage 1 Content Planner contract
 G-23C Certification / Certified Content contract
 G-23D Stage 2 Presentation Generator contract
