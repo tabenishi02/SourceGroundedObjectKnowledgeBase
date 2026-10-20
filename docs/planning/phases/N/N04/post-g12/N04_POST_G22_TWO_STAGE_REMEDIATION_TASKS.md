@@ -8,6 +8,7 @@
 - G-24 result: `docs/evaluation/N04G24_V4_IMPLEMENTATION_RESULT.md`
 - G-25 plan: `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
 - G-25A handoff: `docs/planning/phases/N/N04/post-g12/N04G25A_NEXT_CHAT_HANDOFF.md`
+- G-25A block record: `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 
@@ -39,7 +40,9 @@ G-23F v4 Design Integration / Freeze                Complete / v4 Design Frozen
   ↓
 G-24 v4 implementation                              Complete / Ready for G-25A
   ↓
-G-25A Residual Classifier Benchmark / Selection     NEXT
+G-25A mandatory Reference Workstation preflight     BLOCKED / not executed
+  ↓ PASS only
+G-25A Residual Classifier Benchmark / Selection     not started
   ↓ PASS only
 G-25B Integrated v4 Adversarial Regression          blocked
   ↓ PASS only
@@ -66,7 +69,7 @@ Historical G-18/G-21/G-22 artifacts remain immutable evidence.
 | N-04G-23E | P0 | Complete / Contract Accepted | provider schema + stage-local retry |
 | N-04G-23F | P0 | Complete / v4 Design Frozen | end-to-end integration / implementation freeze |
 | N-04G-24 | P0 | **Complete / Implementation Ready for G-25A** | v4 production-layer implementation |
-| N-04G-25A | P0 | **NEXT** | Residual classifier benchmark / selection |
+| N-04G-25A | P0 | **BLOCKED / mandatory Reference Workstation preflight not executed** | Residual classifier benchmark / selection |
 | N-04G-25B | P0 | Blocked by G-25A PASS | integrated adversarial regression |
 | N-04G-26 | P0 | Blocked by G-25B PASS | Reference Workstation freeze |
 | N-04G-27 | P0 | Blocked by G-26 | Formal v4 Re-Acceptance |
@@ -192,7 +195,7 @@ Implemented safety properties include:
 
 No concrete V2-R-A / V2-R-C classifier was selected in G-24.
 
-## 6. G-24 verification state
+## 6. G-24 verification state and G-25A preflight
 
 New v4 implementation was exercised in an isolated local verification environment.
 
@@ -204,9 +207,7 @@ Result:
 
 The repository contains the automated G-24 test suites listed above.
 
-Reference Workstation full-repository commands could not be executed during G-24 because the connected remote-command service was unavailable due its execution quota. GitHub also has no configured status checks/workflow runs for these commits.
-
-Therefore G-25A has a mandatory preflight before any classifier benchmark:
+Reference Workstation full-repository commands could not be executed during G-24 because the connected remote-command service was unavailable due its execution quota. G-25A therefore has a mandatory preflight before any classifier benchmark:
 
 ```text
 python -m pytest -q tests/test_n04g24_v4_implementation.py tests/test_n04g24_v4_provider_runtime.py
@@ -215,7 +216,21 @@ python -m ruff check .
 git diff --check
 ```
 
-Any failure blocks benchmark execution and returns to G-24 implementation remediation. The preflight may not be waived.
+On 2026-10-21 G-25A attempted to start this preflight. `FNB1Main` was online and paired, but Desktop Commander reported that its monthly execution quota had been reached and explicitly instructed not to retry or reconnect. No preflight command was executed.
+
+Authority for this block:
+
+`docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
+
+Therefore:
+
+```text
+preflight = NOT EXECUTED
+G-25A benchmark = NOT STARTED
+G-25A selection = NOT PERFORMED
+```
+
+Any future preflight failure blocks benchmark execution and returns to G-24 implementation remediation. The preflight may not be waived.
 
 ## 7. Provider / retry invariants retained
 
@@ -232,17 +247,17 @@ Stage 2 max attempts = 2 / max retry = 1
 
 Attempt 2 fully replaces attempt 1 as active material. Historical attempts remain evidence only; no cross-attempt merge/fallback is allowed.
 
-## 8. G-25A immediate scope
+## 8. G-25A resume scope
 
-Next task: **N-04G-25A — Residual Classifier Benchmark / Selection**.
+Current task remains **N-04G-25A — Residual Classifier Benchmark / Selection**, but execution is blocked before benchmark start.
 
 Primary handoff:
 
 `docs/planning/phases/N/N04/post-g12/N04G25A_NEXT_CHAT_HANDOFF.md`
 
-G-25A must select concrete V2-R-A and V2-R-C components only after the mandatory implementation preflight passes.
+Resume only when Reference Workstation command execution is available and the mandatory preflight can be run.
 
-Mandatory selection Gate:
+After preflight PASS, G-25A must select concrete V2-R-A and V2-R-C components under this mandatory Gate:
 
 ```text
 Atomicity critical NON_ATOMIC false-pass = 0
@@ -289,13 +304,13 @@ Do not change without reopening G-23F or explicit downstream escalation:
 ```text
 G-23F = Complete / v4 Design Frozen
 G-24  = Complete / Implementation Ready for G-25A
-G-25A = NEXT
+G-25A = BLOCKED / Reference Workstation preflight not executed
 G-25B = blocked by G-25A PASS
 G-26  = blocked by G-25B PASS
 N-04  = Failed / not Complete
 N-05  = blocked
 ```
 
-## 11. Immediate next task
+## 11. Immediate resume action
 
-**N-04G-25A — Residual Classifier Benchmark / Selection**
+Run the four-command Reference Workstation preflight. Only after all PASS may the G-25A Residual Classifier benchmark/selection begin.
