@@ -5,6 +5,7 @@
 - Project: `Source Grounded Object Knowledge Base (SGOKB)`
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
+- Primary next-chat entry: `docs/planning/phases/N/N04/post-g12/N04G23B_NEXT_CHAT_HANDOFF.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 - G-22: **Complete / valid formal FAIL (0/3 PASS)**
@@ -18,6 +19,7 @@
 
 ## Read first
 
+0. `docs/planning/phases/N/N04/post-g12/N04G23B_NEXT_CHAT_HANDOFF.md`
 1. `docs/decisions/N04G23_TWO_STAGE_GROUNDED_GENERATION_ARCHITECTURE.md`
 2. `docs/decisions/N04G23AE_INTEGRATION_AND_G23B_UNBLOCK_DECISION.md`
 3. `docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
