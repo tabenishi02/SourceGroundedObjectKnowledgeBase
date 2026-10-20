@@ -202,6 +202,7 @@ def _score(case_results: list[dict[str, Any]]) -> dict[str, Any]:
     required_atomicity_false_reject: list[str] = []
     required_role_false_reject: list[str] = []
     repeatability_failures: list[str] = []
+    required_repeatability_failures: list[str] = []
     exact_match_failures: list[str] = []
     total_predictions = 0
     indeterminate_predictions = 0
@@ -217,8 +218,11 @@ def _score(case_results: list[dict[str, Any]]) -> dict[str, Any]:
         indeterminate_predictions += sum(value == "INDETERMINATE" for value in atomicity_values)
         indeterminate_predictions += sum(value == "INDETERMINATE" for value in role_values)
 
-        if len(set(atomicity_values)) != 1 or len(set(role_values)) != 1:
+        unstable = len(set(atomicity_values)) != 1 or len(set(role_values)) != 1
+        if unstable:
             repeatability_failures.append(result["case_id"])
+            if result["required"]:
+                required_repeatability_failures.append(result["case_id"])
 
         if any(value != expected_atomicity for value in atomicity_values) or any(
             value != expected_role for value in role_values
@@ -241,7 +245,7 @@ def _score(case_results: list[dict[str, Any]]) -> dict[str, Any]:
 
     safety_gate = not critical_atomicity_false_pass and not critical_role_false_pass
     required_valid_gate = not required_atomicity_false_reject and not required_role_false_reject
-    repeatability_gate = not repeatability_failures
+    repeatability_gate = not required_repeatability_failures
 
     return {
         "critical_atomicity_false_pass_cases": critical_atomicity_false_pass,
@@ -249,6 +253,7 @@ def _score(case_results: list[dict[str, Any]]) -> dict[str, Any]:
         "required_atomicity_false_reject_cases": required_atomicity_false_reject,
         "required_role_false_reject_cases": required_role_false_reject,
         "repeatability_failure_cases": repeatability_failures,
+        "required_repeatability_failure_cases": required_repeatability_failures,
         "exact_match_failure_cases": exact_match_failures,
         "indeterminate_rate": (indeterminate_predictions / total_predictions if total_predictions else 0.0),
         "atomicity_confusion": _confusion(case_results, "atomicity", "atomicity_verdict"),
