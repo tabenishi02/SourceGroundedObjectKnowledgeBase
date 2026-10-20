@@ -18,6 +18,7 @@ from .v4_contracts import (
     VALIDATED_PLAN_VERSION,
     VALIDATION_RECORD_VERSION,
     digest_object,
+    verify_certified_content,
 )
 
 ATOMIC = "ATOMIC"
@@ -119,6 +120,18 @@ def _validation_record_digest_valid(record: dict[str, Any]) -> bool:
     return expected == digest_object(payload)
 
 
+def _certified_fact_digest_valid(fact: dict[str, Any]) -> bool:
+    expected = fact.get("certified_fact_digest")
+    if not isinstance(expected, str):
+        return False
+    payload = {
+        key: value
+        for key, value in fact.items()
+        if key != "certified_fact_digest"
+    }
+    return expected == digest_object(payload)
+
+
 def _grounding_unit_map(grounded_context: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {
         str(unit["ref_id"]): unit
@@ -193,10 +206,39 @@ class V4PropositionValidator:
                 verdict="FAIL",
                 failure_codes=["UNKNOWN_PATH_PROVENANCE"],
             )
+
+        binding_ok = (
+            verify_certified_content(certified_content)
+            and candidate.get("certified_content_id")
+            == certified_content.get("certified_content_id")
+            and candidate.get("certified_content_digest")
+            == certified_content.get("certified_content_digest")
+            and candidate.get("context_fingerprint")
+            == certified_content.get("context_fingerprint")
+            and candidate.get("purpose") == certified_content.get("purpose")
+        )
+        if not binding_ok:
+            return self._record(
+                validation_record_id=validation_record_id,
+                candidate=candidate,
+                normalized_role=role,
+                components=[
+                    _component(
+                        "V2-D",
+                        "FAIL",
+                        evidence={"binding": "certified_content_mismatch"},
+                    )
+                ],
+                verdict="FAIL",
+                failure_codes=["CERTIFIED_CONTENT_BINDING_FAILURE"],
+            )
+
         fact_map = {
             str(fact["certified_fact_id"]): fact
             for fact in certified_content.get("facts", [])
-            if isinstance(fact, dict) and isinstance(fact.get("certified_fact_id"), str)
+            if isinstance(fact, dict)
+            and isinstance(fact.get("certified_fact_id"), str)
+            and _certified_fact_digest_valid(fact)
         }
         return self._validate(
             candidate,
@@ -297,7 +339,11 @@ class V4PropositionValidator:
             )
         atomicity_pass = atomicity["verdict"] == ATOMIC
         components.append(
-            _component("V2-R-A", "PASS" if atomicity_pass else "FAIL", evidence=atomicity)
+            _component(
+                "V2-R-A",
+                "PASS" if atomicity_pass else "FAIL",
+                evidence=atomicity,
+            )
         )
         if not atomicity_pass:
             failures.append(f"V2_ATOMICITY_{atomicity['verdict']}")
@@ -389,12 +435,17 @@ class V4PropositionValidator:
         evidence: dict[str, Any] = {"purpose": purpose}
 
         if expected_role == ROLE_SOURCE_FACT:
+            context = grounded_context or {}
+            if candidate.get("context_fingerprint") != context.get("context_fingerprint"):
+                failures.append("CONTEXT_FINGERPRINT_BINDING_FAILURE")
+            if candidate.get("purpose") != context.get("purpose"):
+                failures.append("PURPOSE_BINDING_FAILURE")
             refs = payload.get("support_refs")
             if not isinstance(refs, list) or not refs:
                 failures.append("SOURCE_FACT_SUPPORT_REFS_REQUIRED")
             if "premise_fact_ids" in payload:
                 failures.append("SOURCE_FACT_PREMISE_BINDING_FORBIDDEN")
-            unit_map = _grounding_unit_map(grounded_context or {})
+            unit_map = _grounding_unit_map(context)
             if isinstance(refs, list):
                 if len(refs) != len(set(refs)):
                     failures.append("DUPLICATE_REFERENCE_ID")
@@ -413,7 +464,11 @@ class V4PropositionValidator:
             if isinstance(premises, list):
                 if len(premises) != len(set(premises)):
                     failures.append("DUPLICATE_REFERENCE_ID")
-                unknown = [value for value in premises if value not in (certified_fact_map or {})]
+                unknown = [
+                    value
+                    for value in premises
+                    if value not in (certified_fact_map or {})
+                ]
                 if unknown:
                     failures.append("CERTIFIED_FACT_BINDING_FAILURE")
                     evidence["unknown_premise_fact_ids"] = unknown
@@ -461,7 +516,11 @@ class V4PropositionValidator:
             )
         support_pass = support["verdict"] == "SUPPORTED"
         components.append(
-            _component("V3/V4F", "PASS" if support_pass else "FAIL", evidence=support)
+            _component(
+                "V3/V4F",
+                "PASS" if support_pass else "FAIL",
+                evidence=support,
+            )
         )
         if not support_pass:
             failures.append(f"SOURCE_SUPPORT_{support['verdict']}")
@@ -472,7 +531,9 @@ class V4PropositionValidator:
             components=components,
             verdict="PASS" if support_pass else "FAIL",
             failure_codes=failures,
-            source_support_aggregate_result="PASS" if support_pass else support["verdict"],
+            source_support_aggregate_result=(
+                "PASS" if support_pass else support["verdict"]
+            ),
         )
 
     def _validate_interpretation(
@@ -513,9 +574,16 @@ class V4PropositionValidator:
                 },
                 unavailable_verdict="UNAVAILABLE",
             )
-        derivation_pass = derivation["verdict"] in {"DERIVED_SUPPORTED", "REASONABLE_DERIVATION"}
+        derivation_pass = derivation["verdict"] in {
+            "DERIVED_SUPPORTED",
+            "REASONABLE_DERIVATION",
+        }
         components.append(
-            _component("V4I", "PASS" if derivation_pass else "FAIL", evidence=derivation)
+            _component(
+                "V4I",
+                "PASS" if derivation_pass else "FAIL",
+                evidence=derivation,
+            )
         )
         if not derivation_pass:
             failures.append(f"INTERPRETATION_DERIVATION_{derivation['verdict']}")
@@ -541,7 +609,9 @@ class V4PropositionValidator:
         source_support_aggregate_result: str | None = None,
     ) -> dict[str, Any]:
         v2_components = [
-            component for component in components if component["component"].startswith("V2")
+            component
+            for component in components
+            if component["component"].startswith("V2")
         ]
         v2_pass = bool(v2_components) and all(
             component["result"] == "PASS" for component in v2_components
@@ -584,7 +654,8 @@ def certify_stage1_attempt(
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """Certify eligible candidates from one active Stage 1 attempt only."""
     by_proposition = {
-        str(record.get("source_proposition_id")): record for record in validation_records
+        str(record.get("source_proposition_id")): record
+        for record in validation_records
     }
     facts: list[dict[str, Any]] = []
     decisions: list[dict[str, Any]] = []
@@ -594,7 +665,17 @@ def certify_stage1_attempt(
         proposition_id = str(candidate["proposition_id"])
         record = by_proposition.get(proposition_id)
         reason: str | None = None
-        if record is None:
+        request_binding_ok = (
+            candidate.get("request_id") == request.get("request_id")
+            and candidate.get("attempt") == request.get("attempt")
+            and candidate.get("attempt_id") == request.get("attempt_id")
+            and candidate.get("context_fingerprint")
+            == request.get("context_fingerprint")
+            and candidate.get("purpose") == request.get("purpose")
+        )
+        if not request_binding_ok:
+            reason = "NOT_CERTIFIED_BINDING_MISMATCH"
+        elif record is None:
             reason = "NOT_CERTIFIED_BINDING_MISMATCH"
         elif not _validation_record_digest_valid(record):
             reason = "NOT_CERTIFIED_BINDING_MISMATCH"
@@ -681,9 +762,15 @@ def materialize_certified_facts(
     certified_content: dict[str, Any],
     fact_ids: list[str],
 ) -> list[dict[str, Any]]:
+    if not verify_certified_content(certified_content):
+        raise ValueError("Certified Content digest binding is invalid")
     fact_map = {
-        str(fact["certified_fact_id"]): fact for fact in certified_content.get("facts", [])
+        str(fact["certified_fact_id"]): fact
+        for fact in certified_content.get("facts", [])
+        if _certified_fact_digest_valid(fact)
     }
+    if len(fact_map) != len(certified_content.get("facts", [])):
+        raise ValueError("Certified Fact digest binding is invalid")
     if len(fact_ids) != len(set(fact_ids)):
         raise ValueError("duplicate Certified Fact ID in main block")
     materialized: list[dict[str, Any]] = []
@@ -713,8 +800,22 @@ def build_validated_presentation_plan(
     validation_records: list[dict[str, Any]],
 ) -> dict[str, Any]:
     """Build a plan only when the entire Stage 2 attempt is valid."""
+    content_binding_ok = (
+        verify_certified_content(certified_content)
+        and request.get("certified_content_id")
+        == certified_content.get("certified_content_id")
+        and request.get("certified_content_digest")
+        == certified_content.get("certified_content_digest")
+        and request.get("context_fingerprint")
+        == certified_content.get("context_fingerprint")
+        and request.get("purpose") == certified_content.get("purpose")
+    )
+    if not content_binding_ok:
+        raise ValueError("Stage 2 request / Certified Content binding mismatch")
+
     by_proposition = {
-        str(record.get("source_proposition_id")): record for record in validation_records
+        str(record.get("source_proposition_id")): record
+        for record in validation_records
     }
     envelope_by_location = {
         (int(candidate["block_index"]), int(candidate["candidate_index"])): candidate
@@ -736,13 +837,25 @@ def build_validated_presentation_plan(
         for candidate_index, _payload in enumerate(block["candidates"]):
             candidate = envelope_by_location[(block_index, candidate_index)]
             record = by_proposition.get(candidate["proposition_id"])
+            request_binding_ok = (
+                candidate.get("stage2_request_id")
+                == request.get("stage2_request_id")
+                and candidate.get("attempt") == request.get("attempt")
+                and candidate.get("attempt_id") == request.get("attempt_id")
+                and candidate.get("certified_content_digest")
+                == request.get("certified_content_digest")
+            )
             if (
-                record is None
+                not request_binding_ok
+                or record is None
                 or not _validation_record_digest_valid(record)
-                or record.get("source_candidate_digest") != candidate.get("candidate_digest")
+                or record.get("source_candidate_digest")
+                != candidate.get("candidate_digest")
                 or record.get("verdict") != "PASS"
             ):
-                raise ValueError("Stage 2 plan contains an unvalidated proposition")
+                raise ValueError(
+                    "Stage 2 plan contains an unvalidated or misbound proposition"
+                )
             item = {
                 "path_provenance": candidate["path_provenance"],
                 "normalized_role": record["normalized_role"],
@@ -753,19 +866,27 @@ def build_validated_presentation_plan(
                 "validation_record_digest": record["validation_record_digest"],
             }
             if kind == "interpretation":
-                item["premise_fact_ids"] = list(candidate["payload"]["premise_fact_ids"])
+                item["premise_fact_ids"] = list(
+                    candidate["payload"]["premise_fact_ids"]
+                )
             validated_items.append(item)
         blocks.append({"block_kind": kind, "items": validated_items})
 
+    plan_seed = {
+        "request": request["stage2_request_id"],
+        "attempt": request["attempt"],
+        "attempt_id": request["attempt_id"],
+    }
     plan = {
         "validated_presentation_plan_contract_version": VALIDATED_PLAN_VERSION,
-        "plan_id": f"VP-{digest_object({'request': request['stage2_request_id'], 'a': request['attempt']})[:16]}",
+        "plan_id": f"VP-{digest_object(plan_seed)[:16]}",
         "stage2_request_id": request["stage2_request_id"],
         "certified_content_id": request["certified_content_id"],
         "certified_content_digest": request["certified_content_digest"],
         "context_fingerprint": request["context_fingerprint"],
         "purpose": request["purpose"],
         "attempt": request["attempt"],
+        "attempt_id": request["attempt_id"],
         "blocks": blocks,
     }
     plan["validated_presentation_plan_digest"] = digest_object(plan)
