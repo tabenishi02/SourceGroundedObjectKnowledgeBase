@@ -9,7 +9,9 @@ PREFLIGHT = ROOT / "benchmark" / "tools" / "n04g23ar_preflight.py"
 SELECTOR = ROOT / "benchmark" / "tools" / "n04g23ar_compare_candidates.py"
 MANIFEST = ROOT / "benchmark" / "n04g23ar-judge-candidates-v1.json"
 PARAPHRASE = ROOT / "benchmark" / "n04g23ar-split-paraphrase-profile-v1.json"
-G23A_PROFILES = ROOT / "benchmark" / "n04g23a-atomicity-role-prompt-profiles-v1.json"
+G23A_PROFILES = (
+    ROOT / "benchmark" / "n04g23a-atomicity-role-prompt-profiles-v1.json"
+)
 
 
 def _load(path: Path) -> dict:
@@ -45,7 +47,10 @@ def test_candidate_pool_is_fixed_and_cross_family() -> None:
     ]
     assert len({candidate["family"] for candidate in candidates}) == 4
     assert all(candidate["lm_studio_alias"] for candidate in candidates)
-    assert all(candidate["required_quantization"] in {"Q6_K", "Q4_K_M"} for candidate in candidates)
+    assert all(
+        candidate["required_quantization"] in {"Q6_K", "Q4_K_M"}
+        for candidate in candidates
+    )
 
 
 def test_primary_gate_cannot_relax_fail_closed_counts() -> None:
@@ -68,33 +73,45 @@ def test_secondary_gate_requires_exact_required_stability() -> None:
     secondary = manifest["secondary_gate"]
     assert secondary["applies_to"] == "primary-gate pass candidates only"
     assert secondary["same_safety_and_required_valid_gates"] is True
-    assert secondary["required_exact_vs_paraphrase_atomicity_agreement"].startswith("100%")
-    assert secondary["required_exact_vs_paraphrase_role_agreement"].startswith("100%")
-    assert secondary["required_exact_vs_paraphrase_joint_agreement"].startswith("100%")
+    assert secondary[
+        "required_exact_vs_paraphrase_atomicity_agreement"
+    ].startswith("100%")
+    assert secondary[
+        "required_exact_vs_paraphrase_role_agreement"
+    ].startswith("100%")
+    assert secondary[
+        "required_exact_vs_paraphrase_joint_agreement"
+    ].startswith("100%")
     assert secondary["required_repeatability_failure_cases"] == 0
 
 
-def test_paraphrase_profile_is_pre_registered_split_and_semantically_separate() -> None:
+def test_paraphrase_profile_is_pre_registered_split_and_separate() -> None:
     paraphrase = _load(PARAPHRASE)
     g23a = _load(G23A_PROFILES)
     para = paraphrase["profiles"][0]
-    split = next(profile for profile in g23a["profiles"] if profile["profile_id"] == "split-v1")
+    split = next(
+        profile
+        for profile in g23a["profiles"]
+        if profile["profile_id"] == "split-v1"
+    )
     assert paraphrase["status"] == "frozen_for_execution"
     assert para["profile_id"] == "split-paraphrase-a"
     assert para["mode"] == "split"
     assert para["atomicity"]["system_prompt"] != split["atomicity"]["system_prompt"]
     assert para["role"]["system_prompt"] != split["role"]["system_prompt"]
+
+    para_atomic = para["atomicity"]["response_format"]["json_schema"]["schema"]
+    split_atomic = split["atomicity"]["response_format"]["json_schema"]["schema"]
     assert (
-        para["atomicity"]["response_format"]["json_schema"]["schema"]["properties"]
-        ["atomicity_verdict"]["enum"]
-        == split["atomicity"]["response_format"]["json_schema"]["schema"]["properties"]
-        ["atomicity_verdict"]["enum"]
+        para_atomic["properties"]["atomicity_verdict"]["enum"]
+        == split_atomic["properties"]["atomicity_verdict"]["enum"]
     )
+
+    para_role = para["role"]["response_format"]["json_schema"]["schema"]
+    split_role = split["role"]["response_format"]["json_schema"]["schema"]
     assert (
-        para["role"]["response_format"]["json_schema"]["schema"]["properties"]
-        ["role_boundary_verdict"]["enum"]
-        == split["role"]["response_format"]["json_schema"]["schema"]["properties"]
-        ["role_boundary_verdict"]["enum"]
+        para_role["properties"]["role_boundary_verdict"]["enum"]
+        == split_role["properties"]["role_boundary_verdict"]["enum"]
     )
 
 
@@ -122,24 +139,37 @@ def test_selector_requires_123_of_123_required_prompt_stability() -> None:
     secondary_cases = []
     for index in range(41):
         repeats = [
-            {"atomicity_verdict": "ATOMIC", "role_boundary_verdict": "ROLE_VALID"}
+            {
+                "atomicity_verdict": "ATOMIC",
+                "role_boundary_verdict": "ROLE_VALID",
+            }
             for _ in range(3)
         ]
-        primary_cases.append({"case_id": f"c{index}", "required": True, "repeats": repeats})
-        secondary_cases.append(
-            {"case_id": f"c{index}", "required": True, "repeats": json.loads(json.dumps(repeats))}
+        primary_cases.append(
+            {"case_id": f"c{index}", "required": True, "repeats": repeats}
         )
+        secondary_cases.append(
+            {
+                "case_id": f"c{index}",
+                "required": True,
+                "repeats": json.loads(json.dumps(repeats)),
+            }
+        )
+
     stability = selector._required_agreement(
-        {"cases": primary_cases}, {"cases": secondary_cases}
+        {"cases": primary_cases},
+        {"cases": secondary_cases},
     )
     assert stability["total_required_repeat_pairs"] == 123
     assert stability["atomicity_identical"] == 123
     assert stability["role_identical"] == 123
     assert stability["joint_identical"] == 123
     assert stability["pass"] is True
+
     secondary_cases[0]["repeats"][0]["role_boundary_verdict"] = "INDETERMINATE"
     stability = selector._required_agreement(
-        {"cases": primary_cases}, {"cases": secondary_cases}
+        {"cases": primary_cases},
+        {"cases": secondary_cases},
     )
     assert stability["joint_identical"] == 122
     assert stability["pass"] is False
