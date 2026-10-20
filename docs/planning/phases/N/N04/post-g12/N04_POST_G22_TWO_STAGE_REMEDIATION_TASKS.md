@@ -9,6 +9,7 @@
 - Stage 1 contract: `docs/decisions/N04G23B_STAGE1_GROUNDED_CONTENT_PLANNER_CONTRACT.md`
 - Certified Content contract: `docs/decisions/N04G23C_CERTIFICATION_AND_CERTIFIED_CONTENT_CONTRACT.md`
 - Stage 2 contract: `docs/decisions/N04G23D_STAGE2_PRESENTATION_GENERATOR_CONTRACT.md`
+- Provider/retry contract: `docs/decisions/N04G23E_PROVIDER_SCHEMA_AND_STAGE_LOCAL_RETRY_DESIGN.md`
 - G-25 benchmark plan: `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
@@ -39,9 +40,9 @@ G-23C Certification / Certified Content contract    Complete / Contract Accepted
   ↓
 G-23D Stage 2 Presentation Generator contract       Complete / Contract Accepted
   ↓
-G-23E Provider schema + stage-local retry design    NEXT
+G-23E Provider schema + stage-local retry design    Complete / Contract Accepted
   ↓
-G-23F v4 design integration / Design Freeze
+G-23F v4 design integration / Design Freeze         NEXT
   ↓
 G-24 v4 implementation
   ↓
@@ -78,8 +79,8 @@ Historical G-18/G-21/G-22 artifacts remain immutable evidence.
 | N-04G-23B | P0 | **Complete / Contract Accepted** | Stage 1 Content Planner contract |
 | N-04G-23C | P0 | **Complete / Contract Accepted** | Certification / Certified Content contract |
 | N-04G-23D | P0 | **Complete / Contract Accepted** | Stage 2 Presentation Generator contract |
-| N-04G-23E | P0 | **NEXT** | provider schema + stage-local retry |
-| N-04G-23F | P0 | Planned | v4 Design Freeze |
+| N-04G-23E | P0 | **Complete / Contract Accepted** | provider schema + stage-local retry |
+| N-04G-23F | P0 | **NEXT** | v4 Design Freeze |
 | N-04G-24 | P0 | Blocked by G-23F | implementation |
 | N-04G-25A | P0 | Blocked by G-24 | Residual classifier benchmark / selection |
 | N-04G-25B | P0 | Blocked by G-25A PASS | integrated adversarial regression |
@@ -211,7 +212,7 @@ Key decisions:
 - interpretation premises use `certified_fact_id` values;
 - exact duplicate minimum handling prevents trivial count inflation;
 - empty Certified Content is audit evidence only, not context-limit;
-- cross-attempt salvage/inclusion remains G-23E scope.
+- cross-attempt salvage/inclusion was deferred to G-23E and is now closed by active-attempt replacement.
 
 ## 8. G-23D result
 
@@ -259,29 +260,85 @@ Key decisions:
 - source fact / interpretation / creative remain structurally separate through final rendering;
 - no-new-source-fact rule applies after Certification.
 
-## 9. G-23E immediate scope
+## 9. G-23E result
 
-Next task: **N-04G-23E — Provider Schema + Stage-local Retry Design**.
+Authority: `docs/decisions/N04G23E_PROVIDER_SCHEMA_AND_STAGE_LOCAL_RETRY_DESIGN.md`
 
-G-23E must define at least:
+G-23E is **Complete / Contract Accepted**.
 
-1. Stage 1 provider-facing JSON Schema.
-2. Stage 2 provider-facing JSON Schema.
-3. provider-enforced vs application-enforced invariants.
-4. runtime support/probe result for required JSON Schema features.
-5. duplicate Stage 2 block-kind prevention strategy.
-6. exact parse/contract failure semantics.
-7. Stage 1 retry trigger/input/output.
-8. Stage 2 retry trigger/input/output.
-9. retry identity/lineage and frozen inputs across attempts.
-10. cross-attempt Stage 1 certification/salvage policy deferred by G-23C.
-11. provider request/schema/prompt artifact identities and hashes.
+Provider structured output is a structural guard only. Application-side parse/schema/reference/binding validation remains mandatory.
+
+Provider schema decisions:
+
+```text
+Stage 1
+  candidates[]
+    claim_text
+    support_refs[]
+  dynamic K allow-list enum
+  request-owned candidate max
+
+Stage 2
+  blocks[] max 3
+  complete oneOf alternatives:
+    main
+    interpretation
+    creative where purpose permits
+  dynamic active Certified Fact enum
+```
+
+Runtime/schema safety decisions:
+
+- existing Reference Workstation evidence proves the LM Studio structured-output path is operational;
+- provider acceptance of a schema does not prove every JSON Schema keyword is enforced;
+- do not rely on provider `uniqueItems`, `contains/minContains/maxContains`, conditionals or cross-item property uniqueness;
+- duplicate support/premise IDs and duplicate Stage 2 block kinds are application-enforced;
+- application revalidates complete provider output against the instantiated schema;
+- provider/schema binding mismatch or provider unavailability is fail-closed SYSTEM_FAILURE;
+- G-24/G-26 must record exact runtime capability probes.
+
+Retry decisions:
+
+```text
+Stage 1 max attempts = 2 / max retry = 1
+Stage 2 max attempts = 2 / max retry = 1
+```
+
+- counters are stage-local and independent;
+- no Stage 2 -> Stage 1 backward retry in the same run;
+- retry inputs keep Context/Certified Content, purpose, model, settings and schema fixed;
+- only attempt identity, lineage, structured feedback and new output may change;
+- Stage 1 candidate-level certification inside one attempt is allowed by design;
+- if Stage 1 attempt 2 is invoked, attempt 2 fully replaces attempt 1 as the active factual attempt;
+- no cross-attempt Certified Fact merge and no fallback to attempt 1;
+- Stage 2 failed plan is not partially rendered;
+- if Stage 2 attempt 2 is invoked, attempt 2 fully replaces attempt 1 as the active plan;
+- retry feedback is diagnostic only and cannot introduce new facts or validator-written replacement claims.
+
+## 10. G-23F immediate scope
+
+Next task: **N-04G-23F — v4 Design Integration / Design Freeze**.
+
+G-23F must integrate the accepted G-23A-E + G-23B/C/D/E decisions into one authoritative implementation-ready v4 design.
+
+At minimum:
+
+1. End-to-end authority/ownership consistency review.
+2. Contract/version and artifact-flow integration.
+3. Candidate -> Validation -> Certification -> Stage 2 -> final validation traceability.
+4. stage-local retry ordering and active-attempt semantics.
+5. system-owned context-limit / terminal boundary.
+6. Material Requirement interaction.
+7. provider/application validation split.
+8. evidence/replay artifact tree and identity bindings.
+9. preservation of mandatory G-25A residual classifier Gate.
+10. G-24 implementation handoff.
 
 Primary handoff:
 
-`docs/planning/phases/N/N04/post-g12/N04G23E_NEXT_CHAT_HANDOFF.md`
+`docs/planning/phases/N/N04/post-g12/N04G23F_NEXT_CHAT_HANDOFF.md`
 
-## 10. Mandatory downstream classifier gate
+## 11. Mandatory downstream classifier gate
 
 Authority: `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
 
@@ -297,7 +354,7 @@ and G-26 remains blocked. Gate weakening is prohibited.
 
 `G-25B` evaluates selected components in the full v4 pipeline. Only PASS unblocks G-26.
 
-## 11. Protected boundaries
+## 12. Protected boundaries
 
 Do not change without new evidence:
 
@@ -311,6 +368,7 @@ Do not change without new evidence:
 - G-23B Stage 1 contract
 - G-23C Certification / Certified Content contract
 - G-23D Stage 2 Presentation Generator contract
+- G-23E Provider Schema / Stage-local Retry contract
 - MiniCheck threshold/profile merely to improve acceptance
 - Retrieval / Similarity / Context Builder
 - canonical DB
@@ -320,18 +378,19 @@ Do not change without new evidence:
 - unsupported rendered claim prohibition
 - fail-closed semantics
 
-## 12. Current state
+## 13. Current state
 
 ```text
 G-23A-E = Complete / Architecture Accepted
 G-23B   = Complete / Contract Accepted
 G-23C   = Complete / Contract Accepted
 G-23D   = Complete / Contract Accepted
-G-23E   = NEXT
+G-23E   = Complete / Contract Accepted
+G-23F   = NEXT
 N-04    = Failed / not Complete
 N-05    = blocked
 ```
 
-## 13. Immediate next task
+## 14. Immediate next task
 
-**N-04G-23E — Provider Schema + Stage-local Retry Design**
+**N-04G-23F — v4 Design Integration / Design Freeze**
