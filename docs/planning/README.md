@@ -14,7 +14,7 @@
 - N-04 Grounded Generation task: [`phases/N/N04/N04_GROUNDED_GENERATION_TASKS.md`](phases/N/N04/N04_GROUNDED_GENERATION_TASKS.md)
 - N-04 historical post-G12 remediation: [`phases/N/N04/post-g12/N04_POST_G12_REMEDIATION_TASKS.md`](phases/N/N04/post-g12/N04_POST_G12_REMEDIATION_TASKS.md)
 - **N-04 current post-G22 remediation: [`phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_REMEDIATION_TASKS.md`](phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_REMEDIATION_TASKS.md)**
-- N-04 current chat handoff: [`phases/N/N04/post-g12/N04_POST_G12_CHAT_HANDOFF.md`](phases/N/N04/post-g12/N04_POST_G12_CHAT_HANDOFF.md)
+- **N-04 current chat handoff: [`phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_CHAT_HANDOFF.md`](phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_CHAT_HANDOFF.md)**
 
 ## Directory layout
 
