@@ -6,18 +6,18 @@
 - Decision proposal: `docs/decisions/N04G23AE_ATOMICITY_ROLE_GATE_RESPONSIBILITY_DECOMPOSITION.md`
 - Trigger: `N-04G-23A-R` Complete / valid FAIL / no candidate selected
 - Priority: **P0**
-- Status: **Planned / NEXT**
+- Status: **In Progress**
+- Completed: **G-23A-E1**
+- Current task: **G-23A-E2 — v4 V2 Responsibility Boundary Design**
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 - G-23B: **blocked until G-23A-E acceptance**
 
----
-
 ## 1. Goal
 
-G-23A / G-23A-Rで明らかになったAtomicity / Role Judgeの不安定性に対し、Judge model追加ではなく**責務境界そのものを再設計**する。
+G-23A / G-23A-Rで明らかになったAtomicity / Role Judgeの不安定性に対し、Judge model追加ではなく責務境界そのものを再設計する。
 
-設計作業の完了条件は、次をv4向けに明文化すること。
+設計作業の完了条件:
 
 1. 47 Gold各caseの責務owner
 2. Atomicityのstructural authorityとresidual checkの境界
@@ -25,19 +25,17 @@ G-23A / G-23A-Rで明らかになったAtomicity / Role Judgeの不安定性に�
 4. application-owned role provenance
 5. deterministic role/purpose/presentation compatibility matrix
 6. residual semantic classifierの必要範囲
-7. 47 Goldを使ったdesk replayによる設計妥当性確認
+7. 47 Gold desk replay
 8. G-23Bが参照できる統合Decision
 
 本Taskではproduction実装を行わない。
 
----
-
 ## 2. Task chain
 
 ```text
-G-23A-E1 47-Gold Responsibility Mapping
+G-23A-E1 47-Gold Responsibility Mapping                 Complete
   ↓
-G-23A-E2 v4 V2 Responsibility Boundary Design
+G-23A-E2 v4 V2 Responsibility Boundary Design           NEXT
   ↓
 G-23A-E3 Structured Proposition Contract Design
   ↓
@@ -50,84 +48,83 @@ G-23A-E6 47-Gold Desk Replay / Coverage Analysis
 G-23A-E7 Integration Decision / G-23B Unblock Review
 ```
 
-E1〜E6の結果を見て設計を後付けで緩めない。必要な設計変更が生じた場合は、変更理由と影響する前工程を明記して再レビューする。
-
----
+E1〜E6の結果を見て設計を後付けで緩めない。必要な設計変更が生じた場合は変更理由と影響する前工程を明記して再レビューする。
 
 ## 3. G-23A-E1 — 47-Gold Responsibility Mapping
 
-### Purpose
+Status: **Complete**
 
-`benchmark/n04g23a-atomicity-role-gold-v1.json` の全47 caseを、新v4 Gateのどのcomponentが扱うべきか分類する。
+Deliverable:
 
-### Required classification
+`docs/evaluation/N04G23AE_47_GOLD_RESPONSIBILITY_MAP.md`
 
-各caseへ最低限以下を付与する。
+Result:
+
+```text
+Total                  47
+Required               41
+Optional                6
+Critical               33
+Critical without owner  0
+Gold label changes      0
+```
+
+Primary owner distribution:
+
+```text
+STRUCTURAL              20
+DETERMINISTIC_POLICY     5
+RESIDUAL_SEMANTIC       11
+COMBINED                 5
+OPTIONAL_AMBIGUOUS       6
+```
+
+Gate:
+
+- 47 / 47 mapped: PASS
+- no critical case without owner: PASS
+- optional ambiguous cases remain explicit: PASS
+- Gold labels/required/critical flags unchanged: PASS
+
+Decision carried to E2:
 
 ```text
 STRUCTURAL
+  -> Structured Proposition contract primary
+  -> compound-risk guard secondary
+
 DETERMINISTIC_POLICY
+  -> application policy matrix primary
+  -> no LLM required for reject
+
 RESIDUAL_SEMANTIC
+  -> narrow content-type classifier after deterministic checks
+
 COMBINED
+  -> structural and semantic/policy verdicts remain independent
+
 OPTIONAL_AMBIGUOUS
+  -> preserve ambiguity; audit/coverage only
 ```
-
-複数責務に跨る場合はprimary owner / secondary guardを分ける。
-
-### Required fields per case
-
-- case_id
-- required / optional
-- critical_for_safety
-- current atomicity Gold
-- current role Gold
-- v3 failure mode / observed judge issue
-- proposed primary owner
-- optional secondary guard
-- deterministic inputs available or not
-- semantic understanding required or not
-- expected v4 action
-- still-needed regression assertion
-
-### Deliverable
-
-```text
-docs/evaluation/N04G23AE_47_GOLD_RESPONSIBILITY_MAP.md
-```
-
-Optionally add a machine-readable projection if useful:
-
-```text
-benchmark/n04g23ae-47-gold-responsibility-map-v1.json
-```
-
-### Gate
-
-- 47 / 47 cases mapped
-- no critical case left with unspecified owner
-- optional ambiguous cases remain explicitly ambiguous rather than force-labeled
-- no Gold label change inside this task
-
----
 
 ## 4. G-23A-E2 — v4 V2 Responsibility Boundary Design
 
-### Purpose
+Status: **NEXT**
 
-Current all-in-one LLM Judge responsibilityを、structural / deterministic / residual semanticへ分割し、validation順序とauthorityを固定する。
+Purpose: all-in-one LLM Judge responsibilityをstructural / deterministic / residual semanticへ分割し、validation順序とauthorityを固定する。
 
-### Required design questions
+Required questions:
 
 1. Which checks run before any semantic classifier?
 2. Which checks are hard deterministic rejects?
 3. Which checks only raise compound-risk and require residual review?
 4. What is the authoritative source of role provenance?
 5. When is a residual classifier invoked?
-6. How is `AMBIGUOUS` / `MIXED_CONTENT` treated?
-7. Can downstream support validation override earlier failure? Expected answer: no.
+6. How are `AMBIGUOUS` / `MIXED_CONTENT` handled?
+7. Can downstream support validation override earlier failure? **No.**
 8. How does retry receive stage-local evidence?
 
-### Target flow to validate
+Target flow:
 
 ```text
 Structured Proposition
@@ -143,25 +140,17 @@ Residual semantic classification if needed
 Support / derivation validation
 ```
 
-### Deliverable
+Deliverable:
 
-```text
-docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md
-```
+`docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
 
-### Gate
-
-Every verdict source must have one unambiguous authority. A later probabilistic component must not silently override an earlier deterministic violation.
-
----
+Gate: every verdict source has one unambiguous authority; later probabilistic components cannot override earlier deterministic violations.
 
 ## 5. G-23A-E3 — Structured Proposition Contract Design
 
-### Purpose
+Purpose: Atomicityを自然言語生成後の全件LLM判定からgeneration intermediate contractで一部保証する方式へ移す。
 
-Atomicityを「自然言語生成後に全件LLM判定」する方式から、**generation intermediate contractで一部保証する方式**へ移すためのschemaを設計する。
-
-### Required topics
+Required topics:
 
 - proposition_id lifetime / uniqueness
 - stage/path provenance
@@ -170,62 +159,29 @@ Atomicityを「自然言語生成後に全件LLM判定」する方式から、**
 - premise_fact_ids
 - purpose binding
 - object/context fingerprint binding
-- certification status field ownership
+- certification status ownership
 - retry identity
-- representation of rejected / ambiguous proposition
-- renderingとの分離
+- rejected / ambiguous representation
+- rendering separation
 - schema versioning
 
-### Explicit design comparison
-
-少なくとも次を比較する。
-
-#### Option A — Minimal proposition record
+Compare:
 
 ```text
-id + provenance + text + refs
+A Minimal: id + provenance + text + refs
+B Semi-structured: id + subject/entity refs + predicate hints + text + refs
+C Fully normalized: subject + predicate + object/value + qualifiers
 ```
 
-#### Option B — Semi-structured proposition record
+Option C requires evidence that arbitrary SGOKB content can be represented without semantic loss.
 
-```text
-id + subject/entity refs + relation/predicate hints + text + refs
-```
-
-#### Option C — Fully normalized predicate/value record
-
-```text
-subject + predicate + object/value + qualifiers
-```
-
-Option Cを採用する場合、任意のSGOKB contentをsemantic lossなく表現できる証拠が必要。単にmachine-checkしやすいという理由だけでrigid ontologyへ固定しない。
-
-### Deliverable
-
-```text
-docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md
-```
-
-### Gate
-
-- G-23B Content Plannerが出力可能
-- G-23C Certificationが消費可能
-- G-23D Presentationがcertified IDsを参照可能
-- G-14 silent post-hoc atomization prohibitionと矛盾しない
-
----
+Deliverable: `docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
 
 ## 6. G-23A-E4 — Role Provenance / Compatibility Matrix Design
 
-### Purpose
+Generator-declared `semantic_role`をpolicy authorityとして扱わず、stage/path provenanceとdeterministic policy matrixからnormalized roleを導く。
 
-Generator-declared `semantic_role`をpolicy authorityとして扱わず、stage/path provenanceとdeterministic policy matrixからnormalized roleを導けるようにする。
-
-### Required outputs
-
-#### 6.1 Provenance model
-
-最低限次のpathを検討する。
+Minimum paths:
 
 ```text
 stage1_fact_candidate
@@ -234,9 +190,7 @@ stage2_creative_candidate
 system_context_limit
 ```
 
-#### 6.2 Compatibility matrix
-
-最低限次元:
+Compatibility dimensions:
 
 ```text
 normalized role
@@ -247,41 +201,18 @@ premise requirement
 support requirement
 ```
 
-#### 6.3 Deterministic violations
+Known structured policy violations must be deterministic.
 
-例:
+Deliverables:
 
-- creative content outside creative purpose
-- interpretation in main/source-fact presentation
-- source fact in interpretation presentation
-- interpretation without required premise binding
-- context-limit meta claim in source-world fact slot
-
-### Deliverable
-
-```text
-docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md
-```
-
-Machine-readable policy artifact candidate:
-
-```text
-benchmark/n04g23ae-role-compatibility-v1.json
-```
-
-### Gate
-
-All policy checks whose required inputs are already structured must be deterministic; they must not be delegated to the residual semantic classifier merely for convenience.
-
----
+- `docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
+- optional machine-readable `benchmark/n04g23ae-role-compatibility-v1.json`
 
 ## 7. G-23A-E5 — Residual Classifier Scope / Evaluation Design
 
-### Purpose
+Only natural-language semantic boundaries remaining after structural/deterministic handling are classifier scope candidates.
 
-Deterministic/structural handling後にも残る自然言語意味境界のみを分類対象として定義する。
-
-### Candidate taxonomy
+Candidate taxonomy:
 
 ```text
 SOURCE_FACT_CONTENT
@@ -292,63 +223,22 @@ MIXED_CONTENT
 AMBIGUOUS
 ```
 
-Taxonomy名称はこのTaskで確定する。
+Compare at minimum:
 
-### Required comparison
-
-少なくとも以下を比較する。
-
-1. narrow bounded local LLM classifier
+1. bounded local LLM classifier
 2. encoder / sequence classifier
 3. cross-encoder style classifier
 4. deterministic-first cascade + classifier only for unresolved cases
 
-### Dataset design
+Dataset must extend beyond 47 Gold and include semantic-role swaps, purpose/presentation swaps, source-world/creative minimal pairs, interpretation/premise mixed pairs, atomic/compound pairs and context-limit/source-world mixed pairs. Pattern-family holdout is required candidate policy.
 
-47 Goldだけでtraining accuracyを評価しない。
-
-追加候補:
-
-- semantic-role swaps
-- purpose swaps
-- presentation swaps
-- source-world / invented minimal pairs
-- interpretation-only vs premise+interpretation mixed pairs
-- atomic / minimally compounded pairs
-- context-limit / source-world mixed pairs
-
-### Split policy
-
-Random row splitだけではなく、**pattern-family holdout**を必須候補とする。
-
-### Evaluation metrics
-
-- critical false-pass
-- required false-reject
-- ambiguous rate
-- repeatability
-- family-holdout generalization
-- latency / VRAM
-
-### Deliverable
-
-```text
-docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md
-```
-
-This task designs the evaluation; actual model benchmark may become a follow-up execution task if local inference/training is required.
-
----
+Deliverable: `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
 
 ## 8. G-23A-E6 — 47-Gold Desk Replay / Coverage Analysis
 
-### Purpose
+Apply the new responsibility model to the same 47 Gold before implementation.
 
-New responsibility modelを実装前に47 Goldへ適用し、どのhistorical failureがarchitecture上消えるか、どれがresidual classifierへ残るかを確認する。
-
-### Required per-case analysis
-
-For each case:
+Per case record:
 
 ```text
 input metadata available?
@@ -360,39 +250,15 @@ historical model error prevented by construction?
 remaining uncertainty
 ```
 
-### Required aggregate summary
+Deliverable: `docs/evaluation/N04G23AE_V4_GATE_DESK_REPLAY.md`
 
-At minimum:
-
-- cases handled fully structurally
-- cases handled fully deterministic-policy
-- cases requiring residual semantics
-- combined cases
-- optional ambiguous cases
-- critical cases no longer dependent on probabilistic judge
-- critical cases still dependent on residual semantic classifier
-
-### Deliverable
-
-```text
-docs/evaluation/N04G23AE_V4_GATE_DESK_REPLAY.md
-```
-
-### Gate
-
-The design must demonstrate a material reduction in critical decisions delegated to a probabilistic general-purpose judge. If most critical cases still require the same broad semantic decision as v3, redesign is incomplete.
-
----
+Gate: demonstrate material reduction in critical decisions delegated to a broad probabilistic judge.
 
 ## 9. G-23A-E7 — Integration Decision / G-23B Unblock Review
 
-### Purpose
+Acceptance checklist:
 
-E1〜E6を統合し、G-23A-Eを正式にAcceptedとするか判定する。
-
-### Acceptance checklist
-
-- [ ] 47/47 responsibility mapping complete
+- [x] 47/47 responsibility mapping complete
 - [ ] v4 V2 authority/order fixed
 - [ ] Structured Proposition contract selected
 - [ ] role provenance model selected
@@ -405,8 +271,6 @@ E1〜E6を統合し、G-23A-Eを正式にAcceptedとするか判定する。
 - [ ] no silent post-hoc atomization
 - [ ] G-23B can consume the new contract without duplicate role authority
 
-### Completion state
-
 If accepted:
 
 ```text
@@ -416,26 +280,7 @@ N-04        = Failed / not Complete
 N-05        = blocked
 ```
 
-If rejected/incomplete:
-
-```text
-N-04G-23A-E = In Progress / redesign required
-N-04G-23B   = blocked
-N-04        = Failed / not Complete
-N-05        = blocked
-```
-
-### Deliverable
-
-Update:
-
-```text
-docs/decisions/N04G23AE_ATOMICITY_ROLE_GATE_RESPONSIBILITY_DECOMPOSITION.md
-docs/planning/phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_REMEDIATION_TASKS.md
-docs/planning/phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_CHAT_HANDOFF.md
-```
-
----
+Otherwise G-23B remains blocked.
 
 ## 10. Protected boundaries
 
@@ -454,12 +299,8 @@ G-23A-Eでは以下を変更しない。
 - unsupported rendered claim prohibition
 - fail-closed semantics
 
----
-
 ## 11. Immediate next task
 
-**N-04G-23A-E1 — 47-Gold Responsibility Mapping**
+**N-04G-23A-E2 — v4 V2 Responsibility Boundary Design**
 
-理由:
-
-新しい責務境界を先に抽象設計すると、都合の良いcaseだけを想定する危険がある。まず既存47 Goldを全件分類し、どのcaseがstructural / deterministic / residual semanticへ属するかを明示してから、E2以降のv4 V2設計へ進む。
+E1で47件すべてのownerが固定されたため、次はこのmappingをauthorityとしてvalidation order、hard-fail authority、residual classifier invocation、downstream override禁止を設計する。
