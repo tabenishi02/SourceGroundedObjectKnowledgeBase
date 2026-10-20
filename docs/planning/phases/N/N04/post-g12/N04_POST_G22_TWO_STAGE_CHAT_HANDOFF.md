@@ -5,7 +5,7 @@
 - Project: `Source Grounded Object Knowledge Base (SGOKB)`
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
-- Primary next-chat entry: `docs/planning/phases/N/N04/post-g12/N04G23B_NEXT_CHAT_HANDOFF.md`
+- Primary next-chat entry: `docs/planning/phases/N/N04/post-g12/N04G23C_NEXT_CHAT_HANDOFF.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 - G-22: **Complete / valid formal FAIL (0/3 PASS)**
@@ -14,24 +14,21 @@
 - G-23A-R: **Complete / valid FAIL / no candidate selected**
 - G-23A-E: **Complete / Architecture Accepted**
 - G-23A-E1〜E7: **Complete**
-- Current task: **N-04G-23B — Stage 1 Grounded Content Planner Contract**
-- G-23B: **NEXT**
+- G-23B: **Complete / Contract Accepted**
+- Current task: **N-04G-23C — Certification / Certified Content Contract**
 
 ## Read first
 
-0. `docs/planning/phases/N/N04/post-g12/N04G23B_NEXT_CHAT_HANDOFF.md`
-1. `docs/decisions/N04G23_TWO_STAGE_GROUNDED_GENERATION_ARCHITECTURE.md`
-2. `docs/decisions/N04G23AE_INTEGRATION_AND_G23B_UNBLOCK_DECISION.md`
-3. `docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
-4. `docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
-5. `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
-6. `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
-7. `docs/evaluation/N04G23AE_V4_GATE_DESK_REPLAY.md`
-8. `benchmark/n04g23ae-role-compatibility-v1.json`
-9. `benchmark/n04g23ae-v4-gate-desk-replay-v1.json`
-10. `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
-11. `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
-12. `docs/decisions/N04G16_SEMANTIC_VALIDATION_ARCHITECTURE_REDESIGN.md`
+0. `docs/planning/phases/N/N04/post-g12/N04G23C_NEXT_CHAT_HANDOFF.md`
+1. `docs/decisions/N04G23B_STAGE1_GROUNDED_CONTENT_PLANNER_CONTRACT.md`
+2. `docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
+3. `docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
+4. `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
+5. `docs/decisions/N04G23AE_INTEGRATION_AND_G23B_UNBLOCK_DECISION.md`
+6. `docs/decisions/N04G23_TWO_STAGE_GROUNDED_GENERATION_ARCHITECTURE.md`
+7. `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
+8. `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
+9. `docs/planning/phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_REMEDIATION_TASKS.md`
 
 ## Current architecture
 
@@ -61,85 +58,93 @@ Stage 2 Presentation Generator
 
 No downstream positive verdict may rescue an earlier FAIL/INDETERMINATE.
 
-## E7 decision
+## G-23B result
 
-G-23A-E is **Complete / Architecture Accepted**.
+G-23B is **Complete / Contract Accepted**.
 
-Residual Atomicity remains a substantial risk, but is now classified as a bounded implementation/benchmark risk rather than an architecture blocker.
+Normative Decision:
 
-Reason:
+`docs/decisions/N04G23B_STAGE1_GROUNDED_CONTENT_PLANNER_CONTRACT.md`
 
-- V2-R-A has a fixed narrow interface/taxonomy.
-- `AMBIGUOUS/UNAVAILABLE` fails closed.
-- concrete classifier identity is not needed to define the Stage 1 candidate contract.
-- all-candidate classifier failure later blocks G-26 rather than creating unsafe PASS.
+Stage 1 model response is intentionally minimal:
 
-This decision does **not** mean a production Atomicity classifier has been selected or proven.
-
-## G-23B authority boundary
-
-G-23B designs only the Stage 1 Grounded Content Planner contract.
-
-Primary application-owned path:
-
-```text
-stage1_fact_candidate
-  -> normalized role source_fact
+```json
+{
+  "candidates": [
+    {
+      "claim_text": "...",
+      "support_refs": ["K3"]
+    }
+  ]
+}
 ```
 
-Minimum candidate direction:
+Application owns and constructs:
 
 ```text
-application-owned envelope
-  contract_version
-  context_fingerprint
-  purpose
-  stage = stage1
-  path_provenance = stage1_fact_candidate
-  attempt
-  proposition_id
-  retry lineage
-
-model-authored payload
-  claim_text
-  support_refs[] >= 1
+request/candidate contract identity
+request_id
+context_fingerprint
+purpose
+stage = stage1
+path_provenance = stage1_fact_candidate
+attempt
+proposition_id
+candidate_index
+retry lineage
 ```
 
-Optional diagnostic semantic anchors may exist only if E3 rules are preserved; they are not authority.
+Important decisions:
 
-## G-23B must not reintroduce
+- model-authored `semantic_role` is not present/authoritative;
+- Stage 1 has no presentation role;
+- non-empty candidate requires `support_refs[] >= 1`;
+- model-selected refs are not entailment/support PASS;
+- schema-valid free text does not prove Atomicity;
+- optional semantic anchors are excluded from v1;
+- `candidates: []` is allowed and is not a model-owned context-limit verdict;
+- failed candidate content is immutable during validation;
+- retry creates a new proposition ID linked by application-owned lineage;
+- concrete residual classifier selection remains G-25A.
+
+## G-23C authority boundary
+
+G-23C designs the application/validator-owned **Certification / Certified Content contract** only.
+
+It must preserve:
 
 ```text
-generator-owned authoritative semantic_role
-model-owned validation/certification status
-model-owned Atomicity PASS
+Candidate artifact
+  != Validation artifact
+  != Certified Content artifact
+```
+
+Certification may occur only after required Gate PASS.
+
+G-23C should define at least:
+
+1. certification eligibility condition;
+2. stable `certified_fact_id` ownership/semantics;
+3. binding to immutable Stage 1 proposition identity;
+4. certified claim/support/evidence binding;
+5. context/request lineage;
+6. version/digest/replay identity;
+7. Stage 2 input boundary;
+8. non-certification/failure semantics.
+
+## G-23C must not reintroduce
+
+```text
+model-owned certification status
 model-owned support/entailment PASS
-presentation role on Stage 1 fact candidate
-free-form model-authored context_limit path
+generator-declared semantic role authority
+silent candidate rewrite
+new source-world fact generation during certification
 ```
-
-The Stage 1 prompt/schema should reduce non-atomic generation, but schema-valid model-authored text remains `REVIEW_REQUIRED` for semantic Atomicity unless a future deterministic construction exemption is explicitly frozen.
-
-## Stage 1 design goals
-
-G-23B should fix at least:
-
-1. Stage 1 request contract.
-2. Stage 1 response/candidate schema.
-3. application-owned envelope construction.
-4. one-proposition-per-candidate generation policy.
-5. `support_refs[]` requirements and reference-integrity expectations.
-6. conservative prompt examples / no-extra-proposition rules.
-7. candidate identity and retry-lineage semantics.
-8. provider structured-output constraints that can be enforced safely.
-9. how multiple Stage 1 candidates are represented without assigning final presentation roles.
-10. how Stage 1 output enters E7 V2-S/P/D/R without duplicate authority.
 
 ## Residual classifier execution is later
 
-Concrete V2-R-A/V2-R-C selection is not part of G-23B.
-
-It has an explicit execution home:
+Concrete V2-R-A/V2-R-C selection is not part of G-23C.
 
 ```text
 G-24 implementation
@@ -151,30 +156,7 @@ G-25B Integrated v4 Adversarial Regression
 G-26 Reference Workstation Freeze
 ```
 
-G-25A mandatory Gate:
-
-```text
-Atomicity critical false-pass = 0
-Content critical wrong-compatible false-pass = 0
-required-valid false reject target = 0
-AMBIGUOUS / UNAVAILABLE = fail-closed
-```
-
-If all candidates fail, result is `VALID_FAIL_NO_SELECTION` and G-26 remains blocked.
-
-## E6 evidence retained
-
-Frozen 47 Gold desk replay:
-
-```text
-Critical total                            33
-V2-D deterministic reject                  5
-V2-R-A NON_ATOMIC reject                  25
-V2-R-C content mismatch reject             3
-Critical without pre-V3 fail path          0
-```
-
-This is architecture coverage only. It is not classifier performance proof.
+If all candidates fail G-25A, result is `VALID_FAIL_NO_SELECTION` and G-26 remains blocked.
 
 ## Protected boundaries
 
@@ -188,6 +170,7 @@ Do not change without new evidence:
 - E3 Semi-structured proposition contract
 - E4 application-owned provenance / deterministic policy
 - E5 zero-critical-FP / fail-closed selection policy
+- G-23B minimal Stage 1 payload / application envelope ownership
 - MiniCheck threshold/profile merely to improve acceptance
 - Retrieval / Similarity / Context Builder
 - canonical DB
@@ -201,11 +184,12 @@ Do not change without new evidence:
 
 ```text
 G-23A-E = Complete / Architecture Accepted
-G-23B   = NEXT
+G-23B   = Complete / Contract Accepted
+G-23C   = NEXT
 N-04    = Failed / not Complete
 N-05    = blocked
 ```
 
 ## Immediate next task
 
-**N-04G-23B — Stage 1 Grounded Content Planner Contract**
+**N-04G-23C — Certification / Certified Content Contract**
