@@ -6,7 +6,8 @@
 - Architecture authority: `docs/decisions/N04G23F_V4_DESIGN_INTEGRATION_AND_FREEZE.md`
 - G-24 result: `docs/evaluation/N04G24_V4_IMPLEMENTATION_RESULT.md`
 - Residual classifier design: `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
-- Status: **G-25A NEXT / G-25B blocked by G-25A PASS**
+- G-25A block record: `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
+- Status: **G-25A BLOCKED at mandatory preflight / G-25B blocked by G-25A PASS**
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 
@@ -16,14 +17,16 @@ G-24で実装したv4 pipelineについて、formal Reference Workstation freeze
 
 G-23A-E7でResidual Atomicity依存はarchitecture blockerではなくbounded implementation/benchmark riskと判断したが、**classifier未選定のままG-26へ進むことは禁止する。**
 
-G-24はCompleteとなったためG-25AをNEXTとする。ただしG-24中にReference Workstation全repo verificationを実行できなかったため、G-25Aは`N04G25A_NEXT_CHAT_HANDOFF.md`のmandatory preflight PASS後にのみbenchmarkを開始できる。
+G-24はCompleteだが、G-25AはReference Workstation mandatory preflightをPASSするまでclassifier benchmarkを開始できない。
 
 ## 2. Task chain
 
 ```text
 G-24 v4 implementation                              Complete
   ↓
-G-25A Residual Classifier Benchmark / Selection     NEXT
+G-25A Reference Workstation preflight               BLOCKED / not executed
+  ↓ PASS only
+G-25A Residual Classifier Benchmark / Selection     not started
   ↓ PASS only
 G-25B Integrated v4 Adversarial Regression          blocked
   ↓ PASS only
@@ -34,7 +37,7 @@ G-25AまたはG-25Bがvalid FAILの場合、G-26はblockedのままとする。
 
 ## 3. G-25A — Residual Classifier Benchmark / Selection
 
-Status: **NEXT**
+Status: **BLOCKED / mandatory Reference Workstation preflight not executed**
 
 ### 3.0 Mandatory implementation preflight
 
@@ -49,6 +52,14 @@ git diff --check
 
 All must PASS. Any failure returns to G-24 implementation remediation; do not begin classifier selection with a failing implementation baseline.
 
+On 2026-10-21 the authorized Reference Workstation `FNB1Main` was online and paired, but Desktop Commander reported that its monthly execution quota had been reached and explicitly instructed not to retry or reconnect. Therefore none of the four preflight commands was executed.
+
+Block authority:
+
+`docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
+
+Consequently the classifier benchmark and selection have **not started**.
+
 ### 3.1 Inputs
 
 - E5 Residual Classifier Evaluation Plan
@@ -57,7 +68,7 @@ All must PASS. Any failure returns to G-24 implementation remediation; do not be
 - G-24 implementation result
 - Reference Workstation runtime
 
-### 3.2 Dataset preparation
+### 3.2 Dataset preparation after preflight PASS
 
 Atomicity / Content-Typeを別datasetとして構築する。
 
@@ -119,6 +130,8 @@ Model/threshold/abstention policy freeze後にFrozen 47 Goldをfinal confirmatio
 
 同じFrozen結果を見てmodel/thresholdを再調整した場合、そのrunはselection evidenceとして無効。
 
+The blocked preflight attempt generated no classifier output against Frozen 47 and did not tune any classifier from it.
+
 ### 3.6 Reproducibility
 
 最低限保存する。
@@ -138,6 +151,8 @@ latency/VRAM
 
 ### 3.7 Outcome
 
+After preflight PASS and benchmark execution:
+
 ```text
 PASS / selected V2-R-A and V2-R-C
 or
@@ -146,9 +161,11 @@ VALID_FAIL_NO_SELECTION
 
 `VALID_FAIL_NO_SELECTION`ならG-25B/G-26へ進めずexplicit escalationを作成する。
 
+Current outcome is neither PASS nor VALID_FAIL_NO_SELECTION because the benchmark has not started.
+
 ## 4. G-25B — Integrated v4 Adversarial Regression
 
-Status: **Planned / blocked by G-25A PASS**
+Status: **Blocked by G-25A PASS**
 
 G-25Aで選定したcomponentをv4 pipelineへ接続し、Stage 1 / certification / Stage 2 / final validationを統合評価する。
 
