@@ -14,7 +14,8 @@
 - G-23A-E: **In Progress**
 - G-23A-E1: **Complete**
 - G-23A-E2: **Complete**
-- Current task: **N-04G-23A-E3 — Structured Proposition Contract Design**
+- G-23A-E3: **Complete / Semi-structured contract selected**
+- Current task: **N-04G-23A-E4 — Role Provenance / Compatibility Matrix Design**
 - G-23B: **blocked until G-23A-E is accepted**
 
 ## Read first
@@ -23,13 +24,14 @@
 2. `docs/decisions/N04G23AE_ATOMICITY_ROLE_GATE_RESPONSIBILITY_DECOMPOSITION.md`
 3. `docs/evaluation/N04G23AE_47_GOLD_RESPONSIBILITY_MAP.md`
 4. `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
-5. `docs/planning/phases/N/N04/post-g12/N04G23AE_GATE_RESPONSIBILITY_DECOMPOSITION_TASKS.md`
-6. `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
-7. `docs/evaluation/N04G23A_ATOMICITY_ROLE_GOLD_BENCHMARK.md`
-8. `docs/evaluation/N04G23AR_JUDGE_CANDIDATE_EVALUATION.md`
-9. `docs/planning/phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_REMEDIATION_TASKS.md`
+5. `docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
+6. `docs/planning/phases/N/N04/post-g12/N04G23AE_GATE_RESPONSIBILITY_DECOMPOSITION_TASKS.md`
+7. `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
+8. `docs/decisions/N04G16_SEMANTIC_VALIDATION_ARCHITECTURE_REDESIGN.md`
+9. `docs/evaluation/N04G23A_ATOMICITY_ROLE_GOLD_BENCHMARK.md`
+10. `docs/evaluation/N04G23AR_JUDGE_CANDIDATE_EVALUATION.md`
 
-## Current architecture direction
+## Architecture direction
 
 v4 retains two-stage generation:
 
@@ -47,7 +49,7 @@ Stage 2: Presentation Generator
 Material / Terminal / Render
 ```
 
-Atomicity / Role Gate is decomposed into four authorities:
+V2 authorities:
 
 ```text
 V2-S  Structural Proposition Gate
@@ -56,25 +58,11 @@ V2-D  Deterministic Compatibility Gate
 V2-R  Residual Semantic Gate
 ```
 
-Normative order:
+No downstream component may rescue an earlier structural/policy failure.
 
-```text
-Structured Proposition Candidate
-  ↓
-V2-S
-  ↓
-V2-P
-  ↓
-V2-D
-  ↓
-V2-R if required
-  ↓
-V3+ Support / Derivation validation
-```
+## E1 result
 
-## G-23A-E1 result
-
-47 Gold responsibility mapping:
+47 Gold mapped with zero label changes:
 
 ```text
 STRUCTURAL              20
@@ -83,150 +71,165 @@ RESIDUAL_SEMANTIC       11
 COMBINED                 5
 OPTIONAL_AMBIGUOUS       6
 TOTAL                    47
-Required                 41
-Optional                  6
-Critical                 33
 Critical without owner    0
 ```
 
-Gold labels / required / critical flags remain unchanged.
+## E2 result
 
-## G-23A-E2 result
-
-Authority/order is fixed in:
+Authority/order fixed in:
 
 `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
 
-### V2-S
+Key rules:
 
-- Structured Proposition contract is authority.
-- schema/contract violation -> hard structural FAIL.
-- schema aloneでsemantic atomicityを証明できない場合は`REVIEW_REQUIRED`へ送る。
-- punctuation/conjunction risk aloneは`NON_ATOMIC` verdictにしない。
+- application/stage path owns role provenance;
+- known metadata incompatibility is deterministic hard fail;
+- model-authored semantic content uses residual classification where construction cannot prove content type;
+- `MIXED_CONTENT` fails;
+- `AMBIGUOUS/INDETERMINATE` fails closed;
+- V2 does not decide truth/support/entailment.
 
-### V2-P
+## E3 result
 
-- application/stage path is role provenance authority.
-- generator-declared semantic_role is not authoritative.
-- unresolved provenance -> fail-closed.
+Structured Proposition contract is fixed in:
 
-### V2-D
+`docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
 
-Known structured policy mismatch is deterministic hard FAIL before classifier.
+Selected: **Option B — Semi-structured proposition record**.
 
-Examples:
+### Candidate layers
 
 ```text
-creative path + non-creative purpose
-source_fact + interpretation presentation
-interpretation + main presentation
-interpretation without required premise binding
+Structured Proposition Candidate
+  ↓
+Validation Record
+  ↓ PASS only
+Certified Content Record
 ```
 
-### V2-R
+Candidate content is immutable during validation; failed text is retried as a new candidate rather than silently rewritten.
 
-Only residual content-first semantic boundary is classifier scope.
-
-Residual classifier does not decide truth/support/entailment.
-
-Mandatory candidates include:
-
-- E1 RESIDUAL_SEMANTIC cases
-- semantic side of COMBINED cases
-- V2-S REVIEW_REQUIRED cases
-- model-authored content whose content type cannot be proven by construction
-
-`MIXED_CONTENT` -> FAIL.
-`AMBIGUOUS / INDETERMINATE` -> fail-closed.
-
-### Override rule
-
-No downstream component may rescue an earlier failure.
+### Application-owned fields
 
 ```text
-Structural FAIL
-  cannot be overridden by V2-R or support PASS
-
-Policy FAIL
-  cannot be overridden by semantic classifier PASS
-
-V2 FAIL/INDETERMINATE
-  cannot enter grounded support/derivation PASS path
-```
-
-## Retry boundary
-
-Stage-local failure evidence must include at least:
-
-```text
-failed_stage
-failed_gate
-failure_authority
-failure_code
-proposition_id
-failed text
-stage_path
-expected role
-observed semantic class if available
+contract_version
+context_fingerprint
 purpose
-presentation_role
-support/premise IDs
-risk signals
-expected rule
-repair directive
+stage
+path_provenance
+attempt
+proposition_id
+retry lineage
 ```
 
-Rules:
+Generator does not own semantic-role authority or certification state.
 
-- Stage 1 failure -> do not start Stage 2.
-- Stage 2 failure -> do not automatically regenerate Certified Content.
-- `MIXED_CONTENT` is regenerated as legal separate proposition(s); no hidden post-hoc salvage.
-- retry exhaustion remains terminal fail-closed.
+### Path-specific payload direction
 
-## Current task: G-23A-E3
+```text
+stage1_fact_candidate
+  claim_text
+  support_refs[]
 
-Design the Structured Proposition intermediate contract consumed by V2-S.
+stage2_interpretation_candidate
+  claim_text
+  premise_fact_ids[]  # certified IDs only
+
+stage2_creative_candidate
+  claim_text
+
+system_context_limit
+  application/system-owned canonical payload
+```
+
+`support_refs[]` and `premise_fact_ids[]` cannot coexist.
+
+Optional `subject_refs[] / predicate_hint / object_refs[]` are diagnostic aids only, not truth/support/role/Atomicity authority.
+
+### V2-S construction state
+
+```text
+PASS_BY_CONSTRUCTION
+REVIEW_REQUIRED
+FAIL
+```
+
+Application/system deterministic construction may qualify for `PASS_BY_CONSTRUCTION`.
+
+Model-authored free-text normally starts as `REVIEW_REQUIRED`; schema alone must not pretend it proves semantic Atomicity.
+
+Residual resolution:
+
+```text
+REVIEW_REQUIRED + ATOMIC        -> V2-S PASS
+REVIEW_REQUIRED + NON_ATOMIC    -> V2-S FAIL
+REVIEW_REQUIRED + INDETERMINATE -> V2-S INDETERMINATE
+```
+
+Residual mechanism is designed in E5.
+
+### Identity / retry
+
+- proposition_id is application-assigned and unique within an attempt.
+- retry generates a new candidate identity.
+- application-owned retry lineage links failed and replacement candidates.
+- future Certified Content gets a separate certified identity; exact lifecycle is G-23C.
+
+### Not adopted
+
+Fully normalized `subject + predicate + object/value + qualifiers` is not the common v4 contract because it would require a new broad semantic ontology and risks losing arbitrary narrative/interpretive/creative meaning.
+
+## Current task: G-23A-E4
+
+Design the exact role provenance and deterministic compatibility matrix using E3's application-owned path.
+
+Minimum paths:
+
+```text
+stage1_fact_candidate
+stage2_interpretation_candidate
+stage2_creative_candidate
+system_context_limit
+```
+
+Required matrix dimensions:
+
+```text
+path provenance
+normalized role
+allowed purpose
+allowed presentation_role
+support_refs required/forbidden
+premise_fact_ids required/forbidden
+model/system ownership
+```
 
 Required decisions:
 
-1. Compare:
-
-```text
-A Minimal
-  id + provenance + text + refs
-
-B Semi-structured
-  id + subject/entity refs + predicate hints + text + refs
-
-C Fully normalized
-  subject + predicate + object/value + qualifiers
-```
-
-2. proposition_id lifetime / uniqueness.
-3. stage/path provenance binding.
-4. text vs structured semantic fields.
-5. support_refs / premise_fact_ids.
-6. purpose / object / context fingerprint binding.
-7. certification status ownership.
-8. retry identity.
-9. rejected / ambiguous proposition representation.
-10. rendering separation.
-11. schema versioning.
-12. exact conditions for V2-S `PASS / REVIEW_REQUIRED / FAIL`.
-13. which construction paths can legitimately make V2-R `NOT_REQUIRED`.
-14. preserve G-14 no-silent-post-hoc-atomization.
+1. exact path -> normalized role mapping;
+2. purpose permissions;
+3. presentation-role permissions;
+4. support/premise binding requirements;
+5. system-only context-limit restrictions;
+6. deterministic failure codes;
+7. whether any application-owned construction path can legitimately set V2-R `NOT_REQUIRED`;
+8. ensure deterministic PASS does not itself prove model-authored text content type.
 
 Expected deliverable:
 
-`docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
+`docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
+
+Optional machine-readable artifact:
+
+`benchmark/n04g23ae-role-compatibility-v1.json`
 
 ## Following tasks
 
 ```text
 G-23A-E1 47-Gold Responsibility Mapping             Complete
 G-23A-E2 v4 V2 Responsibility Boundary              Complete
-G-23A-E3 Structured Proposition Contract            NEXT
-G-23A-E4 Role Provenance / Compatibility Matrix     Planned
+G-23A-E3 Structured Proposition Contract            Complete
+G-23A-E4 Role Provenance / Compatibility Matrix     NEXT
 G-23A-E5 Residual Classifier Evaluation Design      Planned
 G-23A-E6 47-Gold Desk Replay                        Planned
 G-23A-E7 Integration / G-23B Unblock Review         Planned
@@ -239,7 +242,7 @@ Do not change without new evidence:
 
 - frozen 47 Gold labels / required / critical flags
 - G-23A-R historical results
-- G-14 safety intent
+- G-14 safety intent / no silent post-hoc atomization
 - G-23 two-stage generation decision
 - MiniCheck threshold merely to improve acceptance
 - Retrieval / Similarity / Context Builder
