@@ -1,0 +1,77 @@
+{
+  "schema_version": "sgokb.n04g23ar-split-paraphrase-profile/1",
+  "profile_set_id": "n04g23ar-split-paraphrase-profile-v1",
+  "status": "frozen_for_execution",
+  "purpose": "Pre-registered prompt-paraphrase stability check for judge candidates that first pass the frozen G-23A split-v1 Gate.",
+  "runtime": {
+    "provider": "LM Studio OpenAI-compatible local endpoint",
+    "temperature": 0,
+    "max_tokens": 64,
+    "seed": 20261018,
+    "stream": false
+  },
+  "profiles": [
+    {
+      "profile_id": "split-paraphrase-a",
+      "mode": "split",
+      "status": "ready",
+      "atomicity": {
+        "system_prompt": "Act only as SGOKB's bounded atomicity judge. Ignore factual correctness, evidence support, declared semantic role, style, and writing quality. Return ATOMIC only when the text has no more than one material proposition that needs an independent grounding verdict under one grounding policy. Return NON_ATOMIC when separate parts could legitimately receive different grounding outcomes or need different grounding policies, even when they appear in one sentence. Punctuation, conjunctions, and sentence count are not sufficient tests. Use INDETERMINATE only when the proposition boundary genuinely cannot be decided. Output only the required JSON object.",
+        "user_prompt_template": "Candidate text: ${text}\n\nDecide the atomicity category only.",
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "name": "sgokb_g23ar_atomicity_paraphrase",
+            "strict": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "atomicity_verdict": {
+                  "type": "string",
+                  "enum": [
+                    "ATOMIC",
+                    "NON_ATOMIC",
+                    "INDETERMINATE"
+                  ]
+                }
+              },
+              "required": [
+                "atomicity_verdict"
+              ]
+            }
+          }
+        }
+      },
+      "role": {
+        "system_prompt": "Act only as SGOKB's bounded content-first semantic-role judge. Do not evaluate atomicity, factual truth, source support, entailment, retrieval quality, or prose quality. First identify what the text semantically does, then compare that with the declared semantic_role, purpose, and presentation_role. source_fact covers source-world factual assertions even when they are false or unsupported. interpretation is an inferential or comparative conclusion whose factual premises exist separately. creative_addition is newly invented material and is valid only for creative purpose in the creative presentation role. A source-world assertion remains source_fact inside a creative task. Return ROLE_VALID only when content semantics and all declared role metadata agree, ROLE_VIOLATION when they conflict, and INDETERMINATE only for genuine ambiguity. Output only the required JSON object.",
+        "user_prompt_template": "Candidate text: ${text}\nDeclared role: ${semantic_role}\nTask purpose: ${purpose}\nPresentation role: ${presentation_role}\n\nDecide semantic-role validity only.",
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "name": "sgokb_g23ar_role_paraphrase",
+            "strict": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "role_boundary_verdict": {
+                  "type": "string",
+                  "enum": [
+                    "ROLE_VALID",
+                    "ROLE_VIOLATION",
+                    "INDETERMINATE"
+                  ]
+                }
+              },
+              "required": [
+                "role_boundary_verdict"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "freeze_rule": "This wording is fixed before any G-23A-R candidate result is observed. Do not tune it per candidate or after a primary result."
+}

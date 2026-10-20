@@ -1,0 +1,112 @@
+{
+  "schema_version": "sgokb.n04g23ar-judge-candidates/1",
+  "task_id": "N-04G-23A-R",
+  "status": "prepared_for_reference_execution",
+  "base_main": "cfbd7af9663f4cbe5c4acfa9a71d34649b385a48",
+  "authority": {
+    "gold_corpus": "benchmark/n04g23a-atomicity-role-gold-v1.json",
+    "gold_corpus_sha256": "347e39f5108ed920847ce717cf98571a5137c48e348aba7af7e5aa50679a4687",
+    "exact_split_profile_set": "benchmark/n04g23a-atomicity-role-prompt-profiles-v1.json",
+    "exact_split_profile_set_sha256": "a10b9216d6ead15927c23b015ac3d2863c10dfaa6797f3ede72bef51e58ba89e",
+    "exact_split_profile_id": "split-v1",
+    "g23a_result": "docs/evaluation/N04G23A_ATOMICITY_ROLE_GOLD_BENCHMARK.md",
+    "historical_phi4_split_result": "benchmark/results/n04g23a-phi4-split-reference-workstation.json"
+  },
+  "evaluation_scope": "Replace only the bounded Atomicity / Role judge model. Gold, semantic rules, split prompts, response schema, sampling, scoring and fail-closed gates remain fixed.",
+  "runtime_policy": {
+    "provider": "LM Studio OpenAI-compatible local endpoint",
+    "context_length": 8192,
+    "gpu_offload": "max",
+    "parallel": 1,
+    "temperature": 0,
+    "max_tokens": 64,
+    "seed": 20261018,
+    "stream": false,
+    "repeats": 3,
+    "structured_output": "strict json_schema",
+    "network_during_benchmark": "local_only",
+    "candidate_file_identity": "SHA-256 must be captured before the first Gold request and remain unchanged through all repeats",
+    "candidate_pool_rule": "Acquire and identity-lock every candidate before any candidate sees Gold output. A runtime-incompatible candidate is recorded as non-viable and is not silently replaced."
+  },
+  "candidates": [
+    {
+      "candidate_id": "qwen35-9b-q6k",
+      "family": "Qwen3.5",
+      "original_model": "Qwen/Qwen3.5-9B",
+      "gguf_source": "lmstudio-community/Qwen3.5-9B-GGUF",
+      "required_filename": "Qwen3.5-9B-Q6_K.gguf",
+      "required_quantization": "Q6_K",
+      "lm_studio_alias": "sgokb-g23ar-qwen35-9b",
+      "role": "modern mid-size cross-family candidate",
+      "reasoning_policy": "Benchmark only in a verified non-reasoning/bounded mode. If LM Studio cannot prove a stable non-reasoning structured-output path without changing the frozen task prompt, record runtime_incompatible; do not inject task-specific prompt text."
+    },
+    {
+      "candidate_id": "ministral3-8b-q6k",
+      "family": "Ministral 3",
+      "original_model": "mistralai/Ministral-3-8B-Instruct-2512",
+      "gguf_source": "lmstudio-community/Ministral-3-8B-Instruct-2512-GGUF",
+      "required_filename": "Ministral-3-8B-Instruct-2512-Q6_K.gguf",
+      "required_quantization": "Q6_K",
+      "lm_studio_alias": "sgokb-g23ar-ministral3-8b",
+      "role": "compact instruction-tuned cross-family candidate",
+      "reasoning_policy": "standard bounded instruct mode; no hidden external tools or retrieval"
+    },
+    {
+      "candidate_id": "gemma4-12b-q6k",
+      "family": "Gemma 4",
+      "original_model": "google/gemma-4-12b-it",
+      "gguf_source": "lmstudio-community/gemma-4-12B-it-GGUF",
+      "required_filename": "gemma-4-12B-it-Q6_K.gguf",
+      "required_quantization": "Q6_K",
+      "lm_studio_alias": "sgokb-g23ar-gemma4-12b",
+      "role": "larger instruction-tuned cross-family candidate",
+      "reasoning_policy": "standard bounded instruct mode; no hidden external tools or retrieval"
+    },
+    {
+      "candidate_id": "mistral32-24b-q4km",
+      "family": "Mistral Small 3.2",
+      "original_model": "historical G-22 frozen generator identity",
+      "gguf_source": "existing Reference Workstation model used by N-04G-22",
+      "required_filename": "frozen G-22 Mistral Small 3.2 24B Q4_K_M GGUF",
+      "required_quantization": "Q4_K_M",
+      "lm_studio_alias": "sgokb-n04-mistral32",
+      "role": "capacity-ceiling/reference candidate; judge use only for this benchmark",
+      "reasoning_policy": "same bounded local instruct behavior used by the frozen G-22 generator runtime"
+    }
+  ],
+  "primary_gate": {
+    "profile": "G-23A split-v1 exactly",
+    "critical_atomicity_false_pass_cases": 0,
+    "critical_role_false_pass_cases": 0,
+    "required_atomicity_false_reject_cases": 0,
+    "required_role_false_reject_cases": 0,
+    "required_repeatability_failure_cases": 0,
+    "rule": "Every condition above is mandatory. INDETERMINATE on a required valid case counts as false reject."
+  },
+  "secondary_gate": {
+    "applies_to": "primary-gate pass candidates only",
+    "profile": "benchmark/n04g23ar-split-paraphrase-profile-v1.json#split-paraphrase-a",
+    "same_safety_and_required_valid_gates": true,
+    "required_exact_vs_paraphrase_atomicity_agreement": "100% across all required case-repeat pairs",
+    "required_exact_vs_paraphrase_role_agreement": "100% across all required case-repeat pairs",
+    "required_exact_vs_paraphrase_joint_agreement": "100% across all required case-repeat pairs",
+    "required_repeatability_failure_cases": 0
+  },
+  "selection_rule": {
+    "no_primary_pass": "No judge selected. G-23A-R completes as valid FAIL and G-23B remains blocked; create a new explicit escalation task rather than relaxing Gold/Gates.",
+    "primary_pass_but_no_secondary_pass": "No judge selected. Classify prompt sensitivity and keep G-23B blocked.",
+    "one_secondary_pass": "Select that candidate.",
+    "multiple_secondary_pass": [
+      "prefer lower total split-call elapsed time on the exact profile",
+      "if within 5%, prefer lower model-file size / loaded VRAM",
+      "if still tied, prefer the earlier candidate order in this frozen manifest"
+    ],
+    "forbidden_tiebreakers": [
+      "changing Gold labels",
+      "changing required or critical flags",
+      "changing response enums or fail-closed semantics",
+      "post-hoc candidate-specific prompt tuning",
+      "using world knowledge plausibility as Gold authority"
+    ]
+  }
+}
