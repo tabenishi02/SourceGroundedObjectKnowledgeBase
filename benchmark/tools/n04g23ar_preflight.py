@@ -9,7 +9,9 @@ from pathlib import Path
 from typing import Any
 
 EXPECTED_GOLD_SHA256 = "347e39f5108ed920847ce717cf98571a5137c48e348aba7af7e5aa50679a4687"
-EXPECTED_G23A_PROFILES_SHA256 = "a10b9216d6ead15927c23b015ac3d2863c10dfaa6797f3ede72bef51e58ba89e"
+EXPECTED_G23A_PROFILES_SHA256 = (
+    "a10b9216d6ead15927c23b015ac3d2863c10dfaa6797f3ede72bef51e58ba89e"
+)
 EXPECTED_CANDIDATES = [
     "qwen35-9b-q6k",
     "ministral3-8b-q6k",
@@ -53,15 +55,22 @@ def run(repo_root: Path) -> dict[str, Any]:
     g23a_profiles_path = (
         repo_root / "benchmark" / "n04g23a-atomicity-role-prompt-profiles-v1.json"
     )
-    candidates_path = repo_root / "benchmark" / "n04g23ar-judge-candidates-v1.json"
-    paraphrase_path = repo_root / "benchmark" / "n04g23ar-split-paraphrase-profile-v1.json"
+    candidates_path = (
+        repo_root / "benchmark" / "n04g23ar-judge-candidates-v1.json"
+    )
+    paraphrase_path = (
+        repo_root / "benchmark" / "n04g23ar-split-paraphrase-profile-v1.json"
+    )
 
     gold_sha = _sha256(gold_path)
     g23a_profiles_sha = _sha256(g23a_profiles_path)
     candidates_sha = _sha256(candidates_path)
     paraphrase_sha = _sha256(paraphrase_path)
 
-    _require(gold_sha == EXPECTED_GOLD_SHA256, "Frozen G-23A Gold corpus SHA mismatch")
+    _require(
+        gold_sha == EXPECTED_GOLD_SHA256,
+        "Frozen G-23A Gold corpus SHA mismatch",
+    )
     _require(
         g23a_profiles_sha == EXPECTED_G23A_PROFILES_SHA256,
         "Frozen G-23A prompt profile SHA mismatch",
@@ -73,10 +82,19 @@ def run(repo_root: Path) -> dict[str, Any]:
     paraphrase = _load(paraphrase_path)
 
     cases = gold.get("cases", [])
-    _require(gold.get("status") == "frozen_for_execution", "Gold corpus is not frozen")
+    _require(
+        gold.get("status") == "frozen_for_execution",
+        "Gold corpus is not frozen",
+    )
     _require(len(cases) == 47, "Gold corpus must contain exactly 47 cases")
-    _require(sum(bool(case.get("required")) for case in cases) == 41, "Expected 41 required cases")
-    _require(sum(not bool(case.get("required")) for case in cases) == 6, "Expected 6 optional cases")
+    _require(
+        sum(bool(case.get("required")) for case in cases) == 41,
+        "Expected 41 required cases",
+    )
+    _require(
+        sum(not bool(case.get("required")) for case in cases) == 6,
+        "Expected 6 optional cases",
+    )
     _require(
         all(
             "INDETERMINATE" not in case["gold"].values()
@@ -87,7 +105,10 @@ def run(repo_root: Path) -> dict[str, Any]:
     )
 
     split = _profile_by_id(profiles, "split-v1")
-    _require(split.get("mode") == "split", "G-23A split-v1 is no longer split mode")
+    _require(
+        split.get("mode") == "split",
+        "G-23A split-v1 is no longer split mode",
+    )
     _require(split.get("status") == "ready", "G-23A split-v1 is not ready")
     base_runtime = profiles.get("runtime", {})
     for key in ("temperature", "max_tokens", "seed"):
@@ -101,7 +122,8 @@ def run(repo_root: Path) -> dict[str, Any]:
         "Unexpected candidate manifest schema",
     )
     _require(
-        manifest.get("base_main") == "cfbd7af9663f4cbe5c4acfa9a71d34649b385a48",
+        manifest.get("base_main")
+        == "cfbd7af9663f4cbe5c4acfa9a71d34649b385a48",
         "Candidate manifest base_main changed",
     )
     authority = manifest.get("authority", {})
@@ -110,21 +132,34 @@ def run(repo_root: Path) -> dict[str, Any]:
         "Manifest Gold SHA authority mismatch",
     )
     _require(
-        authority.get("exact_split_profile_set_sha256") == EXPECTED_G23A_PROFILES_SHA256,
+        authority.get("exact_split_profile_set_sha256")
+        == EXPECTED_G23A_PROFILES_SHA256,
         "Manifest split profile SHA authority mismatch",
     )
-    _require(authority.get("exact_split_profile_id") == "split-v1", "Primary profile changed")
+    _require(
+        authority.get("exact_split_profile_id") == "split-v1",
+        "Primary profile changed",
+    )
 
-    candidate_ids = [candidate.get("candidate_id") for candidate in manifest.get("candidates", [])]
+    candidate_ids = [
+        candidate.get("candidate_id")
+        for candidate in manifest.get("candidates", [])
+    ]
     _require(candidate_ids == EXPECTED_CANDIDATES, "Candidate set or order changed")
     _require(len(candidate_ids) == len(set(candidate_ids)), "Duplicate candidate id")
     _require(
-        all("phi-4" not in str(candidate.get("original_model", "")).lower() for candidate in manifest["candidates"]),
+        all(
+            "phi-4" not in str(candidate.get("original_model", "")).lower()
+            for candidate in manifest["candidates"]
+        ),
         "Phi-4 must not be reintroduced as an alternative candidate",
     )
     runtime_policy = manifest.get("runtime_policy", {})
     for key, value in EXPECTED_RUNTIME.items():
-        _require(runtime_policy.get(key) == value, f"Manifest runtime mismatch for {key}")
+        _require(
+            runtime_policy.get(key) == value,
+            f"Manifest runtime mismatch for {key}",
+        )
 
     primary = manifest.get("primary_gate", {})
     for key in (
@@ -137,16 +172,20 @@ def run(repo_root: Path) -> dict[str, Any]:
         _require(primary.get(key) == 0, f"Primary Gate relaxed: {key}")
 
     secondary = manifest.get("secondary_gate", {})
+    expected_stability = "100% across all required case-repeat pairs"
     _require(
-        secondary.get("required_exact_vs_paraphrase_atomicity_agreement") == "100% across all required case-repeat pairs",
+        secondary.get("required_exact_vs_paraphrase_atomicity_agreement")
+        == expected_stability,
         "Atomicity paraphrase stability Gate changed",
     )
     _require(
-        secondary.get("required_exact_vs_paraphrase_role_agreement") == "100% across all required case-repeat pairs",
+        secondary.get("required_exact_vs_paraphrase_role_agreement")
+        == expected_stability,
         "Role paraphrase stability Gate changed",
     )
     _require(
-        secondary.get("required_exact_vs_paraphrase_joint_agreement") == "100% across all required case-repeat pairs",
+        secondary.get("required_exact_vs_paraphrase_joint_agreement")
+        == expected_stability,
         "Joint paraphrase stability Gate changed",
     )
 
@@ -155,8 +194,14 @@ def run(repo_root: Path) -> dict[str, Any]:
         "Paraphrase profile is not frozen",
     )
     para_profile = _profile_by_id(paraphrase, "split-paraphrase-a")
-    _require(para_profile.get("mode") == "split", "Paraphrase profile must use split calls")
-    _require(para_profile.get("status") == "ready", "Paraphrase profile is not ready")
+    _require(
+        para_profile.get("mode") == "split",
+        "Paraphrase profile must use split calls",
+    )
+    _require(
+        para_profile.get("status") == "ready",
+        "Paraphrase profile is not ready",
+    )
     para_runtime = paraphrase.get("runtime", {})
     for key in ("temperature", "max_tokens", "seed", "stream"):
         _require(
@@ -164,10 +209,19 @@ def run(repo_root: Path) -> dict[str, Any]:
             f"Paraphrase runtime mismatch for {key}",
         )
 
-    for section, verdict_key, expected_values in (
-        ("atomicity", "atomicity_verdict", {"ATOMIC", "NON_ATOMIC", "INDETERMINATE"}),
-        ("role", "role_boundary_verdict", {"ROLE_VALID", "ROLE_VIOLATION", "INDETERMINATE"}),
-    ):
+    verdict_profiles = (
+        (
+            "atomicity",
+            "atomicity_verdict",
+            {"ATOMIC", "NON_ATOMIC", "INDETERMINATE"},
+        ),
+        (
+            "role",
+            "role_boundary_verdict",
+            {"ROLE_VALID", "ROLE_VIOLATION", "INDETERMINATE"},
+        ),
+    )
+    for section, verdict_key, expected_values in verdict_profiles:
         schema = para_profile[section]["response_format"]["json_schema"]
         _require(schema.get("strict") is True, f"{section} schema is not strict")
         values = set(schema["schema"]["properties"][verdict_key]["enum"])
