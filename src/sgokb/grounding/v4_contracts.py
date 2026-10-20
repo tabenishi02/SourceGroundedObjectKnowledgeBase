@@ -38,6 +38,10 @@ ROLE_INTERPRETATION = "interpretation"
 ROLE_CREATIVE = "creative_addition"
 ROLE_CONTEXT_LIMIT = "context_limit"
 
+PROVIDER_COMPLETE = "PROVIDER_COMPLETE"
+PROVIDER_INCOMPLETE = "PROVIDER_INCOMPLETE"
+PROVIDER_UNAVAILABLE = "PROVIDER_UNAVAILABLE"
+
 PATH_ROLE_MAP = {
     PATH_STAGE1_FACT: ROLE_SOURCE_FACT,
     PATH_CERTIFIED_FACT: ROLE_SOURCE_FACT,
@@ -60,6 +64,39 @@ class V4ContractError(ValueError):
         super().__init__(message)
         self.code = code
         self.json_path = json_path
+
+
+class V4ProviderRuntimeError(RuntimeError):
+    """Fail-closed provider/runtime failure that must not become semantic repair."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+
+
+def require_complete_provider_response(response: dict[str, Any]) -> Any:
+    status = response.get("status")
+    if status == PROVIDER_COMPLETE:
+        if "raw_output" not in response:
+            raise V4ProviderRuntimeError(
+                "PROVIDER_MISSING_PAYLOAD",
+                "complete provider response has no raw_output",
+            )
+        return response["raw_output"]
+    if status == PROVIDER_INCOMPLETE:
+        raise V4ProviderRuntimeError(
+            "PROVIDER_INCOMPLETE",
+            "provider output is incomplete and cannot be parsed",
+        )
+    if status == PROVIDER_UNAVAILABLE:
+        raise V4ProviderRuntimeError(
+            "PROVIDER_UNAVAILABLE",
+            "provider/runtime is unavailable",
+        )
+    raise V4ProviderRuntimeError(
+        "PROVIDER_STATUS_INVALID",
+        f"unknown provider status: {status!r}",
+    )
 
 
 def canonical_json_bytes(value: Any) -> bytes:
@@ -86,7 +123,8 @@ def new_application_id(prefix: str) -> str:
 
 def _schema_error(instance: Any, schema: dict[str, Any]) -> None:
     validator = Draft202012Validator(schema)
-    error = next(iter(sorted(validator.iter_errors(instance), key=lambda item: list(item.path))), None)
+    errors = sorted(validator.iter_errors(instance), key=lambda item: list(item.path))
+    error = next(iter(errors), None)
     if error is None:
         return
     path = "$"
@@ -278,7 +316,10 @@ class Stage1RequestBuilder:
     ) -> dict[str, Any]:
         if not user_task.strip():
             raise ValueError("Stage 1 requires a non-empty user task")
-        if grounded_context.get("grounded_context_contract_version") != GROUNDED_CONTEXT_CONTRACT_VERSION:
+        if (
+            grounded_context.get("grounded_context_contract_version")
+            != GROUNDED_CONTEXT_CONTRACT_VERSION
+        ):
             raise ValueError("Stage 1 requires sgokb.grounded-context.v1")
         if not GroundedContextProjector.verify(grounded_context):
             raise ValueError("Grounded Context fingerprint is invalid")
@@ -330,6 +371,10 @@ class Stage1RequestBuilder:
             raise ValueError("retry feedback stage mismatch")
         if retry_feedback.get("previous_attempt_id") != previous_request.get("attempt_id"):
             raise ValueError("retry feedback attempt binding mismatch")
+        allowed_refs = set(previous_request["allowed_support_refs"])
+        for failure in retry_feedback.get("failures", []):
+            if not set(failure.get("support_refs", [])).issubset(allowed_refs):
+                raise ValueError("retry feedback introduced a new Stage 1 support ref")
         retry_request = self.build(
             user_task=previous_request["user_task"],
             grounded_context=previous_request["grounded_context"],
@@ -486,6 +531,12 @@ class Stage2RequestBuilder:
             raise ValueError("retry feedback stage mismatch")
         if retry_feedback.get("previous_attempt_id") != previous_request.get("attempt_id"):
             raise ValueError("retry feedback attempt binding mismatch")
+        allowed_fact_ids = {
+            fact["certified_fact_id"] for fact in certified_content.get("facts", [])
+        }
+        for failure in retry_feedback.get("failures", []):
+            if not set(failure.get("premise_fact_ids", [])).issubset(allowed_fact_ids):
+                raise ValueError("retry feedback introduced a new Certified Fact ID")
         if certified_content.get("certified_content_digest") != previous_request.get(
             "certified_content_digest"
         ):
