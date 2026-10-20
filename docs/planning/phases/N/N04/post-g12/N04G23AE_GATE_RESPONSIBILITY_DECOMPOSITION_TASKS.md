@@ -7,8 +7,8 @@
 - Trigger: `N-04G-23A-R` Complete / valid FAIL / no candidate selected
 - Priority: **P0**
 - Status: **In Progress**
-- Completed: **G-23A-E1**
-- Current task: **G-23A-E2 — v4 V2 Responsibility Boundary Design**
+- Completed: **G-23A-E1, G-23A-E2**
+- Current task: **G-23A-E3 — Structured Proposition Contract Design**
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 - G-23B: **blocked until G-23A-E acceptance**
@@ -35,9 +35,9 @@ G-23A / G-23A-Rで明らかになったAtomicity / Role Judgeの不安定性に�
 ```text
 G-23A-E1 47-Gold Responsibility Mapping                 Complete
   ↓
-G-23A-E2 v4 V2 Responsibility Boundary Design           NEXT
+G-23A-E2 v4 V2 Responsibility Boundary Design           Complete
   ↓
-G-23A-E3 Structured Proposition Contract Design
+G-23A-E3 Structured Proposition Contract Design          NEXT
   ↓
 G-23A-E4 Role Provenance / Compatibility Matrix Design
   ↓
@@ -79,14 +79,7 @@ COMBINED                 5
 OPTIONAL_AMBIGUOUS       6
 ```
 
-Gate:
-
-- 47 / 47 mapped: PASS
-- no critical case without owner: PASS
-- optional ambiguous cases remain explicit: PASS
-- Gold labels/required/critical flags unchanged: PASS
-
-Decision carried to E2:
+Decision carried forward:
 
 ```text
 STRUCTURAL
@@ -101,7 +94,7 @@ RESIDUAL_SEMANTIC
   -> narrow content-type classifier after deterministic checks
 
 COMBINED
-  -> structural and semantic/policy verdicts remain independent
+  -> structural and semantic/policy verdicts independent
 
 OPTIONAL_AMBIGUOUS
   -> preserve ambiguity; audit/coverage only
@@ -109,44 +102,64 @@ OPTIONAL_AMBIGUOUS
 
 ## 4. G-23A-E2 — v4 V2 Responsibility Boundary Design
 
-Status: **NEXT**
-
-Purpose: all-in-one LLM Judge responsibilityをstructural / deterministic / residual semanticへ分割し、validation順序とauthorityを固定する。
-
-Required questions:
-
-1. Which checks run before any semantic classifier?
-2. Which checks are hard deterministic rejects?
-3. Which checks only raise compound-risk and require residual review?
-4. What is the authoritative source of role provenance?
-5. When is a residual classifier invoked?
-6. How are `AMBIGUOUS` / `MIXED_CONTENT` handled?
-7. Can downstream support validation override earlier failure? **No.**
-8. How does retry receive stage-local evidence?
-
-Target flow:
-
-```text
-Structured Proposition
-  ↓
-Structural validation
-  ↓
-Role provenance normalization
-  ↓
-Deterministic compatibility
-  ↓
-Residual semantic classification if needed
-  ↓
-Support / derivation validation
-```
+Status: **Complete**
 
 Deliverable:
 
 `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
 
-Gate: every verdict source has one unambiguous authority; later probabilistic components cannot override earlier deterministic violations.
+Normative decomposition:
+
+```text
+V2-S  Structural Proposition Gate
+V2-P  Role Provenance Normalization
+V2-D  Deterministic Compatibility Gate
+V2-R  Residual Semantic Gate
+```
+
+Normative order:
+
+```text
+Structured Proposition Candidate
+  ↓
+V2-S Structural Proposition Gate
+  ↓
+V2-P Role Provenance Normalization
+  ↓
+V2-D Deterministic Compatibility Gate
+  ↓
+V2-R Residual Semantic Gate if required
+  ↓
+V3+ Support / Derivation
+```
+
+Key decisions:
+
+- V2-S/V2-D hard failureはV2-RやV3+でoverride不可。
+- Generator-declared `semantic_role`はauthorityではない。
+- role provenanceはapplication/stage pathがauthority。
+- known purpose/presentation/premise/support mismatchはdeterministic hard reject。
+- compound-risk signal自体は`NON_ATOMIC` verdictではない。
+- model-authored content typeがstructured metadataだけで証明できない場合はV2-R必須。
+- `MIXED_CONTENT`はFAIL、`AMBIGUOUS/INDETERMINATE`はfail-closed。
+- V2はtruth/support/entailmentを判定しない。
+- retry feedbackはfailed text、authority、expected/observed class、risk signalを含むstage-local envelopeにする。
+- Stage 2 failureでCertified Contentを無条件再生成しない。
+
+E2 Gate: **PASS**
+
+- semantic classifier前checks fixed
+- hard deterministic reject boundary fixed
+- compound-risk separated from verdict
+- role provenance authority fixed
+- residual invocation boundary fixed
+- mixed/ambiguous fail-closed fixed
+- downstream override prohibited
+- stage-local failure evidence fixed at semantic level
 
 ## 5. G-23A-E3 — Structured Proposition Contract Design
+
+Status: **NEXT**
 
 Purpose: Atomicityを自然言語生成後の全件LLM判定からgeneration intermediate contractで一部保証する方式へ移す。
 
@@ -164,6 +177,8 @@ Required topics:
 - rejected / ambiguous representation
 - rendering separation
 - schema versioning
+- E2 `V2-S PASS / REVIEW_REQUIRED / FAIL`をどの構造条件で決めるか
+- E2 `V2-R = NOT_REQUIRED`を許可できるconstruction path
 
 Compare:
 
@@ -230,7 +245,7 @@ Compare at minimum:
 3. cross-encoder style classifier
 4. deterministic-first cascade + classifier only for unresolved cases
 
-Dataset must extend beyond 47 Gold and include semantic-role swaps, purpose/presentation swaps, source-world/creative minimal pairs, interpretation/premise mixed pairs, atomic/compound pairs and context-limit/source-world mixed pairs. Pattern-family holdout is required candidate policy.
+Dataset must extend beyond 47 Gold. Pattern-family holdout is required candidate policy.
 
 Deliverable: `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
 
@@ -259,16 +274,16 @@ Gate: demonstrate material reduction in critical decisions delegated to a broad 
 Acceptance checklist:
 
 - [x] 47/47 responsibility mapping complete
-- [ ] v4 V2 authority/order fixed
+- [x] v4 V2 authority/order fixed
 - [ ] Structured Proposition contract selected
 - [ ] role provenance model selected
 - [ ] deterministic compatibility matrix fixed
 - [ ] residual classifier scope bounded
 - [ ] 47-Gold desk replay complete
-- [ ] G-14 invariants preserved
-- [ ] zero-tolerance critical false-pass policy preserved
-- [ ] historical evidence unchanged
-- [ ] no silent post-hoc atomization
+- [x] G-14 invariants preserved at E2 boundary
+- [x] zero-tolerance critical false-pass policy preserved at E2 boundary
+- [x] historical evidence unchanged
+- [x] no silent post-hoc atomization preserved
 - [ ] G-23B can consume the new contract without duplicate role authority
 
 If accepted:
@@ -301,6 +316,6 @@ G-23A-Eでは以下を変更しない。
 
 ## 11. Immediate next task
 
-**N-04G-23A-E2 — v4 V2 Responsibility Boundary Design**
+**N-04G-23A-E3 — Structured Proposition Contract Design**
 
-E1で47件すべてのownerが固定されたため、次はこのmappingをauthorityとしてvalidation order、hard-fail authority、residual classifier invocation、downstream override禁止を設計する。
+E2でauthority/order、hard fail、Residual dispatch、override禁止が固定されたため、次はV2-Sの入力契約とconstruction proofを具体化する。
