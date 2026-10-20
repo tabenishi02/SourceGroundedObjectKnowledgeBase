@@ -80,13 +80,22 @@ class V4MaterialRequirementGate:
         profile: dict[str, Any],
     ) -> dict[str, Any]:
         facts = list(certified_content.get("facts", []))
-        required_objects = [str(value) for value in profile.get("required_source_objects", [])]
-        minimum_total = int(profile.get("minimum_supported_source_fact_units", 0) or 0)
-        minimum_per_object = int(profile.get("minimum_source_fact_per_object", 0) or 0)
+        required_objects = [
+            str(value) for value in profile.get("required_source_objects", [])
+        ]
+        minimum_total = int(
+            profile.get("minimum_supported_source_fact_units", 0) or 0
+        )
+        minimum_per_object = int(
+            profile.get("minimum_source_fact_per_object", 0) or 0
+        )
 
         covered_counts = {object_id: 0 for object_id in required_objects}
         for fact in facts:
-            for object_id in _fact_object_ids(fact, grounded_context=grounded_context):
+            for object_id in _fact_object_ids(
+                fact,
+                grounded_context=grounded_context,
+            ):
                 if object_id in covered_counts:
                     covered_counts[object_id] += 1
 
@@ -99,7 +108,10 @@ class V4MaterialRequirementGate:
 
         if not missing_codes:
             verdict = STAGE_READY
-        elif self._context_can_satisfy(grounded_context=grounded_context, profile=profile):
+        elif self._context_can_satisfy(
+            grounded_context=grounded_context,
+            profile=profile,
+        ):
             verdict = STAGE_RETRYABLE
         else:
             verdict = STAGE_IMPOSSIBLE
@@ -124,41 +136,58 @@ class V4MaterialRequirementGate:
         profile: dict[str, Any],
     ) -> dict[str, Any]:
         fact_map = {
-            str(fact["certified_fact_id"]): fact for fact in certified_content.get("facts", [])
+            str(fact["certified_fact_id"]): fact
+            for fact in certified_content.get("facts", [])
         }
         main_ids: list[str] = []
         interpretations: list[dict[str, Any]] = []
         creative: list[dict[str, Any]] = []
         for block in validated_plan.get("blocks", []):
             if block.get("block_kind") == "main":
-                main_ids.extend(str(item["certified_fact_id"]) for item in block.get("items", []))
+                main_ids.extend(
+                    str(item["certified_fact_id"])
+                    for item in block.get("items", [])
+                )
             elif block.get("block_kind") == "interpretation":
                 interpretations.extend(block.get("items", []))
             elif block.get("block_kind") == "creative":
                 creative.extend(block.get("items", []))
 
-        required_objects = [str(value) for value in profile.get("required_source_objects", [])]
+        required_objects = [
+            str(value) for value in profile.get("required_source_objects", [])
+        ]
         covered_counts = {object_id: 0 for object_id in required_objects}
         for fact_id in main_ids:
             fact = fact_map[fact_id]
-            for object_id in _fact_object_ids(fact, grounded_context=grounded_context):
+            for object_id in _fact_object_ids(
+                fact,
+                grounded_context=grounded_context,
+            ):
                 if object_id in covered_counts:
                     covered_counts[object_id] += 1
 
         missing: list[str] = []
-        minimum_total = int(profile.get("minimum_supported_source_fact_units", 0) or 0)
+        minimum_total = int(
+            profile.get("minimum_supported_source_fact_units", 0) or 0
+        )
         if len(main_ids) < minimum_total:
             missing.append("minimum_supported_source_fact_units")
-        minimum_per_object = int(profile.get("minimum_source_fact_per_object", 0) or 0)
+        minimum_per_object = int(
+            profile.get("minimum_source_fact_per_object", 0) or 0
+        )
         for object_id, count in covered_counts.items():
             if count < minimum_per_object:
                 missing.append(f"minimum_source_fact_per_object:{object_id}")
 
-        minimum_interpretations = int(profile.get("minimum_interpretation_units", 0) or 0)
+        minimum_interpretations = int(
+            profile.get("minimum_interpretation_units", 0) or 0
+        )
         if len(interpretations) < minimum_interpretations:
             missing.append("minimum_interpretation_units")
 
-        minimum_creative = int(profile.get("minimum_creative_addition_units", 0) or 0)
+        minimum_creative = int(
+            profile.get("minimum_creative_addition_units", 0) or 0
+        )
         if len(creative) < minimum_creative:
             missing.append("minimum_creative_addition_units")
 
@@ -173,7 +202,10 @@ class V4MaterialRequirementGate:
 
         if not missing:
             verdict = MATERIAL_PASS
-        elif self._context_can_satisfy(grounded_context=grounded_context, profile=profile):
+        elif self._context_can_satisfy(
+            grounded_context=grounded_context,
+            profile=profile,
+        ):
             verdict = MATERIAL_FAIL_REPAIRABLE
         else:
             verdict = MATERIAL_FAIL_CONTEXT_INSUFFICIENT
@@ -197,20 +229,30 @@ class V4MaterialRequirementGate:
         grounded_context: dict[str, Any],
         profile: dict[str, Any],
     ) -> bool:
-        required_objects = [str(value) for value in profile.get("required_source_objects", [])]
+        required_objects = [
+            str(value) for value in profile.get("required_source_objects", [])
+        ]
         units = list(grounded_context.get("grounding_units", []))
         by_object = {
             object_id: [
-                unit for unit in units if isinstance(unit, dict) and unit.get("object_id") == object_id
+                unit
+                for unit in units
+                if isinstance(unit, dict)
+                and unit.get("object_id") == object_id
             ]
             for object_id in required_objects
         }
-        minimum_total = int(profile.get("minimum_supported_source_fact_units", 0) or 0)
-        minimum_per_object = int(profile.get("minimum_source_fact_per_object", 0) or 0)
+        minimum_total = int(
+            profile.get("minimum_supported_source_fact_units", 0) or 0
+        )
+        minimum_per_object = int(
+            profile.get("minimum_source_fact_per_object", 0) or 0
+        )
         if minimum_total and len(units) < minimum_total:
             return False
         if minimum_per_object and any(
-            len(by_object[object_id]) < minimum_per_object for object_id in required_objects
+            len(by_object[object_id]) < minimum_per_object
+            for object_id in required_objects
         ):
             return False
         if any(not by_object[object_id] for object_id in required_objects):
@@ -232,7 +274,10 @@ class V4MaterialRequirementGate:
             for fact_id in item.get("premise_fact_ids", []):
                 fact = fact_map.get(str(fact_id))
                 if fact is not None:
-                    premise_objects |= _fact_object_ids(fact, grounded_context=grounded_context)
+                    premise_objects |= _fact_object_ids(
+                        fact,
+                        grounded_context=grounded_context,
+                    )
             if required_objects.issubset(premise_objects):
                 return True
         return False
@@ -395,7 +440,8 @@ def terminal_from_material(
     decision = {
         "outcome": outcome,
         "render_authorized": outcome == TERMINAL_ACCEPTED,
-        "context_limit_render_authorized": outcome == TERMINAL_INSUFFICIENT_CONTEXT,
+        "context_limit_render_authorized": outcome
+        == TERMINAL_INSUFFICIENT_CONTEXT,
         "material_result_digest": material_result.get("result_digest"),
     }
     decision["terminal_decision_digest"] = digest_object(decision)
@@ -443,7 +489,9 @@ class V4DeterministicRenderer:
             raise ValueError("invalid system context-limit artifact")
         if terminal_decision.get("outcome") != TERMINAL_INSUFFICIENT_CONTEXT:
             raise ValueError("context-limit render requires INSUFFICIENT_CONTEXT")
-        return "The supplied grounded context is insufficient to satisfy the required material."
+        return (
+            "The supplied grounded context is insufficient to satisfy the required material."
+        )
 
 
 class V4EvidenceManifest:
@@ -502,8 +550,8 @@ class V4ProviderCapabilityProbe:
                     "expected": case.get("expected"),
                     "provider_status": response.get("status"),
                     "stop_reason": response.get("stop_reason"),
-                    "raw_output_digest": (
-                        sha256_bytes(str(response.get("raw_output", "")).encode("utf-8"))
+                    "raw_output_digest": sha256_bytes(
+                        str(response.get("raw_output", "")).encode("utf-8")
                     ),
                 }
             )
