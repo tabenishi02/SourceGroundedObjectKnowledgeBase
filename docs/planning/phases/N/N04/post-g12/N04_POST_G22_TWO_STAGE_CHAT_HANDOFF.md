@@ -6,25 +6,27 @@
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
 - Primary next-chat entry: `docs/planning/phases/N/N04/post-g12/N04G25A_NEXT_CHAT_HANDOFF.md`
+- G-25A block record: `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 - G-22: **Complete / valid formal FAIL (0/3 PASS)**
 - G-23F: **Complete / v4 Design Frozen**
 - G-24: **Complete / Implementation Ready for G-25A**
-- Current task: **N-04G-25A — Residual Classifier Benchmark / Selection**
+- Current task: **N-04G-25A — BLOCKED at mandatory Reference Workstation preflight**
 
 ## Read first
 
 0. `docs/planning/phases/N/N04/post-g12/N04G25A_NEXT_CHAT_HANDOFF.md`
-1. `docs/evaluation/N04G24_V4_IMPLEMENTATION_RESULT.md`
-2. `docs/decisions/N04G23F_V4_DESIGN_INTEGRATION_AND_FREEZE.md`
-3. `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
-4. `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
-5. `docs/decisions/N04G23AE_INTEGRATION_AND_G23B_UNBLOCK_DECISION.md`
-6. v4 production code under `src/sgokb/grounding/v4_*.py`
-7. `src/sgokb/application_grounding_v4.py`
-8. `tests/test_n04g24_v4_implementation.py`
-9. `tests/test_n04g24_v4_provider_runtime.py`
+1. `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
+2. `docs/evaluation/N04G24_V4_IMPLEMENTATION_RESULT.md`
+3. `docs/decisions/N04G23F_V4_DESIGN_INTEGRATION_AND_FREEZE.md`
+4. `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
+5. `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
+6. `docs/decisions/N04G23AE_INTEGRATION_AND_G23B_UNBLOCK_DECISION.md`
+7. v4 production code under `src/sgokb/grounding/v4_*.py`
+8. `src/sgokb/application_grounding_v4.py`
+9. `tests/test_n04g24_v4_implementation.py`
+10. `tests/test_n04g24_v4_provider_runtime.py`
 
 GitHub `main` is authoritative. Do not revive historical stacked Phase N branches as authority.
 
@@ -119,17 +121,15 @@ Key implementation properties:
 
 No concrete Residual classifier was selected in G-24.
 
-## G-24 verification note
+## G-25A mandatory preflight and current block
 
-New v4 coverage passed in an isolated local verification environment:
+New v4 coverage passed in an isolated local verification environment during G-24:
 
 ```text
 25 passed
 ```
 
-Full Reference Workstation repository verification was not executable during G-24 because the connected remote-command service was unavailable due its execution quota. GitHub has no configured CI status checks/workflow runs for these commits.
-
-Therefore G-25A starts with a mandatory hard preflight:
+Full Reference Workstation verification remains a hard Gate:
 
 ```text
 python -m pytest -q tests/test_n04g24_v4_implementation.py tests/test_n04g24_v4_provider_runtime.py
@@ -138,11 +138,21 @@ python -m ruff check .
 git diff --check
 ```
 
-Any failure stops G-25A benchmark execution and returns to G-24 implementation remediation. Do not waive failures.
+On 2026-10-21 G-25A attempted to start this preflight. The authorized Reference Workstation `FNB1Main` was online and paired, but Desktop Commander reported that the monthly execution quota had been reached and explicitly instructed not to retry or reconnect. No terminal command was executed.
 
-## G-25A responsibility
+Therefore:
 
-Select concrete Residual classifiers only after preflight PASS.
+```text
+G-25A preflight = NOT EXECUTED
+classifier benchmark = NOT STARTED
+classifier selection = NOT PERFORMED
+```
+
+Do not interpret this as implementation PASS or FAIL on the Reference Workstation. Resume by running the four commands above when command execution is available. Any failure returns to G-24 remediation; no failure may be waived.
+
+## G-25A responsibility after preflight PASS
+
+Select concrete Residual classifiers as two independent components.
 
 ### V2-R-A
 
@@ -183,7 +193,7 @@ VALID_FAIL_NO_SELECTION
 
 In that case G-25B/G-26 remain blocked; do not weaken the Gate.
 
-Frozen 47 is final confirmation only and must not be used for tuning.
+Frozen 47 is final confirmation only and must not be used for tuning. The blocked preflight attempt produced no classifier output against Frozen 47.
 
 ## Protected boundaries
 
@@ -214,13 +224,13 @@ Do not change during G-25A:
 ```text
 G-23F = Complete / v4 Design Frozen
 G-24  = Complete / Implementation Ready for G-25A
-G-25A = NEXT
+G-25A = BLOCKED / Reference Workstation preflight not executed
 G-25B = blocked by G-25A PASS
 G-26  = blocked by G-25B PASS
 N-04  = Failed / not Complete
 N-05  = blocked
 ```
 
-## Immediate next task
+## Immediate resume task
 
-**N-04G-25A — Residual Classifier Benchmark / Selection**
+**N-04G-25A — run mandatory Reference Workstation preflight; only after all PASS begin Residual Classifier Benchmark / Selection.**
