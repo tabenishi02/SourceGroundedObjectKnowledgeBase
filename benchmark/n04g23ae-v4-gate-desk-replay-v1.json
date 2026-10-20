@@ -1,0 +1,116 @@
+{
+  "schema": "sgokb.n04g23ae.v4-gate-desk-replay.v1",
+  "status": "complete",
+  "source_gold": {
+    "path": "benchmark/n04g23a-atomicity-role-gold-v1.json",
+    "sha256": "347e39f5108ed920847ce717cf98571a5137c48e348aba7af7e5aa50679a4687"
+  },
+  "authority": [
+    "docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md",
+    "docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md",
+    "docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md",
+    "docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md"
+  ],
+  "notes": [
+    "Frozen Gold is used as an oracle for expected residual verdicts; this is not classifier performance evidence.",
+    "Production v4 path provenance remains application-owned; legacy fixtures are mapped only for architecture replay.",
+    "Earlier FAIL or INDETERMINATE short-circuits later gates."
+  ],
+  "summary": {
+    "total": 47,
+    "required": 41,
+    "optional": 6,
+    "critical": 33,
+    "v2_d_policy_fail": 5,
+    "v2_r_a_invoked": 42,
+    "v2_r_a_atomic": 11,
+    "v2_r_a_non_atomic": 27,
+    "v2_r_a_ambiguous": 4,
+    "v2_r_c_invoked": 11,
+    "v2_r_c_compatible": 8,
+    "v2_r_c_mismatch": 3,
+    "expected_v2_pass": 8,
+    "expected_v2_fail": 35,
+    "expected_v2_indeterminate": 4,
+    "critical_pre_v3_fail_path": 33,
+    "critical_without_pre_v3_fail_path": 0
+  },
+  "routes": {
+    "v2_d_policy_fail": [
+      "creative-role-disallowed-purpose",
+      "source-fact-in-interpretation-block",
+      "interpretation-in-main-block",
+      "g22-case1-attempt1-u3",
+      "g22-case1-attempt2-u3"
+    ],
+    "v2_r_a_non_atomic": [
+      "neutral-nonatomic-conjunction",
+      "source-fact-plus-extra-duty",
+      "fact-plus-causal-explanation",
+      "mixed-source-fact-and-context-limit",
+      "non-atomic-interpretation-with-premise-restatement",
+      "non-atomic-creative-two-events",
+      "g22-case1-attempt1-u1",
+      "g22-case1-attempt1-u2",
+      "g22-case1-attempt2-u1",
+      "g22-case1-attempt2-u2",
+      "g22-case2-attempt1-u1",
+      "g22-case2-attempt1-u2",
+      "g22-case2-attempt1-u3",
+      "g22-case2-attempt1-u4",
+      "g22-case2-attempt1-u5",
+      "g22-case2-attempt2-u1",
+      "g22-case2-attempt2-u2",
+      "g22-case2-attempt2-u3",
+      "g22-case2-attempt2-u4",
+      "g22-case2-attempt2-u5",
+      "g22-case3-attempt1-u2",
+      "g22-case3-attempt1-u3",
+      "g22-case3-attempt1-u5",
+      "g22-case3-attempt2-u7",
+      "g22-case3-attempt2-u8",
+      "g22-case3-attempt2-u10",
+      "g22-case3-attempt2-u11"
+    ],
+    "v2_r_a_ambiguous": [
+      "g22-case3-attempt1-u1",
+      "g22-case3-attempt1-u4",
+      "g22-case3-attempt2-u6",
+      "g22-case3-attempt2-u9"
+    ],
+    "v2_r_c_compatible": {
+      "SOURCE_FACT_CONTENT": [
+        "direct-source-fact-contract",
+        "faithful-source-fact-paraphrase",
+        "unsupported-source-fact-still-role-valid",
+        "negated-source-fact-still-role-valid",
+        "concept-source-fact",
+        "neutral-atomic-object-property"
+      ],
+      "INTERPRETATION_CONTENT": [
+        "valid-interpretation"
+      ],
+      "CREATIVE_CONTENT": [
+        "valid-creative-addition"
+      ]
+    },
+    "v2_r_c_mismatch": {
+      "INTERPRETATION_CONTENT_vs_source_fact": [
+        "interpretation-mislabeled-source-fact"
+      ],
+      "CREATIVE_CONTENT_vs_source_fact": [
+        "creative-invention-mislabeled-source-fact"
+      ],
+      "SOURCE_FACT_CONTENT_vs_creative_addition": [
+        "source-fact-smuggled-as-creative"
+      ]
+    }
+  },
+  "critical_route_summary": {
+    "deterministic_policy_reject": 5,
+    "atomicity_non_atomic_reject": 25,
+    "content_type_mismatch_reject": 3,
+    "total": 33
+  },
+  "coverage_conclusion": "PASS_WITH_RESIDUAL_ATOMICITY_RISK"
+}
