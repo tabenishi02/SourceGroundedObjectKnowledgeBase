@@ -154,6 +154,9 @@ def stage1_provider_schema(
     if max_candidates < 0:
         raise ValueError("max_candidates must be >= 0")
     refs = list(dict.fromkeys(allowed_support_refs))
+    support_ref_item: dict[str, Any] = {"type": "string"}
+    if refs:
+        support_ref_item["enum"] = refs
     candidate_schema: dict[str, Any] = {
         "type": "object",
         "additionalProperties": False,
@@ -163,7 +166,7 @@ def stage1_provider_schema(
             "support_refs": {
                 "type": "array",
                 "minItems": 1,
-                "items": {"type": "string", "enum": refs},
+                "items": support_ref_item,
             },
         },
     }
@@ -373,6 +376,8 @@ class Stage1RequestBuilder:
             raise ValueError("retry feedback attempt binding mismatch")
         allowed_refs = set(previous_request["allowed_support_refs"])
         for failure in retry_feedback.get("failures", []):
+            if failure.get("premise_fact_ids"):
+                raise ValueError("Stage 1 retry feedback cannot contain premise fact IDs")
             if not set(failure.get("support_refs", [])).issubset(allowed_refs):
                 raise ValueError("retry feedback introduced a new Stage 1 support ref")
         retry_request = self.build(
@@ -535,6 +540,8 @@ class Stage2RequestBuilder:
             fact["certified_fact_id"] for fact in certified_content.get("facts", [])
         }
         for failure in retry_feedback.get("failures", []):
+            if failure.get("support_refs"):
+                raise ValueError("Stage 2 retry feedback cannot contain support refs")
             if not set(failure.get("premise_fact_ids", [])).issubset(allowed_fact_ids):
                 raise ValueError("retry feedback introduced a new Certified Fact ID")
         if certified_content.get("certified_content_digest") != previous_request.get(
