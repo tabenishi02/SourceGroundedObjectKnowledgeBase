@@ -1,0 +1,282 @@
+{
+  "schema_version": "sgokb.n04g23a-atomicity-role-gold/1",
+  "benchmark_id": "n04g23a-atomicity-role-gold-seed-v1",
+  "status": "seed_pending_g22_exact_import",
+  "authority": {
+    "atomicity_and_role_policy": "docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md",
+    "g22_result": "docs/evaluation/N04G22_FORMAL_V3_REACCEPTANCE.md",
+    "g20_reuse_source": "benchmark/n04g20-source-fact-verifier-v1.json"
+  },
+  "scope": "Evaluate only atomicity and content-first semantic-role validity. Do not judge factual support, truth, entailment, or retrieval quality.",
+  "gold_policy": {
+    "atomicity": {
+      "ATOMIC": "The unit contains at most one independently judgeable material proposition under one grounding policy.",
+      "NON_ATOMIC": "The unit contains two or more material propositions that could receive different grounding verdicts or require different grounding policies.",
+      "INDETERMINATE": "Reserved for genuinely ambiguous benchmark items; no seed item uses this as gold."
+    },
+    "role_boundary": {
+      "ROLE_VALID": "Content semantics, declared semantic_role, purpose, and presentation_role are mutually consistent.",
+      "ROLE_VIOLATION": "Content-first semantic type conflicts with declared semantic_role, purpose, or presentation_role.",
+      "INDETERMINATE": "Reserved for genuinely ambiguous benchmark items; no seed item uses this as gold."
+    },
+    "important_separation": [
+      "Unsupported or false source-world claims can still be ATOMIC and ROLE_VALID as source_fact; support is evaluated later.",
+      "Atomicity is not sentence counting or conjunction detection; use the independent-verdict split test.",
+      "Declared semantic_role is not authority; content-first classification takes precedence."
+    ]
+  },
+  "required_g22_import": {
+    "source_evidence_root": ".local/n04-v3/runs/20261020T030904+0900/",
+    "require_exact_text": true,
+    "require_all_material_units_from_both_attempts": true,
+    "instruction": "Import exact G-22 material unit text and request metadata from preserved local evidence. Do not reconstruct text from the evaluation summary. Assign gold independently from G-14 policy rather than copying Phi-4 observed verdicts. The finalized corpus must be written to benchmark/n04g23a-atomicity-role-gold-v1.json."
+  },
+  "cases": [
+    {
+      "case_id": "direct-source-fact-contract",
+      "origin": "g20_reuse",
+      "origin_ref": "benchmark/n04g20-source-fact-verifier-v1.json#positive-direct-contract",
+      "text": "Saber is contracted to Shirou.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VALID"},
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "One independently judgeable source-world proposition; declared as source_fact in main."
+    },
+    {
+      "case_id": "faithful-source-fact-paraphrase",
+      "origin": "g20_reuse",
+      "origin_ref": "benchmark/n04g20-source-fact-verifier-v1.json#positive-faithful-paraphrase",
+      "text": "Saber has a contract with Shirou.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VALID"},
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "Faithful one-proposition source-world claim; support/truth is outside this gate."
+    },
+    {
+      "case_id": "unsupported-source-fact-still-role-valid",
+      "origin": "g20_reuse",
+      "origin_ref": "benchmark/n04g20-source-fact-verifier-v1.json#adversarial-supported-subject-wrong-predicate",
+      "text": "Saber is Shirou's sibling.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VALID"},
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "Unsupportedness must not be confused with semantic-role validity; it remains one source-world fact claim."
+    },
+    {
+      "case_id": "negated-source-fact-still-role-valid",
+      "origin": "g20_reuse",
+      "origin_ref": "benchmark/n04g20-source-fact-verifier-v1.json#adversarial-negation-flip",
+      "text": "Saber is not contracted to Shirou.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VALID"},
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "Negation changes support/truth, not semantic content type; one atomic source-world proposition."
+    },
+    {
+      "case_id": "concept-source-fact",
+      "origin": "g20_reuse",
+      "origin_ref": "benchmark/n04g20-source-fact-verifier-v1.json#positive-concept-paraphrase",
+      "text": "A tsundere may begin coldly and later show warmer affection.",
+      "semantic_role": "source_fact",
+      "purpose": "creative",
+      "presentation_role": "main",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VALID"},
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "One Concept-level source-world proposition; creative purpose does not turn source facts into creative additions."
+    },
+    {
+      "case_id": "neutral-atomic-object-property",
+      "origin": "synthetic",
+      "text": "The archive contains three files.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VALID"},
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "Neutral one-proposition source fact independent of franchise knowledge."
+    },
+    {
+      "case_id": "neutral-nonatomic-conjunction",
+      "origin": "synthetic",
+      "text": "The archive contains three files and the report was published in June.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "gold": {"atomicity": "NON_ATOMIC", "role_boundary": "ROLE_VALID"},
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Two independently judgeable source-world propositions share one unit."
+    },
+    {
+      "case_id": "source-fact-plus-extra-duty",
+      "origin": "synthetic_from_g12_pattern",
+      "text": "Saber is contracted to Shirou and her primary duty is to protect him.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {"atomicity": "NON_ATOMIC", "role_boundary": "ROLE_VALID"},
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Contract and primary duty can receive different support verdicts; split is required."
+    },
+    {
+      "case_id": "fact-plus-causal-explanation",
+      "origin": "g20_pattern",
+      "origin_ref": "benchmark/n04g20-source-fact-verifier-v1.json#adversarial-temporal-causal-embellishment",
+      "text": "Saber is contracted to Shirou because he summoned her during the Holy Grail War.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {"atomicity": "NON_ATOMIC", "role_boundary": "ROLE_VALID"},
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Contract fact plus causal/event proposition can be judged independently."
+    },
+    {
+      "case_id": "mixed-source-fact-and-context-limit",
+      "origin": "synthetic",
+      "text": "The context identifies Saber as a Servant but does not describe her personality.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {"atomicity": "NON_ATOMIC", "role_boundary": "ROLE_VIOLATION"},
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Source-world fact and context-availability meta claim require different grounding policies."
+    },
+    {
+      "case_id": "valid-interpretation",
+      "origin": "synthetic",
+      "text": "This creates a contrast in how the two works frame their protagonists.",
+      "semantic_role": "interpretation",
+      "purpose": "comparison",
+      "presentation_role": "interpretation",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VALID"},
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "One interpretive conclusion, declared and presented as interpretation."
+    },
+    {
+      "case_id": "interpretation-mislabeled-source-fact",
+      "origin": "synthetic",
+      "text": "This creates a contrast in how the two works frame their protagonists.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VIOLATION"},
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Interpretive conclusion is mislabeled as source_fact."
+    },
+    {
+      "case_id": "valid-creative-addition",
+      "origin": "synthetic",
+      "text": "A new heroine named Mira hides her affection behind a deliberately cold manner.",
+      "semantic_role": "creative_addition",
+      "purpose": "creative",
+      "presentation_role": "creative",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VALID"},
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "Single newly invented creative proposition in a creative task."
+    },
+    {
+      "case_id": "creative-invention-mislabeled-source-fact",
+      "origin": "synthetic",
+      "text": "A new heroine named Mira hides her affection behind a deliberately cold manner.",
+      "semantic_role": "source_fact",
+      "purpose": "creative",
+      "presentation_role": "main",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VIOLATION"},
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Newly invented content is not a source fact."
+    },
+    {
+      "case_id": "source-fact-smuggled-as-creative",
+      "origin": "synthetic",
+      "text": "The Hero's Journey includes departure, trials, and a return.",
+      "semantic_role": "creative_addition",
+      "purpose": "creative",
+      "presentation_role": "creative",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VIOLATION"},
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "A source Concept proposition remains source-world material even inside a creative task."
+    },
+    {
+      "case_id": "creative-role-disallowed-purpose",
+      "origin": "synthetic",
+      "text": "A new swordswoman named Mira joins the story.",
+      "semantic_role": "creative_addition",
+      "purpose": "roleplay",
+      "presentation_role": "creative",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VIOLATION"},
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Creative addition is not permitted for roleplay purpose in the frozen policy."
+    },
+    {
+      "case_id": "source-fact-in-interpretation-block",
+      "origin": "synthetic",
+      "text": "BLEACH has Ichigo Kurosaki as its protagonist.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "interpretation",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VIOLATION"},
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Content is a source fact but presentation-role mapping conflicts with the declared semantic role."
+    },
+    {
+      "case_id": "interpretation-in-main-block",
+      "origin": "synthetic",
+      "text": "The two works therefore approach conflict from different perspectives.",
+      "semantic_role": "interpretation",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "gold": {"atomicity": "ATOMIC", "role_boundary": "ROLE_VIOLATION"},
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Interpretive conclusion is placed in the main/source-fact presentation role."
+    },
+    {
+      "case_id": "non-atomic-interpretation-with-premise-restatement",
+      "origin": "synthetic",
+      "text": "Work A centers on a student and Work B centers on a warrior, so they frame growth differently.",
+      "semantic_role": "interpretation",
+      "purpose": "comparison",
+      "presentation_role": "interpretation",
+      "gold": {"atomicity": "NON_ATOMIC", "role_boundary": "ROLE_VIOLATION"},
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Two factual premises plus an interpretive conclusion are mixed in one unit."
+    },
+    {
+      "case_id": "non-atomic-creative-two-events",
+      "origin": "synthetic",
+      "text": "Mira leaves her village and later returns as its leader.",
+      "semantic_role": "creative_addition",
+      "purpose": "creative",
+      "presentation_role": "creative",
+      "gold": {"atomicity": "NON_ATOMIC", "role_boundary": "ROLE_VALID"},
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Two independently judgeable invented events are combined; the creative role itself is correct."
+    }
+  ]
+}
