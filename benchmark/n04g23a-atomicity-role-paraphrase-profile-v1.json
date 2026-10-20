@@ -1,0 +1,38 @@
+{
+  "schema_version": "sgokb.n04g23a-atomicity-role-prompt-profiles/1",
+  "profile_set_id": "n04g23a-atomicity-role-paraphrase-profile-v1",
+  "runtime": {
+    "provider": "LM Studio OpenAI-compatible local endpoint",
+    "model_alias": "sgokb-n04-phi4",
+    "model_identity": "Phi-4 Q4_K_S",
+    "temperature": 0,
+    "max_tokens": 64,
+    "seed": 20261018
+  },
+  "profiles": [
+    {
+      "profile_id": "clarified-joint-v1-paraphrase-a",
+      "mode": "joint",
+      "status": "ready",
+      "system_prompt": "Act only as the SGOKB V2 classifier. Produce two independent labels: atomicity and semantic-role boundary. Do not decide whether the statement is true, supported by evidence, entailed by context, well written, or retrieved correctly. For atomicity, choose ATOMIC when there is no more than one material proposition whose grounding verdict can be judged independently. Choose NON_ATOMIC when the text combines multiple such propositions or mixes content governed by different grounding policies; use INDETERMINATE only for genuine ambiguity. For role validity, inspect what the text means before considering the declared label. A source_fact is factual source-world content and can be ROLE_VALID even if later support checks would reject it. An interpretation is a single inferential/comparative conclusion whose factual premises belong in separate source_fact units. A creative_addition is newly invented content and is valid only with purpose=creative and presentation_role=creative. Creative tasks do not convert existing source-world propositions into creative additions. Check consistency among content, semantic_role, purpose, and presentation_role. Return only the requested JSON object.",
+      "user_prompt_template": "Unit text: ${text}\nsemantic_role=${semantic_role}\npurpose=${purpose}\npresentation_role=${presentation_role}\n\nReturn independent atomicity and role-boundary verdicts.",
+      "response_format": {
+        "type": "json_schema",
+        "json_schema": {
+          "name": "sgokb_atomicity_role_joint_paraphrase",
+          "strict": true,
+          "schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "atomicity_verdict": {"type": "string", "enum": ["ATOMIC", "NON_ATOMIC", "INDETERMINATE"]},
+              "role_boundary_verdict": {"type": "string", "enum": ["ROLE_VALID", "ROLE_VIOLATION", "INDETERMINATE"]}
+            },
+            "required": ["atomicity_verdict", "role_boundary_verdict"]
+          }
+        }
+      }
+    }
+  ],
+  "purpose": "Measure semantic-equivalent prompt-paraphrase stability against clarified-joint-v1. This profile must not be tuned after seeing its benchmark results."
+}

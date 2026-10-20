@@ -1,0 +1,869 @@
+{
+  "historical_call_count": 19,
+  "exact_replay_comparison_count": 57,
+  "atomicity_identical_count": 57,
+  "role_identical_count": 57,
+  "joint_identical_count": 57,
+  "comparisons": [
+    {
+      "case_id": "g22-case1-attempt1-u1",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case1-attempt1-u1",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case1-attempt1-u1",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case1-attempt1-u2",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case1-attempt1-u2",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case1-attempt1-u2",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case1-attempt2-u1",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case1-attempt2-u1",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case1-attempt2-u1",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case1-attempt2-u2",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case1-attempt2-u2",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case1-attempt2-u2",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u1",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u1",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u1",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u2",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u2",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u2",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u3",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u3",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u3",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u4",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u4",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u4",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u5",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u5",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt1-u5",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u1",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u1",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u1",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u2",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u2",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u2",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u3",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u3",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u3",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u4",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u4",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u4",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u5",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u5",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case2-attempt2-u5",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u1",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u1",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u1",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u2",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u2",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u2",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u3",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u3",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u3",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u4",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u4",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u4",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "NON_ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u5",
+      "repeat": 1,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u5",
+      "repeat": 2,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    },
+    {
+      "case_id": "g22-case3-attempt1-u5",
+      "repeat": 3,
+      "historical": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "replay": {
+        "atomicity_verdict": "ATOMIC",
+        "role_boundary_verdict": "INDETERMINATE"
+      },
+      "atomicity_identical": true,
+      "role_identical": true,
+      "joint_identical": true
+    }
+  ],
+  "run_id": "20261020T151126+0900",
+  "benchmark_input_head": "53fbe5a833d8515768cbe2557384d1ecd46cb8de",
+  "historical_units_without_call_count": 8,
+  "prompt_provenance_verified_count": 19,
+  "prompt_provenance_mismatch_count": 0
+}

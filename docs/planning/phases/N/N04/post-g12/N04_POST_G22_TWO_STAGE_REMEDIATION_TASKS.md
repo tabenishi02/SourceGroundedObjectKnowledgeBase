@@ -18,9 +18,11 @@ G-22 valid formal FAIL
   ↓
 G-23 Two-stage architecture decision                 Accepted
   ↓
-G-23A Atomicity / Role Gold Benchmark               NEXT
+G-23A Atomicity / Role Gold Benchmark               Complete / Phi-4 insufficient under tested formulations
   ↓
-G-23B Stage 1 Grounded Content Planner contract
+G-23A-R Judge Candidate Evaluation                 NEXT blocker
+  ↓
+G-23B Stage 1 Grounded Content Planner contract     blocked by G-23A-R
   ↓
 G-23C Certification / Certified Content contract
   ↓
@@ -52,8 +54,9 @@ G-18/G-21/G-22のv3 artifact/evidenceはhistorical authorityとして保持し�
 | Task | Priority | Status | Purpose |
 |---|---|---|---|
 | N-04G-23 | P0 | **Complete / Architecture Accepted** | 2段階LLM生成をv4方針として採用 |
-| N-04G-23A | P0 | **NEXT** | Atomicity / Role Gold Setを作成しPhi-4 prompt/model問題を分離 |
-| N-04G-23B | P0 | Planned | Stage 1 `Grounded Content Planner` schema / prompt / responsibility設計 |
+| N-04G-23A | P0 | **Complete / valid benchmark; engineering PASS** | Atomicity / Role Gold Setを作成しPhi-4 prompt/model問題を分離 |
+| N-04G-23A-R | P0 | **NEXT / proposed blocker** | Evaluate judge candidates: tested Phi-4 joint/split fail frozen Gold Gates |
+| N-04G-23B | P0 | **Blocked by G-23A-R** | Stage 1 `Grounded Content Planner` schema / prompt / responsibility設計 |
 | N-04G-23C | P0 | Planned | Certification boundary / `Certified Content` contract設計 |
 | N-04G-23D | P0 | Planned | Stage 2 `Presentation Generator` schema / binding / responsibility設計 |
 | N-04G-23E | P0 | Planned | presentation-role schema capability + stage-local retry feedback設計 |
@@ -368,6 +371,8 @@ Without new failure evidence, do not change:
 
 ## 14. Immediate next task
 
-**N-04G-23A — Atomicity / Role Gold Benchmark**
+**N-04G-23A-R — Judge Candidate Evaluation**
+
+G-23A run `20261020T151126+0900` is Complete: all four profiles executed and final engineering PASS (G-23A tests 10, full pytest 418, Ruff/diff). P1/P1P stability and P2 Safety/Required-valid fail. Result: `docs/evaluation/N04G23A_ATOMICITY_ROLE_GOLD_BENCHMARK.md`. No tested Phi-4 profile is viable; G-23B is blocked pending additional judge evaluation. No alternate model is selected here. Two-stage architecture and N-04/N-05 states remain unchanged.
 
 This must be completed before Stage 1/Stage 2 prompt and judge design is Frozen, because the benchmark determines whether Phi-4 can be retained with prompt changes, requires split calls, or must be replaced.

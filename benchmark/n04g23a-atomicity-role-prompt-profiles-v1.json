@@ -1,0 +1,298 @@
+{
+  "schema_version": "sgokb.n04g23a-atomicity-role-prompt-profiles/1",
+  "profile_set_id": "n04g23a-atomicity-role-prompt-profiles-v1",
+  "runtime": {
+    "provider": "LM Studio OpenAI-compatible local endpoint",
+    "model_alias": "sgokb-n04-phi4",
+    "model_identity": "Phi-4 Q4_K_S",
+    "temperature": 0,
+    "max_tokens": 64,
+    "seed": 20261018
+  },
+  "profiles": [
+    {
+      "profile_id": "g22-exact-joint",
+      "mode": "joint",
+      "status": "ready",
+      "source": ".local/n04-v3/runs/20261020T030904+0900/",
+      "system_prompt": "Classify content first. ATOMIC requires one independently judgeable semantic proposition. If parts can receive different support or role verdicts, return NON_ATOMIC. Judge role by content, not declared role: source_fact states source-world facts; interpretation derives from premises; creative_addition invents content only within creative scope and must not smuggle source-world factual claims. INDETERMINATE if uncertain. No external facts, retrieval or model-memory supplementation.",
+      "user_prompt_template": "{\"presentation_role\": ${presentation_role_json}, \"purpose\": ${purpose_json}, \"semantic_role\": ${semantic_role_json}, \"text\": ${text_json}}",
+      "response_format": {
+        "type": "json_schema",
+        "json_schema": {
+          "name": "sgokb_atomicity_role",
+          "strict": true,
+          "schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "atomicity_verdict",
+              "role_boundary_verdict"
+            ],
+            "properties": {
+              "atomicity_verdict": {
+                "type": "string",
+                "enum": [
+                  "ATOMIC",
+                  "NON_ATOMIC",
+                  "INDETERMINATE"
+                ]
+              },
+              "role_boundary_verdict": {
+                "type": "string",
+                "enum": [
+                  "ROLE_VALID",
+                  "ROLE_VIOLATION",
+                  "INDETERMINATE"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "instruction": "Before execution, copy the exact G-22 atomicity/role Phi-4 request contract from preserved local evidence. Do not reconstruct or improve it. Persist the exact parameterized prompt and response schema here or in a dedicated tracked profile referenced from this entry.",
+      "exact_profile_provenance": {
+        "source_g22_run_id": "20261020T030904+0900",
+        "historical_helper_path": ".local/n04-v3/g22/formal.py",
+        "historical_helper_sha256": "571b90c266f5506266b847b0df770319449da08d7418831f44b42ecc80a07c76",
+        "verified_render_count": 19,
+        "mismatch_count": 0,
+        "comparison": "UTF-8 messages byte equality plus complete request-object equality (model, schema and sampling parameters)",
+        "historical_request_paths": [
+          ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-1/adapters/atomicity-role/001/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-1/adapters/atomicity-role/002/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-2/adapters/atomicity-role/001/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-2/adapters/atomicity-role/002/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/001/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/002/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/003/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/004/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/005/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/001/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/002/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/003/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/004/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/005/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/001/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/002/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/003/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/004/http-request.json",
+          ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/005/http-request.json"
+        ],
+        "verified_requests": [
+          {
+            "case_id": "g22-case1-attempt1-u1",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-1/adapters/atomicity-role/001/http-request.json",
+            "request_sha256": "604fd056da911220ed46365bfb8263afcf024677738031e455fb874b5248b83b"
+          },
+          {
+            "case_id": "g22-case1-attempt1-u2",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-1/adapters/atomicity-role/002/http-request.json",
+            "request_sha256": "80aaf15b565e92914007571d3aa596d7b8f0eeb6a027b8d1cdc11ae06d23cdd9"
+          },
+          {
+            "case_id": "g22-case1-attempt2-u1",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-2/adapters/atomicity-role/001/http-request.json",
+            "request_sha256": "eec259788de5a506f5c2fe09d7be086540bde08d84623b1e2439f57cfe43dbbf"
+          },
+          {
+            "case_id": "g22-case1-attempt2-u2",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-2/adapters/atomicity-role/002/http-request.json",
+            "request_sha256": "e41fc7173d05018dd82fb1a9c53d69a66bc89a2fe50452db93de66f6999ef325"
+          },
+          {
+            "case_id": "g22-case2-attempt1-u1",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/001/http-request.json",
+            "request_sha256": "f66b921d65ed484811fd9b338d4845e6d721a9edb1f3d979c62c804e9666c058"
+          },
+          {
+            "case_id": "g22-case2-attempt1-u2",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/002/http-request.json",
+            "request_sha256": "d48385093e29c883864c570c0905f0eff53d232fe24bbb21aad09f2b767a3647"
+          },
+          {
+            "case_id": "g22-case2-attempt1-u3",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/003/http-request.json",
+            "request_sha256": "b48bebb2cc688059257e0e06262d88d1665a5559e7fdb94d3e4a60f9812be74e"
+          },
+          {
+            "case_id": "g22-case2-attempt1-u4",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/004/http-request.json",
+            "request_sha256": "330b5fc1614f83888cf09969c9d58c8672e9ac8ed52c8c4a54d7b9a3fdc5d7d3"
+          },
+          {
+            "case_id": "g22-case2-attempt1-u5",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/005/http-request.json",
+            "request_sha256": "4b0a02143c8585cc36827e57b9254bb3bc2882873ee6a938cb9707478d6ade68"
+          },
+          {
+            "case_id": "g22-case2-attempt2-u1",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/001/http-request.json",
+            "request_sha256": "f66b921d65ed484811fd9b338d4845e6d721a9edb1f3d979c62c804e9666c058"
+          },
+          {
+            "case_id": "g22-case2-attempt2-u2",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/002/http-request.json",
+            "request_sha256": "d48385093e29c883864c570c0905f0eff53d232fe24bbb21aad09f2b767a3647"
+          },
+          {
+            "case_id": "g22-case2-attempt2-u3",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/003/http-request.json",
+            "request_sha256": "b48bebb2cc688059257e0e06262d88d1665a5559e7fdb94d3e4a60f9812be74e"
+          },
+          {
+            "case_id": "g22-case2-attempt2-u4",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/004/http-request.json",
+            "request_sha256": "330b5fc1614f83888cf09969c9d58c8672e9ac8ed52c8c4a54d7b9a3fdc5d7d3"
+          },
+          {
+            "case_id": "g22-case2-attempt2-u5",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/005/http-request.json",
+            "request_sha256": "24aee7aba6c9028d282e5b1d3bc8764c5575a0ad1c19ea209b360ae5fb95f0e0"
+          },
+          {
+            "case_id": "g22-case3-attempt1-u1",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/001/http-request.json",
+            "request_sha256": "f5cd0d2e4fa328d5b8a37bcb247e6167bc539c7fcb4d77230256c334d97e9134"
+          },
+          {
+            "case_id": "g22-case3-attempt1-u2",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/002/http-request.json",
+            "request_sha256": "adf39e122e1dce252819429ebf42bc02058aa12855af3ae6be3f9c122665b395"
+          },
+          {
+            "case_id": "g22-case3-attempt1-u3",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/003/http-request.json",
+            "request_sha256": "d75a26479e92171173f07c8af1578e33b014e5c9d86b19d0aea59cbe7b1702b1"
+          },
+          {
+            "case_id": "g22-case3-attempt1-u4",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/004/http-request.json",
+            "request_sha256": "b1067de89ab0d69493353151e82b52ea2e297e8d2ae2c1e9d4a78052f0155347"
+          },
+          {
+            "case_id": "g22-case3-attempt1-u5",
+            "historical_request_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/005/http-request.json",
+            "request_sha256": "9e31b72271b556ba8e0c806ec1fcf92f4bc0e183433ef12b3a1ef49aa22fdd9d"
+          }
+        ]
+      }
+    },
+    {
+      "profile_id": "clarified-joint-v1",
+      "mode": "joint",
+      "status": "ready",
+      "system_prompt": "You are a bounded SGOKB classifier. Evaluate only (1) atomicity and (2) content-first semantic-role validity. Do not judge factual truth, source support, entailment, retrieval quality, or writing quality. Atomicity: ATOMIC means the text contains at most one independently judgeable material proposition under one grounding policy. NON_ATOMIC means two or more material propositions could receive different grounding verdicts or require different grounding policies. If genuinely ambiguous, use INDETERMINATE. Role boundary: classify content semantics before trusting the declared label. source_fact is a proposition about a source Object, Concept, Work, Character, relationship, event, property, capability, definition, etc.; it may still be unsupported or false, which is not a role violation. interpretation is one conclusion derived from separate factual premises and must not embed those premises in the same unit. creative_addition is newly invented content and is valid only for creative purpose in the creative presentation role. A source-world fact does not become creative merely because the task is creative. Declared role or presentation role never overrides content semantics. Return only the requested JSON verdict object.",
+      "user_prompt_template": "Text: ${text}\nDeclared semantic_role: ${semantic_role}\nPurpose: ${purpose}\nPresentation role: ${presentation_role}\n\nClassify atomicity and role boundary independently.",
+      "response_format": {
+        "type": "json_schema",
+        "json_schema": {
+          "name": "sgokb_atomicity_role_joint",
+          "strict": true,
+          "schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "atomicity_verdict": {
+                "type": "string",
+                "enum": [
+                  "ATOMIC",
+                  "NON_ATOMIC",
+                  "INDETERMINATE"
+                ]
+              },
+              "role_boundary_verdict": {
+                "type": "string",
+                "enum": [
+                  "ROLE_VALID",
+                  "ROLE_VIOLATION",
+                  "INDETERMINATE"
+                ]
+              }
+            },
+            "required": [
+              "atomicity_verdict",
+              "role_boundary_verdict"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "profile_id": "split-v1",
+      "mode": "split",
+      "status": "ready",
+      "atomicity": {
+        "system_prompt": "You are a bounded SGOKB atomicity classifier. Do not judge truth, source support, semantic role, or writing quality. ATOMIC means the text contains at most one independently judgeable material proposition under one grounding policy. NON_ATOMIC means the text contains two or more material propositions that could receive different grounding verdicts or require different grounding policies. Sentence count, punctuation, and the word 'and' are not decisive by themselves. If genuinely ambiguous, return INDETERMINATE. Return only the requested JSON verdict object.",
+        "user_prompt_template": "Text: ${text}\n\nClassify atomicity only.",
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "name": "sgokb_atomicity_only",
+            "strict": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "atomicity_verdict": {
+                  "type": "string",
+                  "enum": [
+                    "ATOMIC",
+                    "NON_ATOMIC",
+                    "INDETERMINATE"
+                  ]
+                }
+              },
+              "required": [
+                "atomicity_verdict"
+              ]
+            }
+          }
+        }
+      },
+      "role": {
+        "system_prompt": "You are a bounded SGOKB semantic-role classifier. Do not judge atomicity, factual truth, source support, entailment, retrieval quality, or writing quality. Classify content-first semantic-role validity. source_fact is source-world factual content even when unsupported or false. interpretation is an inferential or comparative conclusion derived from separate factual premises. creative_addition is newly invented content and is valid only for creative purpose in the creative presentation role. Source-world facts remain source_fact even in a creative task. Compare content semantics with declared semantic_role, purpose, and presentation_role. Return ROLE_VALID only when they are mutually consistent; ROLE_VIOLATION when they conflict; INDETERMINATE only when genuinely ambiguous. Return only the requested JSON verdict object.",
+        "user_prompt_template": "Text: ${text}\nDeclared semantic_role: ${semantic_role}\nPurpose: ${purpose}\nPresentation role: ${presentation_role}\n\nClassify semantic-role boundary only.",
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "name": "sgokb_role_only",
+            "strict": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "role_boundary_verdict": {
+                  "type": "string",
+                  "enum": [
+                    "ROLE_VALID",
+                    "ROLE_VIOLATION",
+                    "INDETERMINATE"
+                  ]
+                }
+              },
+              "required": [
+                "role_boundary_verdict"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "experiment_order": [
+    "g22-exact-joint",
+    "clarified-joint-v1",
+    "split-v1"
+  ],
+  "decision_rule": {
+    "safety_gate": "critical false-pass count must be 0 for both atomicity and role boundary",
+    "required_valid_gate": "all required gold-valid atomicity and role cases must avoid false reject/INDETERMINATE",
+    "repeatability_gate": "all required cases must produce identical verdicts across 3 repeats at temperature 0 and fixed seed",
+    "interpretation": [
+      "If clarified-joint passes while exact-joint does not, prefer prompt remediation before changing the model.",
+      "If only split-v1 passes, redesign V2 as separate atomicity and role calls.",
+      "If split-v1 still fails safety or required-valid gates, reopen judge model candidate evaluation."
+    ]
+  }
+}
