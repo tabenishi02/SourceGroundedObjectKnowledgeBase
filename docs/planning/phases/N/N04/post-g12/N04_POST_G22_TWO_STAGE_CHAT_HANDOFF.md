@@ -5,7 +5,7 @@
 - Project: `Source Grounded Object Knowledge Base (SGOKB)`
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
-- Primary next-chat entry: `docs/planning/phases/N/N04/post-g12/N04G23E_NEXT_CHAT_HANDOFF.md`
+- Primary next-chat entry: `docs/planning/phases/N/N04/post-g12/N04G23F_NEXT_CHAT_HANDOFF.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 - G-22: **Complete / valid formal FAIL (0/3 PASS)**
@@ -17,20 +17,21 @@
 - G-23B: **Complete / Contract Accepted**
 - G-23C: **Complete / Contract Accepted**
 - G-23D: **Complete / Contract Accepted**
-- Current task: **N-04G-23E — Provider Schema + Stage-local Retry Design**
+- G-23E: **Complete / Contract Accepted**
+- Current task: **N-04G-23F — v4 Design Integration / Design Freeze**
 
 ## Read first
 
-0. `docs/planning/phases/N/N04/post-g12/N04G23E_NEXT_CHAT_HANDOFF.md`
-1. `docs/decisions/N04G23D_STAGE2_PRESENTATION_GENERATOR_CONTRACT.md`
-2. `docs/decisions/N04G23C_CERTIFICATION_AND_CERTIFIED_CONTENT_CONTRACT.md`
-3. `docs/decisions/N04G23B_STAGE1_GROUNDED_CONTENT_PLANNER_CONTRACT.md`
-4. `docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
-5. `docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
-6. `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
-7. `docs/decisions/N04G23AE_INTEGRATION_AND_G23B_UNBLOCK_DECISION.md`
-8. `docs/decisions/N04G23_TWO_STAGE_GROUNDED_GENERATION_ARCHITECTURE.md`
-9. `docs/decisions/N04G16_SEMANTIC_VALIDATION_ARCHITECTURE_REDESIGN.md`
+0. `docs/planning/phases/N/N04/post-g12/N04G23F_NEXT_CHAT_HANDOFF.md`
+1. `docs/decisions/N04G23E_PROVIDER_SCHEMA_AND_STAGE_LOCAL_RETRY_DESIGN.md`
+2. `docs/decisions/N04G23D_STAGE2_PRESENTATION_GENERATOR_CONTRACT.md`
+3. `docs/decisions/N04G23C_CERTIFICATION_AND_CERTIFIED_CONTENT_CONTRACT.md`
+4. `docs/decisions/N04G23B_STAGE1_GROUNDED_CONTENT_PLANNER_CONTRACT.md`
+5. `docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
+6. `docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
+7. `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
+8. `docs/decisions/N04G23AE_INTEGRATION_AND_G23B_UNBLOCK_DECISION.md`
+9. `docs/decisions/N04G23_TWO_STAGE_GROUNDED_GENERATION_ARCHITECTURE.md`
 10. `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
 11. `docs/planning/phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_REMEDIATION_TASKS.md`
 
@@ -45,6 +46,8 @@ Structured Proposition Candidate
   ↓
 V2 / V3 / V4 validation
   ↓ PASS only
+Certification
+  ↓
 Certified Content
   ↓
 Stage 2 Presentation Generator
@@ -71,7 +74,7 @@ Stage 1 model output remains minimal:
 }
 ```
 
-Application owns all request/path/identity/retry metadata. Model-authored role, Atomicity PASS, validation/certification status and support/entailment PASS remain prohibited.
+Application owns request/path/identity/retry metadata. Model-owned role, Atomicity PASS, validation/certification status and support/entailment PASS remain prohibited.
 
 ## G-23C result
 
@@ -86,19 +89,11 @@ Candidate
   != Certified Content
 ```
 
-Certified Fact is emitted only after aggregate V2 PASS + source-support aggregate PASS + identity/digest consistency.
-
-`certified_fact_id` is scoped to one immutable Certified Content artifact and is not a canonical DB Fact ID.
-
-Certified `claim_text` and `support_refs[]` exactly copy the Stage 1 candidate. Certification cannot rewrite or create facts.
+Certified `claim_text` and `support_refs[]` exactly copy the immutable Stage 1 candidate. `certified_fact_id` is scoped to one Certified Content artifact and is not a canonical DB Fact ID.
 
 ## G-23D result
 
 G-23D is **Complete / Contract Accepted**.
-
-Normative Decision:
-
-`docs/decisions/N04G23D_STAGE2_PRESENTATION_GENERATOR_CONTRACT.md`
 
 Stage 2 factual input is a minimal Certified Content projection:
 
@@ -109,106 +104,122 @@ Stage 2 factual input is a minimal Certified Content projection:
 }
 ```
 
-Stage 2 output is an ordered block plan:
+Stage 2 blocks:
 
 ```text
 main
-  -> model selects Certified Fact IDs
-  -> application materializes exact certified text
+  -> Certified Fact IDs only
+  -> application exact materialization
 
 interpretation
   -> model claim_text + premise_fact_ids[]
-  -> premise IDs must resolve to active Certified Content
+  -> Certified Fact premises only
 
 creative
   -> model claim_text
   -> creative purpose only
 ```
 
-Application assigns path provenance from output slot:
+No Stage 2 model-authored factual rewrite inherits certification. Raw Grounded Context is not reopened as a factual bypass.
+
+## G-23E result
+
+G-23E is **Complete / Contract Accepted**.
+
+Normative Decision:
+
+`docs/decisions/N04G23E_PROVIDER_SCHEMA_AND_STAGE_LOCAL_RETRY_DESIGN.md`
+
+### Provider schemas
+
+Stage 1 provider response:
 
 ```text
-main fact reference
-  -> certified_fact_materialization
-  -> source_fact
-
-interpretation candidate
-  -> stage2_interpretation_candidate
-  -> interpretation
-
-creative candidate
-  -> stage2_creative_candidate
-  -> creative_addition
+candidates[]
+  claim_text
+  support_refs[]
 ```
 
-Important decisions:
+- dynamic K allow-list enum;
+- request-owned candidate max;
+- additional fields forbidden;
+- duplicate refs still checked by application.
 
-- Stage 2 model cannot freely rewrite a Certified Fact and inherit certification;
-- raw Grounded Context is not reopened as factual authority;
-- interpretation uses Certified Fact IDs only;
-- creative is denied for roleplay/comparison;
-- no model-authored `context_limit` path;
-- no model-authored `stylistic_expression` path;
-- normal block kinds are `main`, `interpretation`, `creative`;
-- each block kind cardinality is 0 or 1;
-- duplicate block kind is deterministic failure;
-- block order is presentation order only;
-- source fact / interpretation / creative remain structurally separate;
-- `blocks: []` means no proposal, not context-limit;
-- new source facts after certification require returning to Stage 1.
+Stage 2 provider response:
 
-## G-23E authority boundary
+```text
+blocks[] <= 3
+  main
+  interpretation
+  creative where purpose permits
+```
 
-G-23E designs **provider schema + stage-local retry integration** only.
+- complete `oneOf` block alternatives;
+- active Certified Fact IDs projected as enum;
+- creative alternative only for creative purpose;
+- duplicate block kinds and duplicate IDs checked by application.
 
-It must preserve G-23B/C/D semantic contracts.
+### Provider/application boundary
 
-At minimum it should define:
+Provider structured output is a structural guard only.
 
-1. Stage 1 provider-facing JSON Schema.
-2. Stage 2 provider-facing JSON Schema.
-3. provider-enforced vs application-enforced invariants.
-4. runtime support/probe result for relevant schema features.
-5. duplicate Stage 2 block-kind prevention.
-6. parse/contract failure semantics.
-7. Stage 1 stage-local retry contract.
-8. Stage 2 stage-local retry contract.
-9. retry identity/lineage and frozen inputs.
-10. cross-attempt Stage 1 certification/salvage policy deferred by G-23C.
-11. provider request/schema/prompt artifact hashes.
+Application must independently:
+
+```text
+parse JSON
+validate instantiated schema
+check duplicate refs/IDs
+check duplicate block kinds
+check request/context/Certified Content binding
+run deterministic/semantic Gates
+```
+
+Existing G-21/G-22 evidence shows the LM Studio structured-output path is operational, but schema acceptance does not prove every keyword is enforced. G-23E therefore does not rely on provider `uniqueItems`, `contains/minContains/maxContains`, conditionals or cross-item uniqueness. G-24/G-26 must record exact runtime capability probes.
+
+### Retry
+
+```text
+Stage 1 max attempts = 2 / max retry = 1
+Stage 2 max attempts = 2 / max retry = 1
+```
+
+- retry is stage-local;
+- no Stage 2 -> Stage 1 backward retry in the same run;
+- Context/Certified Content, purpose, model, settings and schema remain fixed across a retry;
+- attempt 2 is a complete replacement, not a patch;
+- no cross-attempt Stage 1 Certified Fact merge;
+- no cross-attempt Stage 2 block/candidate merge;
+- no fallback to attempt 1 after attempt 2 is authorized;
+- retry feedback is structured/application-owned and cannot add new factual authority or validator-written replacement prose.
+
+Stage 1 candidate-level certification within one active attempt remains valid and is not considered cross-attempt salvage.
+
+## G-23F authority boundary
+
+G-23F performs **v4 Design Integration / Design Freeze** only.
+
+It must integrate G-23A-E + G-23B/C/D/E without weakening any accepted boundary.
+
+At minimum:
+
+1. verify end-to-end authority/ownership consistency;
+2. freeze contract/version and artifact flow;
+3. freeze candidate -> validation -> certification -> Stage 2 -> final validation traceability;
+4. freeze stage-local retry ordering and active-attempt semantics;
+5. freeze system-owned context-limit / terminal boundary;
+6. verify Material Requirement interaction;
+7. freeze provider/application validation split;
+8. freeze evidence/replay tree and minimum identity/hash bindings;
+9. preserve the mandatory G-25A residual classifier Gate;
+10. produce the G-24 implementation handoff.
 
 Primary task handoff:
 
-`docs/planning/phases/N/N04/post-g12/N04G23E_NEXT_CHAT_HANDOFF.md`
-
-## Provider schema is not semantic authority
-
-Provider schema may enforce structure, but must not be interpreted as proving:
-
-```text
-Atomicity
-Content-Type correctness
-support / entailment
-interpretation derivability
-creative factual safety
-certification
-```
-
-Application deterministic/semantic validation remains authoritative.
-
-## Retry boundary
-
-Retry remains stage-local.
-
-Stage 1 retry may repair Stage 1 candidate/schema/support/Atomicity/content-type/support failures without changing Grounded Context authority.
-
-Stage 2 retry may repair block/schema/binding/interpretation/creative failures without reopening raw Grounded Context or generating new certified facts.
-
-Exact attempt/salvage policy is G-23E scope and must remain fail-closed.
+`docs/planning/phases/N/N04/post-g12/N04G23F_NEXT_CHAT_HANDOFF.md`
 
 ## Residual classifier execution is later
 
-Concrete V2-R-A/V2-R-C selection is not part of G-23E.
+Concrete V2-R-A/V2-R-C selection is not part of G-23F.
 
 ```text
 G-24 implementation
@@ -237,6 +248,7 @@ Do not change without new evidence:
 - G-23B Stage 1 contract
 - G-23C Certification / Certified Content contract
 - G-23D Stage 2 Presentation Generator contract
+- G-23E Provider Schema / Stage-local Retry contract
 - source-fact exact materialization after certification
 - MiniCheck threshold/profile merely to improve acceptance
 - Retrieval / Similarity / Context Builder
@@ -254,11 +266,12 @@ G-23A-E = Complete / Architecture Accepted
 G-23B   = Complete / Contract Accepted
 G-23C   = Complete / Contract Accepted
 G-23D   = Complete / Contract Accepted
-G-23E   = NEXT
+G-23E   = Complete / Contract Accepted
+G-23F   = NEXT
 N-04    = Failed / not Complete
 N-05    = blocked
 ```
 
 ## Immediate next task
 
-**N-04G-23E — Provider Schema + Stage-local Retry Design**
+**N-04G-23F — v4 Design Integration / Design Freeze**
