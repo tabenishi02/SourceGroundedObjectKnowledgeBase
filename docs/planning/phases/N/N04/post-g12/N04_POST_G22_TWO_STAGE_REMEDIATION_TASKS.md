@@ -9,6 +9,8 @@
 - E1 mapping: `docs/evaluation/N04G23AE_47_GOLD_RESPONSIBILITY_MAP.md`
 - E2 boundary: `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
 - E3 proposition contract: `docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
+- E4 role matrix: `docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
+- E4 machine-readable matrix: `benchmark/n04g23ae-role-compatibility-v1.json`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 
@@ -27,8 +29,8 @@ G-23A-E Gate Responsibility Decomposition           In Progress
   ├─ E1 47-Gold Responsibility Mapping              Complete
   ├─ E2 v4 V2 Responsibility Boundary               Complete
   ├─ E3 Structured Proposition Contract             Complete
-  ├─ E4 Role Provenance / Compatibility Matrix      NEXT
-  ├─ E5 Residual Classifier Evaluation Design       Planned
+  ├─ E4 Role Provenance / Compatibility Matrix      Complete
+  ├─ E5 Residual Classifier Evaluation Design       NEXT
   ├─ E6 47-Gold Desk Replay                         Planned
   └─ E7 Integration / Unblock Review                Planned
   ↓ ACCEPTED only
@@ -67,9 +69,9 @@ Historical G-18/G-21/G-22 artifacts remain immutable evidence.
 | N-04G-23A-E | P0 | **In Progress** | decompose Gate responsibilities |
 | N-04G-23A-E1 | P0 | Complete | 47 Gold responsibility mapping |
 | N-04G-23A-E2 | P0 | Complete | V2 authority/order boundary |
-| N-04G-23A-E3 | P0 | **Complete** | Structured Proposition contract |
-| N-04G-23A-E4 | P0 | **NEXT** | role provenance / deterministic compatibility matrix |
-| N-04G-23A-E5 | P0 | Planned | residual classifier scope/evaluation |
+| N-04G-23A-E3 | P0 | Complete | Semi-structured Proposition contract |
+| N-04G-23A-E4 | P0 | **Complete** | application-owned role provenance / deterministic compatibility matrix |
+| N-04G-23A-E5 | P0 | **NEXT** | residual classifier scope/evaluation |
 | N-04G-23A-E6 | P0 | Planned | 47-Gold desk replay / coverage |
 | N-04G-23A-E7 | P0 | Planned | integration / G-23B unblock review |
 | N-04G-23B | P0 | Blocked by G-23A-E | Stage 1 Content Planner contract |
@@ -100,93 +102,105 @@ Gold label changes        0
 
 ## 4. E2 result
 
-v4 V2 authorities:
-
 ```text
-V2-S  Structural Proposition Gate
-V2-P  Role Provenance Normalization
-V2-D  Deterministic Compatibility Gate
-V2-R  Residual Semantic Gate
+V2-S Structural Proposition Gate
+  ↓
+V2-P Role Provenance Normalization
+  ↓
+V2-D Deterministic Compatibility Gate
+  ↓
+V2-R Residual Semantic Gate if required
+  ↓
+V3+ Support / Derivation
 ```
 
-Earlier structural/policy failure cannot be overridden by later semantic/support PASS. `MIXED_CONTENT` fails; `AMBIGUOUS/INDETERMINATE` fails closed.
+Earlier structural/policy failure cannot be overridden by later semantic/support PASS.
 
 ## 5. E3 result
 
 Selected contract family: **Option B — Semi-structured proposition record**.
 
-Core structure:
-
 ```text
 Application-owned envelope
-  ├─ contract/context/purpose
-  ├─ stage/path provenance
-  ├─ attempt/retry lineage
-  └─ proposition identity
-        ↓
-Path-specific payload
-  ├─ one claim_text
-  ├─ optional non-authoritative anchors
-  └─ support_refs OR premise_fact_ids as allowed by path
+  + path-discriminated payload
+  + one authoritative claim text
+  + path-specific support/premise binding
+  + optional non-authoritative semantic anchors
 ```
 
-Key decisions:
+Candidate / Validation / Certified Contentは別artifact。model-authored free textはschemaだけでatomic PASSとしない。
 
-- no generator-owned semantic-role authority;
-- candidate / validation / certification are separate artifacts;
-- Stage 1 source fact uses `support_refs[]`;
-- Stage 2 interpretation uses certified `premise_fact_ids[]`, not raw K refs as proof;
-- support and premise bindings cannot coexist;
-- application/system-owned deterministic records may be `PASS_BY_CONSTRUCTION`;
-- model-authored free-text starts as `REVIEW_REQUIRED` unless later construction path proves otherwise;
-- residual atomicity resolves review-required records in E5 design;
-- no silent post-hoc atomization;
-- fully normalized subject/predicate/object ontology is not adopted for the common contract.
+## 6. E4 result
 
-## 6. E4 immediate scope
-
-Design exact application-owned role provenance and deterministic compatibility matrix.
-
-Minimum paths:
+Application-owned path provenanceをnormalized roleのdeterministic authorityにした。
 
 ```text
 stage1_fact_candidate
+  -> source_fact
+
+certified_fact_materialization
+  -> source_fact
+
 stage2_interpretation_candidate
+  -> interpretation
+
 stage2_creative_candidate
+  -> creative_addition
+
 system_context_limit
+  -> context_limit
 ```
 
-Matrix dimensions:
+Purpose policy:
 
-```text
-path / normalized role
-purpose
-presentation_role
-support requirement
-premise requirement
-model/system ownership
-```
+- source_fact: roleplay / comparison / creativeで許可
+- interpretation: 3用途でdeterministic banしないがResidual semantic + derivation validation必須
+- creative_addition: creativeのみ許可
+- context_limit: 3用途で許可、system/application-owned and exclusive
 
-Required outputs:
+Presentation/binding policy:
 
-- exact path -> normalized role mapping;
-- allowed purpose and presentation mapping;
-- required/forbidden support/premise fields;
-- system-only restrictions;
-- deterministic failure codes;
-- explicit construction paths allowed to skip residual semantic classification, if any.
+- Stage 1 fact candidateはpresentationなし
+- Certified fact materializationのみ`main`
+- Interpretationは`interpretation` presentation + `premise_fact_ids[]`
+- Creativeは`creative` presentation、support/premise grounding bindingなし
+- Context limitは`context_limit` exclusive
+- model-authored `stylistic_expression`は再導入しない
+
+Policy PASSはcontent semantic proofではない。model-authored fact / interpretation / creativeはE5で定義するV2-Rを必要とする。
+
+## 7. E5 immediate scope
+
+E5はE1〜E4でstructural/deterministicへ移せなかった自然言語意味境界だけをV2-Rへ限定する。
+
+Required decisions:
+
+1. residual semantic taxonomy
+2. atomicity residual checkとrole/content classifierの分離可否
+3. classifier input最小化
+4. expected roleをinputへ見せるかcontent-only classification後比較するか
+5. dataset expansion beyond 47 Gold
+6. minimal pairs / paraphrases / role swaps / purpose swaps / compound-split fixtures
+7. pattern-family holdout
+8. bounded LLM / encoder / cross-encoder / cascade比較
+9. abstention/ambiguity fail-closed semantics
+10. zero critical false-pass Gate
+11. Reference Workstation runtime候補
 
 Deliverable:
 
-`docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
+`docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
 
-## 7. Protected boundaries
+## 8. Protected boundaries
 
 Do not change without new evidence:
 
 - frozen 47 Gold labels/flags and G-23A/G-23A-R evidence
 - G-14 safety intent / no silent post-hoc atomization
 - G-23 two-stage architecture
+- E2 authority order
+- E3 Semi-structured proposition contract
+- E4 application-owned role provenance
 - MiniCheck threshold merely to improve acceptance
 - Retrieval / Similarity / Context Builder
 - canonical DB
@@ -196,8 +210,6 @@ Do not change without new evidence:
 - unsupported rendered claim prohibition
 - fail-closed semantics
 
-## 8. Immediate next task
+## 9. Immediate next task
 
-**N-04G-23A-E4 — Role Provenance / Compatibility Matrix Design**
-
-E3 fixed the candidate structure and field ownership. E4 now makes role provenance and all metadata-known compatibility decisions deterministic before residual semantic classification.
+**N-04G-23A-E5 — Residual Classifier Scope / Evaluation Design**
