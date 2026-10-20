@@ -107,6 +107,18 @@ def _candidate_digest_valid(candidate: dict[str, Any]) -> bool:
     return expected == digest_object(payload)
 
 
+def _validation_record_digest_valid(record: dict[str, Any]) -> bool:
+    expected = record.get("validation_record_digest")
+    if not isinstance(expected, str):
+        return False
+    payload = {
+        key: value
+        for key, value in record.items()
+        if key != "validation_record_digest"
+    }
+    return expected == digest_object(payload)
+
+
 def _grounding_unit_map(grounded_context: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {
         str(unit["ref_id"]): unit
@@ -584,7 +596,11 @@ def certify_stage1_attempt(
         reason: str | None = None
         if record is None:
             reason = "NOT_CERTIFIED_BINDING_MISMATCH"
+        elif not _validation_record_digest_valid(record):
+            reason = "NOT_CERTIFIED_BINDING_MISMATCH"
         elif record.get("source_candidate_digest") != candidate.get("candidate_digest"):
+            reason = "NOT_CERTIFIED_BINDING_MISMATCH"
+        elif record.get("context_fingerprint") != candidate.get("context_fingerprint"):
             reason = "NOT_CERTIFIED_BINDING_MISMATCH"
         elif record.get("v2_aggregate_result") != "PASS":
             reason = "NOT_CERTIFIED_V2_FAILURE"
@@ -630,6 +646,7 @@ def certify_stage1_attempt(
             "context_fingerprint": request["context_fingerprint"],
             "purpose": request["purpose"],
             "source_attempt": candidate["attempt"],
+            "source_attempt_id": candidate.get("attempt_id"),
             "source_candidate_index": candidate["candidate_index"],
         }
         fact["certified_fact_digest"] = digest_object(fact)
@@ -719,7 +736,12 @@ def build_validated_presentation_plan(
         for candidate_index, _payload in enumerate(block["candidates"]):
             candidate = envelope_by_location[(block_index, candidate_index)]
             record = by_proposition.get(candidate["proposition_id"])
-            if record is None or record.get("verdict") != "PASS":
+            if (
+                record is None
+                or not _validation_record_digest_valid(record)
+                or record.get("source_candidate_digest") != candidate.get("candidate_digest")
+                or record.get("verdict") != "PASS"
+            ):
                 raise ValueError("Stage 2 plan contains an unvalidated proposition")
             item = {
                 "path_provenance": candidate["path_provenance"],
