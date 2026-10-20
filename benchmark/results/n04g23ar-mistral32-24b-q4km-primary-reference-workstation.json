@@ -1,0 +1,4089 @@
+{
+  "schema_version": "sgokb.n04g23a-atomicity-role-result/1",
+  "benchmark_id": "n04g23a-atomicity-role-gold-v1",
+  "profile_set_id": "n04g23a-atomicity-role-prompt-profiles-v1",
+  "profile_id": "split-v1",
+  "corpus_path": "benchmark/n04g23a-atomicity-role-gold-v1.json",
+  "corpus_sha256": "347e39f5108ed920847ce717cf98571a5137c48e348aba7af7e5aa50679a4687",
+  "profiles_path": "benchmark/n04g23a-atomicity-role-prompt-profiles-v1.json",
+  "profiles_sha256": "a10b9216d6ead15927c23b015ac3d2863c10dfaa6797f3ede72bef51e58ba89e",
+  "model": "sgokb-n04-mistral32",
+  "runtime": {
+    "provider": "LM Studio OpenAI-compatible local endpoint",
+    "model_alias": "sgokb-n04-phi4",
+    "model_identity": "Phi-4 Q4_K_S",
+    "temperature": 0,
+    "max_tokens": 64,
+    "seed": 20261018
+  },
+  "repeats": 3,
+  "started_epoch": 1792488636.9016511,
+  "finished_epoch": 1792488752.3774736,
+  "metrics": {
+    "critical_atomicity_false_pass_cases": [
+      "source-fact-plus-extra-duty",
+      "fact-plus-causal-explanation",
+      "mixed-source-fact-and-context-limit",
+      "non-atomic-interpretation-with-premise-restatement",
+      "g22-case1-attempt1-u1",
+      "g22-case2-attempt1-u1",
+      "g22-case2-attempt1-u3",
+      "g22-case2-attempt1-u4",
+      "g22-case2-attempt2-u1",
+      "g22-case2-attempt2-u3",
+      "g22-case2-attempt2-u4",
+      "g22-case3-attempt1-u2",
+      "g22-case3-attempt1-u3",
+      "g22-case3-attempt2-u7",
+      "g22-case3-attempt2-u8"
+    ],
+    "critical_role_false_pass_cases": [
+      "mixed-source-fact-and-context-limit",
+      "creative-role-disallowed-purpose",
+      "interpretation-in-main-block",
+      "non-atomic-interpretation-with-premise-restatement",
+      "g22-case1-attempt1-u3",
+      "g22-case1-attempt2-u3",
+      "g22-case2-attempt1-u5",
+      "g22-case2-attempt2-u5"
+    ],
+    "required_atomicity_false_reject_cases": [],
+    "required_role_false_reject_cases": [
+      "g22-case2-attempt1-u1",
+      "g22-case2-attempt1-u2",
+      "g22-case2-attempt1-u4",
+      "g22-case2-attempt2-u1",
+      "g22-case2-attempt2-u2",
+      "g22-case2-attempt2-u4",
+      "g22-case3-attempt1-u3",
+      "g22-case3-attempt2-u8"
+    ],
+    "repeatability_failure_cases": [],
+    "required_repeatability_failure_cases": [],
+    "exact_match_failure_cases": [
+      "source-fact-plus-extra-duty",
+      "fact-plus-causal-explanation",
+      "mixed-source-fact-and-context-limit",
+      "creative-role-disallowed-purpose",
+      "interpretation-in-main-block",
+      "non-atomic-interpretation-with-premise-restatement",
+      "g22-case1-attempt1-u1",
+      "g22-case1-attempt1-u2",
+      "g22-case1-attempt1-u3",
+      "g22-case1-attempt2-u3",
+      "g22-case2-attempt1-u1",
+      "g22-case2-attempt1-u2",
+      "g22-case2-attempt1-u3",
+      "g22-case2-attempt1-u4",
+      "g22-case2-attempt1-u5",
+      "g22-case2-attempt2-u1",
+      "g22-case2-attempt2-u2",
+      "g22-case2-attempt2-u3",
+      "g22-case2-attempt2-u4",
+      "g22-case2-attempt2-u5",
+      "g22-case3-attempt1-u1",
+      "g22-case3-attempt1-u2",
+      "g22-case3-attempt1-u3",
+      "g22-case3-attempt1-u4",
+      "g22-case3-attempt2-u6",
+      "g22-case3-attempt2-u7",
+      "g22-case3-attempt2-u8",
+      "g22-case3-attempt2-u9",
+      "g22-case3-attempt2-u11"
+    ],
+    "indeterminate_rate": 0.0,
+    "atomicity_confusion": {
+      "ATOMIC->ATOMIC": 42,
+      "INDETERMINATE->ATOMIC": 12,
+      "NON_ATOMIC->ATOMIC": 45,
+      "NON_ATOMIC->NON_ATOMIC": 42
+    },
+    "role_confusion": {
+      "INDETERMINATE->ROLE_VALID": 3,
+      "INDETERMINATE->ROLE_VIOLATION": 3,
+      "ROLE_VALID->ROLE_VALID": 60,
+      "ROLE_VALID->ROLE_VIOLATION": 36,
+      "ROLE_VIOLATION->ROLE_VALID": 24,
+      "ROLE_VIOLATION->ROLE_VIOLATION": 15
+    },
+    "gates": {
+      "safety_gate": false,
+      "required_valid_gate": false,
+      "repeatability_gate": true,
+      "candidate_viable": false
+    }
+  },
+  "run_id": "20261020T180929+0900",
+  "benchmark_input_head": "8624d9eb689f8093c279af6234dcce3bba40aafe",
+  "candidate_id": "mistral32-24b-q4km",
+  "candidate_runtime": {
+    "candidate_id": "mistral32-24b-q4km",
+    "lm_studio_alias": "sgokb-n04-mistral32",
+    "status": "ready",
+    "model_path": ".local/n04-v4/g23ar/20261020T180929+0900/models/mistral32-24b-q4km/Mistral-Small-3.2-24B-Instruct-2506-Q4_K_M.gguf",
+    "model_file_size_bytes": 14333909728,
+    "model_sha256": "9829cc54f2105c79499b783e81fbb476b610e91ee9373cc68334c267e49f6bbc",
+    "quantization": "Q4_K_M",
+    "source_repository": "historical G22 model",
+    "source_revision": null,
+    "lm_studio_product_version": "0.4.25.0",
+    "context_length": 8192,
+    "gpu_offload": "max",
+    "parallel": 1,
+    "reasoning_mode": "standard bounded local instruct; strict split JSON; six neutral calls finish stop",
+    "model_load_key": "mistralai/mistral-small-3.2",
+    "smoke_pass": true
+  },
+  "raw_evidence_root": ".local/n04-v4/g23ar/20261020T180929+0900",
+  "result_projection": "Verdicts/Gold/flags/usage/timing/metrics preserved; raw HTTP requests/responses remain local only.",
+  "cases": [
+    {
+      "case_id": "direct-source-fact-contract",
+      "origin": "g20_reuse",
+      "required": true,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 1.011289799993392,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 131,
+              "completion_tokens": 15,
+              "total_tokens": 146,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 197,
+              "completion_tokens": 16,
+              "total_tokens": 213,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8116008000215515,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 131,
+              "completion_tokens": 15,
+              "total_tokens": 146,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 197,
+              "completion_tokens": 16,
+              "total_tokens": 213,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7935166000388563,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 131,
+              "completion_tokens": 15,
+              "total_tokens": 146,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 197,
+              "completion_tokens": 16,
+              "total_tokens": 213,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "faithful-source-fact-paraphrase",
+      "origin": "g20_reuse",
+      "required": true,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8001041000243276,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 132,
+              "completion_tokens": 15,
+              "total_tokens": 147,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 198,
+              "completion_tokens": 16,
+              "total_tokens": 214,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.780840499966871,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 132,
+              "completion_tokens": 15,
+              "total_tokens": 147,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 198,
+              "completion_tokens": 16,
+              "total_tokens": 214,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7662236000178382,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 132,
+              "completion_tokens": 15,
+              "total_tokens": 147,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 198,
+              "completion_tokens": 16,
+              "total_tokens": 214,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "unsupported-source-fact-still-role-valid",
+      "origin": "g20_reuse",
+      "required": true,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8136990999919362,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 131,
+              "completion_tokens": 15,
+              "total_tokens": 146,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 197,
+              "completion_tokens": 16,
+              "total_tokens": 213,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7754347000154667,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 131,
+              "completion_tokens": 15,
+              "total_tokens": 146,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 197,
+              "completion_tokens": 16,
+              "total_tokens": 213,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7859951000427827,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 131,
+              "completion_tokens": 15,
+              "total_tokens": 146,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 197,
+              "completion_tokens": 16,
+              "total_tokens": 213,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "negated-source-fact-still-role-valid",
+      "origin": "g20_reuse",
+      "required": true,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7847591999452561,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 132,
+              "completion_tokens": 15,
+              "total_tokens": 147,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 198,
+              "completion_tokens": 16,
+              "total_tokens": 214,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7444141999585554,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 132,
+              "completion_tokens": 15,
+              "total_tokens": 147,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 198,
+              "completion_tokens": 16,
+              "total_tokens": 214,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7688867999822833,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 132,
+              "completion_tokens": 15,
+              "total_tokens": 147,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 198,
+              "completion_tokens": 16,
+              "total_tokens": 214,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "concept-source-fact",
+      "origin": "g20_reuse",
+      "required": true,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8165764000150375,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 137,
+              "completion_tokens": 15,
+              "total_tokens": 152,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 202,
+              "completion_tokens": 16,
+              "total_tokens": 218,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7513078000629321,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 137,
+              "completion_tokens": 15,
+              "total_tokens": 152,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 202,
+              "completion_tokens": 16,
+              "total_tokens": 218,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7925428000162356,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 137,
+              "completion_tokens": 15,
+              "total_tokens": 152,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 202,
+              "completion_tokens": 16,
+              "total_tokens": 218,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "neutral-atomic-object-property",
+      "origin": "synthetic",
+      "required": true,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.797942699980922,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 129,
+              "completion_tokens": 15,
+              "total_tokens": 144,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 194,
+              "completion_tokens": 16,
+              "total_tokens": 210,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7852884000167251,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 129,
+              "completion_tokens": 15,
+              "total_tokens": 144,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 194,
+              "completion_tokens": 16,
+              "total_tokens": 210,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7631474999943748,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 129,
+              "completion_tokens": 15,
+              "total_tokens": 144,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 194,
+              "completion_tokens": 16,
+              "total_tokens": 210,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "neutral-nonatomic-conjunction",
+      "origin": "synthetic",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8262842000694945,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 136,
+              "completion_tokens": 16,
+              "total_tokens": 152,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 201,
+              "completion_tokens": 16,
+              "total_tokens": 217,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7955803999793716,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 136,
+              "completion_tokens": 16,
+              "total_tokens": 152,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 201,
+              "completion_tokens": 16,
+              "total_tokens": 217,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8109857000526972,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 136,
+              "completion_tokens": 16,
+              "total_tokens": 152,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 201,
+              "completion_tokens": 16,
+              "total_tokens": 217,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "source-fact-plus-extra-duty",
+      "origin": "synthetic_from_g12_pattern",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7819731999770738,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 139,
+              "completion_tokens": 15,
+              "total_tokens": 154,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 205,
+              "completion_tokens": 16,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7626027999795042,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 139,
+              "completion_tokens": 15,
+              "total_tokens": 154,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 205,
+              "completion_tokens": 16,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7488698000088334,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 139,
+              "completion_tokens": 15,
+              "total_tokens": 154,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 205,
+              "completion_tokens": 16,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "fact-plus-causal-explanation",
+      "origin": "g20_pattern",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7988273000228219,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 141,
+              "completion_tokens": 15,
+              "total_tokens": 156,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 207,
+              "completion_tokens": 16,
+              "total_tokens": 223,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7813939999905415,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 141,
+              "completion_tokens": 15,
+              "total_tokens": 156,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 207,
+              "completion_tokens": 16,
+              "total_tokens": 223,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7467040999908932,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 141,
+              "completion_tokens": 15,
+              "total_tokens": 156,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 207,
+              "completion_tokens": 16,
+              "total_tokens": 223,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "mixed-source-fact-and-context-limit",
+      "origin": "synthetic",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7651416000444442,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 139,
+              "completion_tokens": 15,
+              "total_tokens": 154,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 205,
+              "completion_tokens": 16,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7637778000789694,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 139,
+              "completion_tokens": 15,
+              "total_tokens": 154,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 205,
+              "completion_tokens": 16,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7646511999773793,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 139,
+              "completion_tokens": 15,
+              "total_tokens": 154,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 205,
+              "completion_tokens": 16,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "valid-interpretation",
+      "origin": "synthetic",
+      "required": true,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7978812000364996,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 137,
+              "completion_tokens": 15,
+              "total_tokens": 152,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 200,
+              "completion_tokens": 16,
+              "total_tokens": 216,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7630675000254996,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 137,
+              "completion_tokens": 15,
+              "total_tokens": 152,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 200,
+              "completion_tokens": 16,
+              "total_tokens": 216,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7670389999984764,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 137,
+              "completion_tokens": 15,
+              "total_tokens": 152,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 200,
+              "completion_tokens": 16,
+              "total_tokens": 216,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "interpretation-mislabeled-source-fact",
+      "origin": "synthetic",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8293618999887258,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 137,
+              "completion_tokens": 15,
+              "total_tokens": 152,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 202,
+              "completion_tokens": 19,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8269365999731235,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 137,
+              "completion_tokens": 15,
+              "total_tokens": 152,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 202,
+              "completion_tokens": 19,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8273229000042193,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 137,
+              "completion_tokens": 15,
+              "total_tokens": 152,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 202,
+              "completion_tokens": 19,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "valid-creative-addition",
+      "origin": "synthetic",
+      "required": true,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8024001999874599,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 138,
+              "completion_tokens": 15,
+              "total_tokens": 153,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 203,
+              "completion_tokens": 16,
+              "total_tokens": 219,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7625889000482857,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 138,
+              "completion_tokens": 15,
+              "total_tokens": 153,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 203,
+              "completion_tokens": 16,
+              "total_tokens": 219,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7645272000227123,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 138,
+              "completion_tokens": 15,
+              "total_tokens": 153,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 203,
+              "completion_tokens": 16,
+              "total_tokens": 219,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "creative-invention-mislabeled-source-fact",
+      "origin": "synthetic",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8719408000470139,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 138,
+              "completion_tokens": 15,
+              "total_tokens": 153,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 203,
+              "completion_tokens": 19,
+              "total_tokens": 222,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8608261000481434,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 138,
+              "completion_tokens": 15,
+              "total_tokens": 153,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 203,
+              "completion_tokens": 19,
+              "total_tokens": 222,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8409633000264876,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 138,
+              "completion_tokens": 15,
+              "total_tokens": 153,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 203,
+              "completion_tokens": 19,
+              "total_tokens": 222,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "source-fact-smuggled-as-creative",
+      "origin": "synthetic",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.827214999939315,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 136,
+              "completion_tokens": 15,
+              "total_tokens": 151,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 201,
+              "completion_tokens": 19,
+              "total_tokens": 220,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.830750800028909,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 136,
+              "completion_tokens": 15,
+              "total_tokens": 151,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 201,
+              "completion_tokens": 19,
+              "total_tokens": 220,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.827314900001511,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 136,
+              "completion_tokens": 15,
+              "total_tokens": 151,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 201,
+              "completion_tokens": 19,
+              "total_tokens": 220,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "creative-role-disallowed-purpose",
+      "origin": "synthetic",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7797380000120029,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 134,
+              "completion_tokens": 15,
+              "total_tokens": 149,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 200,
+              "completion_tokens": 16,
+              "total_tokens": 216,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7637334000319242,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 134,
+              "completion_tokens": 15,
+              "total_tokens": 149,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 200,
+              "completion_tokens": 16,
+              "total_tokens": 216,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7569288999657147,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 134,
+              "completion_tokens": 15,
+              "total_tokens": 149,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 200,
+              "completion_tokens": 16,
+              "total_tokens": 216,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "source-fact-in-interpretation-block",
+      "origin": "synthetic",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8468821999849752,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 136,
+              "completion_tokens": 15,
+              "total_tokens": 151,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 201,
+              "completion_tokens": 19,
+              "total_tokens": 220,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8347576999804005,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 136,
+              "completion_tokens": 15,
+              "total_tokens": 151,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 201,
+              "completion_tokens": 19,
+              "total_tokens": 220,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.82804260001285,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 136,
+              "completion_tokens": 15,
+              "total_tokens": 151,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 201,
+              "completion_tokens": 19,
+              "total_tokens": 220,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "interpretation-in-main-block",
+      "origin": "synthetic",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7672428000369109,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 133,
+              "completion_tokens": 15,
+              "total_tokens": 148,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 196,
+              "completion_tokens": 16,
+              "total_tokens": 212,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7857526999432594,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 133,
+              "completion_tokens": 15,
+              "total_tokens": 148,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 196,
+              "completion_tokens": 16,
+              "total_tokens": 212,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7826720000593923,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 133,
+              "completion_tokens": 15,
+              "total_tokens": 148,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 196,
+              "completion_tokens": 16,
+              "total_tokens": 212,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "non-atomic-interpretation-with-premise-restatement",
+      "origin": "synthetic",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7958921999670565,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 143,
+              "completion_tokens": 15,
+              "total_tokens": 158,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 206,
+              "completion_tokens": 16,
+              "total_tokens": 222,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7486075000488199,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 143,
+              "completion_tokens": 15,
+              "total_tokens": 158,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 206,
+              "completion_tokens": 16,
+              "total_tokens": 222,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7658555000089109,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 143,
+              "completion_tokens": 15,
+              "total_tokens": 158,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 206,
+              "completion_tokens": 16,
+              "total_tokens": 222,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "non-atomic-creative-two-events",
+      "origin": "synthetic",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7956425999873318,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 134,
+              "completion_tokens": 16,
+              "total_tokens": 150,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 199,
+              "completion_tokens": 16,
+              "total_tokens": 215,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7535907999845222,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 134,
+              "completion_tokens": 16,
+              "total_tokens": 150,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 199,
+              "completion_tokens": 16,
+              "total_tokens": 215,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.794563100032974,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 134,
+              "completion_tokens": 16,
+              "total_tokens": 150,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 199,
+              "completion_tokens": 16,
+              "total_tokens": 215,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case1-attempt1-u1",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8035596999689005,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 15,
+              "total_tokens": 168,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 219,
+              "completion_tokens": 16,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7835221999557689,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 15,
+              "total_tokens": 168,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 219,
+              "completion_tokens": 16,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7667928000446409,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 15,
+              "total_tokens": 168,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 219,
+              "completion_tokens": 16,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case1-attempt1-u2",
+      "origin": "g22_exact",
+      "required": false,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "INDETERMINATE"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8935048999846913,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 155,
+              "completion_tokens": 16,
+              "total_tokens": 171,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 221,
+              "completion_tokens": 19,
+              "total_tokens": 240,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8475816000136547,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 155,
+              "completion_tokens": 16,
+              "total_tokens": 171,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 221,
+              "completion_tokens": 19,
+              "total_tokens": 240,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8746718000038527,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 155,
+              "completion_tokens": 16,
+              "total_tokens": 171,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 221,
+              "completion_tokens": 19,
+              "total_tokens": 240,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case1-attempt1-u3",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8390069000306539,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 174,
+              "completion_tokens": 16,
+              "total_tokens": 190,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 240,
+              "completion_tokens": 16,
+              "total_tokens": 256,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7834026000346057,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 174,
+              "completion_tokens": 16,
+              "total_tokens": 190,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 240,
+              "completion_tokens": 16,
+              "total_tokens": 256,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7830832000472583,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 174,
+              "completion_tokens": 16,
+              "total_tokens": 190,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 240,
+              "completion_tokens": 16,
+              "total_tokens": 256,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case1-attempt2-u1",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8462947999942116,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 150,
+              "completion_tokens": 16,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 16,
+              "total_tokens": 232,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7939969999715686,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 150,
+              "completion_tokens": 16,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 16,
+              "total_tokens": 232,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.79746630002046,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 150,
+              "completion_tokens": 16,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 16,
+              "total_tokens": 232,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case1-attempt2-u2",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8657879999955185,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 162,
+              "completion_tokens": 16,
+              "total_tokens": 178,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 226,
+              "completion_tokens": 19,
+              "total_tokens": 245,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8650781000033021,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 162,
+              "completion_tokens": 16,
+              "total_tokens": 178,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 226,
+              "completion_tokens": 19,
+              "total_tokens": 245,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8422473999671638,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 162,
+              "completion_tokens": 16,
+              "total_tokens": 178,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 226,
+              "completion_tokens": 19,
+              "total_tokens": 245,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case1-attempt2-u3",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8319687999319285,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 157,
+              "completion_tokens": 16,
+              "total_tokens": 173,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 223,
+              "completion_tokens": 16,
+              "total_tokens": 239,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.782835400023032,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 157,
+              "completion_tokens": 16,
+              "total_tokens": 173,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 223,
+              "completion_tokens": 16,
+              "total_tokens": 239,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7862716000527143,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 157,
+              "completion_tokens": 16,
+              "total_tokens": 173,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 223,
+              "completion_tokens": 16,
+              "total_tokens": 239,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case2-attempt1-u1",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8865269999369048,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 138,
+              "completion_tokens": 15,
+              "total_tokens": 153,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 203,
+              "completion_tokens": 19,
+              "total_tokens": 222,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8295832000439987,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 138,
+              "completion_tokens": 15,
+              "total_tokens": 153,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 203,
+              "completion_tokens": 19,
+              "total_tokens": 222,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.856724499957636,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 138,
+              "completion_tokens": 15,
+              "total_tokens": 153,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 203,
+              "completion_tokens": 19,
+              "total_tokens": 222,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case2-attempt1-u2",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8966752999695018,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 16,
+              "total_tokens": 169,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 218,
+              "completion_tokens": 19,
+              "total_tokens": 237,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8731300999643281,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 16,
+              "total_tokens": 169,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 218,
+              "completion_tokens": 19,
+              "total_tokens": 237,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8421544000157155,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 16,
+              "total_tokens": 169,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 218,
+              "completion_tokens": 19,
+              "total_tokens": 237,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case2-attempt1-u3",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8137734000338241,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 140,
+              "completion_tokens": 15,
+              "total_tokens": 155,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 205,
+              "completion_tokens": 16,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7988515999750234,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 140,
+              "completion_tokens": 15,
+              "total_tokens": 155,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 205,
+              "completion_tokens": 16,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8164187000365928,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 140,
+              "completion_tokens": 15,
+              "total_tokens": 155,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 205,
+              "completion_tokens": 16,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case2-attempt1-u4",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8820370000321418,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 151,
+              "completion_tokens": 15,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 19,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8565835999906994,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 151,
+              "completion_tokens": 15,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 19,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8246493000187911,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 151,
+              "completion_tokens": 15,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 19,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case2-attempt1-u5",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8096466000424698,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 16,
+              "total_tokens": 169,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 16,
+              "total_tokens": 232,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7797051999368705,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 16,
+              "total_tokens": 169,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 16,
+              "total_tokens": 232,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7938049000222236,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 16,
+              "total_tokens": 169,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 16,
+              "total_tokens": 232,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case2-attempt2-u1",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.859375300060492,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 138,
+              "completion_tokens": 15,
+              "total_tokens": 153,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 203,
+              "completion_tokens": 19,
+              "total_tokens": 222,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8440362000255845,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 138,
+              "completion_tokens": 15,
+              "total_tokens": 153,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 203,
+              "completion_tokens": 19,
+              "total_tokens": 222,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.848007199994754,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 138,
+              "completion_tokens": 15,
+              "total_tokens": 153,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 203,
+              "completion_tokens": 19,
+              "total_tokens": 222,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case2-attempt2-u2",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8752327000256628,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 16,
+              "total_tokens": 169,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 218,
+              "completion_tokens": 19,
+              "total_tokens": 237,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8463854000438005,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 16,
+              "total_tokens": 169,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 218,
+              "completion_tokens": 19,
+              "total_tokens": 237,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8462045000633225,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 16,
+              "total_tokens": 169,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 218,
+              "completion_tokens": 19,
+              "total_tokens": 237,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case2-attempt2-u3",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8016996000078507,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 140,
+              "completion_tokens": 15,
+              "total_tokens": 155,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 205,
+              "completion_tokens": 16,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7845707999658771,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 140,
+              "completion_tokens": 15,
+              "total_tokens": 155,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 205,
+              "completion_tokens": 16,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8014693000004627,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 140,
+              "completion_tokens": 15,
+              "total_tokens": 155,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 205,
+              "completion_tokens": 16,
+              "total_tokens": 221,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case2-attempt2-u4",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8527950000716373,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 151,
+              "completion_tokens": 15,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 19,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8746965999016538,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 151,
+              "completion_tokens": 15,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 19,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8281279999646358,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 151,
+              "completion_tokens": 15,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 19,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case2-attempt2-u5",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.809359000006225,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 16,
+              "total_tokens": 169,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 16,
+              "total_tokens": 232,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7813241999829188,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 16,
+              "total_tokens": 169,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 16,
+              "total_tokens": 232,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.810669299971778,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 153,
+              "completion_tokens": 16,
+              "total_tokens": 169,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 16,
+              "total_tokens": 232,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case3-attempt1-u1",
+      "origin": "g22_exact",
+      "required": false,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "INDETERMINATE",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.9541084000375122,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 151,
+              "completion_tokens": 15,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 19,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8575447000330314,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 151,
+              "completion_tokens": 15,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 19,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8453362000291236,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 151,
+              "completion_tokens": 15,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 19,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case3-attempt1-u2",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8399810999981128,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 145,
+              "completion_tokens": 15,
+              "total_tokens": 160,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 210,
+              "completion_tokens": 16,
+              "total_tokens": 226,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8262284000520594,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 145,
+              "completion_tokens": 15,
+              "total_tokens": 160,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 210,
+              "completion_tokens": 16,
+              "total_tokens": 226,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8279967000125907,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 145,
+              "completion_tokens": 15,
+              "total_tokens": 160,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 210,
+              "completion_tokens": 16,
+              "total_tokens": 226,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case3-attempt1-u3",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.9225634000031278,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 145,
+              "completion_tokens": 15,
+              "total_tokens": 160,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 210,
+              "completion_tokens": 19,
+              "total_tokens": 229,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8532039999845438,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 145,
+              "completion_tokens": 15,
+              "total_tokens": 160,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 210,
+              "completion_tokens": 19,
+              "total_tokens": 229,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.9014619999798015,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 145,
+              "completion_tokens": 15,
+              "total_tokens": 160,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 210,
+              "completion_tokens": 19,
+              "total_tokens": 229,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case3-attempt1-u4",
+      "origin": "g22_exact",
+      "required": false,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "INDETERMINATE",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8796024000039324,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 143,
+              "completion_tokens": 15,
+              "total_tokens": 158,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 208,
+              "completion_tokens": 19,
+              "total_tokens": 227,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.829758700041566,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 143,
+              "completion_tokens": 15,
+              "total_tokens": 158,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 208,
+              "completion_tokens": 19,
+              "total_tokens": 227,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8322969999862835,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 143,
+              "completion_tokens": 15,
+              "total_tokens": 158,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 208,
+              "completion_tokens": 19,
+              "total_tokens": 227,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case3-attempt1-u5",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8798737000324763,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 236,
+              "completion_tokens": 16,
+              "total_tokens": 252,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 301,
+              "completion_tokens": 16,
+              "total_tokens": 317,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.859606200014241,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 236,
+              "completion_tokens": 16,
+              "total_tokens": 252,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 301,
+              "completion_tokens": 16,
+              "total_tokens": 317,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8246512999758124,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 236,
+              "completion_tokens": 16,
+              "total_tokens": 252,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 301,
+              "completion_tokens": 16,
+              "total_tokens": 317,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case3-attempt2-u6",
+      "origin": "g22_exact",
+      "required": false,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "INDETERMINATE",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8929560999968089,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 151,
+              "completion_tokens": 15,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 19,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8708607999724336,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 151,
+              "completion_tokens": 15,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 19,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8136527999304235,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 151,
+              "completion_tokens": 15,
+              "total_tokens": 166,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 216,
+              "completion_tokens": 19,
+              "total_tokens": 235,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case3-attempt2-u7",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.797718400019221,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 145,
+              "completion_tokens": 15,
+              "total_tokens": 160,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 210,
+              "completion_tokens": 16,
+              "total_tokens": 226,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7818565999623388,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 145,
+              "completion_tokens": 15,
+              "total_tokens": 160,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 210,
+              "completion_tokens": 16,
+              "total_tokens": 226,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7787137999548577,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 145,
+              "completion_tokens": 15,
+              "total_tokens": 160,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 210,
+              "completion_tokens": 16,
+              "total_tokens": 226,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case3-attempt2-u8",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8788892000447959,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 145,
+              "completion_tokens": 15,
+              "total_tokens": 160,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 210,
+              "completion_tokens": 19,
+              "total_tokens": 229,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8700697000604123,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 145,
+              "completion_tokens": 15,
+              "total_tokens": 160,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 210,
+              "completion_tokens": 19,
+              "total_tokens": 229,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8435520000057295,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 145,
+              "completion_tokens": 15,
+              "total_tokens": 160,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 210,
+              "completion_tokens": 19,
+              "total_tokens": 229,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case3-attempt2-u9",
+      "origin": "g22_exact",
+      "required": false,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "INDETERMINATE",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8726384000037797,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 143,
+              "completion_tokens": 15,
+              "total_tokens": 158,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 208,
+              "completion_tokens": 19,
+              "total_tokens": 227,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8780512000084855,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 143,
+              "completion_tokens": 15,
+              "total_tokens": 158,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 208,
+              "completion_tokens": 19,
+              "total_tokens": 227,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "ROLE_VIOLATION",
+          "elapsed_seconds": 0.8455287999822758,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 143,
+              "completion_tokens": 15,
+              "total_tokens": 158,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 208,
+              "completion_tokens": 19,
+              "total_tokens": 227,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case3-attempt2-u10",
+      "origin": "g22_exact",
+      "required": true,
+      "critical_for_safety": true,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8470278999884613,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 165,
+              "completion_tokens": 16,
+              "total_tokens": 181,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 230,
+              "completion_tokens": 16,
+              "total_tokens": 246,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.809621199965477,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 165,
+              "completion_tokens": 16,
+              "total_tokens": 181,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 230,
+              "completion_tokens": 16,
+              "total_tokens": 246,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.811918500054162,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 165,
+              "completion_tokens": 16,
+              "total_tokens": 181,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 230,
+              "completion_tokens": 16,
+              "total_tokens": 246,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "g22-case3-attempt2-u11",
+      "origin": "g22_exact",
+      "required": false,
+      "critical_for_safety": false,
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "INDETERMINATE"
+      },
+      "repeats": [
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.840032100037206,
+          "repeat_index": 1,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 164,
+              "completion_tokens": 16,
+              "total_tokens": 180,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 229,
+              "completion_tokens": 16,
+              "total_tokens": 245,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.8110964999650605,
+          "repeat_index": 2,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 164,
+              "completion_tokens": 16,
+              "total_tokens": 180,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 229,
+              "completion_tokens": 16,
+              "total_tokens": 245,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "ROLE_VALID",
+          "elapsed_seconds": 0.7806683000526391,
+          "repeat_index": 3,
+          "usage": {
+            "atomicity_call": {
+              "prompt_tokens": 164,
+              "completion_tokens": 16,
+              "total_tokens": 180,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "role_call": {
+              "prompt_tokens": 229,
+              "completion_tokens": 16,
+              "total_tokens": 245,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
