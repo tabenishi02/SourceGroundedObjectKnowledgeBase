@@ -10,6 +10,8 @@
 - Certified Content contract: `docs/decisions/N04G23C_CERTIFICATION_AND_CERTIFIED_CONTENT_CONTRACT.md`
 - Stage 2 contract: `docs/decisions/N04G23D_STAGE2_PRESENTATION_GENERATOR_CONTRACT.md`
 - Provider/retry contract: `docs/decisions/N04G23E_PROVIDER_SCHEMA_AND_STAGE_LOCAL_RETRY_DESIGN.md`
+- v4 Design Freeze: `docs/decisions/N04G23F_V4_DESIGN_INTEGRATION_AND_FREEZE.md`
+- G-24 handoff: `docs/planning/phases/N/N04/post-g12/N04G24_NEXT_CHAT_HANDOFF.md`
 - G-25 benchmark plan: `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
@@ -42,9 +44,9 @@ G-23D Stage 2 Presentation Generator contract       Complete / Contract Accepted
   ↓
 G-23E Provider schema + stage-local retry design    Complete / Contract Accepted
   ↓
-G-23F v4 design integration / Design Freeze         NEXT
+G-23F v4 design integration / Design Freeze         Complete / v4 Design Frozen
   ↓
-G-24 v4 implementation
+G-24 v4 implementation                              NEXT
   ↓
 G-25A Residual Classifier Benchmark / Selection
   ↓ PASS only
@@ -65,7 +67,7 @@ Historical G-18/G-21/G-22 artifacts remain immutable evidence.
 
 | Task | Priority | Status | Purpose |
 |---|---|---|---|
-| N-04G-23 | P0 | Complete / Architecture Accepted | 2-stage generation architecture |
+| N-04G-23 | P0 | Complete / Architecture Accepted | two-stage generation architecture |
 | N-04G-23A | P0 | Complete / valid benchmark | diagnose Atomicity / Role judge |
 | N-04G-23A-R | P0 | Complete / valid FAIL / no candidate selected | alternate judge evaluation |
 | N-04G-23A-E | P0 | **Complete / Architecture Accepted** | decompose Gate responsibilities |
@@ -75,80 +77,116 @@ Historical G-18/G-21/G-22 artifacts remain immutable evidence.
 | N-04G-23A-E4 | P0 | Complete | application-owned role provenance / compatibility matrix |
 | N-04G-23A-E5 | P0 | Complete | residual classifier scope/evaluation design |
 | N-04G-23A-E6 | P0 | Complete / Gate PASS with residual Atomicity risk | 47-Gold desk replay / coverage |
-| N-04G-23A-E7 | P0 | **Complete / Architecture Accepted** | integration / G-23B unblock |
-| N-04G-23B | P0 | **Complete / Contract Accepted** | Stage 1 Content Planner contract |
-| N-04G-23C | P0 | **Complete / Contract Accepted** | Certification / Certified Content contract |
-| N-04G-23D | P0 | **Complete / Contract Accepted** | Stage 2 Presentation Generator contract |
-| N-04G-23E | P0 | **Complete / Contract Accepted** | provider schema + stage-local retry |
-| N-04G-23F | P0 | **NEXT** | v4 Design Freeze |
-| N-04G-24 | P0 | Blocked by G-23F | implementation |
+| N-04G-23A-E7 | P0 | Complete / Architecture Accepted | integration / G-23B unblock |
+| N-04G-23B | P0 | Complete / Contract Accepted | Stage 1 Content Planner contract |
+| N-04G-23C | P0 | Complete / Contract Accepted | Certification / Certified Content contract |
+| N-04G-23D | P0 | Complete / Contract Accepted | Stage 2 Presentation Generator contract |
+| N-04G-23E | P0 | Complete / Contract Accepted | provider schema + stage-local retry |
+| N-04G-23F | P0 | **Complete / v4 Design Frozen** | end-to-end integration / implementation freeze |
+| N-04G-24 | P0 | **NEXT** | v4 implementation |
 | N-04G-25A | P0 | Blocked by G-24 | Residual classifier benchmark / selection |
 | N-04G-25B | P0 | Blocked by G-25A PASS | integrated adversarial regression |
 | N-04G-26 | P0 | Blocked by G-25B PASS | Reference Workstation freeze |
 | N-04G-27 | P0 | Blocked by G-26 | Formal v4 Re-Acceptance |
 
-## 3. Integrated v4 V2 architecture
+## 3. Frozen v4 architecture
 
 ```text
-Structured Proposition Candidate
+Grounded Context
   ↓
-V2-S schema/construction
+Stage 1 Grounded Content Planner
   ↓
-V2-P application-owned role provenance
+Structured Proposition Candidates
   ↓
-V2-D deterministic purpose/presentation/binding compatibility
+Reference Integrity
+  ↓
+V2-S / V2-P / V2-D
+  ↓
+V2-R-A / V2-R-C where required
+  ↓
+V3/V4F Source Fact Support
   ↓ PASS only
-V2-R-A narrow Atomicity classification if required
-  ↓ ATOMIC only
-V2-R-C content-only classification if required
-  ↓ role compatibility comparison
-V3/V4 support / derivation
+Validation Record
+  ↓
+Certification
+  ↓
+Certified Content
+  ↓
+Stage 2 Presentation Generator
+  ↓
+application path assignment / exact Certified Fact materialization
+  ↓
+V2 for Stage 2 model-authored propositions
+  ↓
+V4I for interpretations
+  ↓
+Validated Presentation Plan
+  ↓
+Material Requirement
+  ↓
+Terminal Decision
+  ↓ ACCEPTED only
+Deterministic Render
 ```
 
-Key invariants:
-
-- model-authored role is not authority;
-- deterministic policy mismatch never goes to a classifier for rescue;
-- Atomicity and Content Type are separate tasks;
-- expected role/purpose/presentation are not shown to Content-Type classifier;
-- model-authored free text is not Atomic merely because schema-valid;
-- ambiguity/unavailability fail closed;
-- support/truth/derivation remain downstream responsibilities;
-- no silent post-hoc atomization.
-
-## 4. E6 coverage result
+Universal invariant:
 
 ```text
-Critical total                            33
-V2-D deterministic reject                  5
-V2-R-A NON_ATOMIC reject                  25
-V2-R-C content mismatch reject             3
-Critical without pre-V3 fail path          0
+No downstream positive verdict may rescue an earlier FAIL / INDETERMINATE / UNAVAILABLE.
 ```
 
-Broad joint Atomicity/Role Judge is eliminated. Residual Atomicity remains the largest implementation risk and is not considered solved by desk replay.
+## 4. Frozen path / authority map
 
-## 5. E7 decision
+```text
+stage1_fact_candidate
+  -> source_fact
+  -> model-authored
+  -> V2 + V3/V4F
 
-`G-23A-E` is accepted because the remaining unknown is concrete component performance, not unresolved authority ownership.
+certified_fact_materialization
+  -> source_fact
+  -> application-owned exact Certified Fact text
 
-Residual Atomicity is classified as a bounded implementation/benchmark risk because:
+stage2_interpretation_candidate
+  -> interpretation
+  -> model-authored
+  -> V2 + V4I
 
-1. V2-R-A has a fixed narrow taxonomy and interface.
-2. ambiguity/unavailability fail closed.
-3. no earlier structural/policy failure can be overridden.
-4. G-23B can consume the candidate contract without concrete classifier identity.
-5. concrete classifier selection has an explicit mandatory downstream gate.
+stage2_creative_candidate
+  -> creative_addition
+  -> model-authored
+  -> V2 + creative-purpose/scope policy
 
-Acceptance is not a classifier selection and does not imply N-04 readiness.
+system_context_limit
+  -> context_limit
+  -> application/system-owned only
+```
 
-## 6. G-23B result
+Model-declared role/status is not authority.
 
-Authority: `docs/decisions/N04G23B_STAGE1_GROUNDED_CONTENT_PLANNER_CONTRACT.md`
+No model-authored `context_limit` or `stylistic_expression` path exists in the v4 baseline.
 
-G-23B is **Complete / Contract Accepted**.
+## 5. Frozen contract identities
 
-Stage 1 model payload is intentionally minimal:
+```text
+sgokb.stage1-grounded-content-request.v1
+sgokb.stage1-provider-output.v1
+sgokb.structured-proposition.v1-candidate
+sgokb.v4-validation-record.v1
+sgokb.certified-content.v1
+sgokb.stage2-presentation-request.v1
+sgokb.stage2-provider-output.v1
+sgokb.stage-local-retry-feedback.v1
+sgokb.validated-presentation-plan.v1
+sgokb.system-context-limit.v1
+sgokb.grounded-generation-v4-run.v1
+```
+
+Historical v2/v3 version strings remain historical evidence and must not silently acquire v4 semantics.
+
+## 6. Stage 1 freeze
+
+Provider-facing payload:
 
 ```json
 {
@@ -161,66 +199,34 @@ Stage 1 model payload is intentionally minimal:
 }
 ```
 
-Application owns contract/context/purpose/stage/path/attempt/proposition identity and retry lineage.
+Key invariants:
 
-Key decisions:
-
-- `stage1_fact_candidate -> source_fact` is application-owned authority;
-- no Stage 1 presentation role;
+- one candidate = one authoritative `claim_text`;
 - non-empty candidate requires `support_refs[] >= 1`;
-- support-ref presence is not support/entailment proof;
-- schema validity does not prove Atomicity;
-- optional semantic anchors are excluded from v1;
-- `candidates: []` is not a model-owned context-limit verdict;
+- refs must be request allow-listed/current-context refs;
+- schema-valid text does not prove Atomicity;
+- application owns stage/path/role/attempt/proposition identity;
 - failed candidate is immutable;
-- concrete V2-R-A/V2-R-C selection remains G-25A.
+- same-attempt eligible candidates may be certified independently;
+- no cross-attempt Certified Fact merge.
 
-## 7. G-23C result
-
-Authority: `docs/decisions/N04G23C_CERTIFICATION_AND_CERTIFIED_CONTENT_CONTRACT.md`
-
-G-23C is **Complete / Contract Accepted**.
-
-Artifact separation:
+## 7. Certification freeze
 
 ```text
-Structured Proposition Candidate
-  != Validation Record
-  != Certified Fact
-  != Certified Content
+Candidate != Validation Record != Certified Fact != Certified Content
 ```
 
-Certification eligibility requires:
+Certification requires aggregate V2 PASS + source-support PASS + identity/digest consistency.
 
-```text
-candidate/reference identity valid
-AND aggregate V2 PASS
-AND source-support aggregate PASS
-AND candidate/validation digest bindings match
-AND no unresolved FAIL / INDETERMINATE / UNAVAILABLE
-```
+Certified Fact `claim_text` and `support_refs[]` are exact Stage 1 copies.
 
-Key decisions:
+Certification cannot rewrite, atomize, merge support or add source-world facts.
 
-- certification is application/validator-owned;
-- `certified_fact_id` is scoped to one immutable Certified Content artifact and is not a canonical DB Fact ID;
-- certified `claim_text` and `support_refs[]` exactly copy the Stage 1 candidate;
-- certification cannot rewrite, atomize, merge support or create new source-world facts;
-- Validation Record owns validation verdict/evidence;
-- one Certified Content artifact cannot mix context fingerprints;
-- Stage 2 factual authority is Certified Content, not raw Grounded Context;
-- interpretation premises use `certified_fact_id` values;
-- exact duplicate minimum handling prevents trivial count inflation;
-- empty Certified Content is audit evidence only, not context-limit;
-- cross-attempt salvage/inclusion was deferred to G-23E and is now closed by active-attempt replacement.
+Stage 2 primary factual authority is one active immutable Certified Content artifact.
 
-## 8. G-23D result
+## 8. Stage 2 freeze
 
-Authority: `docs/decisions/N04G23D_STAGE2_PRESENTATION_GENERATOR_CONTRACT.md`
-
-G-23D is **Complete / Contract Accepted**.
-
-Stage 2 model-facing factual projection is intentionally minimal:
+Model-facing facts:
 
 ```json
 {
@@ -229,156 +235,203 @@ Stage 2 model-facing factual projection is intentionally minimal:
 }
 ```
 
-Stage 2 logical output uses ordered blocks:
+Model output families:
 
 ```text
 main
   -> Certified Fact IDs only
-  -> application exact materialization
+  -> exact application materialization
 
 interpretation
-  -> model claim_text + premise_fact_ids[]
-  -> Certified Fact IDs only as premises
+  -> claim_text + premise_fact_ids[]
+  -> active Certified Fact IDs only
 
 creative
-  -> model claim_text
+  -> claim_text only
   -> creative purpose only
 ```
 
-Key decisions:
+Each block kind cardinality is 0 or 1. Duplicate block kinds/IDs fail deterministically.
 
-- model may select Certified Fact IDs, but cannot rewrite source factual text and inherit certification;
-- `certified_fact_materialization` is application-owned and exact;
-- Stage 2 model does not receive raw Grounded Context as a new factual authority;
-- interpretation path is `stage2_interpretation_candidate` and requires V2 + V4I;
-- creative path is `stage2_creative_candidate`, allowed only for `purpose = creative`, and remains subject to V2 semantic boundary checks;
-- no model-authored `context_limit` or `stylistic_expression` path is reintroduced;
-- normal block kinds are `main`, `interpretation`, `creative`;
-- each block kind has cardinality 0 or 1; duplicate kind is deterministic failure;
-- block order is presentation order, not semantic authority;
-- `blocks: []` is allowed as no proposal and is not context-limit;
-- source fact / interpretation / creative remain structurally separate through final rendering;
-- no-new-source-fact rule applies after Certification.
+Stage 2 attempt is one ordered plan; failed plan is not partially rendered.
 
-## 9. G-23E result
+After Certification, no new source fact can reach normal render without returning through a new Stage 1 run.
 
-Authority: `docs/decisions/N04G23E_PROVIDER_SCHEMA_AND_STAGE_LOCAL_RETRY_DESIGN.md`
+## 9. Provider/application freeze
 
-G-23E is **Complete / Contract Accepted**.
+Provider schema is a structural guard only.
 
-Provider structured output is a structural guard only. Application-side parse/schema/reference/binding validation remains mandatory.
-
-Provider schema decisions:
+Application always rechecks:
 
 ```text
-Stage 1
-  candidates[]
-    claim_text
-    support_refs[]
-  dynamic K allow-list enum
-  request-owned candidate max
-
-Stage 2
-  blocks[] max 3
-  complete oneOf alternatives:
-    main
-    interpretation
-    creative where purpose permits
-  dynamic active Certified Fact enum
+JSON/schema
+K/CF allow-list
+reference/binding integrity
+duplicate IDs
+duplicate block kinds
+purpose compatibility
+context/request/Certified Content binding
 ```
 
-Runtime/schema safety decisions:
+Do not rely on provider `uniqueItems`, `contains/minContains/maxContains`, conditionals or cross-item uniqueness.
 
-- existing Reference Workstation evidence proves the LM Studio structured-output path is operational;
-- provider acceptance of a schema does not prove every JSON Schema keyword is enforced;
-- do not rely on provider `uniqueItems`, `contains/minContains/maxContains`, conditionals or cross-item property uniqueness;
-- duplicate support/premise IDs and duplicate Stage 2 block kinds are application-enforced;
-- application revalidates complete provider output against the instantiated schema;
-- provider/schema binding mismatch or provider unavailability is fail-closed SYSTEM_FAILURE;
-- G-24/G-26 must record exact runtime capability probes.
+Provider unavailable/incomplete/schema-binding mismatch is fail-closed SYSTEM_FAILURE. No silent provider/model/schema weakening or free-prose fallback.
 
-Retry decisions:
+G-24 and G-26 must record exact provider capability probes.
+
+## 10. Retry freeze
 
 ```text
 Stage 1 max attempts = 2 / max retry = 1
 Stage 2 max attempts = 2 / max retry = 1
 ```
 
-- counters are stage-local and independent;
-- no Stage 2 -> Stage 1 backward retry in the same run;
-- retry inputs keep Context/Certified Content, purpose, model, settings and schema fixed;
-- only attempt identity, lineage, structured feedback and new output may change;
-- Stage 1 candidate-level certification inside one attempt is allowed by design;
-- if Stage 1 attempt 2 is invoked, attempt 2 fully replaces attempt 1 as the active factual attempt;
-- no cross-attempt Certified Fact merge and no fallback to attempt 1;
-- Stage 2 failed plan is not partially rendered;
-- if Stage 2 attempt 2 is invoked, attempt 2 fully replaces attempt 1 as the active plan;
-- retry feedback is diagnostic only and cannot introduce new facts or validator-written replacement claims.
+- counters are independent;
+- retry is full replacement, never patch;
+- factual authority/model/settings/schema/material profile stay fixed within a stage retry;
+- attempt 2 becomes the sole active attempt;
+- attempt 1 remains evidence only;
+- no cross-attempt merge;
+- no fallback to attempt 1 after attempt 2 authorization;
+- no Stage 2 -> Stage 1 backward retry in one run;
+- retry feedback is diagnostic only and cannot add new facts or validator-authored replacement prose.
 
-## 10. G-23F immediate scope
+## 11. Material / context-limit / terminal freeze
 
-Next task: **N-04G-23F — v4 Design Integration / Design Freeze**.
+Stage 1 readiness is distinct from final Material Requirement.
 
-G-23F must integrate the accepted G-23A-E + G-23B/C/D/E decisions into one authoritative implementation-ready v4 design.
+Stage 1 readiness asks whether active Certified Content has enough factual material to justify Stage 2 and whether Stage 1 retry is appropriate.
 
-At minimum:
+Final Material Requirement evaluates only validated Stage 2 material.
 
-1. End-to-end authority/ownership consistency review.
-2. Contract/version and artifact-flow integration.
-3. Candidate -> Validation -> Certification -> Stage 2 -> final validation traceability.
-4. stage-local retry ordering and active-attempt semantics.
-5. system-owned context-limit / terminal boundary.
-6. Material Requirement interaction.
-7. provider/application validation split.
-8. evidence/replay artifact tree and identity bindings.
-9. preservation of mandatory G-25A residual classifier Gate.
-10. G-24 implementation handoff.
+`candidates: []`, empty Certified Content or `blocks: []` do not automatically mean context insufficiency.
+
+Application/system may create `sgokb.system-context-limit.v1` only from deterministic evidence that authoritative fixed input cannot satisfy the material requirement.
+
+Terminal outcomes:
+
+```text
+ACCEPTED
+INSUFFICIENT_CONTEXT
+REJECTED
+SYSTEM_FAILURE
+```
+
+Only `ACCEPTED` authorizes normal render and can count toward N-04 Case PASS.
+
+`INSUFFICIENT_CONTEXT` is safe but formal Case FAIL.
+
+## 12. Evidence / replay freeze
+
+Authority: `docs/decisions/N04G23F_V4_DESIGN_INTEGRATION_AND_FREEZE.md`.
+
+Required evidence includes:
+
+```text
+run manifest / Git identity
+runtime/model/provider/classifier identities
+provider capability probe
+Grounded Context / fingerprint
+Stage 1 request/prompt/schema/raw/parsed/candidate/validation/certification artifacts
+active Certified Content + digest
+Stage 2 request/projection/prompt/schema/raw/parsed/path/validation/materialization artifacts
+retry feedback + lineage for every executed retry
+Validated Presentation Plan + digest
+Material Requirement result
+system context-limit when applicable
+terminal decision
+rendered output when authorized
+```
+
+Exact persisted prompt/schema bytes are hash authorities; historical/non-active attempts remain retained.
+
+## 13. G-23F result
+
+Authority:
+
+`docs/decisions/N04G23F_V4_DESIGN_INTEGRATION_AND_FREEZE.md`
+
+G-23F is **Complete / v4 Design Frozen**.
+
+Integration review closed the required questions:
+
+- every model-authored natural-language proposition has exactly one application-owned path;
+- no uncertified source fact can reach normal render;
+- model-declared role/status cannot override provenance;
+- schema validity cannot bypass required Residual semantic Gates;
+- Stage 2 cannot reopen raw Grounded Context/uncertified candidates;
+- Certification cannot rewrite candidate text/support;
+- retry attempts cannot be silently merged;
+- retry feedback cannot introduce new factual authority;
+- provider limitations cannot weaken application validation;
+- G-25A failure cannot be bypassed to G-26.
+
+No ownership/authority contradiction requiring architecture reopen was found.
+
+## 14. G-24 immediate scope
+
+Next task: **N-04G-24 — v4 Implementation**.
 
 Primary handoff:
 
-`docs/planning/phases/N/N04/post-g12/N04G23F_NEXT_CHAT_HANDOFF.md`
+`docs/planning/phases/N/N04/post-g12/N04G24_NEXT_CHAT_HANDOFF.md`
 
-## 11. Mandatory downstream classifier gate
+G-24 implements the frozen v4 contracts, orchestration, evidence and automated tests.
 
-Authority: `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
+G-24 must not select the concrete Residual Atomicity / Content-Type production component. It implements the adapter/interface and fail-closed behavior; selection remains G-25A.
 
-`G-25A` performs dataset construction, candidate comparison, threshold/abstention freeze, Frozen 47 final confirmation and concrete V2-R-A/V2-R-C selection.
+## 15. Mandatory downstream classifier Gate
 
-If all candidates fail:
+Authority: `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`.
+
+G-25A remains mandatory:
+
+```text
+Atomicity critical NON_ATOMIC false-pass = 0
+Content-Type critical wrong-compatible false-pass = 0
+required-valid false reject target = 0
+AMBIGUOUS / UNAVAILABLE = fail-closed
+```
+
+All candidates fail:
 
 ```text
 VALID_FAIL_NO_SELECTION
 ```
 
-and G-26 remains blocked. Gate weakening is prohibited.
+G-26 remains blocked; Gate weakening is prohibited.
 
-`G-25B` evaluates selected components in the full v4 pipeline. Only PASS unblocks G-26.
+G-25B then requires zero critical integrated false-pass classes before G-26.
 
-## 12. Protected boundaries
+## 16. Protected boundaries
 
-Do not change without new evidence:
+Do not change during G-24 without reopening G-23F:
 
-- Frozen 47 Gold labels/flags and G-23A/G-23A-R evidence
-- G-14 safety intent / no silent post-hoc atomization
-- G-23 two-stage architecture
-- E2 authority order
-- E3 Semi-structured proposition contract
-- E4 application-owned role provenance
-- E5 zero-critical-FP/fail-closed classifier selection policy
-- G-23B Stage 1 contract
-- G-23C Certification / Certified Content contract
-- G-23D Stage 2 Presentation Generator contract
-- G-23E Provider Schema / Stage-local Retry contract
-- MiniCheck threshold/profile merely to improve acceptance
-- Retrieval / Similarity / Context Builder
-- canonical DB
-- Source / Evidence / Provenance
-- Object / Version identity
-- MCP read-only boundary
-- unsupported rendered claim prohibition
-- fail-closed semantics
+- Frozen 47 Gold labels/flags and historical G-23A/G-23A-R evidence;
+- G-14 no-silent-post-hoc-atomization intent;
+- two-stage architecture;
+- E2 authority order;
+- E3 proposition contract;
+- E4 application-owned provenance;
+- E5 fail-closed classifier policy;
+- G-23B/C/D/E accepted contracts;
+- exact Certified Fact materialization;
+- Stage 2 Certified Content factual boundary;
+- max one retry per stage / active-attempt replacement;
+- no Stage 2 -> Stage 1 backward retry;
+- system-owned context-limit;
+- provider schema as guard only / application revalidation;
+- evidence/replay requirements;
+- mandatory G-25A/G-25B Gates;
+- Retrieval / Similarity / Context Builder;
+- canonical DB;
+- Source / Evidence / Provenance;
+- Object / Version identity;
+- MCP read-only boundary;
+- unsupported rendered material prohibition;
+- fail-closed semantics.
 
-## 13. Current state
+## 17. Current state
 
 ```text
 G-23A-E = Complete / Architecture Accepted
@@ -386,11 +439,12 @@ G-23B   = Complete / Contract Accepted
 G-23C   = Complete / Contract Accepted
 G-23D   = Complete / Contract Accepted
 G-23E   = Complete / Contract Accepted
-G-23F   = NEXT
+G-23F   = Complete / v4 Design Frozen
+G-24    = NEXT
 N-04    = Failed / not Complete
 N-05    = blocked
 ```
 
-## 14. Immediate next task
+## 18. Immediate next task
 
-**N-04G-23F — v4 Design Integration / Design Freeze**
+**N-04G-24 — v4 Implementation**
