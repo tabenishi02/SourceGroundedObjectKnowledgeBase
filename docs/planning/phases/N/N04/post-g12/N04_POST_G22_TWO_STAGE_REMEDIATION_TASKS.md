@@ -8,6 +8,7 @@
 - Gate responsibility redesign: `docs/decisions/N04G23AE_ATOMICITY_ROLE_GATE_RESPONSIBILITY_DECOMPOSITION.md`
 - G-23A-E tasks: `docs/planning/phases/N/N04/post-g12/N04G23AE_GATE_RESPONSIBILITY_DECOMPOSITION_TASKS.md`
 - E1 mapping: `docs/evaluation/N04G23AE_47_GOLD_RESPONSIBILITY_MAP.md`
+- E2 boundary: `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 
@@ -24,8 +25,8 @@ G-23A-R Judge Candidate Evaluation                  Complete / valid FAIL / no s
   ↓
 G-23A-E Gate Responsibility Decomposition           In Progress
   ├─ E1 47-Gold Responsibility Mapping              Complete
-  ├─ E2 v4 V2 Responsibility Boundary               NEXT
-  ├─ E3 Structured Proposition Contract             Planned
+  ├─ E2 v4 V2 Responsibility Boundary               Complete
+  ├─ E3 Structured Proposition Contract             NEXT
   ├─ E4 Role Provenance / Compatibility Matrix      Planned
   ├─ E5 Residual Classifier Evaluation Design       Planned
   ├─ E6 47-Gold Desk Replay                         Planned
@@ -65,8 +66,8 @@ G-18/G-21/G-22のv3 artifact/evidenceはhistorical authorityとして保持し�
 | N-04G-23A-R | P0 | **Complete / valid FAIL / no candidate selected** | frozen Gold/Gateで代替judge候補評価 |
 | N-04G-23A-E | P0 | **In Progress** | Gateをstructural / deterministic / residual semanticへ責務分解 |
 | N-04G-23A-E1 | P0 | **Complete** | 47 Gold全件のresponsibility mapping |
-| N-04G-23A-E2 | P0 | **NEXT** | v4 V2責務境界 / validation order / authority設計 |
-| N-04G-23A-E3 | P0 | Planned | Structured Proposition intermediate contract設計 |
+| N-04G-23A-E2 | P0 | **Complete** | v4 V2 responsibility boundary / authority / order |
+| N-04G-23A-E3 | P0 | **NEXT** | Structured Proposition intermediate contract設計 |
 | N-04G-23A-E4 | P0 | Planned | application-owned role provenance / deterministic compatibility matrix設計 |
 | N-04G-23A-E5 | P0 | Planned | residual semantic classifier scope / dataset / evaluation設計 |
 | N-04G-23A-E6 | P0 | Planned | 同じ47 Goldでdesk replay / coverage分析 |
@@ -92,64 +93,80 @@ RESIDUAL_SEMANTIC       11
 COMBINED                 5
 OPTIONAL_AMBIGUOUS       6
 TOTAL                    47
+Required                 41
+Optional                  6
+Critical                 33
+Critical without owner    0
+Gold label changes        0
 ```
 
-Additional counts:
+## 4. G-23A-E2 result
+
+E2でv4 V2のauthority/orderを固定した。
 
 ```text
-Required                41
-Optional                 6
-Critical                33
-Critical without owner   0
-Gold label changes       0
+V2-S  Structural Proposition Gate
+V2-P  Role Provenance Normalization
+V2-D  Deterministic Compatibility Gate
+V2-R  Residual Semantic Gate
 ```
 
-E1からE2へ渡すauthority:
+Order:
 
 ```text
-STRUCTURAL
-  -> Structured Proposition contract primary
-  -> compound-risk guard secondary
-
-DETERMINISTIC_POLICY
-  -> application policy matrix primary
-  -> no LLM required for rejection
-
-RESIDUAL_SEMANTIC
-  -> narrow content-type classifier only after deterministic checks
-
-COMBINED
-  -> independent structural + semantic/policy results
-
-OPTIONAL_AMBIGUOUS
-  -> ambiguity preserved; audit/coverage only
+Structured Proposition Candidate
+  ↓
+V2-S
+  ↓
+V2-P
+  ↓
+V2-D
+  ↓
+V2-R if required
+  ↓
+V3+ Support / Derivation
 ```
 
-## 4. G-23A-E2 immediate scope
+Normative rules:
 
-E2は次を固定する。
-
-1. structural validation order
-2. hard structural reject vs compound-risk escalation
-3. application-owned role provenance authority
-4. deterministic compatibility hard-fail order
-5. residual classifier invocation conditions
-6. `MIXED_CONTENT` / `AMBIGUOUS` handling
-7. downstream support/derivation override prohibition
-8. stage-local failure evidence / retry handoff
+- structural/policy failureは後段classifier/supportでoverride不可。
+- role provenanceはapplication/stage pathがauthority。
+- known stage/purpose/presentation/premise/support mismatchはdeterministic hard reject。
+- compound-risk signalは単独verdictではなくResidual review/retryのtrigger。
+- model-authored content typeがconstructionだけで証明できない場合はResidual Semantic必須。
+- `MIXED_CONTENT`はFAIL。
+- `AMBIGUOUS/INDETERMINATE`はfail-closed。
+- V2はtruth/support/entailmentを判定しない。
+- retryはfailed proposition本文とauthorityを含むstage-local evidenceを使う。
 
 Deliverable:
 
 `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
 
-## 5. Following G-23A-E tasks
+## 5. G-23A-E3 immediate scope
 
-E3: Structured Proposition Contract
+E3はE2の`V2-S`を実体化するStructured Proposition intermediate contractを設計する。
 
-- compare minimal / semi-structured / fully normalized representation
-- preserve arbitrary SGOKB semantics
-- bind support/premise/context/provenance
-- remain compatible with G-14 no-silent-post-hoc-atomization
+Required decisions:
+
+1. minimal / semi-structured / fully normalizedの比較
+2. proposition ID / lifetime / uniqueness
+3. stage/path provenance binding
+4. text / subject/entity / predicate hint等のrepresentation
+5. support_refs / premise_fact_ids
+6. purpose / context fingerprint binding
+7. certification ownership
+8. rejected / ambiguous representation
+9. renderingとの分離
+10. `V2-S PASS / REVIEW_REQUIRED / FAIL` construction rule
+11. どのpathなら`V2-R = NOT_REQUIRED`を許せるか
+12. G-14 no-silent-post-hoc-atomizationとの整合
+
+Deliverable:
+
+`docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
+
+## 6. Following G-23A-E tasks
 
 E4: Role Provenance / Compatibility Matrix
 
@@ -174,7 +191,7 @@ E7: Integration Decision
 - accept/reject G-23A-E
 - unblock G-23B only if accepted
 
-## 6. Protected boundaries
+## 7. Protected boundaries
 
 Without new evidence, do not change:
 
@@ -191,8 +208,8 @@ Without new evidence, do not change:
 - unsupported rendered claim prohibition
 - fail-closed semantics
 
-## 7. Immediate next task
+## 8. Immediate next task
 
-**N-04G-23A-E2 — v4 V2 Responsibility Boundary Design**
+**N-04G-23A-E3 — Structured Proposition Contract Design**
 
-E1の47-case mappingをauthorityとして、判定順序と各verdictの唯一のauthorityを設計する。G-23BはG-23A-E7でAcceptedとなるまでblockedを維持する。
+E2でresponsibility boundaryは固定された。次はV2-Sのinput contractとconstruction proofを設計し、どのrecordを機械的にPASS/REVIEW_REQUIRED/FAILへ送るかを確定する。

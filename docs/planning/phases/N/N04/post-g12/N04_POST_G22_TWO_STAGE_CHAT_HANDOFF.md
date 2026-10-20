@@ -13,7 +13,8 @@
 - G-23A-R: **Complete / valid FAIL / no candidate selected**
 - G-23A-E: **In Progress**
 - G-23A-E1: **Complete**
-- Current task: **N-04G-23A-E2 — v4 V2 Responsibility Boundary Design**
+- G-23A-E2: **Complete**
+- Current task: **N-04G-23A-E3 — Structured Proposition Contract Design**
 - G-23B: **blocked until G-23A-E is accepted**
 
 ## Read first
@@ -21,11 +22,12 @@
 1. `docs/decisions/N04G23_TWO_STAGE_GROUNDED_GENERATION_ARCHITECTURE.md`
 2. `docs/decisions/N04G23AE_ATOMICITY_ROLE_GATE_RESPONSIBILITY_DECOMPOSITION.md`
 3. `docs/evaluation/N04G23AE_47_GOLD_RESPONSIBILITY_MAP.md`
-4. `docs/planning/phases/N/N04/post-g12/N04G23AE_GATE_RESPONSIBILITY_DECOMPOSITION_TASKS.md`
-5. `docs/evaluation/N04G23A_ATOMICITY_ROLE_GOLD_BENCHMARK.md`
-6. `docs/evaluation/N04G23AR_JUDGE_CANDIDATE_EVALUATION.md`
-7. `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
-8. `docs/planning/phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_REMEDIATION_TASKS.md`
+4. `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
+5. `docs/planning/phases/N/N04/post-g12/N04G23AE_GATE_RESPONSIBILITY_DECOMPOSITION_TASKS.md`
+6. `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
+7. `docs/evaluation/N04G23A_ATOMICITY_ROLE_GOLD_BENCHMARK.md`
+8. `docs/evaluation/N04G23AR_JUDGE_CANDIDATE_EVALUATION.md`
+9. `docs/planning/phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_REMEDIATION_TASKS.md`
 
 ## Current architecture direction
 
@@ -45,27 +47,34 @@ Stage 2: Presentation Generator
 Material / Terminal / Render
 ```
 
-Atomicity / Role Gate is no longer assumed to be an all-in-one general-purpose LLM judge.
-
-Target responsibility model:
+Atomicity / Role Gate is decomposed into four authorities:
 
 ```text
-Structured Proposition Record
+V2-S  Structural Proposition Gate
+V2-P  Role Provenance Normalization
+V2-D  Deterministic Compatibility Gate
+V2-R  Residual Semantic Gate
+```
+
+Normative order:
+
+```text
+Structured Proposition Candidate
   ↓
-Structural validation
+V2-S
   ↓
-Application-owned role provenance
+V2-P
   ↓
-Deterministic role/purpose/presentation compatibility
+V2-D
   ↓
-Residual semantic classifier only when necessary
+V2-R if required
   ↓
-fail-closed support / certification path
+V3+ Support / Derivation validation
 ```
 
 ## G-23A-E1 result
 
-47 Gold responsibility mapping is complete without changing Gold labels or flags.
+47 Gold responsibility mapping:
 
 ```text
 STRUCTURAL              20
@@ -74,84 +83,149 @@ RESIDUAL_SEMANTIC       11
 COMBINED                 5
 OPTIONAL_AMBIGUOUS       6
 TOTAL                    47
-
-Required                41
-Optional                 6
-Critical                33
-Critical without owner   0
+Required                 41
+Optional                  6
+Critical                 33
+Critical without owner    0
 ```
 
-Authority by owner:
+Gold labels / required / critical flags remain unchanged.
 
-### STRUCTURAL
+## G-23A-E2 result
 
-Primary authority is the Structured Proposition contract / structural validator. Residual compound-risk detection may guard free text, but cannot replace the structural authority or use punctuation/conjunction alone as the verdict.
-
-### DETERMINISTIC_POLICY
-
-Known stage/path + purpose + presentation incompatibility must be rejected deterministically before semantic classification. No LLM is needed to rediscover these policy rules.
-
-### RESIDUAL_SEMANTIC
-
-Natural-language content type must be read content-first and compared with application-owned provenance. Truth/support is outside this classifier. `MIXED` / `AMBIGUOUS` remains fail-closed.
-
-### COMBINED
-
-Structural and semantic/policy failures are separate verdicts. Neither may silently override or absorb the other.
-
-### OPTIONAL_AMBIGUOUS
-
-The six optional Gold cases remain explicitly ambiguous. Do not force-label them to improve coverage or metrics.
-
-## Current task: G-23A-E2
-
-Design and freeze the **responsibility boundary**, not the final implementation.
-
-Required decisions:
-
-1. exact validation order;
-2. structural hard-fail conditions;
-3. compound-risk conditions that escalate rather than decide by themselves;
-4. authoritative role provenance source;
-5. deterministic compatibility hard-fail matrix boundary;
-6. residual classifier invocation conditions;
-7. `MIXED_CONTENT` / `AMBIGUOUS` behavior;
-8. stage-local failure evidence and retry handoff;
-9. downstream support/derivation override prohibition.
-
-Target flow:
-
-```text
-Structured Proposition
-  ↓
-Structural validation
-  ↓
-Role provenance normalization
-  ↓
-Deterministic compatibility
-  ↓
-Residual semantic classification if required
-  ↓
-Support / derivation validation
-```
-
-Expected deliverable:
+Authority/order is fixed in:
 
 `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
 
-Gate:
+### V2-S
 
-- every verdict source has exactly one authority;
-- earlier deterministic/structural violation cannot be overridden by later semantic/support PASS;
-- G-14 fail-closed and no-silent-post-hoc-atomization remain protected;
-- E1 mapping remains unchanged unless a documented redesign explicitly reopens E1.
+- Structured Proposition contract is authority.
+- schema/contract violation -> hard structural FAIL.
+- schema aloneでsemantic atomicityを証明できない場合は`REVIEW_REQUIRED`へ送る。
+- punctuation/conjunction risk aloneは`NON_ATOMIC` verdictにしない。
+
+### V2-P
+
+- application/stage path is role provenance authority.
+- generator-declared semantic_role is not authoritative.
+- unresolved provenance -> fail-closed.
+
+### V2-D
+
+Known structured policy mismatch is deterministic hard FAIL before classifier.
+
+Examples:
+
+```text
+creative path + non-creative purpose
+source_fact + interpretation presentation
+interpretation + main presentation
+interpretation without required premise binding
+```
+
+### V2-R
+
+Only residual content-first semantic boundary is classifier scope.
+
+Residual classifier does not decide truth/support/entailment.
+
+Mandatory candidates include:
+
+- E1 RESIDUAL_SEMANTIC cases
+- semantic side of COMBINED cases
+- V2-S REVIEW_REQUIRED cases
+- model-authored content whose content type cannot be proven by construction
+
+`MIXED_CONTENT` -> FAIL.
+`AMBIGUOUS / INDETERMINATE` -> fail-closed.
+
+### Override rule
+
+No downstream component may rescue an earlier failure.
+
+```text
+Structural FAIL
+  cannot be overridden by V2-R or support PASS
+
+Policy FAIL
+  cannot be overridden by semantic classifier PASS
+
+V2 FAIL/INDETERMINATE
+  cannot enter grounded support/derivation PASS path
+```
+
+## Retry boundary
+
+Stage-local failure evidence must include at least:
+
+```text
+failed_stage
+failed_gate
+failure_authority
+failure_code
+proposition_id
+failed text
+stage_path
+expected role
+observed semantic class if available
+purpose
+presentation_role
+support/premise IDs
+risk signals
+expected rule
+repair directive
+```
+
+Rules:
+
+- Stage 1 failure -> do not start Stage 2.
+- Stage 2 failure -> do not automatically regenerate Certified Content.
+- `MIXED_CONTENT` is regenerated as legal separate proposition(s); no hidden post-hoc salvage.
+- retry exhaustion remains terminal fail-closed.
+
+## Current task: G-23A-E3
+
+Design the Structured Proposition intermediate contract consumed by V2-S.
+
+Required decisions:
+
+1. Compare:
+
+```text
+A Minimal
+  id + provenance + text + refs
+
+B Semi-structured
+  id + subject/entity refs + predicate hints + text + refs
+
+C Fully normalized
+  subject + predicate + object/value + qualifiers
+```
+
+2. proposition_id lifetime / uniqueness.
+3. stage/path provenance binding.
+4. text vs structured semantic fields.
+5. support_refs / premise_fact_ids.
+6. purpose / object / context fingerprint binding.
+7. certification status ownership.
+8. retry identity.
+9. rejected / ambiguous proposition representation.
+10. rendering separation.
+11. schema versioning.
+12. exact conditions for V2-S `PASS / REVIEW_REQUIRED / FAIL`.
+13. which construction paths can legitimately make V2-R `NOT_REQUIRED`.
+14. preserve G-14 no-silent-post-hoc-atomization.
+
+Expected deliverable:
+
+`docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
 
 ## Following tasks
 
 ```text
 G-23A-E1 47-Gold Responsibility Mapping             Complete
-G-23A-E2 v4 V2 Responsibility Boundary              NEXT
-G-23A-E3 Structured Proposition Contract            Planned
+G-23A-E2 v4 V2 Responsibility Boundary              Complete
+G-23A-E3 Structured Proposition Contract            NEXT
 G-23A-E4 Role Provenance / Compatibility Matrix     Planned
 G-23A-E5 Residual Classifier Evaluation Design      Planned
 G-23A-E6 47-Gold Desk Replay                        Planned
