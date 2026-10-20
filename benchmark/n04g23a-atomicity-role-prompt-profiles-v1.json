@@ -1,0 +1,105 @@
+{
+  "schema_version": "sgokb.n04g23a-atomicity-role-prompt-profiles/1",
+  "profile_set_id": "n04g23a-atomicity-role-prompt-profiles-v1",
+  "runtime": {
+    "provider": "LM Studio OpenAI-compatible local endpoint",
+    "model_alias": "sgokb-n04-phi4",
+    "model_identity": "Phi-4 Q4_K_S",
+    "temperature": 0,
+    "max_tokens": 64,
+    "seed": 20261018
+  },
+  "profiles": [
+    {
+      "profile_id": "g22-exact-joint",
+      "mode": "joint",
+      "status": "requires_exact_local_evidence_import",
+      "source": ".local/n04-v3/runs/20261020T030904+0900/",
+      "system_prompt": null,
+      "user_prompt_template": null,
+      "response_format": null,
+      "instruction": "Before execution, copy the exact G-22 atomicity/role Phi-4 request contract from preserved local evidence. Do not reconstruct or improve it. Persist the exact parameterized prompt and response schema here or in a dedicated tracked profile referenced from this entry."
+    },
+    {
+      "profile_id": "clarified-joint-v1",
+      "mode": "joint",
+      "status": "ready",
+      "system_prompt": "You are a bounded SGOKB classifier. Evaluate only (1) atomicity and (2) content-first semantic-role validity. Do not judge factual truth, source support, entailment, retrieval quality, or writing quality. Atomicity: ATOMIC means the text contains at most one independently judgeable material proposition under one grounding policy. NON_ATOMIC means two or more material propositions could receive different grounding verdicts or require different grounding policies. If genuinely ambiguous, use INDETERMINATE. Role boundary: classify content semantics before trusting the declared label. source_fact is a proposition about a source Object, Concept, Work, Character, relationship, event, property, capability, definition, etc.; it may still be unsupported or false, which is not a role violation. interpretation is one conclusion derived from separate factual premises and must not embed those premises in the same unit. creative_addition is newly invented content and is valid only for creative purpose in the creative presentation role. A source-world fact does not become creative merely because the task is creative. Declared role or presentation role never overrides content semantics. Return only the requested JSON verdict object.",
+      "user_prompt_template": "Text: ${text}\nDeclared semantic_role: ${semantic_role}\nPurpose: ${purpose}\nPresentation role: ${presentation_role}\n\nClassify atomicity and role boundary independently.",
+      "response_format": {
+        "type": "json_schema",
+        "json_schema": {
+          "name": "sgokb_atomicity_role_joint",
+          "strict": true,
+          "schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "atomicity_verdict": {"type": "string", "enum": ["ATOMIC", "NON_ATOMIC", "INDETERMINATE"]},
+              "role_boundary_verdict": {"type": "string", "enum": ["ROLE_VALID", "ROLE_VIOLATION", "INDETERMINATE"]}
+            },
+            "required": ["atomicity_verdict", "role_boundary_verdict"]
+          }
+        }
+      }
+    },
+    {
+      "profile_id": "split-v1",
+      "mode": "split",
+      "status": "ready",
+      "atomicity": {
+        "system_prompt": "You are a bounded SGOKB atomicity classifier. Do not judge truth, source support, semantic role, or writing quality. ATOMIC means the text contains at most one independently judgeable material proposition under one grounding policy. NON_ATOMIC means the text contains two or more material propositions that could receive different grounding verdicts or require different grounding policies. Sentence count, punctuation, and the word 'and' are not decisive by themselves. If genuinely ambiguous, return INDETERMINATE. Return only the requested JSON verdict object.",
+        "user_prompt_template": "Text: ${text}\n\nClassify atomicity only.",
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "name": "sgokb_atomicity_only",
+            "strict": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "atomicity_verdict": {"type": "string", "enum": ["ATOMIC", "NON_ATOMIC", "INDETERMINATE"]}
+              },
+              "required": ["atomicity_verdict"]
+            }
+          }
+        }
+      },
+      "role": {
+        "system_prompt": "You are a bounded SGOKB semantic-role classifier. Do not judge atomicity, factual truth, source support, entailment, retrieval quality, or writing quality. Classify content-first semantic-role validity. source_fact is source-world factual content even when unsupported or false. interpretation is an inferential or comparative conclusion derived from separate factual premises. creative_addition is newly invented content and is valid only for creative purpose in the creative presentation role. Source-world facts remain source_fact even in a creative task. Compare content semantics with declared semantic_role, purpose, and presentation_role. Return ROLE_VALID only when they are mutually consistent; ROLE_VIOLATION when they conflict; INDETERMINATE only when genuinely ambiguous. Return only the requested JSON verdict object.",
+        "user_prompt_template": "Text: ${text}\nDeclared semantic_role: ${semantic_role}\nPurpose: ${purpose}\nPresentation role: ${presentation_role}\n\nClassify semantic-role boundary only.",
+        "response_format": {
+          "type": "json_schema",
+          "json_schema": {
+            "name": "sgokb_role_only",
+            "strict": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "role_boundary_verdict": {"type": "string", "enum": ["ROLE_VALID", "ROLE_VIOLATION", "INDETERMINATE"]}
+              },
+              "required": ["role_boundary_verdict"]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "experiment_order": [
+    "g22-exact-joint",
+    "clarified-joint-v1",
+    "split-v1"
+  ],
+  "decision_rule": {
+    "safety_gate": "critical false-pass count must be 0 for both atomicity and role boundary",
+    "required_valid_gate": "all required gold-valid atomicity and role cases must avoid false reject/INDETERMINATE",
+    "repeatability_gate": "all required cases must produce identical verdicts across 3 repeats at temperature 0 and fixed seed",
+    "interpretation": [
+      "If clarified-joint passes while exact-joint does not, prefer prompt remediation before changing the model.",
+      "If only split-v1 passes, redesign V2 as separate atomicity and role calls.",
+      "If split-v1 still fails safety or required-valid gates, reopen judge model candidate evaluation."
+    ]
+  }
+}
