@@ -9,6 +9,8 @@
 - G-23F: **Complete / v4 Design Frozen**
 - G-24: **Complete / Implementation Ready for G-25A**
 - Current task: **N-04G-25A — Residual Classifier Benchmark / Selection**
+- Current execution status: **BLOCKED / mandatory Reference Workstation preflight not executed**
+- Block record: `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 
@@ -17,21 +19,22 @@
 ## 1. Read first
 
 1. `docs/planning/phases/N/N04/post-g12/N04G25A_NEXT_CHAT_HANDOFF.md`
-2. `docs/evaluation/N04G24_V4_IMPLEMENTATION_RESULT.md`
-3. `docs/decisions/N04G23F_V4_DESIGN_INTEGRATION_AND_FREEZE.md`
-4. `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
-5. `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
-6. `docs/decisions/N04G23AE_INTEGRATION_AND_G23B_UNBLOCK_DECISION.md`
-7. `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
-8. `docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
-9. v4 production code:
+2. `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
+3. `docs/evaluation/N04G24_V4_IMPLEMENTATION_RESULT.md`
+4. `docs/decisions/N04G23F_V4_DESIGN_INTEGRATION_AND_FREEZE.md`
+5. `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
+6. `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
+7. `docs/decisions/N04G23AE_INTEGRATION_AND_G23B_UNBLOCK_DECISION.md`
+8. `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
+9. `docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
+10. v4 production code:
    - `src/sgokb/application_grounding_v4.py`
    - `src/sgokb/grounding/v4_contracts.py`
    - `src/sgokb/grounding/v4_reference.py`
    - `src/sgokb/grounding/v4_validation.py`
    - `src/sgokb/grounding/v4_adapters.py`
    - `src/sgokb/grounding/v4_pipeline.py`
-10. G-24 tests:
+11. G-24 tests:
    - `tests/test_n04g24_v4_implementation.py`
    - `tests/test_n04g24_v4_provider_runtime.py`
 
@@ -41,9 +44,15 @@ GitHub `main` is authoritative. Do not use historical stacked Phase N branches a
 
 ## 2. Mandatory preflight before G-25A benchmark
 
-G-24 targeted sandbox verification passed, but full Reference Workstation repository verification was not executable during G-24 because the connected remote-command service was unavailable due its execution quota.
+G-24 targeted sandbox verification passed, but full Reference Workstation repository verification was not executable during G-24.
 
-Therefore G-25A must start with this hard preflight on the Reference Workstation:
+G-25A attempted to start the mandatory preflight on 2026-10-21. The authorized Reference Workstation `FNB1Main` was online and paired, but Desktop Commander reported that its monthly execution quota had been reached and explicitly instructed not to retry or reconnect. No terminal command could therefore be started.
+
+This is recorded in:
+
+`docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
+
+The hard preflight remains:
 
 ```text
 python -m pytest -q tests/test_n04g24_v4_implementation.py tests/test_n04g24_v4_provider_runtime.py
@@ -68,13 +77,21 @@ STOP
 -> rerun full preflight
 ```
 
-Do not waive or xfail a failure to begin G-25A.
+If the commands cannot be executed, as in the current state:
+
+```text
+G-25A = BLOCKED
+classifier benchmark = not started
+classifier selection = not performed
+```
+
+Do not waive, skip or xfail a failure to begin G-25A.
 
 ---
 
 ## 3. G-24 implementation state inherited by G-25A
 
-v4 implementation now provides:
+v4 implementation provides:
 
 ```text
 Grounded Context
@@ -117,7 +134,7 @@ Missing classifier adapters fail closed as `UNAVAILABLE`; this is expected until
 
 ## 4. G-25A exact responsibility
 
-Select concrete Residual classifiers for:
+Select concrete Residual classifiers for two independent tasks.
 
 ### V2-R-A — Atomicity
 
@@ -162,7 +179,7 @@ Atomicity and Content Type remain separate tasks/components; do not reintroduce 
 
 ---
 
-## 5. Required benchmark procedure
+## 5. Required benchmark procedure after preflight PASS
 
 Use the existing G-25 plan and E5 evaluation design.
 
@@ -178,6 +195,15 @@ At minimum:
 8. measure repeatability, latency and VRAM on Reference Workstation;
 9. write reproducibility manifests/hashes;
 10. select concrete V2-R-A and V2-R-C only if all mandatory Gates pass.
+
+Required candidate families remain:
+
+```text
+encoder sequence classifier
+cross-encoder / pair classifier
+lightweight/few-shot classifier
+historical bounded-LLM baseline
+```
 
 ---
 
@@ -228,6 +254,8 @@ inspect Frozen 47 failure
 
 If adjustment occurs after viewing Frozen 47, that confirmation run is invalid and the evaluation protocol must be re-established without leaking the confirmation set into selection.
 
+The current blocked attempt generated no classifier output against Frozen 47 and performed no G-25A tuning from it.
+
 ---
 
 ## 8. Provider capability probe
@@ -264,17 +292,15 @@ G-25A must not change:
 
 ---
 
-## 10. Next state
-
-Current:
+## 10. Current state and resume point
 
 ```text
 G-24  = Complete / Implementation Ready for G-25A
-G-25A = NEXT
+G-25A = BLOCKED / Reference Workstation preflight not executed
 G-25B = blocked by G-25A PASS
 G-26  = blocked by G-25B PASS
 N-04  = Failed / not Complete
 N-05  = blocked
 ```
 
-Start G-25A only after Section 2 preflight passes.
+Resume G-25A only when Reference Workstation command execution is available. The first action remains the Section 2 four-command preflight; do not begin classifier benchmark before it passes.
