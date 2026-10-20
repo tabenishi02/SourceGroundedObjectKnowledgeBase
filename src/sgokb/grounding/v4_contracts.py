@@ -241,6 +241,18 @@ def stage2_provider_schema(
     }
 
 
+def verify_certified_content(certified_content: dict[str, Any]) -> bool:
+    expected = certified_content.get("certified_content_digest")
+    if not isinstance(expected, str):
+        return False
+    payload = {
+        key: value
+        for key, value in certified_content.items()
+        if key != "certified_content_digest"
+    }
+    return expected == digest_object(payload)
+
+
 def _allowed_support_refs(grounded_context: dict[str, Any]) -> list[str]:
     return [
         str(unit["ref_id"])
@@ -261,6 +273,7 @@ class Stage1RequestBuilder:
         request_id: str | None = None,
         max_candidates: int = 8,
         attempt: int = 1,
+        attempt_id: str | None = None,
         retry_feedback: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         if not user_task.strip():
@@ -281,6 +294,7 @@ class Stage1RequestBuilder:
             "stage": "stage1",
             "path_provenance": PATH_STAGE1_FACT,
             "attempt": attempt,
+            "attempt_id": attempt_id or new_application_id("S1A"),
             "user_task": user_task,
             "candidate_budget": {"max_candidates": max_candidates},
             "grounded_context": grounded_context,
@@ -298,6 +312,36 @@ class Stage1RequestBuilder:
                 raise ValueError("invalid v4 retry feedback contract")
             request["retry_feedback"] = retry_feedback
         return request
+
+    def build_retry(
+        self,
+        previous_request: dict[str, Any],
+        *,
+        retry_feedback: dict[str, Any],
+        attempt_id: str | None = None,
+    ) -> dict[str, Any]:
+        if previous_request.get("request_contract_version") != self.contract_version:
+            raise ValueError("invalid previous Stage 1 request contract")
+        if previous_request.get("attempt") != 1:
+            raise ValueError("Stage 1 retry may only follow attempt 1")
+        if retry_feedback.get("retry_contract_version") != RETRY_FEEDBACK_VERSION:
+            raise ValueError("invalid v4 retry feedback contract")
+        if retry_feedback.get("stage") != "stage1":
+            raise ValueError("retry feedback stage mismatch")
+        if retry_feedback.get("previous_attempt_id") != previous_request.get("attempt_id"):
+            raise ValueError("retry feedback attempt binding mismatch")
+        retry_request = self.build(
+            user_task=previous_request["user_task"],
+            grounded_context=previous_request["grounded_context"],
+            request_id=previous_request["request_id"],
+            max_candidates=previous_request["candidate_budget"]["max_candidates"],
+            attempt=2,
+            attempt_id=attempt_id,
+            retry_feedback=retry_feedback,
+        )
+        if retry_request["provider_schema_hash"] != previous_request["provider_schema_hash"]:
+            raise ValueError("Stage 1 retry schema changed")
+        return retry_request
 
 
 def parse_stage1_output(
@@ -339,9 +383,13 @@ def parse_stage1_output(
             "stage": "stage1",
             "path_provenance": PATH_STAGE1_FACT,
             "attempt": request["attempt"],
+            "attempt_id": request["attempt_id"],
             "proposition_id": proposition_id,
             "candidate_index": index,
             "retry_parent_id": None,
+            "retry_from_attempt_id": (
+                request.get("retry_feedback", {}).get("previous_attempt_id")
+            ),
             "payload": {
                 "claim_text": payload["claim_text"],
                 "support_refs": support_refs,
@@ -363,11 +411,14 @@ class Stage2RequestBuilder:
         presentation_instruction: str,
         stage2_request_id: str | None = None,
         attempt: int = 1,
+        attempt_id: str | None = None,
         allowed_output_kinds: list[str] | None = None,
         retry_feedback: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         if certified_content.get("certified_content_contract_version") != CERTIFIED_CONTENT_VERSION:
             raise ValueError("Stage 2 requires sgokb.certified-content.v1")
+        if not verify_certified_content(certified_content):
+            raise ValueError("Certified Content digest binding is invalid")
         if attempt not in {1, 2}:
             raise ValueError("Stage 2 attempt must be 1 or 2")
         purpose = str(certified_content["purpose"])
@@ -403,6 +454,7 @@ class Stage2RequestBuilder:
             "purpose": purpose,
             "stage": "stage2",
             "attempt": attempt,
+            "attempt_id": attempt_id or new_application_id("S2A"),
             "allowed_output_kinds": allowed,
             "presentation_instruction": presentation_instruction,
             "certified_facts": facts,
@@ -415,6 +467,41 @@ class Stage2RequestBuilder:
                 raise ValueError("invalid v4 retry feedback contract")
             request["retry_feedback"] = retry_feedback
         return request
+
+    def build_retry(
+        self,
+        previous_request: dict[str, Any],
+        *,
+        certified_content: dict[str, Any],
+        retry_feedback: dict[str, Any],
+        attempt_id: str | None = None,
+    ) -> dict[str, Any]:
+        if previous_request.get("request_contract_version") != self.contract_version:
+            raise ValueError("invalid previous Stage 2 request contract")
+        if previous_request.get("attempt") != 1:
+            raise ValueError("Stage 2 retry may only follow attempt 1")
+        if retry_feedback.get("retry_contract_version") != RETRY_FEEDBACK_VERSION:
+            raise ValueError("invalid v4 retry feedback contract")
+        if retry_feedback.get("stage") != "stage2":
+            raise ValueError("retry feedback stage mismatch")
+        if retry_feedback.get("previous_attempt_id") != previous_request.get("attempt_id"):
+            raise ValueError("retry feedback attempt binding mismatch")
+        if certified_content.get("certified_content_digest") != previous_request.get(
+            "certified_content_digest"
+        ):
+            raise ValueError("Stage 2 retry Certified Content changed")
+        retry_request = self.build(
+            certified_content=certified_content,
+            presentation_instruction=previous_request["presentation_instruction"],
+            stage2_request_id=previous_request["stage2_request_id"],
+            attempt=2,
+            attempt_id=attempt_id,
+            allowed_output_kinds=list(previous_request["allowed_output_kinds"]),
+            retry_feedback=retry_feedback,
+        )
+        if retry_request["provider_schema_hash"] != previous_request["provider_schema_hash"]:
+            raise ValueError("Stage 2 retry schema changed")
+        return retry_request
 
 
 def parse_stage2_output(
@@ -500,10 +587,14 @@ def build_stage2_candidate_envelopes(
                 "stage": "stage2",
                 "path_provenance": path,
                 "attempt": request["attempt"],
+                "attempt_id": request["attempt_id"],
                 "proposition_id": proposition_id,
                 "block_index": block_index,
                 "candidate_index": candidate_index,
                 "retry_parent_id": None,
+                "retry_from_attempt_id": (
+                    request.get("retry_feedback", {}).get("previous_attempt_id")
+                ),
                 "payload": candidate_payload,
             }
             envelope["candidate_digest"] = digest_object(envelope)
