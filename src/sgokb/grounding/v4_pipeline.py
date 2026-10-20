@@ -32,6 +32,20 @@ TERMINAL_SYSTEM_FAILURE = "SYSTEM_FAILURE"
 MAX_STAGE_ATTEMPTS = 2
 MAX_STAGE_RETRIES = 1
 
+REQUIRED_PROVIDER_PROBE_CASES = (
+    "stage1_empty_candidates",
+    "stage1_valid_candidate",
+    "stage1_extra_property",
+    "stage1_invalid_support_ref",
+    "stage2_valid_main",
+    "stage2_valid_interpretation",
+    "stage2_creative_under_creative_purpose",
+    "stage2_invalid_certified_fact_id",
+    "application_rejects_duplicate_support_or_premise_ids",
+    "application_rejects_duplicate_block_kind",
+    "provider_incomplete_or_interrupted",
+)
+
 
 def _unit_map(grounded_context: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {
@@ -236,6 +250,8 @@ class ActiveAttemptLedger:
             raise ValueError("stage must be stage1 or stage2")
         if attempt not in {1, 2}:
             raise ValueError("attempt must be 1 or 2")
+        if stage == "stage1" and "stage2" in self.active_attempts:
+            raise ValueError("Stage 2 has started; Stage 1 backtracking is forbidden")
         current = self.active_attempts.get(stage)
         if current == 2 and attempt == 1:
             raise ValueError("attempt 1 fallback is forbidden after attempt 2 activation")
@@ -248,6 +264,8 @@ class ActiveAttemptLedger:
             raise ValueError("only one retry is permitted")
         if stage not in {"stage1", "stage2"}:
             raise ValueError("stage must be stage1 or stage2")
+        if stage == "stage1" and "stage2" in self.active_attempts:
+            raise ValueError("Stage 2 has started; Stage 1 backtracking is forbidden")
         self.retry_authorized.add(stage)
 
     def assert_active(self, stage: str, attempt: int) -> None:
