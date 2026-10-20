@@ -74,12 +74,13 @@ class GroundedGenerationV4Application:
         retry_feedback: dict[str, Any],
         attempt_id: str | None = None,
     ) -> dict[str, Any]:
-        self.attempts.authorize_retry("stage1", previous_attempt=1)
+        self.attempts.assert_active("stage1", 1)
         request = self.stage1_requests.build_retry(
             previous_request,
             retry_feedback=retry_feedback,
             attempt_id=attempt_id,
         )
+        self.attempts.authorize_retry("stage1", previous_attempt=1)
         self.attempts.activate("stage1", 2)
         return request
 
@@ -143,13 +144,14 @@ class GroundedGenerationV4Application:
         retry_feedback: dict[str, Any],
         attempt_id: str | None = None,
     ) -> dict[str, Any]:
-        self.attempts.authorize_retry("stage2", previous_attempt=1)
+        self.attempts.assert_active("stage2", 1)
         request = self.stage2_requests.build_retry(
             previous_request,
             certified_content=certified_content,
             retry_feedback=retry_feedback,
             attempt_id=attempt_id,
         )
+        self.attempts.authorize_retry("stage2", previous_attempt=1)
         self.attempts.activate("stage2", 2)
         return request
 
