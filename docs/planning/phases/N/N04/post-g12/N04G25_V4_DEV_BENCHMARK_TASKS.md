@@ -3,9 +3,10 @@
 更新日: 2026-10-21
 
 - Parent: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
-- Architecture authority: `docs/decisions/N04G23AE_INTEGRATION_AND_G23B_UNBLOCK_DECISION.md`
+- Architecture authority: `docs/decisions/N04G23F_V4_DESIGN_INTEGRATION_AND_FREEZE.md`
+- G-24 result: `docs/evaluation/N04G24_V4_IMPLEMENTATION_RESULT.md`
 - Residual classifier design: `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
-- Status: **Planned / blocked by G-24 implementation**
+- Status: **G-25A NEXT / G-25B blocked by G-25A PASS**
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 
@@ -15,29 +16,45 @@ G-24で実装したv4 pipelineについて、formal Reference Workstation freeze
 
 G-23A-E7でResidual Atomicity依存はarchitecture blockerではなくbounded implementation/benchmark riskと判断したが、**classifier未選定のままG-26へ進むことは禁止する。**
 
+G-24はCompleteとなったためG-25AをNEXTとする。ただしG-24中にReference Workstation全repo verificationを実行できなかったため、G-25Aは`N04G25A_NEXT_CHAT_HANDOFF.md`のmandatory preflight PASS後にのみbenchmarkを開始できる。
+
 ## 2. Task chain
 
 ```text
-G-24 v4 implementation
+G-24 v4 implementation                              Complete
   ↓
-G-25A Residual Classifier Benchmark / Selection
+G-25A Residual Classifier Benchmark / Selection     NEXT
   ↓ PASS only
-G-25B Integrated v4 Adversarial Regression
+G-25B Integrated v4 Adversarial Regression          blocked
   ↓ PASS only
-G-26 Reference Workstation v4 harness freeze
+G-26 Reference Workstation v4 harness freeze        blocked
 ```
 
 G-25AまたはG-25Bがvalid FAILの場合、G-26はblockedのままとする。
 
 ## 3. G-25A — Residual Classifier Benchmark / Selection
 
-Status: **Planned / blocked by G-24**
+Status: **NEXT**
+
+### 3.0 Mandatory implementation preflight
+
+Before any classifier benchmark:
+
+```text
+python -m pytest -q tests/test_n04g24_v4_implementation.py tests/test_n04g24_v4_provider_runtime.py
+python -m pytest -q
+python -m ruff check .
+git diff --check
+```
+
+All must PASS. Any failure returns to G-24 implementation remediation; do not begin classifier selection with a failing implementation baseline.
 
 ### 3.1 Inputs
 
 - E5 Residual Classifier Evaluation Plan
 - E6 Frozen 47 Gold desk replay
 - G-24 classifier adapter/interface implementation
+- G-24 implementation result
 - Reference Workstation runtime
 
 ### 3.2 Dataset preparation
@@ -127,7 +144,7 @@ or
 VALID_FAIL_NO_SELECTION
 ```
 
-`VALID_FAIL_NO_SELECTION`ならG-26へ進めずexplicit escalationを作成する。
+`VALID_FAIL_NO_SELECTION`ならG-25B/G-26へ進めずexplicit escalationを作成する。
 
 ## 4. G-25B — Integrated v4 Adversarial Regression
 
@@ -166,6 +183,7 @@ Material yieldがfail-closed運用で実用上成立しない場合は、Safety 
 
 G-26をunblockできるのは次をすべて満たす場合のみ。
 
+- [ ] G-25A implementation preflight PASS
 - [ ] G-25A PASS / concrete V2-R-A selected
 - [ ] G-25A PASS / concrete V2-R-C selected
 - [ ] Frozen 47 final confirmation valid
