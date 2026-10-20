@@ -1,0 +1,1168 @@
+{
+  "schema_version": "sgokb.n04g23a-atomicity-role-gold/1",
+  "benchmark_id": "n04g23a-atomicity-role-gold-v1",
+  "status": "frozen_for_execution",
+  "authority": {
+    "atomicity_and_role_policy": "docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md",
+    "g22_result": "docs/evaluation/N04G22_FORMAL_V3_REACCEPTANCE.md",
+    "g20_reuse_source": "benchmark/n04g20-source-fact-verifier-v1.json"
+  },
+  "scope": "Evaluate only atomicity and content-first semantic-role validity. Do not judge factual support, truth, entailment, or retrieval quality.",
+  "gold_policy": {
+    "atomicity": {
+      "ATOMIC": "The unit contains at most one independently judgeable material proposition under one grounding policy.",
+      "NON_ATOMIC": "The unit contains two or more material propositions that could receive different grounding verdicts or require different grounding policies.",
+      "INDETERMINATE": "Reserved for genuinely ambiguous benchmark items; no seed item uses this as gold."
+    },
+    "role_boundary": {
+      "ROLE_VALID": "Content semantics, declared semantic_role, purpose, and presentation_role are mutually consistent.",
+      "ROLE_VIOLATION": "Content-first semantic type conflicts with declared semantic_role, purpose, or presentation_role.",
+      "INDETERMINATE": "Reserved for genuinely ambiguous benchmark items; no seed item uses this as gold."
+    },
+    "important_separation": [
+      "Unsupported or false source-world claims can still be ATOMIC and ROLE_VALID as source_fact; support is evaluated later.",
+      "Atomicity is not sentence counting or conjunction detection; use the independent-verdict split test.",
+      "Declared semantic_role is not authority; content-first classification takes precedence."
+    ]
+  },
+  "required_g22_import": {
+    "source_evidence_root": ".local/n04-v3/runs/20261020T030904+0900/",
+    "require_exact_text": true,
+    "require_all_material_units_from_both_attempts": true,
+    "instruction": "Import exact G-22 material unit text and request metadata from preserved local evidence. Do not reconstruct text from the evaluation summary. Assign gold independently from G-14 policy rather than copying Phi-4 observed verdicts. The finalized corpus must be written to benchmark/n04g23a-atomicity-role-gold-v1.json."
+  },
+  "cases": [
+    {
+      "case_id": "direct-source-fact-contract",
+      "origin": "g20_reuse",
+      "origin_ref": "benchmark/n04g20-source-fact-verifier-v1.json#positive-direct-contract",
+      "text": "Saber is contracted to Shirou.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "One independently judgeable source-world proposition; declared as source_fact in main.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "faithful-source-fact-paraphrase",
+      "origin": "g20_reuse",
+      "origin_ref": "benchmark/n04g20-source-fact-verifier-v1.json#positive-faithful-paraphrase",
+      "text": "Saber has a contract with Shirou.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "Faithful one-proposition source-world claim; support/truth is outside this gate.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "unsupported-source-fact-still-role-valid",
+      "origin": "g20_reuse",
+      "origin_ref": "benchmark/n04g20-source-fact-verifier-v1.json#adversarial-supported-subject-wrong-predicate",
+      "text": "Saber is Shirou's sibling.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "Unsupportedness must not be confused with semantic-role validity; it remains one source-world fact claim.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "negated-source-fact-still-role-valid",
+      "origin": "g20_reuse",
+      "origin_ref": "benchmark/n04g20-source-fact-verifier-v1.json#adversarial-negation-flip",
+      "text": "Saber is not contracted to Shirou.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "Negation changes support/truth, not semantic content type; one atomic source-world proposition.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "concept-source-fact",
+      "origin": "g20_reuse",
+      "origin_ref": "benchmark/n04g20-source-fact-verifier-v1.json#positive-concept-paraphrase",
+      "text": "A tsundere may begin coldly and later show warmer affection.",
+      "semantic_role": "source_fact",
+      "purpose": "creative",
+      "presentation_role": "main",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "One Concept-level source-world proposition; creative purpose does not turn source facts into creative additions.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "neutral-atomic-object-property",
+      "origin": "synthetic",
+      "text": "The archive contains three files.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "Neutral one-proposition source fact independent of franchise knowledge.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "neutral-nonatomic-conjunction",
+      "origin": "synthetic",
+      "text": "The archive contains three files and the report was published in June.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Two independently judgeable source-world propositions share one unit.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "source-fact-plus-extra-duty",
+      "origin": "synthetic_from_g12_pattern",
+      "text": "Saber is contracted to Shirou and her primary duty is to protect him.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Contract and primary duty can receive different support verdicts; split is required.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "fact-plus-causal-explanation",
+      "origin": "g20_pattern",
+      "origin_ref": "benchmark/n04g20-source-fact-verifier-v1.json#adversarial-temporal-causal-embellishment",
+      "text": "Saber is contracted to Shirou because he summoned her during the Holy Grail War.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Contract fact plus causal/event proposition can be judged independently.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "mixed-source-fact-and-context-limit",
+      "origin": "synthetic",
+      "text": "The context identifies Saber as a Servant but does not describe her personality.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Source-world fact and context-availability meta claim require different grounding policies.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "valid-interpretation",
+      "origin": "synthetic",
+      "text": "This creates a contrast in how the two works frame their protagonists.",
+      "semantic_role": "interpretation",
+      "purpose": "comparison",
+      "presentation_role": "interpretation",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "One interpretive conclusion, declared and presented as interpretation.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "interpretation-mislabeled-source-fact",
+      "origin": "synthetic",
+      "text": "This creates a contrast in how the two works frame their protagonists.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Interpretive conclusion is mislabeled as source_fact.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "valid-creative-addition",
+      "origin": "synthetic",
+      "text": "A new heroine named Mira hides her affection behind a deliberately cold manner.",
+      "semantic_role": "creative_addition",
+      "purpose": "creative",
+      "presentation_role": "creative",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "required": true,
+      "critical_for_safety": false,
+      "rationale": "Single newly invented creative proposition in a creative task.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "creative-invention-mislabeled-source-fact",
+      "origin": "synthetic",
+      "text": "A new heroine named Mira hides her affection behind a deliberately cold manner.",
+      "semantic_role": "source_fact",
+      "purpose": "creative",
+      "presentation_role": "main",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Newly invented content is not a source fact.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "source-fact-smuggled-as-creative",
+      "origin": "synthetic",
+      "text": "The Hero's Journey includes departure, trials, and a return.",
+      "semantic_role": "creative_addition",
+      "purpose": "creative",
+      "presentation_role": "creative",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "A source Concept proposition remains source-world material even inside a creative task.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "creative-role-disallowed-purpose",
+      "origin": "synthetic",
+      "text": "A new swordswoman named Mira joins the story.",
+      "semantic_role": "creative_addition",
+      "purpose": "roleplay",
+      "presentation_role": "creative",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Creative addition is not permitted for roleplay purpose in the frozen policy.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "source-fact-in-interpretation-block",
+      "origin": "synthetic",
+      "text": "BLEACH has Ichigo Kurosaki as its protagonist.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "interpretation",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Content is a source fact but presentation-role mapping conflicts with the declared semantic role.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "interpretation-in-main-block",
+      "origin": "synthetic",
+      "text": "The two works therefore approach conflict from different perspectives.",
+      "semantic_role": "interpretation",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "gold": {
+        "atomicity": "ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Interpretive conclusion is placed in the main/source-fact presentation role.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "non-atomic-interpretation-with-premise-restatement",
+      "origin": "synthetic",
+      "text": "Work A centers on a student and Work B centers on a warrior, so they frame growth differently.",
+      "semantic_role": "interpretation",
+      "purpose": "comparison",
+      "presentation_role": "interpretation",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Two factual premises plus an interpretive conclusion are mixed in one unit.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "non-atomic-creative-two-events",
+      "origin": "synthetic",
+      "text": "Mira leaves her village and later returns as its leader.",
+      "semantic_role": "creative_addition",
+      "purpose": "creative",
+      "presentation_role": "creative",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Two independently judgeable invented events are combined; the creative role itself is correct.",
+      "gold_confidence": "high"
+    },
+    {
+      "case_id": "g22-case1-attempt1-u1",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-roleplay-saber",
+      "g22_attempt": 1,
+      "block_id": "B1",
+      "unit_id": "U1",
+      "text": "I am Saber, also known as Artoria Pendragon. I am a fictional character from Type-Moon's Fate/stay night visual novel.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-1/parsed-output.json",
+      "evidence_sha256": "97f6112dbb07692f04279bc9ba32a2f2e92aa35381a8f03ae4c44fb7a3162b27",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Identity/alias and fictional-character/work attribution are independently judgeable source-world claims; first-person style does not change role.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-1/adapters/atomicity-role/001/http-request.json",
+        "request_sha256": "604fd056da911220ed46365bfb8263afcf024677738031e455fb874b5248b83b",
+        "verdict": {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case1-attempt1-u2",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-roleplay-saber",
+      "g22_attempt": 1,
+      "block_id": "B1",
+      "unit_id": "U2",
+      "text": "In my role here, I am a sword-wielding Servant contracted to Shirou. This bond defines much of my purpose and actions within this narrative.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-1/parsed-output.json",
+      "evidence_sha256": "97f6112dbb07692f04279bc9ba32a2f2e92aa35381a8f03ae4c44fb7a3162b27",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "INDETERMINATE"
+      },
+      "gold_confidence": "medium",
+      "required": false,
+      "critical_for_safety": false,
+      "rationale": "Servant/contract statement and bond-defines-purpose assertion can differ in verdict. The latter may be a source-world motive claim or interpretation; role is ambiguous without importing truth/support judgments.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-1/adapters/atomicity-role/002/http-request.json",
+        "request_sha256": "80aaf15b565e92914007571d3aa596d7b8f0eeb6a027b8d1cdc11ae06d23cdd9",
+        "verdict": {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case1-attempt1-u3",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-roleplay-saber",
+      "g22_attempt": 1,
+      "block_id": "B2",
+      "unit_id": "U3",
+      "text": "My connection to Shirou is one of duty and mutual respect. As his Servant, I fight alongside him in the Holy Grail War, bound by a contract that grants me the power to wield my noble phantasm, Excalibur.",
+      "semantic_role": "creative_addition",
+      "purpose": "roleplay",
+      "presentation_role": "creative",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-1/parsed-output.json",
+      "evidence_sha256": "97f6112dbb07692f04279bc9ba32a2f2e92aa35381a8f03ae4c44fb7a3162b27",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Multiple source-character relationship/event/capability assertions in creative_addition, with roleplay purpose; source-world content and disallowed purpose violate role independently of support.",
+      "historical_observation": {
+        "not_invoked": true,
+        "reason": "Production validation rejected before this unit reached Phi-4; no historical call exists."
+      }
+    },
+    {
+      "case_id": "g22-case1-attempt2-u1",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-roleplay-saber",
+      "g22_attempt": 2,
+      "block_id": "B1",
+      "unit_id": "U1",
+      "text": "I am Saber, also known as Artoria Pendragon. I am a sword-wielding Servant contracted to Shirou.",
+      "semantic_role": "source_fact",
+      "purpose": "roleplay",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-2/parsed-output.json",
+      "evidence_sha256": "49763f7c9a68c8de97aa3a69c756171c468998795eef2b2f5035043abf1a8d93",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Identity/alias and Servant/contract propositions can be judged independently; both are source-world factual content.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-2/adapters/atomicity-role/001/http-request.json",
+        "request_sha256": "eec259788de5a506f5c2fe09d7be086540bde08d84623b1e2439f57cfe43dbbf",
+        "verdict": {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case1-attempt2-u2",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-roleplay-saber",
+      "g22_attempt": 2,
+      "block_id": "B2",
+      "unit_id": "U2",
+      "text": "As a Servant, my role is to fight in the Holy Grail War on Shirou's behalf. My connection to him is that of a master and servant, bound by a contract.",
+      "semantic_role": "interpretation",
+      "purpose": "roleplay",
+      "presentation_role": "interpretation",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-2/parsed-output.json",
+      "evidence_sha256": "49763f7c9a68c8de97aa3a69c756171c468998795eef2b2f5035043abf1a8d93",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Embeds separate source-world role/war and contract/relationship premises as interpretation instead of a single conclusion.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-2/adapters/atomicity-role/002/http-request.json",
+        "request_sha256": "e41fc7173d05018dd82fb1a9c53d69a66bc89a2fe50452db93de66f6999ef325",
+        "verdict": {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case1-attempt2-u3",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-roleplay-saber",
+      "g22_attempt": 2,
+      "block_id": "B3",
+      "unit_id": "U3",
+      "text": "Though our bond is one of duty, I have come to respect Shirou's ideals and his unwavering spirit. Together, we face the trials of this war.",
+      "semantic_role": "creative_addition",
+      "purpose": "roleplay",
+      "presentation_role": "creative",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-1-roleplay/attempt-2/parsed-output.json",
+      "evidence_sha256": "49763f7c9a68c8de97aa3a69c756171c468998795eef2b2f5035043abf1a8d93",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Multiple relationship/attitude/shared-war claims about source characters in creative_addition, disallowed for roleplay; support/truth is irrelevant.",
+      "historical_observation": {
+        "not_invoked": true,
+        "reason": "Production validation rejected before this unit reached Phi-4; no historical call exists."
+      }
+    },
+    {
+      "case_id": "g22-case2-attempt1-u1",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-similar-work-comparison",
+      "g22_attempt": 1,
+      "block_id": "B1",
+      "unit_id": "U1",
+      "text": "Fate/stay night is a Japanese visual novel developed by Type-Moon.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/parsed-output.json",
+      "evidence_sha256": "311892fea51a5b98c00cee062ac73393b82a09ab5d216006bf09433a47dbf7c3",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Medium/national classification and developer attribution can independently differ in grounding; all are source-world facts.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/001/http-request.json",
+        "request_sha256": "f66b921d65ed484811fd9b338d4845e6d721a9edb1f3d979c62c804e9666c058",
+        "verdict": {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case2-attempt1-u2",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-similar-work-comparison",
+      "g22_attempt": 1,
+      "block_id": "B1",
+      "unit_id": "U2",
+      "text": "The story follows Shirou Emiya in the Holy Grail War and branches into Fate, Unlimited Blade Works, and Heaven's Feel routes.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/parsed-output.json",
+      "evidence_sha256": "311892fea51a5b98c00cee062ac73393b82a09ab5d216006bf09433a47dbf7c3",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Protagonist/war participation and branching-route structure are independently judgeable source-world propositions.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/002/http-request.json",
+        "request_sha256": "d48385093e29c883864c570c0905f0eff53d232fe24bbb21aad09f2b767a3647",
+        "verdict": {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case2-attempt1-u3",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-similar-work-comparison",
+      "g22_attempt": 1,
+      "block_id": "B1",
+      "unit_id": "U3",
+      "text": "BLEACH is a Japanese manga series written and illustrated by Tite Kubo.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/parsed-output.json",
+      "evidence_sha256": "311892fea51a5b98c00cee062ac73393b82a09ab5d216006bf09433a47dbf7c3",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Manga classification and author/illustrator attribution are independently judgeable source-world properties.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/003/http-request.json",
+        "request_sha256": "b48bebb2cc688059257e0e06262d88d1665a5559e7fdb94d3e4a60f9812be74e",
+        "verdict": {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case2-attempt1-u4",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-similar-work-comparison",
+      "g22_attempt": 1,
+      "block_id": "B1",
+      "unit_id": "U4",
+      "text": "The story follows Ichigo Kurosaki after he gains Soul Reaper powers from Rukia Kuchiki and confronts Hollows.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/parsed-output.json",
+      "evidence_sha256": "311892fea51a5b98c00cee062ac73393b82a09ab5d216006bf09433a47dbf7c3",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Protagonist focus, acquisition of powers from Rukia and confrontation with Hollows can receive separate verdicts.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/004/http-request.json",
+        "request_sha256": "330b5fc1614f83888cf09969c9d58c8672e9ac8ed52c8c4a54d7b9a3fdc5d7d3",
+        "verdict": {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case2-attempt1-u5",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-similar-work-comparison",
+      "g22_attempt": 1,
+      "block_id": "B2",
+      "unit_id": "U5",
+      "text": "Both Fate/stay night and BLEACH feature protagonists who gain extraordinary abilities and confront supernatural threats, but they differ in narrative structure and medium.",
+      "semantic_role": "interpretation",
+      "purpose": "comparison",
+      "presentation_role": "interpretation",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/parsed-output.json",
+      "evidence_sha256": "311892fea51a5b98c00cee062ac73393b82a09ab5d216006bf09433a47dbf7c3",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Embeds factual claims about both protagonists/works alongside comparative conclusions about medium/narrative; interpretation must separate source factual premises.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-1/adapters/atomicity-role/005/http-request.json",
+        "request_sha256": "4b0a02143c8585cc36827e57b9254bb3bc2882873ee6a938cb9707478d6ade68",
+        "verdict": {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case2-attempt2-u1",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-similar-work-comparison",
+      "g22_attempt": 2,
+      "block_id": "B1",
+      "unit_id": "U1",
+      "text": "Fate/stay night is a Japanese visual novel developed by Type-Moon.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/parsed-output.json",
+      "evidence_sha256": "64a1e6ab995696a0fa766033d7356fef3a1db13d1040e48ef954d7ae2e1fe007",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Medium/national classification and developer attribution can independently differ in grounding; all are source-world facts.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/001/http-request.json",
+        "request_sha256": "f66b921d65ed484811fd9b338d4845e6d721a9edb1f3d979c62c804e9666c058",
+        "verdict": {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case2-attempt2-u2",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-similar-work-comparison",
+      "g22_attempt": 2,
+      "block_id": "B1",
+      "unit_id": "U2",
+      "text": "The story follows Shirou Emiya in the Holy Grail War and branches into Fate, Unlimited Blade Works, and Heaven's Feel routes.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/parsed-output.json",
+      "evidence_sha256": "64a1e6ab995696a0fa766033d7356fef3a1db13d1040e48ef954d7ae2e1fe007",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Protagonist/war participation and branching-route structure are independently judgeable source-world propositions.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/002/http-request.json",
+        "request_sha256": "d48385093e29c883864c570c0905f0eff53d232fe24bbb21aad09f2b767a3647",
+        "verdict": {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case2-attempt2-u3",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-similar-work-comparison",
+      "g22_attempt": 2,
+      "block_id": "B1",
+      "unit_id": "U3",
+      "text": "BLEACH is a Japanese manga series written and illustrated by Tite Kubo.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/parsed-output.json",
+      "evidence_sha256": "64a1e6ab995696a0fa766033d7356fef3a1db13d1040e48ef954d7ae2e1fe007",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Manga classification and author/illustrator attribution are independently judgeable source-world properties.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/003/http-request.json",
+        "request_sha256": "b48bebb2cc688059257e0e06262d88d1665a5559e7fdb94d3e4a60f9812be74e",
+        "verdict": {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case2-attempt2-u4",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-similar-work-comparison",
+      "g22_attempt": 2,
+      "block_id": "B1",
+      "unit_id": "U4",
+      "text": "The story follows Ichigo Kurosaki after he gains Soul Reaper powers from Rukia Kuchiki and confronts Hollows.",
+      "semantic_role": "source_fact",
+      "purpose": "comparison",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/parsed-output.json",
+      "evidence_sha256": "64a1e6ab995696a0fa766033d7356fef3a1db13d1040e48ef954d7ae2e1fe007",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Protagonist focus, acquisition of powers from Rukia and confrontation with Hollows can receive separate verdicts.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/004/http-request.json",
+        "request_sha256": "330b5fc1614f83888cf09969c9d58c8672e9ac8ed52c8c4a54d7b9a3fdc5d7d3",
+        "verdict": {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case2-attempt2-u5",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-similar-work-comparison",
+      "g22_attempt": 2,
+      "block_id": "B2",
+      "unit_id": "U5",
+      "text": "Both Fate/stay night and BLEACH are Japanese works that follow protagonists with supernatural abilities, but they differ in their narrative structure and medium.",
+      "semantic_role": "interpretation",
+      "purpose": "comparison",
+      "presentation_role": "interpretation",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/parsed-output.json",
+      "evidence_sha256": "64a1e6ab995696a0fa766033d7356fef3a1db13d1040e48ef954d7ae2e1fe007",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VIOLATION"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Embeds factual claims about both protagonists/works alongside comparative conclusions about medium/narrative; interpretation must separate source factual premises.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-2-comparison/attempt-2/adapters/atomicity-role/005/http-request.json",
+        "request_sha256": "24aee7aba6c9028d282e5b1d3bc8764c5575a0ad1c19ea209b360ae5fb95f0e0",
+        "verdict": {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case3-attempt1-u1",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-concept-combination-creative",
+      "g22_attempt": 1,
+      "block_id": "B1",
+      "unit_id": "U1",
+      "text": "Tsundere is a Japanese term for a character-development pattern: a character initially marked by a harsh personality gradually reveals a warmer side.",
+      "semantic_role": "source_fact",
+      "purpose": "creative",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/parsed-output.json",
+      "evidence_sha256": "b7f3a923af66d78caa8c761e6dcc891d001ecb636a30dddeec48bd0722af17eb",
+      "gold": {
+        "atomicity": "INDETERMINATE",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "medium",
+      "required": false,
+      "critical_for_safety": false,
+      "rationale": "Definition may be one developmental pattern, but Japanese-term attribution may be a separate proposition. G-14 does not settle this granularity confidently; source Concept role remains valid.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/001/http-request.json",
+        "request_sha256": "f5cd0d2e4fa328d5b8a37bcb247e6167bc539c7fcb4d77230256c334d97e9134",
+        "verdict": {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case3-attempt1-u2",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-concept-combination-creative",
+      "g22_attempt": 1,
+      "block_id": "B1",
+      "unit_id": "U2",
+      "text": "The term combines tsun tsun, associated with aloofness, and dere dere, associated with affection.",
+      "semantic_role": "source_fact",
+      "purpose": "creative",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/parsed-output.json",
+      "evidence_sha256": "b7f3a923af66d78caa8c761e6dcc891d001ecb636a30dddeec48bd0722af17eb",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Two etymological component-to-affect mappings can be judged independently; source Concept factual role is valid.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/002/http-request.json",
+        "request_sha256": "adf39e122e1dce252819429ebf42bc02058aa12855af3ae6be3f9c122665b395",
+        "verdict": {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case3-attempt1-u3",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-concept-combination-creative",
+      "g22_attempt": 1,
+      "block_id": "B1",
+      "unit_id": "U3",
+      "text": "Hero's Journey, also called Monomyth, is a narrative pattern in narratology and comparative mythology.",
+      "semantic_role": "source_fact",
+      "purpose": "creative",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/parsed-output.json",
+      "evidence_sha256": "b7f3a923af66d78caa8c761e6dcc891d001ecb636a30dddeec48bd0722af17eb",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Monomyth alias and narrative-pattern disciplinary classification can be judged independently; source Concept factual role is valid.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/003/http-request.json",
+        "request_sha256": "d75a26479e92171173f07c8af1578e33b014e5c9d86b19d0aea59cbe7b1702b1",
+        "verdict": {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case3-attempt1-u4",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-concept-combination-creative",
+      "g22_attempt": 1,
+      "block_id": "B1",
+      "unit_id": "U4",
+      "text": "The pattern follows a hero through adventure, a decisive crisis, and a return in a changed state.",
+      "semantic_role": "source_fact",
+      "purpose": "creative",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/parsed-output.json",
+      "evidence_sha256": "b7f3a923af66d78caa8c761e6dcc891d001ecb636a30dddeec48bd0722af17eb",
+      "gold": {
+        "atomicity": "INDETERMINATE",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "medium",
+      "required": false,
+      "critical_for_safety": false,
+      "rationale": "A single ordered transformation pattern versus separately judgeable stages is genuinely ambiguous in G-14 granularity; source Concept factual role remains valid.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/004/http-request.json",
+        "request_sha256": "b1067de89ab0d69493353151e82b52ea2e297e8d2ae2c1e9d4a78052f0155347",
+        "verdict": {
+          "atomicity_verdict": "NON_ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case3-attempt1-u5",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-concept-combination-creative",
+      "g22_attempt": 1,
+      "block_id": "B2",
+      "unit_id": "U5",
+      "text": "Introducing Kael, a warrior from the distant realm of Eldoria. Initially perceived as cold and unapproachable due to his stern demeanor and sharp tongue, Kael's journey begins when he is tasked with protecting a young princess from an impending dark force. Throughout their travels, the princess's unwavering kindness and optimism slowly chip away at Kael's hardened exterior. By the time they face the final battle, Kael has not only developed a deep affection for the princess but also discovered his true strength lies in his ability to care for others.",
+      "semantic_role": "creative_addition",
+      "purpose": "creative",
+      "presentation_role": "creative",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/parsed-output.json",
+      "evidence_sha256": "b7f3a923af66d78caa8c761e6dcc891d001ecb636a30dddeec48bd0722af17eb",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Invented name/origin, mission, relationship and transformation contain multiple propositions; explicitly new fictional character content is creative-role valid.",
+      "historical_observation": {
+        "request_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-1/adapters/atomicity-role/005/http-request.json",
+        "request_sha256": "9e31b72271b556ba8e0c806ec1fcf92f4bc0e183433ef12b3a1ef49aa22fdd9d",
+        "verdict": {
+          "atomicity_verdict": "ATOMIC",
+          "role_boundary_verdict": "INDETERMINATE"
+        }
+      }
+    },
+    {
+      "case_id": "g22-case3-attempt2-u6",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-concept-combination-creative",
+      "g22_attempt": 2,
+      "block_id": "B1",
+      "unit_id": "U6",
+      "text": "Tsundere is a Japanese term for a character-development pattern: a character initially marked by a harsh personality gradually reveals a warmer side.",
+      "semantic_role": "source_fact",
+      "purpose": "creative",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-2/parsed-output.json",
+      "evidence_sha256": "595fc187c769c7cb2f937428e30684e887c132e07033393f664b918887ff0920",
+      "gold": {
+        "atomicity": "INDETERMINATE",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "medium",
+      "required": false,
+      "critical_for_safety": false,
+      "rationale": "Definition may be one developmental pattern, but Japanese-term attribution may be a separate proposition. G-14 does not settle this granularity confidently; source Concept role remains valid.",
+      "historical_observation": {
+        "not_invoked": true,
+        "reason": "Production validation rejected before this unit reached Phi-4; no historical call exists."
+      }
+    },
+    {
+      "case_id": "g22-case3-attempt2-u7",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-concept-combination-creative",
+      "g22_attempt": 2,
+      "block_id": "B1",
+      "unit_id": "U7",
+      "text": "The term combines tsun tsun, associated with aloofness, and dere dere, associated with affection.",
+      "semantic_role": "source_fact",
+      "purpose": "creative",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-2/parsed-output.json",
+      "evidence_sha256": "595fc187c769c7cb2f937428e30684e887c132e07033393f664b918887ff0920",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Two etymological component-to-affect mappings can be judged independently; source Concept factual role is valid.",
+      "historical_observation": {
+        "not_invoked": true,
+        "reason": "Production validation rejected before this unit reached Phi-4; no historical call exists."
+      }
+    },
+    {
+      "case_id": "g22-case3-attempt2-u8",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-concept-combination-creative",
+      "g22_attempt": 2,
+      "block_id": "B1",
+      "unit_id": "U8",
+      "text": "Hero's Journey, also called Monomyth, is a narrative pattern in narratology and comparative mythology.",
+      "semantic_role": "source_fact",
+      "purpose": "creative",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-2/parsed-output.json",
+      "evidence_sha256": "595fc187c769c7cb2f937428e30684e887c132e07033393f664b918887ff0920",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Monomyth alias and narrative-pattern disciplinary classification can be judged independently; source Concept factual role is valid.",
+      "historical_observation": {
+        "not_invoked": true,
+        "reason": "Production validation rejected before this unit reached Phi-4; no historical call exists."
+      }
+    },
+    {
+      "case_id": "g22-case3-attempt2-u9",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-concept-combination-creative",
+      "g22_attempt": 2,
+      "block_id": "B1",
+      "unit_id": "U9",
+      "text": "The pattern follows a hero through adventure, a decisive crisis, and a return in a changed state.",
+      "semantic_role": "source_fact",
+      "purpose": "creative",
+      "presentation_role": "main",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-2/parsed-output.json",
+      "evidence_sha256": "595fc187c769c7cb2f937428e30684e887c132e07033393f664b918887ff0920",
+      "gold": {
+        "atomicity": "INDETERMINATE",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "medium",
+      "required": false,
+      "critical_for_safety": false,
+      "rationale": "A single ordered transformation pattern versus separately judgeable stages is genuinely ambiguous in G-14 granularity; source Concept factual role remains valid.",
+      "historical_observation": {
+        "not_invoked": true,
+        "reason": "Production validation rejected before this unit reached Phi-4; no historical call exists."
+      }
+    },
+    {
+      "case_id": "g22-case3-attempt2-u10",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-concept-combination-creative",
+      "g22_attempt": 2,
+      "block_id": "B2",
+      "unit_id": "U10",
+      "text": "Introducing 'Kira the Reluctant Guardian,' a character who embodies both Tsundere and Hero's Journey elements. Kira begins as a cold, distant figure but gradually shows warmth through her journey.",
+      "semantic_role": "creative_addition",
+      "purpose": "creative",
+      "presentation_role": "creative",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-2/parsed-output.json",
+      "evidence_sha256": "595fc187c769c7cb2f937428e30684e887c132e07033393f664b918887ff0920",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "ROLE_VALID"
+      },
+      "gold_confidence": "high",
+      "required": true,
+      "critical_for_safety": true,
+      "rationale": "Invented character introduction and developing warmth are separable propositions. Source Concept names are reference labels, not new definitions; role is creative-valid.",
+      "historical_observation": {
+        "not_invoked": true,
+        "reason": "Production validation rejected before this unit reached Phi-4; no historical call exists."
+      }
+    },
+    {
+      "case_id": "g22-case3-attempt2-u11",
+      "origin": "g22_exact",
+      "source_g22_run_id": "20261020T030904+0900",
+      "g22_case_id": "n04-concept-combination-creative",
+      "g22_attempt": 2,
+      "block_id": "B3",
+      "unit_id": "U11",
+      "text": "Kira's journey starts with her aloofness (tsun tsun) but evolves into affection (dere dere) as she overcomes challenges, mirroring the Hero's Journey pattern of transformation.",
+      "semantic_role": "creative_addition",
+      "purpose": "creative",
+      "presentation_role": "creative",
+      "evidence_path": ".local/n04-v3/runs/20261020T030904+0900/case-3-creative/attempt-2/parsed-output.json",
+      "evidence_sha256": "595fc187c769c7cb2f937428e30684e887c132e07033393f664b918887ff0920",
+      "gold": {
+        "atomicity": "NON_ATOMIC",
+        "role_boundary": "INDETERMINATE"
+      },
+      "gold_confidence": "medium",
+      "required": false,
+      "critical_for_safety": false,
+      "rationale": "Invented evolution/challenges and comparison to a source Concept pattern are separable. Whether the mirroring phrase is only a reference label or a source-Concept feature assertion is ambiguous.",
+      "historical_observation": {
+        "not_invoked": true,
+        "reason": "Production validation rejected before this unit reached Phi-4; no historical call exists."
+      }
+    }
+  ],
+  "source_g22_run_id": "20261020T030904+0900"
+}

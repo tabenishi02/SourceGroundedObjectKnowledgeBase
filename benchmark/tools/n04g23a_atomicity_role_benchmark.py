@@ -32,6 +32,10 @@ def _sha256(path: Path) -> str:
 def _substitute(template: str, case: dict[str, Any]) -> str:
     result = template
     for key in ("text", "semantic_role", "purpose", "presentation_role"):
+        result = result.replace(
+            "${" + key + "_json}", json.dumps(case.get(key, ""), ensure_ascii=False)
+        )
+    for key in ("text", "semantic_role", "purpose", "presentation_role"):
         result = result.replace("${" + key + "}", str(case.get(key, "")))
     return result
 
@@ -55,7 +59,9 @@ def _message_content(response: dict[str, Any]) -> str:
     try:
         content = response["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError) as exc:
-        raise RuntimeError("LM Studio response does not contain choices[0].message.content") from exc
+        raise RuntimeError(
+            "LM Studio response does not contain choices[0].message.content"
+        ) from exc
     if not isinstance(content, str):
         raise RuntimeError(f"Unexpected message content type: {type(content).__name__}")
     return content
@@ -255,7 +261,9 @@ def _score(case_results: list[dict[str, Any]]) -> dict[str, Any]:
         "repeatability_failure_cases": repeatability_failures,
         "required_repeatability_failure_cases": required_repeatability_failures,
         "exact_match_failure_cases": exact_match_failures,
-        "indeterminate_rate": (indeterminate_predictions / total_predictions if total_predictions else 0.0),
+        "indeterminate_rate": (
+            indeterminate_predictions / total_predictions if total_predictions else 0.0
+        ),
         "atomicity_confusion": _confusion(case_results, "atomicity", "atomicity_verdict"),
         "role_confusion": _confusion(case_results, "role_boundary", "role_boundary_verdict"),
         "gates": {
@@ -357,7 +365,9 @@ def main() -> int:
         "metrics": _score(case_results),
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    args.output.write_text(
+        json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     print(json.dumps(result["metrics"], ensure_ascii=False, indent=2))
     return 0
 

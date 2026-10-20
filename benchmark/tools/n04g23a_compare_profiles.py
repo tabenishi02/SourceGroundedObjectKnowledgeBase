@@ -19,8 +19,7 @@ def _case_map(result: dict[str, Any]) -> dict[str, dict[str, Any]]:
 
 def _verdict_pairs(case: dict[str, Any]) -> list[tuple[str, str]]:
     return [
-        (repeat["atomicity_verdict"], repeat["role_boundary_verdict"])
-        for repeat in case["repeats"]
+        (repeat["atomicity_verdict"], repeat["role_boundary_verdict"]) for repeat in case["repeats"]
     ]
 
 
@@ -124,7 +123,9 @@ def main() -> int:
         "comparisons": comparisons,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    args.output.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     print(json.dumps(payload, ensure_ascii=False, indent=2))
     return 0
 

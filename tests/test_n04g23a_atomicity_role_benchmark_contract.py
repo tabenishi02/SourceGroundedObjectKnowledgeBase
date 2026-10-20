@@ -4,6 +4,8 @@ import importlib.util
 import json
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 CORPUS = ROOT / "benchmark" / "n04g23a-atomicity-role-gold-seed-v1.json"
 PROFILES = ROOT / "benchmark" / "n04g23a-atomicity-role-prompt-profiles-v1.json"
@@ -64,10 +66,15 @@ def test_prompt_profiles_preserve_exact_replay_boundary() -> None:
     profiles = _load(PROFILES)
     by_id = {profile["profile_id"]: profile for profile in profiles["profiles"]}
     exact = by_id["g22-exact-joint"]
-    assert exact["status"] == "requires_exact_local_evidence_import"
-    assert exact["system_prompt"] is None
-    assert exact["user_prompt_template"] is None
-    assert exact["response_format"] is None
+    assert exact["status"] == "ready"
+    assert exact["system_prompt"]
+    assert exact["user_prompt_template"]
+    assert exact["response_format"]["json_schema"]["strict"] is True
+    provenance = exact["exact_profile_provenance"]
+    assert provenance["source_g22_run_id"] == "20261020T030904+0900"
+    assert provenance["verified_render_count"] == 19
+    assert provenance["mismatch_count"] == 0
+    assert len(provenance["verified_requests"]) == provenance["verified_render_count"]
     assert by_id["clarified-joint-v1"]["status"] == "ready"
     assert by_id["split-v1"]["status"] == "ready"
 
@@ -82,7 +89,9 @@ def test_clarified_role_prompt_does_not_confuse_support_with_role() -> None:
     assert "it may still be unsupported or false" in system_prompt
     split = next(profile for profile in profiles["profiles"] if profile["profile_id"] == "split-v1")
     assert "Do not judge atomicity" in split["role"]["system_prompt"]
-    assert "Do not judge truth, source support, semantic role" in split["atomicity"]["system_prompt"]
+    assert (
+        "Do not judge truth, source support, semantic role" in split["atomicity"]["system_prompt"]
+    )
 
 
 def test_runner_score_fail_closed_metrics() -> None:
@@ -118,10 +127,60 @@ def test_runner_score_fail_closed_metrics() -> None:
     assert metrics["gates"]["candidate_viable"] is False
 
 
-def test_runner_refuses_unprepared_exact_profile() -> None:
+def test_runner_refuses_unprepared_exact_profile(tmp_path, monkeypatch) -> None:
     profiles = _load(PROFILES)
-    exact = next(profile for profile in profiles["profiles"] if profile["profile_id"] == "g22-exact-joint")
-    assert exact["status"] != "ready"
-    source = RUNNER.read_text(encoding="utf-8")
-    assert "is not ready" in source
-    assert "Import exact evidence before running this profile" in source
+    exact = profiles["profiles"][0]
+    exact["status"] = "requires_exact_local_evidence_import"
+    unprepared = tmp_path / "profiles.json"
+    unprepared.write_text(json.dumps(profiles), encoding="utf-8")
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            str(RUNNER),
+            "--corpus",
+            str(CORPUS),
+            "--profiles",
+            str(unprepared),
+            "--profile-id",
+            "g22-exact-joint",
+            "--output",
+            str(tmp_path / "result.json"),
+        ],
+    )
+    with pytest.raises(RuntimeError, match="Import exact evidence before running this profile"):
+        _load_runner().main()
+    assert not (tmp_path / "result.json").exists()
+
+
+def test_final_corpus_covers_every_g22_unit_and_excludes_ambiguous_required_gold() -> None:
+    final = _load(ROOT / "benchmark" / "n04g23a-atomicity-role-gold-v1.json")
+    assert final["status"] == "frozen_for_execution"
+    assert final["source_g22_run_id"] == "20261020T030904+0900"
+    assert len(final["cases"]) == 47
+    imported = [c for c in final["cases"] if c["origin"] == "g22_exact"]
+    assert len(imported) == 27
+    assert len({c["case_id"] for c in final["cases"]}) == 47
+    counts = {}
+    for case in imported:
+        key = (case["g22_case_id"], case["g22_attempt"])
+        counts[key] = counts.get(key, 0) + 1
+    assert sorted(counts.values()) == [3, 3, 5, 5, 5, 6]
+    for case in final["cases"]:
+        if case["required"]:
+            assert case["gold_confidence"] == "high"
+            assert "INDETERMINATE" not in case["gold"].values()
+    assert final["cases"][:20] == [{**c, "gold_confidence": "high"} for c in _load(CORPUS)["cases"]]
+
+
+def test_exact_template_preserves_json_quoting_and_unicode() -> None:
+    runner = _load_runner()
+    exact = _load(PROFILES)["profiles"][0]
+    case = {
+        "text": '日本語 "quoted"\nline',
+        "semantic_role": "source_fact",
+        "purpose": "comparison",
+        "presentation_role": "main",
+    }
+    rendered = runner._substitute(exact["user_prompt_template"], case)
+    assert rendered == json.dumps(case, ensure_ascii=False, sort_keys=True)
+    assert json.loads(rendered) == case
