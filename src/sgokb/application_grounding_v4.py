@@ -21,6 +21,11 @@ from .grounding.v4_pipeline import (
     build_system_context_limit,
     terminal_from_material,
 )
+from .grounding.v4_reference import (
+    bind_reference_pass,
+    reference_failure_record,
+    validate_stage1_reference_integrity,
+)
 from .grounding.v4_validation import (
     InterpretationDerivationValidatorAdapter,
     ResidualAtomicityClassifierAdapter,
@@ -100,13 +105,29 @@ class GroundedGenerationV4Application:
     ) -> list[dict[str, Any]]:
         records = []
         for index, candidate in enumerate(candidates):
+            record_id = f"VR-S1-A{candidate['attempt']}-C{index + 1}"
+            reference_result = validate_stage1_reference_integrity(
+                candidate,
+                grounded_context=grounded_context,
+            )
+            if reference_result["result"] != "PASS":
+                records.append(
+                    reference_failure_record(
+                        candidate,
+                        validation_record_id=record_id,
+                        reference_result=reference_result,
+                    )
+                )
+                continue
+            record = self.validator.validate_stage1_candidate(
+                candidate,
+                grounded_context=grounded_context,
+                validation_record_id=record_id,
+            )
             records.append(
-                self.validator.validate_stage1_candidate(
-                    candidate,
-                    grounded_context=grounded_context,
-                    validation_record_id=(
-                        f"VR-S1-A{candidate['attempt']}-C{index + 1}"
-                    ),
+                bind_reference_pass(
+                    record,
+                    reference_result=reference_result,
                 )
             )
         return records
