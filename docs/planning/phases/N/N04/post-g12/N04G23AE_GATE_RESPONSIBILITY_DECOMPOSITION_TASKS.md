@@ -7,8 +7,8 @@
 - Trigger: `N-04G-23A-R` Complete / valid FAIL / no candidate selected
 - Priority: **P0**
 - Status: **In Progress**
-- Completed: **G-23A-E1, G-23A-E2**
-- Current task: **G-23A-E3 — Structured Proposition Contract Design**
+- Completed: **G-23A-E1, G-23A-E2, G-23A-E3**
+- Current task: **G-23A-E4 — Role Provenance / Compatibility Matrix Design**
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 - G-23B: **blocked until G-23A-E acceptance**
@@ -37,9 +37,9 @@ G-23A-E1 47-Gold Responsibility Mapping                 Complete
   ↓
 G-23A-E2 v4 V2 Responsibility Boundary Design           Complete
   ↓
-G-23A-E3 Structured Proposition Contract Design          NEXT
+G-23A-E3 Structured Proposition Contract Design          Complete
   ↓
-G-23A-E4 Role Provenance / Compatibility Matrix Design
+G-23A-E4 Role Provenance / Compatibility Matrix Design  NEXT
   ↓
 G-23A-E5 Residual Classifier Scope / Evaluation Design
   ↓
@@ -54,22 +54,9 @@ E1〜E6の結果を見て設計を後付けで緩めない。必要な設計変�
 
 Status: **Complete**
 
-Deliverable:
-
-`docs/evaluation/N04G23AE_47_GOLD_RESPONSIBILITY_MAP.md`
+Deliverable: `docs/evaluation/N04G23AE_47_GOLD_RESPONSIBILITY_MAP.md`
 
 Result:
-
-```text
-Total                  47
-Required               41
-Optional                6
-Critical               33
-Critical without owner  0
-Gold label changes      0
-```
-
-Primary owner distribution:
 
 ```text
 STRUCTURAL              20
@@ -77,6 +64,12 @@ DETERMINISTIC_POLICY     5
 RESIDUAL_SEMANTIC       11
 COMBINED                 5
 OPTIONAL_AMBIGUOUS       6
+TOTAL                    47
+Required                 41
+Optional                  6
+Critical                 33
+Critical without owner    0
+Gold label changes        0
 ```
 
 Decision carried forward:
@@ -104,9 +97,7 @@ OPTIONAL_AMBIGUOUS
 
 Status: **Complete**
 
-Deliverable:
-
-`docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
+Deliverable: `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
 
 Normative decomposition:
 
@@ -117,23 +108,7 @@ V2-D  Deterministic Compatibility Gate
 V2-R  Residual Semantic Gate
 ```
 
-Normative order:
-
-```text
-Structured Proposition Candidate
-  ↓
-V2-S Structural Proposition Gate
-  ↓
-V2-P Role Provenance Normalization
-  ↓
-V2-D Deterministic Compatibility Gate
-  ↓
-V2-R Residual Semantic Gate if required
-  ↓
-V3+ Support / Derivation
-```
-
-Key decisions:
+Key rules:
 
 - V2-S/V2-D hard failureはV2-RやV3+でoverride不可。
 - Generator-declared `semantic_role`はauthorityではない。
@@ -142,59 +117,101 @@ Key decisions:
 - compound-risk signal自体は`NON_ATOMIC` verdictではない。
 - model-authored content typeがstructured metadataだけで証明できない場合はV2-R必須。
 - `MIXED_CONTENT`はFAIL、`AMBIGUOUS/INDETERMINATE`はfail-closed。
-- V2はtruth/support/entailmentを判定しない。
-- retry feedbackはfailed text、authority、expected/observed class、risk signalを含むstage-local envelopeにする。
-- Stage 2 failureでCertified Contentを無条件再生成しない。
-
-E2 Gate: **PASS**
-
-- semantic classifier前checks fixed
-- hard deterministic reject boundary fixed
-- compound-risk separated from verdict
-- role provenance authority fixed
-- residual invocation boundary fixed
-- mixed/ambiguous fail-closed fixed
-- downstream override prohibited
-- stage-local failure evidence fixed at semantic level
+- retryはfailed proposition単位のstage-local evidenceを使う。
 
 ## 5. G-23A-E3 — Structured Proposition Contract Design
 
-Status: **NEXT**
-
-Purpose: Atomicityを自然言語生成後の全件LLM判定からgeneration intermediate contractで一部保証する方式へ移す。
-
-Required topics:
-
-- proposition_id lifetime / uniqueness
-- stage/path provenance
-- proposition text
-- support_refs
-- premise_fact_ids
-- purpose binding
-- object/context fingerprint binding
-- certification status ownership
-- retry identity
-- rejected / ambiguous representation
-- rendering separation
-- schema versioning
-- E2 `V2-S PASS / REVIEW_REQUIRED / FAIL`をどの構造条件で決めるか
-- E2 `V2-R = NOT_REQUIRED`を許可できるconstruction path
-
-Compare:
-
-```text
-A Minimal: id + provenance + text + refs
-B Semi-structured: id + subject/entity refs + predicate hints + text + refs
-C Fully normalized: subject + predicate + object/value + qualifiers
-```
-
-Option C requires evidence that arbitrary SGOKB content can be represented without semantic loss.
+Status: **Complete / Option B selected**
 
 Deliverable: `docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
 
+Compared:
+
+```text
+A Minimal
+  id + provenance + text + refs
+
+B Semi-structured
+  application-owned envelope
+  + one proposition text
+  + path-specific bindings
+  + optional semantic anchors
+
+C Fully normalized
+  subject + predicate + object/value + qualifiers
+```
+
+Decision: **Option B — Semi-structured proposition record**.
+
+Reason:
+
+- Option Aはv3 unit構造との差が小さく、structural remediation効果が不足。
+- Option Cはarbitrary SGOKB semantics、Interpretation、Creativeを表すためのontology肥大化とsemantic loss riskが大きい。
+- Option Bは自然言語表現力を保ちながら、application-owned provenanceとpath-specific bindingをstructural authorityへ移せる。
+
+Normative contract direction:
+
+```text
+Application-owned envelope
+  ├─ contract version
+  ├─ context fingerprint
+  ├─ purpose
+  ├─ stage/path provenance
+  ├─ attempt/retry lineage
+  └─ proposition identity
+        ↓
+Path-specific proposition payload
+  ├─ one authoritative claim_text
+  ├─ optional non-authoritative anchors
+  └─ support_refs OR premise_fact_ids according to path
+```
+
+Ownership decisions:
+
+- `semantic_role`をmodel authority fieldとして使用しない。
+- proposition identity / stage / path / purpose / context / retry lineageはapplication-owned。
+- validation/certification dispositionはCandidateとは別artifactでvalidator-owned。
+- source fact `support_refs[]` と interpretation `premise_fact_ids[]` はmutually exclusive。
+- certified source factは後続G-23Cで`certified_fact_id`を得てStage 2から参照される。
+- model-authored free-text candidateはschema aloneでAtomicity PASSと偽装せず、原則`REVIEW_REQUIRED`から開始する。
+- application/system-owned deterministic materializationだけが`PASS_BY_CONSTRUCTION`候補。
+- no silent post-hoc atomizationを維持。
+
+V2-S construction semantics:
+
+```text
+PASS_BY_CONSTRUCTION
+REVIEW_REQUIRED
+FAIL
+```
+
+For `REVIEW_REQUIRED`:
+
+```text
+ATOMIC        -> V2-S PASS
+NON_ATOMIC    -> V2-S FAIL
+INDETERMINATE -> V2-S INDETERMINATE
+```
+
+Residual atomicity mechanismはE5で設計する。
+
+E3 Gate: **PASS**
+
+- Minimal / Semi-structured / Fully normalized比較完了
+- Semi-structured選定
+- Stage 1 candidate / Certification / Stage 2 certified-ID参照へ接続可能
+- role自己申告authorityを除去
+- support/premise binding分離
+- arbitrary semanticsをrigid ontologyへ固定しない
+- free-text Atomicity limitationをfail-closedで保持
+
 ## 6. G-23A-E4 — Role Provenance / Compatibility Matrix Design
 
-Generator-declared `semantic_role`をpolicy authorityとして扱わず、stage/path provenanceとdeterministic policy matrixからnormalized roleを導く。
+Status: **NEXT**
+
+Purpose:
+
+Generator-declared `semantic_role`をpolicy authorityとして扱わず、E3のapplication-owned `path_provenance`からnormalized roleを導き、structured metadataだけで判定できるpolicy violationを固定matrixでrejectする。
 
 Minimum paths:
 
@@ -214,9 +231,19 @@ purpose
 presentation_role
 premise requirement
 support requirement
+model/system ownership
 ```
 
-Known structured policy violations must be deterministic.
+Required decisions:
+
+- exact path -> normalized role mapping
+- allowed purpose per path/role
+- allowed presentation role per path/role
+- support_refs requirement/forbidden state
+- premise_fact_ids requirement/forbidden state
+- system-only path restrictions
+- deterministic failure codes
+- which application-owned construction paths may make V2-R `NOT_REQUIRED`
 
 Deliverables:
 
@@ -253,18 +280,6 @@ Deliverable: `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_E
 
 Apply the new responsibility model to the same 47 Gold before implementation.
 
-Per case record:
-
-```text
-input metadata available?
-structural violation detectable?
-deterministic role violation detectable?
-residual semantic classifier required?
-expected fail/pass path
-historical model error prevented by construction?
-remaining uncertainty
-```
-
 Deliverable: `docs/evaluation/N04G23AE_V4_GATE_DESK_REPLAY.md`
 
 Gate: demonstrate material reduction in critical decisions delegated to a broad probabilistic judge.
@@ -275,13 +290,13 @@ Acceptance checklist:
 
 - [x] 47/47 responsibility mapping complete
 - [x] v4 V2 authority/order fixed
-- [ ] Structured Proposition contract selected
+- [x] Structured Proposition contract selected
 - [ ] role provenance model selected
 - [ ] deterministic compatibility matrix fixed
 - [ ] residual classifier scope bounded
 - [ ] 47-Gold desk replay complete
-- [x] G-14 invariants preserved at E2 boundary
-- [x] zero-tolerance critical false-pass policy preserved at E2 boundary
+- [x] G-14 invariants preserved
+- [x] zero-tolerance critical false-pass policy preserved
 - [x] historical evidence unchanged
 - [x] no silent post-hoc atomization preserved
 - [ ] G-23B can consume the new contract without duplicate role authority
@@ -316,6 +331,6 @@ G-23A-Eでは以下を変更しない。
 
 ## 11. Immediate next task
 
-**N-04G-23A-E3 — Structured Proposition Contract Design**
+**N-04G-23A-E4 — Role Provenance / Compatibility Matrix Design**
 
-E2でauthority/order、hard fail、Residual dispatch、override禁止が固定されたため、次はV2-Sの入力契約とconstruction proofを具体化する。
+E3でcandidate structureとfield ownershipが固定されたため、次はapplication-owned `path_provenance`をnormalized roleへ写像し、purpose / presentation / binding requirementをdeterministic matrixとして確定する。
