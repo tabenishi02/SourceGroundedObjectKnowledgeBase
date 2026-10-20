@@ -63,7 +63,25 @@ class GroundedGenerationV4Application:
         self.provider_probe = V4ProviderCapabilityProbe()
 
     def build_stage1_request(self, **kwargs: Any) -> dict[str, Any]:
-        return self.stage1_requests.build(**kwargs)
+        request = self.stage1_requests.build(**kwargs)
+        self.attempts.activate("stage1", int(request["attempt"]))
+        return request
+
+    def build_stage1_retry(
+        self,
+        previous_request: dict[str, Any],
+        *,
+        retry_feedback: dict[str, Any],
+        attempt_id: str | None = None,
+    ) -> dict[str, Any]:
+        self.attempts.authorize_retry("stage1", previous_attempt=1)
+        request = self.stage1_requests.build_retry(
+            previous_request,
+            retry_feedback=retry_feedback,
+            attempt_id=attempt_id,
+        )
+        self.attempts.activate("stage1", 2)
+        return request
 
     def parse_stage1(
         self,
@@ -85,7 +103,9 @@ class GroundedGenerationV4Application:
                 self.validator.validate_stage1_candidate(
                     candidate,
                     grounded_context=grounded_context,
-                    validation_record_id=f"VR-S1-A{candidate['attempt']}-C{index + 1}",
+                    validation_record_id=(
+                        f"VR-S1-A{candidate['attempt']}-C{index + 1}"
+                    ),
                 )
             )
         return records
@@ -97,6 +117,7 @@ class GroundedGenerationV4Application:
         *,
         request: dict[str, Any],
     ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+        self.attempts.assert_active("stage1", int(request["attempt"]))
         return certify_stage1_attempt(
             candidates,
             validation_records,
@@ -104,7 +125,33 @@ class GroundedGenerationV4Application:
         )
 
     def build_stage2_request(self, **kwargs: Any) -> dict[str, Any]:
-        return self.stage2_requests.build(**kwargs)
+        certified_content = kwargs["certified_content"]
+        if "stage1" in self.attempts.active_attempts:
+            self.attempts.assert_active(
+                "stage1",
+                int(certified_content["active_stage1_attempt"]),
+            )
+        request = self.stage2_requests.build(**kwargs)
+        self.attempts.activate("stage2", int(request["attempt"]))
+        return request
+
+    def build_stage2_retry(
+        self,
+        previous_request: dict[str, Any],
+        *,
+        certified_content: dict[str, Any],
+        retry_feedback: dict[str, Any],
+        attempt_id: str | None = None,
+    ) -> dict[str, Any]:
+        self.attempts.authorize_retry("stage2", previous_attempt=1)
+        request = self.stage2_requests.build_retry(
+            previous_request,
+            certified_content=certified_content,
+            retry_feedback=retry_feedback,
+            attempt_id=attempt_id,
+        )
+        self.attempts.activate("stage2", 2)
+        return request
 
     def parse_stage2(
         self,
@@ -128,7 +175,9 @@ class GroundedGenerationV4Application:
                 self.validator.validate_stage2_candidate(
                     candidate,
                     certified_content=certified_content,
-                    validation_record_id=f"VR-S2-A{candidate['attempt']}-C{index + 1}",
+                    validation_record_id=(
+                        f"VR-S2-A{candidate['attempt']}-C{index + 1}"
+                    ),
                 )
             )
         return records
@@ -142,6 +191,7 @@ class GroundedGenerationV4Application:
         candidate_envelopes: list[dict[str, Any]],
         validation_records: list[dict[str, Any]],
     ) -> dict[str, Any]:
+        self.attempts.assert_active("stage2", int(request["attempt"]))
         return build_validated_presentation_plan(
             parsed_stage2,
             request=request,
