@@ -15,7 +15,8 @@
 - G-23A-E1: **Complete**
 - G-23A-E2: **Complete**
 - G-23A-E3: **Complete / Semi-structured contract selected**
-- Current task: **N-04G-23A-E4 — Role Provenance / Compatibility Matrix Design**
+- G-23A-E4: **Complete / deterministic role matrix fixed**
+- Current task: **N-04G-23A-E5 — Residual Classifier Scope / Evaluation Design**
 - G-23B: **blocked until G-23A-E is accepted**
 
 ## Read first
@@ -25,11 +26,13 @@
 3. `docs/evaluation/N04G23AE_47_GOLD_RESPONSIBILITY_MAP.md`
 4. `docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
 5. `docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
-6. `docs/planning/phases/N/N04/post-g12/N04G23AE_GATE_RESPONSIBILITY_DECOMPOSITION_TASKS.md`
-7. `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
-8. `docs/decisions/N04G16_SEMANTIC_VALIDATION_ARCHITECTURE_REDESIGN.md`
-9. `docs/evaluation/N04G23A_ATOMICITY_ROLE_GOLD_BENCHMARK.md`
-10. `docs/evaluation/N04G23AR_JUDGE_CANDIDATE_EVALUATION.md`
+6. `docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
+7. `benchmark/n04g23ae-role-compatibility-v1.json`
+8. `docs/planning/phases/N/N04/post-g12/N04G23AE_GATE_RESPONSIBILITY_DECOMPOSITION_TASKS.md`
+9. `docs/decisions/N04G14_ATOMIC_CLAIM_AND_SEMANTIC_ROLE_BOUNDARY_REDESIGN.md`
+10. `docs/decisions/N04G16_SEMANTIC_VALIDATION_ARCHITECTURE_REDESIGN.md`
+11. `docs/evaluation/N04G23A_ATOMICITY_ROLE_GOLD_BENCHMARK.md`
+12. `docs/evaluation/N04G23AR_JUDGE_CANDIDATE_EVALUATION.md`
 
 ## Architecture direction
 
@@ -62,7 +65,7 @@ No downstream component may rescue an earlier structural/policy failure.
 
 ## E1 result
 
-47 Gold mapped with zero label changes:
+47 Gold mapping:
 
 ```text
 STRUCTURAL              20
@@ -76,12 +79,6 @@ Critical without owner    0
 
 ## E2 result
 
-Authority/order fixed in:
-
-`docs/decisions/N04G23AE_V4_V2_RESPONSIBILITY_BOUNDARY.md`
-
-Key rules:
-
 - application/stage path owns role provenance;
 - known metadata incompatibility is deterministic hard fail;
 - model-authored semantic content uses residual classification where construction cannot prove content type;
@@ -91,137 +88,148 @@ Key rules:
 
 ## E3 result
 
-Structured Proposition contract is fixed in:
-
-`docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
-
 Selected: **Option B — Semi-structured proposition record**.
 
-### Candidate layers
-
 ```text
-Structured Proposition Candidate
-  ↓
-Validation Record
-  ↓ PASS only
-Certified Content Record
+Application-owned envelope
+  + path-discriminated payload
+  + one authoritative claim_text
+  + path-specific support/premise binding
+  + optional non-authoritative semantic anchors
 ```
 
-Candidate content is immutable during validation; failed text is retried as a new candidate rather than silently rewritten.
+Candidate / Validation / Certified Content are separate artifacts. Model-authored free text is not considered atomic merely because it satisfies JSON Schema.
 
-### Application-owned fields
+## E4 result
 
-```text
-contract_version
-context_fingerprint
-purpose
-stage
-path_provenance
-attempt
-proposition_id
-retry lineage
-```
-
-Generator does not own semantic-role authority or certification state.
-
-### Path-specific payload direction
-
-```text
-stage1_fact_candidate
-  claim_text
-  support_refs[]
-
-stage2_interpretation_candidate
-  claim_text
-  premise_fact_ids[]  # certified IDs only
-
-stage2_creative_candidate
-  claim_text
-
-system_context_limit
-  application/system-owned canonical payload
-```
-
-`support_refs[]` and `premise_fact_ids[]` cannot coexist.
-
-Optional `subject_refs[] / predicate_hint / object_refs[]` are diagnostic aids only, not truth/support/role/Atomicity authority.
-
-### V2-S construction state
-
-```text
-PASS_BY_CONSTRUCTION
-REVIEW_REQUIRED
-FAIL
-```
-
-Application/system deterministic construction may qualify for `PASS_BY_CONSTRUCTION`.
-
-Model-authored free-text normally starts as `REVIEW_REQUIRED`; schema alone must not pretend it proves semantic Atomicity.
-
-Residual resolution:
-
-```text
-REVIEW_REQUIRED + ATOMIC        -> V2-S PASS
-REVIEW_REQUIRED + NON_ATOMIC    -> V2-S FAIL
-REVIEW_REQUIRED + INDETERMINATE -> V2-S INDETERMINATE
-```
-
-Residual mechanism is designed in E5.
-
-### Identity / retry
-
-- proposition_id is application-assigned and unique within an attempt.
-- retry generates a new candidate identity.
-- application-owned retry lineage links failed and replacement candidates.
-- future Certified Content gets a separate certified identity; exact lifecycle is G-23C.
-
-### Not adopted
-
-Fully normalized `subject + predicate + object/value + qualifiers` is not the common v4 contract because it would require a new broad semantic ontology and risks losing arbitrary narrative/interpretive/creative meaning.
-
-## Current task: G-23A-E4
-
-Design the exact role provenance and deterministic compatibility matrix using E3's application-owned path.
-
-Minimum paths:
-
-```text
-stage1_fact_candidate
-stage2_interpretation_candidate
-stage2_creative_candidate
-system_context_limit
-```
-
-Required matrix dimensions:
-
-```text
-path provenance
-normalized role
-allowed purpose
-allowed presentation_role
-support_refs required/forbidden
-premise_fact_ids required/forbidden
-model/system ownership
-```
-
-Required decisions:
-
-1. exact path -> normalized role mapping;
-2. purpose permissions;
-3. presentation-role permissions;
-4. support/premise binding requirements;
-5. system-only context-limit restrictions;
-6. deterministic failure codes;
-7. whether any application-owned construction path can legitimately set V2-R `NOT_REQUIRED`;
-8. ensure deterministic PASS does not itself prove model-authored text content type.
-
-Expected deliverable:
+Role provenance and metadata compatibility are fixed in:
 
 `docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
 
-Optional machine-readable artifact:
+Machine-readable mirror:
 
 `benchmark/n04g23ae-role-compatibility-v1.json`
+
+### Path -> normalized role
+
+```text
+stage1_fact_candidate
+  -> source_fact
+
+certified_fact_materialization
+  -> source_fact
+
+stage2_interpretation_candidate
+  -> interpretation
+
+stage2_creative_candidate
+  -> creative_addition
+
+system_context_limit
+  -> context_limit
+```
+
+Unknown/forged path does not fall back to generator label:
+
+```text
+UNRESOLVED_PROVENANCE
+```
+
+### Purpose policy
+
+```text
+source_fact
+  roleplay / comparison / creative = allow
+
+interpretation
+  roleplay / comparison / creative = deterministic allow
+  but V2-R + V4I remain required for model-authored content
+
+creative_addition
+  creative = allow
+  roleplay / comparison = POLICY_FAIL
+
+context_limit
+  all three purposes = allow
+  application/system-owned only
+```
+
+Roleplay interpretation remains possible only to preserve G-02's narrow transient inference allowance. This is not a semantic PASS; classifier/derivation still decides whether actual content is legal.
+
+### Presentation policy
+
+```text
+stage1_fact_candidate
+  presentation = none
+
+certified_fact_materialization
+  presentation = main
+
+stage2_interpretation_candidate
+  presentation = interpretation
+
+stage2_creative_candidate
+  presentation = creative
+
+system_context_limit
+  presentation = context_limit
+  exclusive terminal response
+```
+
+Known mismatch is deterministic `POLICY_FAIL`.
+
+### Binding policy
+
+```text
+stage1_fact_candidate
+  support_refs[] >= 1
+  premise_fact_ids[] forbidden
+
+certified_fact_materialization
+  support provenance inherited from Certified Content
+  no new model-authored support/premise binding
+
+stage2_interpretation_candidate
+  premise_fact_ids[] >= 1
+  raw support_refs[] forbidden as derivation proof
+
+stage2_creative_candidate
+  support_refs[] / premise_fact_ids[] forbidden as grounding proof
+
+system_context_limit
+  support_refs[] / premise_fact_ids[] forbidden
+```
+
+### Other fixed rules
+
+- model-authored `semantic_role` is not authority;
+- model-authored `stylistic_expression` remains forbidden;
+- Stage 2 does not regain a free-form source-fact generation slot;
+- Certified source fact materialization is application-owned and is the preferred source-fact presentation path;
+- deterministic policy PASS does not prove natural-language content type;
+- V2-D failure cannot be overridden by V2-R/V3/V4 positive verdicts.
+
+## Current task: G-23A-E5
+
+Design the residual classifier scope and evaluation protocol after E1-E4 have removed structural/policy decisions from the broad probabilistic judge.
+
+Required decisions:
+
+1. exact V2-R taxonomy;
+2. whether residual atomicity and content-role classification are separate models/tasks;
+3. minimum classifier inputs;
+4. whether expected role is hidden from classifier until after content-only classification;
+5. dataset expansion beyond the 47 Gold cases;
+6. minimal pairs, paraphrases, role swaps, purpose swaps, compound/split fixtures;
+7. pattern-family holdout to prevent template leakage;
+8. candidate families: bounded LLM, encoder classifier, cross-encoder, deterministic-first cascade;
+9. ambiguity/abstention fail-closed policy;
+10. critical false-pass zero-tolerance Gate;
+11. Reference Workstation reproducibility/runtime requirements.
+
+Expected deliverable:
+
+`docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
 
 ## Following tasks
 
@@ -229,8 +237,8 @@ Optional machine-readable artifact:
 G-23A-E1 47-Gold Responsibility Mapping             Complete
 G-23A-E2 v4 V2 Responsibility Boundary              Complete
 G-23A-E3 Structured Proposition Contract            Complete
-G-23A-E4 Role Provenance / Compatibility Matrix     NEXT
-G-23A-E5 Residual Classifier Evaluation Design      Planned
+G-23A-E4 Role Provenance / Compatibility Matrix     Complete
+G-23A-E5 Residual Classifier Evaluation Design      NEXT
 G-23A-E6 47-Gold Desk Replay                        Planned
 G-23A-E7 Integration / G-23B Unblock Review         Planned
 G-23B    Stage 1 Content Planner                    blocked
@@ -244,6 +252,9 @@ Do not change without new evidence:
 - G-23A-R historical results
 - G-14 safety intent / no silent post-hoc atomization
 - G-23 two-stage generation decision
+- E2 authority order
+- E3 Semi-structured contract
+- E4 application-owned provenance and deterministic policy matrix
 - MiniCheck threshold merely to improve acceptance
 - Retrieval / Similarity / Context Builder
 - canonical DB

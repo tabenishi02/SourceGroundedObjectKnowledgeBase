@@ -7,8 +7,8 @@
 - Trigger: `N-04G-23A-R` Complete / valid FAIL / no candidate selected
 - Priority: **P0**
 - Status: **In Progress**
-- Completed: **G-23A-E1, G-23A-E2, G-23A-E3**
-- Current task: **G-23A-E4 — Role Provenance / Compatibility Matrix Design**
+- Completed: **G-23A-E1, G-23A-E2, G-23A-E3, G-23A-E4**
+- Current task: **G-23A-E5 — Residual Classifier Scope / Evaluation Design**
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 - G-23B: **blocked until G-23A-E acceptance**
@@ -39,9 +39,9 @@ G-23A-E2 v4 V2 Responsibility Boundary Design           Complete
   ↓
 G-23A-E3 Structured Proposition Contract Design          Complete
   ↓
-G-23A-E4 Role Provenance / Compatibility Matrix Design  NEXT
+G-23A-E4 Role Provenance / Compatibility Matrix Design  Complete
   ↓
-G-23A-E5 Residual Classifier Scope / Evaluation Design
+G-23A-E5 Residual Classifier Scope / Evaluation Design  NEXT
   ↓
 G-23A-E6 47-Gold Desk Replay / Coverage Analysis
   ↓
@@ -72,27 +72,6 @@ Critical without owner    0
 Gold label changes        0
 ```
 
-Decision carried forward:
-
-```text
-STRUCTURAL
-  -> Structured Proposition contract primary
-  -> compound-risk guard secondary
-
-DETERMINISTIC_POLICY
-  -> application policy matrix primary
-  -> no LLM required for reject
-
-RESIDUAL_SEMANTIC
-  -> narrow content-type classifier after deterministic checks
-
-COMBINED
-  -> structural and semantic/policy verdicts independent
-
-OPTIONAL_AMBIGUOUS
-  -> preserve ambiguity; audit/coverage only
-```
-
 ## 4. G-23A-E2 — v4 V2 Responsibility Boundary Design
 
 Status: **Complete**
@@ -108,76 +87,27 @@ V2-D  Deterministic Compatibility Gate
 V2-R  Residual Semantic Gate
 ```
 
-Key rules:
-
-- V2-S/V2-D hard failureはV2-RやV3+でoverride不可。
-- Generator-declared `semantic_role`はauthorityではない。
-- role provenanceはapplication/stage pathがauthority。
-- known purpose/presentation/premise/support mismatchはdeterministic hard reject。
-- compound-risk signal自体は`NON_ATOMIC` verdictではない。
-- model-authored content typeがstructured metadataだけで証明できない場合はV2-R必須。
-- `MIXED_CONTENT`はFAIL、`AMBIGUOUS/INDETERMINATE`はfail-closed。
-- retryはfailed proposition単位のstage-local evidenceを使う。
+Hard structural/policy failureは後段classifier/supportでoverride不可。model-authored content typeがconstructionだけで証明できない場合はV2-R必須。
 
 ## 5. G-23A-E3 — Structured Proposition Contract Design
 
-Status: **Complete / Option B selected**
+Status: **Complete / Option B Semi-structured selected**
 
 Deliverable: `docs/decisions/N04G23AE_STRUCTURED_PROPOSITION_CONTRACT.md`
 
-Compared:
-
-```text
-A Minimal
-  id + provenance + text + refs
-
-B Semi-structured
-  application-owned envelope
-  + one proposition text
-  + path-specific bindings
-  + optional semantic anchors
-
-C Fully normalized
-  subject + predicate + object/value + qualifiers
-```
-
-Decision: **Option B — Semi-structured proposition record**.
-
-Reason:
-
-- Option Aはv3 unit構造との差が小さく、structural remediation効果が不足。
-- Option Cはarbitrary SGOKB semantics、Interpretation、Creativeを表すためのontology肥大化とsemantic loss riskが大きい。
-- Option Bは自然言語表現力を保ちながら、application-owned provenanceとpath-specific bindingをstructural authorityへ移せる。
-
-Normative contract direction:
+Decision:
 
 ```text
 Application-owned envelope
-  ├─ contract version
-  ├─ context fingerprint
-  ├─ purpose
-  ├─ stage/path provenance
-  ├─ attempt/retry lineage
-  └─ proposition identity
-        ↓
-Path-specific proposition payload
-  ├─ one authoritative claim_text
-  ├─ optional non-authoritative anchors
-  └─ support_refs OR premise_fact_ids according to path
+  + path-discriminated candidate payload
+  + one authoritative proposition text
+  + path-specific support/premise binding
+  + optional non-authoritative semantic anchors
 ```
 
-Ownership decisions:
+Candidate / Validation / Certified Contentを分離する。model-authored `semantic_role`、validation status、certification statusはauthority fieldにしない。
 
-- `semantic_role`をmodel authority fieldとして使用しない。
-- proposition identity / stage / path / purpose / context / retry lineageはapplication-owned。
-- validation/certification dispositionはCandidateとは別artifactでvalidator-owned。
-- source fact `support_refs[]` と interpretation `premise_fact_ids[]` はmutually exclusive。
-- certified source factは後続G-23Cで`certified_fact_id`を得てStage 2から参照される。
-- model-authored free-text candidateはschema aloneでAtomicity PASSと偽装せず、原則`REVIEW_REQUIRED`から開始する。
-- application/system-owned deterministic materializationだけが`PASS_BY_CONSTRUCTION`候補。
-- no silent post-hoc atomizationを維持。
-
-V2-S construction semantics:
+V2-S construction states:
 
 ```text
 PASS_BY_CONSTRUCTION
@@ -185,104 +115,116 @@ REVIEW_REQUIRED
 FAIL
 ```
 
-For `REVIEW_REQUIRED`:
-
-```text
-ATOMIC        -> V2-S PASS
-NON_ATOMIC    -> V2-S FAIL
-INDETERMINATE -> V2-S INDETERMINATE
-```
-
-Residual atomicity mechanismはE5で設計する。
-
-E3 Gate: **PASS**
-
-- Minimal / Semi-structured / Fully normalized比較完了
-- Semi-structured選定
-- Stage 1 candidate / Certification / Stage 2 certified-ID参照へ接続可能
-- role自己申告authorityを除去
-- support/premise binding分離
-- arbitrary semanticsをrigid ontologyへ固定しない
-- free-text Atomicity limitationをfail-closedで保持
+model-authored free textはschemaだけでatomic PASSとせず、原則Residual review対象とする。
 
 ## 6. G-23A-E4 — Role Provenance / Compatibility Matrix Design
+
+Status: **Complete**
+
+Deliverables:
+
+- `docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
+- `benchmark/n04g23ae-role-compatibility-v1.json`
+
+Normative paths:
+
+```text
+stage1_fact_candidate
+  -> source_fact
+
+certified_fact_materialization
+  -> source_fact
+
+stage2_interpretation_candidate
+  -> interpretation
+
+stage2_creative_candidate
+  -> creative_addition
+
+system_context_limit
+  -> context_limit
+```
+
+Key decisions:
+
+- path provenanceはapplication-owned。
+- unknown/forged pathは`UNRESOLVED_PROVENANCE`。
+- `source_fact`はroleplay/comparison/creativeで許容。
+- `interpretation`は3用途でdeterministic banしないが、model-authored contentはV2-R/V4I必須。
+- `creative_addition`はcreative purposeだけ許可。roleplay/comparisonでは即`POLICY_FAIL`。
+- `context_limit`はsystem/application-owned only、terminal responseでexclusive。
+- Stage 1 fact candidateはintermediateでpresentationを持たない。
+- Certified fact materializationだけ`main` presentationを許可し、modelにsource fact textを再発明させない方向を固定。
+- interpretationは`premise_fact_ids[]`必須、raw `support_refs[]`をderivation proofに使わない。
+- creative/context-limitはsupport/premise bindingをgrounding proofとして持たない。
+- model-authored `stylistic_expression`を再導入しない。
+- policy PASSはcontent semantic proofではない。
+
+Deterministic failure categories:
+
+```text
+unknown_path_provenance
+path_owner_mismatch
+path_stage_mismatch
+purpose_role_incompatible
+presentation_role_incompatible
+unexpected_presentation_on_intermediate
+missing_support_binding
+forbidden_support_binding
+missing_premise_binding
+forbidden_premise_binding
+model_authored_context_limit_forbidden
+context_limit_not_exclusive
+model_authored_stylistic_expression_forbidden
+```
+
+E4 Gate: **PASS**
+
+## 7. G-23A-E5 — Residual Classifier Scope / Evaluation Design
 
 Status: **NEXT**
 
 Purpose:
 
-Generator-declared `semantic_role`をpolicy authorityとして扱わず、E3のapplication-owned `path_provenance`からnormalized roleを導き、structured metadataだけで判定できるpolicy violationを固定matrixでrejectする。
+E1〜E4でstructural/deterministicへ移せなかった自然言語意味境界だけをV2-Rへ限定し、汎用Judge再導入を防ぐ。
 
-Minimum paths:
+Required topics:
 
-```text
-stage1_fact_candidate
-stage2_interpretation_candidate
-stage2_creative_candidate
-system_context_limit
-```
+1. V2-Rが判定するexact taxonomy
+2. residual atomicityとcontent-role classificationを同一classifierにするか分離するか
+3. `SOURCE_FACT_CONTENT / INTERPRETATION_CONTENT / CREATIVE_CONTENT / CONTEXT_LIMIT_CONTENT / MIXED_CONTENT / AMBIGUOUS`候補taxonomyの確定
+4. classifierへ渡すinput最小化
+5. application-owned expected roleをclassifierへ見せるか、content-only classification後に比較するか
+6. deterministic policy結果をclassifierがoverrideできない構成
+7. datasetを47 Gold以上へ拡張する方法
+8. minimal pairs / paraphrase / role-swap / purpose-swap / compound-split fixture
+9. pattern-family holdout
+10. bounded local LLM / encoder classifier / cross-encoder / deterministic-first cascade比較
+11. critical false-pass = 0を維持するevaluation Gate
+12. abstention / ambiguityをfail-closedで扱う方法
+13. Reference Workstation候補runtimeと再現性
 
-Compatibility dimensions:
+Deliverable:
 
-```text
-normalized role
-stage/path
-purpose
-presentation_role
-premise requirement
-support requirement
-model/system ownership
-```
-
-Required decisions:
-
-- exact path -> normalized role mapping
-- allowed purpose per path/role
-- allowed presentation role per path/role
-- support_refs requirement/forbidden state
-- premise_fact_ids requirement/forbidden state
-- system-only path restrictions
-- deterministic failure codes
-- which application-owned construction paths may make V2-R `NOT_REQUIRED`
-
-Deliverables:
-
-- `docs/decisions/N04G23AE_ROLE_PROVENANCE_AND_COMPATIBILITY_MATRIX.md`
-- optional machine-readable `benchmark/n04g23ae-role-compatibility-v1.json`
-
-## 7. G-23A-E5 — Residual Classifier Scope / Evaluation Design
-
-Only natural-language semantic boundaries remaining after structural/deterministic handling are classifier scope candidates.
-
-Candidate taxonomy:
-
-```text
-SOURCE_FACT_CONTENT
-INTERPRETATION_CONTENT
-CREATIVE_CONTENT
-CONTEXT_LIMIT_CONTENT
-MIXED_CONTENT
-AMBIGUOUS
-```
-
-Compare at minimum:
-
-1. bounded local LLM classifier
-2. encoder / sequence classifier
-3. cross-encoder style classifier
-4. deterministic-first cascade + classifier only for unresolved cases
-
-Dataset must extend beyond 47 Gold. Pattern-family holdout is required candidate policy.
-
-Deliverable: `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
+`docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
 
 ## 8. G-23A-E6 — 47-Gold Desk Replay / Coverage Analysis
 
-Apply the new responsibility model to the same 47 Gold before implementation.
+Apply E2-E5 model to the same 47 Gold before implementation.
+
+Per case record:
+
+```text
+input metadata available?
+structural violation detectable?
+deterministic policy violation detectable?
+residual classifier required?
+expected V2 path
+historical model error prevented by construction?
+remaining uncertainty
+```
 
 Deliverable: `docs/evaluation/N04G23AE_V4_GATE_DESK_REPLAY.md`
-
-Gate: demonstrate material reduction in critical decisions delegated to a broad probabilistic judge.
 
 ## 9. G-23A-E7 — Integration Decision / G-23B Unblock Review
 
@@ -291,15 +233,15 @@ Acceptance checklist:
 - [x] 47/47 responsibility mapping complete
 - [x] v4 V2 authority/order fixed
 - [x] Structured Proposition contract selected
-- [ ] role provenance model selected
-- [ ] deterministic compatibility matrix fixed
+- [x] role provenance model selected
+- [x] deterministic compatibility matrix fixed
 - [ ] residual classifier scope bounded
 - [ ] 47-Gold desk replay complete
-- [x] G-14 invariants preserved
-- [x] zero-tolerance critical false-pass policy preserved
+- [x] G-14 invariants preserved through E4
+- [x] zero-tolerance critical false-pass policy preserved through E4
 - [x] historical evidence unchanged
 - [x] no silent post-hoc atomization preserved
-- [ ] G-23B can consume the new contract without duplicate role authority
+- [ ] G-23B can consume the integrated contract without duplicate role authority
 
 If accepted:
 
@@ -331,6 +273,6 @@ G-23A-Eでは以下を変更しない。
 
 ## 11. Immediate next task
 
-**N-04G-23A-E4 — Role Provenance / Compatibility Matrix Design**
+**N-04G-23A-E5 — Residual Classifier Scope / Evaluation Design**
 
-E3でcandidate structureとfield ownershipが固定されたため、次はapplication-owned `path_provenance`をnormalized roleへ写像し、purpose / presentation / binding requirementをdeterministic matrixとして確定する。
+E4でrole provenanceと既知metadata compatibilityをdeterministic化したため、次はそれでも残る自然言語semantic boundaryだけをV2-Rへ限定し、その評価方法を設計する。

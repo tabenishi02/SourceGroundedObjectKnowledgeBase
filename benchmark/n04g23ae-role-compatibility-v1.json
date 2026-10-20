@@ -1,0 +1,101 @@
+{
+  "schema_version": "sgokb.n04g23ae.role-compatibility.v1",
+  "status": "design_fixed",
+  "updated_at": "2026-10-20",
+  "purposes": ["roleplay", "comparison", "creative"],
+  "presentation_roles": ["main", "interpretation", "creative", "context_limit"],
+  "paths": {
+    "stage1_fact_candidate": {
+      "owner": "application_plus_model_content",
+      "stage": "stage1",
+      "normalized_role": "source_fact",
+      "model_authored_content": true,
+      "allowed_purposes": ["roleplay", "comparison", "creative"],
+      "presentation": {"required": null, "forbidden": ["main", "interpretation", "creative", "context_limit"]},
+      "bindings": {
+        "support_refs": {"required": true, "min_items": 1},
+        "premise_fact_ids": {"forbidden": true}
+      },
+      "residual_semantic": "required"
+    },
+    "certified_fact_materialization": {
+      "owner": "application",
+      "stage": "certified_content_or_presentation",
+      "normalized_role": "source_fact",
+      "model_authored_content": false,
+      "allowed_purposes": ["roleplay", "comparison", "creative"],
+      "presentation": {"required": "main"},
+      "bindings": {
+        "support_provenance": "inherit_certified_content",
+        "support_refs_model_authored": {"forbidden": true},
+        "premise_fact_ids_model_authored": {"forbidden": true}
+      },
+      "residual_semantic": "not_required_if_deterministic_materialization"
+    },
+    "stage2_interpretation_candidate": {
+      "owner": "application_plus_model_content",
+      "stage": "stage2",
+      "normalized_role": "interpretation",
+      "model_authored_content": true,
+      "allowed_purposes": ["roleplay", "comparison", "creative"],
+      "purpose_notes": {"roleplay": "limited_interpretation_only_semantic_and_derivation_checks_required"},
+      "presentation": {"required": "interpretation"},
+      "bindings": {
+        "premise_fact_ids": {"required": true, "min_items": 1, "target": "certified_fact_id"},
+        "support_refs": {"forbidden": true}
+      },
+      "residual_semantic": "required",
+      "derivation_validation": "required"
+    },
+    "stage2_creative_candidate": {
+      "owner": "application_plus_model_content",
+      "stage": "stage2",
+      "normalized_role": "creative_addition",
+      "model_authored_content": true,
+      "allowed_purposes": ["creative"],
+      "denied_purposes": ["roleplay", "comparison"],
+      "presentation": {"required": "creative"},
+      "bindings": {
+        "support_refs": {"forbidden": true},
+        "premise_fact_ids": {"forbidden": true}
+      },
+      "residual_semantic": "required"
+    },
+    "system_context_limit": {
+      "owner": "application_or_system",
+      "stage": "system",
+      "normalized_role": "context_limit",
+      "model_authored_content": false,
+      "allowed_purposes": ["roleplay", "comparison", "creative"],
+      "presentation": {"required": "context_limit", "exclusive_terminal_response": true},
+      "bindings": {
+        "support_refs": {"forbidden": true},
+        "premise_fact_ids": {"forbidden": true}
+      },
+      "residual_semantic": "not_required_if_canonical_application_payload"
+    }
+  },
+  "purpose_compatibility": {
+    "source_fact": {"roleplay": "allow", "comparison": "allow", "creative": "allow"},
+    "interpretation": {"roleplay": "allow_with_semantic_constraints", "comparison": "allow_with_semantic_constraints", "creative": "allow_with_semantic_constraints"},
+    "creative_addition": {"roleplay": "deny", "comparison": "deny", "creative": "allow_with_semantic_constraints"},
+    "context_limit": {"roleplay": "allow", "comparison": "allow", "creative": "allow"}
+  },
+  "deterministic_failure_codes": [
+    "unknown_path_provenance",
+    "path_owner_mismatch",
+    "path_stage_mismatch",
+    "purpose_role_incompatible",
+    "presentation_role_incompatible",
+    "unexpected_presentation_on_intermediate",
+    "missing_support_binding",
+    "forbidden_support_binding",
+    "missing_premise_binding",
+    "forbidden_premise_binding",
+    "model_authored_context_limit_forbidden",
+    "context_limit_not_exclusive",
+    "model_authored_stylistic_expression_forbidden"
+  ],
+  "forbidden_model_authored_roles": ["stylistic_expression"],
+  "override_policy": "deterministic_policy_failure_cannot_be_overridden_by_residual_or_downstream_positive_verdict"
+}
