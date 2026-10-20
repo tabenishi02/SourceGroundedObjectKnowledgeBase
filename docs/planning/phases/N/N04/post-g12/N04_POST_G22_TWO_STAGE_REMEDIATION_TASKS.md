@@ -6,6 +6,8 @@
 - Trigger: `N-04G-22 Formal v3 Re-Acceptance` valid formal FAIL (`0 / 3 Case PASS`)
 - Adopted architecture: `docs/decisions/N04G23_TWO_STAGE_GROUNDED_GENERATION_ARCHITECTURE.md`
 - Root-cause investigation: `docs/evaluation/N04G22_FAILURE_ROOT_CAUSE_INVESTIGATION.md`
+- Gate responsibility redesign proposal: `docs/decisions/N04G23AE_ATOMICITY_ROLE_GATE_RESPONSIBILITY_DECOMPOSITION.md`
+- G-23A-E task breakdown: `docs/planning/phases/N/N04/post-g12/N04G23AE_GATE_RESPONSIBILITY_DECOMPOSITION_TASKS.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 
@@ -18,13 +20,20 @@ G-22 valid formal FAIL
   ↓
 G-23 Two-stage architecture decision                 Accepted
   ↓
-G-23A Atomicity / Role Gold Benchmark               Complete / Phi-4 insufficient under tested formulations
+G-23A Atomicity / Role Gold Benchmark               Complete / Phi-4 insufficient
   ↓
-G-23A-R Judge Candidate Evaluation                 Complete / valid FAIL / no candidate selected
+G-23A-R Judge Candidate Evaluation                  Complete / valid FAIL / no selection
   ↓
-New explicit escalation task required (not started)
-  ↓
-G-23B Stage 1 Grounded Content Planner contract     blocked; no judge selected
+G-23A-E Gate Responsibility Decomposition           NEXT
+  ├─ E1 47-Gold Responsibility Mapping
+  ├─ E2 v4 V2 Responsibility Boundary
+  ├─ E3 Structured Proposition Contract
+  ├─ E4 Role Provenance / Compatibility Matrix
+  ├─ E5 Residual Classifier Evaluation Design
+  ├─ E6 47-Gold Desk Replay
+  └─ E7 Integration / Unblock Review
+  ↓ ACCEPTED only
+G-23B Stage 1 Grounded Content Planner contract     blocked by G-23A-E
   ↓
 G-23C Certification / Certified Content contract
   ↓
@@ -56,9 +65,17 @@ G-18/G-21/G-22のv3 artifact/evidenceはhistorical authorityとして保持し�
 | Task | Priority | Status | Purpose |
 |---|---|---|---|
 | N-04G-23 | P0 | **Complete / Architecture Accepted** | 2段階LLM生成をv4方針として採用 |
-| N-04G-23A | P0 | **Complete / valid benchmark; engineering PASS** | Atomicity / Role Gold Setを作成しPhi-4 prompt/model問題を分離 |
-| N-04G-23A-R | P0 | **Complete / valid FAIL / no candidate selected** | Evaluate judge candidates: tested Phi-4 joint/split fail frozen Gold Gates |
-| N-04G-23B | P0 | **Blocked: no judge selected; new explicit escalation required** | Stage 1 `Grounded Content Planner` schema / prompt / responsibility設計 |
+| N-04G-23A | P0 | **Complete / valid benchmark; engineering PASS** | Atomicity / Role Gold SetでPhi-4 prompt/model問題を診断 |
+| N-04G-23A-R | P0 | **Complete / valid FAIL / no candidate selected** | frozen Gold/Gateで代替judge候補を評価 |
+| N-04G-23A-E | P0 | **Planned / NEXT** | Atomicity / Role Gateをstructural / deterministic / residual semanticへ責務分解 |
+| N-04G-23A-E1 | P0 | **NEXT** | 47 Gold全件のresponsibility mapping |
+| N-04G-23A-E2 | P0 | Planned | v4 V2責務境界 / validation order / authority設計 |
+| N-04G-23A-E3 | P0 | Planned | Structured Proposition intermediate contract設計 |
+| N-04G-23A-E4 | P0 | Planned | application-owned role provenance / deterministic compatibility matrix設計 |
+| N-04G-23A-E5 | P0 | Planned | residual semantic classifierのscope / dataset / evaluation設計 |
+| N-04G-23A-E6 | P0 | Planned | 同じ47 Goldでdesk replay / architecture coverage分析 |
+| N-04G-23A-E7 | P0 | Planned | integration decision / G-23B unblock review |
+| N-04G-23B | P0 | **Blocked by G-23A-E** | Stage 1 `Grounded Content Planner` schema / prompt / responsibility設計 |
 | N-04G-23C | P0 | Planned | Certification boundary / `Certified Content` contract設計 |
 | N-04G-23D | P0 | Planned | Stage 2 `Presentation Generator` schema / binding / responsibility設計 |
 | N-04G-23E | P0 | Planned | presentation-role schema capability + stage-local retry feedback設計 |
@@ -70,69 +87,73 @@ G-18/G-21/G-22のv3 artifact/evidenceはhistorical authorityとして保持し�
 
 ---
 
-## 3. N-04G-23A — Atomicity / Role Gold Benchmark
+## 3. G-23A / G-23A-R diagnosis retained
 
-### Goal
+G-23A run `20261020T151126+0900`:
 
-G-22 Case 2で観測された`role-INDETERMINATE`が、Phi-4 model能力、prompt/task定義、atomicity+role joint callのどこに起因するかを分離する。
+- 47 Gold cases / 41 required / 6 optional
+- exact G-22 prompt provenance verified
+- prompt clarification / paraphrase / split-call profiles all failed frozen Safety or Required-valid Gates
+- Phi-4 insufficient under tested formulations
 
-### Required corpus
+G-23A-R run `20261020T180929+0900`:
 
-- G-22 actual units
-- G-12 / G-20 adversarial units
-- franchise knowledge不要のsynthetic neutral controls
+- Qwen3.5 runtime-incompatible before Gold
+- Ministral 3 8B Primary FAIL
+- Gemma 4 12B Primary FAIL
+- Mistral Small 3.2 24B Primary FAIL
+- Primary PASS none; Secondary not run
+- selector `VALID_FAIL_NO_SELECTION`
+- engineering PASS
 
-### Buckets
-
-Atomicity:
-
-- valid one-proposition direct restatement
-- valid faithful paraphrase
-- conjunction with two propositions
-- supported fact + unsupported addition
-- fact + inference
-
-Role:
-
-- valid source_fact
-- valid interpretation
-- valid creative_addition
-- interpretation mislabeled as source_fact
-- creative invention mislabeled as source_fact
-- source-world assertion smuggled into creative
-
-### Comparison order
-
-1. exact G-22 Phi-4 payload replay
-2. same Phi-4 + clarified prompt / examples
-3. same Phi-4 + atomicity and role separate calls
-4. only if still inadequate: alternative judge candidates
-
-### Metrics
-
-```text
-critical false-pass
-valid-unit false-reject
-INDETERMINATE rate
-confusion matrix
-same-input repeatability
-prompt-paraphrase stability
-latency / token cost
-```
-
-### Gate
-
-- critical false-pass must remain 0 on frozen critical/adversarial set
-- valid-unit false-reject must materially improve over G-22 baseline
-- prompt/model identity and exact payload must be reproducible
-
-No Gate relaxation after observing candidate results.
+Conclusion: do not keep adding general-purpose judge candidates under the same old responsibility contract. Redesign the responsibility boundary first.
 
 ---
 
-## 4. N-04G-23B — Stage 1 Grounded Content Planner
+## 4. N-04G-23A-E — Gate Responsibility Decomposition
 
-Define:
+Authority:
+
+- `docs/decisions/N04G23AE_ATOMICITY_ROLE_GATE_RESPONSIBILITY_DECOMPOSITION.md`
+- `docs/planning/phases/N/N04/post-g12/N04G23AE_GATE_RESPONSIBILITY_DECOMPOSITION_TASKS.md`
+
+Target design direction:
+
+```text
+Atomicity
+  primary authority -> structured proposition invariant
+  residual protection -> compound-risk / bounded semantic check
+
+Semantic Role
+  provenance -> application/stage-owned
+  compatibility -> deterministic policy matrix
+  residual content type -> narrow classifier
+
+Uncertainty
+  -> fail closed
+```
+
+This task does not implement production code and does not change the frozen 47 Gold labels/Gates.
+
+### Required subtask sequence
+
+1. `G-23A-E1` — 47-Gold Responsibility Mapping
+2. `G-23A-E2` — v4 V2 Responsibility Boundary Design
+3. `G-23A-E3` — Structured Proposition Contract Design
+4. `G-23A-E4` — Role Provenance / Compatibility Matrix Design
+5. `G-23A-E5` — Residual Classifier Scope / Evaluation Design
+6. `G-23A-E6` — 47-Gold Desk Replay / Coverage Analysis
+7. `G-23A-E7` — Integration Decision / G-23B Unblock Review
+
+G-23A-E7でArchitecture Acceptedになった場合のみG-23BをNEXTへ移す。
+
+---
+
+## 5. N-04G-23B — Stage 1 Grounded Content Planner
+
+Blocked until G-23A-E acceptance.
+
+After unblock, define:
 
 ```text
 sgokb.grounded-content-plan.v1
@@ -142,7 +163,7 @@ Required design topics:
 
 - exact input from Grounded Context
 - context fingerprint
-- atomic source fact representation
+- G-23A-Eで選定したStructured Proposition representation
 - support_refs
 - interpretation premise slots
 - presentation allowance
@@ -156,7 +177,7 @@ Stage 1 must not produce final rendered prose.
 
 ---
 
-## 5. N-04G-23C — Certification / Certified Content
+## 6. N-04G-23C — Certification / Certified Content
 
 Define:
 
@@ -164,23 +185,13 @@ Define:
 sgokb.certified-content.v1
 ```
 
-Required path:
-
-```text
-Reference Integrity
-→ Atomicity
-→ Role Boundary
-→ Deterministic Support
-→ MiniCheck if unresolved
-→ Independent Source Fact Judge
-→ Certified Fact
-```
+Certification path must consume the G-23A-E responsibility model rather than restoring the old all-in-one judge.
 
 Required design topics:
 
-- fact ID stability inside one request
+- fact/proposition ID stability
 - source/support evidence binding
-- verifier/judge provenance
+- structural/deterministic/residual verdict provenance
 - context fingerprint binding
 - rejection/indeterminate representation
 - material coverage calculation before Stage 2
@@ -188,7 +199,7 @@ Required design topics:
 
 ---
 
-## 6. N-04G-23D — Stage 2 Presentation Generator
+## 7. N-04G-23D — Stage 2 Presentation Generator
 
 Stage 2 primary input is `Certified Content`, not raw Grounded Context.
 
@@ -216,7 +227,7 @@ Compare against free-text copy + deterministic equality/binding validation befor
 
 ---
 
-## 7. N-04G-23E — Provider schema / Retry
+## 8. N-04G-23E — Provider schema / Retry
 
 ### Schema probe
 
@@ -252,15 +263,16 @@ Stage 2 presentation failureでStage 1 certified contentを再生成しない。
 
 ---
 
-## 8. N-04G-23F — v4 Design Freeze
+## 9. N-04G-23F — v4 Design Freeze
 
-G-23A〜E完了後にのみFreezeする。
+G-23A-E〜G-23E完了後にのみFreezeする。
 
 Freeze candidate must define:
 
 - Stage 1 schema/prompt/hash
-- Atomicity judge prompt/hash
-- Role judge prompt/hash
+- Structured Proposition schema/hash
+- role provenance / deterministic policy artifact/hash
+- residual classifier contract/model identity if used
 - certification composition
 - MiniCheck identity/threshold or justified replacement evidence
 - Certified Content schema
@@ -276,14 +288,16 @@ Historical v3 artifacts are not mutated.
 
 ---
 
-## 9. N-04G-24 — Implementation
+## 10. N-04G-24 — Implementation
 
 Implement only after G-23F Freeze.
 
 Expected implementation boundaries:
 
 - GroundedContentPlanner adapter/application boundary
-- ContentPlan parser/schema
+- Structured Proposition parser/schema
+- structural/deterministic Gate
+- residual classifier boundary if selected
 - certification orchestrator
 - CertifiedContent model
 - PresentationGenerator adapter/application boundary
@@ -295,13 +309,15 @@ No implementation-driven redesign without reopening G-23F explicitly.
 
 ---
 
-## 10. N-04G-25 — Development verification
+## 11. N-04G-25 — Development verification
 
 Before formal harness Freeze, run:
 
-- Stage 1 gold benchmark
-- Atomicity/Role gold benchmark
+- Stage 1 proposition benchmark
+- G-23A 47-Gold regression under new responsibility mapping
 - unsupported proposition adversarial corpus
+- deterministic role-policy regression
+- residual classifier family-holdout evaluation if used
 - Stage 2 no-new-fact regression
 - duplicate role regression
 - interpretation premise regression
@@ -317,38 +333,20 @@ Formal rubric must be predetermined before Reference Workstation acceptance.
 
 ---
 
-## 11. N-04G-26 — Reference Workstation v4 Freeze
+## 12. N-04G-26 / G-27
 
-Prepare exact:
+G-26 freezes exact v4 Reference Workstation identities, prompts/schemas/policies/corpora/evidence layout.
 
-- generator model/load profile
-- judge model(s)/load profiles
-- MiniCheck runtime
-- prompts and hashes
-- schema hashes
-- corpus hashes
-- MCP / Harrier / Qdrant identities
-- canonical DB identity
-- evidence layout
+G-27 re-runs the same three representative AI use cases under Frozen v4 conditions.
 
-All required local/offline reproduction Gates must PASS before G-27.
-
----
-
-## 12. N-04G-27 — Formal v4 Re-Acceptance
-
-Re-run the same three representative AI use cases under Frozen v4 conditions.
-
-Overall PASS requires all three cases to PASS plus all safety/engineering Gates.
-
-A valid formal FAIL remains a FAIL; do not modify prompt, model, schema, threshold or rubric inside the same formal run to obtain PASS.
-
-Only G-27 overall PASS can move:
+Only G-27 overall PASS may move:
 
 ```text
 N-04 -> Complete
 N-05 -> unblocked
 ```
+
+A valid formal FAIL remains a FAIL; do not tune prompt/model/schema/policy/rubric inside the formal run.
 
 ---
 
@@ -363,20 +361,20 @@ Without new failure evidence, do not change:
 - Retrieval / Similarity
 - Context Builder selection/budget
 - N-03 dataset
-- G-12/G-20/G-20R/G-21/G-22 historical evidence
+- G-12/G-20/G-20R/G-21/G-22/G-23A/G-23A-R historical evidence
+- G-23A 47 Gold labels/required/critical flags merely to improve acceptance
 - MiniCheck threshold merely to improve acceptance rate
 - unsupported rendered claim prohibition
 - accepted role escape prohibition
 - fail-closed semantics
+- G-23 two-stage architecture unless new evidence explicitly requires reopening it
 
 ---
 
 ## 14. Immediate next task
 
-**Review G-23A-R no-selection result; define a new explicit escalation task**
+**N-04G-23A-E1 — 47-Gold Responsibility Mapping**
 
-Run `20261020T180929+0900`: Qwen runtime_incompatible in neutral smoke; all three ready candidates completed Primary and failed. Secondary not applicable. Fixed selector: VALID_FAIL_NO_SELECTION / none. Final engineering PASS: contracts 18, full pytest 426, Ruff/diff. Evidence/result: `docs/evaluation/N04G23AR_JUDGE_CANDIDATE_EVALUATION.md`. Do not add candidates or tune frozen inputs within this run. G-23B remains blocked; new explicit escalation is required before further experimentation.
+全47 caseを `STRUCTURAL / DETERMINISTIC_POLICY / RESIDUAL_SEMANTIC / COMBINED / OPTIONAL_AMBIGUOUS` に分類し、primary owner / secondary guard / expected v4 actionを定義する。
 
-G-23A run `20261020T151126+0900` is Complete: all four profiles executed and final engineering PASS (G-23A tests 10, full pytest 418, Ruff/diff). P1/P1P stability and P2 Safety/Required-valid fail. Result: `docs/evaluation/N04G23A_ATOMICITY_ROLE_GOLD_BENCHMARK.md`. No tested Phi-4 profile is viable; G-23B is blocked pending additional judge evaluation. No alternate model is selected here. Two-stage architecture and N-04/N-05 states remain unchanged.
-
-This must be completed before Stage 1/Stage 2 prompt and judge design is Frozen, because the benchmark determines whether Phi-4 can be retained with prompt changes, requires split calls, or must be replaced.
+このmappingを先に行うことで、後続E2〜E5の設計が特定の都合の良いexampleだけに最適化されることを防ぐ。
