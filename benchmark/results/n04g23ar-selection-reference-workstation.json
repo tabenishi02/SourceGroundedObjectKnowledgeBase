@@ -1,0 +1,435 @@
+{
+  "schema_version": "sgokb.n04g23ar-selection/1",
+  "candidate_manifest": "benchmark/n04g23ar-judge-candidates-v1.json",
+  "candidates": [
+    {
+      "candidate_id": "qwen35-9b-q6k",
+      "runtime_status": "runtime_incompatible",
+      "primary_pass": false,
+      "secondary_pass": false,
+      "selected": false
+    },
+    {
+      "candidate_id": "ministral3-8b-q6k",
+      "runtime_status": "ready",
+      "primary_pass": false,
+      "primary_elapsed_seconds": 112.2530505657196,
+      "model_file_size_bytes": 6972872672,
+      "model_sha256": "233add1bc275c394e92d451f19296e33e2864236cd42aa47d110b520a8401505",
+      "primary_metrics": {
+        "critical_atomicity_false_pass_cases": [
+          "source-fact-plus-extra-duty",
+          "fact-plus-causal-explanation",
+          "mixed-source-fact-and-context-limit",
+          "g22-case1-attempt1-u3",
+          "g22-case2-attempt1-u1",
+          "g22-case2-attempt1-u3",
+          "g22-case2-attempt2-u1",
+          "g22-case2-attempt2-u3",
+          "g22-case3-attempt1-u3",
+          "g22-case3-attempt2-u8"
+        ],
+        "critical_role_false_pass_cases": [
+          "mixed-source-fact-and-context-limit",
+          "interpretation-mislabeled-source-fact",
+          "creative-invention-mislabeled-source-fact",
+          "source-fact-smuggled-as-creative",
+          "creative-role-disallowed-purpose",
+          "interpretation-in-main-block",
+          "g22-case1-attempt1-u3",
+          "g22-case1-attempt2-u3",
+          "g22-case2-attempt1-u5",
+          "g22-case2-attempt2-u5"
+        ],
+        "required_atomicity_false_reject_cases": [
+          "source-fact-smuggled-as-creative"
+        ],
+        "required_role_false_reject_cases": [
+          "neutral-nonatomic-conjunction",
+          "g22-case2-attempt1-u1",
+          "g22-case2-attempt1-u2",
+          "g22-case2-attempt1-u3",
+          "g22-case2-attempt1-u4",
+          "g22-case2-attempt2-u1",
+          "g22-case2-attempt2-u2",
+          "g22-case2-attempt2-u3",
+          "g22-case2-attempt2-u4",
+          "g22-case3-attempt1-u2",
+          "g22-case3-attempt1-u3",
+          "g22-case3-attempt2-u7",
+          "g22-case3-attempt2-u8"
+        ],
+        "repeatability_failure_cases": [],
+        "required_repeatability_failure_cases": [],
+        "exact_match_failure_cases": [
+          "neutral-nonatomic-conjunction",
+          "source-fact-plus-extra-duty",
+          "fact-plus-causal-explanation",
+          "mixed-source-fact-and-context-limit",
+          "interpretation-mislabeled-source-fact",
+          "creative-invention-mislabeled-source-fact",
+          "source-fact-smuggled-as-creative",
+          "creative-role-disallowed-purpose",
+          "interpretation-in-main-block",
+          "g22-case1-attempt1-u2",
+          "g22-case1-attempt1-u3",
+          "g22-case1-attempt2-u3",
+          "g22-case2-attempt1-u1",
+          "g22-case2-attempt1-u2",
+          "g22-case2-attempt1-u3",
+          "g22-case2-attempt1-u4",
+          "g22-case2-attempt1-u5",
+          "g22-case2-attempt2-u1",
+          "g22-case2-attempt2-u2",
+          "g22-case2-attempt2-u3",
+          "g22-case2-attempt2-u4",
+          "g22-case2-attempt2-u5",
+          "g22-case3-attempt1-u1",
+          "g22-case3-attempt1-u2",
+          "g22-case3-attempt1-u3",
+          "g22-case3-attempt1-u4",
+          "g22-case3-attempt2-u6",
+          "g22-case3-attempt2-u7",
+          "g22-case3-attempt2-u8",
+          "g22-case3-attempt2-u9",
+          "g22-case3-attempt2-u11"
+        ],
+        "indeterminate_rate": 0.0,
+        "atomicity_confusion": {
+          "ATOMIC->ATOMIC": 39,
+          "ATOMIC->NON_ATOMIC": 3,
+          "INDETERMINATE->ATOMIC": 12,
+          "NON_ATOMIC->ATOMIC": 33,
+          "NON_ATOMIC->NON_ATOMIC": 54
+        },
+        "role_confusion": {
+          "INDETERMINATE->ROLE_VALID": 3,
+          "INDETERMINATE->ROLE_VIOLATION": 3,
+          "ROLE_VALID->ROLE_VALID": 51,
+          "ROLE_VALID->ROLE_VIOLATION": 45,
+          "ROLE_VIOLATION->ROLE_VALID": 30,
+          "ROLE_VIOLATION->ROLE_VIOLATION": 9
+        },
+        "gates": {
+          "safety_gate": false,
+          "required_valid_gate": false,
+          "repeatability_gate": true,
+          "candidate_viable": false
+        }
+      },
+      "secondary_pass": false,
+      "selected": false
+    },
+    {
+      "candidate_id": "gemma4-12b-q6k",
+      "runtime_status": "ready",
+      "primary_pass": false,
+      "primary_elapsed_seconds": 162.64428758621216,
+      "model_file_size_bytes": 9786023584,
+      "model_sha256": "383372016e2f801719e4042aecc895c6731f54402f7ec5d88867970856df6161",
+      "primary_metrics": {
+        "critical_atomicity_false_pass_cases": [],
+        "critical_role_false_pass_cases": [
+          "mixed-source-fact-and-context-limit",
+          "creative-role-disallowed-purpose",
+          "interpretation-in-main-block",
+          "non-atomic-interpretation-with-premise-restatement",
+          "g22-case1-attempt1-u3",
+          "g22-case1-attempt2-u2",
+          "g22-case1-attempt2-u3",
+          "g22-case2-attempt1-u5",
+          "g22-case2-attempt2-u5"
+        ],
+        "required_atomicity_false_reject_cases": [
+          "concept-source-fact",
+          "valid-creative-addition",
+          "creative-invention-mislabeled-source-fact",
+          "source-fact-smuggled-as-creative"
+        ],
+        "required_role_false_reject_cases": [
+          "concept-source-fact",
+          "g22-case2-attempt1-u4",
+          "g22-case2-attempt2-u4"
+        ],
+        "repeatability_failure_cases": [
+          "concept-source-fact",
+          "g22-case2-attempt1-u4",
+          "g22-case2-attempt2-u4",
+          "g22-case3-attempt1-u4",
+          "g22-case3-attempt2-u9"
+        ],
+        "required_repeatability_failure_cases": [
+          "concept-source-fact",
+          "g22-case2-attempt1-u4",
+          "g22-case2-attempt2-u4"
+        ],
+        "exact_match_failure_cases": [
+          "concept-source-fact",
+          "mixed-source-fact-and-context-limit",
+          "valid-creative-addition",
+          "creative-invention-mislabeled-source-fact",
+          "source-fact-smuggled-as-creative",
+          "creative-role-disallowed-purpose",
+          "interpretation-in-main-block",
+          "non-atomic-interpretation-with-premise-restatement",
+          "g22-case1-attempt1-u2",
+          "g22-case1-attempt1-u3",
+          "g22-case1-attempt2-u2",
+          "g22-case1-attempt2-u3",
+          "g22-case2-attempt1-u4",
+          "g22-case2-attempt1-u5",
+          "g22-case2-attempt2-u4",
+          "g22-case2-attempt2-u5",
+          "g22-case3-attempt1-u1",
+          "g22-case3-attempt1-u4",
+          "g22-case3-attempt2-u6",
+          "g22-case3-attempt2-u9",
+          "g22-case3-attempt2-u11"
+        ],
+        "indeterminate_rate": 0.0,
+        "atomicity_confusion": {
+          "ATOMIC->ATOMIC": 30,
+          "ATOMIC->NON_ATOMIC": 12,
+          "INDETERMINATE->NON_ATOMIC": 12,
+          "NON_ATOMIC->NON_ATOMIC": 87
+        },
+        "role_confusion": {
+          "INDETERMINATE->ROLE_VALID": 3,
+          "INDETERMINATE->ROLE_VIOLATION": 3,
+          "ROLE_VALID->ROLE_VALID": 88,
+          "ROLE_VALID->ROLE_VIOLATION": 8,
+          "ROLE_VIOLATION->ROLE_VALID": 27,
+          "ROLE_VIOLATION->ROLE_VIOLATION": 12
+        },
+        "gates": {
+          "safety_gate": false,
+          "required_valid_gate": false,
+          "repeatability_gate": false,
+          "candidate_viable": false
+        }
+      },
+      "secondary_pass": false,
+      "selected": false
+    },
+    {
+      "candidate_id": "mistral32-24b-q4km",
+      "runtime_status": "ready",
+      "primary_pass": false,
+      "primary_elapsed_seconds": 115.47582244873047,
+      "model_file_size_bytes": 14333909728,
+      "model_sha256": "9829cc54f2105c79499b783e81fbb476b610e91ee9373cc68334c267e49f6bbc",
+      "primary_metrics": {
+        "critical_atomicity_false_pass_cases": [
+          "source-fact-plus-extra-duty",
+          "fact-plus-causal-explanation",
+          "mixed-source-fact-and-context-limit",
+          "non-atomic-interpretation-with-premise-restatement",
+          "g22-case1-attempt1-u1",
+          "g22-case2-attempt1-u1",
+          "g22-case2-attempt1-u3",
+          "g22-case2-attempt1-u4",
+          "g22-case2-attempt2-u1",
+          "g22-case2-attempt2-u3",
+          "g22-case2-attempt2-u4",
+          "g22-case3-attempt1-u2",
+          "g22-case3-attempt1-u3",
+          "g22-case3-attempt2-u7",
+          "g22-case3-attempt2-u8"
+        ],
+        "critical_role_false_pass_cases": [
+          "mixed-source-fact-and-context-limit",
+          "creative-role-disallowed-purpose",
+          "interpretation-in-main-block",
+          "non-atomic-interpretation-with-premise-restatement",
+          "g22-case1-attempt1-u3",
+          "g22-case1-attempt2-u3",
+          "g22-case2-attempt1-u5",
+          "g22-case2-attempt2-u5"
+        ],
+        "required_atomicity_false_reject_cases": [],
+        "required_role_false_reject_cases": [
+          "g22-case2-attempt1-u1",
+          "g22-case2-attempt1-u2",
+          "g22-case2-attempt1-u4",
+          "g22-case2-attempt2-u1",
+          "g22-case2-attempt2-u2",
+          "g22-case2-attempt2-u4",
+          "g22-case3-attempt1-u3",
+          "g22-case3-attempt2-u8"
+        ],
+        "repeatability_failure_cases": [],
+        "required_repeatability_failure_cases": [],
+        "exact_match_failure_cases": [
+          "source-fact-plus-extra-duty",
+          "fact-plus-causal-explanation",
+          "mixed-source-fact-and-context-limit",
+          "creative-role-disallowed-purpose",
+          "interpretation-in-main-block",
+          "non-atomic-interpretation-with-premise-restatement",
+          "g22-case1-attempt1-u1",
+          "g22-case1-attempt1-u2",
+          "g22-case1-attempt1-u3",
+          "g22-case1-attempt2-u3",
+          "g22-case2-attempt1-u1",
+          "g22-case2-attempt1-u2",
+          "g22-case2-attempt1-u3",
+          "g22-case2-attempt1-u4",
+          "g22-case2-attempt1-u5",
+          "g22-case2-attempt2-u1",
+          "g22-case2-attempt2-u2",
+          "g22-case2-attempt2-u3",
+          "g22-case2-attempt2-u4",
+          "g22-case2-attempt2-u5",
+          "g22-case3-attempt1-u1",
+          "g22-case3-attempt1-u2",
+          "g22-case3-attempt1-u3",
+          "g22-case3-attempt1-u4",
+          "g22-case3-attempt2-u6",
+          "g22-case3-attempt2-u7",
+          "g22-case3-attempt2-u8",
+          "g22-case3-attempt2-u9",
+          "g22-case3-attempt2-u11"
+        ],
+        "indeterminate_rate": 0.0,
+        "atomicity_confusion": {
+          "ATOMIC->ATOMIC": 42,
+          "INDETERMINATE->ATOMIC": 12,
+          "NON_ATOMIC->ATOMIC": 45,
+          "NON_ATOMIC->NON_ATOMIC": 42
+        },
+        "role_confusion": {
+          "INDETERMINATE->ROLE_VALID": 3,
+          "INDETERMINATE->ROLE_VIOLATION": 3,
+          "ROLE_VALID->ROLE_VALID": 60,
+          "ROLE_VALID->ROLE_VIOLATION": 36,
+          "ROLE_VIOLATION->ROLE_VALID": 24,
+          "ROLE_VIOLATION->ROLE_VIOLATION": 15
+        },
+        "gates": {
+          "safety_gate": false,
+          "required_valid_gate": false,
+          "repeatability_gate": true,
+          "candidate_viable": false
+        }
+      },
+      "secondary_pass": false,
+      "selected": false
+    }
+  ],
+  "selected_candidate_id": null,
+  "outcome": "VALID_FAIL_NO_SELECTION",
+  "run_id": "20261020T180929+0900",
+  "benchmark_input_head": "8624d9eb689f8093c279af6234dcce3bba40aafe",
+  "raw_evidence_root": ".local/n04-v4/g23ar/20261020T180929+0900",
+  "runtime_lock": {
+    "run_id": "20261020T180929+0900",
+    "benchmark_input_head": "8624d9eb689f8093c279af6234dcce3bba40aafe",
+    "frozen_before_any_gold_request": true,
+    "frozen_at": "2026-10-20T18:25:36.421749+09:00"
+  },
+  "candidate_runtime_identities": [
+    {
+      "candidate_id": "qwen35-9b-q6k",
+      "lm_studio_alias": "sgokb-g23ar-qwen35-9b",
+      "status": "runtime_incompatible",
+      "model_path": ".local/n04-v4/g23ar/20261020T180929+0900/models/qwen35-9b-q6k/Qwen3.5-9B-Q6_K.gguf",
+      "model_file_size_bytes": 7359259040,
+      "model_sha256": "b2ccc477f0a2449de299bef560b63e498cae94a2f3a3bae13df01168d77773e6",
+      "quantization": "Q6_K",
+      "source_repository": "lmstudio-community/Qwen3.5-9B-GGUF",
+      "source_revision": "1379f25c6b505a3fc737bd7818cb09389cf807c1",
+      "lm_studio_product_version": "0.4.25.0",
+      "context_length": 8192,
+      "gpu_offload": "max",
+      "parallel": 1,
+      "reason": "Structured response was not JSON: ''"
+    },
+    {
+      "candidate_id": "ministral3-8b-q6k",
+      "lm_studio_alias": "sgokb-g23ar-ministral3-8b",
+      "status": "ready",
+      "model_path": ".local/n04-v4/g23ar/20261020T180929+0900/models/ministral3-8b-q6k/Ministral-3-8B-Instruct-2512-Q6_K.gguf",
+      "model_file_size_bytes": 6972872672,
+      "model_sha256": "233add1bc275c394e92d451f19296e33e2864236cd42aa47d110b520a8401505",
+      "quantization": "Q6_K",
+      "source_repository": "lmstudio-community/Ministral-3-8B-Instruct-2512-GGUF",
+      "source_revision": "03465d18062ad69116eced14a79a34c7856b6319",
+      "lm_studio_product_version": "0.4.25.0",
+      "context_length": 8192,
+      "gpu_offload": "max",
+      "parallel": 1,
+      "reasoning_mode": "standard bounded local instruct; strict split JSON; six neutral calls finish stop",
+      "model_load_key": "ministral-3-8b-instruct-2512",
+      "smoke_pass": true
+    },
+    {
+      "candidate_id": "gemma4-12b-q6k",
+      "lm_studio_alias": "sgokb-g23ar-gemma4-12b",
+      "status": "ready",
+      "model_path": ".local/n04-v4/g23ar/20261020T180929+0900/models/gemma4-12b-q6k/gemma-4-12B-it-Q6_K.gguf",
+      "model_file_size_bytes": 9786023584,
+      "model_sha256": "383372016e2f801719e4042aecc895c6731f54402f7ec5d88867970856df6161",
+      "quantization": "Q6_K",
+      "source_repository": "lmstudio-community/gemma-4-12B-it-GGUF",
+      "source_revision": "40b870babe39398ce917bbf4b4ff9b5a1f12710e",
+      "lm_studio_product_version": "0.4.25.0",
+      "context_length": 8192,
+      "gpu_offload": "max",
+      "parallel": 1,
+      "reasoning_mode": "standard bounded local instruct; strict split JSON; six neutral calls finish stop",
+      "model_load_key": "gemma-4-12b-it",
+      "smoke_pass": true
+    },
+    {
+      "candidate_id": "mistral32-24b-q4km",
+      "lm_studio_alias": "sgokb-n04-mistral32",
+      "status": "ready",
+      "model_path": ".local/n04-v4/g23ar/20261020T180929+0900/models/mistral32-24b-q4km/Mistral-Small-3.2-24B-Instruct-2506-Q4_K_M.gguf",
+      "model_file_size_bytes": 14333909728,
+      "model_sha256": "9829cc54f2105c79499b783e81fbb476b610e91ee9373cc68334c267e49f6bbc",
+      "quantization": "Q4_K_M",
+      "source_repository": "historical G22 model",
+      "source_revision": null,
+      "lm_studio_product_version": "0.4.25.0",
+      "context_length": 8192,
+      "gpu_offload": "max",
+      "parallel": 1,
+      "reasoning_mode": "standard bounded local instruct; strict split JSON; six neutral calls finish stop",
+      "model_load_key": "mistralai/mistral-small-3.2",
+      "smoke_pass": true
+    }
+  ],
+  "selector_output_sha256": "0bc706c15c3b20521c3d387ec7ceb56b65c6ca999924fc4dacb1c54ffa738fb8",
+  "execution_invariants": {
+    "input_hashes_unchanged": true,
+    "head_unchanged": true,
+    "model_hashes_unchanged": true,
+    "all_owned_models_unloaded": true
+  },
+  "secondary_execution": "Not applicable: no Primary PASS candidates; no Secondary run or stability measurement.",
+  "engineering_status": "PASS",
+  "completion_state": "Complete / valid FAIL / no candidate selected",
+  "engineering": {
+    "preflight": "PASS",
+    "g23ar_contract_tests": {
+      "passed": 8
+    },
+    "combined_contract_tests": {
+      "passed": 18,
+      "failed": 0,
+      "seconds": 0.1
+    },
+    "full_pytest": {
+      "passed": 426,
+      "skipped": 0,
+      "failed": 0,
+      "warnings": 2,
+      "seconds": 150.25
+    },
+    "ruff": "PASS",
+    "git_diff_check": "PASS",
+    "start_end_head_equal": true,
+    "git_end_head": "8624d9eb689f8093c279af6234dcce3bba40aafe",
+    "evidence_root": ".local/n04-v4/g23ar/20261020T180929+0900/engineering"
+  }
+}
