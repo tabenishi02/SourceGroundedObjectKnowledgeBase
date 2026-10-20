@@ -6,6 +6,7 @@
 - Trigger: `N-04G-22 Formal v3 Re-Acceptance` valid formal FAIL (`0 / 3 Case PASS`)
 - Adopted architecture: `docs/decisions/N04G23_TWO_STAGE_GROUNDED_GENERATION_ARCHITECTURE.md`
 - Gate integration decision: `docs/decisions/N04G23AE_INTEGRATION_AND_G23B_UNBLOCK_DECISION.md`
+- Stage 1 contract: `docs/decisions/N04G23B_STAGE1_GROUNDED_CONTENT_PLANNER_CONTRACT.md`
 - G-25 benchmark plan: `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
@@ -30,9 +31,9 @@ G-23A-E Gate Responsibility Decomposition           Complete / Architecture Acce
   ├─ E6 47-Gold Desk Replay                         Complete / PASS with residual risk
   └─ E7 Integration / Unblock Review                Complete / Accepted
   ↓
-G-23B Stage 1 Grounded Content Planner contract     NEXT
+G-23B Stage 1 Grounded Content Planner contract     Complete / Contract Accepted
   ↓
-G-23C Certification / Certified Content contract
+G-23C Certification / Certified Content contract    NEXT
   ↓
 G-23D Stage 2 Presentation Generator contract
   ↓
@@ -72,8 +73,8 @@ Historical G-18/G-21/G-22 artifacts remain immutable evidence.
 | N-04G-23A-E5 | P0 | Complete | residual classifier scope/evaluation design |
 | N-04G-23A-E6 | P0 | Complete / Gate PASS with residual Atomicity risk | 47-Gold desk replay / coverage |
 | N-04G-23A-E7 | P0 | **Complete / Architecture Accepted** | integration / G-23B unblock |
-| N-04G-23B | P0 | **NEXT** | Stage 1 Content Planner contract |
-| N-04G-23C | P0 | Planned | Certified Content contract |
+| N-04G-23B | P0 | **Complete / Contract Accepted** | Stage 1 Content Planner contract |
+| N-04G-23C | P0 | **NEXT** | Certified Content contract |
 | N-04G-23D | P0 | Planned | Stage 2 Presentation Generator contract |
 | N-04G-23E | P0 | Planned | provider schema + stage-local retry |
 | N-04G-23F | P0 | Planned | v4 Design Freeze |
@@ -138,30 +139,78 @@ Residual Atomicity is classified as a bounded implementation/benchmark risk beca
 
 Acceptance is not a classifier selection and does not imply N-04 readiness.
 
-## 6. G-23B immediate scope
+## 6. G-23B result
 
-G-23B must design Stage 1 around the application-owned path:
+Authority: `docs/decisions/N04G23B_STAGE1_GROUNDED_CONTENT_PLANNER_CONTRACT.md`
 
-```text
-stage1_fact_candidate
-  claim_text
-  support_refs[] >= 1
-  application-owned contract/context/purpose/stage/path/attempt/proposition identity
+G-23B is **Complete / Contract Accepted**.
+
+Stage 1 provider-facing model payload is intentionally minimal:
+
+```json
+{
+  "candidates": [
+    {
+      "claim_text": "...",
+      "support_refs": ["K3"]
+    }
+  ]
+}
 ```
 
-G-23B must not reintroduce:
+Application constructs the authoritative envelope after parse:
 
 ```text
-generator-owned authoritative semantic_role
-model-owned Atomicity PASS
-model-owned support/certification PASS
-presentation role on Stage 1 candidate
-free-form context_limit path
+contract/request identity
+context_fingerprint
+purpose
+stage = stage1
+path = stage1_fact_candidate
+attempt
+proposition_id
+candidate_index
+retry lineage
 ```
 
-Stage 1 should strongly encourage one proposition per candidate but may not claim schema alone proves semantic Atomicity.
+Key decisions:
 
-## 7. Mandatory downstream classifier gate
+- application-owned metadata is not echoed by the model;
+- `stage1_fact_candidate -> source_fact` remains V2-P authority;
+- Stage 1 has no presentation role;
+- non-empty candidate requires `support_refs[] >= 1`;
+- support-ref presence is not support/entailment proof;
+- `claim_text` is one authoritative model-authored content field;
+- schema validity does not prove semantic Atomicity;
+- optional semantic anchors are excluded from v1;
+- `candidates: []` is allowed and does not create model-owned `context_limit` authority;
+- validation never silently rewrites a failed candidate;
+- retry creates a new proposition identity with application-owned lineage;
+- concrete V2-R-A/V2-R-C selection remains G-25A.
+
+## 7. G-23C immediate scope
+
+Next task: **N-04G-23C — Certification / Certified Content Contract**.
+
+G-23C must define the application/validator-owned artifact created only after required V2/V3/V4 PASS.
+
+At minimum:
+
+1. Validation Record vs Certified Content separation.
+2. certification eligibility condition.
+3. stable `certified_fact_id` semantics.
+4. binding to immutable Stage 1 proposition identity.
+5. certified claim/support/evidence binding.
+6. context/request lineage retained in certification.
+7. Certified Content version/digest/replay identity.
+8. Stage 2 factual input boundary without reopening raw Grounded Context authority.
+9. failure/non-certification semantics.
+10. evidence fields required by G-23D/G-23E/G-26.
+
+Primary handoff:
+
+`docs/planning/phases/N/N04/post-g12/N04G23C_NEXT_CHAT_HANDOFF.md`
+
+## 8. Mandatory downstream classifier gate
 
 Authority: `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
 
@@ -177,7 +226,7 @@ and G-26 remains blocked. Gate weakening is prohibited.
 
 `G-25B` then evaluates the selected components in the full v4 pipeline. Only PASS unblocks G-26.
 
-## 8. Protected boundaries
+## 9. Protected boundaries
 
 Do not change without new evidence:
 
@@ -188,6 +237,7 @@ Do not change without new evidence:
 - E3 Semi-structured proposition contract
 - E4 application-owned role provenance
 - E5 zero-critical-FP/fail-closed classifier selection policy
+- G-23B Stage 1 minimal payload / application envelope ownership
 - MiniCheck threshold/profile merely to improve acceptance
 - Retrieval / Similarity / Context Builder
 - canonical DB
@@ -197,15 +247,16 @@ Do not change without new evidence:
 - unsupported rendered claim prohibition
 - fail-closed semantics
 
-## 9. Current state
+## 10. Current state
 
 ```text
 G-23A-E = Complete / Architecture Accepted
-G-23B   = NEXT
+G-23B   = Complete / Contract Accepted
+G-23C   = NEXT
 N-04    = Failed / not Complete
 N-05    = blocked
 ```
 
-## 10. Immediate next task
+## 11. Immediate next task
 
-**N-04G-23B — Stage 1 Grounded Content Planner Contract**
+**N-04G-23C — Certification / Certified Content Contract**
