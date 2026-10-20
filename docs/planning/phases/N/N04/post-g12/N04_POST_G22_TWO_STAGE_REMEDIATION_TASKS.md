@@ -8,6 +8,7 @@
 - Gate integration decision: `docs/decisions/N04G23AE_INTEGRATION_AND_G23B_UNBLOCK_DECISION.md`
 - Stage 1 contract: `docs/decisions/N04G23B_STAGE1_GROUNDED_CONTENT_PLANNER_CONTRACT.md`
 - Certified Content contract: `docs/decisions/N04G23C_CERTIFICATION_AND_CERTIFIED_CONTENT_CONTRACT.md`
+- Stage 2 contract: `docs/decisions/N04G23D_STAGE2_PRESENTATION_GENERATOR_CONTRACT.md`
 - G-25 benchmark plan: `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
@@ -36,9 +37,9 @@ G-23B Stage 1 Grounded Content Planner contract     Complete / Contract Accepted
   ↓
 G-23C Certification / Certified Content contract    Complete / Contract Accepted
   ↓
-G-23D Stage 2 Presentation Generator contract       NEXT
+G-23D Stage 2 Presentation Generator contract       Complete / Contract Accepted
   ↓
-G-23E Provider schema + stage-local retry design
+G-23E Provider schema + stage-local retry design    NEXT
   ↓
 G-23F v4 design integration / Design Freeze
   ↓
@@ -76,8 +77,8 @@ Historical G-18/G-21/G-22 artifacts remain immutable evidence.
 | N-04G-23A-E7 | P0 | **Complete / Architecture Accepted** | integration / G-23B unblock |
 | N-04G-23B | P0 | **Complete / Contract Accepted** | Stage 1 Content Planner contract |
 | N-04G-23C | P0 | **Complete / Contract Accepted** | Certification / Certified Content contract |
-| N-04G-23D | P0 | **NEXT** | Stage 2 Presentation Generator contract |
-| N-04G-23E | P0 | Planned | provider schema + stage-local retry |
+| N-04G-23D | P0 | **Complete / Contract Accepted** | Stage 2 Presentation Generator contract |
+| N-04G-23E | P0 | **NEXT** | provider schema + stage-local retry |
 | N-04G-23F | P0 | Planned | v4 Design Freeze |
 | N-04G-24 | P0 | Blocked by G-23F | implementation |
 | N-04G-25A | P0 | Blocked by G-24 | Residual classifier benchmark / selection |
@@ -146,7 +147,7 @@ Authority: `docs/decisions/N04G23B_STAGE1_GROUNDED_CONTENT_PLANNER_CONTRACT.md`
 
 G-23B is **Complete / Contract Accepted**.
 
-Stage 1 provider-facing model payload is intentionally minimal:
+Stage 1 model payload is intentionally minimal:
 
 ```json
 {
@@ -159,33 +160,18 @@ Stage 1 provider-facing model payload is intentionally minimal:
 }
 ```
 
-Application constructs the authoritative envelope after parse:
-
-```text
-contract/request identity
-context_fingerprint
-purpose
-stage = stage1
-path = stage1_fact_candidate
-attempt
-proposition_id
-candidate_index
-retry lineage
-```
+Application owns contract/context/purpose/stage/path/attempt/proposition identity and retry lineage.
 
 Key decisions:
 
-- application-owned metadata is not echoed by the model;
-- `stage1_fact_candidate -> source_fact` remains V2-P authority;
-- Stage 1 has no presentation role;
+- `stage1_fact_candidate -> source_fact` is application-owned authority;
+- no Stage 1 presentation role;
 - non-empty candidate requires `support_refs[] >= 1`;
 - support-ref presence is not support/entailment proof;
-- `claim_text` is one authoritative model-authored content field;
-- schema validity does not prove semantic Atomicity;
+- schema validity does not prove Atomicity;
 - optional semantic anchors are excluded from v1;
-- `candidates: []` is allowed and does not create model-owned `context_limit` authority;
-- validation never silently rewrites a failed candidate;
-- retry creates a new proposition identity with application-owned lineage;
+- `candidates: []` is not a model-owned context-limit verdict;
+- failed candidate is immutable;
 - concrete V2-R-A/V2-R-C selection remains G-25A.
 
 ## 7. G-23C result
@@ -193,8 +179,6 @@ Key decisions:
 Authority: `docs/decisions/N04G23C_CERTIFICATION_AND_CERTIFIED_CONTENT_CONTRACT.md`
 
 G-23C is **Complete / Contract Accepted**.
-
-Certification is application/validator-owned and does not generate or repair factual content.
 
 Artifact separation:
 
@@ -217,41 +201,87 @@ AND no unresolved FAIL / INDETERMINATE / UNAVAILABLE
 
 Key decisions:
 
-- `certified_fact_id` is application-owned and scoped to one immutable Certified Content artifact;
-- it is not a new canonical DB Fact ID;
-- certified `claim_text` and `support_refs[]` are exact copies of the immutable Stage 1 candidate;
-- Certification cannot rewrite, atomize, merge support or add new source-world facts;
-- Validation Record owns validation verdict/evidence; Certified Fact binds it by ID/digest rather than becoming a duplicate validation authority;
-- a Certified Content artifact cannot mix different `context_fingerprint` values;
-- Stage 2 primary factual authority is Certified Content, not raw Grounded Context;
-- Stage 2 interpretation premises must reference `certified_fact_id` values;
-- exact duplicate minimum handling prevents trivial material-count inflation without introducing semantic-equivalence judging;
-- empty Certified Content is valid audit evidence but is not a `context_limit` verdict;
-- cross-attempt salvage/inclusion remains G-23E scope;
-- concrete Residual classifier selection remains G-25A.
+- certification is application/validator-owned;
+- `certified_fact_id` is scoped to one immutable Certified Content artifact and is not a canonical DB Fact ID;
+- certified `claim_text` and `support_refs[]` exactly copy the Stage 1 candidate;
+- certification cannot rewrite, atomize, merge support or create new source-world facts;
+- Validation Record owns validation verdict/evidence;
+- one Certified Content artifact cannot mix context fingerprints;
+- Stage 2 factual authority is Certified Content, not raw Grounded Context;
+- interpretation premises use `certified_fact_id` values;
+- exact duplicate minimum handling prevents trivial count inflation;
+- empty Certified Content is audit evidence only, not context-limit;
+- cross-attempt salvage/inclusion remains G-23E scope.
 
-## 8. G-23D immediate scope
+## 8. G-23D result
 
-Next task: **N-04G-23D — Stage 2 Presentation Generator Contract**.
+Authority: `docs/decisions/N04G23D_STAGE2_PRESENTATION_GENERATOR_CONTRACT.md`
 
-G-23D must define at least:
+G-23D is **Complete / Contract Accepted**.
 
-1. Stage 2 request envelope and model-facing Certified Content projection.
-2. application-owned `certified_fact_materialization` path.
-3. source facts without model-authored factual rewrite.
-4. `stage2_interpretation_candidate` with Certified Fact premise IDs.
-5. `stage2_creative_candidate` and purpose restriction.
-6. presentation-role/block structure and cardinality semantics.
-7. purpose-specific output-kind compatibility.
-8. duplicate/escaped presentation prevention.
-9. Stage 2 output -> V2/V4I/final validation handoff.
-10. evidence fields required by G-23E/G-23F/G-26.
+Stage 2 model-facing factual projection is intentionally minimal:
+
+```json
+{
+  "certified_fact_id": "CF1",
+  "claim_text": "exact certified text"
+}
+```
+
+Stage 2 logical output uses ordered blocks:
+
+```text
+main
+  -> Certified Fact IDs only
+  -> application exact materialization
+
+interpretation
+  -> model claim_text + premise_fact_ids[]
+  -> Certified Fact IDs only as premises
+
+creative
+  -> model claim_text
+  -> creative purpose only
+```
+
+Key decisions:
+
+- model may select Certified Fact IDs, but cannot rewrite source factual text and inherit certification;
+- `certified_fact_materialization` is application-owned and exact;
+- Stage 2 model does not receive raw Grounded Context as a new factual authority;
+- interpretation path is `stage2_interpretation_candidate` and requires V2 + V4I;
+- creative path is `stage2_creative_candidate`, allowed only for `purpose = creative`, and remains subject to V2 semantic boundary checks;
+- no model-authored `context_limit` or `stylistic_expression` path is reintroduced;
+- normal block kinds are `main`, `interpretation`, `creative`;
+- each block kind has cardinality 0 or 1; duplicate kind is deterministic failure;
+- block order is presentation order, not semantic authority;
+- `blocks: []` is allowed as no proposal and is not context-limit;
+- source fact / interpretation / creative remain structurally separate through final rendering;
+- no-new-source-fact rule applies after Certification.
+
+## 9. G-23E immediate scope
+
+Next task: **N-04G-23E — Provider Schema + Stage-local Retry Design**.
+
+G-23E must define at least:
+
+1. Stage 1 provider-facing JSON Schema.
+2. Stage 2 provider-facing JSON Schema.
+3. provider-enforced vs application-enforced invariants.
+4. runtime support/probe result for required JSON Schema features.
+5. duplicate Stage 2 block-kind prevention strategy.
+6. exact parse/contract failure semantics.
+7. Stage 1 retry trigger/input/output.
+8. Stage 2 retry trigger/input/output.
+9. retry identity/lineage and frozen inputs across attempts.
+10. cross-attempt Stage 1 certification/salvage policy deferred by G-23C.
+11. provider request/schema/prompt artifact identities and hashes.
 
 Primary handoff:
 
-`docs/planning/phases/N/N04/post-g12/N04G23D_NEXT_CHAT_HANDOFF.md`
+`docs/planning/phases/N/N04/post-g12/N04G23E_NEXT_CHAT_HANDOFF.md`
 
-## 9. Mandatory downstream classifier gate
+## 10. Mandatory downstream classifier gate
 
 Authority: `docs/planning/phases/N/N04/post-g12/N04G25_V4_DEV_BENCHMARK_TASKS.md`
 
@@ -265,9 +295,9 @@ VALID_FAIL_NO_SELECTION
 
 and G-26 remains blocked. Gate weakening is prohibited.
 
-`G-25B` then evaluates the selected components in the full v4 pipeline. Only PASS unblocks G-26.
+`G-25B` evaluates selected components in the full v4 pipeline. Only PASS unblocks G-26.
 
-## 10. Protected boundaries
+## 11. Protected boundaries
 
 Do not change without new evidence:
 
@@ -278,8 +308,9 @@ Do not change without new evidence:
 - E3 Semi-structured proposition contract
 - E4 application-owned role provenance
 - E5 zero-critical-FP/fail-closed classifier selection policy
-- G-23B Stage 1 minimal payload / application envelope ownership
+- G-23B Stage 1 contract
 - G-23C Certification / Certified Content contract
+- G-23D Stage 2 Presentation Generator contract
 - MiniCheck threshold/profile merely to improve acceptance
 - Retrieval / Similarity / Context Builder
 - canonical DB
@@ -289,17 +320,18 @@ Do not change without new evidence:
 - unsupported rendered claim prohibition
 - fail-closed semantics
 
-## 11. Current state
+## 12. Current state
 
 ```text
 G-23A-E = Complete / Architecture Accepted
 G-23B   = Complete / Contract Accepted
 G-23C   = Complete / Contract Accepted
-G-23D   = NEXT
+G-23D   = Complete / Contract Accepted
+G-23E   = NEXT
 N-04    = Failed / not Complete
 N-05    = blocked
 ```
 
-## 12. Immediate next task
+## 13. Immediate next task
 
-**N-04G-23D — Stage 2 Presentation Generator Contract**
+**N-04G-23E — Provider Schema + Stage-local Retry Design**
