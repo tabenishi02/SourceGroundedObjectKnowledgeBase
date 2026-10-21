@@ -1,0 +1,116 @@
+{
+  "schema_version": "sgokb.n05.performance-contract.v1",
+  "task": "N-05",
+  "title": "Local automatic segment performance acceptance",
+  "status": "frozen-for-reference-workstation-execution",
+  "measurement_boundary": {
+    "included_segments": [
+      "package_build",
+      "package_stage",
+      "package_preflight",
+      "result_validation",
+      "diff_review",
+      "result_import",
+      "derived_incremental_sync",
+      "render"
+    ],
+    "notes": {
+      "package_build": "Includes Evidence retrieval and selection performed by ObjectEvidencePackageBuilder.",
+      "derived_incremental_sync": "Includes incremental Search Representation, Embedding, and Vector Index synchronization for the target Object.",
+      "result_validation": "Timing begins after the external Result has already been returned and received into the isolated benchmark workspace."
+    },
+    "excluded": [
+      "source_exploration",
+      "web_capture_network_time",
+      "human_package_review",
+      "external_export_or_drive_sync",
+      "external_ai_operation_or_generation_wait",
+      "result_return_transport",
+      "human_review_or_approval_wait",
+      "full_vector_index_rebuild"
+    ]
+  },
+  "statistics": {
+    "formal_condition": "warm",
+    "p95_method": "nearest_rank",
+    "nearest_rank_definition": "Sort successful formal sample total_seconds ascending and select rank ceil(0.95 * n), using one-based rank.",
+    "minimum_warm_samples_per_profile": 20,
+    "minimum_cold_samples_per_profile": 3,
+    "cold_is_gating": false,
+    "failure_policy": "A failed or aborted formal warm sample is a formal failure and must not be removed or replaced by an additional success sample.",
+    "retry_policy": "Automatic retry time is included in the sample total and retry_count must be recorded."
+  },
+  "profiles": {
+    "standard": {
+      "target_p95_seconds": 600.0,
+      "workload_envelope": {
+        "source_count": {"min": 5, "max": 20},
+        "candidate_evidence_count": {"min": 1, "max": 1000},
+        "package_evidence_count": {"min": 50, "max": 200},
+        "knowledge_statement_count": {"min": 1, "max": 500}
+      },
+      "reference_fixture_target": {
+        "source_count": 10,
+        "candidate_evidence_count": 500,
+        "package_evidence_count": 120,
+        "knowledge_statement_count": 300
+      }
+    },
+    "large": {
+      "target_p95_seconds": 1200.0,
+      "workload_envelope": {
+        "source_count": {"min": 20, "max": 100},
+        "candidate_evidence_count": {"min": 1, "max": 5000},
+        "package_evidence_count": {"min": 200, "max": 500},
+        "knowledge_statement_count": {"min": 1, "max": 2000}
+      },
+      "reference_fixture_target": {
+        "source_count": 40,
+        "candidate_evidence_count": 2000,
+        "package_evidence_count": 350,
+        "knowledge_statement_count": 1200
+      }
+    }
+  },
+  "required_environment_fields": [
+    "git_head",
+    "os",
+    "cpu",
+    "ram_gib",
+    "gpu",
+    "python",
+    "embedding_model",
+    "embedding_revision",
+    "qdrant_version",
+    "qdrant_transport",
+    "collection_prefix",
+    "model_cache_mode"
+  ],
+  "required_sample_fields": [
+    "sample_id",
+    "status",
+    "total_seconds",
+    "segments",
+    "retry_count"
+  ],
+  "required_segment_fields": [
+    "package_build",
+    "package_stage",
+    "package_preflight",
+    "result_validation",
+    "diff_review",
+    "result_import",
+    "derived_incremental_sync",
+    "render"
+  ],
+  "result_semantics": {
+    "PASS": "Both Standard and Large formal warm p95 values satisfy their targets, no formal warm sample failed, workload/environment evidence is valid, and required cold diagnostics exist.",
+    "FAIL": "A valid formal workload exceeds a p95 target or any formal warm sample terminates unsuccessfully.",
+    "BLOCKED": "Required evidence, runtime metadata, sample count, or workload validity is insufficient to make a formal performance judgment."
+  },
+  "fixture_policy": {
+    "n03_role": "N-03 remains the real-data ecological seed and integration reference, but its 6 Objects / 8 Sources do not by themselves cover the Standard and Large N-05 load envelopes.",
+    "load_fixture": "N-05 may construct isolated deterministic synthetic load-shape fixtures derived from the canonical schemas and public workflow. Synthetic fixtures test performance load only and must not be used as retrieval-quality or semantic-quality evidence.",
+    "isolation": "Each repetition uses an isolated SQLite state and an isolated Qdrant collection prefix. Canonical user data must not be mutated by the benchmark."
+  }
+}
