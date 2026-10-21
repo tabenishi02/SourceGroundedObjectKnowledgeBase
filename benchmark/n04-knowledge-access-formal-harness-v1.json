@@ -7,7 +7,9 @@
   "responsibility_decision": "docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md",
   "acceptance_document": "docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md",
   "case_spec": "benchmark/n04-knowledge-access-cases-v1.json",
+  "case_spec_git_blob_sha": "ab3374508467575955f0f9da911f551178a93b6e",
   "formal_evaluator": "benchmark/tools/n04r04_evaluate_evidence.py",
+  "formal_evaluator_git_blob_sha": "ae7cc81ff3f731b08ea790078449c06f0bd25442",
   "source_dataset": "benchmark/n03-real-data-vertical-slice-v1.json",
   "reference_workstation": {
     "device": "FNB1Main",
