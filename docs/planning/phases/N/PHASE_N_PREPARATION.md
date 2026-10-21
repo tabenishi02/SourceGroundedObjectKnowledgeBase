@@ -2,11 +2,12 @@
 
 更新日: 2026-10-22
 
-- Status: **Active — N-01〜N-04 Complete / Next N-04R-05**
+- Status: **Active — N-01〜N-04 Complete / N-05・N-06 Ready**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - N-04 decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
 - N-04 harness freeze: `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
+- N-04 asset disposition: `docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`
 - N-04 current spec: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
 - N-04 reconstruction tasks: `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
 
@@ -52,7 +53,7 @@ Phase Nでは、これらをUnit / Integrationだけでなく実データと実�
 | N-01 | P0 | **Complete (2026-10-16)** | Unit Testをcanonical domainへ整理・補完 |
 | N-02 | P0 | **Complete (2026-10-16)** | cross-domain Integrationを確認 |
 | N-03 | P0 | **Complete (2026-10-16)** | Character / Work / Conceptの実データVertical Slice |
-| N-04 | P0 | **Complete (2026-10-22)** | SGOKB Knowledge Access Boundaryを代表3用途で受入 |
+| N-04 | P0 | **Complete / PASS (2026-10-22)** | SGOKB Knowledge Access Boundaryを代表3用途で受入 |
 | N-05 | P0 | **Ready** | 1 Object自動処理時間を計測 |
 | N-06 | P0 | **Ready** | Retrieval / Vector Backend品質評価 |
 | N-07 | P1 | Pending | Failure / Recovery試験 |
@@ -163,9 +164,9 @@ Status: **N-04P-01〜P-06 Complete**
 
 ## 9. N-04 — Knowledge Access Boundary Acceptance
 
-### 9.1 目的
+Status: **Complete / PASS (2026-10-22)**
 
-代表3用途で、SGOKBが外部Consumerへ正しいKnowledgeを提供できることを確認する。
+代表3用途で、SGOKBが外部Consumerへ正しいKnowledgeを提供できることを確認した。
 
 ```text
 SGOKB canonical Knowledge
@@ -185,9 +186,7 @@ External Consumer boundary  ← formal N-04 ends here
 2. Similar Work → Comparison Consumer
 3. Concept A/B → Creative Consumer
 
-### 9.2 formal Gate
-
-評価対象:
+formal Gate:
 
 - public boundary
 - correct Object / current accepted Version
@@ -198,7 +197,7 @@ External Consumer boundary  ← formal N-04 ends here
 - canonical invariance
 - integrity / regression
 
-### 9.3 formal Gateから除外
+formal Gateから除外:
 
 - AI Consumerのhallucination / unsupported claim
 - Roleplay / comparison / creative quality
@@ -209,12 +208,6 @@ External Consumer boundary  ← formal N-04 ends here
 - verifier / certification
 - Frozen 47
 
-Knowledge coverageは観測記録には残せるが、canonicalに存在しないKnowledgeをSGOKBが補う責務はない。
-
-### 9.4 N-04R-03 Harness Reconstruction
-
-Status: **Complete (2026-10-22)**
-
 Current formal assets:
 
 ```text
@@ -222,27 +215,27 @@ benchmark/n04-knowledge-access-cases-v1.json
 benchmark/n04-knowledge-access-formal-harness-v1.json
 benchmark/tools/n04r03_harness_preflight.py
 benchmark/tools/n04r04_evaluate_evidence.py
-tests/test_n04r03_knowledge_access_harness.py
-tests/test_n04r04_evidence_evaluator.py
 ```
 
-Freeze record:
+Reference Workstation formal result:
 
-`docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
+```text
+run_id: 20261022T052331+0900
+3 / 3 cases PASS
+canonical invariance PASS
+system integrity PASS
+post-run focused 32 passed
+post-run full 505 passed / 0 failed
+Ruff / diff check PASS
+```
 
-Harnessは旧Generator / Judge / classifier / verifierに依存しない。Case 2は実Similarity responseのtop candidate IDをContextへそのまま渡す。deterministic evaluatorはraw MCP boundary evidenceとcanonical/integrity/regression evidenceだけで`PASS / FAIL / BLOCKED`を判定する。
+正式結果:
 
-Reference Workstation実行はR-04へ分離しているため、R-03完了は実機N-04 PASSを意味しない。
+`docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`
 
-詳細正本:
+## 10. Historical N-04 generation-quality chain / R-05 disposition
 
-- `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
-- `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
-- `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
-
-## 10. Historical N-04 generation-quality chain
-
-2026-10-18以降、旧N-04ではlocal LLM出力品質をSGOKB Completion Gateへ含めていた。
+旧N-04ではlocal LLM出力品質をSGOKB Completion Gateへ含めていた。
 
 歴史的結果:
 
@@ -255,9 +248,24 @@ G-25A                 VALID_FAIL_NO_SELECTION
 
 同時に、canonical / MCP / Retrieval / Context Builderにはfailure原因となるproduction defectを確認しなかった。
 
-G-01〜G-25でGrounded Generation / verifier / classifier設計・実装を追加したが、2026-10-22のResponsibility Boundary Reconstructionにより、これらをN-04 Completion prerequisiteから外した。
+R-05でGrounded Generation資産のfuture ownerを確定した。
 
-過去evidenceは削除しない。
+```text
+Grounded Generation core assets      KEEP_CORE 0件
+implementation / verifier / pipeline MOVE_CONSUMER_SIDE
+research evidence / Frozen 47        KEEP_EXPERIMENTAL
+old harness / execution tooling      RETIRE
+```
+
+物理削除はhistorical reproducibilityのため行わない。ただしGrounded Generation資産はSGOKB public CLI / MCP / canonical workflowへ再接続してはならない。
+
+Decision:
+
+`docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`
+
+Manifest:
+
+`benchmark/n04r05-grounded-generation-asset-disposition-v1.json`
 
 ## 11. N-05 — Performance
 
@@ -354,28 +362,20 @@ Phase N closureでは、各Taskが**自分の責務範囲だけを評価して�
 
 特に、外部AIの品質問題をSGOKB defectとして扱わない一方、SGOKB public boundaryの欠陥をConsumer側へ押し付けてもならない。
 
-## 15. Current next work
-
-N-04 reconstruction chain:
+## 15. N-04 reconstruction closure / next work
 
 ```text
 N-04R-01 Responsibility Boundary Decision       Complete
 N-04R-02 Documentation Reconstruction            Complete
 N-04R-03 Formal Harness Reconstruction           Complete
 N-04R-04 Reference Workstation Re-Acceptance     Complete / PASS
-N-04R-05 Grounded Generation Asset Disposition   Next
+N-04R-05 Grounded Generation Asset Disposition   Complete
 ```
 
-次Taskは`N-04R-05 — Grounded Generation Asset Disposition`。
+**N-04 reconstruction chain = Complete.**
 
-完了したR-04の実行handoff:
+N-05 / N-06は独立して開始できる。順次進める場合の次Taskは:
 
-`docs/planning/phases/N/N04/execution/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE_HANDOFF.md`
-
-N-05 / N-06はN-04完了を待つ必要はない。
-
-## 2026-10-22 Reference Workstation formal result
-
-Run `20261022T052331+0900`: **PASS (3/3 cases)**. **N-04R-04 = Complete; N-04 = Complete.** Actual MCP stdio/read-only tools, current accepted Versions, purpose/budget/Evidence policies, Similarity rank-1 integration, canonical invariance and system integrity all PASS. Mandatory preflight: focused 20/full 505 passed; post-run focused 32/full 505 passed; Ruff and diff check PASS (2 existing local-Qdrant warnings in each full suite).
-
-正式結果・evidence summary・preflight実装修復記録: `docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`. Case/evaluator frozen blobs, Gates and existing assertions were preserved. No Consumer generation/classifier/verifier/Frozen 47 was executed. Next: **N-04R-05 — Grounded Generation Asset Disposition** (not started); N-05/N-06 remain Ready.
+```text
+N-05 — Performance
+```
