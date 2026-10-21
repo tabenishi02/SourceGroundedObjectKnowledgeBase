@@ -1,6 +1,6 @@
 {
   "schema_version": "sgokb.g25a.candidates/1",
-  "status": "artifact_identity_locked_training_validation_pending",
+  "status": "all_artifacts_and_validation_checkpoint_policies_locked_before_selection",
   "confirmation_execution": "PROHIBITED in this task",
   "tasks": {
     "atomicity": {
@@ -63,7 +63,7 @@
         "content_type"
       ],
       "exact_revision": "8949b909ec900327062f0ebf497f51aef5e6f0c8",
-      "status": "acquired_config_tokenizer_preflight_pending",
+      "status": "runtime_compatible_training_validation_pass",
       "fine_tune": true,
       "downloaded_artifact_identity": {
         "config.json": {
@@ -94,7 +94,38 @@
       "local_path": ".local/n04-v4/g25a/runtime/models/c1a-modernbert-base",
       "license_metadata": "apache-2.0",
       "license_source": "HF repository metadata and downloaded README/model card",
-      "runtime_compatibility": "not yet claimed; weight loading/training pending"
+      "runtime_compatibility": "PASS: local weight/tokenizer loading and task-specific training/validation completed on RTX 4090",
+      "task_policy_locks": {
+        "atomicity": {
+          "classes": [
+            "ATOMIC",
+            "NON_ATOMIC"
+          ],
+          "policy": {
+            "min_confidence": 0.0,
+            "min_margin": 0.0
+          },
+          "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c1a-modernbert-base/atomicity/checkpoint",
+          "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c1a-modernbert-base/atomicity/lock.json",
+          "raw_lock_sha256": "5c7373efeffd2c65b97cdbd3a76be4b1b7c83c5c2dcdbd0152c489836c6cb3fb"
+        },
+        "content_type": {
+          "classes": [
+            "SOURCE_FACT_CONTENT",
+            "INTERPRETATION_CONTENT",
+            "CREATIVE_CONTENT",
+            "CONTEXT_LIMIT_CONTENT",
+            "MIXED_CONTENT"
+          ],
+          "policy": {
+            "min_confidence": 0.0,
+            "min_margin": 0.05
+          },
+          "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c1a-modernbert-base/content_type/checkpoint",
+          "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c1a-modernbert-base/content_type/lock.json",
+          "raw_lock_sha256": "d1d6cf22cf563cafce16cca507467bac30fd7cd3dc58beef61802f0794cf314c"
+        }
+      }
     },
     {
       "candidate_id": "c1b-deberta-v3-base",
@@ -105,7 +136,7 @@
         "content_type"
       ],
       "exact_revision": "8ccc9b6f36199bec6961081d44eb72fb3f7353f3",
-      "status": "acquired_config_tokenizer_preflight_pending",
+      "status": "runtime_compatible_training_validation_pass",
       "fine_tune": true,
       "downloaded_artifact_identity": {
         "config.json": {
@@ -132,7 +163,38 @@
       "local_path": ".local/n04-v4/g25a/runtime/models/c1b-deberta-v3-base",
       "license_metadata": "mit",
       "license_source": "HF repository metadata and downloaded README/model card",
-      "runtime_compatibility": "not yet claimed; weight loading/training pending"
+      "runtime_compatibility": "PASS: local weight/tokenizer loading and task-specific training/validation completed on RTX 4090",
+      "task_policy_locks": {
+        "atomicity": {
+          "classes": [
+            "ATOMIC",
+            "NON_ATOMIC"
+          ],
+          "policy": {
+            "min_confidence": 0.95,
+            "min_margin": 0.0
+          },
+          "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c1b-deberta-v3-base/atomicity/checkpoint",
+          "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c1b-deberta-v3-base/atomicity/lock.json",
+          "raw_lock_sha256": "c77f774374054cbb59cd401d4ce63429fc4bc7fb139d6fb29ad246caba8a0efb"
+        },
+        "content_type": {
+          "classes": [
+            "SOURCE_FACT_CONTENT",
+            "INTERPRETATION_CONTENT",
+            "CREATIVE_CONTENT",
+            "CONTEXT_LIMIT_CONTENT",
+            "MIXED_CONTENT"
+          ],
+          "policy": {
+            "min_confidence": 0.6,
+            "min_margin": 0.0
+          },
+          "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c1b-deberta-v3-base/content_type/checkpoint",
+          "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c1b-deberta-v3-base/content_type/lock.json",
+          "raw_lock_sha256": "a92cb2ef86ccd9fbbde626d3d2172e84ecac75a7c967f9e4ec018e6099065b20"
+        }
+      }
     },
     {
       "candidate_id": "c2-nli-deberta-v3-base",
@@ -143,7 +205,7 @@
         "content_type"
       ],
       "exact_revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
-      "status": "acquired_config_tokenizer_preflight_pending",
+      "status": "runtime_compatible_training_validation_pass",
       "fine_tune": false,
       "score": "entailment probability for every frozen class-definition pair, then normalize across all classes; entailment label mapping must be resolved from exact config before selection; no manual ambiguous mapping fallback",
       "downloaded_artifact_identity": {
@@ -183,7 +245,40 @@
       "local_path": ".local/n04-v4/g25a/runtime/models/c2-nli-deberta-v3-base",
       "license_metadata": "apache-2.0",
       "license_source": "HF repository metadata and downloaded README/model card",
-      "runtime_compatibility": "not yet claimed; weight loading/training pending"
+      "runtime_compatibility": "PASS: local weight/tokenizer loading and task-specific training/validation completed on RTX 4090",
+      "task_policy_locks": {
+        "atomicity": {
+          "classes": [
+            "ATOMIC",
+            "NON_ATOMIC",
+            "AMBIGUOUS"
+          ],
+          "policy": {
+            "min_confidence": 0.5,
+            "min_margin": 0.0
+          },
+          "checkpoint": ".local/n04-v4/g25a/runtime/models/c2-nli-deberta-v3-base",
+          "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c2-nli-deberta-v3-base/atomicity/lock.json",
+          "raw_lock_sha256": "ac09b4fd1574bc57c728c32602385430628c7172c0adb48907e778b38a7037e7"
+        },
+        "content_type": {
+          "classes": [
+            "SOURCE_FACT_CONTENT",
+            "INTERPRETATION_CONTENT",
+            "CREATIVE_CONTENT",
+            "CONTEXT_LIMIT_CONTENT",
+            "MIXED_CONTENT",
+            "AMBIGUOUS"
+          ],
+          "policy": {
+            "min_confidence": 0.0,
+            "min_margin": 0.05
+          },
+          "checkpoint": ".local/n04-v4/g25a/runtime/models/c2-nli-deberta-v3-base",
+          "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c2-nli-deberta-v3-base/content_type/lock.json",
+          "raw_lock_sha256": "6b0ec79bdb12b5089070ef9e6bc07b2a69b315cec684d43f89736ac46072159f"
+        }
+      }
     },
     {
       "candidate_id": "c3-setfit-minilm-l6-v2",
@@ -194,7 +289,7 @@
         "content_type"
       ],
       "exact_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
-      "status": "acquired_config_tokenizer_preflight_pending",
+      "status": "runtime_compatible_training_validation_pass",
       "fine_tune": true,
       "few_shot_per_class": 16,
       "sampling": "fixed seed from train only",
@@ -259,7 +354,38 @@
       "local_path": ".local/n04-v4/g25a/runtime/models/c3-setfit-minilm-l6-v2",
       "license_metadata": "apache-2.0",
       "license_source": "HF repository metadata and downloaded README/model card",
-      "runtime_compatibility": "not yet claimed; weight loading/training pending"
+      "runtime_compatibility": "PASS: local weight/tokenizer loading and task-specific training/validation completed on RTX 4090",
+      "task_policy_locks": {
+        "atomicity": {
+          "classes": [
+            "ATOMIC",
+            "NON_ATOMIC"
+          ],
+          "policy": {
+            "min_confidence": 0.0,
+            "min_margin": 0.2
+          },
+          "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/atomicity/checkpoint",
+          "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/atomicity/lock.json",
+          "raw_lock_sha256": "a9381cd05da80661c99b37174d1191ff44075ea80b8e2cca500859f9088116e3"
+        },
+        "content_type": {
+          "classes": [
+            "SOURCE_FACT_CONTENT",
+            "INTERPRETATION_CONTENT",
+            "CREATIVE_CONTENT",
+            "CONTEXT_LIMIT_CONTENT",
+            "MIXED_CONTENT"
+          ],
+          "policy": {
+            "min_confidence": 0.0,
+            "min_margin": 0.2
+          },
+          "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/content_type/checkpoint",
+          "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/content_type/lock.json",
+          "raw_lock_sha256": "5de70c954e8c4ded57bcece0d8e1fcf727393b0b865419ee8f4a3e32c8e40a98"
+        }
+      }
     }
   ],
   "C0": {
@@ -423,5 +549,13 @@
       "yarl==1.25.1"
     ],
     "production_environment_modified": false
+  },
+  "selection_measurement": {
+    "batch_size": 8,
+    "repeats": 3,
+    "warmup": "one fixed independent neutral sentence per candidate/task",
+    "latency": "GPU-synchronized batch time / rows; median over all selection rows and repeats; excludes model load and warmup",
+    "metric_aggregation": "critical/required error maximum across repeats; exact required/critical repeatability; arithmetic mean of macro-F1, recall and ambiguity rates for ranking",
+    "vram": "peak torch CUDA allocated bytes after model load/warmup (includes resident model)"
   }
 }

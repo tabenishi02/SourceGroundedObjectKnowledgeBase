@@ -1,0 +1,1222 @@
+{
+  "schema_version": "sgokb.g25a.development-policy-lock/1",
+  "status": "all_checkpoint_policies_locked_before_selection",
+  "training_run_id": "20261021T230349+0900",
+  "corpus_freeze_commit": "ea46ba172fc071f0c4ce160ac4c99b8c831bbfbe",
+  "training_input_lock": {
+    "benchmark_input_head": "145b00c9b0ca0df403f354f587ae938b99ab0b5d",
+    "candidate_manifest_sha256": "82c610712ba33e4d58309ef1b207d453313cda0b2cb3e7c9756c5c4b942b7100",
+    "development_files": {
+      "n04g25a-atomicity-development-v1.jsonl": "b84ec6b110f5b2939dfb75ec34c5aa91ff42d013255ef088da5a47f6fc6fb9bf",
+      "n04g25a-content-type-development-v1.jsonl": "c039674b35ac5a2ecba74a75c6369b2a80b94bb314545bdeea9f7f8e8d592e2b",
+      "n04g25a-development-manifest-v1.json": "06fc960c2c763e10160039baa875bc45b1206d54fa1307c7cb2093ba080cf111"
+    },
+    "split_manifest_sha256": "4e8ed4f1f8c102d894d19d4090687d6da01b531a5f1bc4cc890f41d7475c0fef",
+    "runner_sha256": "a2116c86cec61f911c2adda243bddc19f9abc6235d921d88e913d426fec1e592",
+    "metrics_sha256": "a7087d9ed84bf56ada181484bd1d877f7c88912230b30e2c3e584e15ff22520f",
+    "confirmation_started": false
+  },
+  "raw_policy_freeze_sha256": "75fe29ba251ebf27258a4dad2e50e3fc5bc0b0f24c3abac731eed9a2ed5c7482",
+  "candidate_manifest_sha256": "c93f70ab3bbfc905609c12c90dbddd628d6e5172f8ed5532a1b05f7b70af18e7",
+  "standard_venv_unchanged": true,
+  "selection_started": false,
+  "confirmation_started": false,
+  "locks": [
+    {
+      "status": "checkpoint_policy_locked",
+      "candidate_id": "c1a-modernbert-base",
+      "task": "atomicity",
+      "classes": [
+        "ATOMIC",
+        "NON_ATOMIC"
+      ],
+      "policy": {
+        "min_confidence": 0.0,
+        "min_margin": 0.0
+      },
+      "validation_metrics": {
+        "critical_false_pass": 0,
+        "required_valid_false_reject": 0,
+        "per_class_recall": {
+          "ATOMIC": 1.0,
+          "NON_ATOMIC": 1.0,
+          "AMBIGUOUS": 0.0
+        },
+        "macro_f1": 0.6296296296296297,
+        "mean_class_recall": 0.6666666666666666,
+        "ambiguity_rate": 0.0,
+        "nonambiguous_ambiguity_rate": 0.0,
+        "confusion": {
+          "AMBIGUOUS->ATOMIC": 10,
+          "ATOMIC->ATOMIC": 40,
+          "NON_ATOMIC->NON_ATOMIC": 40
+        },
+        "confusion_by_family": {
+          "atomicity.atomic.sole_count": {
+            "ATOMIC->ATOMIC": 10
+          },
+          "atomicity.atomic.single_comparison": {
+            "ATOMIC->ATOMIC": 10
+          },
+          "atomicity.atomic.existence": {
+            "ATOMIC->ATOMIC": 10
+          },
+          "atomicity.atomic.event_not_occurred": {
+            "ATOMIC->ATOMIC": 10
+          },
+          "atomicity.non_atomic.appended_identity_event": {
+            "NON_ATOMIC->NON_ATOMIC": 10
+          },
+          "atomicity.non_atomic.two_invented_events": {
+            "NON_ATOMIC->NON_ATOMIC": 10
+          },
+          "atomicity.non_atomic.inference_and_context": {
+            "NON_ATOMIC->NON_ATOMIC": 10
+          },
+          "atomicity.non_atomic.fact_and_interpretive_value": {
+            "NON_ATOMIC->NON_ATOMIC": 10
+          },
+          "atomicity.ambiguous.explanatory_modifier": {
+            "AMBIGUOUS->ATOMIC": 10
+          }
+        }
+      },
+      "fit_partition": "validation",
+      "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c1a-modernbert-base/atomicity/checkpoint",
+      "epoch": 3,
+      "validation_cross_entropy": 0.07309447580015696,
+      "epochs": [
+        {
+          "epoch": 1,
+          "train_loss": 0.2379247464472428,
+          "validation_cross_entropy": 0.3780524941993185
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.001475292745938835,
+          "validation_cross_entropy": 0.2899643491459517
+        },
+        {
+          "epoch": 3,
+          "train_loss": 5.95932322084991e-05,
+          "validation_cross_entropy": 0.07309447580015696
+        }
+      ],
+      "artifacts": {
+        "config.json": {
+          "sha256": "41eaeb164abb5e5658859ba9e0e5c475782c61e4d510d55042892dc786499ba2",
+          "bytes": 1457
+        },
+        "model.safetensors": {
+          "sha256": "b9f8e5302b779f07d149919c2a98defd20881ee1fe8ec0e4be928a0d5dda123e",
+          "bytes": 598439784
+        },
+        "special_tokens_map.json": {
+          "sha256": "e386620cb5e9f6570fe98481fde86167b4236cdebdcc42308652574122561619",
+          "bytes": 731
+        },
+        "tokenizer.json": {
+          "sha256": "218484396a9d08293b108b0e5ea31e0a1b7c801dcbed35a821deb392d2fe9bb4",
+          "bytes": 3583485
+        },
+        "tokenizer_config.json": {
+          "sha256": "973134a8b0937f6a3a3567a5cc5cbd05a95974af1f8d2173c43dd09cf2f0e4bb",
+          "bytes": 21781
+        }
+      },
+      "elapsed_seconds": 13.6549754999578,
+      "peak_allocated_vram_bytes": 3162472960,
+      "selection_started": false,
+      "confirmation_started": false,
+      "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c1a-modernbert-base/atomicity/lock.json",
+      "raw_lock_sha256": "5c7373efeffd2c65b97cdbd3a76be4b1b7c83c5c2dcdbd0152c489836c6cb3fb"
+    },
+    {
+      "status": "checkpoint_policy_locked",
+      "candidate_id": "c1a-modernbert-base",
+      "task": "content_type",
+      "classes": [
+        "SOURCE_FACT_CONTENT",
+        "INTERPRETATION_CONTENT",
+        "CREATIVE_CONTENT",
+        "CONTEXT_LIMIT_CONTENT",
+        "MIXED_CONTENT"
+      ],
+      "policy": {
+        "min_confidence": 0.0,
+        "min_margin": 0.05
+      },
+      "validation_metrics": {
+        "critical_false_pass": 0,
+        "required_valid_false_reject": 0,
+        "per_class_recall": {
+          "SOURCE_FACT_CONTENT": 1.0,
+          "INTERPRETATION_CONTENT": 1.0,
+          "CREATIVE_CONTENT": 1.0,
+          "CONTEXT_LIMIT_CONTENT": 1.0,
+          "MIXED_CONTENT": 1.0,
+          "AMBIGUOUS": 0.1
+        },
+        "macro_f1": 0.8299663299663299,
+        "mean_class_recall": 0.85,
+        "ambiguity_rate": 0.00909090909090909,
+        "nonambiguous_ambiguity_rate": 0.0,
+        "confusion": {
+          "AMBIGUOUS->AMBIGUOUS": 1,
+          "AMBIGUOUS->INTERPRETATION_CONTENT": 4,
+          "AMBIGUOUS->SOURCE_FACT_CONTENT": 5,
+          "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 20,
+          "CREATIVE_CONTENT->CREATIVE_CONTENT": 20,
+          "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 20,
+          "MIXED_CONTENT->MIXED_CONTENT": 20,
+          "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 20
+        },
+        "confusion_by_family": {
+          "content_type.source_fact_content.passive_world_event": {
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+          },
+          "content_type.source_fact_content.measured_world_property": {
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+          },
+          "content_type.interpretation_content.interpretive_tradeoff": {
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+          },
+          "content_type.interpretation_content.evaluative_implication": {
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+          },
+          "content_type.creative_content.imagined_motive": {
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+          },
+          "content_type.creative_content.new_dialogue": {
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+          },
+          "content_type.context_limit_content.limited_scope": {
+            "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 10
+          },
+          "content_type.context_limit_content.bounded_confirmation": {
+            "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 10
+          },
+          "content_type.mixed_content.premise_embedded_conclusion": {
+            "MIXED_CONTENT->MIXED_CONTENT": 10
+          },
+          "content_type.mixed_content.invention_fact": {
+            "MIXED_CONTENT->MIXED_CONTENT": 10
+          },
+          "content_type.ambiguous.unmarked_future": {
+            "AMBIGUOUS->INTERPRETATION_CONTENT": 4,
+            "AMBIGUOUS->SOURCE_FACT_CONTENT": 5,
+            "AMBIGUOUS->AMBIGUOUS": 1
+          }
+        }
+      },
+      "fit_partition": "validation",
+      "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c1a-modernbert-base/content_type/checkpoint",
+      "epoch": 3,
+      "validation_cross_entropy": 0.04356880917835957,
+      "epochs": [
+        {
+          "epoch": 1,
+          "train_loss": 0.4770278602369025,
+          "validation_cross_entropy": 0.06742782127203807
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.000821003534981987,
+          "validation_cross_entropy": 0.051358352334461434
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.00017453760014369006,
+          "validation_cross_entropy": 0.04356880917835957
+        }
+      ],
+      "artifacts": {
+        "config.json": {
+          "sha256": "ae69add88e198e475bdceb6e45bb8786c3a3eb80b2aa21f5e8ea4d1bd217e214",
+          "bytes": 1685
+        },
+        "model.safetensors": {
+          "sha256": "8b10f80495b898e3cb6e3ce3cee67b46b01d577a9df7719adc19a869e5481494",
+          "bytes": 598449012
+        },
+        "special_tokens_map.json": {
+          "sha256": "e386620cb5e9f6570fe98481fde86167b4236cdebdcc42308652574122561619",
+          "bytes": 731
+        },
+        "tokenizer.json": {
+          "sha256": "218484396a9d08293b108b0e5ea31e0a1b7c801dcbed35a821deb392d2fe9bb4",
+          "bytes": 3583485
+        },
+        "tokenizer_config.json": {
+          "sha256": "973134a8b0937f6a3a3567a5cc5cbd05a95974af1f8d2173c43dd09cf2f0e4bb",
+          "bytes": 21781
+        }
+      },
+      "elapsed_seconds": 15.697431099950336,
+      "peak_allocated_vram_bytes": 3162519040,
+      "selection_started": false,
+      "confirmation_started": false,
+      "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c1a-modernbert-base/content_type/lock.json",
+      "raw_lock_sha256": "d1d6cf22cf563cafce16cca507467bac30fd7cd3dc58beef61802f0794cf314c"
+    },
+    {
+      "status": "checkpoint_policy_locked",
+      "candidate_id": "c1b-deberta-v3-base",
+      "task": "atomicity",
+      "classes": [
+        "ATOMIC",
+        "NON_ATOMIC"
+      ],
+      "policy": {
+        "min_confidence": 0.95,
+        "min_margin": 0.0
+      },
+      "validation_metrics": {
+        "critical_false_pass": 0,
+        "required_valid_false_reject": 10,
+        "per_class_recall": {
+          "ATOMIC": 0.75,
+          "NON_ATOMIC": 1.0,
+          "AMBIGUOUS": 0.0
+        },
+        "macro_f1": 0.5634920634920635,
+        "mean_class_recall": 0.5833333333333334,
+        "ambiguity_rate": 0.044444444444444446,
+        "nonambiguous_ambiguity_rate": 0.05,
+        "confusion": {
+          "AMBIGUOUS->NON_ATOMIC": 10,
+          "ATOMIC->AMBIGUOUS": 4,
+          "ATOMIC->ATOMIC": 30,
+          "ATOMIC->NON_ATOMIC": 6,
+          "NON_ATOMIC->NON_ATOMIC": 40
+        },
+        "confusion_by_family": {
+          "atomicity.atomic.sole_count": {
+            "ATOMIC->ATOMIC": 10
+          },
+          "atomicity.atomic.single_comparison": {
+            "ATOMIC->ATOMIC": 10
+          },
+          "atomicity.atomic.existence": {
+            "ATOMIC->ATOMIC": 10
+          },
+          "atomicity.atomic.event_not_occurred": {
+            "ATOMIC->NON_ATOMIC": 6,
+            "ATOMIC->AMBIGUOUS": 4
+          },
+          "atomicity.non_atomic.appended_identity_event": {
+            "NON_ATOMIC->NON_ATOMIC": 10
+          },
+          "atomicity.non_atomic.two_invented_events": {
+            "NON_ATOMIC->NON_ATOMIC": 10
+          },
+          "atomicity.non_atomic.inference_and_context": {
+            "NON_ATOMIC->NON_ATOMIC": 10
+          },
+          "atomicity.non_atomic.fact_and_interpretive_value": {
+            "NON_ATOMIC->NON_ATOMIC": 10
+          },
+          "atomicity.ambiguous.explanatory_modifier": {
+            "AMBIGUOUS->NON_ATOMIC": 10
+          }
+        }
+      },
+      "fit_partition": "validation",
+      "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c1b-deberta-v3-base/atomicity/checkpoint",
+      "epoch": 2,
+      "validation_cross_entropy": 0.42472022943725374,
+      "epochs": [
+        {
+          "epoch": 1,
+          "train_loss": 0.667925876379013,
+          "validation_cross_entropy": 0.5892338789666657
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.13822712839270632,
+          "validation_cross_entropy": 0.42472022943725374
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.0040283110225573186,
+          "validation_cross_entropy": 0.6586182060340253
+        }
+      ],
+      "artifacts": {
+        "added_tokens.json": {
+          "sha256": "a4b6bfe668f2b3cf6f0cd535e98a0663d2d0d4a4a15f13075ad3597d33985a23",
+          "bytes": 26
+        },
+        "config.json": {
+          "sha256": "a21cae75296793f5fdc868440f23c72f44d0afb77c88319ed7950754559f9697",
+          "bytes": 1013
+        },
+        "model.safetensors": {
+          "sha256": "7c8c7e9b667608ddfaae34dcf8866863ef9822abe0aac847e096168e7f5d8e35",
+          "bytes": 737719272
+        },
+        "special_tokens_map.json": {
+          "sha256": "ed7c099c988dbb414b18a6980d20cb57b91b7cd119f6f6941eb364b0e892e712",
+          "bytes": 301
+        },
+        "spm.model": {
+          "sha256": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+          "bytes": 2464616
+        },
+        "tokenizer_config.json": {
+          "sha256": "700dba386cc05b6b14e74add7fe9293a6cb3ab16f3aa2eb177c76e288592bf01",
+          "bytes": 1374
+        }
+      },
+      "elapsed_seconds": 18.365917399991304,
+      "peak_allocated_vram_bytes": 3782893056,
+      "selection_started": false,
+      "confirmation_started": false,
+      "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c1b-deberta-v3-base/atomicity/lock.json",
+      "raw_lock_sha256": "c77f774374054cbb59cd401d4ce63429fc4bc7fb139d6fb29ad246caba8a0efb"
+    },
+    {
+      "status": "checkpoint_policy_locked",
+      "candidate_id": "c1b-deberta-v3-base",
+      "task": "content_type",
+      "classes": [
+        "SOURCE_FACT_CONTENT",
+        "INTERPRETATION_CONTENT",
+        "CREATIVE_CONTENT",
+        "CONTEXT_LIMIT_CONTENT",
+        "MIXED_CONTENT"
+      ],
+      "policy": {
+        "min_confidence": 0.6,
+        "min_margin": 0.0
+      },
+      "validation_metrics": {
+        "critical_false_pass": 0,
+        "required_valid_false_reject": 9,
+        "per_class_recall": {
+          "SOURCE_FACT_CONTENT": 1.0,
+          "INTERPRETATION_CONTENT": 1.0,
+          "CREATIVE_CONTENT": 0.55,
+          "CONTEXT_LIMIT_CONTENT": 1.0,
+          "MIXED_CONTENT": 1.0,
+          "AMBIGUOUS": 0.2
+        },
+        "macro_f1": 0.7799648113649487,
+        "mean_class_recall": 0.7916666666666666,
+        "ambiguity_rate": 0.03636363636363636,
+        "nonambiguous_ambiguity_rate": 0.02,
+        "confusion": {
+          "AMBIGUOUS->AMBIGUOUS": 2,
+          "AMBIGUOUS->SOURCE_FACT_CONTENT": 8,
+          "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 20,
+          "CREATIVE_CONTENT->AMBIGUOUS": 2,
+          "CREATIVE_CONTENT->CREATIVE_CONTENT": 11,
+          "CREATIVE_CONTENT->MIXED_CONTENT": 7,
+          "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 20,
+          "MIXED_CONTENT->MIXED_CONTENT": 20,
+          "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 20
+        },
+        "confusion_by_family": {
+          "content_type.source_fact_content.passive_world_event": {
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+          },
+          "content_type.source_fact_content.measured_world_property": {
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+          },
+          "content_type.interpretation_content.interpretive_tradeoff": {
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+          },
+          "content_type.interpretation_content.evaluative_implication": {
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+          },
+          "content_type.creative_content.imagined_motive": {
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+          },
+          "content_type.creative_content.new_dialogue": {
+            "CREATIVE_CONTENT->AMBIGUOUS": 2,
+            "CREATIVE_CONTENT->MIXED_CONTENT": 7,
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 1
+          },
+          "content_type.context_limit_content.limited_scope": {
+            "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 10
+          },
+          "content_type.context_limit_content.bounded_confirmation": {
+            "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 10
+          },
+          "content_type.mixed_content.premise_embedded_conclusion": {
+            "MIXED_CONTENT->MIXED_CONTENT": 10
+          },
+          "content_type.mixed_content.invention_fact": {
+            "MIXED_CONTENT->MIXED_CONTENT": 10
+          },
+          "content_type.ambiguous.unmarked_future": {
+            "AMBIGUOUS->SOURCE_FACT_CONTENT": 8,
+            "AMBIGUOUS->AMBIGUOUS": 2
+          }
+        }
+      },
+      "fit_partition": "validation",
+      "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c1b-deberta-v3-base/content_type/checkpoint",
+      "epoch": 3,
+      "validation_cross_entropy": 0.18672235207124094,
+      "epochs": [
+        {
+          "epoch": 1,
+          "train_loss": 1.499342187454826,
+          "validation_cross_entropy": 1.2420198686780213
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.660347178186241,
+          "validation_cross_entropy": 0.2690158266833685
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.07743104155126371,
+          "validation_cross_entropy": 0.18672235207124094
+        }
+      ],
+      "artifacts": {
+        "added_tokens.json": {
+          "sha256": "a4b6bfe668f2b3cf6f0cd535e98a0663d2d0d4a4a15f13075ad3597d33985a23",
+          "bytes": 26
+        },
+        "config.json": {
+          "sha256": "6bba6494bdbd6723bdc40456e31f60b2dc7629507f152bb0f890e6c08803533e",
+          "bytes": 1241
+        },
+        "model.safetensors": {
+          "sha256": "cec27dfbb3600ba201f8986eed5a343741b98049b33464beaa20b60c8acfddbe",
+          "bytes": 737728508
+        },
+        "special_tokens_map.json": {
+          "sha256": "ed7c099c988dbb414b18a6980d20cb57b91b7cd119f6f6941eb364b0e892e712",
+          "bytes": 301
+        },
+        "spm.model": {
+          "sha256": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+          "bytes": 2464616
+        },
+        "tokenizer_config.json": {
+          "sha256": "700dba386cc05b6b14e74add7fe9293a6cb3ab16f3aa2eb177c76e288592bf01",
+          "bytes": 1374
+        }
+      },
+      "elapsed_seconds": 34.9940290999366,
+      "peak_allocated_vram_bytes": 3784185856,
+      "selection_started": false,
+      "confirmation_started": false,
+      "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c1b-deberta-v3-base/content_type/lock.json",
+      "raw_lock_sha256": "a92cb2ef86ccd9fbbde626d3d2172e84ecac75a7c967f9e4ec018e6099065b20"
+    },
+    {
+      "status": "checkpoint_policy_locked",
+      "candidate_id": "c2-nli-deberta-v3-base",
+      "task": "atomicity",
+      "classes": [
+        "ATOMIC",
+        "NON_ATOMIC",
+        "AMBIGUOUS"
+      ],
+      "policy": {
+        "min_confidence": 0.5,
+        "min_margin": 0.0
+      },
+      "validation_metrics": {
+        "critical_false_pass": 0,
+        "required_valid_false_reject": 40,
+        "per_class_recall": {
+          "ATOMIC": 0.0,
+          "NON_ATOMIC": 0.75,
+          "AMBIGUOUS": 0.7
+        },
+        "macro_f1": 0.3238095238095238,
+        "mean_class_recall": 0.48333333333333334,
+        "ambiguity_rate": 0.2777777777777778,
+        "nonambiguous_ambiguity_rate": 0.225,
+        "confusion": {
+          "AMBIGUOUS->AMBIGUOUS": 7,
+          "AMBIGUOUS->NON_ATOMIC": 3,
+          "ATOMIC->AMBIGUOUS": 8,
+          "ATOMIC->NON_ATOMIC": 32,
+          "NON_ATOMIC->AMBIGUOUS": 10,
+          "NON_ATOMIC->NON_ATOMIC": 30
+        },
+        "confusion_by_family": {
+          "atomicity.atomic.sole_count": {
+            "ATOMIC->NON_ATOMIC": 10
+          },
+          "atomicity.atomic.single_comparison": {
+            "ATOMIC->NON_ATOMIC": 10
+          },
+          "atomicity.atomic.existence": {
+            "ATOMIC->NON_ATOMIC": 10
+          },
+          "atomicity.atomic.event_not_occurred": {
+            "ATOMIC->AMBIGUOUS": 8,
+            "ATOMIC->NON_ATOMIC": 2
+          },
+          "atomicity.non_atomic.appended_identity_event": {
+            "NON_ATOMIC->AMBIGUOUS": 2,
+            "NON_ATOMIC->NON_ATOMIC": 8
+          },
+          "atomicity.non_atomic.two_invented_events": {
+            "NON_ATOMIC->AMBIGUOUS": 8,
+            "NON_ATOMIC->NON_ATOMIC": 2
+          },
+          "atomicity.non_atomic.inference_and_context": {
+            "NON_ATOMIC->NON_ATOMIC": 10
+          },
+          "atomicity.non_atomic.fact_and_interpretive_value": {
+            "NON_ATOMIC->NON_ATOMIC": 10
+          },
+          "atomicity.ambiguous.explanatory_modifier": {
+            "AMBIGUOUS->AMBIGUOUS": 7,
+            "AMBIGUOUS->NON_ATOMIC": 3
+          }
+        }
+      },
+      "fit_partition": "validation",
+      "checkpoint": ".local/n04-v4/g25a/runtime/models/c2-nli-deberta-v3-base",
+      "epoch": null,
+      "entailment_mapping": {
+        "0": "contradiction",
+        "1": "entailment",
+        "2": "neutral"
+      },
+      "artifacts": {
+        ".cache/huggingface/.gitignore": {
+          "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1",
+          "bytes": 1
+        },
+        ".cache/huggingface/download/added_tokens.json.metadata": {
+          "sha256": "31c115d891241e8a57cd7c3a3b7bde752d9567ce0fecdb21b0515402e77d38b1",
+          "bytes": 104
+        },
+        ".cache/huggingface/download/config.json.metadata": {
+          "sha256": "bde31fbd4b73b49b5701e214905171b26164f955cec62563597b9a5575f0cb26",
+          "bytes": 104
+        },
+        ".cache/huggingface/download/model.safetensors.metadata": {
+          "sha256": "906d8de0d5eb30e427965ca256127d4ee4469031a8c37d327e7d00a59bca9dd3",
+          "bytes": 127
+        },
+        ".cache/huggingface/download/README.md.metadata": {
+          "sha256": "7017263fb27e61ea07b48cdb22b8a92e2da5ab71158fe3c8f6f1edbce6a9d9e3",
+          "bytes": 104
+        },
+        ".cache/huggingface/download/special_tokens_map.json.metadata": {
+          "sha256": "041b94d2c4b09b73ae5f2891ce21d6eb9c207b3b8a40e340e4b303b26a3fd037",
+          "bytes": 103
+        },
+        ".cache/huggingface/download/spm.model.metadata": {
+          "sha256": "d13939cb07060d8ba8c5673552ec7f4ee231f6a218bcfe0fc26784934f46bcac",
+          "bytes": 128
+        },
+        ".cache/huggingface/download/tokenizer.json.metadata": {
+          "sha256": "1489d4956dc617699e7c6485d216cc794ce9f23647c877949ab53d42eb1ed078",
+          "bytes": 104
+        },
+        ".cache/huggingface/download/tokenizer_config.json.metadata": {
+          "sha256": "9661d93016be106ab4f17e7716f7950f27269e433c6b63465265128cf5dfa737",
+          "bytes": 104
+        },
+        "added_tokens.json": {
+          "sha256": "a4b6bfe668f2b3cf6f0cd535e98a0663d2d0d4a4a15f13075ad3597d33985a23",
+          "bytes": 26
+        },
+        "config.json": {
+          "sha256": "897e756eb59d3183adb505952e7910e7cbc7750a43f3b3747a96b688d2b02a47",
+          "bytes": 1052
+        },
+        "model.safetensors": {
+          "sha256": "d8148c6d49e0a7925134294c56326c71fe0ab1dc390e37355e00c7efbb488afa",
+          "bytes": 737726552
+        },
+        "README.md": {
+          "sha256": "b6a6dd82d5fee7036e3b815ce1d28458df294d8525fc234fb7e7277b6b79d878",
+          "bytes": 2856
+        },
+        "special_tokens_map.json": {
+          "sha256": "ed7c099c988dbb414b18a6980d20cb57b91b7cd119f6f6941eb364b0e892e712",
+          "bytes": 301
+        },
+        "spm.model": {
+          "sha256": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+          "bytes": 2464616
+        },
+        "tokenizer.json": {
+          "sha256": "5124ef2ead1a10a717703bc436de7f353da76d6340e4587719b42b1693707964",
+          "bytes": 8656624
+        },
+        "tokenizer_config.json": {
+          "sha256": "f3eecd07c370ef0bf7dd3780d3cd68cf9c8b00c267e21a208ddcd8f82bfec1a6",
+          "bytes": 1346
+        }
+      },
+      "elapsed_seconds": 6.014433700009249,
+      "peak_allocated_vram_bytes": 921567744,
+      "selection_started": false,
+      "confirmation_started": false,
+      "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c2-nli-deberta-v3-base/atomicity/lock.json",
+      "raw_lock_sha256": "ac09b4fd1574bc57c728c32602385430628c7172c0adb48907e778b38a7037e7"
+    },
+    {
+      "status": "checkpoint_policy_locked",
+      "candidate_id": "c2-nli-deberta-v3-base",
+      "task": "content_type",
+      "classes": [
+        "SOURCE_FACT_CONTENT",
+        "INTERPRETATION_CONTENT",
+        "CREATIVE_CONTENT",
+        "CONTEXT_LIMIT_CONTENT",
+        "MIXED_CONTENT",
+        "AMBIGUOUS"
+      ],
+      "policy": {
+        "min_confidence": 0.0,
+        "min_margin": 0.05
+      },
+      "validation_metrics": {
+        "critical_false_pass": 0,
+        "required_valid_false_reject": 80,
+        "per_class_recall": {
+          "SOURCE_FACT_CONTENT": 0.0,
+          "INTERPRETATION_CONTENT": 0.0,
+          "CREATIVE_CONTENT": 0.0,
+          "CONTEXT_LIMIT_CONTENT": 0.0,
+          "MIXED_CONTENT": 0.0,
+          "AMBIGUOUS": 1.0
+        },
+        "macro_f1": 0.027777777777777776,
+        "mean_class_recall": 0.16666666666666666,
+        "ambiguity_rate": 1.0,
+        "nonambiguous_ambiguity_rate": 1.0,
+        "confusion": {
+          "AMBIGUOUS->AMBIGUOUS": 10,
+          "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 20,
+          "CREATIVE_CONTENT->AMBIGUOUS": 20,
+          "INTERPRETATION_CONTENT->AMBIGUOUS": 20,
+          "MIXED_CONTENT->AMBIGUOUS": 20,
+          "SOURCE_FACT_CONTENT->AMBIGUOUS": 20
+        },
+        "confusion_by_family": {
+          "content_type.source_fact_content.passive_world_event": {
+            "SOURCE_FACT_CONTENT->AMBIGUOUS": 10
+          },
+          "content_type.source_fact_content.measured_world_property": {
+            "SOURCE_FACT_CONTENT->AMBIGUOUS": 10
+          },
+          "content_type.interpretation_content.interpretive_tradeoff": {
+            "INTERPRETATION_CONTENT->AMBIGUOUS": 10
+          },
+          "content_type.interpretation_content.evaluative_implication": {
+            "INTERPRETATION_CONTENT->AMBIGUOUS": 10
+          },
+          "content_type.creative_content.imagined_motive": {
+            "CREATIVE_CONTENT->AMBIGUOUS": 10
+          },
+          "content_type.creative_content.new_dialogue": {
+            "CREATIVE_CONTENT->AMBIGUOUS": 10
+          },
+          "content_type.context_limit_content.limited_scope": {
+            "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 10
+          },
+          "content_type.context_limit_content.bounded_confirmation": {
+            "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 10
+          },
+          "content_type.mixed_content.premise_embedded_conclusion": {
+            "MIXED_CONTENT->AMBIGUOUS": 10
+          },
+          "content_type.mixed_content.invention_fact": {
+            "MIXED_CONTENT->AMBIGUOUS": 10
+          },
+          "content_type.ambiguous.unmarked_future": {
+            "AMBIGUOUS->AMBIGUOUS": 10
+          }
+        }
+      },
+      "fit_partition": "validation",
+      "checkpoint": ".local/n04-v4/g25a/runtime/models/c2-nli-deberta-v3-base",
+      "epoch": null,
+      "entailment_mapping": {
+        "0": "contradiction",
+        "1": "entailment",
+        "2": "neutral"
+      },
+      "artifacts": {
+        ".cache/huggingface/.gitignore": {
+          "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1",
+          "bytes": 1
+        },
+        ".cache/huggingface/download/added_tokens.json.metadata": {
+          "sha256": "31c115d891241e8a57cd7c3a3b7bde752d9567ce0fecdb21b0515402e77d38b1",
+          "bytes": 104
+        },
+        ".cache/huggingface/download/config.json.metadata": {
+          "sha256": "bde31fbd4b73b49b5701e214905171b26164f955cec62563597b9a5575f0cb26",
+          "bytes": 104
+        },
+        ".cache/huggingface/download/model.safetensors.metadata": {
+          "sha256": "906d8de0d5eb30e427965ca256127d4ee4469031a8c37d327e7d00a59bca9dd3",
+          "bytes": 127
+        },
+        ".cache/huggingface/download/README.md.metadata": {
+          "sha256": "7017263fb27e61ea07b48cdb22b8a92e2da5ab71158fe3c8f6f1edbce6a9d9e3",
+          "bytes": 104
+        },
+        ".cache/huggingface/download/special_tokens_map.json.metadata": {
+          "sha256": "041b94d2c4b09b73ae5f2891ce21d6eb9c207b3b8a40e340e4b303b26a3fd037",
+          "bytes": 103
+        },
+        ".cache/huggingface/download/spm.model.metadata": {
+          "sha256": "d13939cb07060d8ba8c5673552ec7f4ee231f6a218bcfe0fc26784934f46bcac",
+          "bytes": 128
+        },
+        ".cache/huggingface/download/tokenizer.json.metadata": {
+          "sha256": "1489d4956dc617699e7c6485d216cc794ce9f23647c877949ab53d42eb1ed078",
+          "bytes": 104
+        },
+        ".cache/huggingface/download/tokenizer_config.json.metadata": {
+          "sha256": "9661d93016be106ab4f17e7716f7950f27269e433c6b63465265128cf5dfa737",
+          "bytes": 104
+        },
+        "added_tokens.json": {
+          "sha256": "a4b6bfe668f2b3cf6f0cd535e98a0663d2d0d4a4a15f13075ad3597d33985a23",
+          "bytes": 26
+        },
+        "config.json": {
+          "sha256": "897e756eb59d3183adb505952e7910e7cbc7750a43f3b3747a96b688d2b02a47",
+          "bytes": 1052
+        },
+        "model.safetensors": {
+          "sha256": "d8148c6d49e0a7925134294c56326c71fe0ab1dc390e37355e00c7efbb488afa",
+          "bytes": 737726552
+        },
+        "README.md": {
+          "sha256": "b6a6dd82d5fee7036e3b815ce1d28458df294d8525fc234fb7e7277b6b79d878",
+          "bytes": 2856
+        },
+        "special_tokens_map.json": {
+          "sha256": "ed7c099c988dbb414b18a6980d20cb57b91b7cd119f6f6941eb364b0e892e712",
+          "bytes": 301
+        },
+        "spm.model": {
+          "sha256": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+          "bytes": 2464616
+        },
+        "tokenizer.json": {
+          "sha256": "5124ef2ead1a10a717703bc436de7f353da76d6340e4587719b42b1693707964",
+          "bytes": 8656624
+        },
+        "tokenizer_config.json": {
+          "sha256": "f3eecd07c370ef0bf7dd3780d3cd68cf9c8b00c267e21a208ddcd8f82bfec1a6",
+          "bytes": 1346
+        }
+      },
+      "elapsed_seconds": 6.592511199996807,
+      "peak_allocated_vram_bytes": 1087673856,
+      "selection_started": false,
+      "confirmation_started": false,
+      "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c2-nli-deberta-v3-base/content_type/lock.json",
+      "raw_lock_sha256": "6b0ec79bdb12b5089070ef9e6bc07b2a69b315cec684d43f89736ac46072159f"
+    },
+    {
+      "status": "checkpoint_policy_locked",
+      "candidate_id": "c3-setfit-minilm-l6-v2",
+      "task": "atomicity",
+      "classes": [
+        "ATOMIC",
+        "NON_ATOMIC"
+      ],
+      "policy": {
+        "min_confidence": 0.0,
+        "min_margin": 0.2
+      },
+      "validation_metrics": {
+        "critical_false_pass": 0,
+        "required_valid_false_reject": 38,
+        "per_class_recall": {
+          "ATOMIC": 0.05,
+          "NON_ATOMIC": 0.1,
+          "AMBIGUOUS": 0.6
+        },
+        "macro_f1": 0.13174603174603172,
+        "mean_class_recall": 0.25,
+        "ambiguity_rate": 0.8888888888888888,
+        "nonambiguous_ambiguity_rate": 0.925,
+        "confusion": {
+          "AMBIGUOUS->AMBIGUOUS": 6,
+          "AMBIGUOUS->NON_ATOMIC": 4,
+          "ATOMIC->AMBIGUOUS": 38,
+          "ATOMIC->ATOMIC": 2,
+          "NON_ATOMIC->AMBIGUOUS": 36,
+          "NON_ATOMIC->NON_ATOMIC": 4
+        },
+        "confusion_by_family": {
+          "atomicity.atomic.sole_count": {
+            "ATOMIC->AMBIGUOUS": 9,
+            "ATOMIC->ATOMIC": 1
+          },
+          "atomicity.atomic.single_comparison": {
+            "ATOMIC->AMBIGUOUS": 10
+          },
+          "atomicity.atomic.existence": {
+            "ATOMIC->AMBIGUOUS": 9,
+            "ATOMIC->ATOMIC": 1
+          },
+          "atomicity.atomic.event_not_occurred": {
+            "ATOMIC->AMBIGUOUS": 10
+          },
+          "atomicity.non_atomic.appended_identity_event": {
+            "NON_ATOMIC->AMBIGUOUS": 10
+          },
+          "atomicity.non_atomic.two_invented_events": {
+            "NON_ATOMIC->NON_ATOMIC": 4,
+            "NON_ATOMIC->AMBIGUOUS": 6
+          },
+          "atomicity.non_atomic.inference_and_context": {
+            "NON_ATOMIC->AMBIGUOUS": 10
+          },
+          "atomicity.non_atomic.fact_and_interpretive_value": {
+            "NON_ATOMIC->AMBIGUOUS": 10
+          },
+          "atomicity.ambiguous.explanatory_modifier": {
+            "AMBIGUOUS->NON_ATOMIC": 4,
+            "AMBIGUOUS->AMBIGUOUS": 6
+          }
+        }
+      },
+      "fit_partition": "validation",
+      "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/atomicity/checkpoint",
+      "sample_case_ids": [
+        "atomicity.atomic.invented_state.09",
+        "atomicity.atomic.category_membership.09",
+        "atomicity.atomic.context_absence.04",
+        "atomicity.atomic.negative_relation.09",
+        "atomicity.atomic.single_state.01",
+        "atomicity.atomic.category_membership.08",
+        "atomicity.atomic.interpretive_conclusion.01",
+        "atomicity.atomic.category_membership.00",
+        "atomicity.atomic.compound_name.01",
+        "atomicity.atomic.compound_name.02",
+        "atomicity.atomic.negative_property.09",
+        "atomicity.atomic.invented_state.01",
+        "atomicity.atomic.single_state.00",
+        "atomicity.atomic.passive_event.06",
+        "atomicity.atomic.negative_property.08",
+        "atomicity.atomic.single_state.02",
+        "atomicity.non_atomic.independent_states.06",
+        "atomicity.non_atomic.two_relations.07",
+        "atomicity.non_atomic.ordered_events.09",
+        "atomicity.non_atomic.ordered_events.05",
+        "atomicity.non_atomic.two_relations.00",
+        "atomicity.non_atomic.independent_states.07",
+        "atomicity.non_atomic.fact_and_cause.05",
+        "atomicity.non_atomic.world_and_invention.09",
+        "atomicity.non_atomic.world_and_invention.02",
+        "atomicity.non_atomic.fact_and_cause.01",
+        "atomicity.non_atomic.fact_and_cause.03",
+        "atomicity.non_atomic.two_events.09",
+        "atomicity.non_atomic.creative_and_context.06",
+        "atomicity.non_atomic.two_measurements.08",
+        "atomicity.non_atomic.two_relations.06",
+        "atomicity.non_atomic.two_events.03"
+      ],
+      "head_classes": [
+        0,
+        1
+      ],
+      "artifacts": {
+        "1_Pooling/config.json": {
+          "sha256": "64230a97629225324725c35e1a1cbd15025a9f656eafaaeb86cf8ec6a4ecb4d8",
+          "bytes": 305
+        },
+        "config.json": {
+          "sha256": "0c29b904ede1ebb6dc8fdb729349e4f1a8ae832476fee47940a26c5966fae7a2",
+          "bytes": 642
+        },
+        "config_sentence_transformers.json": {
+          "sha256": "9340fb62446799f38d58bd03cb0146342504e2f1c9bba13980452d74a56ce84d",
+          "bytes": 214
+        },
+        "config_setfit.json": {
+          "sha256": "c84ea3cea2887da28e4df20676f333a9865828ddb900e091de296b90ee9d015b",
+          "bytes": 56
+        },
+        "model.safetensors": {
+          "sha256": "0c2e5ad23b7676dfd0e4affd0143f39ff8df7c65731966b6be94879759eeac27",
+          "bytes": 90864192
+        },
+        "model_head.pkl": {
+          "sha256": "95eb10c4314a2497ec1c91e87104dff56a4cdb0e8852238c03e11a22dbc7d891",
+          "bytes": 3903
+        },
+        "modules.json": {
+          "sha256": "e7989e94b5b809d895a9521b708312c1ccd333e183effebaf3838908da2acd53",
+          "bytes": 368
+        },
+        "README.md": {
+          "sha256": "2c1e850ff16b579cda848270186fdef5d02780a0965b93affe735600ff710b6e",
+          "bytes": 6011
+        },
+        "sentence_bert_config.json": {
+          "sha256": "3a74bd419599ddc1af2b3f2c5d45de476d3383858721a174bff2922bd6a7f876",
+          "bytes": 56
+        },
+        "special_tokens_map.json": {
+          "sha256": "5aa43c2f985a25296d5a5ce621c2f77376ca8091a47993c492fd5460b895b140",
+          "bytes": 732
+        },
+        "tokenizer.json": {
+          "sha256": "2fc687b11de0bc1b3d8348f92e3b49ef1089a621506c7661fbf3248fcd54947e",
+          "bytes": 711649
+        },
+        "tokenizer_config.json": {
+          "sha256": "d4f505dfdb84b5a987fc5f520e0c2bac59e4ac6e43a1d00cab1e96647971dad8",
+          "bytes": 1529
+        },
+        "vocab.txt": {
+          "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3",
+          "bytes": 231508
+        }
+      },
+      "elapsed_seconds": 17.988997400039807,
+      "peak_allocated_vram_bytes": 632186368,
+      "selection_started": false,
+      "confirmation_started": false,
+      "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/atomicity/lock.json",
+      "raw_lock_sha256": "a9381cd05da80661c99b37174d1191ff44075ea80b8e2cca500859f9088116e3"
+    },
+    {
+      "status": "checkpoint_policy_locked",
+      "candidate_id": "c3-setfit-minilm-l6-v2",
+      "task": "content_type",
+      "classes": [
+        "SOURCE_FACT_CONTENT",
+        "INTERPRETATION_CONTENT",
+        "CREATIVE_CONTENT",
+        "CONTEXT_LIMIT_CONTENT",
+        "MIXED_CONTENT"
+      ],
+      "policy": {
+        "min_confidence": 0.0,
+        "min_margin": 0.2
+      },
+      "validation_metrics": {
+        "critical_false_pass": 0,
+        "required_valid_false_reject": 13,
+        "per_class_recall": {
+          "SOURCE_FACT_CONTENT": 1.0,
+          "INTERPRETATION_CONTENT": 1.0,
+          "CREATIVE_CONTENT": 0.35,
+          "CONTEXT_LIMIT_CONTENT": 1.0,
+          "MIXED_CONTENT": 0.0,
+          "AMBIGUOUS": 0.9
+        },
+        "macro_f1": 0.6410256410256411,
+        "mean_class_recall": 0.7083333333333334,
+        "ambiguity_rate": 0.38181818181818183,
+        "nonambiguous_ambiguity_rate": 0.33,
+        "confusion": {
+          "AMBIGUOUS->AMBIGUOUS": 9,
+          "AMBIGUOUS->CREATIVE_CONTENT": 1,
+          "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 20,
+          "CREATIVE_CONTENT->AMBIGUOUS": 13,
+          "CREATIVE_CONTENT->CREATIVE_CONTENT": 7,
+          "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 20,
+          "MIXED_CONTENT->AMBIGUOUS": 20,
+          "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 20
+        },
+        "confusion_by_family": {
+          "content_type.source_fact_content.passive_world_event": {
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+          },
+          "content_type.source_fact_content.measured_world_property": {
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+          },
+          "content_type.interpretation_content.interpretive_tradeoff": {
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+          },
+          "content_type.interpretation_content.evaluative_implication": {
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+          },
+          "content_type.creative_content.imagined_motive": {
+            "CREATIVE_CONTENT->AMBIGUOUS": 10
+          },
+          "content_type.creative_content.new_dialogue": {
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 7,
+            "CREATIVE_CONTENT->AMBIGUOUS": 3
+          },
+          "content_type.context_limit_content.limited_scope": {
+            "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 10
+          },
+          "content_type.context_limit_content.bounded_confirmation": {
+            "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 10
+          },
+          "content_type.mixed_content.premise_embedded_conclusion": {
+            "MIXED_CONTENT->AMBIGUOUS": 10
+          },
+          "content_type.mixed_content.invention_fact": {
+            "MIXED_CONTENT->AMBIGUOUS": 10
+          },
+          "content_type.ambiguous.unmarked_future": {
+            "AMBIGUOUS->AMBIGUOUS": 9,
+            "AMBIGUOUS->CREATIVE_CONTENT": 1
+          }
+        }
+      },
+      "fit_partition": "validation",
+      "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/content_type/checkpoint",
+      "sample_case_ids": [
+        "content_type.source_fact_content.unlikely_assertion.04",
+        "content_type.source_fact_content.general_category.04",
+        "content_type.source_fact_content.unlikely_assertion.07",
+        "content_type.source_fact_content.dated_event.04",
+        "content_type.source_fact_content.direct_property.00",
+        "content_type.source_fact_content.dated_event.08",
+        "content_type.source_fact_content.general_category.05",
+        "content_type.source_fact_content.general_category.00",
+        "content_type.source_fact_content.object_relation.00",
+        "content_type.source_fact_content.object_relation.01",
+        "content_type.source_fact_content.negative_fact.04",
+        "content_type.source_fact_content.unlikely_assertion.00",
+        "content_type.source_fact_content.dated_event.03",
+        "content_type.source_fact_content.object_relation.07",
+        "content_type.source_fact_content.dated_event.05",
+        "content_type.source_fact_content.object_relation.09",
+        "content_type.interpretation_content.suggested_conclusion.01",
+        "content_type.interpretation_content.suggested_conclusion.03",
+        "content_type.interpretation_content.synthesis.03",
+        "content_type.interpretation_content.causal_reading.09",
+        "content_type.interpretation_content.causal_reading.07",
+        "content_type.interpretation_content.synthesis.00",
+        "content_type.interpretation_content.comparative_inference.08",
+        "content_type.interpretation_content.suggested_conclusion.07",
+        "content_type.interpretation_content.tentative_evaluation.09",
+        "content_type.interpretation_content.tentative_evaluation.06",
+        "content_type.interpretation_content.suggested_conclusion.05",
+        "content_type.interpretation_content.suggested_conclusion.06",
+        "content_type.interpretation_content.contrast_conclusion.09",
+        "content_type.interpretation_content.comparative_inference.07",
+        "content_type.interpretation_content.contrast_conclusion.06",
+        "content_type.interpretation_content.contrast_conclusion.01",
+        "content_type.creative_content.new_entity.09",
+        "content_type.creative_content.original_character.09",
+        "content_type.creative_content.new_entity.07",
+        "content_type.creative_content.hypothetical_invention.01",
+        "content_type.creative_content.new_entity.03",
+        "content_type.creative_content.original_character.07",
+        "content_type.creative_content.hypothetical_invention.05",
+        "content_type.creative_content.original_character.05",
+        "content_type.creative_content.hypothetical_invention.07",
+        "content_type.creative_content.new_state.06",
+        "content_type.creative_content.new_state.00",
+        "content_type.creative_content.new_event.02",
+        "content_type.creative_content.original_character.01",
+        "content_type.creative_content.hypothetical_invention.06",
+        "content_type.creative_content.new_entity.00",
+        "content_type.creative_content.fictional_continuation.07",
+        "content_type.context_limit_content.missing_description.05",
+        "content_type.context_limit_content.bounded_insufficiency.03",
+        "content_type.context_limit_content.unidentified_answer.07",
+        "content_type.context_limit_content.missing_description.03",
+        "content_type.context_limit_content.absent_property.06",
+        "content_type.context_limit_content.absent_property.09",
+        "content_type.context_limit_content.unavailable_relationship.05",
+        "content_type.context_limit_content.unidentified_answer.09",
+        "content_type.context_limit_content.unavailable_relationship.01",
+        "content_type.context_limit_content.bounded_insufficiency.09",
+        "content_type.context_limit_content.absent_property.05",
+        "content_type.context_limit_content.unavailable_relationship.03",
+        "content_type.context_limit_content.missing_description.06",
+        "content_type.context_limit_content.unidentified_answer.03",
+        "content_type.context_limit_content.evidence_silence.07",
+        "content_type.context_limit_content.bounded_insufficiency.05",
+        "content_type.mixed_content.inference_context.01",
+        "content_type.mixed_content.fact_inference.06",
+        "content_type.mixed_content.invention_context.01",
+        "content_type.mixed_content.fact_context.04",
+        "content_type.mixed_content.fact_context.07",
+        "content_type.mixed_content.invention_context.07",
+        "content_type.mixed_content.fact_invention.03",
+        "content_type.mixed_content.invention_context.09",
+        "content_type.mixed_content.fact_inference.00",
+        "content_type.mixed_content.fact_invention.00",
+        "content_type.mixed_content.fact_context.01",
+        "content_type.mixed_content.inference_invention.05",
+        "content_type.mixed_content.inference_context.02",
+        "content_type.mixed_content.inference_context.03",
+        "content_type.mixed_content.fact_invention.07",
+        "content_type.mixed_content.invention_context.02"
+      ],
+      "head_classes": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "artifacts": {
+        "1_Pooling/config.json": {
+          "sha256": "64230a97629225324725c35e1a1cbd15025a9f656eafaaeb86cf8ec6a4ecb4d8",
+          "bytes": 305
+        },
+        "config.json": {
+          "sha256": "0c29b904ede1ebb6dc8fdb729349e4f1a8ae832476fee47940a26c5966fae7a2",
+          "bytes": 642
+        },
+        "config_sentence_transformers.json": {
+          "sha256": "9340fb62446799f38d58bd03cb0146342504e2f1c9bba13980452d74a56ce84d",
+          "bytes": 214
+        },
+        "config_setfit.json": {
+          "sha256": "1ef8f706804ff2b7759ab3e1d87a712876f5458239205c6d4713e339eea78e43",
+          "bytes": 56
+        },
+        "model.safetensors": {
+          "sha256": "f57a892bc5456a3b4a24414397ad72d37eddede0566dfcdc4a9d98f17fd05109",
+          "bytes": 90864192
+        },
+        "model_head.pkl": {
+          "sha256": "efb84d5f7c2f3f2150f4b00138d8eb59aa1b16a2bbfd6d54382820e3b4ca96f6",
+          "bytes": 16239
+        },
+        "modules.json": {
+          "sha256": "e7989e94b5b809d895a9521b708312c1ccd333e183effebaf3838908da2acd53",
+          "bytes": 368
+        },
+        "README.md": {
+          "sha256": "36cbbf67e913988e8d8dc0180a83b6e7402bb18620fc57cb87667d4091ef2b61",
+          "bytes": 7390
+        },
+        "sentence_bert_config.json": {
+          "sha256": "3a74bd419599ddc1af2b3f2c5d45de476d3383858721a174bff2922bd6a7f876",
+          "bytes": 56
+        },
+        "special_tokens_map.json": {
+          "sha256": "5aa43c2f985a25296d5a5ce621c2f77376ca8091a47993c492fd5460b895b140",
+          "bytes": 732
+        },
+        "tokenizer.json": {
+          "sha256": "2fc687b11de0bc1b3d8348f92e3b49ef1089a621506c7661fbf3248fcd54947e",
+          "bytes": 711649
+        },
+        "tokenizer_config.json": {
+          "sha256": "d4f505dfdb84b5a987fc5f520e0c2bac59e4ac6e43a1d00cab1e96647971dad8",
+          "bytes": 1529
+        },
+        "vocab.txt": {
+          "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3",
+          "bytes": 231508
+        }
+      },
+      "elapsed_seconds": 36.89511559996754,
+      "peak_allocated_vram_bytes": 629593088,
+      "selection_started": false,
+      "confirmation_started": false,
+      "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/content_type/lock.json",
+      "raw_lock_sha256": "5de70c954e8c4ded57bcece0d8e1fcf727393b0b865419ee8f4a3e32c8e40a98"
+    }
+  ]
+}
