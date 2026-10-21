@@ -4,12 +4,17 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-04 [P0]`
-- Status: **Pending re-acceptance under corrected responsibility boundary**
+- Status: **Pending N-04R-04 Reference Workstation re-acceptance**
 - Decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
+- Harness freeze: `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
 - Reconstruction tasks: `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
+- Case spec: `benchmark/n04-knowledge-access-cases-v1.json`
+- Formal harness: `benchmark/n04-knowledge-access-formal-harness-v1.json`
+- Formal evaluator: `benchmark/tools/n04r04_evaluate_evidence.py`
 - Source dataset: `benchmark/n03-real-data-vertical-slice-v1.json`
 - Evaluation DB: `.local/n03/sgokb-n03.sqlite`
 - Prerequisite: **N-04P-01〜P-06 Complete**
+- Harness reconstruction: **N-04R-03 Complete (2026-10-22)**
 
 ## 1. Purpose
 
@@ -58,10 +63,28 @@ External Consumer以降の推論・生成品質はSGOKBのformal responsibility�
 - Atomicity / Content-Type classifier。
 - Source-fact / interpretation verifier。
 - Grounded Generation certification pipeline。
+- Frozen 47 confirmation。
 
 Knowledge coverage不足は観測情報として記録してよいが、SGOKB N-04 FAILへ変換しない。
 
-## 3. Public read boundary
+## 3. Current formal harness
+
+N-04R-03で次をcurrent authorityとしてfreezeした。
+
+```text
+benchmark/n04-knowledge-access-cases-v1.json
+benchmark/n04-knowledge-access-formal-harness-v1.json
+benchmark/tools/n04r03_harness_preflight.py
+benchmark/tools/n04r04_evaluate_evidence.py
+tests/test_n04r03_knowledge_access_harness.py
+tests/test_n04r04_evidence_evaluator.py
+```
+
+Harnessは`sgokb.mcp-read-tools.v1`と`sgokb.context-builder.v1`を正式contractとし、Consumer generation componentをimport / requireしない。
+
+旧`n04-v2-formal-harness-v1.json` / `n04-v3-formal-harness-v1.json`はhistorical evidenceであり、current authorityではない。
+
+## 4. Public read boundary
 
 AI / Application ConsumerはDB schemaを知る必要がないことを確認する。
 
@@ -80,8 +103,6 @@ get_objects
 get_object_evidence
 ```
 
-Context Builder contractは現行public contractを使用する。
-
 代表purpose:
 
 ```text
@@ -90,11 +111,9 @@ Case 2: comparison
 Case 3: creative
 ```
 
-consumer入力をdirect SQLite queryで作成してはならない。
+Consumer入力をdirect SQLite queryで作成してはならない。
 
-## 4. Evaluation data
-
-### Case 1 — Character → Roleplay Consumer
+## 5. Case 1 — Character → Roleplay Consumer
 
 Object:
 
@@ -120,10 +139,11 @@ formal PASS条件:
 
 - stable Object IDを正しく解決する。
 - current accepted Versionを使用する。
-- `purpose=roleplay`のContext contractを満たす。
-- budgetを超えない。
+- `purpose=roleplay`を保持する。
+- include optionがrequestとselection policyで一致する。
+- budget / omission / truncation contractを満たす。
+- Evidence refをConsumer Contextへ残さない。
 - unrelated / rejected / unintended historical Knowledgeを混入しない。
-- Context Builder自身がcanonicalにないSaber factを生成しない。
 - Context内Knowledgeをcanonical Object / Versionへ追跡できる。
 
 次はformal Gateではない。
@@ -132,7 +152,7 @@ formal PASS条件:
 - personality / speech pattern等のKnowledge量が十分か。
 - Consumer AIがContext外knowledgeを生成するか。
 
-## 5. Case 2 — Similar Work → Comparison Consumer
+## 6. Case 2 — Similar Work → Comparison Consumer
 
 Source Work:
 
@@ -144,9 +164,9 @@ d5824d33-7008-4121-9cfe-1f95a19667fd
 手順:
 
 1. `find_similar_objects`をpublic pathで実行する。
-2. current Workのtop candidateを結果から選択する。
+2. actual responseのhighest-ranked current Work candidateを選択する。
 3. candidate IDをhardcodeしてretrievalを迂回しない。
-4. source + candidateを`purpose=comparison`で`build_context`へ渡す。
+4. source + actual returned candidateを`purpose=comparison`で`build_context`へ渡す。
 
 Context:
 
@@ -164,12 +184,14 @@ build_context(
 formal PASS条件:
 
 - Similarity public pathが利用できる。
-- returned candidateをvalid current Objectとして解決できる。
-- 両Workを同一Contextへ渡せる。
-- current accepted Versionだけを利用する。
-- evidence refs要求時にpublic contractで取得できる。
+- top candidateが存在する。
+- Similarity responseのcandidate IDとContext requestのcandidate IDが一致する。
+- source / candidateともcurrent accepted VersionとしてContextへ解決される。
+- evidence refsがpublic contractを通して保持される。
 - budget / Context contractを守る。
 - unrelated / rejected / unintended historical Knowledgeを混入しない。
+
+N-03固定datasetでBLEACHが返ることはobservationとして記録できるが、BLEACH IDを事前にContext requestへ固定してはならない。
 
 次はformal Gateではない。
 
@@ -177,7 +199,7 @@ formal PASS条件:
 - AI Consumerの比較説明が正しいか。
 - AI ConsumerがContext外franchise knowledgeを使用するか。
 
-## 6. Case 3 — Concept A/B → Creative Consumer
+## 7. Case 3 — Concept A/B → Creative Consumer
 
 Concept A:
 
@@ -211,8 +233,10 @@ formal PASS条件:
 - 両Conceptをstable Object IDで解決できる。
 - 両方のcurrent accepted Versionを使用する。
 - 同一creative Contextへ両Conceptを含められる。
+- `purpose=creative`とinclude optionを保持する。
 - Context内でObject境界が識別可能である。
-- budget / Context contractを守る。
+- budget / omission / truncation contractを満たす。
+- Evidence refをConsumer Contextへ残さない。
 - unrelated / rejected / unintended historical Knowledgeを混入しない。
 - Knowledgeをcanonical Object / Versionへ追跡できる。
 
@@ -222,49 +246,27 @@ formal PASS条件:
 - 新Characterが魅力的か。
 - Consumerが創作detailを明示的にlabelするか。
 
-## 7. Knowledge coverage handling
+## 8. Knowledge coverage handling
 
 Knowledge coverageはN-04 formal failureではない。
 
-例:
-
-```text
-Saber
-  identity      available
-  role          available
-  personality   not available
-```
-
-これは`coverage observation`として記録する。
-
-一方、canonical DBに存在するKnowledgeをContext Builderが誤って返さない場合はSGOKB defectである。
-
-判定基準:
-
 ```text
 Knowledge does not exist in canonical store
-  -> not N-04 failure
+  -> coverage observation / not N-04 failure
 
-Knowledge exists but public Context path loses / corrupts it
+Knowledge exists but public Context path loses or corrupts it
   -> N-04 failure
 ```
 
-## 8. Reference Consumer Demonstration
+例えばSaberにpersonalityが保存されていないこと自体はN-04 failureではない。一方、保存済みpersonalityがpurpose profile上選択対象なのにContext pathで失われる場合はSGOKB defectである。
+
+## 9. Reference Consumer Demonstration
 
 代表AI利用を実際に確認するため、任意でlocal LLM等へ3 Contextを渡してよい。
 
-結果例:
+その結果は`reference-consumer/`へ分離し、formal verdictへ使用しない。
 
-```text
-consumer: <runtime/model>
-roleplay: PASS / FAIL
-comparison: PASS / FAIL
-creative: PASS / FAIL
-```
-
-この結果は参考情報であり、N-04 formal PASS / FAILを変更しない。
-
-Consumer側のfailureは必要に応じて次へ分類する。
+Consumer側failureは必要に応じて次へ分類する。
 
 ```text
 consumer model capability
@@ -276,36 +278,42 @@ knowledge coverage observation
 
 N-04の修正理由にはしない。
 
-## 9. Evidence preservation
+## 10. Evidence preservation
 
-formal runでは最低限次を保存する。
+formal run root:
 
 ```text
-.local/n04/
-  environment.json
-  mcp/
-  case-1-roleplay/
-    context.json
-    request.json
-    evaluation.json
-  case-2-comparison/
-    similarity.json
-    context.json
-    request.json
-    evaluation.json
-  case-3-creative/
-    context.json
-    request.json
-    evaluation.json
-  canonical-before.json
-  canonical-after.json
-  integrity.json
-  pytest.log
+.local/n04r04/<run_id>/
 ```
 
-Reference Consumer Demonstrationを行う場合、そのprompt / response / evaluationはformal boundary evidenceとは別directoryに保存する。
+最低限保存する。
 
-## 10. Canonical safety
+```text
+environment.json
+mcp-tools.json
+case-1-roleplay/request.json
+case-1-roleplay/context.json
+case-1-roleplay/evaluation.json
+case-2-comparison/similarity-request.json
+case-2-comparison/similarity.json
+case-2-comparison/context-request.json
+case-2-comparison/context.json
+case-2-comparison/evaluation.json
+case-3-creative/request.json
+case-3-creative/context.json
+case-3-creative/evaluation.json
+canonical-before.json
+canonical-after.json
+integrity.json
+regression.json
+focused-pytest.log
+full-pytest.log
+overall-evaluation.json
+```
+
+Reference Consumer Demonstrationを行う場合、そのprompt / response / evaluationは`reference-consumer/`へ分離する。
+
+## 11. Canonical safety
 
 N-04はread-only acceptanceである。
 
@@ -323,7 +331,9 @@ provenance
 
 Result Import、Version promotion、Source mutationをN-04 formal run中に行わない。
 
-## 11. Formal completion gates
+before / after snapshotは同じdeterministic procedureで作成し、formal evaluatorがexact JSON equalityを確認する。
+
+## 12. Formal completion gates
 
 N-04をCompleteとする条件:
 
@@ -341,15 +351,15 @@ current accepted Versionだけを利用し、unintended historical / rejected / 
 
 ### Gate 4 — Retrieval Integration
 
-Case 2でSimilarity結果をpublic pathからComparison Contextへ接続できる。
+Case 2でactual Similarity top resultをpublic pathからComparison Contextへ接続できる。
 
 ### Gate 5 — Traceability
 
-Context内KnowledgeのObject / Version /必要なProvenanceを確認できる。
+Context内KnowledgeのObject / Version /必要なEvidence referenceを確認できる。
 
 ### Gate 6 — Budget / Contract
 
-Context budget、required metadata、omission / truncation semanticsを満たす。
+Context budget、include option、omission / truncation semanticsを満たす。
 
 ### Gate 7 — Canonical Safety
 
@@ -357,9 +367,34 @@ before / after canonical snapshotが不変。
 
 ### Gate 8 — Integrity / Regression
 
-`system integrity`と関連focused tests / full pytestがPASSする。
+`system integrity`、focused tests、full pytest、Ruff、`git diff --check`がPASSする。
 
-## 12. Result states
+## 13. Deterministic formal evaluator
+
+N-04R-04ではformal evidence保存後に次を実行する。
+
+```powershell
+python benchmark/tools/n04r04_evaluate_evidence.py `
+  --run-root .local/n04r04/<run_id>
+```
+
+出力:
+
+```text
+overall-evaluation.json
+```
+
+Exit code:
+
+```text
+0 = PASS
+1 = FAIL
+2 = BLOCKED
+```
+
+必要なformal evidenceが不足・読取不能で評価できない場合は`BLOCKED`とする。Consumer outputはformal evaluatorの入力ではない。
+
+## 14. Result states
 
 ```text
 PASS
@@ -379,16 +414,18 @@ SGOKB自身の責務にdefectがある。
 
 - wrong Object / Version
 - unintended historical Knowledge混入
-- Context Builderによるcanonicalにないfact生成
 - public MCP/Application contract破損
-- Similarity resultをContextへ接続不能
+- actual Similarity resultをContextへ正しく接続できない
+- Context contract / budget / evidence-ref policy違反
 - read acceptanceによるcanonical mutation
 
 ### BLOCKED
 
-formal evaluationに必要なSGOKB runtimeが利用できず判定不能。
+formal evaluationに必要なSGOKB runtime / evidenceが利用できず判定不能。
 
-## 13. Historical acceptance results
+Consumer AIの回答失敗はこの3状態の判定材料ではない。
+
+## 15. Historical acceptance results
 
 ### Original N-04 run — 2026-10-18
 
@@ -425,7 +462,7 @@ Residual Atomicity / Content-Type classifier selection approachに対するvalid
 
 これらは削除しないが、現行N-04 Completion prerequisiteではない。
 
-## 14. Superseded requirements
+## 16. Superseded requirements
 
 次は現行N-04 formal Gateとしてsupersededとする。
 
@@ -440,16 +477,19 @@ Grounded Generation v3/v4 completion required
 Frozen 47 confirmation required for N-04 completion
 ```
 
-## 15. Current state
+## 17. Current state
 
 ```text
 N-04 prerequisite N-04P-01..P-06 = Complete
-N-04 old acceptance = Historical Failed
-N-04 current acceptance = Pending re-execution
+N-04R-01 = Complete
+N-04R-02 = Complete
+N-04R-03 = Complete / Harness Frozen
+N-04R-04 = Next / Pending
+N-04 current acceptance = Pending Reference Workstation re-execution
 N-05 = Ready / not blocked by N-04
 N-06 = Ready
 ```
 
 Next work:
 
-`N-04R-03 — formal harness reconstruction`
+`N-04R-04 — Reference Workstation Re-Acceptance`
