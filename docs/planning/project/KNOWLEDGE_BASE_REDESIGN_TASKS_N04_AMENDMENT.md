@@ -4,9 +4,8 @@
 
 - Applies to: `docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
 - Scope: Phase N / N-04 and downstream dependency state only
-- Status: **Accepted amendment — N-04 reconstruction complete**
+- Status: **Accepted amendment — N-04 reconstruction complete / N-05 active**
 - Decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
-- Harness freeze: `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
 - Asset disposition: `docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`
 
 ## 1. Authority
@@ -31,16 +30,14 @@ N-01 Complete
 N-02 Complete
 N-03 Complete
 N-04P-01..P-06 Complete
-N-04R-01 Complete
-N-04R-02 Complete
-N-04R-03 Complete
-N-04R-04 Complete / PASS
-N-04R-05 Complete
+N-04R-01..R-05 Complete
 N-04 Complete / PASS
-N-05 Ready
+N-05 Active / formal measurement BLOCKED (execution access)
 N-06 Ready
 N-07 Pending
 ```
+
+N-05の`BLOCKED`はperformance FAILではない。Reference Workstation command execution accessを現在利用できず、正式raw timing evidenceがまだ存在しないためである。
 
 ## 3. Amended N-04 task definition
 
@@ -79,13 +76,13 @@ formal evaluationから除外:
 ```text
 N-03 Complete
   ├─ N-04 Knowledge Access Acceptance  Complete / PASS
-  ├─ N-05 Performance                 Ready
+  ├─ N-05 Performance                 Active / execution-access BLOCKED
   └─ N-06 Retrieval / Vector Quality  Ready
         ↓
       N-07 Failure / Recovery
 ```
 
-N-04 / N-05 / N-06は兄弟Taskであり、N-04のConsumer-side generation resultを理由にN-05 / N-06をblockしない。
+N-04 / N-05 / N-06は兄弟Taskであり、一つのTaskの外部実行blockを別Taskへ伝播させない。
 
 ## 5. N-04 reconstruction subtasks
 
@@ -98,19 +95,6 @@ N-04R-05 Grounded Generation Asset Disposition   Complete
 ```
 
 **N-04 reconstruction chain = Complete.**
-
-Current formal assets:
-
-```text
-benchmark/n04-knowledge-access-cases-v1.json
-benchmark/n04-knowledge-access-formal-harness-v1.json
-benchmark/tools/n04r03_harness_preflight.py
-benchmark/tools/n04r04_evaluate_evidence.py
-```
-
-正本:
-
-`docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
 
 ## 6. Grounded Generation disposition
 
@@ -137,51 +121,60 @@ RETIRE
   historical task / handoff documents
 ```
 
-物理削除はhistorical reproducibilityのため今回行わない。
-
 Decision:
 
 `docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`
 
-Manifest:
+## 7. N-05 current execution state
 
-`benchmark/n04r05-grounded-generation-asset-disposition-v1.json`
+N-05 performance acceptanceを開始済み。
 
-## 7. Historical remediation state
-
-G-12〜G-25の結果は削除しない。
+Frozen / implemented assets:
 
 ```text
-G-12  historical valid formal FAIL
-G-22  historical valid formal FAIL
-G-25A historical valid VALID_FAIL_NO_SELECTION
+benchmark/n05-performance-contract-v1.json
+benchmark/n05-performance-evidence-template-v1.json
+benchmark/tools/n05_evaluate_performance.py
+tests/test_n05_performance_evaluator.py
+docs/planning/phases/N/N05/N05_PERFORMANCE_BENCHMARK.md
+docs/planning/phases/N/N05/execution/N05_REFERENCE_WORKSTATION_HANDOFF.md
+docs/evaluation/N05_PERFORMANCE.md
 ```
 
-これらはcurrent N-04 Completion prerequisiteではない。
+Formal targets:
 
-## 8. Current N-04 authority
+```text
+Standard warm p95 <= 600 s
+Large warm p95    <= 1200 s
+```
+
+Reference Workstation formal timingはRemote Desktop Commander current monthly execution limitにより未実行。この状態ではN-05をPASS/FAILへ推定せず`BLOCKED`とする。
+
+## 8. Current authority
+
+N-04:
 
 1. `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
-2. `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
-3. `docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`
-4. `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
-5. `docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`
-6. `benchmark/n04-knowledge-access-cases-v1.json`
-7. `benchmark/n04-knowledge-access-formal-harness-v1.json`
-8. `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
-9. `docs/planning/phases/N/PHASE_N_PREPARATION.md`
-10. this amendment
+2. `docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`
+3. `docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`
+4. `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
 
-Task masterの旧N-04記述と矛盾する場合、このamendmentと上記Decision群を優先する。
+N-05:
 
-## 9. Current next task
+1. `docs/planning/phases/N/N05/N05_PERFORMANCE_BENCHMARK.md`
+2. `benchmark/n05-performance-contract-v1.json`
+3. `docs/planning/phases/N/N05/execution/N05_REFERENCE_WORKSTATION_HANDOFF.md`
+4. `docs/evaluation/N05_PERFORMANCE.md`
+5. `docs/planning/phases/N/PHASE_N_PREPARATION.md`
 
-N-05 / N-06は独立して開始可能。順次進める場合:
+## 9. Current next work
+
+N-05はReference Workstation formal measurement待ち。N-06は独立して開始可能。
 
 ```text
-N-05 — Performance
+N-05 resume point:
+  docs/planning/phases/N/N05/execution/N05_REFERENCE_WORKSTATION_HANDOFF.md
+
+N-06:
+  Ready
 ```
-
-Reference Workstation正式結果:
-
-`docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`
