@@ -12,7 +12,7 @@
 - G-22: **Complete / valid formal FAIL (0/3 PASS)**
 - G-23F: **Complete / v4 Design Frozen**
 - G-24: **Complete / Implementation Ready for G-25A**
-- Current task: **N-04G-25A — BLOCKED at mandatory Reference Workstation preflight**
+- Current task: **N-04G-25A — preflight PASS; classifier benchmark READY / not started**
 
 ## Read first
 
@@ -224,7 +224,9 @@ Do not change during G-25A:
 ```text
 G-23F = Complete / v4 Design Frozen
 G-24  = Complete / Implementation Ready for G-25A
-G-25A = BLOCKED / Reference Workstation preflight not executed
+G-25A mandatory preflight = PASS
+G-25A classifier benchmark = READY / not started
+G-25A = not Complete / selection not performed
 G-25B = blocked by G-25A PASS
 G-26  = blocked by G-25B PASS
 N-04  = Failed / not Complete
@@ -233,4 +235,6 @@ N-05  = blocked
 
 ## Immediate resume task
 
-**N-04G-25A — run mandatory Reference Workstation preflight; only after all PASS begin Residual Classifier Benchmark / Selection.**
+**N-04G-25A — mandatory preflight PASS; classifier benchmark READY / not started.**
+
+Reference Workstation rerun `20261021T123230+0900` passed all four commands: targeted 22, full suite 448 (0 failed), Ruff and diff check PASS, after an import-order-only I001 repair. See `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`. Classifier benchmark is READY / not started; G-25A is not Complete. This preflight task performed no Frozen 47 classifier run or model/threshold tuning.

@@ -7,7 +7,7 @@
 - G-24 result: `docs/evaluation/N04G24_V4_IMPLEMENTATION_RESULT.md`
 - Residual classifier design: `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
 - G-25A block record: `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
-- Status: **G-25A BLOCKED at mandatory preflight / G-25B blocked by G-25A PASS**
+- Status: **G-25A preflight PASS; classifier benchmark READY / not started / G-25B blocked by G-25A selection PASS**
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 
@@ -24,7 +24,7 @@ G-24はCompleteだが、G-25AはReference Workstation mandatory preflightをPASS
 ```text
 G-24 v4 implementation                              Complete
   ↓
-G-25A Reference Workstation preflight               BLOCKED / not executed
+G-25A Reference Workstation preflight               PASS
   ↓ PASS only
 G-25A Residual Classifier Benchmark / Selection     not started
   ↓ PASS only
@@ -37,7 +37,7 @@ G-25AまたはG-25Bがvalid FAILの場合、G-26はblockedのままとする。
 
 ## 3. G-25A — Residual Classifier Benchmark / Selection
 
-Status: **BLOCKED / mandatory Reference Workstation preflight not executed**
+Status: **Mandatory preflight PASS / classifier benchmark READY / not started (not Complete)**
 
 ### 3.0 Mandatory implementation preflight
 
@@ -52,13 +52,15 @@ git diff --check
 
 All must PASS. Any failure returns to G-24 implementation remediation; do not begin classifier selection with a failing implementation baseline.
 
-On 2026-10-21 the authorized Reference Workstation `FNB1Main` was online and paired, but Desktop Commander reported that its monthly execution quota had been reached and explicitly instructed not to retry or reconnect. Therefore none of the four preflight commands was executed.
+In the earlier blocked attempt on 2026-10-21 the authorized Reference Workstation `FNB1Main` was online and paired, but Desktop Commander reported that its monthly execution quota had been reached and explicitly instructed not to retry or reconnect. Therefore none of the four preflight commands was executed.
 
-Block authority:
+Preflight result and historical block authority:
 
 `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
 
-Consequently the classifier benchmark and selection have **not started**.
+Reference Workstation rerun `20261021T123230+0900` passed all four commands: targeted 22, full suite 448 (0 failed), Ruff and diff check PASS, after an import-order-only I001 repair. See `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`. Classifier benchmark is READY / not started; G-25A is not Complete. This preflight task performed no Frozen 47 classifier run or model/threshold tuning.
+
+The classifier benchmark and selection have **not started**.
 
 ### 3.1 Inputs
 

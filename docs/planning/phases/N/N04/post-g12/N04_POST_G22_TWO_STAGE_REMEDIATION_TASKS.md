@@ -40,7 +40,7 @@ G-23F v4 Design Integration / Freeze                Complete / v4 Design Frozen
   ↓
 G-24 v4 implementation                              Complete / Ready for G-25A
   ↓
-G-25A mandatory Reference Workstation preflight     BLOCKED / not executed
+G-25A mandatory Reference Workstation preflight     PASS
   ↓ PASS only
 G-25A Residual Classifier Benchmark / Selection     not started
   ↓ PASS only
@@ -69,7 +69,7 @@ Historical G-18/G-21/G-22 artifacts remain immutable evidence.
 | N-04G-23E | P0 | Complete / Contract Accepted | provider schema + stage-local retry |
 | N-04G-23F | P0 | Complete / v4 Design Frozen | end-to-end integration / implementation freeze |
 | N-04G-24 | P0 | **Complete / Implementation Ready for G-25A** | v4 production-layer implementation |
-| N-04G-25A | P0 | **BLOCKED / mandatory Reference Workstation preflight not executed** | Residual classifier benchmark / selection |
+| N-04G-25A | P0 | **Preflight PASS / classifier benchmark READY / not started (not Complete)** | Residual classifier benchmark / selection |
 | N-04G-25B | P0 | Blocked by G-25A PASS | integrated adversarial regression |
 | N-04G-26 | P0 | Blocked by G-25B PASS | Reference Workstation freeze |
 | N-04G-27 | P0 | Blocked by G-26 | Formal v4 Re-Acceptance |
@@ -216,16 +216,18 @@ python -m ruff check .
 git diff --check
 ```
 
-On 2026-10-21 G-25A attempted to start this preflight. `FNB1Main` was online and paired, but Desktop Commander reported that its monthly execution quota had been reached and explicitly instructed not to retry or reconnect. No preflight command was executed.
+In the earlier attempt on 2026-10-21 G-25A tried to start this preflight. `FNB1Main` was online and paired, but Desktop Commander reported that its monthly execution quota had been reached and explicitly instructed not to retry or reconnect. No preflight command was executed.
 
 Authority for this block:
 
 `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
 
-Therefore:
+The earlier execution block is resolved by the local verification recorded below.
+
+Reference Workstation rerun `20261021T123230+0900` passed all four commands: targeted 22, full suite 448 (0 failed), Ruff and diff check PASS, after an import-order-only I001 repair. See `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`. Classifier benchmark is READY / not started; G-25A is not Complete. This preflight task performed no Frozen 47 classifier run or model/threshold tuning.
 
 ```text
-preflight = NOT EXECUTED
+preflight = PASS
 G-25A benchmark = NOT STARTED
 G-25A selection = NOT PERFORMED
 ```
@@ -249,13 +251,13 @@ Attempt 2 fully replaces attempt 1 as active material. Historical attempts remai
 
 ## 8. G-25A resume scope
 
-Current task remains **N-04G-25A — Residual Classifier Benchmark / Selection**, but execution is blocked before benchmark start.
+Current task remains **N-04G-25A — Residual Classifier Benchmark / Selection**, with mandatory preflight PASS and classifier benchmark READY / not started.
 
 Primary handoff:
 
 `docs/planning/phases/N/N04/post-g12/N04G25A_NEXT_CHAT_HANDOFF.md`
 
-Resume only when Reference Workstation command execution is available and the mandatory preflight can be run.
+The mandatory preflight has passed. This task stops before classifier benchmarking; later benchmark execution follows the existing G-25A protocol.
 
 After preflight PASS, G-25A must select concrete V2-R-A and V2-R-C components under this mandatory Gate:
 
@@ -304,7 +306,9 @@ Do not change without reopening G-23F or explicit downstream escalation:
 ```text
 G-23F = Complete / v4 Design Frozen
 G-24  = Complete / Implementation Ready for G-25A
-G-25A = BLOCKED / Reference Workstation preflight not executed
+G-25A mandatory preflight = PASS
+G-25A classifier benchmark = READY / not started
+G-25A = not Complete / selection not performed
 G-25B = blocked by G-25A PASS
 G-26  = blocked by G-25B PASS
 N-04  = Failed / not Complete
@@ -313,4 +317,4 @@ N-05  = blocked
 
 ## 11. Immediate resume action
 
-Run the four-command Reference Workstation preflight. Only after all PASS may the G-25A Residual Classifier benchmark/selection begin.
+Mandatory preflight PASS is recorded. G-25A classifier benchmark is READY / not started; G-25A is not Complete. No Frozen 47 execution or tuning was performed.

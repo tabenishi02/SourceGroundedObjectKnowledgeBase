@@ -9,8 +9,8 @@
 - G-23F: **Complete / v4 Design Frozen**
 - G-24: **Complete / Implementation Ready for G-25A**
 - Current task: **N-04G-25A — Residual Classifier Benchmark / Selection**
-- Current execution status: **BLOCKED / mandatory Reference Workstation preflight not executed**
-- Block record: `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
+- Current execution status: **Mandatory preflight PASS / classifier benchmark READY / not started**
+- Preflight result / historical block record: `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 
@@ -46,11 +46,13 @@ GitHub `main` is authoritative. Do not use historical stacked Phase N branches a
 
 G-24 targeted sandbox verification passed, but full Reference Workstation repository verification was not executable during G-24.
 
-G-25A attempted to start the mandatory preflight on 2026-10-21. The authorized Reference Workstation `FNB1Main` was online and paired, but Desktop Commander reported that its monthly execution quota had been reached and explicitly instructed not to retry or reconnect. No terminal command could therefore be started.
+An earlier G-25A attempt tried to start the mandatory preflight on 2026-10-21. The authorized Reference Workstation `FNB1Main` was online and paired, but Desktop Commander reported that its monthly execution quota had been reached and explicitly instructed not to retry or reconnect. No terminal command could therefore be started.
 
-This is recorded in:
+The historical block and subsequent successful local preflight are recorded in:
 
 `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
+
+Reference Workstation rerun `20261021T123230+0900` passed all four commands: targeted 22, full suite 448 (0 failed), Ruff and diff check PASS, after an import-order-only I001 repair. See `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`. Classifier benchmark is READY / not started; G-25A is not Complete. This preflight task performed no Frozen 47 classifier run or model/threshold tuning.
 
 The hard preflight remains:
 
@@ -77,7 +79,7 @@ STOP
 -> rerun full preflight
 ```
 
-If the commands cannot be executed, as in the current state:
+If the commands cannot be executed in a future run:
 
 ```text
 G-25A = BLOCKED
@@ -296,11 +298,13 @@ G-25A must not change:
 
 ```text
 G-24  = Complete / Implementation Ready for G-25A
-G-25A = BLOCKED / Reference Workstation preflight not executed
+G-25A mandatory preflight = PASS
+G-25A classifier benchmark = READY / not started
+G-25A = not Complete / selection not performed
 G-25B = blocked by G-25A PASS
 G-26  = blocked by G-25B PASS
 N-04  = Failed / not Complete
 N-05  = blocked
 ```
 
-Resume G-25A only when Reference Workstation command execution is available. The first action remains the Section 2 four-command preflight; do not begin classifier benchmark before it passes.
+The Section 2 preflight prerequisite has passed. Benchmark readiness is recorded only: this request stops here. Future G-25A benchmark work must follow the development-data freeze/selection protocol below; no classifier/Frozen 47 execution or tuning has started.
