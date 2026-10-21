@@ -1,0 +1,40 @@
+{
+  "schema_version": "sgokb.n05.performance-evidence.v1",
+  "run_id": "REPLACE_WITH_RUN_ID",
+  "environment": {
+    "git_head": "REPLACE",
+    "os": "Windows 11",
+    "cpu": "Intel Core i5-13600KF",
+    "ram_gib": 128,
+    "gpu": "NVIDIA GeForce RTX 4090 24 GB",
+    "python": "REPLACE",
+    "embedding_model": "REPLACE",
+    "embedding_revision": "REPLACE",
+    "qdrant_version": "REPLACE",
+    "qdrant_transport": "REPLACE",
+    "collection_prefix": "REPLACE",
+    "model_cache_mode": "REPLACE"
+  },
+  "profiles": {
+    "standard": {
+      "workload": {
+        "source_count": 10,
+        "candidate_evidence_count": 500,
+        "package_evidence_count": 120,
+        "knowledge_statement_count": 300
+      },
+      "cold_samples": [],
+      "warm_samples": []
+    },
+    "large": {
+      "workload": {
+        "source_count": 40,
+        "candidate_evidence_count": 2000,
+        "package_evidence_count": 350,
+        "knowledge_statement_count": 1200
+      },
+      "cold_samples": [],
+      "warm_samples": []
+    }
+  }
+}
