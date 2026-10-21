@@ -8,13 +8,28 @@
 
 現在の開発Phaseは **Phase N** です。
 
+N-04は2026-10-22にresponsibility boundaryを再構築しました。現行N-04は、外部AIの生成品質ではなく、**SGOKBが外部Consumerへ正しいKnowledgeをpublic read boundaryから提供できること**をformal acceptance対象とします。
+
+### Current authority
+
 - 全体タスク正本: [`project/KNOWLEDGE_BASE_REDESIGN_TASKS.md`](project/KNOWLEDGE_BASE_REDESIGN_TASKS.md)
+- N-04 Task master amendment: [`project/KNOWLEDGE_BASE_REDESIGN_TASKS_N04_AMENDMENT.md`](project/KNOWLEDGE_BASE_REDESIGN_TASKS_N04_AMENDMENT.md)
 - 全体handoff: [`project/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`](project/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md)
 - Phase N準備/状態: [`phases/N/PHASE_N_PREPARATION.md`](phases/N/PHASE_N_PREPARATION.md)
-- N-04 Grounded Generation task: [`phases/N/N04/N04_GROUNDED_GENERATION_TASKS.md`](phases/N/N04/N04_GROUNDED_GENERATION_TASKS.md)
-- N-04 historical post-G12 remediation: [`phases/N/N04/post-g12/N04_POST_G12_REMEDIATION_TASKS.md`](phases/N/N04/post-g12/N04_POST_G12_REMEDIATION_TASKS.md)
-- **N-04 current post-G22 remediation: [`phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_REMEDIATION_TASKS.md`](phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_REMEDIATION_TASKS.md)**
-- **N-04 current chat handoff: [`phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_CHAT_HANDOFF.md`](phases/N/N04/post-g12/N04_POST_G22_TWO_STAGE_CHAT_HANDOFF.md)**
+- N-04 responsibility Decision: [`../decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`](../decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md)
+- N-04 current acceptance spec: [`../evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`](../evaluation/N04_AI_USE_CASE_ACCEPTANCE.md)
+- N-04 reconstruction tasks: [`phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`](phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md)
+- N-04 current chat handoff: [`phases/N/N04/post-g12/N04_POST_G12_CHAT_HANDOFF.md`](phases/N/N04/post-g12/N04_POST_G12_CHAT_HANDOFF.md)
+
+### Historical N-04 remediation
+
+次は実行結果・研究履歴として保持しますが、current N-04 Completion prerequisiteではありません。
+
+- Grounded Generation task chain: [`phases/N/N04/N04_GROUNDED_GENERATION_TASKS.md`](phases/N/N04/N04_GROUNDED_GENERATION_TASKS.md)
+- post-G12 remediation history: [`phases/N/N04/post-g12/N04_POST_G12_REMEDIATION_TASKS.md`](phases/N/N04/post-g12/N04_POST_G12_REMEDIATION_TASKS.md)
+- post-G22 two-stage remediation documents
+- G-23〜G-25 v4 / classifier research documents
+- execution handoffs and Reference Workstation evidence
 
 ## Directory layout
 
@@ -23,6 +38,7 @@ docs/planning/
 ├─ README.md
 ├─ project/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_TASKS.md
+│  ├─ KNOWLEDGE_BASE_REDESIGN_TASKS_N04_AMENDMENT.md
 │  └─ KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
 └─ phases/
    ├─ B/
@@ -43,8 +59,7 @@ docs/planning/
       ├─ N02_INTEGRATION_TESTS.md
       ├─ PHASE_N_PREPARATION.md
       └─ N04/
-         ├─ N04_GROUNDED_GENERATION_TASKS.md
-         ├─ N04_GROUNDED_GENERATION_HANDOFF.md
+         ├─ N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md
          ├─ N04_PREREQUISITE_DERIVED_SEARCH_PIPELINE.md
          ├─ derived-search/
          ├─ post-g12/
@@ -54,19 +69,24 @@ docs/planning/
 ## Classification rules
 
 ### `project/`
-Phaseをまたぐ全体タスクと全体handoffを置きます。
+
+Phaseをまたぐ全体タスク・全体handoff・Task master amendmentを置きます。
 
 ### `phases/<Phase>/`
+
 各Phase固有のPreparation、Status、Closure Auditを置きます。
 
 ### `phases/N/N04/derived-search/`
-N-04の前提となるderived search pipelineのP02〜P06を置きます。
+
+N-04の前提となるderived search pipeline文書を置きます。
 
 ### `phases/N/N04/post-g12/`
-N-04のG-12以降のremediation task、G-22以降の追加remediation、chat handoffを置きます。
+
+G-12以降に作成されたremediation / research / historical handoffを保持します。現在のN-04正本はResponsibility Boundary Decisionと再構築Taskを優先します。
 
 ### `phases/N/N04/execution/`
-Reference Workstation/Codexで使用した実行handoffを置きます。これらは実行記録の再現性のため保持します。
+
+Reference Workstation/Codexで使用した実行handoffを置きます。実行記録の再現性のため保持します。
 
 ## 文書配置ルール
 
