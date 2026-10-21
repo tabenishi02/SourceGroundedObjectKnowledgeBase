@@ -4,7 +4,7 @@
 
 - Parent: `N-04 [P0]`
 - Decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
-- Status: **Active — N-04R-03 Complete / Next N-04R-04**
+- Status: **Active — N-04R-04 Complete / Next N-04R-05**
 
 ## 1. Purpose
 
@@ -19,8 +19,8 @@ N-04を、外部AIの生成品質ではなく、**SGOKBが外部Consumerへ正�
 | N-04R-01 | P0 | **Complete** | Responsibility Boundary Correctionを正式Decision化する |
 | N-04R-02 | P0 | **Complete (2026-10-22)** | N-04 acceptance spec / Phase N docs / handoffを再構築する |
 | N-04R-03 | P0 | **Complete (2026-10-22)** | Formal harnessをKnowledge Access Boundary専用に再構築する |
-| N-04R-04 | P0 | **Next / Pending** | Reference Workstationで3代表ケースを再受入する |
-| N-04R-05 | P1 | Pending | G-13〜G-25 Grounded Generation assetsの将来処遇を決定する |
+| N-04R-04 | P0 | **Complete (2026-10-22)** | Reference Workstationで3代表ケースを再受入する |
+| N-04R-05 | P1 | **Next** | G-13〜G-25 Grounded Generation assetsの将来処遇を決定する |
 
 ## 3. N-04R-01 — Responsibility Boundary Correction
 
@@ -122,7 +122,7 @@ Reference Workstationでのpreflight / formal runは意図的にR-04へ分離し
 
 ## 6. N-04R-04 — Reference Workstation Re-Acceptance
 
-Status: **Next / Pending**
+Status: **Complete / PASS (2026-10-22)**
 
 N-03 real-data evaluation DBを再利用し、次の3ケースをSGOKB boundaryまで実行する。
 
@@ -142,7 +142,7 @@ AI ConsumerによるRoleplay / Comparison / Creative生成結果は、実行す�
 
 ## 7. N-04R-05 — Grounded Generation Asset Disposition
 
-Status: **Pending**
+Status: **Next**
 
 対象:
 
@@ -169,7 +169,7 @@ RETIRE
 N-01 Complete
 N-02 Complete
 N-03 Complete
-N-04 Pending Reference Workstation re-acceptance
+N-04 Complete / PASS
 N-05 Ready
 N-06 Ready
 N-07 Pending
@@ -178,5 +178,11 @@ N-07 Pending
 ## 9. Next task
 
 ```text
-N-04R-04 — Reference Workstation Re-Acceptance
+N-04R-05 — Grounded Generation Asset Disposition
 ```
+
+## 2026-10-22 Reference Workstation formal result
+
+Run `20261022T052331+0900`: **PASS (3/3 cases)**. **N-04R-04 = Complete; N-04 = Complete.** Actual MCP stdio/read-only tools, current accepted Versions, purpose/budget/Evidence policies, Similarity rank-1 integration, canonical invariance and system integrity all PASS. Mandatory preflight: focused 20/full 505 passed; post-run focused 32/full 505 passed; Ruff and diff check PASS (2 existing local-Qdrant warnings in each full suite).
+
+正式結果・evidence summary・preflight実装修復記録: `docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`. Case/evaluator frozen blobs, Gates and existing assertions were preserved. No Consumer generation/classifier/verifier/Frozen 47 was executed. Next: **N-04R-05 — Grounded Generation Asset Disposition** (not started); N-05/N-06 remain Ready.

@@ -4,7 +4,7 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-04 [P0]`
-- Status: **Pending N-04R-04 Reference Workstation re-acceptance**
+- Status: **Complete / PASS (2026-10-22)**
 - Decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
 - Harness freeze: `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
 - Reconstruction tasks: `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
@@ -484,12 +484,18 @@ N-04 prerequisite N-04P-01..P-06 = Complete
 N-04R-01 = Complete
 N-04R-02 = Complete
 N-04R-03 = Complete / Harness Frozen
-N-04R-04 = Next / Pending
-N-04 current acceptance = Pending Reference Workstation re-execution
+N-04R-04 = Complete / PASS
+N-04 current acceptance = Complete / PASS
 N-05 = Ready / not blocked by N-04
 N-06 = Ready
 ```
 
 Next work:
 
-`N-04R-04 — Reference Workstation Re-Acceptance`
+`N-04R-05 — Grounded Generation Asset Disposition`
+
+## 2026-10-22 Reference Workstation formal result
+
+Run `20261022T052331+0900`: **PASS (3/3 cases)**. **N-04R-04 = Complete; N-04 = Complete.** Actual MCP stdio/read-only tools, current accepted Versions, purpose/budget/Evidence policies, Similarity rank-1 integration, canonical invariance and system integrity all PASS. Mandatory preflight: focused 20/full 505 passed; post-run focused 32/full 505 passed; Ruff and diff check PASS (2 existing local-Qdrant warnings in each full suite).
+
+正式結果・evidence summary・preflight実装修復記録: `docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`. Case/evaluator frozen blobs, Gates and existing assertions were preserved. No Consumer generation/classifier/verifier/Frozen 47 was executed. Next: **N-04R-05 — Grounded Generation Asset Disposition** (not started); N-05/N-06 remain Ready.

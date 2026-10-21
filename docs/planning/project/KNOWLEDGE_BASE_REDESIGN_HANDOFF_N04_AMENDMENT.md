@@ -4,7 +4,7 @@
 
 - Applies to: `docs/planning/project/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`
 - Scope: Current Phase N / N-04 state
-- Status: **Accepted amendment — N-04R-03 Complete**
+- Status: **Accepted amendment — N-04R-04 / N-04 Complete**
 
 ## 1. Current project state override
 
@@ -20,7 +20,7 @@ N-02 Complete
 N-03 Complete
 N-04 responsibility boundary reconstructed
 N-04 formal harness reconstructed / frozen
-N-04 Pending Reference Workstation re-acceptance
+N-04 Complete / PASS
 N-05 Ready
 N-06 Ready
 N-07 Pending
@@ -101,18 +101,24 @@ G-25A VALID_FAIL_NO_SELECTION
 N-04R-01 Responsibility Boundary Decision       Complete
 N-04R-02 Documentation Reconstruction            Complete
 N-04R-03 Formal Harness Reconstruction           Complete
-N-04R-04 Reference Workstation Re-Acceptance     Next / Pending
-N-04R-05 Grounded Generation Asset Disposition   Pending
+N-04R-04 Reference Workstation Re-Acceptance     Complete / PASS
+N-04R-05 Grounded Generation Asset Disposition   Next
 ```
 
 ## 7. Current next task
 
 ```text
-N-04R-04 — Reference Workstation Re-Acceptance
+N-04R-05 — Grounded Generation Asset Disposition
 ```
 
-実行正本:
+完了したR-04の実行正本:
 
 `docs/planning/phases/N/N04/execution/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE_HANDOFF.md`
 
 N-05 / N-06はN-04完了を待たず進行可能。
+
+## 2026-10-22 Reference Workstation formal result
+
+Run `20261022T052331+0900`: **PASS (3/3 cases)**. **N-04R-04 = Complete; N-04 = Complete.** Actual MCP stdio/read-only tools, current accepted Versions, purpose/budget/Evidence policies, Similarity rank-1 integration, canonical invariance and system integrity all PASS. Mandatory preflight: focused 20/full 505 passed; post-run focused 32/full 505 passed; Ruff and diff check PASS (2 existing local-Qdrant warnings in each full suite).
+
+正式結果・evidence summary・preflight実装修復記録: `docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`. Case/evaluator frozen blobs, Gates and existing assertions were preserved. No Consumer generation/classifier/verifier/Frozen 47 was executed. Next: **N-04R-05 — Grounded Generation Asset Disposition** (not started); N-05/N-06 remain Ready.

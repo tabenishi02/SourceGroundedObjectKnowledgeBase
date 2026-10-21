@@ -2,7 +2,7 @@
 
 更新日: 2026-10-22
 
-- Status: **Active — N-01〜N-03 Complete / N-04R-03 Complete / Next N-04R-04**
+- Status: **Active — N-01〜N-04 Complete / Next N-04R-05**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - N-04 decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
@@ -52,12 +52,12 @@ Phase Nでは、これらをUnit / Integrationだけでなく実データと実�
 | N-01 | P0 | **Complete (2026-10-16)** | Unit Testをcanonical domainへ整理・補完 |
 | N-02 | P0 | **Complete (2026-10-16)** | cross-domain Integrationを確認 |
 | N-03 | P0 | **Complete (2026-10-16)** | Character / Work / Conceptの実データVertical Slice |
-| N-04 | P0 | **Pending Reference Workstation re-acceptance** | SGOKB Knowledge Access Boundaryを代表3用途で受入 |
+| N-04 | P0 | **Complete (2026-10-22)** | SGOKB Knowledge Access Boundaryを代表3用途で受入 |
 | N-05 | P0 | **Ready** | 1 Object自動処理時間を計測 |
 | N-06 | P0 | **Ready** | Retrieval / Vector Backend品質評価 |
 | N-07 | P1 | Pending | Failure / Recovery試験 |
 
-N-04の旧`Failed`はhistorical resultとして保持する。現行statusは責務境界修正・Harness再構築完了後の実機再受入待ちである。
+N-04の旧`Failed`はhistorical resultとして保持する。現行statusは責務境界修正後のReference Workstation再受入PASSによるCompleteである。
 
 ## 4. 推奨実施順序
 
@@ -67,7 +67,7 @@ N-01 Unit Test                         Complete
 N-02 Integration Test                 Complete
   ↓
 N-03 Real-data Vertical Slice         Complete
-  ├─→ N-04 Knowledge Access Acceptance   Pending R-04
+  ├─→ N-04 Knowledge Access Acceptance   Complete / PASS
   ├─→ N-05 Performance                  Ready
   └─→ N-06 Retrieval / Vector quality   Ready
          ↓
@@ -362,14 +362,20 @@ N-04 reconstruction chain:
 N-04R-01 Responsibility Boundary Decision       Complete
 N-04R-02 Documentation Reconstruction            Complete
 N-04R-03 Formal Harness Reconstruction           Complete
-N-04R-04 Reference Workstation Re-Acceptance     Next / Pending
-N-04R-05 Grounded Generation Asset Disposition   Pending
+N-04R-04 Reference Workstation Re-Acceptance     Complete / PASS
+N-04R-05 Grounded Generation Asset Disposition   Next
 ```
 
-次Taskは`N-04R-04 — Reference Workstation Re-Acceptance`。
+次Taskは`N-04R-05 — Grounded Generation Asset Disposition`。
 
-実行handoff:
+完了したR-04の実行handoff:
 
 `docs/planning/phases/N/N04/execution/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE_HANDOFF.md`
 
 N-05 / N-06はN-04完了を待つ必要はない。
+
+## 2026-10-22 Reference Workstation formal result
+
+Run `20261022T052331+0900`: **PASS (3/3 cases)**. **N-04R-04 = Complete; N-04 = Complete.** Actual MCP stdio/read-only tools, current accepted Versions, purpose/budget/Evidence policies, Similarity rank-1 integration, canonical invariance and system integrity all PASS. Mandatory preflight: focused 20/full 505 passed; post-run focused 32/full 505 passed; Ruff and diff check PASS (2 existing local-Qdrant warnings in each full suite).
+
+正式結果・evidence summary・preflight実装修復記録: `docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`. Case/evaluator frozen blobs, Gates and existing assertions were preserved. No Consumer generation/classifier/verifier/Frozen 47 was executed. Next: **N-04R-05 — Grounded Generation Asset Disposition** (not started); N-05/N-06 remain Ready.

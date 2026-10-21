@@ -1,4 +1,4 @@
-# N-04 Current Chat Handoff — Knowledge Access Harness Frozen
+# N-04 Current Chat Handoff — Knowledge Access Acceptance Complete
 
 更新日: 2026-10-22
 
@@ -6,11 +6,11 @@
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Branch of record: `main`
 - Parent Task: `N-04 [P0]`
-- Current status: **Pending Reference Workstation re-acceptance under corrected SGOKB responsibility boundary**
+- Current status: **Complete / PASS under corrected SGOKB responsibility boundary**
 - N-04R-03: **Complete / Harness Frozen**
 - N-05: **Ready / no longer blocked by N-04**
 - N-06: **Ready**
-- Current next task: **N-04R-04 — Reference Workstation Re-Acceptance**
+- Current next task: **N-04R-05 — Grounded Generation Asset Disposition**
 
 ## 1. Read first
 
@@ -157,8 +157,8 @@ G-01..G-25 assets     Historical remediation / research chain
 N-04R-01 Responsibility Boundary Decision       Complete
 N-04R-02 Documentation Reconstruction            Complete
 N-04R-03 Formal Harness Reconstruction           Complete
-N-04R-04 Reference Workstation Re-Acceptance     Next / Pending
-N-04R-05 Grounded Generation Asset Disposition   Pending
+N-04R-04 Reference Workstation Re-Acceptance     Complete / PASS
+N-04R-05 Grounded Generation Asset Disposition   Next
 ```
 
 ## 9. N-04R-04 execution
@@ -192,7 +192,7 @@ python benchmark/tools/n04r04_evaluate_evidence.py `
 
 ```text
 N-03 Complete
-  ├─ N-04 Pending R-04 re-acceptance
+  ├─ N-04 Complete / PASS
   ├─ N-05 Ready
   └─ N-06 Ready
         ↓
@@ -200,3 +200,9 @@ N-03 Complete
 ```
 
 N-05 / N-06はN-04完了を待つ必要がない。
+
+## 2026-10-22 Reference Workstation formal result
+
+Run `20261022T052331+0900`: **PASS (3/3 cases)**. **N-04R-04 = Complete; N-04 = Complete.** Actual MCP stdio/read-only tools, current accepted Versions, purpose/budget/Evidence policies, Similarity rank-1 integration, canonical invariance and system integrity all PASS. Mandatory preflight: focused 20/full 505 passed; post-run focused 32/full 505 passed; Ruff and diff check PASS (2 existing local-Qdrant warnings in each full suite).
+
+正式結果・evidence summary・preflight実装修復記録: `docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`. Case/evaluator frozen blobs, Gates and existing assertions were preserved. No Consumer generation/classifier/verifier/Frozen 47 was executed. Next: **N-04R-05 — Grounded Generation Asset Disposition** (not started); N-05/N-06 remain Ready.
