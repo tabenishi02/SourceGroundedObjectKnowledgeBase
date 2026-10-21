@@ -21,20 +21,44 @@ def _write(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, ensure_ascii=False), encoding="utf-8")
 
 
-def _context(ids: list[str], purpose: str, limit: int) -> dict:
+def _context(
+    ids: list[str],
+    purpose: str,
+    limit: int,
+    *,
+    include_attributes: bool,
+    include_relations: bool,
+    include_evidence_refs: bool,
+) -> dict:
+    evidence = [{"evidence_id": "evidence:1", "role": "supports"}] if include_evidence_refs else []
     return {
         "tool_contract_version": "sgokb.mcp-read-tools.v1",
         "data": {
             "context_contract_version": "sgokb.context-builder.v1",
             "purpose": purpose,
-            "selection_policy": {"partial_statement_truncation": False},
+            "selection_policy": {
+                "include_attributes": include_attributes,
+                "include_relations": include_relations,
+                "include_evidence_refs": include_evidence_refs,
+                "budget_metric": "serialized_json_characters",
+                "budget_strategy": "equal_share_per_object",
+                "partial_statement_truncation": False,
+            },
             "objects": [
                 {
                     "object_id": object_id,
                     "requested_version_id": None,
                     "resolved_version_id": f"version:{index}",
                     "is_current": True,
-                    "knowledge": {},
+                    "knowledge": {
+                        "summary": [
+                            {
+                                "statement_id": f"statement:{index}",
+                                "text": "Example",
+                                "evidence": evidence,
+                            }
+                        ]
+                    },
                 }
                 for index, object_id in enumerate(ids)
             ],
@@ -49,8 +73,7 @@ def _context(ids: list[str], purpose: str, limit: int) -> dict:
     }
 
 
-def test_n04r04_evaluator_passes_valid_boundary_evidence(tmp_path: Path) -> None:
-    module = _load_evaluator()
+def _build_valid_evidence(tmp_path: Path) -> None:
     saber = "326a97cf-47aa-4760-a7f1-07bfe639fcf0"
     fate = "d5824d33-7008-4121-9cfe-1f95a19667fd"
     bleach = "57db855c-574a-4b38-b474-421c165894f1"
@@ -65,10 +88,23 @@ def test_n04r04_evaluator_passes_valid_boundary_evidence(tmp_path: Path) -> None
                 "object_ids": [saber],
                 "purpose": "roleplay",
                 "max_characters": 12000,
+                "include_attributes": True,
+                "include_relations": True,
+                "include_evidence_refs": False,
             },
         },
     )
-    _write(tmp_path / "case-1-roleplay" / "context.json", _context([saber], "roleplay", 12000))
+    _write(
+        tmp_path / "case-1-roleplay" / "context.json",
+        _context(
+            [saber],
+            "roleplay",
+            12000,
+            include_attributes=True,
+            include_relations=True,
+            include_evidence_refs=False,
+        ),
+    )
 
     _write(
         tmp_path / "case-2-comparison" / "similarity-request.json",
@@ -93,12 +129,22 @@ def test_n04r04_evaluator_passes_valid_boundary_evidence(tmp_path: Path) -> None
                 "object_ids": [fate, bleach],
                 "purpose": "comparison",
                 "max_characters": 24000,
+                "include_attributes": True,
+                "include_relations": False,
+                "include_evidence_refs": True,
             },
         },
     )
     _write(
         tmp_path / "case-2-comparison" / "context.json",
-        _context([fate, bleach], "comparison", 24000),
+        _context(
+            [fate, bleach],
+            "comparison",
+            24000,
+            include_attributes=True,
+            include_relations=False,
+            include_evidence_refs=True,
+        ),
     )
 
     _write(
@@ -109,12 +155,22 @@ def test_n04r04_evaluator_passes_valid_boundary_evidence(tmp_path: Path) -> None
                 "object_ids": [tsundere, journey],
                 "purpose": "creative",
                 "max_characters": 24000,
+                "include_attributes": True,
+                "include_relations": True,
+                "include_evidence_refs": False,
             },
         },
     )
     _write(
         tmp_path / "case-3-creative" / "context.json",
-        _context([tsundere, journey], "creative", 24000),
+        _context(
+            [tsundere, journey],
+            "creative",
+            24000,
+            include_attributes=True,
+            include_relations=True,
+            include_evidence_refs=False,
+        ),
     )
 
     snapshot = {"objects": [saber, fate, bleach, tsundere, journey], "version": 1}
@@ -133,15 +189,44 @@ def test_n04r04_evaluator_passes_valid_boundary_evidence(tmp_path: Path) -> None
         },
     )
 
+
+def test_n04r04_evaluator_passes_valid_boundary_evidence(tmp_path: Path) -> None:
+    module = _load_evaluator()
+    _build_valid_evidence(tmp_path)
+
     report = module.evaluate(tmp_path)
     assert report["overall_status"] == "PASS"
     assert report["consumer_demonstration_considered"] is False
     assert all(item["status"] == "PASS" for item in report["cases"])
 
 
-def test_n04r04_evaluator_fails_only_on_sgokb_boundary_evidence(tmp_path: Path) -> None:
+def test_n04r04_evaluator_returns_blocked_for_incomplete_evidence(tmp_path: Path) -> None:
     module = _load_evaluator()
-    assert "reference-consumer" not in EVALUATOR.read_text(encoding="utf-8")
-    assert "sgokb.grounding" not in EVALUATOR.read_text(encoding="utf-8")
+    report = module.evaluate(tmp_path)
+
+    assert report["overall_status"] == "BLOCKED"
+    assert report["blocked_reason"] == "required_evidence_missing"
+    assert "case-1-roleplay/request.json" in report["blocked_detail"]
+
+
+def test_n04r04_evaluator_detects_sgokb_boundary_failure(tmp_path: Path) -> None:
+    module = _load_evaluator()
+    _build_valid_evidence(tmp_path)
+    context_path = tmp_path / "case-1-roleplay" / "context.json"
+    context = json.loads(context_path.read_text(encoding="utf-8"))
+    context["data"]["objects"][0]["is_current"] = False
+    _write(context_path, context)
+
+    report = module.evaluate(tmp_path)
+    assert report["overall_status"] == "FAIL"
+    assert report["failed_cases"] == ["n04-roleplay-saber"]
+
+
+def test_n04r04_evaluator_has_no_consumer_generation_dependency() -> None:
+    module = _load_evaluator()
+    source = EVALUATOR.read_text(encoding="utf-8")
+
+    assert "reference-consumer" not in source
+    assert "sgokb.grounding" not in source
     assert module.MCP_CONTRACT == "sgokb.mcp-read-tools.v1"
     assert module.CONTEXT_CONTRACT == "sgokb.context-builder.v1"
