@@ -6,6 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TOOL_PATH = ROOT / "benchmark" / "tools" / "n05_evaluate_performance.py"
 CONTRACT_PATH = ROOT / "benchmark" / "n05-performance-contract-v1.json"
+TEMPLATE_PATH = ROOT / "benchmark" / "n05-performance-evidence-template-v1.json"
 
 spec = importlib.util.spec_from_file_location("n05_evaluate_performance", TOOL_PATH)
 assert spec is not None and spec.loader is not None
@@ -129,3 +130,11 @@ def test_missing_environment_metadata_is_blocked():
     result = module.evaluate(_contract(), evidence)
     assert result["overall"] == "BLOCKED"
     assert "environment.embedding_revision is missing" in result["issues"]
+
+
+def test_unedited_evidence_template_is_blocked():
+    evidence = json.loads(TEMPLATE_PATH.read_text(encoding="utf-8"))
+    result = module.evaluate(_contract(), evidence)
+    assert result["overall"] == "BLOCKED"
+    assert "run_id is missing" in result["issues"]
+    assert "environment.git_head is missing" in result["issues"]
