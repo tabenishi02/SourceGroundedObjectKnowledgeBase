@@ -39,7 +39,9 @@ def _count_evidence_refs(value: Any) -> int:
         evidence = value.get("evidence")
         if isinstance(evidence, list):
             count += sum(
-                1 for item in evidence if isinstance(item, dict) and item.get("evidence_id")
+                1
+                for item in evidence
+                if isinstance(item, dict) and item.get("evidence_id")
             )
         for key, item in value.items():
             if key != "evidence":
@@ -73,17 +75,37 @@ def _check_context(
     policy = payload.get("selection_policy", {})
     budget = payload.get("budget", {})
 
-    check("public_tool_build_context", request.get("tool") == "build_context", request.get("tool"))
-    check("request_object_ids", args.get("object_ids") == expected_ids, args.get("object_ids"))
-    check("request_purpose", args.get("purpose") == purpose, args.get("purpose"))
-    check("request_budget", args.get("max_characters") == max_characters, args.get("max_characters"))
+    check(
+        "public_tool_build_context",
+        request.get("tool") == "build_context",
+        request.get("tool"),
+    )
+    check(
+        "request_object_ids",
+        args.get("object_ids") == expected_ids,
+        args.get("object_ids"),
+    )
+    check(
+        "request_purpose",
+        args.get("purpose") == purpose,
+        args.get("purpose"),
+    )
+    check(
+        "request_budget",
+        args.get("max_characters") == max_characters,
+        args.get("max_characters"),
+    )
     expected_options = {
         "include_attributes": include_attributes,
         "include_relations": include_relations,
         "include_evidence_refs": include_evidence_refs,
     }
     actual_request_options = {key: args.get(key) for key in expected_options}
-    check("request_include_options", actual_request_options == expected_options, actual_request_options)
+    check(
+        "request_include_options",
+        actual_request_options == expected_options,
+        actual_request_options,
+    )
     check(
         "mcp_contract",
         response.get("tool_contract_version") == MCP_CONTRACT,
@@ -94,7 +116,11 @@ def _check_context(
         payload.get("context_contract_version") == CONTEXT_CONTRACT,
         payload.get("context_contract_version"),
     )
-    check("response_purpose", payload.get("purpose") == purpose, payload.get("purpose"))
+    check(
+        "response_purpose",
+        payload.get("purpose") == purpose,
+        payload.get("purpose"),
+    )
     check("response_object_ids", object_ids == expected_ids, object_ids)
     check(
         "current_versions",
@@ -111,7 +137,11 @@ def _check_context(
         ],
     )
     actual_policy_options = {key: policy.get(key) for key in expected_options}
-    check("selection_policy_include_options", actual_policy_options == expected_options, actual_policy_options)
+    check(
+        "selection_policy_include_options",
+        actual_policy_options == expected_options,
+        actual_policy_options,
+    )
     check(
         "selection_policy_deterministic",
         policy.get("budget_metric") == "serialized_json_characters"
@@ -120,34 +150,59 @@ def _check_context(
         {
             "budget_metric": policy.get("budget_metric"),
             "budget_strategy": policy.get("budget_strategy"),
-            "partial_statement_truncation": policy.get("partial_statement_truncation"),
+            "partial_statement_truncation": policy.get(
+                "partial_statement_truncation"
+            ),
         },
     )
-    check("budget_limit", budget.get("limit_characters") == max_characters, budget)
+    check(
+        "budget_limit",
+        budget.get("limit_characters") == max_characters,
+        budget,
+    )
     used = budget.get("used_characters")
     omitted = budget.get("omitted_items")
-    check("budget_used", isinstance(used, int) and 0 <= used <= max_characters, used)
+    check(
+        "budget_used",
+        isinstance(used, int) and 0 <= used <= max_characters,
+        used,
+    )
     check(
         "budget_truncation_metadata",
         isinstance(omitted, int)
         and omitted >= 0
-        and budget.get("truncated") is (omitted > 0),
-        {"omitted_items": omitted, "truncated": budget.get("truncated")},
+        and budget.get("truncated") == (omitted > 0),
+        {
+            "omitted_items": omitted,
+            "truncated": budget.get("truncated"),
+        },
     )
-    check(
-        "traceable_versions",
-        all(bool(item.get("object_id")) and bool(item.get("resolved_version_id")) for item in objects),
-        object_ids,
+    traceable = all(
+        bool(item.get("object_id")) and bool(item.get("resolved_version_id"))
+        for item in objects
     )
+    check("traceable_versions", traceable, object_ids)
+
     evidence_ref_count = _count_evidence_refs(objects)
     if include_evidence_refs:
-        check("evidence_refs_preserved", evidence_ref_count > 0, evidence_ref_count)
+        check(
+            "evidence_refs_preserved",
+            evidence_ref_count > 0,
+            evidence_ref_count,
+        )
     else:
-        check("evidence_refs_omitted", evidence_ref_count == 0, evidence_ref_count)
+        check(
+            "evidence_refs_omitted",
+            evidence_ref_count == 0,
+            evidence_ref_count,
+        )
     return checks
 
 
-def _case_result(case_id: str, checks: list[dict[str, Any]]) -> dict[str, Any]:
+def _case_result(
+    case_id: str,
+    checks: list[dict[str, Any]],
+) -> dict[str, Any]:
     failed = [item["name"] for item in checks if not item["pass"]]
     return {
         "case_id": case_id,
@@ -174,21 +229,39 @@ def _blocked(reason: str, detail: Any) -> dict[str, Any]:
 
 
 def evaluate(run_root: Path) -> dict[str, Any]:
-    missing = [relative for relative in REQUIRED_INPUTS if not (run_root / relative).is_file()]
+    missing = [
+        relative
+        for relative in REQUIRED_INPUTS
+        if not (run_root / relative).is_file()
+    ]
     if missing:
         return _blocked("required_evidence_missing", missing)
 
     try:
-        case1_request = load_json(run_root / "case-1-roleplay" / "request.json")
-        case1_context = load_json(run_root / "case-1-roleplay" / "context.json")
+        case1_request = load_json(
+            run_root / "case-1-roleplay" / "request.json"
+        )
+        case1_context = load_json(
+            run_root / "case-1-roleplay" / "context.json"
+        )
         similarity_request = load_json(
             run_root / "case-2-comparison" / "similarity-request.json"
         )
-        similarity_response = load_json(run_root / "case-2-comparison" / "similarity.json")
-        case2_request = load_json(run_root / "case-2-comparison" / "context-request.json")
-        case2_context = load_json(run_root / "case-2-comparison" / "context.json")
-        case3_request = load_json(run_root / "case-3-creative" / "request.json")
-        case3_context = load_json(run_root / "case-3-creative" / "context.json")
+        similarity_response = load_json(
+            run_root / "case-2-comparison" / "similarity.json"
+        )
+        case2_request = load_json(
+            run_root / "case-2-comparison" / "context-request.json"
+        )
+        case2_context = load_json(
+            run_root / "case-2-comparison" / "context.json"
+        )
+        case3_request = load_json(
+            run_root / "case-3-creative" / "request.json"
+        )
+        case3_context = load_json(
+            run_root / "case-3-creative" / "context.json"
+        )
         before = load_json(run_root / "canonical-before.json")
         after = load_json(run_root / "canonical-after.json")
         integrity = load_json(run_root / "integrity.json")
@@ -219,13 +292,18 @@ def evaluate(run_root: Path) -> dict[str, Any]:
         },
         {
             "name": "similarity_mcp_contract",
-            "pass": similarity_response.get("tool_contract_version") == MCP_CONTRACT,
+            "pass": (
+                similarity_response.get("tool_contract_version")
+                == MCP_CONTRACT
+            ),
             "detail": similarity_response.get("tool_contract_version"),
         },
         {
             "name": "similarity_source_object",
-            "pass": similarity.get("source_object_id")
-            == "d5824d33-7008-4121-9cfe-1f95a19667fd",
+            "pass": (
+                similarity.get("source_object_id")
+                == "d5824d33-7008-4121-9cfe-1f95a19667fd"
+            ),
             "detail": similarity.get("source_object_id"),
         },
         {
@@ -276,21 +354,42 @@ def evaluate(run_root: Path) -> dict[str, Any]:
         _case_result("n04-concept-combination-creative", case3_checks),
     ]
 
-    integrity_pass = integrity.get("status") == "PASS" or integrity.get("pass") is True
+    integrity_pass = (
+        integrity.get("status") == "PASS"
+        or integrity.get("pass") is True
+    )
     return_codes = regression.get("return_codes", {})
-    regression_pass = bool(return_codes) and all(value == 0 for value in return_codes.values())
+    regression_pass = bool(return_codes) and all(
+        value == 0 for value in return_codes.values()
+    )
     global_checks = [
         {
             "name": "canonical_invariance",
             "pass": before == after,
-            "detail": "exact JSON equality" if before == after else "before/after differ",
+            "detail": (
+                "exact JSON equality"
+                if before == after
+                else "before/after differ"
+            ),
         },
-        {"name": "integrity", "pass": integrity_pass, "detail": integrity},
-        {"name": "regression", "pass": regression_pass, "detail": return_codes},
+        {
+            "name": "integrity",
+            "pass": integrity_pass,
+            "detail": integrity,
+        },
+        {
+            "name": "regression",
+            "pass": regression_pass,
+            "detail": return_codes,
+        },
     ]
 
-    failed_global = [item["name"] for item in global_checks if not item["pass"]]
-    failed_cases = [item["case_id"] for item in cases if item["status"] != "PASS"]
+    failed_global = [
+        item["name"] for item in global_checks if not item["pass"]
+    ]
+    failed_cases = [
+        item["case_id"] for item in cases if item["status"] != "PASS"
+    ]
     overall = "PASS" if not failed_global and not failed_cases else "FAIL"
     return {
         "schema_version": "sgokb.n04-knowledge-access-evaluation/1",
@@ -315,7 +414,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     report = evaluate(args.run_root.resolve())
-    rendered = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    rendered = (
+        json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True)
+        + "\n"
+    )
     output = args.output or args.run_root / "overall-evaluation.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(rendered, encoding="utf-8")
