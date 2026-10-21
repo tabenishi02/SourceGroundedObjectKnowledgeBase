@@ -4,8 +4,9 @@
 
 - Applies to: `docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
 - Scope: Phase N / N-04 and downstream dependency state only
-- Status: **Accepted amendment**
+- Status: **Accepted amendment — N-04R-03 Complete**
 - Decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
+- Harness freeze: `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
 
 ## 1. Authority
 
@@ -29,7 +30,11 @@ N-01 Complete
 N-02 Complete
 N-03 Complete
 N-04P-01..P-06 Complete
-N-04 Pending re-acceptance under corrected responsibility boundary
+N-04R-01 Complete
+N-04R-02 Complete
+N-04R-03 Complete / Harness Frozen
+N-04R-04 Next / Pending
+N-04 Pending Reference Workstation re-acceptance
 N-05 Ready
 N-06 Ready
 N-07 Pending
@@ -84,10 +89,19 @@ N-04 / N-05 / N-06は兄弟Taskであり、N-04のConsumer-side generation resul
 
 ```text
 N-04R-01 Responsibility Boundary Decision       Complete
-N-04R-02 Documentation Reconstruction            Active
-N-04R-03 Formal Harness Reconstruction           Pending
-N-04R-04 Reference Workstation Re-Acceptance     Pending
+N-04R-02 Documentation Reconstruction            Complete
+N-04R-03 Formal Harness Reconstruction           Complete
+N-04R-04 Reference Workstation Re-Acceptance     Next / Pending
 N-04R-05 Grounded Generation Asset Disposition   Pending
+```
+
+R-03 current formal assets:
+
+```text
+benchmark/n04-knowledge-access-cases-v1.json
+benchmark/n04-knowledge-access-formal-harness-v1.json
+benchmark/tools/n04r03_harness_preflight.py
+benchmark/tools/n04r04_evaluate_evidence.py
 ```
 
 正本:
@@ -104,18 +118,27 @@ G-22  historical valid formal FAIL
 G-25A historical valid VALID_FAIL_NO_SELECTION
 ```
 
-G-13〜G-25のGrounded Generation chainはhistorical remediation / research evidenceへ再分類し、N-04 Completion prerequisiteから外す。
-
-詳細:
-
-`docs/planning/phases/N/N04/post-g12/N04_POST_G12_REMEDIATION_TASKS.md`
+G-01〜G-25のGrounded Generation chainはhistorical remediation / research evidenceへ再分類し、N-04 Completion prerequisiteから外す。
 
 ## 7. Current N-04 authority
 
 1. `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
-2. `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
-3. `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
-4. `docs/planning/phases/N/PHASE_N_PREPARATION.md`
-5. this amendment
+2. `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
+3. `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
+4. `benchmark/n04-knowledge-access-cases-v1.json`
+5. `benchmark/n04-knowledge-access-formal-harness-v1.json`
+6. `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
+7. `docs/planning/phases/N/PHASE_N_PREPARATION.md`
+8. this amendment
 
-Task masterの旧N-04記述と矛盾する場合、このamendmentと上記Decisionを優先する。
+Task masterの旧N-04記述と矛盾する場合、このamendmentと上記Decision / Harness freezeを優先する。
+
+## 8. Current next task
+
+```text
+N-04R-04 — Reference Workstation Re-Acceptance
+```
+
+実行正本:
+
+`docs/planning/phases/N/N04/execution/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE_HANDOFF.md`
