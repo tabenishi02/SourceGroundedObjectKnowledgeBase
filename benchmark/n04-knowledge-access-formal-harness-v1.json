@@ -9,7 +9,7 @@
   "case_spec": "benchmark/n04-knowledge-access-cases-v1.json",
   "case_spec_git_blob_sha": "ab3374508467575955f0f9da911f551178a93b6e",
   "formal_evaluator": "benchmark/tools/n04r04_evaluate_evidence.py",
-  "formal_evaluator_git_blob_sha": "b960845477e384d06bc925564c92f20564ab62de",
+  "formal_evaluator_git_blob_sha": "060037e5316dd819472018f54c1d5600786e3e74",
   "source_dataset": "benchmark/n03-real-data-vertical-slice-v1.json",
   "reference_workstation": {
     "device": "FNB1Main",
@@ -33,7 +33,7 @@
     },
     "retrieval_integration": {
       "required_for": ["n04-similar-work-comparison"],
-      "rule": "The comparison candidate must come from find_similar_objects and the returned candidate ID must be passed to build_context without hardcoding the comparison target."
+      "rule": "The comparison candidate must come from find_similar_objects and the returned candidate ID/version must match the build_context candidate ID/resolved Version without hardcoding the comparison target."
     },
     "context_contract": {
       "required": true,
@@ -66,7 +66,7 @@
     "case_pass": "Every gate required by that case must PASS.",
     "overall_pass": "All three cases PASS and all global gates PASS.",
     "fail": "A SGOKB responsibility gate fails.",
-    "blocked": "A required SGOKB runtime is unavailable so the formal gate cannot be evaluated.",
+    "blocked": "A required SGOKB runtime or formal evidence is unavailable so the formal gate cannot be evaluated.",
     "allowed_states": ["PASS", "FAIL", "BLOCKED"]
   },
   "non_gating": {
