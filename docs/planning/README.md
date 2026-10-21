@@ -8,9 +8,11 @@
 
 現在の開発Phaseは **Phase N** です。
 
-N-04は2026-10-22にresponsibility boundaryを再構築しました。現行N-04は、外部AIの生成品質ではなく、**SGOKBが外部Consumerへ正しいKnowledgeをpublic read boundaryから提供できること**をformal acceptance対象とします。
+N-04は2026-10-22にresponsibility boundaryを再構築し、Reference Workstation再受入で**Complete / PASS**となりました。現行N-04は、外部AIの生成品質ではなく、**SGOKBが外部Consumerへ正しいKnowledgeをpublic read boundaryから提供できること**をformal acceptance対象とします。
 
-N-04R-03でKnowledge Access Boundary専用Harnessをfreeze済みです。現在の次Taskは **N-04R-04 — Reference Workstation Re-Acceptance** です。
+N-04R-05まで完了し、旧Grounded Generation資産のowner / future dispositionも確定しました。Grounded Generation chainにSGOKB `KEEP_CORE`資産はありません。
+
+Phase Nの次のP0 TaskはN-05 / N-06です。順次進める場合は **N-05 — Performance** を次Taskとします。
 
 ### Current authority
 
@@ -21,29 +23,31 @@ N-04R-03でKnowledge Access Boundary専用Harnessをfreeze済みです。現在�
 - Phase N準備/状態: [`phases/N/PHASE_N_PREPARATION.md`](phases/N/PHASE_N_PREPARATION.md)
 - N-04 responsibility Decision: [`../decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`](../decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md)
 - N-04 Harness freeze: [`../decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`](../decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md)
+- N-04 asset disposition: [`../decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`](../decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md)
 - N-04 current acceptance spec: [`../evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`](../evaluation/N04_AI_USE_CASE_ACCEPTANCE.md)
+- N-04 formal result: [`../evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`](../evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md)
 - N-04 reconstruction tasks: [`phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`](phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md)
-- N-04 current chat handoff: [`phases/N/N04/post-g12/N04_POST_G12_CHAT_HANDOFF.md`](phases/N/N04/post-g12/N04_POST_G12_CHAT_HANDOFF.md)
-- N-04R-04 execution handoff: [`phases/N/N04/execution/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE_HANDOFF.md`](phases/N/N04/execution/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE_HANDOFF.md)
 
 ### Current machine-readable N-04 assets
 
 ```text
 benchmark/n04-knowledge-access-cases-v1.json
 benchmark/n04-knowledge-access-formal-harness-v1.json
+benchmark/n04r05-grounded-generation-asset-disposition-v1.json
 benchmark/tools/n04r03_harness_preflight.py
 benchmark/tools/n04r04_evaluate_evidence.py
 ```
 
 ### Historical N-04 remediation
 
-次は実行結果・研究履歴として保持しますが、current N-04 Completion prerequisiteではありません。
+旧G-01〜G-25資産はR-05 Decisionに従って分類します。
 
-- Grounded Generation task chain: [`phases/N/N04/N04_GROUNDED_GENERATION_TASKS.md`](phases/N/N04/N04_GROUNDED_GENERATION_TASKS.md)
-- post-G12 remediation history: [`phases/N/N04/post-g12/N04_POST_G12_REMEDIATION_TASKS.md`](phases/N/N04/post-g12/N04_POST_G12_REMEDIATION_TASKS.md)
-- post-G22 two-stage remediation documents
-- G-23〜G-25 v4 / classifier research documents
-- historical execution handoffs and Reference Workstation evidence
+- `MOVE_CONSUMER_SIDE`: Grounded Generation実装 / verifier / pipeline / architecture contracts
+- `KEEP_EXPERIMENTAL`: failure analysis / Frozen 47 / G-25A research evidence
+- `RETIRE`: old generation-quality harness / execution tooling / superseded handoff
+- `KEEP_CORE`: Grounded Generation chainからは0件
+
+Historical fileは再現性のため今回削除していません。
 
 ## Directory layout
 
@@ -57,7 +61,6 @@ docs/planning/
 │  └─ KNOWLEDGE_BASE_REDESIGN_HANDOFF_N04_AMENDMENT.md
 └─ phases/
    ├─ B/
-   │  └─ object-type-refinement/
    ├─ D/
    ├─ E/
    ├─ F/
@@ -68,7 +71,6 @@ docs/planning/
    ├─ K/
    ├─ L/
    ├─ M/
-   │  └─ M03/
    └─ N/
       ├─ N01_UNIT_TEST_COVERAGE.md
       ├─ N02_INTEGRATION_TESTS.md
@@ -79,7 +81,6 @@ docs/planning/
          ├─ derived-search/
          ├─ post-g12/
          └─ execution/
-            └─ N04R04_REFERENCE_WORKSTATION_REACCEPTANCE_HANDOFF.md
 ```
 
 ## Classification rules
@@ -98,11 +99,11 @@ N-04の前提となるderived search pipeline文書を置きます。
 
 ### `phases/N/N04/post-g12/`
 
-G-12以降に作成されたremediation / research / historical handoffを保持します。現在のN-04正本はResponsibility Boundary Decision / R-03 Harness Freeze / 再構築Taskを優先します。
+G-12以降のhistorical remediation / researchを保持します。current authorityとして使用しません。
 
 ### `phases/N/N04/execution/`
 
-Reference Workstation/Codexで使用する実行handoffを置きます。現在のN-04 execution authorityはR-04 handoffです。過去handoffは再現性のため保持します。
+Reference Workstation/Codexの実行handoffを保持します。R-04は完了済みであり、新規N-04実行の入口ではありません。
 
 ## 文書配置ルール
 
