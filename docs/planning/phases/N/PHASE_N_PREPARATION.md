@@ -2,7 +2,7 @@
 
 更新日: 2026-10-22
 
-- Status: **Active — N-01〜N-04 Complete / N-05・N-06 Ready**
+- Status: **Active — N-01〜N-04 Complete / N-05 Active (formal measurement BLOCKED) / N-06 Ready**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - N-04 decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
@@ -10,6 +10,8 @@
 - N-04 asset disposition: `docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`
 - N-04 current spec: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
 - N-04 reconstruction tasks: `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
+- N-05 plan: `docs/planning/phases/N/N05/N05_PERFORMANCE_BENCHMARK.md`
+- N-05 evaluation: `docs/evaluation/N05_PERFORMANCE.md`
 
 ## 1. Phase Nの目的
 
@@ -54,11 +56,13 @@ Phase Nでは、これらをUnit / Integrationだけでなく実データと実�
 | N-02 | P0 | **Complete (2026-10-16)** | cross-domain Integrationを確認 |
 | N-03 | P0 | **Complete (2026-10-16)** | Character / Work / Conceptの実データVertical Slice |
 | N-04 | P0 | **Complete / PASS (2026-10-22)** | SGOKB Knowledge Access Boundaryを代表3用途で受入 |
-| N-05 | P0 | **Ready** | 1 Object自動処理時間を計測 |
+| N-05 | P0 | **Active / BLOCKED (Reference Workstation execution access)** | 1 Object自動処理時間を計測 |
 | N-06 | P0 | **Ready** | Retrieval / Vector Backend品質評価 |
 | N-07 | P1 | Pending | Failure / Recovery試験 |
 
 N-04の旧`Failed`はhistorical resultとして保持する。現行statusは責務境界修正後のReference Workstation再受入PASSによるCompleteである。
+
+N-05の`BLOCKED`は性能FAILではない。formal timingを実行するReference Workstation command accessを現在利用できず、required raw evidenceが存在しないためである。
 
 ## 4. 推奨実施順序
 
@@ -69,7 +73,7 @@ N-02 Integration Test                 Complete
   ↓
 N-03 Real-data Vertical Slice         Complete
   ├─→ N-04 Knowledge Access Acceptance   Complete / PASS
-  ├─→ N-05 Performance                  Ready
+  ├─→ N-05 Performance                  Active / formal run BLOCKED
   └─→ N-06 Retrieval / Vector quality   Ready
          ↓
        N-07 Failure / Recovery
@@ -77,7 +81,7 @@ N-03 Real-data Vertical Slice         Complete
        Phase N Closure Audit
 ```
 
-N-04 / N-05 / N-06はN-03完了後の兄弟Taskであり、相互に不要なblock関係を作らない。
+N-04 / N-05 / N-06はN-03完了後の兄弟Taskであり、相互に不要なblock関係を作らない。N-05がexecution accessでBLOCKEDでもN-06は進行可能である。
 
 ## 5. N-01 — Unit Test
 
@@ -145,7 +149,7 @@ Provenance / grounding / identity lexical smoke / integrity / regressionを確�
 - `docs/evaluation/N03_REAL_DATA_VERTICAL_SLICE.md`
 - `benchmark/n03-real-data-vertical-slice-v1.json`
 
-このdatasetをN-04〜N-06で共通利用する。
+このdatasetをN-04〜N-06で共通利用する。N-05ではecological referenceとして利用するが、Standard/Large load envelope自体はisolated deterministic performance fixtureで再現する。
 
 ## 8. N-04 prerequisite — Derived Search lifecycle
 
@@ -269,35 +273,59 @@ Manifest:
 
 ## 11. N-05 — Performance
 
-Status: **Ready**
+Status: **Active / formal measurement BLOCKED (2026-10-22)**
 
-B-06で定義したlocal automatic segmentを主要計測対象とする。
+B-06 / NFR-PERFで定義したlocal automatic segmentを計測する。
+
+Formal target:
+
+```text
+Standard Object warm p95 <= 600 s
+Large profile warm p95   <= 1200 s
+```
 
 含む:
 
-- Package generation
-- Validation
-- Import
-- Object / Facet / Statement Embedding更新
-- Vector Index増分更新
+- Package build / Evidence retrieval-selection
+- Package stage / preflight
+- Result Validation
+- Diff review
+- Result Import
+- Search Representation / Embedding / Vector Index増分更新
+- Render
 
-分離記録:
+除外:
 
 - Source探索 / Capture network
 - human Package review
 - external export / Drive sync
-- ChatGPT操作・生成待ち
-- Result返却
-- review-required判断
+- ChatGPT / external AI操作・生成待ち
+- Result返却transport
+- human approval wait
+- full Vector Index rebuild
 
-Reference Workstation target:
+Coldは各profile最低3回を診断用、Warmは各profile最低20回をformal Gate用とする。Warm p95はnearest-rankで算出し、formal warm sampleのterminal failureを成功run追加で隠してはならない。
+
+Current assets:
 
 ```text
-Standard Object: p95 <= 10 min
-Large profile:   p95 <= 20 min
+benchmark/n05-performance-contract-v1.json
+benchmark/n05-performance-evidence-template-v1.json
+benchmark/tools/n05_evaluate_performance.py
+tests/test_n05_performance_evaluator.py
+docs/planning/phases/N/N05/N05_PERFORMANCE_BENCHMARK.md
+docs/planning/phases/N/N05/execution/N05_REFERENCE_WORKSTATION_HANDOFF.md
+docs/evaluation/N05_PERFORMANCE.md
 ```
 
-N-04のConsumer generation resultはN-05開始条件ではない。
+Reference Workstationへの接続は確認したが、Remote Desktop Commanderのcurrent monthly execution limitによりcommand実行が拒否された。このためformal raw timing evidenceは0件であり、Standard/Large p95は未測定。
+
+```text
+N-05 formal verdict = BLOCKED (execution access)
+N-05 task status    = Active / not Complete
+```
+
+これはperformance requirement failureではない。実測値を推定してPASS/FAILを付けない。
 
 ## 12. N-06 — Retrieval / Vector quality
 
@@ -362,20 +390,15 @@ Phase N closureでは、各Taskが**自分の責務範囲だけを評価して�
 
 特に、外部AIの品質問題をSGOKB defectとして扱わない一方、SGOKB public boundaryの欠陥をConsumer側へ押し付けてもならない。
 
-## 15. N-04 reconstruction closure / next work
+## 15. Current next work
+
+N-05はformal execution access待ちでActive / BLOCKED。N-06は独立してReadyであり、N-05 blockerを理由に停止させない。
 
 ```text
-N-04R-01 Responsibility Boundary Decision       Complete
-N-04R-02 Documentation Reconstruction            Complete
-N-04R-03 Formal Harness Reconstruction           Complete
-N-04R-04 Reference Workstation Re-Acceptance     Complete / PASS
-N-04R-05 Grounded Generation Asset Disposition   Complete
+N-05: Reference Workstation formal measurement pending
+N-06: Ready and may proceed independently
 ```
 
-**N-04 reconstruction chain = Complete.**
+N-05再開時の正本:
 
-N-05 / N-06は独立して開始できる。順次進める場合の次Taskは:
-
-```text
-N-05 — Performance
-```
+`docs/planning/phases/N/N05/execution/N05_REFERENCE_WORKSTATION_HANDOFF.md`
