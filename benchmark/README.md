@@ -1,6 +1,6 @@
 # SGOKB Benchmark
 
-このdirectoryには、現行canonical SGOKBのSearch / Similarity / Vector品質評価資産と、Phase N formal acceptance用のmachine-readable資産を置く。
+このdirectoryには、現行canonical SGOKBのSearch / Similarity / Vector品質評価資産、Phase N formal acceptance用machine-readable資産、および明示的にhistorical / experimentalとして保持する評価資産を置く。
 
 ## Current Search benchmark
 
@@ -49,6 +49,8 @@ tools/n04r04_evaluate_evidence.py
 SGOKB → Retrieval / Similarity → Context Builder → MCP public read → Consumer boundary
 ```
 
+N-04R-04は2026-10-22に3/3 Case PASSし、N-04はCompleteとなった。
+
 AI Consumerの生成品質、Atomicity / Content-Type classifier、verifier、Grounded Generation certificationはcurrent N-04 formal Gateではない。
 
 Decision:
@@ -56,7 +58,55 @@ Decision:
 - [`docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`](../docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md)
 - [`docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`](../docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md)
 
-`n04-ai-use-cases-v1/v2/v3.json`、`n04-v2-formal-harness-v1.json`、`n04-v3-formal-harness-v1.json`およびG-20〜G-25関連資産はhistorical research evidenceとして保持する。current N-04 Completion prerequisiteではない。
+## N-04R-05 Grounded Generation disposition
+
+Machine-readable disposition:
+
+```text
+n04r05-grounded-generation-asset-disposition-v1.json
+```
+
+Decision:
+
+[`docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`](../docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md)
+
+分類:
+
+```text
+MOVE_CONSUMER_SIDE
+  Grounded Generation implementation / verifier / architecture
+
+KEEP_EXPERIMENTAL
+  failure-analysis evidence
+  Frozen 47 / semantic research corpus
+  G-25A corpus / VALID_FAIL_NO_SELECTION result
+
+RETIRE
+  old N-04 generation-quality harnesses
+  old verifier / judge / classifier execution tooling
+
+KEEP_CORE
+  Grounded Generation chainから0件
+```
+
+### Historical / experimental N-04 assets
+
+以下の資産はファイルとして保持するが、current N-04 formal harnessではない。
+
+```text
+n04-ai-use-cases-v1/v2/v3.json
+n04-v2-formal-harness-v1.json
+n04-v3-formal-harness-v1.json
+n04g20-*.json
+n04g23*.json
+n04g25a-*.json/jsonl
+results/n04g*.json
+tools/n04g*.py
+```
+
+特に`n04g23a-atomicity-role-gold-v1.json`の47 Goldはresearch corpusとして保持するが、N-04 completion確認として再実行しない。
+
+Retired toolingを「benchmark directoryに存在する」ことだけを理由にactive benchmarkとして実行してはならない。
 
 ## Retired Prototype benchmark
 
