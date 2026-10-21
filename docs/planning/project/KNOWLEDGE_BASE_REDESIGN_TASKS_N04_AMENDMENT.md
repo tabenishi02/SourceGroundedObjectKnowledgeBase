@@ -4,9 +4,10 @@
 
 - Applies to: `docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md`
 - Scope: Phase N / N-04 and downstream dependency state only
-- Status: **Accepted amendment — N-04R-04 / N-04 Complete**
+- Status: **Accepted amendment — N-04 reconstruction complete**
 - Decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
 - Harness freeze: `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
+- Asset disposition: `docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`
 
 ## 1. Authority
 
@@ -32,8 +33,9 @@ N-03 Complete
 N-04P-01..P-06 Complete
 N-04R-01 Complete
 N-04R-02 Complete
-N-04R-03 Complete / Harness Frozen
+N-04R-03 Complete
 N-04R-04 Complete / PASS
+N-04R-05 Complete
 N-04 Complete / PASS
 N-05 Ready
 N-06 Ready
@@ -76,9 +78,9 @@ formal evaluationから除外:
 
 ```text
 N-03 Complete
-  ├─ N-04 Knowledge Access Acceptance
-  ├─ N-05 Performance
-  └─ N-06 Retrieval / Vector Quality
+  ├─ N-04 Knowledge Access Acceptance  Complete / PASS
+  ├─ N-05 Performance                 Ready
+  └─ N-06 Retrieval / Vector Quality  Ready
         ↓
       N-07 Failure / Recovery
 ```
@@ -92,10 +94,12 @@ N-04R-01 Responsibility Boundary Decision       Complete
 N-04R-02 Documentation Reconstruction            Complete
 N-04R-03 Formal Harness Reconstruction           Complete
 N-04R-04 Reference Workstation Re-Acceptance     Complete / PASS
-N-04R-05 Grounded Generation Asset Disposition   Next
+N-04R-05 Grounded Generation Asset Disposition   Complete
 ```
 
-R-03 current formal assets:
+**N-04 reconstruction chain = Complete.**
+
+Current formal assets:
 
 ```text
 benchmark/n04-knowledge-access-cases-v1.json
@@ -108,7 +112,42 @@ benchmark/tools/n04r04_evaluate_evidence.py
 
 `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
 
-## 6. Historical remediation state
+## 6. Grounded Generation disposition
+
+R-05でG-01〜G-25資産のownerを確定した。
+
+```text
+KEEP_CORE
+  Grounded Generation chainから0件
+
+MOVE_CONSUMER_SIDE
+  Grounded Generation implementation / verifier / pipeline
+  coupled implementation tests
+  architecture contracts
+
+KEEP_EXPERIMENTAL
+  failure analysis / evaluation evidence
+  Frozen 47 / semantic research corpus
+  G-25A development corpus / failed selection result
+
+RETIRE
+  old generation-quality harnesses
+  old verifier/judge/classifier execution tooling
+  superseded execution-contract tests
+  historical task / handoff documents
+```
+
+物理削除はhistorical reproducibilityのため今回行わない。
+
+Decision:
+
+`docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`
+
+Manifest:
+
+`benchmark/n04r05-grounded-generation-asset-disposition-v1.json`
+
+## 7. Historical remediation state
 
 G-12〜G-25の結果は削除しない。
 
@@ -118,33 +157,31 @@ G-22  historical valid formal FAIL
 G-25A historical valid VALID_FAIL_NO_SELECTION
 ```
 
-G-01〜G-25のGrounded Generation chainはhistorical remediation / research evidenceへ再分類し、N-04 Completion prerequisiteから外す。
+これらはcurrent N-04 Completion prerequisiteではない。
 
-## 7. Current N-04 authority
+## 8. Current N-04 authority
 
 1. `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
 2. `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
-3. `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
-4. `benchmark/n04-knowledge-access-cases-v1.json`
-5. `benchmark/n04-knowledge-access-formal-harness-v1.json`
-6. `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
-7. `docs/planning/phases/N/PHASE_N_PREPARATION.md`
-8. this amendment
+3. `docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`
+4. `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
+5. `docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`
+6. `benchmark/n04-knowledge-access-cases-v1.json`
+7. `benchmark/n04-knowledge-access-formal-harness-v1.json`
+8. `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
+9. `docs/planning/phases/N/PHASE_N_PREPARATION.md`
+10. this amendment
 
-Task masterの旧N-04記述と矛盾する場合、このamendmentと上記Decision / Harness freezeを優先する。
+Task masterの旧N-04記述と矛盾する場合、このamendmentと上記Decision群を優先する。
 
-## 8. Current next task
+## 9. Current next task
+
+N-05 / N-06は独立して開始可能。順次進める場合:
 
 ```text
-N-04R-05 — Grounded Generation Asset Disposition
+N-05 — Performance
 ```
 
-完了したR-04の実行正本:
+Reference Workstation正式結果:
 
-`docs/planning/phases/N/N04/execution/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE_HANDOFF.md`
-
-## 2026-10-22 Reference Workstation formal result
-
-Run `20261022T052331+0900`: **PASS (3/3 cases)**. **N-04R-04 = Complete; N-04 = Complete.** Actual MCP stdio/read-only tools, current accepted Versions, purpose/budget/Evidence policies, Similarity rank-1 integration, canonical invariance and system integrity all PASS. Mandatory preflight: focused 20/full 505 passed; post-run focused 32/full 505 passed; Ruff and diff check PASS (2 existing local-Qdrant warnings in each full suite).
-
-正式結果・evidence summary・preflight実装修復記録: `docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`. Case/evaluator frozen blobs, Gates and existing assertions were preserved. No Consumer generation/classifier/verifier/Frozen 47 was executed. Next: **N-04R-05 — Grounded Generation Asset Disposition** (not started); N-05/N-06 remain Ready.
+`docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`
