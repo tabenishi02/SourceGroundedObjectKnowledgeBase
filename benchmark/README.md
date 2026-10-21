@@ -58,6 +58,53 @@ Decision:
 - [`docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`](../docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md)
 - [`docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`](../docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md)
 
+## Current N-05 performance benchmark
+
+N-05は1 Object local automatic segmentの性能をReference Workstationで評価する。
+
+Current machine-readable assets:
+
+```text
+n05-performance-contract-v1.json
+n05-performance-evidence-template-v1.json
+tools/n05_evaluate_performance.py
+```
+
+Formal Gate:
+
+```text
+Standard warm p95 <= 600 s
+Large warm p95    <= 1200 s
+```
+
+Formal sample policy:
+
+```text
+cold >= 3 / profile   diagnostic only
+warm >= 20 / profile  formal
+p95 = nearest-rank
+formal warm terminal failure must not be discarded/replaced
+```
+
+N-05の計測対象はPackage buildからResult Validation / Import / derived incremental sync / RenderまでのSGOKB local automatic segment。Source探索、Capture network、人間待ち、external AI生成待ち、Drive/export、full Vector rebuildはformal 1 Object p95から除外する。
+
+Current status:
+
+```text
+contract/evaluator    implemented
+formal timing samples not measured
+formal verdict        BLOCKED (Reference Workstation command execution access)
+N-05                  Active / not Complete
+```
+
+`BLOCKED`はperformance failureではない。formal raw evidenceなしにPASS/FAILを推定してはならない。
+
+Planning / evaluation:
+
+- [`docs/planning/phases/N/N05/N05_PERFORMANCE_BENCHMARK.md`](../docs/planning/phases/N/N05/N05_PERFORMANCE_BENCHMARK.md)
+- [`docs/planning/phases/N/N05/execution/N05_REFERENCE_WORKSTATION_HANDOFF.md`](../docs/planning/phases/N/N05/execution/N05_REFERENCE_WORKSTATION_HANDOFF.md)
+- [`docs/evaluation/N05_PERFORMANCE.md`](../docs/evaluation/N05_PERFORMANCE.md)
+
 ## N-04R-05 Grounded Generation disposition
 
 Machine-readable disposition:
