@@ -273,6 +273,10 @@ def child(candidate_id, task, out):
     manifest = read(MANIFEST)
     candidate = next(c for c in manifest["candidates"] if c["candidate_id"] == candidate_id)
     seed_everything(manifest["seed"])
+    torch.cuda.init()
+    torch.cuda.set_device(0)
+    if "RTX 4090" not in torch.cuda.get_device_name(0):
+        raise RuntimeError("Frozen Reference Workstation GPU identity mismatch")
     torch.cuda.reset_peak_memory_stats(0)
     classes = manifest["tasks"][task]["supervised_classes"]
     if candidate["family"] == "cross_encoder_zero_shot":
