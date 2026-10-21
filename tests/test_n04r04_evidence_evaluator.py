@@ -9,7 +9,10 @@ EVALUATOR = ROOT / "benchmark" / "tools" / "n04r04_evaluate_evidence.py"
 
 
 def _load_evaluator():
-    spec = importlib.util.spec_from_file_location("n04r04_evaluator", EVALUATOR)
+    spec = importlib.util.spec_from_file_location(
+        "n04r04_evaluator",
+        EVALUATOR,
+    )
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -30,7 +33,11 @@ def _context(
     include_relations: bool,
     include_evidence_refs: bool,
 ) -> dict:
-    evidence = [{"evidence_id": "evidence:1", "role": "supports"}] if include_evidence_refs else []
+    evidence = (
+        [{"evidence_id": "evidence:1", "role": "supports"}]
+        if include_evidence_refs
+        else []
+    )
     return {
         "tool_contract_version": "sgokb.mcp-read-tools.v1",
         "data": {
@@ -108,7 +115,10 @@ def _build_valid_evidence(tmp_path: Path) -> None:
 
     _write(
         tmp_path / "case-2-comparison" / "similarity-request.json",
-        {"tool": "find_similar_objects", "arguments": {"object_id": fate, "limit": 5}},
+        {
+            "tool": "find_similar_objects",
+            "arguments": {"object_id": fate, "limit": 5},
+        },
     )
     _write(
         tmp_path / "case-2-comparison" / "similarity.json",
@@ -173,7 +183,10 @@ def _build_valid_evidence(tmp_path: Path) -> None:
         ),
     )
 
-    snapshot = {"objects": [saber, fate, bleach, tsundere, journey], "version": 1}
+    snapshot = {
+        "objects": [saber, fate, bleach, tsundere, journey],
+        "version": 1,
+    }
     _write(tmp_path / "canonical-before.json", snapshot)
     _write(tmp_path / "canonical-after.json", snapshot)
     _write(tmp_path / "integrity.json", {"status": "PASS"})
@@ -190,7 +203,9 @@ def _build_valid_evidence(tmp_path: Path) -> None:
     )
 
 
-def test_n04r04_evaluator_passes_valid_boundary_evidence(tmp_path: Path) -> None:
+def test_n04r04_evaluator_passes_valid_boundary_evidence(
+    tmp_path: Path,
+) -> None:
     module = _load_evaluator()
     _build_valid_evidence(tmp_path)
 
@@ -200,7 +215,9 @@ def test_n04r04_evaluator_passes_valid_boundary_evidence(tmp_path: Path) -> None
     assert all(item["status"] == "PASS" for item in report["cases"])
 
 
-def test_n04r04_evaluator_returns_blocked_for_incomplete_evidence(tmp_path: Path) -> None:
+def test_n04r04_evaluator_returns_blocked_for_incomplete_evidence(
+    tmp_path: Path,
+) -> None:
     module = _load_evaluator()
     report = module.evaluate(tmp_path)
 
@@ -209,7 +226,9 @@ def test_n04r04_evaluator_returns_blocked_for_incomplete_evidence(tmp_path: Path
     assert "case-1-roleplay/request.json" in report["blocked_detail"]
 
 
-def test_n04r04_evaluator_detects_sgokb_boundary_failure(tmp_path: Path) -> None:
+def test_n04r04_evaluator_detects_sgokb_boundary_failure(
+    tmp_path: Path,
+) -> None:
     module = _load_evaluator()
     _build_valid_evidence(tmp_path)
     context_path = tmp_path / "case-1-roleplay" / "context.json"
