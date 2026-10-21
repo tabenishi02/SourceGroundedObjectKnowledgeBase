@@ -4,7 +4,8 @@
 
 - Parent: `N-04 [P0]`
 - Decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
-- Status: **Active — N-04R-04 Complete / Next N-04R-05**
+- Asset disposition: `docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`
+- Status: **Complete — N-04R-01〜R-05 Complete / N-04 Complete PASS**
 
 ## 1. Purpose
 
@@ -19,8 +20,8 @@ N-04を、外部AIの生成品質ではなく、**SGOKBが外部Consumerへ正�
 | N-04R-01 | P0 | **Complete** | Responsibility Boundary Correctionを正式Decision化する |
 | N-04R-02 | P0 | **Complete (2026-10-22)** | N-04 acceptance spec / Phase N docs / handoffを再構築する |
 | N-04R-03 | P0 | **Complete (2026-10-22)** | Formal harnessをKnowledge Access Boundary専用に再構築する |
-| N-04R-04 | P0 | **Complete (2026-10-22)** | Reference Workstationで3代表ケースを再受入する |
-| N-04R-05 | P1 | **Next** | G-13〜G-25 Grounded Generation assetsの将来処遇を決定する |
+| N-04R-04 | P0 | **Complete / PASS (2026-10-22)** | Reference Workstationで3代表ケースを再受入する |
+| N-04R-05 | P1 | **Complete (2026-10-22)** | G-01〜G-25 Grounded Generation assetsの将来処遇を決定する |
 
 ## 3. N-04R-01 — Responsibility Boundary Correction
 
@@ -84,86 +85,110 @@ creative labeling by consumer
 Frozen 47
 ```
 
-### Deliverables
-
-Machine-readable current spec / harness:
+Current machine-readable spec / harness:
 
 - `benchmark/n04-knowledge-access-cases-v1.json`
 - `benchmark/n04-knowledge-access-formal-harness-v1.json`
-
-Harness / evaluator:
-
 - `benchmark/tools/n04r03_harness_preflight.py`
 - `benchmark/tools/n04r04_evaluate_evidence.py`
 
-Focused regression:
+Decision:
 
-- `tests/test_n04r03_knowledge_access_harness.py`
-- `tests/test_n04r04_evidence_evaluator.py`
-
-Decision / execution handoff:
-
-- `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
-- `docs/planning/phases/N/N04/execution/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE_HANDOFF.md`
-
-### Frozen semantics
-
-- 3代表ケースを維持する。
-- Case 2 candidateは実Similarity top resultを使い、known BLEACH IDをhardcodeしない。
-- Context contractは`sgokb.context-builder.v1`。
-- MCP read contractは`sgokb.mcp-read-tools.v1`。
-- case spec / deterministic evaluatorをGit blob SHAでHarnessへbindする。
-- formal evaluatorはraw SGOKB boundary evidenceだけを読む。
-- Consumer outputはformal verdictへ使用しない。
-- required evidence不足・読取不能は`BLOCKED`とする。
-- SGOKB boundary defectだけを`FAIL`とする。
-
-Reference Workstationでのpreflight / formal runは意図的にR-04へ分離した。R-03では実機PASSを主張しない。
+`docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
 
 ## 6. N-04R-04 — Reference Workstation Re-Acceptance
 
 Status: **Complete / PASS (2026-10-22)**
 
-N-03 real-data evaluation DBを再利用し、次の3ケースをSGOKB boundaryまで実行する。
+Run:
 
-1. Saber → `purpose=roleplay`
-2. Fate/stay night → Similarity candidate → `purpose=comparison`
-3. Tsundere + Hero's Journey → `purpose=creative`
+```text
+20261022T052331+0900
+```
 
-開始前にR-03 freeze documentのpreflightをReference Workstationで全PASSさせる。
+結果:
 
-3ケース + canonical invariance + integrity + regressionがすべてPASSした場合、N-04をCompleteとする。
+```text
+Case 1 Saber / roleplay                            PASS
+Case 2 Fate/stay night / Similarity / comparison  PASS
+Case 3 Tsundere + Hero's Journey / creative       PASS
+Canonical invariance                              PASS
+System integrity                                  PASS
+Post-run focused pytest                            32 passed
+Post-run full pytest                               505 passed / 0 failed
+Ruff / diff check                                  PASS
+Formal overall                                    PASS
+```
 
-AI ConsumerによるRoleplay / Comparison / Creative生成結果は、実行する場合でも参考記録としformal resultへ含めない。
+Case 2は実Similarity rank 1で返ったBLEACHをそのままComparison Contextへ使用した。
 
-実行正本:
+正式結果:
 
-`docs/planning/phases/N/N04/execution/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE_HANDOFF.md`
+`docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`
+
+これにより`N-04 = Complete / PASS`とする。
 
 ## 7. N-04R-05 — Grounded Generation Asset Disposition
 
-Status: **Next**
+Status: **Complete (2026-10-22)**
 
-対象:
+Decision:
 
-- v3 / v4 Grounded Generation production code
-- verifier adapters
-- atomicity / content-type classifier assets
-- Frozen 47 benchmark
-- G-01〜G-25 design / evaluation documents
+`docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md`
 
-分類:
+Machine-readable manifest:
+
+`benchmark/n04r05-grounded-generation-asset-disposition-v1.json`
+
+確定した分類:
 
 ```text
 KEEP_CORE
-KEEP_EXPERIMENTAL
+  Grounded Generation chainからは0件
+  current N-04 Knowledge Access assetsは引き続きcore
+
 MOVE_CONSUMER_SIDE
+  src/sgokb/application_grounding.py
+  src/sgokb/application_grounding_v4.py
+  src/sgokb/grounding/**
+  coupled implementation tests
+  Grounded Generation architecture / implementation contracts
+
+KEEP_EXPERIMENTAL
+  G-13以降のfailure analysis / evaluation evidence
+  Frozen 47 / semantic research corpus
+  G-25A development corpus / VALID_FAIL_NO_SELECTION result
+
 RETIRE
+  old N-04 v1/v2/v3 generation-quality harnesses
+  old verifier/judge/classifier execution tooling
+  superseded execution-contract tests
+  historical Grounded Generation task/handoff documents
 ```
 
-処遇判断までは既存code / benchmark / docsを削除しない。
+重要:
 
-## 8. Current Phase N state
+- R-05ではhistorical reproducibility維持のため物理削除を行わない。
+- `MOVE_CONSUMER_SIDE`資産は今後SGOKB public CLI / MCP / canonical workflowへ接続しない。
+- Consumer-side capabilityとして再開する場合は新しい責務・要件を先に定義する。
+- G-25A classifier selectionをN-04目的で再開しない。
+- Frozen 47をcurrent N-04 Gateとして実行しない。
+
+## 8. N-04 reconstruction closure
+
+```text
+N-04R-01 Complete
+N-04R-02 Complete
+N-04R-03 Complete
+N-04R-04 Complete / PASS
+N-04R-05 Complete
+```
+
+**N-04 responsibility reconstruction chain = Complete.**
+
+過去のG-12 / G-22 / G-25A resultは削除せずhistorical evidenceとして保持する。
+
+## 9. Current Phase N state
 
 ```text
 N-01 Complete
@@ -175,14 +200,12 @@ N-06 Ready
 N-07 Pending
 ```
 
-## 9. Next task
+## 10. Next task
+
+N-05 / N-06は独立して開始可能。
+
+順次進める場合の次Task:
 
 ```text
-N-04R-05 — Grounded Generation Asset Disposition
+N-05 — Performance
 ```
-
-## 2026-10-22 Reference Workstation formal result
-
-Run `20261022T052331+0900`: **PASS (3/3 cases)**. **N-04R-04 = Complete; N-04 = Complete.** Actual MCP stdio/read-only tools, current accepted Versions, purpose/budget/Evidence policies, Similarity rank-1 integration, canonical invariance and system integrity all PASS. Mandatory preflight: focused 20/full 505 passed; post-run focused 32/full 505 passed; Ruff and diff check PASS (2 existing local-Qdrant warnings in each full suite).
-
-正式結果・evidence summary・preflight実装修復記録: `docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`. Case/evaluator frozen blobs, Gates and existing assertions were preserved. No Consumer generation/classifier/verifier/Frozen 47 was executed. Next: **N-04R-05 — Grounded Generation Asset Disposition** (not started); N-05/N-06 remain Ready.
