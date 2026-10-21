@@ -1,0 +1,113 @@
+{
+  "schema_version": "sgokb.n04-knowledge-access-cases/1",
+  "dataset_id": "n04-knowledge-access-cases-v1",
+  "status": "frozen_for_reference_workstation_reacceptance",
+  "prepared_on": "2026-10-22",
+  "source_dataset": "benchmark/n03-real-data-vertical-slice-v1.json",
+  "evaluation_db": ".local/n03/sgokb-n03.sqlite",
+  "responsibility_decision": "docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md",
+  "contract_versions": {
+    "mcp_read_tools": "sgokb.mcp-read-tools.v1",
+    "context_builder": "sgokb.context-builder.v1"
+  },
+  "formal_boundary": "external_consumer_boundary",
+  "formal_result_states": ["PASS", "FAIL", "BLOCKED"],
+  "cases": [
+    {
+      "case_id": "n04-roleplay-saber",
+      "consumer_use_case": "roleplay",
+      "object_ids": ["326a97cf-47aa-4760-a7f1-07bfe639fcf0"],
+      "tool_sequence": ["build_context"],
+      "build_context": {
+        "object_ids": ["326a97cf-47aa-4760-a7f1-07bfe639fcf0"],
+        "purpose": "roleplay",
+        "max_characters": 12000,
+        "include_attributes": true,
+        "include_relations": true,
+        "include_evidence_refs": false
+      },
+      "required_case_gates": [
+        "public_boundary",
+        "canonical_scope",
+        "context_contract",
+        "traceability",
+        "budget_contract"
+      ]
+    },
+    {
+      "case_id": "n04-similar-work-comparison",
+      "consumer_use_case": "comparison",
+      "source_object_id": "d5824d33-7008-4121-9cfe-1f95a19667fd",
+      "expected_dataset_candidate_id_observation_only": "57db855c-574a-4b38-b474-421c165894f1",
+      "tool_sequence": ["find_similar_objects", "build_context"],
+      "find_similar_objects": {
+        "object_id": "d5824d33-7008-4121-9cfe-1f95a19667fd",
+        "cross_class": false,
+        "include_archived": false,
+        "limit": 5
+      },
+      "candidate_selection": "Select the highest-ranked returned current Work candidate. Do not hardcode a candidate into the context request.",
+      "build_context_template": {
+        "object_ids": [
+          "d5824d33-7008-4121-9cfe-1f95a19667fd",
+          "<retrieved_current_work_candidate_id>"
+        ],
+        "purpose": "comparison",
+        "max_characters": 24000,
+        "include_attributes": true,
+        "include_relations": false,
+        "include_evidence_refs": true
+      },
+      "required_case_gates": [
+        "public_boundary",
+        "canonical_scope",
+        "retrieval_integration",
+        "context_contract",
+        "traceability",
+        "budget_contract"
+      ]
+    },
+    {
+      "case_id": "n04-concept-combination-creative",
+      "consumer_use_case": "creative",
+      "object_ids": [
+        "8c83f986-f491-41a8-8645-9f71dd5874b9",
+        "fee32007-0f92-449a-ba21-4ec2f78d1cd4"
+      ],
+      "tool_sequence": ["build_context"],
+      "build_context": {
+        "object_ids": [
+          "8c83f986-f491-41a8-8645-9f71dd5874b9",
+          "fee32007-0f92-449a-ba21-4ec2f78d1cd4"
+        ],
+        "purpose": "creative",
+        "max_characters": 24000,
+        "include_attributes": true,
+        "include_relations": true,
+        "include_evidence_refs": false
+      },
+      "required_case_gates": [
+        "public_boundary",
+        "canonical_scope",
+        "context_contract",
+        "traceability",
+        "budget_contract"
+      ]
+    }
+  ],
+  "non_gating_observations": [
+    "knowledge_coverage",
+    "reference_consumer_output"
+  ],
+  "forbidden_formal_dependencies": [
+    "local_llm_generation",
+    "consumer_output_grounding",
+    "atomicity_classifier",
+    "content_type_classifier",
+    "source_fact_verifier",
+    "interpretation_verifier",
+    "grounded_generation_certification",
+    "presentation_generator",
+    "frozen_47_confirmation"
+  ]
+}
