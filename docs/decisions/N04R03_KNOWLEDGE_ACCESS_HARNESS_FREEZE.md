@@ -64,7 +64,7 @@ retrieval_integration
 - `public_boundary`: direct SQLiteでConsumer入力を作らず、正式MCP/Application read pathを使用する。
 - `canonical_scope`: intended Object / current accepted Versionだけを使用する。
 - `context_contract`: `sgokb.context-builder.v1`に従いpurpose / Object / Version / include optionが正しい。
-- `retrieval_integration`: Similarity結果から得たtop current Work candidateを、そのIDのままContextへ接続する。
+- `retrieval_integration`: Similarity結果から得たtop current Work candidateを、そのID / VersionのままContextへ接続する。
 - `traceability`: Object / resolved Version /必要なEvidence referenceを追跡できる。
 - `budget_contract`: `used_characters <= limit_characters`、omission / truncation metadataを保持し、partial statement truncationを行わない。
 
@@ -166,7 +166,7 @@ case spec:
 
 formal evaluator:
   benchmark/tools/n04r04_evaluate_evidence.py
-  b960845477e384d06bc925564c92f20564ab62de
+  060037e5316dd819472018f54c1d5600786e3e74
 ```
 
 `n04r03_harness_preflight.py`はこのbindingと、現行MCP / Context Builder contract version、代表3ケース、formal Gate集合、historical/current authority分離を検査する。
@@ -183,7 +183,8 @@ formal evaluator:
 - Object ID / resolved Version / `is_current`が正しい。
 - Context Builder selection policyが要求optionと一致する。
 - budget / omission / truncation semanticsが正しい。
-- Case 2のContext candidate IDが実Similarity top resultと一致する。
+- Case 2のSimilarity request条件がfreeze値と一致する。
+- Case 2のContext candidate ID / resolved Versionが実Similarity top resultと一致する。
 - Evidence referenceのinclude / omit policyが一致する。
 - canonical before / afterが一致する。
 - integrity / regression resultがPASSする。
