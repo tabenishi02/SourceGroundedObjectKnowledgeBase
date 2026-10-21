@@ -2,7 +2,7 @@
 """Evaluate N-05 Reference Workstation performance evidence.
 
 This evaluator is intentionally deterministic and uses only the Python standard
-library.  It does not execute the benchmark workload itself; it evaluates raw
+library. It does not execute the benchmark workload itself; it evaluates raw
 machine evidence against the frozen N-05 performance contract.
 """
 
@@ -16,6 +16,7 @@ from typing import Any
 
 
 DEFAULT_CONTRACT = Path("benchmark/n05-performance-contract-v1.json")
+PLACEHOLDER_VALUES = {"REPLACE", "REPLACE_WITH_RUN_ID"}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -40,6 +41,10 @@ def _numeric(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
 
 
+def _missing_or_placeholder(value: Any) -> bool:
+    return value is None or value == "" or (isinstance(value, str) and value in PLACEHOLDER_VALUES)
+
+
 def _validate_environment(contract: dict[str, Any], evidence: dict[str, Any]) -> list[str]:
     environment = evidence.get("environment")
     if not isinstance(environment, dict):
@@ -47,7 +52,7 @@ def _validate_environment(contract: dict[str, Any], evidence: dict[str, Any]) ->
     issues = []
     for field in contract["required_environment_fields"]:
         value = environment.get(field)
-        if value is None or value == "":
+        if _missing_or_placeholder(value):
             issues.append(f"environment.{field} is missing")
     return issues
 
@@ -220,7 +225,8 @@ def evaluate(contract: dict[str, Any], evidence: dict[str, Any]) -> dict[str, An
     environment_issues = _validate_environment(contract, evidence)
     if evidence.get("schema_version") != "sgokb.n05.performance-evidence.v1":
         environment_issues.append("unsupported or missing evidence schema_version")
-    if not isinstance(evidence.get("run_id"), str) or not evidence.get("run_id"):
+    run_id = evidence.get("run_id")
+    if not isinstance(run_id, str) or _missing_or_placeholder(run_id):
         environment_issues.append("run_id is missing")
 
     result: dict[str, Any] = {
