@@ -9,7 +9,7 @@
   "case_spec": "benchmark/n04-knowledge-access-cases-v1.json",
   "case_spec_git_blob_sha": "ab3374508467575955f0f9da911f551178a93b6e",
   "formal_evaluator": "benchmark/tools/n04r04_evaluate_evidence.py",
-  "formal_evaluator_git_blob_sha": "ae7cc81ff3f731b08ea790078449c06f0bd25442",
+  "formal_evaluator_git_blob_sha": "b960845477e384d06bc925564c92f20564ab62de",
   "source_dataset": "benchmark/n03-real-data-vertical-slice-v1.json",
   "reference_workstation": {
     "device": "FNB1Main",
