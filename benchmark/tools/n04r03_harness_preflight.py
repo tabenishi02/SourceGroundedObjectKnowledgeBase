@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -45,6 +46,12 @@ def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def git_blob_sha(path: Path) -> str:
+    content = path.read_bytes()
+    header = f"blob {len(content)}\0".encode()
+    return hashlib.sha1(header + content).hexdigest()
+
+
 def _walk_keys(value: Any) -> set[str]:
     keys: set[str] = set()
     if isinstance(value, dict):
@@ -79,6 +86,42 @@ def evaluate(repo_root: Path) -> dict[str, Any]:
         harness.get("status") == "frozen_for_reference_workstation_reacceptance",
         harness.get("status"),
     )
+    check(
+        "case_spec_path",
+        harness.get("case_spec") == "benchmark/n04-knowledge-access-cases-v1.json",
+        harness.get("case_spec"),
+    )
+    check(
+        "case_spec_git_blob_sha",
+        git_blob_sha(cases_path) == harness.get("case_spec_git_blob_sha"),
+        {
+            "actual": git_blob_sha(cases_path),
+            "expected": harness.get("case_spec_git_blob_sha"),
+        },
+    )
+    evaluator_path = repo_root / str(harness.get("formal_evaluator", ""))
+    check(
+        "formal_evaluator_path",
+        harness.get("formal_evaluator") == "benchmark/tools/n04r04_evaluate_evidence.py"
+        and evaluator_path.is_file(),
+        harness.get("formal_evaluator"),
+    )
+    evaluator_sha = git_blob_sha(evaluator_path) if evaluator_path.is_file() else None
+    check(
+        "formal_evaluator_git_blob_sha",
+        evaluator_sha == harness.get("formal_evaluator_git_blob_sha"),
+        {"actual": evaluator_sha, "expected": harness.get("formal_evaluator_git_blob_sha")},
+    )
+    if evaluator_path.is_file():
+        evaluator_source = evaluator_path.read_text(encoding="utf-8")
+        forbidden_imports = [
+            value
+            for value in ("sgokb.grounding", "MiniCheck", "Phi-4", "Mistral")
+            if value in evaluator_source
+        ]
+    else:
+        forbidden_imports = ["formal_evaluator_missing"]
+    check("formal_evaluator_has_no_generation_dependency", not forbidden_imports, forbidden_imports)
     check(
         "formal_boundary",
         cases.get("formal_boundary") == "external_consumer_boundary"
