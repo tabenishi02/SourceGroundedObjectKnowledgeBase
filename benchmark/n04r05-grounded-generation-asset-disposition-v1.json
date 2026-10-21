@@ -1,0 +1,176 @@
+{
+  "schema_version": "sgokb.n04r05-asset-disposition/1",
+  "task": "N-04R-05",
+  "status": "accepted",
+  "accepted_on": "2026-10-22",
+  "parent_decision": "docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md",
+  "disposition_decision": "docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md",
+  "core_rule": "SGOKB formal responsibility ends at the external consumer boundary",
+  "grounded_generation_keep_core_count": 0,
+  "groups": [
+    {
+      "id": "consumer_side_grounded_generation_code",
+      "disposition": "MOVE_CONSUMER_SIDE",
+      "paths": [
+        "src/sgokb/application_grounding.py",
+        "src/sgokb/application_grounding_v4.py",
+        "src/sgokb/grounding/**"
+      ],
+      "physical_move_now": false,
+      "production_authority": false,
+      "public_cli_or_mcp_dependency_allowed": false
+    },
+    {
+      "id": "consumer_side_grounded_generation_tests",
+      "disposition": "MOVE_CONSUMER_SIDE",
+      "paths": [
+        "tests/test_n04_grounded_generation.py",
+        "tests/test_n04g20_adversarial_regression.py",
+        "tests/test_n04g24_v4_implementation.py",
+        "tests/test_n04g24_v4_provider_runtime.py"
+      ],
+      "physical_move_now": false,
+      "production_authority": false
+    },
+    {
+      "id": "grounded_generation_architecture",
+      "disposition": "MOVE_CONSUMER_SIDE",
+      "paths": [
+        "docs/decisions/N04G01_*.md",
+        "docs/decisions/N04G02_*.md",
+        "docs/decisions/N04G03_*.md",
+        "docs/decisions/N04G04_*.md",
+        "docs/decisions/N04G05_*.md",
+        "docs/decisions/N04G06_*.md",
+        "docs/decisions/N04G07_*.md",
+        "docs/decisions/N04G14_*.md",
+        "docs/decisions/N04G15_*.md",
+        "docs/decisions/N04G16_*.md",
+        "docs/decisions/N04G17_*.md",
+        "docs/decisions/N04G18_*.md",
+        "docs/decisions/N04G23*.md",
+        "docs/design/N04G09_GROUNDED_GENERATION_IMPLEMENTATION.md"
+      ],
+      "physical_move_now": false,
+      "production_authority": false
+    },
+    {
+      "id": "historical_grounding_research_evidence",
+      "disposition": "KEEP_EXPERIMENTAL",
+      "paths": [
+        "docs/evaluation/N04G13_FAILURE_ROOT_CAUSE_DESK_REVIEW_AND_EXTERNAL_RESEARCH.md",
+        "docs/evaluation/N04G22_FAILURE_ROOT_CAUSE_INVESTIGATION.md",
+        "docs/evaluation/N04G23*.md",
+        "docs/evaluation/N04G24*.md",
+        "docs/evaluation/N04G25A*.md",
+        "benchmark/results/n04g*.json"
+      ],
+      "production_authority": false,
+      "formal_phase_n_gate": false
+    },
+    {
+      "id": "frozen_47_and_semantic_research_corpora",
+      "disposition": "KEEP_EXPERIMENTAL",
+      "paths": [
+        "benchmark/n04g23a-atomicity-role-gold-seed-v1.json",
+        "benchmark/n04g23a-atomicity-role-gold-v1.json",
+        "benchmark/n04g23a-atomicity-role-paraphrase-profile-v1.json",
+        "benchmark/n04g23a-atomicity-role-prompt-profiles-v1.json",
+        "benchmark/n04g23ae-role-compatibility-v1.json",
+        "benchmark/n04g23ae-v4-gate-desk-replay-v1.json",
+        "benchmark/n04g23ar-judge-candidates-v1.json",
+        "benchmark/n04g23ar-split-paraphrase-profile-v1.json",
+        "benchmark/n04g25a-atomicity-development-v1.jsonl",
+        "benchmark/n04g25a-content-type-development-v1.jsonl",
+        "benchmark/n04g25a-candidate-manifest-v1.json",
+        "benchmark/n04g25a-development-manifest-v1.json",
+        "benchmark/n04g25a-development-policy-lock-v1.json",
+        "benchmark/n04g25a-split-manifest-v1.json"
+      ],
+      "production_authority": false,
+      "n04_completion_prerequisite": false,
+      "may_be_reused_only_under_new_consumer_side_requirements": true
+    },
+    {
+      "id": "old_generation_quality_harnesses",
+      "disposition": "RETIRE",
+      "paths": [
+        "benchmark/n04-ai-use-cases-v1.json",
+        "benchmark/n04-ai-use-cases-v2.json",
+        "benchmark/n04-ai-use-cases-v3.json",
+        "benchmark/n04-v2-formal-harness-v1.json",
+        "benchmark/n04-v3-formal-harness-v1.json",
+        "benchmark/n04-v3-material-profiles-v1.json",
+        "benchmark/n04-v3-source-fact-verifier-profile-v1.json"
+      ],
+      "delete_now": false,
+      "formal_authority": false
+    },
+    {
+      "id": "old_generation_quality_execution_tools",
+      "disposition": "RETIRE",
+      "paths": [
+        "benchmark/tools/n04g20_*.py",
+        "benchmark/tools/n04g21*.py",
+        "benchmark/tools/n04g22_*.py",
+        "benchmark/tools/n04g23*.py",
+        "benchmark/tools/n04g25a_*.py"
+      ],
+      "delete_now": false,
+      "formal_authority": false
+    },
+    {
+      "id": "superseded_generation_contract_tests",
+      "disposition": "RETIRE",
+      "paths": [
+        "tests/test_n04g21_harness_freeze_candidate.py",
+        "tests/test_n04g21r_offline_proof_contract.py",
+        "tests/test_n04g22_execution_contract.py",
+        "tests/test_n04g23a_atomicity_role_benchmark_contract.py",
+        "tests/test_n04g23a_required_repeatability_gate.py",
+        "tests/test_n04g23ar_candidate_eval_contract.py",
+        "tests/test_n04g25a_development.py",
+        "tests/test_n04g25a_selection.py",
+        "tests/test_n04g25a_training_policy.py"
+      ],
+      "delete_now": false,
+      "production_authority": false
+    },
+    {
+      "id": "historical_grounded_generation_execution_docs",
+      "disposition": "RETIRE",
+      "paths": [
+        "docs/planning/phases/N/N04/N04_GROUNDED_GENERATION_TASKS.md",
+        "docs/planning/phases/N/N04/N04_GROUNDED_GENERATION_HANDOFF.md",
+        "docs/planning/phases/N/N04/post-g12/**",
+        "docs/planning/phases/N/N04/execution/N04G*.md"
+      ],
+      "delete_now": false,
+      "current_handoff": false
+    }
+  ],
+  "protected_current_assets": [
+    "docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md",
+    "docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md",
+    "docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md",
+    "docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md",
+    "docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md",
+    "benchmark/n04-knowledge-access-cases-v1.json",
+    "benchmark/n04-knowledge-access-formal-harness-v1.json",
+    "benchmark/tools/n04r03_harness_preflight.py",
+    "benchmark/tools/n04r04_evaluate_evidence.py",
+    "tests/test_n04r03_knowledge_access_harness.py",
+    "tests/test_n04r04_evidence_evaluator.py",
+    "tests/test_n04r04_preflight_portability.py",
+    "src/sgokb/application_read.py",
+    "src/sgokb/retrieval/**",
+    "src/sgokb/mcp/**"
+  ],
+  "rules": {
+    "resume_grounded_generation_for_n04": false,
+    "resume_g25a_classifier_selection_for_n04": false,
+    "run_frozen_47_as_current_n04_gate": false,
+    "connect_grounded_generation_to_public_cli_or_mcp": false,
+    "consumer_side_reuse_requires_new_requirements": true
+  }
+}
