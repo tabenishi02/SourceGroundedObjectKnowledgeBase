@@ -2,10 +2,11 @@
 
 更新日: 2026-10-22
 
-- Status: **Active — N-01〜N-03 Complete / N-04R-02 Complete / Next N-04R-03**
+- Status: **Active — N-01〜N-03 Complete / N-04R-03 Complete / Next N-04R-04**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - N-04 decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
+- N-04 harness freeze: `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
 - N-04 current spec: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
 - N-04 reconstruction tasks: `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
 
@@ -51,12 +52,12 @@ Phase Nでは、これらをUnit / Integrationだけでなく実データと実�
 | N-01 | P0 | **Complete (2026-10-16)** | Unit Testをcanonical domainへ整理・補完 |
 | N-02 | P0 | **Complete (2026-10-16)** | cross-domain Integrationを確認 |
 | N-03 | P0 | **Complete (2026-10-16)** | Character / Work / Conceptの実データVertical Slice |
-| N-04 | P0 | **Pending re-acceptance** | SGOKB Knowledge Access Boundaryを代表3用途で受入 |
+| N-04 | P0 | **Pending Reference Workstation re-acceptance** | SGOKB Knowledge Access Boundaryを代表3用途で受入 |
 | N-05 | P0 | **Ready** | 1 Object自動処理時間を計測 |
 | N-06 | P0 | **Ready** | Retrieval / Vector Backend品質評価 |
 | N-07 | P1 | Pending | Failure / Recovery試験 |
 
-N-04の旧`Failed`はhistorical resultとして保持する。現行statusは責務境界修正後の再受入待ちである。
+N-04の旧`Failed`はhistorical resultとして保持する。現行statusは責務境界修正・Harness再構築完了後の実機再受入待ちである。
 
 ## 4. 推奨実施順序
 
@@ -66,7 +67,7 @@ N-01 Unit Test                         Complete
 N-02 Integration Test                 Complete
   ↓
 N-03 Real-data Vertical Slice         Complete
-  ├─→ N-04 Knowledge Access Acceptance   Pending re-acceptance
+  ├─→ N-04 Knowledge Access Acceptance   Pending R-04
   ├─→ N-05 Performance                  Ready
   └─→ N-06 Retrieval / Vector quality   Ready
          ↓
@@ -206,12 +207,37 @@ External Consumer boundary  ← formal N-04 ends here
 - Grounded Generation pipeline
 - Atomicity / Content-Type classifiers
 - verifier / certification
+- Frozen 47
 
 Knowledge coverageは観測記録には残せるが、canonicalに存在しないKnowledgeをSGOKBが補う責務はない。
+
+### 9.4 N-04R-03 Harness Reconstruction
+
+Status: **Complete (2026-10-22)**
+
+Current formal assets:
+
+```text
+benchmark/n04-knowledge-access-cases-v1.json
+benchmark/n04-knowledge-access-formal-harness-v1.json
+benchmark/tools/n04r03_harness_preflight.py
+benchmark/tools/n04r04_evaluate_evidence.py
+tests/test_n04r03_knowledge_access_harness.py
+tests/test_n04r04_evidence_evaluator.py
+```
+
+Freeze record:
+
+`docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
+
+Harnessは旧Generator / Judge / classifier / verifierに依存しない。Case 2は実Similarity responseのtop candidate IDをContextへそのまま渡す。deterministic evaluatorはraw MCP boundary evidenceとcanonical/integrity/regression evidenceだけで`PASS / FAIL / BLOCKED`を判定する。
+
+Reference Workstation実行はR-04へ分離しているため、R-03完了は実機N-04 PASSを意味しない。
 
 詳細正本:
 
 - `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
+- `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
 - `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
 
 ## 10. Historical N-04 generation-quality chain
@@ -335,11 +361,15 @@ N-04 reconstruction chain:
 ```text
 N-04R-01 Responsibility Boundary Decision       Complete
 N-04R-02 Documentation Reconstruction            Complete
-N-04R-03 Formal Harness Reconstruction           Next / Pending
-N-04R-04 Reference Workstation Re-Acceptance     Pending
+N-04R-03 Formal Harness Reconstruction           Complete
+N-04R-04 Reference Workstation Re-Acceptance     Next / Pending
 N-04R-05 Grounded Generation Asset Disposition   Pending
 ```
 
-次Taskは`N-04R-03 — Formal Harness Reconstruction`。
+次Taskは`N-04R-04 — Reference Workstation Re-Acceptance`。
+
+実行handoff:
+
+`docs/planning/phases/N/N04/execution/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE_HANDOFF.md`
 
 N-05 / N-06はN-04完了を待つ必要はない。
