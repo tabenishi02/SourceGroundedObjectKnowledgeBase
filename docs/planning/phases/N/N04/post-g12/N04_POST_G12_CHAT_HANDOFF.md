@@ -1,23 +1,27 @@
-# N-04 Current Chat Handoff — Responsibility Boundary Reconstructed
+# N-04 Current Chat Handoff — Knowledge Access Harness Frozen
 
 更新日: 2026-10-22
 
-- Project: `Source Grounded Object Knowledge Base (SGOKB)`
+- Project: `Source Grounded Object KnowledgeBase (SGOKB)`
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Branch of record: `main`
 - Parent Task: `N-04 [P0]`
-- Current status: **Pending re-acceptance under corrected SGOKB responsibility boundary**
+- Current status: **Pending Reference Workstation re-acceptance under corrected SGOKB responsibility boundary**
+- N-04R-03: **Complete / Harness Frozen**
 - N-05: **Ready / no longer blocked by N-04**
 - N-06: **Ready**
-- Current next task: **N-04R-03 — Formal Harness Reconstruction**
+- Current next task: **N-04R-04 — Reference Workstation Re-Acceptance**
 
 ## 1. Read first
 
 1. `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
-2. `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
-3. `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
-4. `docs/planning/phases/N/PHASE_N_PREPARATION.md`
-5. `docs/planning/phases/N/N04/post-g12/N04_POST_G12_REMEDIATION_TASKS.md`
+2. `docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`
+3. `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`
+4. `benchmark/n04-knowledge-access-cases-v1.json`
+5. `benchmark/n04-knowledge-access-formal-harness-v1.json`
+6. `docs/planning/phases/N/N04/execution/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE_HANDOFF.md`
+7. `docs/planning/phases/N/N04/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION_TASKS.md`
+8. `docs/planning/phases/N/PHASE_N_PREPARATION.md`
 
 GitHub `main`を正本とする。
 
@@ -54,7 +58,7 @@ Saber
 ```text
 Fate/stay night
 → find_similar_objects
-→ returned current Work candidate
+→ actual top current Work candidate
 → purpose=comparison Context
 → Comparison Consumer boundary
 ```
@@ -69,22 +73,38 @@ Tsundere + Hero's Journey
 
 3ケースはAI出力品質を試すためではなく、異なるKnowledge Access経路を代表させるために維持する。
 
-## 4. Formal N-04 gates
+## 4. N-04R-03 result
 
-3ケースすべてで確認する。
+R-03で次を再構築・freezeした。
 
 ```text
-Public Boundary
-Canonical Scope / current accepted Version
-Purpose-specific Context Construction
-Retrieval Integration where applicable
-Traceability
-Budget / Contract
-Canonical Safety
-Integrity / Regression
+benchmark/n04-knowledge-access-cases-v1.json
+benchmark/n04-knowledge-access-formal-harness-v1.json
+benchmark/tools/n04r03_harness_preflight.py
+benchmark/tools/n04r04_evaluate_evidence.py
+tests/test_n04r03_knowledge_access_harness.py
+tests/test_n04r04_evidence_evaluator.py
 ```
 
-formal state:
+Formal HarnessのGate:
+
+```text
+public_boundary
+canonical_scope
+context_contract
+retrieval_integration (Case 2)
+traceability
+budget_contract
+canonical_invariance
+integrity
+regression
+```
+
+Case specとformal evaluatorはGit blob SHAでHarnessへbindされている。
+
+Formal evaluatorはraw MCP boundary evidenceだけを読み、Consumer outputを入力にしない。
+
+## 5. Formal result semantics
 
 ```text
 PASS
@@ -92,9 +112,13 @@ FAIL
 BLOCKED
 ```
 
-`FAIL`はSGOKB自身のresponsibility defectに限定する。
+- `PASS`: 全case required Gate + global GateがPASS。
+- `FAIL`: SGOKB自身のKnowledge Access responsibilityにdefectがある。
+- `BLOCKED`: 必要runtime / evidenceが利用不能でformal判定不能。
 
-## 5. Explicitly non-gating
+Consumer AIの失敗を`FAIL`へ変換してはならない。
+
+## 6. Explicitly non-gating
 
 次はformal N-04から除外済み。
 
@@ -113,7 +137,7 @@ BLOCKED
 
 Reference Consumer Demonstrationを実施してよいがnon-gating evidenceとする。
 
-## 6. Historical chain disposition
+## 7. Historical chain disposition
 
 過去結果を削除しない。
 
@@ -122,64 +146,53 @@ Original N-04         Historical FAIL under old specification
 G-12                  Historical valid formal FAIL / 0 of 3 PASS
 G-22                  Historical valid formal FAIL / 0 of 3 PASS
 G-25A                 Historical valid VALID_FAIL_NO_SELECTION
-G-13..G-25 assets     Historical remediation / research chain
+G-01..G-25 assets     Historical remediation / research chain
 ```
 
 これらはcurrent N-04 Completion prerequisiteではない。
-
-詳細:
-
-`docs/planning/phases/N/N04/post-g12/N04_POST_G12_REMEDIATION_TASKS.md`
-
-## 7. Why the old chain was superseded
-
-旧N-04は、SGOKBのread/context能力とConsumer LLMの生成品質を最終的に単一PASS/FAILへ統合していた。
-
-実測ではConsumer outputにgrounding failureが発生した一方、canonical / MCP / Retrieval / Context Builderにはそのfailure原因となるproduction defectを確認しなかった。
-
-そこでConsumer生成失敗をSGOKB本体のproduction remediationへ変換し、Grounded Generation / verifier / classifier chainが拡大した。
-
-2026-10-22の再評価で、このchainはN-04の元の責務境界を超えると判断した。
 
 ## 8. Current task chain
 
 ```text
 N-04R-01 Responsibility Boundary Decision       Complete
-N-04R-02 Documentation Reconstruction            Active
-N-04R-03 Formal Harness Reconstruction           Pending
-N-04R-04 Reference Workstation Re-Acceptance     Pending
+N-04R-02 Documentation Reconstruction            Complete
+N-04R-03 Formal Harness Reconstruction           Complete
+N-04R-04 Reference Workstation Re-Acceptance     Next / Pending
 N-04R-05 Grounded Generation Asset Disposition   Pending
 ```
 
-このHandoff更新を含むdocumentation整合後、N-04R-03へ移行する。
+## 9. N-04R-04 execution
 
-## 9. N-04R-03 requirements
+正本:
 
-formal harnessはSGOKB boundaryだけを判定する。
+`docs/planning/phases/N/N04/execution/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE_HANDOFF.md`
 
-必須:
+開始前に次をReference Workstationで全PASSさせる。
 
-- N-03 real-data DBを使用する。
-- MCP / public Application pathを通す。
-- 3代表purposeを構築する。
-- Case 2はSimilarity resultをhardcodeせず使用する。
-- current accepted Versionを確認する。
-- Context budget / metadata / omissionsを検査する。
-- canonical before/afterを比較する。
-- integrity / focused / full regressionを記録する。
+```powershell
+python benchmark/tools/n04r03_harness_preflight.py
+python -m pytest -q tests/test_n04r03_knowledge_access_harness.py tests/test_n04r04_evidence_evaluator.py tests/test_j04_context_builder.py tests/test_j06_mcp_client_acceptance.py
+python -m pytest -q
+python -m ruff check .
+git diff --check
+```
 
-禁止:
+その後、N-03 real-data DBとP-06 accepted Semantic / Qdrant runtimeを使い、3ケースをpublic MCP stdio経路で実行する。
 
-- AI output successをformal Gateへ戻す。
-- G-25A classifier選定を再開する。
-- Frozen 47を実行する。
-- Consumer hallucinationを理由にSGOKB coreを変更する。
+formal evidence保存後:
+
+```powershell
+python benchmark/tools/n04r04_evaluate_evidence.py `
+  --run-root .local/n04r04/<run_id>
+```
+
+で最終判定する。
 
 ## 10. Phase N relationship
 
 ```text
 N-03 Complete
-  ├─ N-04 Pending re-acceptance
+  ├─ N-04 Pending R-04 re-acceptance
   ├─ N-05 Ready
   └─ N-06 Ready
         ↓
