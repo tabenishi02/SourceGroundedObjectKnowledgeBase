@@ -1,6 +1,6 @@
 # N-04 Post-G22 Two-Stage Grounded Generation Remediation Tasks
 
-更新日: 2026-10-21
+更新日: 2026-10-22
 
 - Parent: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
 - Trigger: `N-04G-22 Formal v3 Re-Acceptance` valid formal FAIL (`0 / 3 Case PASS`)
@@ -42,7 +42,7 @@ G-24 v4 implementation                              Complete / Ready for G-25A
   ↓
 G-25A mandatory Reference Workstation preflight     PASS
   ↓ PASS only
-G-25A Residual Classifier Benchmark / Selection     not started
+G-25A Residual Classifier Benchmark / Selection     VALID_FAIL_NO_SELECTION
   ↓ PASS only
 G-25B Integrated v4 Adversarial Regression          blocked
   ↓ PASS only
@@ -224,7 +224,7 @@ Authority for this block:
 
 The earlier execution block is resolved by the local verification recorded below.
 
-Reference Workstation rerun `20261021T123230+0900` passed all four commands: targeted 22, full suite 448 (0 failed), Ruff and diff check PASS, after an import-order-only I001 repair. See `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`. Classifier benchmark is READY / not started; G-25A is not Complete. This preflight task performed no Frozen 47 classifier run or model/threshold tuning.
+At the 2026-10-21 preflight completion (historical snapshot): Reference Workstation rerun `20261021T123230+0900` passed all four commands: targeted 22, full suite 448 (0 failed), Ruff and diff check PASS, after an import-order-only I001 repair. See `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`. Classifier benchmark is READY / not started; G-25A is not Complete. This preflight task performed no Frozen 47 classifier run or model/threshold tuning.
 
 ```text
 preflight = PASS
@@ -251,13 +251,13 @@ Attempt 2 fully replaces attempt 1 as active material. Historical attempts remai
 
 ## 8. G-25A resume scope
 
-Current task remains **N-04G-25A — Residual Classifier Benchmark / Selection**, with mandatory preflight PASS and classifier benchmark READY / not started.
+Current task remains **N-04G-25A — Residual Classifier Benchmark / Selection**: mandatory preflight PASS, development **VALID_FAIL_NO_SELECTION**, explicit escalation required.
 
 Primary handoff:
 
 `docs/planning/phases/N/N04/post-g12/N04G25A_NEXT_CHAT_HANDOFF.md`
 
-The mandatory preflight has passed. This task stops before classifier benchmarking; later benchmark execution follows the existing G-25A protocol.
+The mandatory preflight passed and development selection has now completed with no eligible candidate. Do not begin final confirmation or G-25B; see the development result below.
 
 After preflight PASS, G-25A must select concrete V2-R-A and V2-R-C components under this mandatory Gate:
 
@@ -307,8 +307,8 @@ Do not change without reopening G-23F or explicit downstream escalation:
 G-23F = Complete / v4 Design Frozen
 G-24  = Complete / Implementation Ready for G-25A
 G-25A mandatory preflight = PASS
-G-25A classifier benchmark = READY / not started
-G-25A = not Complete / selection not performed
+G-25A development selection = VALID_FAIL_NO_SELECTION
+G-25A = VALID_FAIL_NO_SELECTION / not Complete
 G-25B = blocked by G-25A PASS
 G-26  = blocked by G-25B PASS
 N-04  = Failed / not Complete
@@ -317,4 +317,12 @@ N-05  = blocked
 
 ## 11. Immediate resume action
 
-Mandatory preflight PASS is recorded. G-25A classifier benchmark is READY / not started; G-25A is not Complete. No Frozen 47 execution or tuning was performed.
+Development selection is **VALID_FAIL_NO_SELECTION**. Escalate under a separate approved plan; do not tune against these selection results or start Frozen 47. G-25A is not Complete.
+
+## 2026-10-22 development selection result
+
+Run `20261022T000426+0900` completed all four candidates, both tasks and three repeats. **VALID_FAIL_NO_SELECTION**: no eligible V2-R-A or V2-R-C. Frozen policies/Gates were retained; no selected-checkpoint freeze was created. Frozen 47 final confirmation is **NOT STARTED**.
+
+Engineering: focused 34 passed; full pytest 482 passed / 0 failed / 0 skipped (2 existing local-Qdrant warnings); repository-wide Ruff and diff check PASS. G-25A remains not Complete; G-25B/G-26 remain blocked, N-04 Failed/not Complete and N-05 blocked.
+
+Result and explicit escalation: `docs/evaluation/N04G25A_DEVELOPMENT_CLASSIFIER_SELECTION.md`; `benchmark/results/n04g25a-development-selection-reference-workstation.json`. A separate approved remediation/evaluation protocol with untouched held-out evidence is required. Do not retune from these selection results, weaken Gates, or begin Frozen 47 with failed candidates.

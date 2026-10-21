@@ -1,13 +1,13 @@
 # N-04G-25 — v4 Development Benchmark / Adversarial Regression Tasks
 
-更新日: 2026-10-21
+更新日: 2026-10-22
 
 - Parent: `N-04 [P0] 3つの代表AI利用ケースを受入試験する`
 - Architecture authority: `docs/decisions/N04G23F_V4_DESIGN_INTEGRATION_AND_FREEZE.md`
 - G-24 result: `docs/evaluation/N04G24_V4_IMPLEMENTATION_RESULT.md`
 - Residual classifier design: `docs/planning/phases/N/N04/post-g12/N04G23AE_RESIDUAL_CLASSIFIER_EVALUATION_PLAN.md`
 - G-25A block record: `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
-- Status: **G-25A preflight PASS; classifier benchmark READY / not started / G-25B blocked by G-25A selection PASS**
+- Status: **G-25A development VALID_FAIL_NO_SELECTION / not Complete; G-25B/G-26 blocked**
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
 
@@ -26,7 +26,7 @@ G-24 v4 implementation                              Complete
   ↓
 G-25A Reference Workstation preflight               PASS
   ↓ PASS only
-G-25A Residual Classifier Benchmark / Selection     not started
+G-25A Residual Classifier Benchmark / Selection     VALID_FAIL_NO_SELECTION
   ↓ PASS only
 G-25B Integrated v4 Adversarial Regression          blocked
   ↓ PASS only
@@ -37,7 +37,7 @@ G-25AまたはG-25Bがvalid FAILの場合、G-26はblockedのままとする。
 
 ## 3. G-25A — Residual Classifier Benchmark / Selection
 
-Status: **Mandatory preflight PASS / classifier benchmark READY / not started (not Complete)**
+Status: **Mandatory preflight PASS / development selection VALID_FAIL_NO_SELECTION (not Complete)**
 
 ### 3.0 Mandatory implementation preflight
 
@@ -58,9 +58,9 @@ Preflight result and historical block authority:
 
 `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
 
-Reference Workstation rerun `20261021T123230+0900` passed all four commands: targeted 22, full suite 448 (0 failed), Ruff and diff check PASS, after an import-order-only I001 repair. See `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`. Classifier benchmark is READY / not started; G-25A is not Complete. This preflight task performed no Frozen 47 classifier run or model/threshold tuning.
+At the 2026-10-21 preflight completion (historical snapshot): Reference Workstation rerun `20261021T123230+0900` passed all four commands: targeted 22, full suite 448 (0 failed), Ruff and diff check PASS, after an import-order-only I001 repair. See `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`. Classifier benchmark is READY / not started; G-25A is not Complete. This preflight task performed no Frozen 47 classifier run or model/threshold tuning.
 
-The classifier benchmark and selection have **not started**.
+The development benchmark is complete: **VALID_FAIL_NO_SELECTION**. No candidate passed either task; final confirmation remains not started.
 
 ### 3.1 Inputs
 
@@ -163,7 +163,7 @@ VALID_FAIL_NO_SELECTION
 
 `VALID_FAIL_NO_SELECTION`ならG-25B/G-26へ進めずexplicit escalationを作成する。
 
-Current outcome is neither PASS nor VALID_FAIL_NO_SELECTION because the benchmark has not started.
+Current development outcome is **VALID_FAIL_NO_SELECTION**. No V2-R-A or V2-R-C is eligible; G-25A is not Complete and Frozen 47 remains NOT STARTED.
 
 ## 4. G-25B — Integrated v4 Adversarial Regression
 
@@ -211,3 +211,11 @@ G-26をunblockできるのは次をすべて満たす場合のみ。
 - [ ] no Gate weakening after results
 
 それまではG-26をblockedとする。
+
+## 2026-10-22 development selection result
+
+Run `20261022T000426+0900` completed all four candidates, both tasks and three repeats. **VALID_FAIL_NO_SELECTION**: no eligible V2-R-A or V2-R-C. Frozen policies/Gates were retained; no selected-checkpoint freeze was created. Frozen 47 final confirmation is **NOT STARTED**.
+
+Engineering: focused 34 passed; full pytest 482 passed / 0 failed / 0 skipped (2 existing local-Qdrant warnings); repository-wide Ruff and diff check PASS. G-25A remains not Complete; G-25B/G-26 remain blocked, N-04 Failed/not Complete and N-05 blocked.
+
+Result and explicit escalation: `docs/evaluation/N04G25A_DEVELOPMENT_CLASSIFIER_SELECTION.md`; `benchmark/results/n04g25a-development-selection-reference-workstation.json`. A separate approved remediation/evaluation protocol with untouched held-out evidence is required. Do not retune from these selection results, weaken Gates, or begin Frozen 47 with failed candidates.

@@ -1,6 +1,6 @@
 # N-04G-25A — Next Chat Handoff
 
-更新日: 2026-10-21
+更新日: 2026-10-22
 
 - Project: `Source Grounded Object Knowledge Base (SGOKB)`
 - Phase: `Phase N — Test / Evaluation / Acceptance`
@@ -9,7 +9,7 @@
 - G-23F: **Complete / v4 Design Frozen**
 - G-24: **Complete / Implementation Ready for G-25A**
 - Current task: **N-04G-25A — Residual Classifier Benchmark / Selection**
-- Current execution status: **Mandatory preflight PASS / classifier benchmark READY / not started**
+- Current execution status: **Mandatory preflight PASS / development selection VALID_FAIL_NO_SELECTION / not Complete**
 - Preflight result / historical block record: `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
 - N-04: **Failed / not Complete**
 - N-05: **blocked**
@@ -52,7 +52,7 @@ The historical block and subsequent successful local preflight are recorded in:
 
 `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`
 
-Reference Workstation rerun `20261021T123230+0900` passed all four commands: targeted 22, full suite 448 (0 failed), Ruff and diff check PASS, after an import-order-only I001 repair. See `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`. Classifier benchmark is READY / not started; G-25A is not Complete. This preflight task performed no Frozen 47 classifier run or model/threshold tuning.
+At the 2026-10-21 preflight completion (historical snapshot): Reference Workstation rerun `20261021T123230+0900` passed all four commands: targeted 22, full suite 448 (0 failed), Ruff and diff check PASS, after an import-order-only I001 repair. See `docs/evaluation/N04G25A_REFERENCE_WORKSTATION_PREFLIGHT_BLOCKED.md`. Classifier benchmark is READY / not started; G-25A is not Complete. This preflight task performed no Frozen 47 classifier run or model/threshold tuning.
 
 The hard preflight remains:
 
@@ -299,12 +299,20 @@ G-25A must not change:
 ```text
 G-24  = Complete / Implementation Ready for G-25A
 G-25A mandatory preflight = PASS
-G-25A classifier benchmark = READY / not started
-G-25A = not Complete / selection not performed
+G-25A development selection = VALID_FAIL_NO_SELECTION
+G-25A = VALID_FAIL_NO_SELECTION / not Complete
 G-25B = blocked by G-25A PASS
 G-26  = blocked by G-25B PASS
 N-04  = Failed / not Complete
 N-05  = blocked
 ```
 
-The Section 2 preflight prerequisite has passed. Benchmark readiness is recorded only: this request stops here. Future G-25A benchmark work must follow the development-data freeze/selection protocol below; no classifier/Frozen 47 execution or tuning has started.
+The development-data freeze, training/validation policy freeze and selection have completed with **VALID_FAIL_NO_SELECTION**. No candidate is eligible. This work stops before Frozen 47; explicit escalation is required for further remediation.
+
+## 2026-10-22 development selection result
+
+Run `20261022T000426+0900` completed all four candidates, both tasks and three repeats. **VALID_FAIL_NO_SELECTION**: no eligible V2-R-A or V2-R-C. Frozen policies/Gates were retained; no selected-checkpoint freeze was created. Frozen 47 final confirmation is **NOT STARTED**.
+
+Engineering: focused 34 passed; full pytest 482 passed / 0 failed / 0 skipped (2 existing local-Qdrant warnings); repository-wide Ruff and diff check PASS. G-25A remains not Complete; G-25B/G-26 remain blocked, N-04 Failed/not Complete and N-05 blocked.
+
+Result and explicit escalation: `docs/evaluation/N04G25A_DEVELOPMENT_CLASSIFIER_SELECTION.md`; `benchmark/results/n04g25a-development-selection-reference-workstation.json`. A separate approved remediation/evaluation protocol with untouched held-out evidence is required. Do not retune from these selection results, weaken Gates, or begin Frozen 47 with failed candidates.

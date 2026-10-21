@@ -1,11 +1,11 @@
 # N-04G-25A — Residual Classifier Benchmark Execution Plan
 
-更新日: 2026-10-21
+更新日: 2026-10-22
 
 - Task: `N-04G-25A — Residual Classifier Benchmark / Selection`
 - GitHub `main` authority at plan creation: `cd745c5edd3c63ccebaa802d321e6e882cb466ea`
 - Mandatory Reference Workstation preflight: **PASS**
-- Classifier benchmark: **READY / not started**
+- Classifier benchmark: **development complete / VALID_FAIL_NO_SELECTION**
 - Frozen 47 final confirmation: **not started**
 - G-25A: **not Complete**
 - G-25B/G-26: **blocked**
@@ -527,3 +527,11 @@ Do not modify:
 - context-limit ownership;
 - Retrieval / Similarity / Context Builder;
 - canonical DB / Source / Evidence / Provenance / Object identity / MCP boundary.
+
+## 2026-10-22 development selection result
+
+Run `20261022T000426+0900` completed all four candidates, both tasks and three repeats. **VALID_FAIL_NO_SELECTION**: no eligible V2-R-A or V2-R-C. Frozen policies/Gates were retained; no selected-checkpoint freeze was created. Frozen 47 final confirmation is **NOT STARTED**.
+
+Engineering: focused 34 passed; full pytest 482 passed / 0 failed / 0 skipped (2 existing local-Qdrant warnings); repository-wide Ruff and diff check PASS. G-25A remains not Complete; G-25B/G-26 remain blocked, N-04 Failed/not Complete and N-05 blocked.
+
+Result and explicit escalation: `docs/evaluation/N04G25A_DEVELOPMENT_CLASSIFIER_SELECTION.md`; `benchmark/results/n04g25a-development-selection-reference-workstation.json`. A separate approved remediation/evaluation protocol with untouched held-out evidence is required. Do not retune from these selection results, weaken Gates, or begin Frozen 47 with failed candidates.

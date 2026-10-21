@@ -1,0 +1,2312 @@
+{
+  "schema_version": "sgokb.g25a.development-selection/1",
+  "date": "2026-10-22",
+  "run_id": "20261022T000426+0900",
+  "training_run_id": "20261021T230349+0900",
+  "corpus_freeze_commit": "ea46ba172fc071f0c4ce160ac4c99b8c831bbfbe",
+  "selection_input_head": "9e269e859f65e35511ad0dae5719f6089f242119",
+  "training_input_head": "145b00c9b0ca0df403f354f587ae938b99ab0b5d",
+  "policy_lock_sha256": "0b5cba8179e2c58fee7a748aba4ce8c4606a18c2257691d0da6f6d378f394881",
+  "candidate_manifest_sha256": "c93f70ab3bbfc905609c12c90dbddd628d6e5172f8ed5532a1b05f7b70af18e7",
+  "runner_sha256": "17dbad66114d12cd36bbf1abe5de2d14f35c95313145a8e8ebecbe0bb8c273c5",
+  "selector_sha256": "2fa08e6eceac61b58ca62dabe7e673d2f4b77f2ac75c1928dae010755b2fdba0",
+  "confirmation_started": false,
+  "outcome": "VALID_FAIL_NO_SELECTION",
+  "selected": {
+    "atomicity": null,
+    "content_type": null
+  },
+  "selected_checkpoint_policy_freeze": {
+    "status": "NOT_CREATED_NO_PASSING_CANDIDATE",
+    "atomicity": null,
+    "content_type": null
+  },
+  "preselection_policy_lock": {
+    "path": "benchmark/n04g25a-development-policy-lock-v1.json",
+    "sha256": "0b5cba8179e2c58fee7a748aba4ce8c4606a18c2257691d0da6f6d378f394881"
+  },
+  "corpus_validation": {
+    "status": "PASS",
+    "tasks": {
+      "atomicity": {
+        "total": 450,
+        "labels": {
+          "ATOMIC": 200,
+          "NON_ATOMIC": 200,
+          "AMBIGUOUS": 50
+        },
+        "partition_labels": {
+          "train": {
+            "ATOMIC": 120,
+            "NON_ATOMIC": 120,
+            "AMBIGUOUS": 30
+          },
+          "validation": {
+            "ATOMIC": 40,
+            "NON_ATOMIC": 40,
+            "AMBIGUOUS": 10
+          },
+          "selection": {
+            "ATOMIC": 40,
+            "NON_ATOMIC": 40,
+            "AMBIGUOUS": 10
+          }
+        },
+        "family_count": 45,
+        "family_leakage": 0,
+        "lineage_leakage": 0,
+        "split_group_leakage": 0,
+        "exact_cross_split_duplicates": 0,
+        "normalized_cross_split_duplicates": 0
+      },
+      "content_type": {
+        "total": 550,
+        "labels": {
+          "SOURCE_FACT_CONTENT": 100,
+          "INTERPRETATION_CONTENT": 100,
+          "CREATIVE_CONTENT": 100,
+          "CONTEXT_LIMIT_CONTENT": 100,
+          "MIXED_CONTENT": 100,
+          "AMBIGUOUS": 50
+        },
+        "partition_labels": {
+          "train": {
+            "SOURCE_FACT_CONTENT": 60,
+            "INTERPRETATION_CONTENT": 60,
+            "CREATIVE_CONTENT": 60,
+            "CONTEXT_LIMIT_CONTENT": 60,
+            "MIXED_CONTENT": 60,
+            "AMBIGUOUS": 30
+          },
+          "validation": {
+            "SOURCE_FACT_CONTENT": 20,
+            "INTERPRETATION_CONTENT": 20,
+            "CREATIVE_CONTENT": 20,
+            "CONTEXT_LIMIT_CONTENT": 20,
+            "MIXED_CONTENT": 20,
+            "AMBIGUOUS": 10
+          },
+          "selection": {
+            "SOURCE_FACT_CONTENT": 20,
+            "INTERPRETATION_CONTENT": 20,
+            "CREATIVE_CONTENT": 20,
+            "CONTEXT_LIMIT_CONTENT": 20,
+            "MIXED_CONTENT": 20,
+            "AMBIGUOUS": 10
+          }
+        },
+        "family_count": 55,
+        "family_leakage": 0,
+        "lineage_leakage": 0,
+        "split_group_leakage": 0,
+        "exact_cross_split_duplicates": 0,
+        "normalized_cross_split_duplicates": 0
+      }
+    },
+    "cross_task_lineage_leakage": 0,
+    "confirmation_data_loaded": false
+  },
+  "candidate_identities": [
+    {
+      "candidate_id": "c1a-modernbert-base",
+      "model_repository": "answerdotai/ModernBERT-base",
+      "exact_revision": "8949b909ec900327062f0ebf497f51aef5e6f0c8",
+      "license_metadata": "apache-2.0",
+      "local_path": ".local/n04-v4/g25a/runtime/models/c1a-modernbert-base",
+      "runtime_compatibility": "PASS: local weight/tokenizer loading and task-specific training/validation completed on RTX 4090",
+      "downloaded_artifact_identity": {
+        "config.json": {
+          "bytes": 1193,
+          "sha256": "1609d59e627c33eaed524b4f01e546d42e84190a079a5a5ded84b212c41c324f"
+        },
+        "model.safetensors": {
+          "bytes": 598635032,
+          "sha256": "340ac08b74eef0d7bdec2d7981a6a3d4249bf0e6aab60634b72ad02c2b8023a9"
+        },
+        "README.md": {
+          "bytes": 8427,
+          "sha256": "40539466fa1117be4693b8f1fdfdac81fac3c5db472ff57bc05d013d48eafa82"
+        },
+        "special_tokens_map.json": {
+          "bytes": 694,
+          "sha256": "ea97ecdbcc73713039d8d64dbb05e3689495c96657fbd9a18f5bed381be81049"
+        },
+        "tokenizer.json": {
+          "bytes": 2132967,
+          "sha256": "9fd55248d51d33976b324fc11592e28071da7d41e0e9401dfb7082e30574b7b1"
+        },
+        "tokenizer_config.json": {
+          "bytes": 20810,
+          "sha256": "3cd2017ff46d0a527e5d39cae39272eccfa1f19bb9f89b05d166aab2e38354e2"
+        }
+      }
+    },
+    {
+      "candidate_id": "c1b-deberta-v3-base",
+      "model_repository": "microsoft/deberta-v3-base",
+      "exact_revision": "8ccc9b6f36199bec6961081d44eb72fb3f7353f3",
+      "license_metadata": "mit",
+      "local_path": ".local/n04-v4/g25a/runtime/models/c1b-deberta-v3-base",
+      "runtime_compatibility": "PASS: local weight/tokenizer loading and task-specific training/validation completed on RTX 4090",
+      "downloaded_artifact_identity": {
+        "config.json": {
+          "bytes": 579,
+          "sha256": "649f6a1ec33c6bdd9a6486d5c66019d461139e54957073eafe9bbc2d34c75b0b"
+        },
+        "pytorch_model.bin": {
+          "bytes": 371146213,
+          "sha256": "691d48a2800b926a19e3051def466fc2cca4f59a15e42ce4a0cf7f1b380b5e33"
+        },
+        "README.md": {
+          "bytes": 3472,
+          "sha256": "7e9ea69ca00d0609cc0e0b9cec76f9ba6ae71601244c4136a3f25bd02dce4c4d"
+        },
+        "spm.model": {
+          "bytes": 2464616,
+          "sha256": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd"
+        },
+        "tokenizer_config.json": {
+          "bytes": 52,
+          "sha256": "3f3978e0c036f2c2588cac34a6047cbb0af0b0dc1814254e291028529805496d"
+        }
+      }
+    },
+    {
+      "candidate_id": "c2-nli-deberta-v3-base",
+      "model_repository": "cross-encoder/nli-deberta-v3-base",
+      "exact_revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
+      "license_metadata": "apache-2.0",
+      "local_path": ".local/n04-v4/g25a/runtime/models/c2-nli-deberta-v3-base",
+      "runtime_compatibility": "PASS: local weight/tokenizer loading and task-specific training/validation completed on RTX 4090",
+      "downloaded_artifact_identity": {
+        "added_tokens.json": {
+          "bytes": 26,
+          "sha256": "a4b6bfe668f2b3cf6f0cd535e98a0663d2d0d4a4a15f13075ad3597d33985a23"
+        },
+        "config.json": {
+          "bytes": 1052,
+          "sha256": "897e756eb59d3183adb505952e7910e7cbc7750a43f3b3747a96b688d2b02a47"
+        },
+        "model.safetensors": {
+          "bytes": 737726552,
+          "sha256": "d8148c6d49e0a7925134294c56326c71fe0ab1dc390e37355e00c7efbb488afa"
+        },
+        "README.md": {
+          "bytes": 2856,
+          "sha256": "b6a6dd82d5fee7036e3b815ce1d28458df294d8525fc234fb7e7277b6b79d878"
+        },
+        "special_tokens_map.json": {
+          "bytes": 301,
+          "sha256": "ed7c099c988dbb414b18a6980d20cb57b91b7cd119f6f6941eb364b0e892e712"
+        },
+        "spm.model": {
+          "bytes": 2464616,
+          "sha256": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd"
+        },
+        "tokenizer.json": {
+          "bytes": 8656624,
+          "sha256": "5124ef2ead1a10a717703bc436de7f353da76d6340e4587719b42b1693707964"
+        },
+        "tokenizer_config.json": {
+          "bytes": 1346,
+          "sha256": "f3eecd07c370ef0bf7dd3780d3cd68cf9c8b00c267e21a208ddcd8f82bfec1a6"
+        }
+      }
+    },
+    {
+      "candidate_id": "c3-setfit-minilm-l6-v2",
+      "model_repository": "sentence-transformers/all-MiniLM-L6-v2",
+      "exact_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+      "license_metadata": "apache-2.0",
+      "local_path": ".local/n04-v4/g25a/runtime/models/c3-setfit-minilm-l6-v2",
+      "runtime_compatibility": "PASS: local weight/tokenizer loading and task-specific training/validation completed on RTX 4090",
+      "downloaded_artifact_identity": {
+        "1_Pooling/config.json": {
+          "bytes": 190,
+          "sha256": "4be450dde3b0273bb9787637cfbd28fe04a7ba6ab9d36ac48e92b11e350ffc23"
+        },
+        "config.json": {
+          "bytes": 612,
+          "sha256": "953f9c0d463486b10a6871cc2fd59f223b2c70184f49815e7efbcab5d8908b41"
+        },
+        "config_sentence_transformers.json": {
+          "bytes": 116,
+          "sha256": "061ca9d39661d6c6d6de5ba27f79a1cd5770ea247f8d46412a68a498dc5ac9f3"
+        },
+        "data_config.json": {
+          "bytes": 39265,
+          "sha256": "32edcb108fc2516b920734a862ae0692bcae1c5d45d5f8d972cb0d53434a4c54"
+        },
+        "model.safetensors": {
+          "bytes": 90868376,
+          "sha256": "53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db"
+        },
+        "modules.json": {
+          "bytes": 349,
+          "sha256": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf"
+        },
+        "README.md": {
+          "bytes": 10502,
+          "sha256": "dcd602d2fd35c203a247304a06fec6654a12f7941b739f9221a064fe8dc3b7f0"
+        },
+        "sentence_bert_config.json": {
+          "bytes": 53,
+          "sha256": "fc1993fde0a95c24ec6c022539d41cf6e2f7c9721e5415d6fb6897472a9cd4b7"
+        },
+        "special_tokens_map.json": {
+          "bytes": 112,
+          "sha256": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3"
+        },
+        "tokenizer.json": {
+          "bytes": 466247,
+          "sha256": "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037"
+        },
+        "tokenizer_config.json": {
+          "bytes": 350,
+          "sha256": "acb92769e8195aabd29b7b2137a9e6d6e25c476a4f15aa4355c233426c61576b"
+        },
+        "vocab.txt": {
+          "bytes": 231508,
+          "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+        }
+      }
+    }
+  ],
+  "runtime": {
+    "python": "3.10.6 (tags/v3.10.6:9c7b4bd, Aug  1 2022, 21:53:49) [MSC v.1932 64 bit (AMD64)]",
+    "packages": {
+      "torch": "2.6.0+cu124",
+      "transformers": "4.51.3",
+      "sentence-transformers": "4.1.0",
+      "setfit": "1.1.2",
+      "scikit-learn": "1.6.1",
+      "datasets": "3.5.0",
+      "accelerate": "1.6.0",
+      "numpy": "1.26.4",
+      "huggingface_hub": "0.30.2"
+    },
+    "cuda_build": "12.4",
+    "devices": [
+      {
+        "name": "NVIDIA GeForce RTX 4090",
+        "vram_bytes": 25756696576
+      },
+      {
+        "name": "Quadro P1000",
+        "vram_bytes": 4294836224
+      }
+    ],
+    "pip_freeze": "accelerate==1.6.0\naiohappyeyeballs==2.7.1\naiohttp==3.14.5\naiosignal==1.4.0\nasync-timeout==5.0.1\nattrs==26.1.0\ncertifi==2026.10.19\ncharset-normalizer==3.5.2\ncloudpickle==3.1.2\ncolorama==0.4.6\ndatasets==3.5.0\ndill==0.3.8\nevaluate==0.4.6\nfilelock==3.32.3\nfrozenlist==1.8.0\nfsspec==2024.12.0\nhuggingface-hub==0.30.2\nidna==3.20\nJinja2==3.1.6\njoblib==1.6.0\nMarkupSafe==3.0.3\nmpmath==1.3.0\nmultidict==7.1.0\nmultiprocess==0.70.16\nnetworkx==3.4.2\nnumpy==1.26.4\npackaging==26.3\npandas==2.3.3\npillow==12.3.0\npropcache==0.5.4\nprotobuf==5.29.4\npsutil==7.2.2\npyarrow==25.0.1\npython-dateutil==2.9.0.post0\npytz==2026.5\nPyYAML==6.0.3\nregex==2026.9.29\nrequests==2.34.2\nsafetensors==0.8.0\nscikit-learn==1.6.1\nscipy==1.15.3\nsentence-transformers==4.1.0\nsentencepiece==0.2.0\nsetfit==1.1.2\nsix==1.17.0\nsympy==1.13.1\nthreadpoolctl==3.7.0\ntokenizers==0.21.4\ntorch==2.6.0+cu124\ntqdm==4.70.1\ntransformers==4.51.3\ntyping_extensions==4.16.0\ntzdata==2026.5\nurllib3==2.8.0\nxxhash==4.0.2\nyarl==1.25.1\n"
+  },
+  "training_configuration": {
+    "max_length": 128,
+    "train_partitions": [
+      "train"
+    ],
+    "checkpoint_selection_partition": "validation",
+    "supervised_ambiguous_controls": false,
+    "selection_partition_access": "inference only after all checkpoint/policy locks; never tune from selection",
+    "epochs": 3,
+    "learning_rate": 2e-05,
+    "per_device_batch_size": 8,
+    "weight_decay": 0.01,
+    "optimizer": "AdamW",
+    "checkpoint_selection": "lowest validation cross-entropy among fixed epochs; ties use earlier epoch",
+    "attention_implementation": "eager",
+    "precision": "float32",
+    "deterministic_inference": true,
+    "repeats": 3
+  },
+  "setfit_training_configuration": {
+    "candidate_id": "c3-setfit-minilm-l6-v2",
+    "model_repository": "sentence-transformers/all-MiniLM-L6-v2",
+    "family": "setfit",
+    "tasks": [
+      "atomicity",
+      "content_type"
+    ],
+    "exact_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    "status": "runtime_compatible_training_validation_pass",
+    "fine_tune": true,
+    "few_shot_per_class": 16,
+    "sampling": "fixed seed from train only",
+    "num_iterations": 10,
+    "body_epochs": 1,
+    "body_batch_size": 16,
+    "head": "standard sklearn LogisticRegression",
+    "head_params": {
+      "max_iter": 1000,
+      "random_state": 20261021
+    },
+    "downloaded_artifact_identity": {
+      "1_Pooling/config.json": {
+        "bytes": 190,
+        "sha256": "4be450dde3b0273bb9787637cfbd28fe04a7ba6ab9d36ac48e92b11e350ffc23"
+      },
+      "config.json": {
+        "bytes": 612,
+        "sha256": "953f9c0d463486b10a6871cc2fd59f223b2c70184f49815e7efbcab5d8908b41"
+      },
+      "config_sentence_transformers.json": {
+        "bytes": 116,
+        "sha256": "061ca9d39661d6c6d6de5ba27f79a1cd5770ea247f8d46412a68a498dc5ac9f3"
+      },
+      "data_config.json": {
+        "bytes": 39265,
+        "sha256": "32edcb108fc2516b920734a862ae0692bcae1c5d45d5f8d972cb0d53434a4c54"
+      },
+      "model.safetensors": {
+        "bytes": 90868376,
+        "sha256": "53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db"
+      },
+      "modules.json": {
+        "bytes": 349,
+        "sha256": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf"
+      },
+      "README.md": {
+        "bytes": 10502,
+        "sha256": "dcd602d2fd35c203a247304a06fec6654a12f7941b739f9221a064fe8dc3b7f0"
+      },
+      "sentence_bert_config.json": {
+        "bytes": 53,
+        "sha256": "fc1993fde0a95c24ec6c022539d41cf6e2f7c9721e5415d6fb6897472a9cd4b7"
+      },
+      "special_tokens_map.json": {
+        "bytes": 112,
+        "sha256": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3"
+      },
+      "tokenizer.json": {
+        "bytes": 466247,
+        "sha256": "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037"
+      },
+      "tokenizer_config.json": {
+        "bytes": 350,
+        "sha256": "acb92769e8195aabd29b7b2137a9e6d6e25c476a4f15aa4355c233426c61576b"
+      },
+      "vocab.txt": {
+        "bytes": 231508,
+        "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+      }
+    },
+    "local_path": ".local/n04-v4/g25a/runtime/models/c3-setfit-minilm-l6-v2",
+    "license_metadata": "apache-2.0",
+    "license_source": "HF repository metadata and downloaded README/model card",
+    "runtime_compatibility": "PASS: local weight/tokenizer loading and task-specific training/validation completed on RTX 4090",
+    "task_policy_locks": {
+      "atomicity": {
+        "classes": [
+          "ATOMIC",
+          "NON_ATOMIC"
+        ],
+        "policy": {
+          "min_confidence": 0.0,
+          "min_margin": 0.2
+        },
+        "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/atomicity/checkpoint",
+        "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/atomicity/lock.json",
+        "raw_lock_sha256": "a9381cd05da80661c99b37174d1191ff44075ea80b8e2cca500859f9088116e3"
+      },
+      "content_type": {
+        "classes": [
+          "SOURCE_FACT_CONTENT",
+          "INTERPRETATION_CONTENT",
+          "CREATIVE_CONTENT",
+          "CONTEXT_LIMIT_CONTENT",
+          "MIXED_CONTENT"
+        ],
+        "policy": {
+          "min_confidence": 0.0,
+          "min_margin": 0.2
+        },
+        "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/content_type/checkpoint",
+        "raw_lock_path": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/content_type/lock.json",
+        "raw_lock_sha256": "5de70c954e8c4ded57bcece0d8e1fcf727393b0b865419ee8f4a3e32c8e40a98"
+      }
+    }
+  },
+  "results": [
+    {
+      "status": "completed",
+      "candidate_id": "c1a-modernbert-base",
+      "task": "atomicity",
+      "rows": 90,
+      "repeats": 3,
+      "classes": [
+        "ATOMIC",
+        "NON_ATOMIC"
+      ],
+      "policy": {
+        "min_confidence": 0.0,
+        "min_margin": 0.0
+      },
+      "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c1a-modernbert-base/atomicity/checkpoint",
+      "elapsed_seconds": 0.6419794999528676,
+      "measurement": {
+        "batch_size": 8,
+        "repeats": 3,
+        "warmup": "one fixed independent neutral sentence per candidate/task",
+        "latency": "GPU-synchronized batch time / rows; median over all selection rows and repeats; excludes model load and warmup",
+        "metric_aggregation": "critical/required error maximum across repeats; exact required/critical repeatability; arithmetic mean of macro-F1, recall and ambiguity rates for ranking",
+        "vram": "peak torch CUDA allocated bytes after model load/warmup (includes resident model)"
+      },
+      "hard_gate": "FAIL",
+      "critical_false_pass": 14,
+      "required_valid_false_reject": 0,
+      "repeatability_failures": 0,
+      "repeat_metrics": [
+        {
+          "critical_false_pass": 14,
+          "required_valid_false_reject": 0,
+          "per_class_recall": {
+            "ATOMIC": 1.0,
+            "NON_ATOMIC": 0.65,
+            "AMBIGUOUS": 0.0
+          },
+          "macro_f1": 0.519036519036519,
+          "mean_class_recall": 0.5499999999999999,
+          "ambiguity_rate": 0.0,
+          "nonambiguous_ambiguity_rate": 0.0,
+          "confusion": {
+            "AMBIGUOUS->ATOMIC": 10,
+            "ATOMIC->ATOMIC": 40,
+            "NON_ATOMIC->ATOMIC": 14,
+            "NON_ATOMIC->NON_ATOMIC": 26
+          },
+          "confusion_by_family": {
+            "atomicity.atomic.measured_value": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.atomic.relative_position": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.atomic.assigned_identity": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.atomic.single_receipt": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.non_atomic.separate_counts": {
+              "NON_ATOMIC->ATOMIC": 7,
+              "NON_ATOMIC->NON_ATOMIC": 3
+            },
+            "atomicity.non_atomic.existence_and_location": {
+              "NON_ATOMIC->ATOMIC": 7,
+              "NON_ATOMIC->NON_ATOMIC": 3
+            },
+            "atomicity.non_atomic.contrast_of_states": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.non_atomic.nested_causal_events": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.ambiguous.relative_scope": {
+              "AMBIGUOUS->ATOMIC": 10
+            }
+          }
+        },
+        {
+          "critical_false_pass": 14,
+          "required_valid_false_reject": 0,
+          "per_class_recall": {
+            "ATOMIC": 1.0,
+            "NON_ATOMIC": 0.65,
+            "AMBIGUOUS": 0.0
+          },
+          "macro_f1": 0.519036519036519,
+          "mean_class_recall": 0.5499999999999999,
+          "ambiguity_rate": 0.0,
+          "nonambiguous_ambiguity_rate": 0.0,
+          "confusion": {
+            "AMBIGUOUS->ATOMIC": 10,
+            "ATOMIC->ATOMIC": 40,
+            "NON_ATOMIC->ATOMIC": 14,
+            "NON_ATOMIC->NON_ATOMIC": 26
+          },
+          "confusion_by_family": {
+            "atomicity.atomic.measured_value": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.atomic.relative_position": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.atomic.assigned_identity": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.atomic.single_receipt": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.non_atomic.separate_counts": {
+              "NON_ATOMIC->ATOMIC": 7,
+              "NON_ATOMIC->NON_ATOMIC": 3
+            },
+            "atomicity.non_atomic.existence_and_location": {
+              "NON_ATOMIC->ATOMIC": 7,
+              "NON_ATOMIC->NON_ATOMIC": 3
+            },
+            "atomicity.non_atomic.contrast_of_states": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.non_atomic.nested_causal_events": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.ambiguous.relative_scope": {
+              "AMBIGUOUS->ATOMIC": 10
+            }
+          }
+        },
+        {
+          "critical_false_pass": 14,
+          "required_valid_false_reject": 0,
+          "per_class_recall": {
+            "ATOMIC": 1.0,
+            "NON_ATOMIC": 0.65,
+            "AMBIGUOUS": 0.0
+          },
+          "macro_f1": 0.519036519036519,
+          "mean_class_recall": 0.5499999999999999,
+          "ambiguity_rate": 0.0,
+          "nonambiguous_ambiguity_rate": 0.0,
+          "confusion": {
+            "AMBIGUOUS->ATOMIC": 10,
+            "ATOMIC->ATOMIC": 40,
+            "NON_ATOMIC->ATOMIC": 14,
+            "NON_ATOMIC->NON_ATOMIC": 26
+          },
+          "confusion_by_family": {
+            "atomicity.atomic.measured_value": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.atomic.relative_position": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.atomic.assigned_identity": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.atomic.single_receipt": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.non_atomic.separate_counts": {
+              "NON_ATOMIC->ATOMIC": 7,
+              "NON_ATOMIC->NON_ATOMIC": 3
+            },
+            "atomicity.non_atomic.existence_and_location": {
+              "NON_ATOMIC->ATOMIC": 7,
+              "NON_ATOMIC->NON_ATOMIC": 3
+            },
+            "atomicity.non_atomic.contrast_of_states": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.non_atomic.nested_causal_events": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.ambiguous.relative_scope": {
+              "AMBIGUOUS->ATOMIC": 10
+            }
+          }
+        }
+      ],
+      "ranking_metrics": {
+        "nonambiguous_ambiguity_rate": 0.0,
+        "macro_f1": 0.519036519036519,
+        "mean_class_recall": 0.5499999999999999,
+        "median_amortized_latency_seconds": 0.0019906624947907403,
+        "peak_allocated_vram_bytes": 656836608,
+        "artifact_bytes": 602047238
+      }
+    },
+    {
+      "status": "completed",
+      "candidate_id": "c1a-modernbert-base",
+      "task": "content_type",
+      "rows": 110,
+      "repeats": 3,
+      "classes": [
+        "SOURCE_FACT_CONTENT",
+        "INTERPRETATION_CONTENT",
+        "CREATIVE_CONTENT",
+        "CONTEXT_LIMIT_CONTENT",
+        "MIXED_CONTENT"
+      ],
+      "policy": {
+        "min_confidence": 0.0,
+        "min_margin": 0.05
+      },
+      "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c1a-modernbert-base/content_type/checkpoint",
+      "elapsed_seconds": 0.6286210999824107,
+      "measurement": {
+        "batch_size": 8,
+        "repeats": 3,
+        "warmup": "one fixed independent neutral sentence per candidate/task",
+        "latency": "GPU-synchronized batch time / rows; median over all selection rows and repeats; excludes model load and warmup",
+        "metric_aggregation": "critical/required error maximum across repeats; exact required/critical repeatability; arithmetic mean of macro-F1, recall and ambiguity rates for ranking",
+        "vram": "peak torch CUDA allocated bytes after model load/warmup (includes resident model)"
+      },
+      "hard_gate": "FAIL",
+      "critical_false_pass": 3,
+      "required_valid_false_reject": 10,
+      "repeatability_failures": 0,
+      "repeat_metrics": [
+        {
+          "critical_false_pass": 3,
+          "required_valid_false_reject": 10,
+          "per_class_recall": {
+            "SOURCE_FACT_CONTENT": 1.0,
+            "INTERPRETATION_CONTENT": 0.65,
+            "CREATIVE_CONTENT": 1.0,
+            "CONTEXT_LIMIT_CONTENT": 0.85,
+            "MIXED_CONTENT": 1.0,
+            "AMBIGUOUS": 0.0
+          },
+          "macro_f1": 0.7184510597554076,
+          "mean_class_recall": 0.75,
+          "ambiguity_rate": 0.00909090909090909,
+          "nonambiguous_ambiguity_rate": 0.01,
+          "confusion": {
+            "AMBIGUOUS->SOURCE_FACT_CONTENT": 10,
+            "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 17,
+            "CONTEXT_LIMIT_CONTENT->INTERPRETATION_CONTENT": 3,
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 20,
+            "INTERPRETATION_CONTENT->AMBIGUOUS": 1,
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 13,
+            "INTERPRETATION_CONTENT->MIXED_CONTENT": 6,
+            "MIXED_CONTENT->MIXED_CONTENT": 20,
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 20
+          },
+          "confusion_by_family": {
+            "content_type.source_fact_content.world_comparison": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+            },
+            "content_type.source_fact_content.quantified_world_fact": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+            },
+            "content_type.interpretation_content.abstract_inference": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.interpretation_content.inferred_priority": {
+              "INTERPRETATION_CONTENT->MIXED_CONTENT": 6,
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 3,
+              "INTERPRETATION_CONTENT->AMBIGUOUS": 1
+            },
+            "content_type.creative_content.invented_change": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.creative_content.new_plot": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.context_limit_content.context_omission": {
+              "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 10
+            },
+            "content_type.context_limit_content.unanswerable_from_input": {
+              "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 7,
+              "CONTEXT_LIMIT_CONTENT->INTERPRETATION_CONTENT": 3
+            },
+            "content_type.mixed_content.context_world": {
+              "MIXED_CONTENT->MIXED_CONTENT": 10
+            },
+            "content_type.mixed_content.three_policies": {
+              "MIXED_CONTENT->MIXED_CONTENT": 10
+            },
+            "content_type.ambiguous.quoted_meta": {
+              "AMBIGUOUS->SOURCE_FACT_CONTENT": 10
+            }
+          }
+        },
+        {
+          "critical_false_pass": 3,
+          "required_valid_false_reject": 10,
+          "per_class_recall": {
+            "SOURCE_FACT_CONTENT": 1.0,
+            "INTERPRETATION_CONTENT": 0.65,
+            "CREATIVE_CONTENT": 1.0,
+            "CONTEXT_LIMIT_CONTENT": 0.85,
+            "MIXED_CONTENT": 1.0,
+            "AMBIGUOUS": 0.0
+          },
+          "macro_f1": 0.7184510597554076,
+          "mean_class_recall": 0.75,
+          "ambiguity_rate": 0.00909090909090909,
+          "nonambiguous_ambiguity_rate": 0.01,
+          "confusion": {
+            "AMBIGUOUS->SOURCE_FACT_CONTENT": 10,
+            "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 17,
+            "CONTEXT_LIMIT_CONTENT->INTERPRETATION_CONTENT": 3,
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 20,
+            "INTERPRETATION_CONTENT->AMBIGUOUS": 1,
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 13,
+            "INTERPRETATION_CONTENT->MIXED_CONTENT": 6,
+            "MIXED_CONTENT->MIXED_CONTENT": 20,
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 20
+          },
+          "confusion_by_family": {
+            "content_type.source_fact_content.world_comparison": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+            },
+            "content_type.source_fact_content.quantified_world_fact": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+            },
+            "content_type.interpretation_content.abstract_inference": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.interpretation_content.inferred_priority": {
+              "INTERPRETATION_CONTENT->MIXED_CONTENT": 6,
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 3,
+              "INTERPRETATION_CONTENT->AMBIGUOUS": 1
+            },
+            "content_type.creative_content.invented_change": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.creative_content.new_plot": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.context_limit_content.context_omission": {
+              "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 10
+            },
+            "content_type.context_limit_content.unanswerable_from_input": {
+              "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 7,
+              "CONTEXT_LIMIT_CONTENT->INTERPRETATION_CONTENT": 3
+            },
+            "content_type.mixed_content.context_world": {
+              "MIXED_CONTENT->MIXED_CONTENT": 10
+            },
+            "content_type.mixed_content.three_policies": {
+              "MIXED_CONTENT->MIXED_CONTENT": 10
+            },
+            "content_type.ambiguous.quoted_meta": {
+              "AMBIGUOUS->SOURCE_FACT_CONTENT": 10
+            }
+          }
+        },
+        {
+          "critical_false_pass": 3,
+          "required_valid_false_reject": 10,
+          "per_class_recall": {
+            "SOURCE_FACT_CONTENT": 1.0,
+            "INTERPRETATION_CONTENT": 0.65,
+            "CREATIVE_CONTENT": 1.0,
+            "CONTEXT_LIMIT_CONTENT": 0.85,
+            "MIXED_CONTENT": 1.0,
+            "AMBIGUOUS": 0.0
+          },
+          "macro_f1": 0.7184510597554076,
+          "mean_class_recall": 0.75,
+          "ambiguity_rate": 0.00909090909090909,
+          "nonambiguous_ambiguity_rate": 0.01,
+          "confusion": {
+            "AMBIGUOUS->SOURCE_FACT_CONTENT": 10,
+            "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 17,
+            "CONTEXT_LIMIT_CONTENT->INTERPRETATION_CONTENT": 3,
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 20,
+            "INTERPRETATION_CONTENT->AMBIGUOUS": 1,
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 13,
+            "INTERPRETATION_CONTENT->MIXED_CONTENT": 6,
+            "MIXED_CONTENT->MIXED_CONTENT": 20,
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 20
+          },
+          "confusion_by_family": {
+            "content_type.source_fact_content.world_comparison": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+            },
+            "content_type.source_fact_content.quantified_world_fact": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+            },
+            "content_type.interpretation_content.abstract_inference": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.interpretation_content.inferred_priority": {
+              "INTERPRETATION_CONTENT->MIXED_CONTENT": 6,
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 3,
+              "INTERPRETATION_CONTENT->AMBIGUOUS": 1
+            },
+            "content_type.creative_content.invented_change": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.creative_content.new_plot": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.context_limit_content.context_omission": {
+              "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 10
+            },
+            "content_type.context_limit_content.unanswerable_from_input": {
+              "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 7,
+              "CONTEXT_LIMIT_CONTENT->INTERPRETATION_CONTENT": 3
+            },
+            "content_type.mixed_content.context_world": {
+              "MIXED_CONTENT->MIXED_CONTENT": 10
+            },
+            "content_type.mixed_content.three_policies": {
+              "MIXED_CONTENT->MIXED_CONTENT": 10
+            },
+            "content_type.ambiguous.quoted_meta": {
+              "AMBIGUOUS->SOURCE_FACT_CONTENT": 10
+            }
+          }
+        }
+      ],
+      "ranking_metrics": {
+        "nonambiguous_ambiguity_rate": 0.01,
+        "macro_f1": 0.7184510597554076,
+        "mean_class_recall": 0.75,
+        "median_amortized_latency_seconds": 0.0018105125054717064,
+        "peak_allocated_vram_bytes": 657589248,
+        "artifact_bytes": 602056694
+      }
+    },
+    {
+      "status": "completed",
+      "candidate_id": "c1b-deberta-v3-base",
+      "task": "atomicity",
+      "rows": 90,
+      "repeats": 3,
+      "classes": [
+        "ATOMIC",
+        "NON_ATOMIC"
+      ],
+      "policy": {
+        "min_confidence": 0.95,
+        "min_margin": 0.0
+      },
+      "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c1b-deberta-v3-base/atomicity/checkpoint",
+      "elapsed_seconds": 0.7483399000484496,
+      "measurement": {
+        "batch_size": 8,
+        "repeats": 3,
+        "warmup": "one fixed independent neutral sentence per candidate/task",
+        "latency": "GPU-synchronized batch time / rows; median over all selection rows and repeats; excludes model load and warmup",
+        "metric_aggregation": "critical/required error maximum across repeats; exact required/critical repeatability; arithmetic mean of macro-F1, recall and ambiguity rates for ranking",
+        "vram": "peak torch CUDA allocated bytes after model load/warmup (includes resident model)"
+      },
+      "hard_gate": "FAIL",
+      "critical_false_pass": 8,
+      "required_valid_false_reject": 26,
+      "repeatability_failures": 0,
+      "repeat_metrics": [
+        {
+          "critical_false_pass": 8,
+          "required_valid_false_reject": 26,
+          "per_class_recall": {
+            "ATOMIC": 0.35,
+            "NON_ATOMIC": 0.75,
+            "AMBIGUOUS": 0.0
+          },
+          "macro_f1": 0.38583175205566095,
+          "mean_class_recall": 0.3666666666666667,
+          "ambiguity_rate": 0.25555555555555554,
+          "nonambiguous_ambiguity_rate": 0.2875,
+          "confusion": {
+            "AMBIGUOUS->NON_ATOMIC": 10,
+            "ATOMIC->AMBIGUOUS": 21,
+            "ATOMIC->ATOMIC": 14,
+            "ATOMIC->NON_ATOMIC": 5,
+            "NON_ATOMIC->AMBIGUOUS": 2,
+            "NON_ATOMIC->ATOMIC": 8,
+            "NON_ATOMIC->NON_ATOMIC": 30
+          },
+          "confusion_by_family": {
+            "atomicity.atomic.measured_value": {
+              "ATOMIC->NON_ATOMIC": 2,
+              "ATOMIC->AMBIGUOUS": 8
+            },
+            "atomicity.atomic.relative_position": {
+              "ATOMIC->NON_ATOMIC": 3,
+              "ATOMIC->AMBIGUOUS": 3,
+              "ATOMIC->ATOMIC": 4
+            },
+            "atomicity.atomic.assigned_identity": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.atomic.single_receipt": {
+              "ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.non_atomic.separate_counts": {
+              "NON_ATOMIC->AMBIGUOUS": 2,
+              "NON_ATOMIC->ATOMIC": 8
+            },
+            "atomicity.non_atomic.existence_and_location": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.non_atomic.contrast_of_states": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.non_atomic.nested_causal_events": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.ambiguous.relative_scope": {
+              "AMBIGUOUS->NON_ATOMIC": 10
+            }
+          }
+        },
+        {
+          "critical_false_pass": 8,
+          "required_valid_false_reject": 26,
+          "per_class_recall": {
+            "ATOMIC": 0.35,
+            "NON_ATOMIC": 0.75,
+            "AMBIGUOUS": 0.0
+          },
+          "macro_f1": 0.38583175205566095,
+          "mean_class_recall": 0.3666666666666667,
+          "ambiguity_rate": 0.25555555555555554,
+          "nonambiguous_ambiguity_rate": 0.2875,
+          "confusion": {
+            "AMBIGUOUS->NON_ATOMIC": 10,
+            "ATOMIC->AMBIGUOUS": 21,
+            "ATOMIC->ATOMIC": 14,
+            "ATOMIC->NON_ATOMIC": 5,
+            "NON_ATOMIC->AMBIGUOUS": 2,
+            "NON_ATOMIC->ATOMIC": 8,
+            "NON_ATOMIC->NON_ATOMIC": 30
+          },
+          "confusion_by_family": {
+            "atomicity.atomic.measured_value": {
+              "ATOMIC->NON_ATOMIC": 2,
+              "ATOMIC->AMBIGUOUS": 8
+            },
+            "atomicity.atomic.relative_position": {
+              "ATOMIC->NON_ATOMIC": 3,
+              "ATOMIC->AMBIGUOUS": 3,
+              "ATOMIC->ATOMIC": 4
+            },
+            "atomicity.atomic.assigned_identity": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.atomic.single_receipt": {
+              "ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.non_atomic.separate_counts": {
+              "NON_ATOMIC->AMBIGUOUS": 2,
+              "NON_ATOMIC->ATOMIC": 8
+            },
+            "atomicity.non_atomic.existence_and_location": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.non_atomic.contrast_of_states": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.non_atomic.nested_causal_events": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.ambiguous.relative_scope": {
+              "AMBIGUOUS->NON_ATOMIC": 10
+            }
+          }
+        },
+        {
+          "critical_false_pass": 8,
+          "required_valid_false_reject": 26,
+          "per_class_recall": {
+            "ATOMIC": 0.35,
+            "NON_ATOMIC": 0.75,
+            "AMBIGUOUS": 0.0
+          },
+          "macro_f1": 0.38583175205566095,
+          "mean_class_recall": 0.3666666666666667,
+          "ambiguity_rate": 0.25555555555555554,
+          "nonambiguous_ambiguity_rate": 0.2875,
+          "confusion": {
+            "AMBIGUOUS->NON_ATOMIC": 10,
+            "ATOMIC->AMBIGUOUS": 21,
+            "ATOMIC->ATOMIC": 14,
+            "ATOMIC->NON_ATOMIC": 5,
+            "NON_ATOMIC->AMBIGUOUS": 2,
+            "NON_ATOMIC->ATOMIC": 8,
+            "NON_ATOMIC->NON_ATOMIC": 30
+          },
+          "confusion_by_family": {
+            "atomicity.atomic.measured_value": {
+              "ATOMIC->NON_ATOMIC": 2,
+              "ATOMIC->AMBIGUOUS": 8
+            },
+            "atomicity.atomic.relative_position": {
+              "ATOMIC->NON_ATOMIC": 3,
+              "ATOMIC->AMBIGUOUS": 3,
+              "ATOMIC->ATOMIC": 4
+            },
+            "atomicity.atomic.assigned_identity": {
+              "ATOMIC->ATOMIC": 10
+            },
+            "atomicity.atomic.single_receipt": {
+              "ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.non_atomic.separate_counts": {
+              "NON_ATOMIC->AMBIGUOUS": 2,
+              "NON_ATOMIC->ATOMIC": 8
+            },
+            "atomicity.non_atomic.existence_and_location": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.non_atomic.contrast_of_states": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.non_atomic.nested_causal_events": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.ambiguous.relative_scope": {
+              "AMBIGUOUS->NON_ATOMIC": 10
+            }
+          }
+        }
+      ],
+      "ranking_metrics": {
+        "nonambiguous_ambiguity_rate": 0.2875,
+        "macro_f1": 0.38583175205566095,
+        "mean_class_recall": 0.3666666666666667,
+        "median_amortized_latency_seconds": 0.0015430875064339489,
+        "peak_allocated_vram_bytes": 809245184,
+        "artifact_bytes": 740186602
+      }
+    },
+    {
+      "status": "completed",
+      "candidate_id": "c1b-deberta-v3-base",
+      "task": "content_type",
+      "rows": 110,
+      "repeats": 3,
+      "classes": [
+        "SOURCE_FACT_CONTENT",
+        "INTERPRETATION_CONTENT",
+        "CREATIVE_CONTENT",
+        "CONTEXT_LIMIT_CONTENT",
+        "MIXED_CONTENT"
+      ],
+      "policy": {
+        "min_confidence": 0.6,
+        "min_margin": 0.0
+      },
+      "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c1b-deberta-v3-base/content_type/checkpoint",
+      "elapsed_seconds": 0.8679436000529677,
+      "measurement": {
+        "batch_size": 8,
+        "repeats": 3,
+        "warmup": "one fixed independent neutral sentence per candidate/task",
+        "latency": "GPU-synchronized batch time / rows; median over all selection rows and repeats; excludes model load and warmup",
+        "metric_aggregation": "critical/required error maximum across repeats; exact required/critical repeatability; arithmetic mean of macro-F1, recall and ambiguity rates for ranking",
+        "vram": "peak torch CUDA allocated bytes after model load/warmup (includes resident model)"
+      },
+      "hard_gate": "FAIL",
+      "critical_false_pass": 0,
+      "required_valid_false_reject": 3,
+      "repeatability_failures": 0,
+      "repeat_metrics": [
+        {
+          "critical_false_pass": 0,
+          "required_valid_false_reject": 3,
+          "per_class_recall": {
+            "SOURCE_FACT_CONTENT": 1.0,
+            "INTERPRETATION_CONTENT": 1.0,
+            "CREATIVE_CONTENT": 1.0,
+            "CONTEXT_LIMIT_CONTENT": 0.85,
+            "MIXED_CONTENT": 1.0,
+            "AMBIGUOUS": 0.0
+          },
+          "macro_f1": 0.7785499785499784,
+          "mean_class_recall": 0.8083333333333332,
+          "ambiguity_rate": 0.00909090909090909,
+          "nonambiguous_ambiguity_rate": 0.01,
+          "confusion": {
+            "AMBIGUOUS->SOURCE_FACT_CONTENT": 10,
+            "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 1,
+            "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 17,
+            "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 2,
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 20,
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 20,
+            "MIXED_CONTENT->MIXED_CONTENT": 20,
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 20
+          },
+          "confusion_by_family": {
+            "content_type.source_fact_content.world_comparison": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+            },
+            "content_type.source_fact_content.quantified_world_fact": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+            },
+            "content_type.interpretation_content.abstract_inference": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.interpretation_content.inferred_priority": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.creative_content.invented_change": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.creative_content.new_plot": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.context_limit_content.context_omission": {
+              "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 9,
+              "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.context_limit_content.unanswerable_from_input": {
+              "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 8,
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 1,
+              "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.mixed_content.context_world": {
+              "MIXED_CONTENT->MIXED_CONTENT": 10
+            },
+            "content_type.mixed_content.three_policies": {
+              "MIXED_CONTENT->MIXED_CONTENT": 10
+            },
+            "content_type.ambiguous.quoted_meta": {
+              "AMBIGUOUS->SOURCE_FACT_CONTENT": 10
+            }
+          }
+        },
+        {
+          "critical_false_pass": 0,
+          "required_valid_false_reject": 3,
+          "per_class_recall": {
+            "SOURCE_FACT_CONTENT": 1.0,
+            "INTERPRETATION_CONTENT": 1.0,
+            "CREATIVE_CONTENT": 1.0,
+            "CONTEXT_LIMIT_CONTENT": 0.85,
+            "MIXED_CONTENT": 1.0,
+            "AMBIGUOUS": 0.0
+          },
+          "macro_f1": 0.7785499785499784,
+          "mean_class_recall": 0.8083333333333332,
+          "ambiguity_rate": 0.00909090909090909,
+          "nonambiguous_ambiguity_rate": 0.01,
+          "confusion": {
+            "AMBIGUOUS->SOURCE_FACT_CONTENT": 10,
+            "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 1,
+            "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 17,
+            "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 2,
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 20,
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 20,
+            "MIXED_CONTENT->MIXED_CONTENT": 20,
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 20
+          },
+          "confusion_by_family": {
+            "content_type.source_fact_content.world_comparison": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+            },
+            "content_type.source_fact_content.quantified_world_fact": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+            },
+            "content_type.interpretation_content.abstract_inference": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.interpretation_content.inferred_priority": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.creative_content.invented_change": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.creative_content.new_plot": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.context_limit_content.context_omission": {
+              "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 9,
+              "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.context_limit_content.unanswerable_from_input": {
+              "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 8,
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 1,
+              "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.mixed_content.context_world": {
+              "MIXED_CONTENT->MIXED_CONTENT": 10
+            },
+            "content_type.mixed_content.three_policies": {
+              "MIXED_CONTENT->MIXED_CONTENT": 10
+            },
+            "content_type.ambiguous.quoted_meta": {
+              "AMBIGUOUS->SOURCE_FACT_CONTENT": 10
+            }
+          }
+        },
+        {
+          "critical_false_pass": 0,
+          "required_valid_false_reject": 3,
+          "per_class_recall": {
+            "SOURCE_FACT_CONTENT": 1.0,
+            "INTERPRETATION_CONTENT": 1.0,
+            "CREATIVE_CONTENT": 1.0,
+            "CONTEXT_LIMIT_CONTENT": 0.85,
+            "MIXED_CONTENT": 1.0,
+            "AMBIGUOUS": 0.0
+          },
+          "macro_f1": 0.7785499785499784,
+          "mean_class_recall": 0.8083333333333332,
+          "ambiguity_rate": 0.00909090909090909,
+          "nonambiguous_ambiguity_rate": 0.01,
+          "confusion": {
+            "AMBIGUOUS->SOURCE_FACT_CONTENT": 10,
+            "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 1,
+            "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 17,
+            "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 2,
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 20,
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 20,
+            "MIXED_CONTENT->MIXED_CONTENT": 20,
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 20
+          },
+          "confusion_by_family": {
+            "content_type.source_fact_content.world_comparison": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+            },
+            "content_type.source_fact_content.quantified_world_fact": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 10
+            },
+            "content_type.interpretation_content.abstract_inference": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.interpretation_content.inferred_priority": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.creative_content.invented_change": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.creative_content.new_plot": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.context_limit_content.context_omission": {
+              "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 9,
+              "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.context_limit_content.unanswerable_from_input": {
+              "CONTEXT_LIMIT_CONTENT->CONTEXT_LIMIT_CONTENT": 8,
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 1,
+              "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.mixed_content.context_world": {
+              "MIXED_CONTENT->MIXED_CONTENT": 10
+            },
+            "content_type.mixed_content.three_policies": {
+              "MIXED_CONTENT->MIXED_CONTENT": 10
+            },
+            "content_type.ambiguous.quoted_meta": {
+              "AMBIGUOUS->SOURCE_FACT_CONTENT": 10
+            }
+          }
+        }
+      ],
+      "ranking_metrics": {
+        "nonambiguous_ambiguity_rate": 0.01,
+        "macro_f1": 0.7785499785499784,
+        "mean_class_recall": 0.8083333333333332,
+        "median_amortized_latency_seconds": 0.0016554875037400052,
+        "peak_allocated_vram_bytes": 811751936,
+        "artifact_bytes": 740196066
+      }
+    },
+    {
+      "status": "completed",
+      "candidate_id": "c2-nli-deberta-v3-base",
+      "task": "atomicity",
+      "rows": 90,
+      "repeats": 3,
+      "classes": [
+        "ATOMIC",
+        "NON_ATOMIC",
+        "AMBIGUOUS"
+      ],
+      "policy": {
+        "min_confidence": 0.5,
+        "min_margin": 0.0
+      },
+      "checkpoint": ".local/n04-v4/g25a/runtime/models/c2-nli-deberta-v3-base",
+      "elapsed_seconds": 1.1279113999335095,
+      "measurement": {
+        "batch_size": 8,
+        "repeats": 3,
+        "warmup": "one fixed independent neutral sentence per candidate/task",
+        "latency": "GPU-synchronized batch time / rows; median over all selection rows and repeats; excludes model load and warmup",
+        "metric_aggregation": "critical/required error maximum across repeats; exact required/critical repeatability; arithmetic mean of macro-F1, recall and ambiguity rates for ranking",
+        "vram": "peak torch CUDA allocated bytes after model load/warmup (includes resident model)"
+      },
+      "hard_gate": "FAIL",
+      "critical_false_pass": 0,
+      "required_valid_false_reject": 40,
+      "repeatability_failures": 0,
+      "repeat_metrics": [
+        {
+          "critical_false_pass": 0,
+          "required_valid_false_reject": 40,
+          "per_class_recall": {
+            "ATOMIC": 0.0,
+            "NON_ATOMIC": 0.675,
+            "AMBIGUOUS": 0.2
+          },
+          "macro_f1": 0.2101139601139601,
+          "mean_class_recall": 0.2916666666666667,
+          "ambiguity_rate": 0.28888888888888886,
+          "nonambiguous_ambiguity_rate": 0.3,
+          "confusion": {
+            "AMBIGUOUS->AMBIGUOUS": 2,
+            "AMBIGUOUS->NON_ATOMIC": 8,
+            "ATOMIC->AMBIGUOUS": 11,
+            "ATOMIC->NON_ATOMIC": 29,
+            "NON_ATOMIC->AMBIGUOUS": 13,
+            "NON_ATOMIC->NON_ATOMIC": 27
+          },
+          "confusion_by_family": {
+            "atomicity.atomic.measured_value": {
+              "ATOMIC->NON_ATOMIC": 7,
+              "ATOMIC->AMBIGUOUS": 3
+            },
+            "atomicity.atomic.relative_position": {
+              "ATOMIC->NON_ATOMIC": 8,
+              "ATOMIC->AMBIGUOUS": 2
+            },
+            "atomicity.atomic.assigned_identity": {
+              "ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.atomic.single_receipt": {
+              "ATOMIC->NON_ATOMIC": 4,
+              "ATOMIC->AMBIGUOUS": 6
+            },
+            "atomicity.non_atomic.separate_counts": {
+              "NON_ATOMIC->NON_ATOMIC": 9,
+              "NON_ATOMIC->AMBIGUOUS": 1
+            },
+            "atomicity.non_atomic.existence_and_location": {
+              "NON_ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.non_atomic.contrast_of_states": {
+              "NON_ATOMIC->NON_ATOMIC": 8,
+              "NON_ATOMIC->AMBIGUOUS": 2
+            },
+            "atomicity.non_atomic.nested_causal_events": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.ambiguous.relative_scope": {
+              "AMBIGUOUS->NON_ATOMIC": 8,
+              "AMBIGUOUS->AMBIGUOUS": 2
+            }
+          }
+        },
+        {
+          "critical_false_pass": 0,
+          "required_valid_false_reject": 40,
+          "per_class_recall": {
+            "ATOMIC": 0.0,
+            "NON_ATOMIC": 0.675,
+            "AMBIGUOUS": 0.2
+          },
+          "macro_f1": 0.2101139601139601,
+          "mean_class_recall": 0.2916666666666667,
+          "ambiguity_rate": 0.28888888888888886,
+          "nonambiguous_ambiguity_rate": 0.3,
+          "confusion": {
+            "AMBIGUOUS->AMBIGUOUS": 2,
+            "AMBIGUOUS->NON_ATOMIC": 8,
+            "ATOMIC->AMBIGUOUS": 11,
+            "ATOMIC->NON_ATOMIC": 29,
+            "NON_ATOMIC->AMBIGUOUS": 13,
+            "NON_ATOMIC->NON_ATOMIC": 27
+          },
+          "confusion_by_family": {
+            "atomicity.atomic.measured_value": {
+              "ATOMIC->NON_ATOMIC": 7,
+              "ATOMIC->AMBIGUOUS": 3
+            },
+            "atomicity.atomic.relative_position": {
+              "ATOMIC->NON_ATOMIC": 8,
+              "ATOMIC->AMBIGUOUS": 2
+            },
+            "atomicity.atomic.assigned_identity": {
+              "ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.atomic.single_receipt": {
+              "ATOMIC->NON_ATOMIC": 4,
+              "ATOMIC->AMBIGUOUS": 6
+            },
+            "atomicity.non_atomic.separate_counts": {
+              "NON_ATOMIC->NON_ATOMIC": 9,
+              "NON_ATOMIC->AMBIGUOUS": 1
+            },
+            "atomicity.non_atomic.existence_and_location": {
+              "NON_ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.non_atomic.contrast_of_states": {
+              "NON_ATOMIC->NON_ATOMIC": 8,
+              "NON_ATOMIC->AMBIGUOUS": 2
+            },
+            "atomicity.non_atomic.nested_causal_events": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.ambiguous.relative_scope": {
+              "AMBIGUOUS->NON_ATOMIC": 8,
+              "AMBIGUOUS->AMBIGUOUS": 2
+            }
+          }
+        },
+        {
+          "critical_false_pass": 0,
+          "required_valid_false_reject": 40,
+          "per_class_recall": {
+            "ATOMIC": 0.0,
+            "NON_ATOMIC": 0.675,
+            "AMBIGUOUS": 0.2
+          },
+          "macro_f1": 0.2101139601139601,
+          "mean_class_recall": 0.2916666666666667,
+          "ambiguity_rate": 0.28888888888888886,
+          "nonambiguous_ambiguity_rate": 0.3,
+          "confusion": {
+            "AMBIGUOUS->AMBIGUOUS": 2,
+            "AMBIGUOUS->NON_ATOMIC": 8,
+            "ATOMIC->AMBIGUOUS": 11,
+            "ATOMIC->NON_ATOMIC": 29,
+            "NON_ATOMIC->AMBIGUOUS": 13,
+            "NON_ATOMIC->NON_ATOMIC": 27
+          },
+          "confusion_by_family": {
+            "atomicity.atomic.measured_value": {
+              "ATOMIC->NON_ATOMIC": 7,
+              "ATOMIC->AMBIGUOUS": 3
+            },
+            "atomicity.atomic.relative_position": {
+              "ATOMIC->NON_ATOMIC": 8,
+              "ATOMIC->AMBIGUOUS": 2
+            },
+            "atomicity.atomic.assigned_identity": {
+              "ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.atomic.single_receipt": {
+              "ATOMIC->NON_ATOMIC": 4,
+              "ATOMIC->AMBIGUOUS": 6
+            },
+            "atomicity.non_atomic.separate_counts": {
+              "NON_ATOMIC->NON_ATOMIC": 9,
+              "NON_ATOMIC->AMBIGUOUS": 1
+            },
+            "atomicity.non_atomic.existence_and_location": {
+              "NON_ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.non_atomic.contrast_of_states": {
+              "NON_ATOMIC->NON_ATOMIC": 8,
+              "NON_ATOMIC->AMBIGUOUS": 2
+            },
+            "atomicity.non_atomic.nested_causal_events": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.ambiguous.relative_scope": {
+              "AMBIGUOUS->NON_ATOMIC": 8,
+              "AMBIGUOUS->AMBIGUOUS": 2
+            }
+          }
+        }
+      ],
+      "ranking_metrics": {
+        "nonambiguous_ambiguity_rate": 0.3,
+        "macro_f1": 0.2101139601139601,
+        "mean_class_recall": 0.2916666666666667,
+        "median_amortized_latency_seconds": 0.002423399986582808,
+        "peak_allocated_vram_bytes": 920643072,
+        "artifact_bytes": 748854252
+      }
+    },
+    {
+      "status": "completed",
+      "candidate_id": "c2-nli-deberta-v3-base",
+      "task": "content_type",
+      "rows": 110,
+      "repeats": 3,
+      "classes": [
+        "SOURCE_FACT_CONTENT",
+        "INTERPRETATION_CONTENT",
+        "CREATIVE_CONTENT",
+        "CONTEXT_LIMIT_CONTENT",
+        "MIXED_CONTENT",
+        "AMBIGUOUS"
+      ],
+      "policy": {
+        "min_confidence": 0.0,
+        "min_margin": 0.05
+      },
+      "checkpoint": ".local/n04-v4/g25a/runtime/models/c2-nli-deberta-v3-base",
+      "elapsed_seconds": 1.776968999998644,
+      "measurement": {
+        "batch_size": 8,
+        "repeats": 3,
+        "warmup": "one fixed independent neutral sentence per candidate/task",
+        "latency": "GPU-synchronized batch time / rows; median over all selection rows and repeats; excludes model load and warmup",
+        "metric_aggregation": "critical/required error maximum across repeats; exact required/critical repeatability; arithmetic mean of macro-F1, recall and ambiguity rates for ranking",
+        "vram": "peak torch CUDA allocated bytes after model load/warmup (includes resident model)"
+      },
+      "hard_gate": "FAIL",
+      "critical_false_pass": 0,
+      "required_valid_false_reject": 80,
+      "repeatability_failures": 0,
+      "repeat_metrics": [
+        {
+          "critical_false_pass": 0,
+          "required_valid_false_reject": 80,
+          "per_class_recall": {
+            "SOURCE_FACT_CONTENT": 0.0,
+            "INTERPRETATION_CONTENT": 0.0,
+            "CREATIVE_CONTENT": 0.0,
+            "CONTEXT_LIMIT_CONTENT": 0.0,
+            "MIXED_CONTENT": 0.0,
+            "AMBIGUOUS": 1.0
+          },
+          "macro_f1": 0.028985507246376812,
+          "mean_class_recall": 0.16666666666666666,
+          "ambiguity_rate": 0.9545454545454546,
+          "nonambiguous_ambiguity_rate": 0.95,
+          "confusion": {
+            "AMBIGUOUS->AMBIGUOUS": 10,
+            "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 18,
+            "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 2,
+            "CREATIVE_CONTENT->AMBIGUOUS": 19,
+            "CREATIVE_CONTENT->MIXED_CONTENT": 1,
+            "INTERPRETATION_CONTENT->AMBIGUOUS": 18,
+            "INTERPRETATION_CONTENT->MIXED_CONTENT": 2,
+            "MIXED_CONTENT->AMBIGUOUS": 20,
+            "SOURCE_FACT_CONTENT->AMBIGUOUS": 20
+          },
+          "confusion_by_family": {
+            "content_type.source_fact_content.world_comparison": {
+              "SOURCE_FACT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.source_fact_content.quantified_world_fact": {
+              "SOURCE_FACT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.interpretation_content.abstract_inference": {
+              "INTERPRETATION_CONTENT->AMBIGUOUS": 9,
+              "INTERPRETATION_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.interpretation_content.inferred_priority": {
+              "INTERPRETATION_CONTENT->AMBIGUOUS": 9,
+              "INTERPRETATION_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.creative_content.invented_change": {
+              "CREATIVE_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.creative_content.new_plot": {
+              "CREATIVE_CONTENT->AMBIGUOUS": 9,
+              "CREATIVE_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.context_limit_content.context_omission": {
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.context_limit_content.unanswerable_from_input": {
+              "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 2,
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 8
+            },
+            "content_type.mixed_content.context_world": {
+              "MIXED_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.mixed_content.three_policies": {
+              "MIXED_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.ambiguous.quoted_meta": {
+              "AMBIGUOUS->AMBIGUOUS": 10
+            }
+          }
+        },
+        {
+          "critical_false_pass": 0,
+          "required_valid_false_reject": 80,
+          "per_class_recall": {
+            "SOURCE_FACT_CONTENT": 0.0,
+            "INTERPRETATION_CONTENT": 0.0,
+            "CREATIVE_CONTENT": 0.0,
+            "CONTEXT_LIMIT_CONTENT": 0.0,
+            "MIXED_CONTENT": 0.0,
+            "AMBIGUOUS": 1.0
+          },
+          "macro_f1": 0.028985507246376812,
+          "mean_class_recall": 0.16666666666666666,
+          "ambiguity_rate": 0.9545454545454546,
+          "nonambiguous_ambiguity_rate": 0.95,
+          "confusion": {
+            "AMBIGUOUS->AMBIGUOUS": 10,
+            "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 18,
+            "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 2,
+            "CREATIVE_CONTENT->AMBIGUOUS": 19,
+            "CREATIVE_CONTENT->MIXED_CONTENT": 1,
+            "INTERPRETATION_CONTENT->AMBIGUOUS": 18,
+            "INTERPRETATION_CONTENT->MIXED_CONTENT": 2,
+            "MIXED_CONTENT->AMBIGUOUS": 20,
+            "SOURCE_FACT_CONTENT->AMBIGUOUS": 20
+          },
+          "confusion_by_family": {
+            "content_type.source_fact_content.world_comparison": {
+              "SOURCE_FACT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.source_fact_content.quantified_world_fact": {
+              "SOURCE_FACT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.interpretation_content.abstract_inference": {
+              "INTERPRETATION_CONTENT->AMBIGUOUS": 9,
+              "INTERPRETATION_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.interpretation_content.inferred_priority": {
+              "INTERPRETATION_CONTENT->AMBIGUOUS": 9,
+              "INTERPRETATION_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.creative_content.invented_change": {
+              "CREATIVE_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.creative_content.new_plot": {
+              "CREATIVE_CONTENT->AMBIGUOUS": 9,
+              "CREATIVE_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.context_limit_content.context_omission": {
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.context_limit_content.unanswerable_from_input": {
+              "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 2,
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 8
+            },
+            "content_type.mixed_content.context_world": {
+              "MIXED_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.mixed_content.three_policies": {
+              "MIXED_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.ambiguous.quoted_meta": {
+              "AMBIGUOUS->AMBIGUOUS": 10
+            }
+          }
+        },
+        {
+          "critical_false_pass": 0,
+          "required_valid_false_reject": 80,
+          "per_class_recall": {
+            "SOURCE_FACT_CONTENT": 0.0,
+            "INTERPRETATION_CONTENT": 0.0,
+            "CREATIVE_CONTENT": 0.0,
+            "CONTEXT_LIMIT_CONTENT": 0.0,
+            "MIXED_CONTENT": 0.0,
+            "AMBIGUOUS": 1.0
+          },
+          "macro_f1": 0.028985507246376812,
+          "mean_class_recall": 0.16666666666666666,
+          "ambiguity_rate": 0.9545454545454546,
+          "nonambiguous_ambiguity_rate": 0.95,
+          "confusion": {
+            "AMBIGUOUS->AMBIGUOUS": 10,
+            "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 18,
+            "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 2,
+            "CREATIVE_CONTENT->AMBIGUOUS": 19,
+            "CREATIVE_CONTENT->MIXED_CONTENT": 1,
+            "INTERPRETATION_CONTENT->AMBIGUOUS": 18,
+            "INTERPRETATION_CONTENT->MIXED_CONTENT": 2,
+            "MIXED_CONTENT->AMBIGUOUS": 20,
+            "SOURCE_FACT_CONTENT->AMBIGUOUS": 20
+          },
+          "confusion_by_family": {
+            "content_type.source_fact_content.world_comparison": {
+              "SOURCE_FACT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.source_fact_content.quantified_world_fact": {
+              "SOURCE_FACT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.interpretation_content.abstract_inference": {
+              "INTERPRETATION_CONTENT->AMBIGUOUS": 9,
+              "INTERPRETATION_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.interpretation_content.inferred_priority": {
+              "INTERPRETATION_CONTENT->AMBIGUOUS": 9,
+              "INTERPRETATION_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.creative_content.invented_change": {
+              "CREATIVE_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.creative_content.new_plot": {
+              "CREATIVE_CONTENT->AMBIGUOUS": 9,
+              "CREATIVE_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.context_limit_content.context_omission": {
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.context_limit_content.unanswerable_from_input": {
+              "CONTEXT_LIMIT_CONTENT->MIXED_CONTENT": 2,
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 8
+            },
+            "content_type.mixed_content.context_world": {
+              "MIXED_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.mixed_content.three_policies": {
+              "MIXED_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.ambiguous.quoted_meta": {
+              "AMBIGUOUS->AMBIGUOUS": 10
+            }
+          }
+        }
+      ],
+      "ranking_metrics": {
+        "nonambiguous_ambiguity_rate": 0.95,
+        "macro_f1": 0.028985507246376812,
+        "mean_class_recall": 0.16666666666666666,
+        "median_amortized_latency_seconds": 0.004080812504980713,
+        "peak_allocated_vram_bytes": 1078684672,
+        "artifact_bytes": 748854252
+      }
+    },
+    {
+      "status": "completed",
+      "candidate_id": "c3-setfit-minilm-l6-v2",
+      "task": "atomicity",
+      "rows": 90,
+      "repeats": 3,
+      "classes": [
+        "ATOMIC",
+        "NON_ATOMIC"
+      ],
+      "policy": {
+        "min_confidence": 0.0,
+        "min_margin": 0.2
+      },
+      "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/atomicity/checkpoint",
+      "elapsed_seconds": 0.21435769996605814,
+      "measurement": {
+        "batch_size": 8,
+        "repeats": 3,
+        "warmup": "one fixed independent neutral sentence per candidate/task",
+        "latency": "GPU-synchronized batch time / rows; median over all selection rows and repeats; excludes model load and warmup",
+        "metric_aggregation": "critical/required error maximum across repeats; exact required/critical repeatability; arithmetic mean of macro-F1, recall and ambiguity rates for ranking",
+        "vram": "peak torch CUDA allocated bytes after model load/warmup (includes resident model)"
+      },
+      "hard_gate": "FAIL",
+      "critical_false_pass": 1,
+      "required_valid_false_reject": 40,
+      "repeatability_failures": 0,
+      "repeat_metrics": [
+        {
+          "critical_false_pass": 1,
+          "required_valid_false_reject": 40,
+          "per_class_recall": {
+            "ATOMIC": 0.0,
+            "NON_ATOMIC": 0.275,
+            "AMBIGUOUS": 0.8
+          },
+          "macro_f1": 0.18859464761104106,
+          "mean_class_recall": 0.3583333333333334,
+          "ambiguity_rate": 0.7555555555555555,
+          "nonambiguous_ambiguity_rate": 0.75,
+          "confusion": {
+            "AMBIGUOUS->AMBIGUOUS": 8,
+            "AMBIGUOUS->NON_ATOMIC": 2,
+            "ATOMIC->AMBIGUOUS": 32,
+            "ATOMIC->NON_ATOMIC": 8,
+            "NON_ATOMIC->AMBIGUOUS": 28,
+            "NON_ATOMIC->ATOMIC": 1,
+            "NON_ATOMIC->NON_ATOMIC": 11
+          },
+          "confusion_by_family": {
+            "atomicity.atomic.measured_value": {
+              "ATOMIC->AMBIGUOUS": 5,
+              "ATOMIC->NON_ATOMIC": 5
+            },
+            "atomicity.atomic.relative_position": {
+              "ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.atomic.assigned_identity": {
+              "ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.atomic.single_receipt": {
+              "ATOMIC->AMBIGUOUS": 7,
+              "ATOMIC->NON_ATOMIC": 3
+            },
+            "atomicity.non_atomic.separate_counts": {
+              "NON_ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.non_atomic.existence_and_location": {
+              "NON_ATOMIC->AMBIGUOUS": 9,
+              "NON_ATOMIC->NON_ATOMIC": 1
+            },
+            "atomicity.non_atomic.contrast_of_states": {
+              "NON_ATOMIC->AMBIGUOUS": 9,
+              "NON_ATOMIC->ATOMIC": 1
+            },
+            "atomicity.non_atomic.nested_causal_events": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.ambiguous.relative_scope": {
+              "AMBIGUOUS->AMBIGUOUS": 8,
+              "AMBIGUOUS->NON_ATOMIC": 2
+            }
+          }
+        },
+        {
+          "critical_false_pass": 1,
+          "required_valid_false_reject": 40,
+          "per_class_recall": {
+            "ATOMIC": 0.0,
+            "NON_ATOMIC": 0.275,
+            "AMBIGUOUS": 0.8
+          },
+          "macro_f1": 0.18859464761104106,
+          "mean_class_recall": 0.3583333333333334,
+          "ambiguity_rate": 0.7555555555555555,
+          "nonambiguous_ambiguity_rate": 0.75,
+          "confusion": {
+            "AMBIGUOUS->AMBIGUOUS": 8,
+            "AMBIGUOUS->NON_ATOMIC": 2,
+            "ATOMIC->AMBIGUOUS": 32,
+            "ATOMIC->NON_ATOMIC": 8,
+            "NON_ATOMIC->AMBIGUOUS": 28,
+            "NON_ATOMIC->ATOMIC": 1,
+            "NON_ATOMIC->NON_ATOMIC": 11
+          },
+          "confusion_by_family": {
+            "atomicity.atomic.measured_value": {
+              "ATOMIC->AMBIGUOUS": 5,
+              "ATOMIC->NON_ATOMIC": 5
+            },
+            "atomicity.atomic.relative_position": {
+              "ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.atomic.assigned_identity": {
+              "ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.atomic.single_receipt": {
+              "ATOMIC->AMBIGUOUS": 7,
+              "ATOMIC->NON_ATOMIC": 3
+            },
+            "atomicity.non_atomic.separate_counts": {
+              "NON_ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.non_atomic.existence_and_location": {
+              "NON_ATOMIC->AMBIGUOUS": 9,
+              "NON_ATOMIC->NON_ATOMIC": 1
+            },
+            "atomicity.non_atomic.contrast_of_states": {
+              "NON_ATOMIC->AMBIGUOUS": 9,
+              "NON_ATOMIC->ATOMIC": 1
+            },
+            "atomicity.non_atomic.nested_causal_events": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.ambiguous.relative_scope": {
+              "AMBIGUOUS->AMBIGUOUS": 8,
+              "AMBIGUOUS->NON_ATOMIC": 2
+            }
+          }
+        },
+        {
+          "critical_false_pass": 1,
+          "required_valid_false_reject": 40,
+          "per_class_recall": {
+            "ATOMIC": 0.0,
+            "NON_ATOMIC": 0.275,
+            "AMBIGUOUS": 0.8
+          },
+          "macro_f1": 0.18859464761104106,
+          "mean_class_recall": 0.3583333333333334,
+          "ambiguity_rate": 0.7555555555555555,
+          "nonambiguous_ambiguity_rate": 0.75,
+          "confusion": {
+            "AMBIGUOUS->AMBIGUOUS": 8,
+            "AMBIGUOUS->NON_ATOMIC": 2,
+            "ATOMIC->AMBIGUOUS": 32,
+            "ATOMIC->NON_ATOMIC": 8,
+            "NON_ATOMIC->AMBIGUOUS": 28,
+            "NON_ATOMIC->ATOMIC": 1,
+            "NON_ATOMIC->NON_ATOMIC": 11
+          },
+          "confusion_by_family": {
+            "atomicity.atomic.measured_value": {
+              "ATOMIC->AMBIGUOUS": 5,
+              "ATOMIC->NON_ATOMIC": 5
+            },
+            "atomicity.atomic.relative_position": {
+              "ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.atomic.assigned_identity": {
+              "ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.atomic.single_receipt": {
+              "ATOMIC->AMBIGUOUS": 7,
+              "ATOMIC->NON_ATOMIC": 3
+            },
+            "atomicity.non_atomic.separate_counts": {
+              "NON_ATOMIC->AMBIGUOUS": 10
+            },
+            "atomicity.non_atomic.existence_and_location": {
+              "NON_ATOMIC->AMBIGUOUS": 9,
+              "NON_ATOMIC->NON_ATOMIC": 1
+            },
+            "atomicity.non_atomic.contrast_of_states": {
+              "NON_ATOMIC->AMBIGUOUS": 9,
+              "NON_ATOMIC->ATOMIC": 1
+            },
+            "atomicity.non_atomic.nested_causal_events": {
+              "NON_ATOMIC->NON_ATOMIC": 10
+            },
+            "atomicity.ambiguous.relative_scope": {
+              "AMBIGUOUS->AMBIGUOUS": 8,
+              "AMBIGUOUS->NON_ATOMIC": 2
+            }
+          }
+        }
+      ],
+      "ranking_metrics": {
+        "nonambiguous_ambiguity_rate": 0.75,
+        "macro_f1": 0.18859464761104106,
+        "mean_class_recall": 0.3583333333333334,
+        "median_amortized_latency_seconds": 0.0006471125088864937,
+        "peak_allocated_vram_bytes": 127248896,
+        "artifact_bytes": 91821165
+      }
+    },
+    {
+      "status": "completed",
+      "candidate_id": "c3-setfit-minilm-l6-v2",
+      "task": "content_type",
+      "rows": 110,
+      "repeats": 3,
+      "classes": [
+        "SOURCE_FACT_CONTENT",
+        "INTERPRETATION_CONTENT",
+        "CREATIVE_CONTENT",
+        "CONTEXT_LIMIT_CONTENT",
+        "MIXED_CONTENT"
+      ],
+      "policy": {
+        "min_confidence": 0.0,
+        "min_margin": 0.2
+      },
+      "checkpoint": ".local/n04-v4/g25a/training/20261021T230349+0900/c3-setfit-minilm-l6-v2/content_type/checkpoint",
+      "elapsed_seconds": 0.2421208000741899,
+      "measurement": {
+        "batch_size": 8,
+        "repeats": 3,
+        "warmup": "one fixed independent neutral sentence per candidate/task",
+        "latency": "GPU-synchronized batch time / rows; median over all selection rows and repeats; excludes model load and warmup",
+        "metric_aggregation": "critical/required error maximum across repeats; exact required/critical repeatability; arithmetic mean of macro-F1, recall and ambiguity rates for ranking",
+        "vram": "peak torch CUDA allocated bytes after model load/warmup (includes resident model)"
+      },
+      "hard_gate": "FAIL",
+      "critical_false_pass": 0,
+      "required_valid_false_reject": 36,
+      "repeatability_failures": 0,
+      "repeat_metrics": [
+        {
+          "critical_false_pass": 0,
+          "required_valid_false_reject": 36,
+          "per_class_recall": {
+            "SOURCE_FACT_CONTENT": 0.2,
+            "INTERPRETATION_CONTENT": 1.0,
+            "CREATIVE_CONTENT": 1.0,
+            "CONTEXT_LIMIT_CONTENT": 0.0,
+            "MIXED_CONTENT": 0.05,
+            "AMBIGUOUS": 1.0
+          },
+          "macro_f1": 0.44920634920634916,
+          "mean_class_recall": 0.5416666666666666,
+          "ambiguity_rate": 0.5909090909090909,
+          "nonambiguous_ambiguity_rate": 0.55,
+          "confusion": {
+            "AMBIGUOUS->AMBIGUOUS": 10,
+            "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 20,
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 20,
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 20,
+            "MIXED_CONTENT->AMBIGUOUS": 19,
+            "MIXED_CONTENT->MIXED_CONTENT": 1,
+            "SOURCE_FACT_CONTENT->AMBIGUOUS": 16,
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 4
+          },
+          "confusion_by_family": {
+            "content_type.source_fact_content.world_comparison": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 4,
+              "SOURCE_FACT_CONTENT->AMBIGUOUS": 6
+            },
+            "content_type.source_fact_content.quantified_world_fact": {
+              "SOURCE_FACT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.interpretation_content.abstract_inference": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.interpretation_content.inferred_priority": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.creative_content.invented_change": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.creative_content.new_plot": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.context_limit_content.context_omission": {
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.context_limit_content.unanswerable_from_input": {
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.mixed_content.context_world": {
+              "MIXED_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.mixed_content.three_policies": {
+              "MIXED_CONTENT->AMBIGUOUS": 9,
+              "MIXED_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.ambiguous.quoted_meta": {
+              "AMBIGUOUS->AMBIGUOUS": 10
+            }
+          }
+        },
+        {
+          "critical_false_pass": 0,
+          "required_valid_false_reject": 36,
+          "per_class_recall": {
+            "SOURCE_FACT_CONTENT": 0.2,
+            "INTERPRETATION_CONTENT": 1.0,
+            "CREATIVE_CONTENT": 1.0,
+            "CONTEXT_LIMIT_CONTENT": 0.0,
+            "MIXED_CONTENT": 0.05,
+            "AMBIGUOUS": 1.0
+          },
+          "macro_f1": 0.44920634920634916,
+          "mean_class_recall": 0.5416666666666666,
+          "ambiguity_rate": 0.5909090909090909,
+          "nonambiguous_ambiguity_rate": 0.55,
+          "confusion": {
+            "AMBIGUOUS->AMBIGUOUS": 10,
+            "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 20,
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 20,
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 20,
+            "MIXED_CONTENT->AMBIGUOUS": 19,
+            "MIXED_CONTENT->MIXED_CONTENT": 1,
+            "SOURCE_FACT_CONTENT->AMBIGUOUS": 16,
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 4
+          },
+          "confusion_by_family": {
+            "content_type.source_fact_content.world_comparison": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 4,
+              "SOURCE_FACT_CONTENT->AMBIGUOUS": 6
+            },
+            "content_type.source_fact_content.quantified_world_fact": {
+              "SOURCE_FACT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.interpretation_content.abstract_inference": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.interpretation_content.inferred_priority": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.creative_content.invented_change": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.creative_content.new_plot": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.context_limit_content.context_omission": {
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.context_limit_content.unanswerable_from_input": {
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.mixed_content.context_world": {
+              "MIXED_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.mixed_content.three_policies": {
+              "MIXED_CONTENT->AMBIGUOUS": 9,
+              "MIXED_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.ambiguous.quoted_meta": {
+              "AMBIGUOUS->AMBIGUOUS": 10
+            }
+          }
+        },
+        {
+          "critical_false_pass": 0,
+          "required_valid_false_reject": 36,
+          "per_class_recall": {
+            "SOURCE_FACT_CONTENT": 0.2,
+            "INTERPRETATION_CONTENT": 1.0,
+            "CREATIVE_CONTENT": 1.0,
+            "CONTEXT_LIMIT_CONTENT": 0.0,
+            "MIXED_CONTENT": 0.05,
+            "AMBIGUOUS": 1.0
+          },
+          "macro_f1": 0.44920634920634916,
+          "mean_class_recall": 0.5416666666666666,
+          "ambiguity_rate": 0.5909090909090909,
+          "nonambiguous_ambiguity_rate": 0.55,
+          "confusion": {
+            "AMBIGUOUS->AMBIGUOUS": 10,
+            "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 20,
+            "CREATIVE_CONTENT->CREATIVE_CONTENT": 20,
+            "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 20,
+            "MIXED_CONTENT->AMBIGUOUS": 19,
+            "MIXED_CONTENT->MIXED_CONTENT": 1,
+            "SOURCE_FACT_CONTENT->AMBIGUOUS": 16,
+            "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 4
+          },
+          "confusion_by_family": {
+            "content_type.source_fact_content.world_comparison": {
+              "SOURCE_FACT_CONTENT->SOURCE_FACT_CONTENT": 4,
+              "SOURCE_FACT_CONTENT->AMBIGUOUS": 6
+            },
+            "content_type.source_fact_content.quantified_world_fact": {
+              "SOURCE_FACT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.interpretation_content.abstract_inference": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.interpretation_content.inferred_priority": {
+              "INTERPRETATION_CONTENT->INTERPRETATION_CONTENT": 10
+            },
+            "content_type.creative_content.invented_change": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.creative_content.new_plot": {
+              "CREATIVE_CONTENT->CREATIVE_CONTENT": 10
+            },
+            "content_type.context_limit_content.context_omission": {
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.context_limit_content.unanswerable_from_input": {
+              "CONTEXT_LIMIT_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.mixed_content.context_world": {
+              "MIXED_CONTENT->AMBIGUOUS": 10
+            },
+            "content_type.mixed_content.three_policies": {
+              "MIXED_CONTENT->AMBIGUOUS": 9,
+              "MIXED_CONTENT->MIXED_CONTENT": 1
+            },
+            "content_type.ambiguous.quoted_meta": {
+              "AMBIGUOUS->AMBIGUOUS": 10
+            }
+          }
+        }
+      ],
+      "ranking_metrics": {
+        "nonambiguous_ambiguity_rate": 0.55,
+        "macro_f1": 0.44920634920634916,
+        "mean_class_recall": 0.5416666666666666,
+        "median_amortized_latency_seconds": 0.0006220250070327893,
+        "peak_allocated_vram_bytes": 128735232,
+        "artifact_bytes": 91834880
+      }
+    }
+  ],
+  "engineering": {
+    "checks": {
+      "focused": {
+        "command": [
+          "python",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/test_n04g25a_development.py",
+          "tests/test_n04g25a_training_policy.py",
+          "tests/test_n04g25a_selection.py"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.6922496000770479
+      },
+      "full_pytest": {
+        "command": [
+          "python",
+          "-m",
+          "pytest",
+          "-q"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 167.10356340010185
+      },
+      "ruff": {
+        "command": [
+          "python",
+          "-m",
+          "ruff",
+          "check",
+          "."
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.08396009996067733
+      },
+      "diff_check": {
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.03538219991605729
+      }
+    },
+    "head_unchanged_and_clean": true,
+    "all_pass": true,
+    "full_suite": {
+      "passed": 482,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 2,
+      "warning_scope": "existing local-Qdrant capability warnings; not classifier regressions"
+    },
+    "focused": {
+      "passed": 34,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "integrity": {
+    "all_8_checkpoint_policy_hashes_pass": true,
+    "corpus_split_training_metrics_source_unchanged": true,
+    "raw_probability_replay_matches_8_summaries": true,
+    "all_2400_selection_predictions_replayed": true,
+    "selector_replay_matches": true,
+    "standard_venv_unchanged": true
+  },
+  "raw_evidence_sha256": {
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1a-modernbert-base/atomicity/repeat-1.json": "95ea363b535ec3c9707795deb64fc1cc62a9b3132956e3b884419f6d8c4fda5a",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1a-modernbert-base/atomicity/repeat-2.json": "bd0502826a3f63cf9e4ad1d47cde6d9390a927e07c5e78372c9b2869a41b3861",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1a-modernbert-base/atomicity/repeat-3.json": "c6612218b11a46d4a931653acb52d67d9ede7af339e239af956b0f5cb90a1c9d",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1a-modernbert-base/atomicity/result.json": "18b3c3ac3df435cb83a127a53a5bfc2238c9bd45e12352fd949fccd07821f094",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1a-modernbert-base/content_type/repeat-1.json": "3a205312dcb616329853cb9aa49d595b5f55a6da2372a0e2de73283de23b7be2",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1a-modernbert-base/content_type/repeat-2.json": "7dd13aeaba13c301100ddacc34f4d1d0e7f70335c343a6bf0a3c4657895d12a4",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1a-modernbert-base/content_type/repeat-3.json": "cf1330b4d48cc56058caddf15fbf93c38ef53ac1e3f25f5a613c4fff8f8851c9",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1a-modernbert-base/content_type/result.json": "71dc8dc2f13eb28cc0371ff13ab51b8bc7cc8157e37410b33fd4fd505b81f1bb",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1b-deberta-v3-base/atomicity/repeat-1.json": "f62f8e6095aca8fbde35beefb47ac8dcdc1256d284f648c2267d230053d398c5",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1b-deberta-v3-base/atomicity/repeat-2.json": "09e44fe148fe093b280c16765cd34359406f138fd8b7abe2ea619fb94ddea3b2",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1b-deberta-v3-base/atomicity/repeat-3.json": "145f4b23d76ac065e8bb582e4433c9c20430afbfe5a07bb0405428c860c26dfd",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1b-deberta-v3-base/atomicity/result.json": "b422a2ec9d96ad1fd691db6ffb14e5292c40303adf232cbf51d7f76f8fb12f93",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1b-deberta-v3-base/content_type/repeat-1.json": "4cd480b5d5559557440cc26f4212b26842669cccb6b5f99785d80a1116f45146",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1b-deberta-v3-base/content_type/repeat-2.json": "dbd32b0eecc49e198024e7d9eaa6b87d73ce54e3997f3661e9ccaca9301beb6b",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1b-deberta-v3-base/content_type/repeat-3.json": "8ae11df08e1bb745148237be3932eb507d0ac960d151f090bee249171bd64048",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c1b-deberta-v3-base/content_type/result.json": "5dc834f07140ebd4dd1e4862d1996713dfd4e4f1d65255ef9fd14ec94f0fed95",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c2-nli-deberta-v3-base/atomicity/repeat-1.json": "27189d62149ef2922b070271d803145db89cd5e31e15e7105f6d7ff23c572610",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c2-nli-deberta-v3-base/atomicity/repeat-2.json": "b65f012bc361d49fecee88349d124e479713d7124b56adafd53fc47b16a5592f",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c2-nli-deberta-v3-base/atomicity/repeat-3.json": "548d79772e841bde59eea81255d056f255f0d20a35db0610e4f65f47556f3dbb",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c2-nli-deberta-v3-base/atomicity/result.json": "2240f505bb6cbc777265e67a0ab5358fa60baa019aeb04e1ff89098d95ed5d32",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c2-nli-deberta-v3-base/content_type/repeat-1.json": "cc717a4909331935482a85ca1f520c577dd5085cf4b47c21073c117f33f166ed",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c2-nli-deberta-v3-base/content_type/repeat-2.json": "e37f91509d2d9d4ed278af78b4400d350ba82c3c3af667d6e022582adb820381",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c2-nli-deberta-v3-base/content_type/repeat-3.json": "5261355a4ae51d483d02f5c44a32a347cae7593e6de1e41713c3dd8642762791",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c2-nli-deberta-v3-base/content_type/result.json": "44e88a0307ec15cf94659394b6b0a8966de7399a3d558765c13a94c49c4438c5",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c3-setfit-minilm-l6-v2/atomicity/repeat-1.json": "948a2bef78d87ba48721afef7ce47904d0b43dfcc0075c5c0809e5905827e272",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c3-setfit-minilm-l6-v2/atomicity/repeat-2.json": "93a03f85b16f79ba3464385af94c418e1fca0af8a1d6b9eebbf40c0410d4db68",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c3-setfit-minilm-l6-v2/atomicity/repeat-3.json": "f848524023310a65d8067830f2867b9f9bbecccc33b3bbb162624c4e6ce12385",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c3-setfit-minilm-l6-v2/atomicity/result.json": "d5c4eb1244ede4a7a2a9edda78a6d8a8f695b4e5cdb0e1f4f0b8d0d749fe99e2",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c3-setfit-minilm-l6-v2/content_type/repeat-1.json": "ce0f3fb0a58b5eac8a94c211b93e4b63f9fb0eea34e7bf7f220e173abf23fa8e",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c3-setfit-minilm-l6-v2/content_type/repeat-2.json": "548c06cacf41a743e93b4441f66c63ce08d95ae9444dbb8e5dde4abfe5b9282e",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c3-setfit-minilm-l6-v2/content_type/repeat-3.json": "4461db7c9b1e2e6a2b67b202e252be98641a3df4651c852086bf9ba78f018bb9",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/c3-setfit-minilm-l6-v2/content_type/result.json": "15dbc35b8b300461bad431e0a215b22531f9504861cb1985864f683dec25049f",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/comparison.json": "16d128de4c1093abeb359b3cf7497a37369f361a9cc55d238837b7d699a4fb6d",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/input-lock.json": "db1a9ac41c0727143dc9bd7457029032cd07a7198f01ffc595ea7c32084b9ac6",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/results.json": "4a12b3da5735e7753b9f1159a2e14cdb0bada8037e8710f63c6dce314cbcb182",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/runtime-lock.json": "314dd1a7899cc68db3d424699d7194db317e1a69de0de59fd341503229b0a701",
+    ".local/n04-v4/g25a/selection/20261022T000426+0900/status.json": "3889fb0a07ae923e9216c2dfdcad9acf5f83a12689605a42362cbff93fc8db5c",
+    ".local/n04-v4/g25a/completion/20261022T000426+0900/diff_check.result.json": "d4a0cc71d95aac3a35549967947ad6f29f833250d967c135466011b4ddfe249d",
+    ".local/n04-v4/g25a/completion/20261022T000426+0900/engineering-results.json": "826d21391c7b277331907cdcf30b719ea95a92651475becfa0e999646ac5969b",
+    ".local/n04-v4/g25a/completion/20261022T000426+0900/focused.result.json": "bed4fe709983fa0a3d4d0ccefb680fead6129610236d6aa4d65fea1e9cbcbe64",
+    ".local/n04-v4/g25a/completion/20261022T000426+0900/full_pytest.result.json": "68bedf71e527a07d72ff1368e6e30a9ea054aca8e1f965b97d46a802c26dba8d",
+    ".local/n04-v4/g25a/completion/20261022T000426+0900/input.json": "4fb1079dc7466a4a946ee2bc8b2393a44c7ef9cc647fb812ffb2bd7b9e6d0c11",
+    ".local/n04-v4/g25a/completion/20261022T000426+0900/ruff.result.json": "efa7a3b12bf9e8bb1d7875d409c66c23b325eac2868cae5d8322bed13a73c0bb",
+    ".local/n04-v4/g25a/completion/20261022T000426+0900/selection_running.result.json": "c3c2f954caae1012bf026fa4125e3c722fccf9cfd875206a931113ccf2496132",
+    ".local/n04-v4/g25a/completion/20261022T000426+0900/status.json": "b27246884ee1f1c2a80854cce909a9af2fb77f4094c12975099049881dae0bae"
+  },
+  "completion_review_environment_note": "Training and selection each recorded exact same-process standard-venv before/after PASS. At completion review (PYTHONNOUSERSITE=1), interpreter and non-editable package versions still match; editable Git provenance differs for the advanced project HEAD and an unrelated inherited editable distribution. This task made no standard-venv install/update or external-repository change.",
+  "preserved_failed_run": ".local/n04-v4/g25a/training/20261021T230232+0900/",
+  "failure_classification": "Valid development classifier generalization/coverage failure; engineering gates PASS. No threshold/checkpoint/model/corpus adjustment after selection.",
+  "escalation": "No deployable V2-R-A/V2-R-C selected. A separate approved remediation protocol with new untouched held-out evaluation evidence is required before another selection attempt; no automatic retuning from these selection failures.",
+  "states": {
+    "G25A": "VALID_FAIL_NO_SELECTION / not Complete",
+    "G25B": "blocked",
+    "G26": "blocked",
+    "N04": "Failed / not Complete",
+    "N05": "blocked",
+    "Frozen47": "NOT STARTED"
+  },
+  "limitations": [
+    "Synthetic design-family labels are not independently human-adjudicated.",
+    "Neutral lexical banks and construction families are held out jointly; corpus size alone is not proof of real-data coverage."
+  ]
+}
