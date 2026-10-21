@@ -1,10 +1,10 @@
 # SGOKB Benchmark
 
-このdirectoryには、**現行canonical SGOKBのSearch / Similarity / Vector品質評価に使用するbenchmark資産だけを置く**。
+このdirectoryには、現行canonical SGOKBのSearch / Similarity / Vector品質評価資産と、Phase N formal acceptance用のmachine-readable資産を置く。
 
-## Current benchmark
+## Current Search benchmark
 
-Phase Iの現行Search評価正本は`search-quality-gold-v1.json`。
+Phase I / N-06の現行Search評価正本は`search-quality-gold-v1.json`。
 
 外部Web内容に依存しないfrozen synthetic canonical Knowledgeを使用し、次を評価する。
 
@@ -29,6 +29,34 @@ python scripts/run_search_gold_reranker_benchmark.py
 - [`docs/design/EMBEDDING_PROVIDER_MODEL_EVALUATION.md`](../docs/design/EMBEDDING_PROVIDER_MODEL_EVALUATION.md)
 - [`docs/design/VECTOR_INDEX_ADAPTER_BACKEND_EVALUATION.md`](../docs/design/VECTOR_INDEX_ADAPTER_BACKEND_EVALUATION.md)
 - [`docs/design/RERANKER_SECOND_STAGE_EVALUATION.md`](../docs/design/RERANKER_SECOND_STAGE_EVALUATION.md)
+
+## Current N-04 acceptance harness
+
+2026-10-22のResponsibility Boundary Reconstruction後、N-04のcurrent formal harnessはSGOKBのKnowledge Access Boundaryだけを評価する。
+
+Current authority:
+
+```text
+n04-knowledge-access-cases-v1.json
+n04-knowledge-access-formal-harness-v1.json
+tools/n04r03_harness_preflight.py
+tools/n04r04_evaluate_evidence.py
+```
+
+正式評価範囲:
+
+```text
+SGOKB → Retrieval / Similarity → Context Builder → MCP public read → Consumer boundary
+```
+
+AI Consumerの生成品質、Atomicity / Content-Type classifier、verifier、Grounded Generation certificationはcurrent N-04 formal Gateではない。
+
+Decision:
+
+- [`docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`](../docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md)
+- [`docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md`](../docs/decisions/N04R03_KNOWLEDGE_ACCESS_HARNESS_FREEZE.md)
+
+`n04-ai-use-cases-v1/v2/v3.json`、`n04-v2-formal-harness-v1.json`、`n04-v3-formal-harness-v1.json`およびG-20〜G-25関連資産はhistorical research evidenceとして保持する。current N-04 Completion prerequisiteではない。
 
 ## Retired Prototype benchmark
 
