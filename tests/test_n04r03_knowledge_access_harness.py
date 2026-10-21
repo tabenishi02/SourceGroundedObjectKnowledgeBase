@@ -7,7 +7,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PREFLIGHT = ROOT / "benchmark" / "tools" / "n04r03_harness_preflight.py"
 CASES = ROOT / "benchmark" / "n04-knowledge-access-cases-v1.json"
-HARNESS = ROOT / "benchmark" / "n04-knowledge-access-formal-harness-v1.json"
+HARNESS = (
+    ROOT
+    / "benchmark"
+    / "n04-knowledge-access-formal-harness-v1.json"
+)
 
 
 def _load(path: Path) -> dict:
@@ -15,7 +19,10 @@ def _load(path: Path) -> dict:
 
 
 def _load_preflight_module():
-    spec = importlib.util.spec_from_file_location("n04r03_harness_preflight", PREFLIGHT)
+    spec = importlib.util.spec_from_file_location(
+        "n04r03_harness_preflight",
+        PREFLIGHT,
+    )
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -36,23 +43,30 @@ def test_n04r03_three_cases_stop_at_consumer_boundary() -> None:
         "n04-similar-work-comparison",
         "n04-concept-combination-creative",
     ]
-    assert [
-        (item.get("build_context") or item.get("build_context_template"))["purpose"]
+    purposes = [
+        (
+            item.get("build_context")
+            or item.get("build_context_template")
+        )["purpose"]
         for item in cases["cases"]
-    ] == ["roleplay", "comparison", "creative"]
+    ]
+    assert purposes == ["roleplay", "comparison", "creative"]
     assert all("generation" not in item for item in cases["cases"])
 
 
 def test_n04r03_comparison_candidate_must_come_from_similarity() -> None:
     comparison = _load(CASES)["cases"][1]
-    assert comparison["tool_sequence"] == ["find_similar_objects", "build_context"]
+    assert comparison["tool_sequence"] == [
+        "find_similar_objects",
+        "build_context",
+    ]
     assert comparison["build_context_template"]["object_ids"] == [
         "d5824d33-7008-4121-9cfe-1f95a19667fd",
         "<retrieved_current_work_candidate_id>",
     ]
-    assert comparison["expected_dataset_candidate_id_observation_only"] == (
-        "57db855c-574a-4b38-b474-421c165894f1"
-    )
+    assert comparison[
+        "expected_dataset_candidate_id_observation_only"
+    ] == "57db855c-574a-4b38-b474-421c165894f1"
 
 
 def test_n04r03_only_sgokb_responsibility_gates_are_formal() -> None:
@@ -70,8 +84,16 @@ def test_n04r03_only_sgokb_responsibility_gates_are_formal() -> None:
         "integrity",
         "regression",
     }
-    assert harness["formal_boundary"]["consumer_inference_or_generation_is_gating"] is False
-    assert harness["result_policy"]["allowed_states"] == ["PASS", "FAIL", "BLOCKED"]
+    assert (
+        harness["formal_boundary"]
+        ["consumer_inference_or_generation_is_gating"]
+        is False
+    )
+    assert harness["result_policy"]["allowed_states"] == [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+    ]
 
 
 def test_n04r03_reference_consumer_is_explicitly_non_gating() -> None:
