@@ -2,7 +2,7 @@
 
 更新日: 2026-10-22
 
-- Status: **Active — N-01〜N-03 Complete / N-04 responsibility boundary reconstructed**
+- Status: **Active — N-01〜N-03 Complete / N-04R-02 Complete / Next N-04R-03**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - N-04 decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
@@ -229,7 +229,7 @@ G-25A                 VALID_FAIL_NO_SELECTION
 
 同時に、canonical / MCP / Retrieval / Context Builderにはfailure原因となるproduction defectを確認しなかった。
 
-G-13〜G-25でGrounded Generation / verifier / classifier設計・実装を追加したが、2026-10-22のResponsibility Boundary Reconstructionにより、これらをN-04 Completion prerequisiteから外した。
+G-01〜G-25でGrounded Generation / verifier / classifier設計・実装を追加したが、2026-10-22のResponsibility Boundary Reconstructionにより、これらをN-04 Completion prerequisiteから外した。
 
 過去evidenceは削除しない。
 
@@ -334,12 +334,12 @@ N-04 reconstruction chain:
 
 ```text
 N-04R-01 Responsibility Boundary Decision       Complete
-N-04R-02 Documentation Reconstruction            Active
-N-04R-03 Formal Harness Reconstruction           Pending
+N-04R-02 Documentation Reconstruction            Complete
+N-04R-03 Formal Harness Reconstruction           Next / Pending
 N-04R-04 Reference Workstation Re-Acceptance     Pending
 N-04R-05 Grounded Generation Asset Disposition   Pending
 ```
 
-N-04R-02完了後、N-04R-03へ進む。
+次Taskは`N-04R-03 — Formal Harness Reconstruction`。
 
 N-05 / N-06はN-04完了を待つ必要はない。
