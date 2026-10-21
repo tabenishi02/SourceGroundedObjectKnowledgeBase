@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -54,6 +56,32 @@ def git_blob_sha(path: Path) -> str:
     content = path.read_bytes()
     header = f"blob {len(content)}\0".encode()
     return hashlib.sha1(header + content).hexdigest()
+
+
+def evaluator_dependency_violations(source: str) -> list[str]:
+    """Require the frozen evaluator to be standard-library-only, without dynamic loading."""
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return ["invalid_evaluator_syntax"]
+    violations = []
+    for node in ast.walk(tree):
+        modules = []
+        if isinstance(node, ast.Import):
+            modules = [alias.name for alias in node.names]
+        elif isinstance(node, ast.ImportFrom):
+            modules = [node.module or ""]
+            if node.level:
+                violations.append("relative_import")
+        for module in modules:
+            if module.split(".")[0] not in sys.stdlib_module_names:
+                violations.append(module)
+        if isinstance(node, ast.Call):
+            if isinstance(node.func, ast.Name) and node.func.id in {"__import__", "eval", "exec"}:
+                violations.append("dynamic_code_or_import")
+            elif isinstance(node.func, ast.Attribute) and node.func.attr == "import_module":
+                violations.append("dynamic_import")
+    return sorted(set(violations))
 
 
 def _walk_keys(value: Any) -> set[str]:
@@ -127,16 +155,7 @@ def evaluate(repo_root: Path) -> dict[str, Any]:
     )
     if evaluator_path.is_file():
         evaluator_source = evaluator_path.read_text(encoding="utf-8")
-        forbidden_imports = [
-            value
-            for value in (
-                "sgokb.grounding",
-                "MiniCheck",
-                "Phi-4",
-                "Mistral",
-            )
-            if value in evaluator_source
-        ]
+        forbidden_imports = evaluator_dependency_violations(evaluator_source)
     else:
         forbidden_imports = ["formal_evaluator_missing"]
     check(
