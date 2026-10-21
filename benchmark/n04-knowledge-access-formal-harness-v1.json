@@ -1,0 +1,127 @@
+{
+  "schema_version": "sgokb.n04-knowledge-access-harness/1",
+  "harness_id": "n04-knowledge-access-formal-harness-v1",
+  "status": "frozen_for_reference_workstation_reacceptance",
+  "prepared_on": "2026-10-22",
+  "reconstruction_base_main_sha": "6796018719b4f62bdb8b167065f45c43538f1819",
+  "responsibility_decision": "docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md",
+  "acceptance_document": "docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md",
+  "case_spec": "benchmark/n04-knowledge-access-cases-v1.json",
+  "source_dataset": "benchmark/n03-real-data-vertical-slice-v1.json",
+  "reference_workstation": {
+    "device": "FNB1Main",
+    "evaluation_db": ".local/n03/sgokb-n03.sqlite",
+    "evidence_root_template": ".local/n04r04/<run_id>",
+    "run_id_format": "YYYYMMDDTHHMMSS+0900"
+  },
+  "formal_boundary": {
+    "starts_at": "SGOKB public read surface",
+    "ends_at": "external consumer boundary",
+    "consumer_inference_or_generation_is_gating": false
+  },
+  "case_gates": {
+    "public_boundary": {
+      "required": true,
+      "rule": "Use MCP/Application public read tools only; do not construct consumer input with direct SQLite queries."
+    },
+    "canonical_scope": {
+      "required": true,
+      "rule": "Every Context Object resolves to the intended stable object_id and current accepted Version unless the case explicitly pins a Version; no rejected, staging, or unintended historical Knowledge."
+    },
+    "retrieval_integration": {
+      "required_for": ["n04-similar-work-comparison"],
+      "rule": "The comparison candidate must come from find_similar_objects and the returned candidate ID must be passed to build_context without hardcoding the comparison target."
+    },
+    "context_contract": {
+      "required": true,
+      "rule": "Response uses sgokb.context-builder.v1, preserves requested purpose/options, identifies each Object and resolved Version, and contains no Context-Builder-authored semantic synthesis."
+    },
+    "traceability": {
+      "required": true,
+      "rule": "Context retains stable Object and resolved Version identities and, where evidence refs are requested, preserves public provenance references."
+    },
+    "budget_contract": {
+      "required": true,
+      "rule": "budget.limit_characters equals the request, used_characters does not exceed the limit, and omission/truncation metadata follows the Context Builder contract without partial statement truncation."
+    }
+  },
+  "global_gates": {
+    "canonical_invariance": {
+      "required": true,
+      "rule": "Canonical Object/Version/Knowledge/Source/Evidence/Provenance state is unchanged before and after the formal run."
+    },
+    "integrity": {
+      "required": true,
+      "rule": "system integrity passes after the formal read-only run."
+    },
+    "regression": {
+      "required": true,
+      "rule": "Focused Knowledge Access tests and the full pytest suite finish with zero failures."
+    }
+  },
+  "result_policy": {
+    "case_pass": "Every gate required by that case must PASS.",
+    "overall_pass": "All three cases PASS and all global gates PASS.",
+    "fail": "A SGOKB responsibility gate fails.",
+    "blocked": "A required SGOKB runtime is unavailable so the formal gate cannot be evaluated.",
+    "allowed_states": ["PASS", "FAIL", "BLOCKED"]
+  },
+  "non_gating": {
+    "knowledge_coverage": true,
+    "reference_consumer_demonstration": true,
+    "consumer_output_quality": true,
+    "consumer_grounding": true
+  },
+  "forbidden_formal_gate_terms": [
+    "atomicity",
+    "content_type",
+    "source_fact_verifier",
+    "interpretation_verifier",
+    "grounded_generation",
+    "certified_content",
+    "presentation_generator",
+    "generator_model",
+    "semantic_judge",
+    "frozen_47"
+  ],
+  "evidence_contract": {
+    "required_files": [
+      "environment.json",
+      "mcp-tools.json",
+      "case-1-roleplay/request.json",
+      "case-1-roleplay/context.json",
+      "case-1-roleplay/evaluation.json",
+      "case-2-comparison/similarity-request.json",
+      "case-2-comparison/similarity.json",
+      "case-2-comparison/context-request.json",
+      "case-2-comparison/context.json",
+      "case-2-comparison/evaluation.json",
+      "case-3-creative/request.json",
+      "case-3-creative/context.json",
+      "case-3-creative/evaluation.json",
+      "canonical-before.json",
+      "canonical-after.json",
+      "integrity.json",
+      "focused-pytest.log",
+      "full-pytest.log",
+      "overall-evaluation.json"
+    ],
+    "consumer_demonstration_directory": "reference-consumer/",
+    "consumer_demonstration_must_not_affect_formal_verdict": true
+  },
+  "preflight": {
+    "commands": [
+      "python benchmark/tools/n04r03_harness_preflight.py",
+      "python -m pytest -q tests/test_n04r03_knowledge_access_harness.py tests/test_j04_context_builder.py tests/test_j06_mcp_client_acceptance.py",
+      "python -m pytest -q",
+      "python -m ruff check .",
+      "git diff --check"
+    ],
+    "all_must_pass_before_formal_reacceptance": true
+  },
+  "historical_harnesses": [
+    "benchmark/n04-v2-formal-harness-v1.json",
+    "benchmark/n04-v3-formal-harness-v1.json"
+  ],
+  "historical_harnesses_are_current_authority": false
+}
