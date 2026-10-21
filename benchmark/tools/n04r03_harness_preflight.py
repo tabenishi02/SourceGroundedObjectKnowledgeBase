@@ -27,7 +27,11 @@ EXPECTED_FORMAL_GATE_KEYS = {
     "traceability",
     "budget_contract",
 }
-EXPECTED_GLOBAL_GATE_KEYS = {"canonical_invariance", "integrity", "regression"}
+EXPECTED_GLOBAL_GATE_KEYS = {
+    "canonical_invariance",
+    "integrity",
+    "regression",
+}
 FORBIDDEN_CASE_KEYS = {
     "generation",
     "prompt",
@@ -88,47 +92,66 @@ def evaluate(repo_root: Path) -> dict[str, Any]:
     )
     check(
         "case_spec_path",
-        harness.get("case_spec") == "benchmark/n04-knowledge-access-cases-v1.json",
+        harness.get("case_spec")
+        == "benchmark/n04-knowledge-access-cases-v1.json",
         harness.get("case_spec"),
     )
+    actual_case_sha = git_blob_sha(cases_path)
     check(
         "case_spec_git_blob_sha",
-        git_blob_sha(cases_path) == harness.get("case_spec_git_blob_sha"),
+        actual_case_sha == harness.get("case_spec_git_blob_sha"),
         {
-            "actual": git_blob_sha(cases_path),
+            "actual": actual_case_sha,
             "expected": harness.get("case_spec_git_blob_sha"),
         },
     )
+
     evaluator_path = repo_root / str(harness.get("formal_evaluator", ""))
     check(
         "formal_evaluator_path",
-        harness.get("formal_evaluator") == "benchmark/tools/n04r04_evaluate_evidence.py"
+        harness.get("formal_evaluator")
+        == "benchmark/tools/n04r04_evaluate_evidence.py"
         and evaluator_path.is_file(),
         harness.get("formal_evaluator"),
     )
-    evaluator_sha = git_blob_sha(evaluator_path) if evaluator_path.is_file() else None
+    evaluator_sha = (
+        git_blob_sha(evaluator_path) if evaluator_path.is_file() else None
+    )
     check(
         "formal_evaluator_git_blob_sha",
         evaluator_sha == harness.get("formal_evaluator_git_blob_sha"),
-        {"actual": evaluator_sha, "expected": harness.get("formal_evaluator_git_blob_sha")},
+        {
+            "actual": evaluator_sha,
+            "expected": harness.get("formal_evaluator_git_blob_sha"),
+        },
     )
     if evaluator_path.is_file():
         evaluator_source = evaluator_path.read_text(encoding="utf-8")
         forbidden_imports = [
             value
-            for value in ("sgokb.grounding", "MiniCheck", "Phi-4", "Mistral")
+            for value in (
+                "sgokb.grounding",
+                "MiniCheck",
+                "Phi-4",
+                "Mistral",
+            )
             if value in evaluator_source
         ]
     else:
         forbidden_imports = ["formal_evaluator_missing"]
-    check("formal_evaluator_has_no_generation_dependency", not forbidden_imports, forbidden_imports)
+    check(
+        "formal_evaluator_has_no_generation_dependency",
+        not forbidden_imports,
+        forbidden_imports,
+    )
+
+    boundary = harness.get("formal_boundary", {})
     check(
         "formal_boundary",
         cases.get("formal_boundary") == "external_consumer_boundary"
-        and harness.get("formal_boundary", {}).get("ends_at") == "external consumer boundary"
-        and harness.get("formal_boundary", {}).get("consumer_inference_or_generation_is_gating")
-        is False,
-        harness.get("formal_boundary"),
+        and boundary.get("ends_at") == "external consumer boundary"
+        and boundary.get("consumer_inference_or_generation_is_gating") is False,
+        boundary,
     )
     check(
         "mcp_contract_version",
@@ -156,27 +179,37 @@ def evaluate(repo_root: Path) -> dict[str, Any]:
     purposes: list[str | None] = []
     case_key_violations: dict[str, list[str]] = {}
     for case in case_items:
-        context = case.get("build_context") or case.get("build_context_template") or {}
+        context = (
+            case.get("build_context")
+            or case.get("build_context_template")
+            or {}
+        )
         purposes.append(context.get("purpose"))
         keys = _walk_keys(case)
         violations = sorted(FORBIDDEN_CASE_KEYS.intersection(keys))
         if violations:
             case_key_violations[str(case.get("case_id"))] = violations
     check("case_purposes", purposes == EXPECTED_PURPOSES, purposes)
-    check("no_consumer_generation_keys_in_cases", not case_key_violations, case_key_violations)
+    check(
+        "no_consumer_generation_keys_in_cases",
+        not case_key_violations,
+        case_key_violations,
+    )
 
     comparison = case_items[1] if len(case_items) == 3 else {}
     check(
         "comparison_tool_sequence",
-        comparison.get("tool_sequence") == ["find_similar_objects", "build_context"],
+        comparison.get("tool_sequence")
+        == ["find_similar_objects", "build_context"],
         comparison.get("tool_sequence"),
     )
     comparison_context = comparison.get("build_context_template", {})
+    object_ids = comparison_context.get("object_ids", [])
+    candidate_placeholder = object_ids[1] if len(object_ids) > 1 else None
     check(
         "comparison_candidate_not_hardcoded",
-        comparison_context.get("object_ids", [None, None])[1]
-        == "<retrieved_current_work_candidate_id>",
-        comparison_context.get("object_ids"),
+        candidate_placeholder == "<retrieved_current_work_candidate_id>",
+        object_ids,
     )
 
     check(
@@ -189,31 +222,34 @@ def evaluate(repo_root: Path) -> dict[str, Any]:
         set(harness.get("global_gates", {})) == EXPECTED_GLOBAL_GATE_KEYS,
         sorted(harness.get("global_gates", {})),
     )
+    allowed_states = ["PASS", "FAIL", "BLOCKED"]
     check(
         "formal_result_states",
-        harness.get("result_policy", {}).get("allowed_states") == ["PASS", "FAIL", "BLOCKED"]
-        and cases.get("formal_result_states") == ["PASS", "FAIL", "BLOCKED"],
+        harness.get("result_policy", {}).get("allowed_states")
+        == allowed_states
+        and cases.get("formal_result_states") == allowed_states,
         {
             "harness": harness.get("result_policy", {}).get("allowed_states"),
             "cases": cases.get("formal_result_states"),
         },
     )
+    consumer_non_gating = harness.get("evidence_contract", {}).get(
+        "consumer_demonstration_must_not_affect_formal_verdict"
+    )
     check(
         "consumer_demo_non_gating",
-        harness.get("evidence_contract", {}).get(
-            "consumer_demonstration_must_not_affect_formal_verdict"
-        )
-        is True,
-        harness.get("evidence_contract", {}).get(
-            "consumer_demonstration_must_not_affect_formal_verdict"
-        ),
+        consumer_non_gating is True,
+        consumer_non_gating,
     )
     check(
         "historical_harnesses_non_authoritative",
         harness.get("historical_harnesses_are_current_authority") is False,
         harness.get("historical_harnesses_are_current_authority"),
     )
-    forbidden_dependencies = set(cases.get("forbidden_formal_dependencies", []))
+
+    forbidden_dependencies = set(
+        cases.get("forbidden_formal_dependencies", [])
+    )
     required_forbidden_dependencies = {
         "local_llm_generation",
         "consumer_output_grounding",
@@ -250,7 +286,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     report = evaluate(args.repo_root.resolve())
-    rendered = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    rendered = (
+        json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True)
+        + "\n"
+    )
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(rendered, encoding="utf-8")
