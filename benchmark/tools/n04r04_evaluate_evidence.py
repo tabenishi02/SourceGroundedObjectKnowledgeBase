@@ -9,6 +9,8 @@ MCP_CONTRACT = "sgokb.mcp-read-tools.v1"
 CONTEXT_CONTRACT = "sgokb.context-builder.v1"
 
 REQUIRED_INPUTS = (
+    "environment.json",
+    "mcp-tools.json",
     "case-1-roleplay/request.json",
     "case-1-roleplay/context.json",
     "case-2-comparison/similarity-request.json",
@@ -21,6 +23,8 @@ REQUIRED_INPUTS = (
     "canonical-after.json",
     "integrity.json",
     "regression.json",
+    "focused-pytest.log",
+    "full-pytest.log",
 )
 
 
@@ -280,15 +284,43 @@ def evaluate(run_root: Path) -> dict[str, Any]:
         include_evidence_refs=False,
     )
 
+    similarity_args = similarity_request.get("arguments", {})
+    expected_similarity_args = {
+        "object_id": "d5824d33-7008-4121-9cfe-1f95a19667fd",
+        "cross_class": False,
+        "include_archived": False,
+        "limit": 5,
+    }
     similarity = _data(similarity_response)
     results = similarity.get("results", [])
-    candidate_id = results[0].get("object_id") if results else None
-    candidate_rank = results[0].get("rank") if results else None
+    top_result = results[0] if results else {}
+    candidate_id = top_result.get("object_id")
+    candidate_rank = top_result.get("rank")
+    candidate_version_id = top_result.get("version_id")
+    source_version_id = similarity.get("source_version_id")
+    case2_payload = _data(case2_context)
+    case2_objects = case2_payload.get("objects", [])
+    source_context_version = (
+        case2_objects[0].get("resolved_version_id")
+        if len(case2_objects) > 0
+        else None
+    )
+    candidate_context_version = (
+        case2_objects[1].get("resolved_version_id")
+        if len(case2_objects) > 1
+        else None
+    )
     case2_checks = [
         {
             "name": "public_tool_find_similar_objects",
-            "pass": similarity_request.get("tool") == "find_similar_objects",
+            "pass": similarity_request.get("tool")
+            == "find_similar_objects",
             "detail": similarity_request.get("tool"),
+        },
+        {
+            "name": "similarity_request_arguments",
+            "pass": similarity_args == expected_similarity_args,
+            "detail": similarity_args,
         },
         {
             "name": "similarity_mcp_contract",
@@ -307,9 +339,17 @@ def evaluate(run_root: Path) -> dict[str, Any]:
             "detail": similarity.get("source_object_id"),
         },
         {
+            "name": "similarity_source_version_present",
+            "pass": bool(source_version_id),
+            "detail": source_version_id,
+        },
+        {
             "name": "similarity_candidate_present",
-            "pass": bool(candidate_id),
-            "detail": candidate_id,
+            "pass": bool(candidate_id) and bool(candidate_version_id),
+            "detail": {
+                "object_id": candidate_id,
+                "version_id": candidate_version_id,
+            },
         },
         {
             "name": "similarity_top_candidate_rank",
@@ -333,6 +373,28 @@ def evaluate(run_root: Path) -> dict[str, Any]:
                 include_evidence_refs=True,
             )
         )
+    case2_checks.extend(
+        [
+            {
+                "name": "similarity_source_version_matches_context",
+                "pass": bool(source_version_id)
+                and source_version_id == source_context_version,
+                "detail": {
+                    "similarity": source_version_id,
+                    "context": source_context_version,
+                },
+            },
+            {
+                "name": "similarity_candidate_version_matches_context",
+                "pass": bool(candidate_version_id)
+                and candidate_version_id == candidate_context_version,
+                "detail": {
+                    "similarity": candidate_version_id,
+                    "context": candidate_context_version,
+                },
+            },
+        ]
+    )
 
     case3_checks = _check_context(
         request=case3_request,
