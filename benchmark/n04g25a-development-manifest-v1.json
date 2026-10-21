@@ -1,0 +1,1046 @@
+{
+  "schema_version": "sgokb.g25a.development/1",
+  "status": "frozen_for_development",
+  "authority": "G-23F / E5 and G-25A execution plan",
+  "confirmation_data_access": "prohibited; no seed/paraphrase/similarity input from historical confirmation data",
+  "corpora": {
+    "benchmark/n04g25a-atomicity-development-v1.jsonl": "b84ec6b110f5b2939dfb75ec34c5aa91ff42d013255ef088da5a47f6fc6fb9bf",
+    "benchmark/n04g25a-content-type-development-v1.jsonl": "c039674b35ac5a2ecba74a75c6369b2a80b94bb314545bdeea9f7f8e8d592e2b",
+    "benchmark/n04g25a-split-manifest-v1.json": "4e8ed4f1f8c102d894d19d4090687d6da01b531a5f1bc4cc890f41d7475c0fef"
+  },
+  "family_review": "100 distinct reviewed constructions, ten neutral-domain variants per construction. Labels are design-derived and frozen before classifier execution; human adjudication is not claimed.",
+  "families": [
+    {
+      "family_id": "atomicity.atomic.single_state",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "train",
+      "template": "{s} is {state}.",
+      "rationale": "One direct state proposition.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.contact_relation",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "train",
+      "template": "{s} touches {o}.",
+      "rationale": "One relation; the second participant is not a second assertion.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.negative_property",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "train",
+      "template": "{s} is not transparent.",
+      "rationale": "Negation leaves one factual proposition.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.event_with_time",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "train",
+      "template": "{s} moved at noon.",
+      "rationale": "One event with a temporal modifier.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.category_membership",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "train",
+      "template": "{s} belongs to the {kind} category.",
+      "rationale": "One category-membership claim.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.interpretive_conclusion",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "train",
+      "template": "This pattern suggests an imbalance in the {place} workflow.",
+      "rationale": "One conclusion; factual premises are not restated.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.invented_state",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "train",
+      "template": "In a new fictional scene, {s} can become invisible.",
+      "rationale": "One newly invented capability, one policy.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.context_absence",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "train",
+      "template": "The supplied note gives no color for {obj}.",
+      "rationale": "One context-availability proposition.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.compound_name",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "train",
+      "template": "{s} has a self-locking release catch.",
+      "rationale": "Compound noun identifies one asserted feature.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.joint_participants",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "train",
+      "template": "The distance between {obj} and {other} is two meters.",
+      "rationale": "One relation jointly involving two participants.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.negative_relation",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "train",
+      "template": "{s} does not overlap {o}.",
+      "rationale": "One negated spatial relation.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.passive_event",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "train",
+      "template": "{s} was photographed yesterday.",
+      "rationale": "One passive event, with time as modifier.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.sole_count",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "validation",
+      "template": "Exactly three copies of {obj} exist.",
+      "rationale": "One quantified count proposition.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.single_comparison",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "validation",
+      "template": "{s} is heavier than {o}.",
+      "rationale": "One comparative relation, not two absolute weights.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.existence",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "validation",
+      "template": "A replacement for {obj} exists.",
+      "rationale": "One existential proposition.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.event_not_occurred",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "validation",
+      "template": "{s} did not move during the inspection.",
+      "rationale": "One negated event.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.measured_value",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "selection",
+      "template": "{s} weighs four kilograms.",
+      "rationale": "One measured property.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.relative_position",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "selection",
+      "template": "{s} lies beneath {o}.",
+      "rationale": "One spatial relationship.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.assigned_identity",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "selection",
+      "template": "The identifier assigned to {obj} is R-17.",
+      "rationale": "One identifier-assignment claim.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.atomic.single_receipt",
+      "task": "atomicity",
+      "label": "ATOMIC",
+      "split": "selection",
+      "template": "{s} arrived with the morning delivery.",
+      "rationale": "One arrival event; delivery modifies its circumstances.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.independent_states",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "train",
+      "template": "{s} is {state}, and {o} is missing.",
+      "rationale": "Two independently judgeable states.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.fact_and_cause",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "train",
+      "template": "{s} is {state} because a motor failed.",
+      "rationale": "A state plus a causal/event assertion.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.premise_and_conclusion",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "train",
+      "template": "{s} is {state}, so the {place} is inefficient.",
+      "rationale": "Factual premise plus an interpretive conclusion.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.two_events",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "train",
+      "template": "{s} arrived yesterday and departed today.",
+      "rationale": "Two independently judgeable events.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.world_and_context",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "train",
+      "template": "{s} is {state}, but the supplied note omits its weight.",
+      "rationale": "Source-world fact and availability meta claim use different policies.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.world_and_invention",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "train",
+      "template": "{s} is {state}; in a new story it can sing.",
+      "rationale": "Source-world state plus invented capability.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.interpretation_and_extra_fact",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "train",
+      "template": "This suggests poor scheduling; {o} was replaced on Tuesday.",
+      "rationale": "Interpretation plus an independently asserted event.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.ordered_events",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "train",
+      "template": "After {s} rotated, {o} fell.",
+      "rationale": "Both sequence events can receive independent support verdicts.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.two_relations",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "train",
+      "template": "{s} touches {o} and stands beside the door.",
+      "rationale": "Two independent spatial relations.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.creative_and_context",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "train",
+      "template": "In a new fable {s} flies, while the supplied note names no pilot.",
+      "rationale": "Invention and bounded-context availability differ in policy.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.two_measurements",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "train",
+      "template": "{s} weighs four kilograms and measures two meters.",
+      "rationale": "Two independent measurements.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.negative_plus_positive",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "train",
+      "template": "{s} is not transparent, but {o} is polished.",
+      "rationale": "Independent negative and positive properties.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.appended_identity_event",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "validation",
+      "template": "{s} has identifier R-17; it was repaired last week.",
+      "rationale": "Identity assignment and repair event are separable.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.two_invented_events",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "validation",
+      "template": "In an original scene {s} escapes the {place} and later returns.",
+      "rationale": "Two separate creative events despite one fictional policy.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.inference_and_context",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "validation",
+      "template": "This implies redundant work, though the supplied excerpt has no timing data.",
+      "rationale": "Conclusion plus context-availability proposition.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.fact_and_interpretive_value",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "validation",
+      "template": "{s} moved at noon, which makes the procedure needlessly elaborate.",
+      "rationale": "An event plus evaluative interpretation.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.separate_counts",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "selection",
+      "template": "There are three copies of {obj} and five of {other}.",
+      "rationale": "Independent counts of separate objects.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.existence_and_location",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "selection",
+      "template": "A spare {obj} exists and is stored in the {place}.",
+      "rationale": "Existence and storage location can receive different verdicts.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.contrast_of_states",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "selection",
+      "template": "{s} is {state}, whereas {o} is damaged.",
+      "rationale": "Two contrasted factual states.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.non_atomic.nested_causal_events",
+      "task": "atomicity",
+      "label": "NON_ATOMIC",
+      "split": "selection",
+      "template": "{s} fell when {o} struck it.",
+      "rationale": "A fall and an independently evaluable striking event.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.ambiguous.coordination_scope",
+      "task": "atomicity",
+      "label": "AMBIGUOUS",
+      "split": "train",
+      "template": "{s} and {o} with a handle moved.",
+      "rationale": "Unclear modifier scope and whether movement is joint or independent.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.ambiguous.appositive_materiality",
+      "task": "atomicity",
+      "label": "AMBIGUOUS",
+      "split": "train",
+      "template": "{s}, the restored one, moved.",
+      "rationale": "Restoration may be identifying background or an independent material claim.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.ambiguous.elliptical_coordination",
+      "task": "atomicity",
+      "label": "AMBIGUOUS",
+      "split": "train",
+      "template": "{s} near {o}, then away.",
+      "rationale": "Ellipsis leaves one relation versus separate events unresolved.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.ambiguous.explanatory_modifier",
+      "task": "atomicity",
+      "label": "AMBIGUOUS",
+      "split": "validation",
+      "template": "{s} moved in a repair-related incident.",
+      "rationale": "Modifier may add an independent repair assertion or only classify the event.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "atomicity.ambiguous.relative_scope",
+      "task": "atomicity",
+      "label": "AMBIGUOUS",
+      "split": "selection",
+      "template": "{s} that replaced {o} moved.",
+      "rationale": "Restrictive identification versus independent replacement event is underdetermined.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.source_fact_content.direct_property",
+      "task": "content_type",
+      "label": "SOURCE_FACT_CONTENT",
+      "split": "train",
+      "template": "{s} is {state}.",
+      "rationale": "World-directed factual assertion; truth/support are out of scope.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.source_fact_content.negative_fact",
+      "task": "content_type",
+      "label": "SOURCE_FACT_CONTENT",
+      "split": "train",
+      "template": "{s} is not transparent.",
+      "rationale": "World-directed factual assertion; truth/support are out of scope.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.source_fact_content.general_category",
+      "task": "content_type",
+      "label": "SOURCE_FACT_CONTENT",
+      "split": "train",
+      "template": "A {obj} is a kind of {kind}.",
+      "rationale": "World-directed factual assertion; truth/support are out of scope.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.source_fact_content.unlikely_assertion",
+      "task": "content_type",
+      "label": "SOURCE_FACT_CONTENT",
+      "split": "train",
+      "template": "{s} has existed for ten thousand years.",
+      "rationale": "World-directed factual assertion; truth/support are out of scope.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.source_fact_content.object_relation",
+      "task": "content_type",
+      "label": "SOURCE_FACT_CONTENT",
+      "split": "train",
+      "template": "{s} touches {o}.",
+      "rationale": "World-directed factual assertion; truth/support are out of scope.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.source_fact_content.dated_event",
+      "task": "content_type",
+      "label": "SOURCE_FACT_CONTENT",
+      "split": "train",
+      "template": "{s} arrived on Monday.",
+      "rationale": "World-directed factual assertion; truth/support are out of scope.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.source_fact_content.passive_world_event",
+      "task": "content_type",
+      "label": "SOURCE_FACT_CONTENT",
+      "split": "validation",
+      "template": "{s} was photographed in the {place}.",
+      "rationale": "World-directed factual assertion; truth/support are out of scope.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.source_fact_content.measured_world_property",
+      "task": "content_type",
+      "label": "SOURCE_FACT_CONTENT",
+      "split": "validation",
+      "template": "{s} weighs four kilograms.",
+      "rationale": "World-directed factual assertion; truth/support are out of scope.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.source_fact_content.world_comparison",
+      "task": "content_type",
+      "label": "SOURCE_FACT_CONTENT",
+      "split": "selection",
+      "template": "{s} is heavier than {o}.",
+      "rationale": "World-directed factual assertion; truth/support are out of scope.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.source_fact_content.quantified_world_fact",
+      "task": "content_type",
+      "label": "SOURCE_FACT_CONTENT",
+      "split": "selection",
+      "template": "There are exactly three copies of {obj}.",
+      "rationale": "World-directed factual assertion; truth/support are out of scope.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.interpretation_content.suggested_conclusion",
+      "task": "content_type",
+      "label": "INTERPRETATION_CONTENT",
+      "split": "train",
+      "template": "This suggests a coordination problem in the {place}.",
+      "rationale": "One inferential/evaluative conclusion without asserted factual-premise restatement.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.interpretation_content.contrast_conclusion",
+      "task": "content_type",
+      "label": "INTERPRETATION_CONTENT",
+      "split": "train",
+      "template": "The contrast indicates a different approach to managing the {place}.",
+      "rationale": "One inferential/evaluative conclusion without asserted factual-premise restatement.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.interpretation_content.tentative_evaluation",
+      "task": "content_type",
+      "label": "INTERPRETATION_CONTENT",
+      "split": "train",
+      "template": "Taken together, these details make the {place} procedure seem overly cautious.",
+      "rationale": "One inferential/evaluative conclusion without asserted factual-premise restatement.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.interpretation_content.causal_reading",
+      "task": "content_type",
+      "label": "INTERPRETATION_CONTENT",
+      "split": "train",
+      "template": "A reasonable reading is that the {place} delay reflects conflicting priorities.",
+      "rationale": "One inferential/evaluative conclusion without asserted factual-premise restatement.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.interpretation_content.synthesis",
+      "task": "content_type",
+      "label": "INTERPRETATION_CONTENT",
+      "split": "train",
+      "template": "Overall, the pattern points toward redundancy in the {place} process.",
+      "rationale": "One inferential/evaluative conclusion without asserted factual-premise restatement.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.interpretation_content.comparative_inference",
+      "task": "content_type",
+      "label": "INTERPRETATION_CONTENT",
+      "split": "train",
+      "template": "These observations imply that the {place} favors stability over speed.",
+      "rationale": "One inferential/evaluative conclusion without asserted factual-premise restatement.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.interpretation_content.interpretive_tradeoff",
+      "task": "content_type",
+      "label": "INTERPRETATION_CONTENT",
+      "split": "validation",
+      "template": "The most plausible trade-off is reduced flexibility in the {place}.",
+      "rationale": "One inferential/evaluative conclusion without asserted factual-premise restatement.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.interpretation_content.evaluative_implication",
+      "task": "content_type",
+      "label": "INTERPRETATION_CONTENT",
+      "split": "validation",
+      "template": "The implication is a fragile balance of responsibilities in the {place}.",
+      "rationale": "One inferential/evaluative conclusion without asserted factual-premise restatement.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.interpretation_content.abstract_inference",
+      "task": "content_type",
+      "label": "INTERPRETATION_CONTENT",
+      "split": "selection",
+      "template": "The evidence can be read as a sign of organizational inertia in the {place}.",
+      "rationale": "One inferential/evaluative conclusion without asserted factual-premise restatement.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.interpretation_content.inferred_priority",
+      "task": "content_type",
+      "label": "INTERPRETATION_CONTENT",
+      "split": "selection",
+      "template": "It appears that continuity matters more than convenience in the {place}.",
+      "rationale": "One inferential/evaluative conclusion without asserted factual-premise restatement.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.creative_content.new_entity",
+      "task": "content_type",
+      "label": "CREATIVE_CONTENT",
+      "split": "train",
+      "template": "For an original tale, invent a talking {obj} called Vela.",
+      "rationale": "Explicitly newly invented entity/state/event, not source-world authority.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.creative_content.new_state",
+      "task": "content_type",
+      "label": "CREATIVE_CONTENT",
+      "split": "train",
+      "template": "Imagine a newly invented {obj} that becomes invisible at dusk.",
+      "rationale": "Explicitly newly invented entity/state/event, not source-world authority.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.creative_content.new_event",
+      "task": "content_type",
+      "label": "CREATIVE_CONTENT",
+      "split": "train",
+      "template": "In this new fictional episode, {s} flies out of the {place}.",
+      "rationale": "Explicitly newly invented entity/state/event, not source-world authority.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.creative_content.fictional_continuation",
+      "task": "content_type",
+      "label": "CREATIVE_CONTENT",
+      "split": "train",
+      "template": "As an invented continuation, {s} discovers a hidden moon.",
+      "rationale": "Explicitly newly invented entity/state/event, not source-world authority.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.creative_content.hypothetical_invention",
+      "task": "content_type",
+      "label": "CREATIVE_CONTENT",
+      "split": "train",
+      "template": "Let our new fantasy version of {obj} whisper forgotten songs.",
+      "rationale": "Explicitly newly invented entity/state/event, not source-world authority.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.creative_content.original_character",
+      "task": "content_type",
+      "label": "CREATIVE_CONTENT",
+      "split": "train",
+      "template": "Create an original character: a wandering {obj} with a clockwork heart.",
+      "rationale": "Explicitly newly invented entity/state/event, not source-world authority.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.creative_content.imagined_motive",
+      "task": "content_type",
+      "label": "CREATIVE_CONTENT",
+      "split": "validation",
+      "template": "In a newly composed fable, {s} longs to see the ocean.",
+      "rationale": "Explicitly newly invented entity/state/event, not source-world authority.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.creative_content.new_dialogue",
+      "task": "content_type",
+      "label": "CREATIVE_CONTENT",
+      "split": "validation",
+      "template": "For a new scene, give {s} the line: 'I will find the dawn.'",
+      "rationale": "Explicitly newly invented entity/state/event, not source-world authority.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.creative_content.invented_change",
+      "task": "content_type",
+      "label": "CREATIVE_CONTENT",
+      "split": "selection",
+      "template": "In the story we are inventing, {s} transforms into a bird.",
+      "rationale": "Explicitly newly invented entity/state/event, not source-world authority.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.creative_content.new_plot",
+      "task": "content_type",
+      "label": "CREATIVE_CONTENT",
+      "split": "selection",
+      "template": "Our original plot begins when {s} steals a star from the sky.",
+      "rationale": "Explicitly newly invented entity/state/event, not source-world authority.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.context_limit_content.absent_property",
+      "task": "content_type",
+      "label": "CONTEXT_LIMIT_CONTENT",
+      "split": "train",
+      "template": "The supplied note gives no weight for {obj}.",
+      "rationale": "Only availability/limitations of the supplied input are asserted.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.context_limit_content.unidentified_answer",
+      "task": "content_type",
+      "label": "CONTEXT_LIMIT_CONTENT",
+      "split": "train",
+      "template": "The available excerpt does not identify who made {obj}.",
+      "rationale": "Only availability/limitations of the supplied input are asserted.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.context_limit_content.bounded_insufficiency",
+      "task": "content_type",
+      "label": "CONTEXT_LIMIT_CONTENT",
+      "split": "train",
+      "template": "This context is insufficient to determine the age of {obj}.",
+      "rationale": "Only availability/limitations of the supplied input are asserted.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.context_limit_content.missing_description",
+      "task": "content_type",
+      "label": "CONTEXT_LIMIT_CONTENT",
+      "split": "train",
+      "template": "No color of {obj} is specified in the supplied description.",
+      "rationale": "Only availability/limitations of the supplied input are asserted.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.context_limit_content.evidence_silence",
+      "task": "content_type",
+      "label": "CONTEXT_LIMIT_CONTENT",
+      "split": "train",
+      "template": "The provided evidence is silent about the location of {obj}.",
+      "rationale": "Only availability/limitations of the supplied input are asserted.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.context_limit_content.unavailable_relationship",
+      "task": "content_type",
+      "label": "CONTEXT_LIMIT_CONTENT",
+      "split": "train",
+      "template": "We cannot establish ownership of {obj} from this excerpt alone.",
+      "rationale": "Only availability/limitations of the supplied input are asserted.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.context_limit_content.limited_scope",
+      "task": "content_type",
+      "label": "CONTEXT_LIMIT_CONTENT",
+      "split": "validation",
+      "template": "Only the supplied material is available, and it does not establish the price of {obj}.",
+      "rationale": "Only availability/limitations of the supplied input are asserted.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.context_limit_content.bounded_confirmation",
+      "task": "content_type",
+      "label": "CONTEXT_LIMIT_CONTENT",
+      "split": "validation",
+      "template": "Whether {obj} was repaired cannot be confirmed from the given record.",
+      "rationale": "Only availability/limitations of the supplied input are asserted.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.context_limit_content.context_omission",
+      "task": "content_type",
+      "label": "CONTEXT_LIMIT_CONTENT",
+      "split": "selection",
+      "template": "The current context omits the delivery date of {obj}.",
+      "rationale": "Only availability/limitations of the supplied input are asserted.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.context_limit_content.unanswerable_from_input",
+      "task": "content_type",
+      "label": "CONTEXT_LIMIT_CONTENT",
+      "split": "selection",
+      "template": "With the provided passage alone, the dimensions of {obj} remain undetermined.",
+      "rationale": "Only availability/limitations of the supplied input are asserted.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.mixed_content.fact_inference",
+      "task": "content_type",
+      "label": "MIXED_CONTENT",
+      "split": "train",
+      "template": "{s} is {state}. This suggests poor management in the {place}.",
+      "rationale": "At least two semantic policies are present; compatibility is fail-closed.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.mixed_content.fact_invention",
+      "task": "content_type",
+      "label": "MIXED_CONTENT",
+      "split": "train",
+      "template": "{s} is {state}; in a new fictional sequel it becomes a dragon.",
+      "rationale": "At least two semantic policies are present; compatibility is fail-closed.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.mixed_content.fact_context",
+      "task": "content_type",
+      "label": "MIXED_CONTENT",
+      "split": "train",
+      "template": "{s} is {state}, but the supplied context omits its size.",
+      "rationale": "At least two semantic policies are present; compatibility is fail-closed.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.mixed_content.inference_invention",
+      "task": "content_type",
+      "label": "MIXED_CONTENT",
+      "split": "train",
+      "template": "This suggests disorder in the {place}; in a newly invented scene {s} learns to dance.",
+      "rationale": "At least two semantic policies are present; compatibility is fail-closed.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.mixed_content.inference_context",
+      "task": "content_type",
+      "label": "MIXED_CONTENT",
+      "split": "train",
+      "template": "The pattern implies caution in the {place}, although the supplied record gives no dates.",
+      "rationale": "At least two semantic policies are present; compatibility is fail-closed.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.mixed_content.invention_context",
+      "task": "content_type",
+      "label": "MIXED_CONTENT",
+      "split": "train",
+      "template": "Imagine a new flying {obj}; the supplied excerpt says nothing about its color.",
+      "rationale": "At least two semantic policies are present; compatibility is fail-closed.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.mixed_content.premise_embedded_conclusion",
+      "task": "content_type",
+      "label": "MIXED_CONTENT",
+      "split": "validation",
+      "template": "{s} moved at noon, so the {place} seems inefficient.",
+      "rationale": "At least two semantic policies are present; compatibility is fail-closed.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.mixed_content.invention_fact",
+      "task": "content_type",
+      "label": "MIXED_CONTENT",
+      "split": "validation",
+      "template": "In our original fable {s} reads minds; in the actual {place} it is {state}.",
+      "rationale": "At least two semantic policies are present; compatibility is fail-closed.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.mixed_content.context_world",
+      "task": "content_type",
+      "label": "MIXED_CONTENT",
+      "split": "selection",
+      "template": "The supplied record names no maker, but {s} weighs four kilograms.",
+      "rationale": "At least two semantic policies are present; compatibility is fail-closed.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.mixed_content.three_policies",
+      "task": "content_type",
+      "label": "MIXED_CONTENT",
+      "split": "selection",
+      "template": "{s} is {state}; that implies neglect, so invent a new singing replacement.",
+      "rationale": "At least two semantic policies are present; compatibility is fail-closed.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.ambiguous.hypothetical_status",
+      "task": "content_type",
+      "label": "AMBIGUOUS",
+      "split": "train",
+      "template": "Suppose {s} begins to glow.",
+      "rationale": "Unspecified whether analytical hypothesis, invention or instruction.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.ambiguous.deictic_instruction",
+      "task": "content_type",
+      "label": "AMBIGUOUS",
+      "split": "train",
+      "template": "Let {s} move next.",
+      "rationale": "Could be world-directed instruction or newly invented plot.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.ambiguous.unmarked_fragment",
+      "task": "content_type",
+      "label": "AMBIGUOUS",
+      "split": "train",
+      "template": "{s}: a promising beginning.",
+      "rationale": "Fragment does not settle factual description versus evaluation/story framing.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.ambiguous.unmarked_future",
+      "task": "content_type",
+      "label": "AMBIGUOUS",
+      "split": "validation",
+      "template": "Perhaps {s} will find a way out.",
+      "rationale": "Epistemic prediction versus invented continuation cannot be settled from this text.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    },
+    {
+      "family_id": "content_type.ambiguous.quoted_meta",
+      "task": "content_type",
+      "label": "AMBIGUOUS",
+      "split": "selection",
+      "template": "'{s}' is the missing element.",
+      "rationale": "The subject may refer to a wording gap or a world object; content type is unresolved.",
+      "variant_count": 10,
+      "review": "Design-derived semantic family review; not independent human adjudication."
+    }
+  ],
+  "distributions": {
+    "atomicity": {
+      "total": 450,
+      "labels": {
+        "ATOMIC": 200,
+        "NON_ATOMIC": 200,
+        "AMBIGUOUS": 50
+      },
+      "splits": {
+        "train": 270,
+        "validation": 90,
+        "selection": 90
+      }
+    },
+    "content_type": {
+      "total": 550,
+      "labels": {
+        "SOURCE_FACT_CONTENT": 100,
+        "INTERPRETATION_CONTENT": 100,
+        "CREATIVE_CONTENT": 100,
+        "CONTEXT_LIMIT_CONTENT": 100,
+        "MIXED_CONTENT": 100,
+        "AMBIGUOUS": 50
+      },
+      "splits": {
+        "train": 330,
+        "validation": 110,
+        "selection": 110
+      }
+    }
+  },
+  "ambiguous_policy": "AMBIGUOUS controls are excluded from hard supervised targets; used for validation/uncertainty and held-out evaluation only."
+}

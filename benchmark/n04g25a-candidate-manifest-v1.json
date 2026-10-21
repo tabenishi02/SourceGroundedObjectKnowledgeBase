@@ -1,0 +1,191 @@
+{
+  "schema_version": "sgokb.g25a.candidates/1",
+  "status": "preregistered_pending_artifact_identity_lock",
+  "confirmation_execution": "PROHIBITED in this task",
+  "tasks": {
+    "atomicity": {
+      "supervised_classes": [
+        "ATOMIC",
+        "NON_ATOMIC"
+      ],
+      "output_classes": [
+        "ATOMIC",
+        "NON_ATOMIC",
+        "AMBIGUOUS"
+      ]
+    },
+    "content_type": {
+      "supervised_classes": [
+        "SOURCE_FACT_CONTENT",
+        "INTERPRETATION_CONTENT",
+        "CREATIVE_CONTENT",
+        "CONTEXT_LIMIT_CONTENT",
+        "MIXED_CONTENT"
+      ],
+      "output_classes": [
+        "SOURCE_FACT_CONTENT",
+        "INTERPRETATION_CONTENT",
+        "CREATIVE_CONTENT",
+        "CONTEXT_LIMIT_CONTENT",
+        "MIXED_CONTENT",
+        "AMBIGUOUS"
+      ]
+    }
+  },
+  "input_boundary": "Each model receives text only; C2 additionally scores every fixed class definition. Evaluation role/required/critical/Gold metadata never enters model input.",
+  "seed": 20261021,
+  "common_training": {
+    "max_length": 128,
+    "train_partitions": [
+      "train"
+    ],
+    "checkpoint_selection_partition": "validation",
+    "supervised_ambiguous_controls": false,
+    "selection_partition_access": "inference only after all checkpoint/policy locks; never tune from selection",
+    "epochs": 3,
+    "learning_rate": 2e-05,
+    "per_device_batch_size": 8,
+    "weight_decay": 0.01,
+    "optimizer": "AdamW",
+    "checkpoint_selection": "lowest validation cross-entropy among fixed epochs; ties use earlier epoch",
+    "attention_implementation": "eager",
+    "precision": "float32",
+    "deterministic_inference": true,
+    "repeats": 3
+  },
+  "candidates": [
+    {
+      "candidate_id": "c1a-modernbert-base",
+      "model_repository": "answerdotai/ModernBERT-base",
+      "family": "sequence_classifier",
+      "tasks": [
+        "atomicity",
+        "content_type"
+      ],
+      "exact_revision": null,
+      "status": "pending_acquisition",
+      "fine_tune": true
+    },
+    {
+      "candidate_id": "c1b-deberta-v3-base",
+      "model_repository": "microsoft/deberta-v3-base",
+      "family": "sequence_classifier",
+      "tasks": [
+        "atomicity",
+        "content_type"
+      ],
+      "exact_revision": null,
+      "status": "pending_acquisition",
+      "fine_tune": true
+    },
+    {
+      "candidate_id": "c2-nli-deberta-v3-base",
+      "model_repository": "cross-encoder/nli-deberta-v3-base",
+      "family": "cross_encoder_zero_shot",
+      "tasks": [
+        "atomicity",
+        "content_type"
+      ],
+      "exact_revision": null,
+      "status": "pending_acquisition",
+      "fine_tune": false,
+      "score": "entailment probability for every frozen class-definition pair, then normalize across all classes; entailment label mapping must be resolved from exact config before selection; no manual ambiguous mapping fallback"
+    },
+    {
+      "candidate_id": "c3-setfit-minilm-l6-v2",
+      "model_repository": "sentence-transformers/all-MiniLM-L6-v2",
+      "family": "setfit",
+      "tasks": [
+        "atomicity",
+        "content_type"
+      ],
+      "exact_revision": null,
+      "status": "pending_acquisition",
+      "fine_tune": true,
+      "few_shot_per_class": 16,
+      "sampling": "fixed seed from train only",
+      "num_iterations": 10,
+      "body_epochs": 1,
+      "body_batch_size": 16,
+      "head": "standard sklearn LogisticRegression",
+      "head_params": {
+        "max_iter": 1000,
+        "random_state": 20261021
+      }
+    }
+  ],
+  "C0": {
+    "selectable": false,
+    "mode": "historical reference only; no historical labels as training targets or joint judge revival"
+  },
+  "class_definitions": {
+    "atomicity": {
+      "ATOMIC": "The text contains at most one material proposition independently assessable under one grounding policy.",
+      "NON_ATOMIC": "The text combines two or more material propositions whose grounding verdicts can differ, or mixes grounding policies.",
+      "AMBIGUOUS": "The boundary between one and multiple material propositions is genuinely unresolved from this text."
+    },
+    "content_type": {
+      "SOURCE_FACT_CONTENT": "The text asserts factual content about the source world, regardless of whether it is true or supported.",
+      "INTERPRETATION_CONTENT": "The text states an inferential, comparative or evaluative conclusion without restating factual premises.",
+      "CREATIVE_CONTENT": "The text explicitly proposes newly invented fictional material rather than asserting source-world knowledge.",
+      "CONTEXT_LIMIT_CONTENT": "The text states only what the supplied context or evidence does not establish or make available.",
+      "MIXED_CONTENT": "The text combines material from two or more of factual assertion, interpretation, invention or context availability.",
+      "AMBIGUOUS": "The semantic content type cannot be determined safely from the text alone."
+    }
+  },
+  "abstention": {
+    "fit_partition": "validation only",
+    "min_confidence_grid": [
+      0.0,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      0.95,
+      0.99
+    ],
+    "min_margin_grid": [
+      0.0,
+      0.05,
+      0.1,
+      0.2,
+      0.3
+    ],
+    "rule": "Return AMBIGUOUS if top probability below confidence or top1-top2 below margin; otherwise top class.",
+    "validation_choice_order": [
+      "critical errors ascending",
+      "required false rejects ascending",
+      "macro F1 descending",
+      "confidence ascending",
+      "margin ascending"
+    ],
+    "freeze_scope": "all candidate/task checkpoints and policies before first selection inference"
+  },
+  "selection": {
+    "hard_gates": "zero critical false-pass, zero required-valid false-reject, exact labels across 3 repeats for required/critical rows",
+    "ranking": [
+      "non-ambiguous-row ambiguity ascending",
+      "macro F1 descending",
+      "mean class recall descending",
+      "median latency ascending",
+      "peak VRAM ascending",
+      "artifact bytes ascending",
+      "manifest order"
+    ],
+    "no_forced_selection": true,
+    "partial_task_pass": "record independent task winners; no full-pair PASS unless both tasks pass; missing task retains no-selection/block",
+    "confirmation": "not started; do not provide any development command that loads the historical final-confirmation corpus"
+  },
+  "runtime_isolation": {
+    "root": ".local/n04-v4/g25a/",
+    "production_dependencies_changed": false,
+    "identity_lock_required_before_selection": true,
+    "missing_revision_or_license_metadata": "remain preparation-blocked; do not invent identity",
+    "incompatible_candidate": "record reason, retain frozen pool; no replacement model"
+  },
+  "development_quality_limitations": [
+    "Synthetic design-family labels are not independently human-adjudicated.",
+    "Neutral lexical banks and construction families are held out jointly; corpus size alone is not proof of real-data coverage."
+  ]
+}
