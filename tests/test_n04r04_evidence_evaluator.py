@@ -87,6 +87,11 @@ def _build_valid_evidence(tmp_path: Path) -> None:
     tsundere = "8c83f986-f491-41a8-8645-9f71dd5874b9"
     journey = "fee32007-0f92-449a-ba21-4ec2f78d1cd4"
 
+    _write(tmp_path / "environment.json", {"status": "fixture"})
+    _write(tmp_path / "mcp-tools.json", {"tools": []})
+    (tmp_path / "focused-pytest.log").write_text("PASS\n", encoding="utf-8")
+    (tmp_path / "full-pytest.log").write_text("PASS\n", encoding="utf-8")
+
     _write(
         tmp_path / "case-1-roleplay" / "request.json",
         {
@@ -117,7 +122,12 @@ def _build_valid_evidence(tmp_path: Path) -> None:
         tmp_path / "case-2-comparison" / "similarity-request.json",
         {
             "tool": "find_similar_objects",
-            "arguments": {"object_id": fate, "limit": 5},
+            "arguments": {
+                "object_id": fate,
+                "cross_class": False,
+                "include_archived": False,
+                "limit": 5,
+            },
         },
     )
     _write(
@@ -126,8 +136,14 @@ def _build_valid_evidence(tmp_path: Path) -> None:
             "tool_contract_version": "sgokb.mcp-read-tools.v1",
             "data": {
                 "source_object_id": fate,
-                "source_version_id": "version:fate",
-                "results": [{"object_id": bleach, "rank": 1}],
+                "source_version_id": "version:0",
+                "results": [
+                    {
+                        "object_id": bleach,
+                        "version_id": "version:1",
+                        "rank": 1,
+                    }
+                ],
             },
         },
     )
