@@ -15,6 +15,7 @@ N-04は2026-10-22にresponsibility boundaryを再構築しました。現行N-04
 - 全体タスク正本: [`project/KNOWLEDGE_BASE_REDESIGN_TASKS.md`](project/KNOWLEDGE_BASE_REDESIGN_TASKS.md)
 - N-04 Task master amendment: [`project/KNOWLEDGE_BASE_REDESIGN_TASKS_N04_AMENDMENT.md`](project/KNOWLEDGE_BASE_REDESIGN_TASKS_N04_AMENDMENT.md)
 - 全体handoff: [`project/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`](project/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md)
+- N-04 project handoff amendment: [`project/KNOWLEDGE_BASE_REDESIGN_HANDOFF_N04_AMENDMENT.md`](project/KNOWLEDGE_BASE_REDESIGN_HANDOFF_N04_AMENDMENT.md)
 - Phase N準備/状態: [`phases/N/PHASE_N_PREPARATION.md`](phases/N/PHASE_N_PREPARATION.md)
 - N-04 responsibility Decision: [`../decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`](../decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md)
 - N-04 current acceptance spec: [`../evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`](../evaluation/N04_AI_USE_CASE_ACCEPTANCE.md)
@@ -39,7 +40,8 @@ docs/planning/
 ├─ project/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_TASKS.md
 │  ├─ KNOWLEDGE_BASE_REDESIGN_TASKS_N04_AMENDMENT.md
-│  └─ KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
+│  ├─ KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
+│  └─ KNOWLEDGE_BASE_REDESIGN_HANDOFF_N04_AMENDMENT.md
 └─ phases/
    ├─ B/
    │  └─ object-type-refinement/
@@ -70,7 +72,7 @@ docs/planning/
 
 ### `project/`
 
-Phaseをまたぐ全体タスク・全体handoff・Task master amendmentを置きます。
+Phaseをまたぐ全体タスク・全体handoff・Task master / handoff amendmentを置きます。
 
 ### `phases/<Phase>/`
 
