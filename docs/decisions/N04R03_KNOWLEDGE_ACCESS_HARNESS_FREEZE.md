@@ -166,7 +166,7 @@ case spec:
 
 formal evaluator:
   benchmark/tools/n04r04_evaluate_evidence.py
-  ae7cc81ff3f731b08ea790078449c06f0bd25442
+  b960845477e384d06bc925564c92f20564ab62de
 ```
 
 `n04r03_harness_preflight.py`はこのbindingと、現行MCP / Context Builder contract version、代表3ケース、formal Gate集合、historical/current authority分離を検査する。
