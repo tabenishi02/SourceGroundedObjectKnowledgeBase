@@ -127,7 +127,7 @@ def _accepted_version(
     }
 
 
-def test_builder_covers_all_four_representation_kinds_and_hash_is_deterministic(repo):
+def test_builder_covers_active_legacy_and_evidence_kinds_and_hash_is_deterministic(repo):
     evidence = _evidence(repo)
     object_id = repo.object_store.create_object(
         "架空太郎", _class_id(repo), aliases=["Taro Example"]
@@ -135,15 +135,23 @@ def test_builder_covers_all_four_representation_kinds_and_hash_is_deterministic(
     version = _accepted_version(repo, object_id, evidence["evidence_id"], version_id="version-a")
     builder = SearchRepresentationBuilder(repo)
 
+    overview = builder.build_object_overview(version["version_id"])
     overall = builder.build_object_overall(version["version_id"])
     facet = builder.build_facet(version["version_id"], version["personality"])
     statement = builder.build_statement(version["statement_id"])
     evidence_representation = builder.build_evidence(evidence["evidence_id"])
 
+    assert overview.kind is SearchRepresentationKind.OBJECT_OVERVIEW
     assert overall.kind is SearchRepresentationKind.OBJECT_OVERALL
     assert facet.kind is SearchRepresentationKind.FACET
     assert statement.kind is SearchRepresentationKind.STATEMENT
     assert evidence_representation.kind is SearchRepresentationKind.EVIDENCE
+    assert overview.builder_version == "2"
+    assert overall.builder_version == "1"
+    assert facet.builder_version == "1"
+    assert statement.builder_version == "1"
+    assert evidence_representation.builder_version == "1"
+    assert builder.build_object_overview(version["version_id"]) == overview
     assert builder.build_statement(version["statement_id"]) == statement
 
     representation_id = builder.materialize_evidence(evidence["evidence_id"])
@@ -153,6 +161,41 @@ def test_builder_covers_all_four_representation_kinds_and_hash_is_deterministic(
         stored.content_hash
         == hashlib.sha256(evidence_representation.content.encode("utf-8")).hexdigest()
     )
+
+
+def test_object_overview_is_compact_and_does_not_copy_content_facet_statement(repo):
+    evidence = _evidence(repo)
+    object_id = repo.object_store.create_object(
+        "架空太郎", _class_id(repo), aliases=["Zulu", "Alpha"]
+    )
+    version = _accepted_version(
+        repo,
+        object_id,
+        evidence["evidence_id"],
+        version_id="version-overview",
+        statement_text="THIS-FACET-BODY-MUST-NOT-APPEAR",
+    )
+    builder = SearchRepresentationBuilder(repo)
+
+    overview = builder.build_object_overview(version["version_id"])
+    overall = builder.build_object_overall(version["version_id"])
+
+    assert overview.content == "\n".join(
+        [
+            "Object: 架空太郎",
+            "Aliases: Alpha, Zulu",
+            "Primary Class: character (Character)",
+            "Summary:",
+            "- [derivation=synthesis] 冷静で仲間思いの人物。",
+            "Facets:",
+            "- personality (Personality)",
+        ]
+    )
+    assert "THIS-FACET-BODY-MUST-NOT-APPEAR" not in overview.content
+    assert "THIS-FACET-BODY-MUST-NOT-APPEAR" in overall.content
+    assert version["statement_id"] not in overview.content
+    assert version["personality"] not in overview.content
+    assert "values" not in overview.content
 
 
 def test_statement_builder_adds_semantic_context_without_stable_ids(repo):
@@ -190,6 +233,41 @@ def test_non_content_facets_do_not_get_semantic_representations(repo):
         (version["version_id"], version["values"]),
     )
     assert values_memberships == []
+
+
+def test_r2_materialization_uses_overview_and_reuses_detail_memberships(repo):
+    evidence = _evidence(repo)
+    object_id = repo.object_store.create_object("架空太郎", _class_id(repo))
+    version = _accepted_version(
+        repo,
+        object_id,
+        evidence["evidence_id"],
+        version_id="version-r2",
+        with_temporal=False,
+    )
+    builder = SearchRepresentationBuilder(repo)
+
+    first = builder.materialize_version_r2(version["version_id"])
+    second = builder.materialize_version_r2(version["version_id"])
+    assert first == second
+
+    memberships = repo.semantic_store.knowledge_search_memberships(
+        object_id=object_id,
+        version_id=version["version_id"],
+    )
+    assert [row["target_kind"] for row in memberships].count("object_overview") == 1
+    assert not any(row["target_kind"] == "object_overall" for row in memberships)
+    assert any(row["target_kind"] == "facet" for row in memberships)
+    assert any(row["target_kind"] == "statement" for row in memberships)
+
+    overview_membership = next(
+        row for row in memberships if row["target_kind"] == "object_overview"
+    )
+    overview = repo.semantic_store.search_representation(
+        overview_membership["representation_id"]
+    )
+    assert overview.kind is SearchRepresentationKind.OBJECT_OVERVIEW
+    assert overview.builder_version == "2"
 
 
 def test_identical_content_reuses_representation_but_not_version_membership(repo):
@@ -267,7 +345,7 @@ def test_evidence_membership_preserves_canonical_generation_identity(repo):
     assert evidence["run_id"] not in content
 
 
-def test_relation_text_is_integrated_into_object_overall_not_a_separate_kind(repo):
+def test_relation_text_is_integrated_into_overview_without_new_relation_kind(repo):
     evidence = _evidence(repo)
     subject = repo.object_store.create_object("人物A", _class_id(repo))
     target = repo.object_store.create_object("人物B", _class_id(repo))
@@ -293,15 +371,20 @@ def test_relation_text_is_integrated_into_object_overall_not_a_separate_kind(rep
     )
     repo.version_store.accept_candidate(version_id)
 
-    built = SearchRepresentationBuilder(repo).build_object_overall(version_id)
-    assert "Relations:" in built.content
-    assert "人物A Mentor of 人物B" in built.content
+    builder = SearchRepresentationBuilder(repo)
+    overview = builder.build_object_overview(version_id)
+    overall = builder.build_object_overall(version_id)
+    assert "Relations:" in overview.content
+    assert "人物A mentor_of_i01 (Mentor of) 人物B" in overview.content
+    assert "人物A Mentor of 人物B" in overall.content
     assert {kind.value for kind in SearchRepresentationKind} == {
+        "object_overview",
         "object_overall",
         "facet",
         "statement",
         "evidence",
     }
+    assert not hasattr(SearchRepresentationKind, "OBJECT")
 
 
 def test_builder_rejects_candidate_version_and_derived_failure_does_not_rollback(repo):
@@ -309,6 +392,8 @@ def test_builder_rejects_candidate_version_and_derived_failure_does_not_rollback
     object_id = repo.object_store.create_object("架空太郎", _class_id(repo))
     candidate = repo.version_store.begin_candidate(object_id, None, version_id="candidate-a")
     builder = SearchRepresentationBuilder(repo)
+    with pytest.raises(ValueError, match="accepted"):
+        builder.build_object_overview(candidate)
     with pytest.raises(ValueError, match="accepted"):
         builder.build_object_overall(candidate)
 
