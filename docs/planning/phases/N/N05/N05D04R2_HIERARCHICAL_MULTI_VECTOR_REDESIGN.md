@@ -3,11 +3,14 @@
 Updated: 2026-10-23
 
 - Parent: `N-05 [P0] — Performance`
-- Status: **Accepted direction / Design change planning**
+- Status: **Active / R2-01〜R2-03 Design Freeze complete / implementation pending**
 - Decision: **replace the giant active `object_overall` embedding path with hierarchical multi-representation retrieval**
 - Trigger: N05D-02 / N05D-04 showed that the 18,847-token Large `object_overall` enters a severe full-attention / WDDM shared-memory regime on the Reference Workstation.
 - Model during redesign baseline: **Harrier OSS v1 0.6B remains fixed**.
-- Formal N-05: **BLOCKED / Not Complete** until this redesign is accepted, implemented, quality-validated, and formally remeasured.
+- Formal N-05: **BLOCKED / Not Complete** until this redesign is implemented, quality-validated, and formally remeasured.
+- R2-01 freeze: `docs/planning/phases/N/N05/N05D04R2_IMPACT_SURVEY.md`
+- R2-02 freeze: `docs/planning/phases/N/N05/N05D04R2_REQUIREMENTS_REPRESENTATION_CONTRACT.md`
+- R2-03 freeze: `docs/planning/phases/N/N05/N05D04R2_PERSISTENCE_VERSIONING_MIGRATION_DESIGN.md`
 
 ## 1. Decision
 
@@ -85,9 +88,9 @@ After accepted cutover:
 - new/current active materialization uses `object_overview`;
 - old `object_overall` membership/vector artifacts are not used by normal current retrieval;
 - historical diagnostic evidence is retained according to existing evidence-retention rules;
-- rollback remains possible without modifying canonical Knowledge.
+- rollback remains possible without modifying canonical Knowledge while the old generation remains compatibility-eligible.
 
-Do not reuse the name `object_overall` for materially different v2 semantics unless the design task explicitly proves that compatibility is safer than a new kind. The default plan is a new `object_overview` kind.
+`object_overall` is not renamed or reinterpreted as `object_overview`.
 
 ### 3.3 Facet and Statement representations
 
@@ -113,7 +116,7 @@ optional Derivation
 Statement text
 ```
 
-Their exact builder/version migration rules must be reviewed, but this redesign does not intentionally remove their current semantic content.
+R2-02 fixes their existing byte-level content contract as version 1 unless a later explicit design change modifies that content.
 
 ## 4. Search architecture after redesign
 
@@ -139,22 +142,22 @@ query
 
 `semantic_object_overall` becomes `semantic_object_overview` in the active design.
 
-Existing contribution-cap and RRF behavior is not automatically changed. It must be regression-tested and adjusted only with quality evidence.
+The first R2 baseline keeps the accepted Phase-I RRF/contribution-cap values unless later R2 quality evidence requires a separately justified change.
 
 ### 4.2 Object Similarity
 
-The current overall similarity path directly compares one source `object_overall` vector with candidate `object_overall` vectors. That contract must change because the giant vector is being retired.
+The current overall similarity path directly compares one source `object_overall` vector with candidate `object_overall` vectors. That contract changes because the giant vector is retired.
 
-The new `find_similar_objects(..., facet=None)` must become a hierarchical multi-vector similarity operation rather than silently treating the compact overview as equivalent to all detailed Knowledge.
+The new `find_similar_objects(..., facet=None)` is a hierarchical multi-vector similarity operation rather than treating the compact overview as equivalent to all detailed Knowledge.
 
-The detailed aggregation algorithm is a design task. It must evaluate at least:
+The semantic components are:
 
 ```text
 object_overview ↔ object_overview broad similarity
 same-Facet ↔ same-Facet similarity
 bounded Statement-level evidence contribution
-candidate-level aggregation with contribution caps
-explainable matched Facet / Statement evidence
+candidate-level bounded aggregation
+explainable matched overview / Facet / Statement evidence
 ```
 
 Requirements:
@@ -163,10 +166,11 @@ Requirements:
 - Object size / Statement count must not create unbounded score boost;
 - source/candidate current-historical and Class filters remain correct;
 - Facet-specific similarity retains same-Facet semantics;
-- raw similarity/ranking score is never treated as truth/confidence;
-- result evidence must retain representation/membership identity.
+- final overall score type is `hierarchical_similarity`, not raw cosine;
+- score is never treated as truth/confidence;
+- result evidence retains representation/membership identity.
 
-The algorithm must avoid `O(all source statements × all candidate statements)` unbounded execution. Candidate generation and bounded second-stage aggregation must be designed and benchmarked explicitly.
+The exact bounded aggregation algorithm/caps/weights remain R2-06 implementation/evaluation work. It must avoid `O(all source statements × all candidate statements)` unbounded execution.
 
 ## 5. Embedding model policy during redesign
 
@@ -188,33 +192,104 @@ Reason:
 
 N05D-04R1 attention-backend experimentation is retained as diagnostic evidence but is not the primary remediation path after this decision.
 
-## 6. Data / schema / versioning impact
+## 6. Data / schema / versioning impact — R2-03 resolved
 
-The redesign is Derived Search only. Canonical Object Knowledge, Source, Evidence, Version, Facet, Statement, Attribute, and Relation data must not be rewritten to implement it.
+The redesign is Derived Search only. Canonical Object Knowledge, Source, Evidence, Version, Facet, Statement, Attribute, and Relation data are not rewritten to implement it.
 
-Expected affected contracts/assets include:
+R2-03 fixes the persistence/versioning contract as follows.
+
+### 6.1 Representation kind persistence
+
+Active/legacy kinds coexist in persistence during migration:
 
 ```text
-docs/requirements/SEARCH_REQUIREMENTS.md
-docs/design/SEARCH_REPRESENTATION_SCHEMA.md
-docs/design/HYBRID_SEARCH_OBJECT_AGGREGATION.md
-docs/design/OBJECT_SIMILARITY_SEARCH.md
-docs/design/EMBEDDING_PROVIDER_MODEL_EVALUATION.md     # status/baseline note only if needed
-src/sgokb/domain/knowledge.py                          # representation kind contract
-src/sgokb/retrieval/search_representation.py
-src/sgokb/retrieval/hybrid_search.py
-src/sgokb/retrieval/object_similarity.py or equivalent
-src/sgokb/storage/semantic_repository.py
-Derived Search migrations / rebuild tooling
-Qdrant membership/index rebuild path
-search-quality gold / benchmark assets
-N-05 benchmark evidence / documentation
-N-06 Retrieval / Vector quality evaluation inputs
+object_overview  # active R2
+object_overall   # legacy v1 readable only
+facet
+statement
+evidence
 ```
 
-Schema/migration design must decide how `object_overview` is represented in persistent kind constraints and how v1 `object_overall` remains readable during transition.
+Existing `object_overall` rows are preserved and never relabeled to overview.
 
-## 7. Migration and cutover strategy
+### 6.2 Builder version
+
+```text
+builder_key      = sgokb-canonical-search
+object_overall   = builder version 1 / legacy only
+object_overview  = builder version 2
+facet            = builder version 1 while unchanged
+statement        = builder version 1 while unchanged
+evidence         = builder version 1 / unaffected
+```
+
+Builder content-contract version is separate from Derived Search generation identity.
+
+### 6.3 Forward migration
+
+The next migration is reserved as:
+
+```text
+018_search_generation_contract.sql
+```
+
+Historical migrations are not edited.
+
+Migration 018 is a schema/coexistence migration. It does not perform R2 cutover and does not delete v1 artifacts.
+
+### 6.4 Knowledge Search generation identity
+
+R2 introduces explicit Knowledge Search generations.
+
+Conceptually:
+
+```text
+Phase-I v1 generation
+  object_overall + facet + statement
+
+R2 v2 generation
+  object_overview + facet + statement
+```
+
+Generation membership is stored by a separate generation→Knowledge-membership link. Existing Facet/Statement membership identity is not duplicated merely because both generations use it.
+
+### 6.5 Embedding reuse
+
+Embedding identity remains:
+
+```text
+representation_id + embedding_space_id
+```
+
+Therefore unchanged Facet/Statement embeddings may be reused in the same Harrier space; an `object_overview` cannot reuse an `object_overall` embedding.
+
+### 6.6 Vector generation identity
+
+Vector namespace identity becomes:
+
+```text
+Knowledge Search generation
++ Embedding Space
++ Vector backend
+```
+
+The v2 candidate receives a fresh Qdrant namespace rather than rebuilding the serving v1 collection in place.
+
+Vector point identity remains Knowledge membership ID inside one generation-specific namespace. Payload gains generation identity for defensive verification.
+
+### 6.7 Active routing
+
+One explicit SQLite active-generation pointer is the serving truth.
+
+Normal Knowledge lexical/semantic/similarity operations resolve this generation once at request start and must not mix generations across channels.
+
+Evidence Search remains outside this Knowledge generation contract.
+
+The normative persistence/migration design is:
+
+`docs/planning/phases/N/N05/N05D04R2_PERSISTENCE_VERSIONING_MIGRATION_DESIGN.md`.
+
+## 7. Migration and cutover strategy — R2-03 resolved
 
 Use a side-by-side Derived Search migration. Do not destructively overwrite v1 artifacts first.
 
@@ -222,16 +297,21 @@ Target flow:
 
 ```text
 canonical accepted Knowledge
-  ├─ build v1 historical object_overall      # retained until acceptance
-  └─ build v2 object_overview + facet + statement
+  ├─ Phase-I v1 generation                 # retained serving/rollback candidate
+  └─ R2 v2 candidate generation
+       ├─ object_overview v2 membership
+       ├─ reusable facet v1 memberships
+       └─ reusable statement v1 memberships
                 ↓
-        embed / index in isolated candidate state
+        reuse/generate Harrier embeddings
                 ↓
-        quality + similarity + performance evaluation
+        build isolated generation-specific Qdrant namespace
                 ↓
-        accepted cutover
+        membership/digest/payload/quality validation
                 ↓
-        current retrieval uses v2 active memberships
+        atomic SQLite active-generation pointer switch
+                ↓
+        current retrieval uses v2 only
 ```
 
 Required safety properties:
@@ -239,11 +319,14 @@ Required safety properties:
 - canonical DB content unchanged;
 - old formal/diagnostic evidence untouched;
 - old active Vector state not deleted before candidate rebuild and validation;
-- failed candidate rebuild cannot leave current retrieval half-switched;
-- rollback to the previous Derived Search generation is possible without canonical rollback;
+- failed/interrupted candidate rebuild leaves active pointer unchanged;
+- active retrieval never infers the newest generation automatically;
+- v1/v2 Knowledge candidate sets are never unioned in one normal request;
+- old v1 remains a rollback target only while its catalog/integrity state is compatible;
+- rollback changes Derived Search routing only and never rolls back canonical Knowledge;
 - stale v1 memberships cannot silently mix with current v2 results after cutover.
 
-Whether side-by-side state requires a new builder version only, a new representation kind, a new Embedding Space identity, a new Vector namespace/generation marker, or a combination is resolved before implementation.
+Cutover is a routing transaction after the candidate artifacts already exist; Qdrant mutation is not performed inside the switch transaction.
 
 ## 8. Resource acceptance goals
 
@@ -281,6 +364,7 @@ At minimum:
 - current/historical, Class, Facet, temporal, derivation filters remain intact;
 - overall Object Similarity receives dedicated new gold cases that require detailed Facet/Statement semantics, not only names/summaries;
 - ranking explanations retain matched representation/membership identity;
+- generation isolation/no-mixing is explicitly checked;
 - N-06 evaluation is rerun or extended as required before final design acceptance.
 
 No model downgrade is used to mask a representation-quality regression.
@@ -299,7 +383,7 @@ Standard warm p95 <= 600 s
 Large warm p95    <= 1200 s
 ```
 
-The benchmark must record the new representation/builder identity so v1 and v2 results cannot be confused.
+The benchmark must record the active generation and representation/builder identity so v1 and v2 results cannot be confused.
 
 ## 11. Non-goals
 
@@ -317,7 +401,22 @@ This redesign does not automatically:
 
 Any of those may become a separate future task only if evidence requires it.
 
-## 12. Completion condition
+## 12. Current execution state
+
+```text
+R2-01 Impact survey / redesign freeze                    Complete
+R2-02 Requirements + representation contract revision   Complete
+R2-03 Persistence/versioning/migration design            Complete
+R2-04 object_overview builder implementation             Next
+R2-05 Hybrid Search migration                            Not Started
+R2-06 Hierarchical Object Similarity redesign            Not Started
+R2-07 Derived Search rebuild / cutover / rollback        Not Started
+R2-08 Search-quality acceptance                          Not Started
+R2-09 Performance/resource + formal N-05 rerun           Not Started
+R2-10 Closure                                            Not Started
+```
+
+## 13. Completion condition
 
 N05D-04R2 is complete only when:
 
