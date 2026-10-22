@@ -14,6 +14,7 @@ import math
 import platform
 import shutil
 import subprocess
+import sys
 import traceback
 import urllib.request
 import uuid
@@ -21,6 +22,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "src"))
 DEFAULT_FIELDS = {
     "membership_id": "keyword",
     "representation_id": "keyword",
@@ -426,12 +428,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         probe = direct_probe(
             url=args.url,
             grpc_port=args.grpc_port,
-            collection=f"{prefix}_repeat_{index + 1:02d}",
+            collection=f"{prefix}_repeat_{index:02d}",
             indexed=True,
             point_count=args.point_count,
         )
         repeated.append(probe)
-        if probe["status"] != "PASS" and args.stop_on_first_failure:
+        if probe.get("status") != "PASS":
             break
     report["probes"]["direct_indexed_repeated"] = repeated
     report["diagnosis"] = classify(report)
@@ -444,16 +446,25 @@ def main() -> int:
     parser.add_argument("--url", default="http://localhost:6333")
     parser.add_argument("--http-port", type=int, default=6333)
     parser.add_argument("--grpc-port", type=int, default=6334)
-    parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--prefix")
     parser.add_argument("--point-count", type=int, default=256)
     parser.add_argument("--repeat-indexed", type=int, default=5)
-    parser.add_argument("--stop-on-first-failure", action="store_true")
+    parser.add_argument("--prefix")
     parser.add_argument("--storage-path", action="append", default=[])
+    parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    report = run(args)
-    print(json.dumps(report["diagnosis"], ensure_ascii=False, indent=2))
-    return 0 if report["diagnosis"]["classification"] == "NOT_REPRODUCED" else 1
+    try:
+        report = run(args)
+    except BaseException as exc:
+        write_json(
+            args.output,
+            {
+                "schema_version": "sgokb.n05d01.qdrant-diagnosis.v1",
+                "fatal_error": _error(exc),
+            },
+        )
+        raise
+    classification = report.get("diagnosis", {}).get("classification")
+    return 0 if classification == "NOT_REPRODUCED" else 1
 
 
 if __name__ == "__main__":
