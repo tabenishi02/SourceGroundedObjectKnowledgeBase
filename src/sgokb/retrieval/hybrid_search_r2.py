@@ -322,7 +322,11 @@ class HybridObjectSearch(_PhaseIHybridObjectSearch):
     ) -> tuple[list[dict], tuple[str, ...]]:
         generation = self._current_generation()
         if generation.generation_id is None:
-            return super()._semantic_hits(query, filters, limit)
+            rows, degraded = super()._semantic_hits(query, filters, limit)
+            for row in rows:
+                if row.get("channel") is ObjectSearchChannel.SEMANTIC_OBJECT:
+                    row["channel"] = ObjectSearchChannel.SEMANTIC_OBJECT_OVERALL
+            return rows, degraded
         if self.embedding_provider is None or self.vector_index is None:
             raise RuntimeError(
                 "Semantic search requires an EmbeddingProvider and VectorIndexAdapter"
