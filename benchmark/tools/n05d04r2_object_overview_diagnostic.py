@@ -1,14 +1,18 @@
 """Exact R2 object_overview size diagnostic for an accepted N-05 sample database.
 
-This tool does not embed, truncate, rebuild Qdrant, or mutate canonical/derived data.
-It builds the deterministic R2 object_overview in memory and tokenizes it with the
-frozen Harrier model tokenizer at the frozen revision.
+The source database is opened read-only and backed up to a temporary working copy
+before Repository migrations/building are allowed to run. The tool does not embed,
+truncate, rebuild Qdrant, or mutate the supplied benchmark database. It builds the
+deterministic R2 object_overview in memory and tokenizes it with the frozen Harrier
+model tokenizer at the frozen revision.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import sqlite3
+import tempfile
 from pathlib import Path
 
 from sgokb.repository import Repository
@@ -44,6 +48,66 @@ def _resolve_version(repo: Repository, object_id: str, version_id: str | None) -
     return current
 
 
+def _build_overview_from_read_only_copy(
+    database: Path,
+    *,
+    object_id: str,
+    version_id: str | None,
+    require_large_fixture: bool,
+):
+    database = database.resolve()
+    if not database.is_file():
+        raise ValueError(f"Database does not exist: {database}")
+
+    with tempfile.TemporaryDirectory(prefix="sgokb-r2-overview-") as temporary:
+        copied_database = Path(temporary) / "diagnostic.sqlite"
+        source = sqlite3.connect(database.as_uri() + "?mode=ro", uri=True)
+        destination = sqlite3.connect(copied_database)
+        try:
+            source.backup(destination)
+        finally:
+            destination.close()
+            source.close()
+
+        repo = Repository(copied_database)
+        try:
+            resolved_version = _resolve_version(repo, object_id, version_id)
+            statement_count = repo.one(
+                "SELECT count(*) AS n FROM knowledge_statements WHERE version_id=?",
+                (resolved_version,),
+            )["n"]
+            facet_statement_count = repo.one(
+                """SELECT count(*) AS n FROM knowledge_statements
+                   WHERE version_id=? AND facet_id IS NOT NULL""",
+                (resolved_version,),
+            )["n"]
+            summary_statement_count = statement_count - facet_statement_count
+            content_facet_count = repo.one(
+                """SELECT count(*) AS n FROM object_version_facets
+                   WHERE version_id=? AND status='content'""",
+                (resolved_version,),
+            )["n"]
+
+            if require_large_fixture and statement_count != N05_LARGE_EXPECTED_STATEMENT_COUNT:
+                raise ValueError(
+                    "Expected the frozen N-05 Large fixture with exactly "
+                    f"{N05_LARGE_EXPECTED_STATEMENT_COUNT} Statements; got {statement_count}"
+                )
+
+            overview = SearchRepresentationBuilder(repo).build_object_overview(resolved_version)
+        finally:
+            repo.close()
+
+    return (
+        resolved_version,
+        statement_count,
+        summary_statement_count,
+        facet_statement_count,
+        content_facet_count,
+        overview,
+    )
+
+
 def diagnose(
     database: Path,
     *,
@@ -59,34 +123,19 @@ def diagnose(
             "Exact Harrier token diagnostic requires the local-embedding/transformers runtime"
         ) from exc
 
-    repo = Repository(database)
-    try:
-        resolved_version = _resolve_version(repo, object_id, version_id)
-        statement_count = repo.one(
-            "SELECT count(*) AS n FROM knowledge_statements WHERE version_id=?",
-            (resolved_version,),
-        )["n"]
-        facet_statement_count = repo.one(
-            """SELECT count(*) AS n FROM knowledge_statements
-               WHERE version_id=? AND facet_id IS NOT NULL""",
-            (resolved_version,),
-        )["n"]
-        summary_statement_count = statement_count - facet_statement_count
-        content_facet_count = repo.one(
-            """SELECT count(*) AS n FROM object_version_facets
-               WHERE version_id=? AND status='content'""",
-            (resolved_version,),
-        )["n"]
-
-        if require_large_fixture and statement_count != N05_LARGE_EXPECTED_STATEMENT_COUNT:
-            raise ValueError(
-                "Expected the frozen N-05 Large fixture with exactly "
-                f"{N05_LARGE_EXPECTED_STATEMENT_COUNT} Statements; got {statement_count}"
-            )
-
-        overview = SearchRepresentationBuilder(repo).build_object_overview(resolved_version)
-    finally:
-        repo.close()
+    (
+        resolved_version,
+        statement_count,
+        summary_statement_count,
+        facet_statement_count,
+        content_facet_count,
+        overview,
+    ) = _build_overview_from_read_only_copy(
+        database,
+        object_id=object_id,
+        version_id=version_id,
+        require_large_fixture=require_large_fixture,
+    )
 
     tokenizer = AutoTokenizer.from_pretrained(
         DEFAULT_EMBEDDING_MODEL,
@@ -104,7 +153,8 @@ def diagnose(
 
     return {
         "diagnostic": "N05D04R2 object_overview exact token count",
-        "database": str(database),
+        "database": str(database.resolve()),
+        "source_database_mutated": False,
         "object_id": object_id,
         "version_id": resolved_version,
         "representation_kind": overview.kind.value,
