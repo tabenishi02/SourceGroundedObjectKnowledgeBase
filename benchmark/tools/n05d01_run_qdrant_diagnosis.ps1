@@ -34,17 +34,39 @@ $meta | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $RunRoot "
 $python = (Get-Command python).Source
 $tool = Join-Path $RepoRoot "benchmark\tools\n05d01_qdrant_storage_diagnosis.py"
 
+function Invoke-DiagnosticPython {
+    param(
+        [string[]]$Arguments,
+        [string]$LogPath
+    )
+
+    # Windows PowerShell 5.1 turns native stderr into PowerShell ErrorRecords.
+    # With the script-wide ErrorActionPreference=Stop, the first Python traceback
+    # line would otherwise terminate this runner before the diagnostic exit code
+    # and complete traceback can be preserved as evidence.
+    $previousPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = "Continue"
+        & $python $tool @Arguments *> $LogPath
+        return $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $previousPreference
+    }
+}
+
 # Probe the currently running Reference Workstation server without restarting it.
-& $python $tool `
-    --url "http://localhost:6333" `
-    --http-port 6333 `
-    --grpc-port 6334 `
-    --point-count $PointCount `
-    --repeat-indexed $RepeatIndexed `
-    --storage-path (Join-Path $RepoRoot ".local\n04p06\qdrant") `
-    --output (Join-Path $RunRoot "current-server.json") `
-    *> (Join-Path $RunRoot "current-server.log")
-$currentExit = $LASTEXITCODE
+$currentArgs = @(
+    "--url", "http://localhost:6333",
+    "--http-port", "6333",
+    "--grpc-port", "6334",
+    "--point-count", "$PointCount",
+    "--repeat-indexed", "$RepeatIndexed",
+    "--storage-path", (Join-Path $RepoRoot ".local\n04p06\qdrant"),
+    "--output", (Join-Path $RunRoot "current-server.json")
+)
+$currentExit = Invoke-DiagnosticPython `
+    -Arguments $currentArgs `
+    -LogPath (Join-Path $RunRoot "current-server.log")
 
 # Start a second native Qdrant instance with explicit absolute paths.
 $qdrantPath = (Resolve-Path (Join-Path $RepoRoot $QdrantExe)).Path
@@ -84,6 +106,7 @@ $process = Start-Process `
     -PassThru
 
 $isolatedReady = $false
+$isolatedExit = $null
 try {
     for ($i = 0; $i -lt 60; $i++) {
         if ($process.HasExited) {
@@ -104,16 +127,18 @@ try {
         throw "Isolated Qdrant did not become ready; inspect isolated-qdrant logs."
     }
 
-    & $python $tool `
-        --url "http://localhost:6433" `
-        --http-port 6433 `
-        --grpc-port 6434 `
-        --point-count $PointCount `
-        --repeat-indexed $RepeatIndexed `
-        --storage-path $storage `
-        --output (Join-Path $RunRoot "isolated-server.json") `
-        *> (Join-Path $RunRoot "isolated-server.log")
-    $isolatedExit = $LASTEXITCODE
+    $isolatedArgs = @(
+        "--url", "http://localhost:6433",
+        "--http-port", "6433",
+        "--grpc-port", "6434",
+        "--point-count", "$PointCount",
+        "--repeat-indexed", "$RepeatIndexed",
+        "--storage-path", $storage,
+        "--output", (Join-Path $RunRoot "isolated-server.json")
+    )
+    $isolatedExit = Invoke-DiagnosticPython `
+        -Arguments $isolatedArgs `
+        -LogPath (Join-Path $RunRoot "isolated-server.log")
 } finally {
     if ($null -ne $process -and -not $process.HasExited) {
         Stop-Process -Id $process.Id -Force
