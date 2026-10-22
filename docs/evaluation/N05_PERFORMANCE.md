@@ -4,10 +4,14 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-05 [P0] — Performance`
-- Status: **BLOCKED / Not Complete — N05D-01〜03 Complete; N05D-04 formal rerun Ready**
+- Status: **BLOCKED / Not Complete — N05D-04R2 hierarchical redesign active**
 - Historical formal run: `20261022T130413+0900`
 - Historical formal run HEAD: `a7147f9842f94e96944bc7f67b4c3986970462b0`
-- Current performance target: **Not Judgeable until N05D-04**
+- First D04 rerun: `20261023T025413+0900` — environment BLOCKED / user-aborted
+- R1 backend diagnostic: `20261023T035147+0900` — partial / user-aborted
+- Current redesign: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
+- Current tasks: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md`
+- Current performance target: **Not Judgeable until redesigned system reaches R2-09 formal rerun**
 
 ## 1. Evaluation question
 
@@ -41,6 +45,8 @@ Cold diagnostic:
 >= 3 samples / profile
 non-gating
 ```
+
+The hierarchical redesign does not lower these formal gates or workload counts.
 
 ## 3. Measurement boundary
 
@@ -98,117 +104,57 @@ benchmark/n05-performance-evidence-template-v1.json
 benchmark/tools/n05_evaluate_performance.py
 benchmark/tools/n05_performance_workflow.py
 benchmark/tools/n05_run_performance.py
+benchmark/tools/n05_resource_preflight.py
 tests/test_n05_performance_evaluator.py
 tests/test_n05_performance_workflow.py
+tests/test_n05_resource_preflight.py
 docs/planning/phases/N/N05/N05_PERFORMANCE_BENCHMARK.md
 docs/planning/phases/N/N05/execution/N05D04_FORMAL_RERUN_HANDOFF.md
 ```
 
 formal runnerはproduction canonical dataを使用せず、isolated SQLite fixtureとsample固有Qdrant namespaceを使用する。
 
-外部AI生成は計測境界から除外し、deterministic prebuilt valid Resultを通常のValidation / Diff / Import contractへ通す。
-
-## 6. Historical formal execution
-
-### Run identity
-
-```text
-run_id: 20261022T130413+0900
-HEAD:   a7147f9842f94e96944bc7f67b4c3986970462b0
-```
-
-Reference Workstationで実Harrier / real Qdrantを使用した。
+## 6. Historical formal execution — 20261022T130413+0900
 
 ### Standard
 
-計画:
+Planned 3 cold + 20 warm. All 23 samples ended in terminal failure at Derived Search Qdrant payload-index preparation under the old workspace-resident storage environment.
+
+N05D-01 later classified this as `QDRANT_ENVIRONMENT_DEFECT` and cut the active runtime over to:
 
 ```text
-cold 3
-warm 20
-合計23 sample
+C:\Qdrant\SGOKB
 ```
-
-結果:
-
-```text
-23 / 23 sample terminal failure
-```
-
-失敗地点はDerived SearchのVector同期で、Qdrant payload index作成時にserver-side storage path errorが発生した。
-
-観測されたエラーは`gridstore`のpathが見つからない旨を示した。
-
-全sampleがRenderまで到達していないため、formal sample schemaに必要な全segment timingが揃っていない。
 
 ### Large
 
-`cold-01`のEmbedding処理中にユーザー指示で中断した。
-
-観測:
+`cold-01` exposed the old-contract giant Object representation:
 
 ```text
-Object representation: 18,847 tokens
-embedding batch size: 1
-Dedicated VRAM: 約23.2 GiB
-Shared GPU memory: 約34.2 GiB
+object_overall tokens: 18,847
+batch size: 1
+Dedicated VRAM: ~23.2 GiB
+Shared GPU memory: ~34.2 GiB
 ```
 
-後続sampleは実行していない。
+The run did not reach a complete Large sample set.
 
-## 7. Historical formal evaluator result
+### Evaluator result
 
 ```text
 N-05 formal verdict = BLOCKED
+performance target = Not Judgeable
 ```
 
-理由:
+No missing sample/timing was imputed and no failed sample was replaced.
 
-- Standardはterminal failureしたが、Render未実行のためrequired segment evidenceが欠けている。
-- Largeは必要cold/warm sample数を満たしていない。
-- したがってStandard/Largeのformal warm p95を算出できない。
+## 7. N05D-01 — Qdrant remediation
 
-失敗sampleの削除、成功sampleによる置換、欠損値の補完は行っていない。
+Status: **Complete**.
 
-この`BLOCKED`を次の意味へ読み替えてはならない。
+Classification: `QDRANT_ENVIRONMENT_DEFECT`.
 
-```text
-Standard p95 > 600 s
-Large p95 > 1200 s
-performance requirement failed
-performance requirement passed
-```
-
-性能目標の達成・未達は未判定である。
-
-## 8. Historical post-run validation
-
-Reference Workstation post-run:
-
-```text
-Evaluator tests: 8 PASS
-Full pytest:      517 PASS
-Ruff:             PASS
-git diff --check: PASS
-```
-
-安全性:
-
-```text
-production canonical DB unchanged
-tracked files unchanged during formal run
-formal run HEAD unchanged
-```
-
-formal run自体がcanonical user dataを破壊した証拠はない。
-
-## 9. Blocker diagnosis and remediation
-
-### 9.1 N05D-01 — Qdrant
-
-N05D-01は**Complete**。
-
-Qdrant問題は`QDRANT_ENVIRONMENT_DEFECT`として分類し、workspace-resident storageから外部runtimeへ切り替えた。
+Accepted runtime:
 
 ```text
 runtime root: C:\Qdrant\SGOKB
@@ -217,88 +163,181 @@ Qdrant:       native 1.19.2
 HTTP/gRPC:    6333 / 6334
 ```
 
-旧storageはrollback/evidenceとして保持し、active runtimeには使用しない。
+External-storage cutover, Vector rebuild, real semantic/filtered query, integrity, canonical invariance, and regression passed.
 
-50件のcleanup `ACCESS DENIED`は50/50でRust Windows POSIX rename fallbackにより回復した内部eventであることを相関確認した。未回復rename、delete API failure、残存source directory、terminal cleanup error、surfaced OS error 3/5はいずれも0。
+## 8. N05D-02 — Long-input Harrier diagnosis
 
-切替後、Vector rebuild、real semantic/filtered query、system integrity、canonical invariance、regressionがPASSした。
+Status: **Complete / VIABLE_FOR_FORMAL_RERUN under the old representation contract**.
 
-### 9.2 N05D-02 — Long-input Harrier
-
-N05D-02は**Complete / VIABLE_FOR_FORMAL_RERUN**。
-
-正式run由来のexact 18,847-token Large Object representationを、frozen Harrier profileのままfresh processで3回実行し、3/3 PASSした。
+Exact 18,847-token input, fresh process 3/3 PASS:
 
 ```text
-full trial times: 642.830 / 636.118 / 628.092 s
+full times: 642.830 / 636.118 / 628.092 s
 Torch peak allocated: 51.061 GiB
 Torch peak reserved:  56.787 GiB
-Windows peak dedicated: ~23.2 GiB
-Windows peak shared:    ~34.2 GiB
+Windows peak shared:  ~34.2 GiB
 ```
 
-OOM、process kill、検出されたdriver reset、CPU inference fallback、truncation、chunking、model changeはない。
+No OOM, process kill, detected driver reset, CPU fallback, truncation, chunking, or model change.
 
-12,278〜16,383 tokenの間で大きなWDDM/shared-memory spill regimeへ入る。これはperformance/host-memoryの重大riskだが、memory completionは成立している。
+This proved memory completion only. It did not prove that the giant representation was an appropriate long-term Derived Search design or that formal performance would pass.
 
-このdiagnostic値はformal sample/p95ではない。
+## 9. N05D-03 — historical remediation checkpoint
 
-### 9.3 N05D-03 — Evidence-based remediation
+N05D-03 originally concluded **Complete / READY_FOR_N05D04** because the Qdrant environment was repaired and the long Harrier input could complete.
 
-N05D-03は**Complete / READY_FOR_N05D04**。
+That checkpoint is retained as historical evidence. Later D04/R1 evidence and design review superseded its current planning conclusion; the historical evaluation document is not rewritten as if it had known the later evidence.
 
-Evidence reviewの結果:
+## 10. First N05D-04 rerun — 20261023T025413+0900
 
-- D01で必要なQdrant environment remediationは既に適用・受入済み。
-- current SGOKB adapter/backendに追加production defectは確定していない。
-- D02はcurrent Harrier/representation contractのmemory viabilityを確認済み。
-- benchmark runner defectを示す残Evidenceはない。
-- よってmodel/revision、Search Representation、batch size、max sequence length、workload、formal Gateは変更しない。
-- silent truncation、CPU fallback、任意chunking等のbenchmark shortcutは導入しない。
+Execution HEAD:
 
-正本:
+`280a2af9fc9c5338137f46b366bd4e18b0b9416a`
 
-`docs/evaluation/N05D03_EVIDENCE_BASED_REMEDIATION.md`
+Observed:
 
-## 10. Remaining formal risk
+```text
+Standard cold: 3/3 PASS
+Standard warm: 18 PASS / 2 FAIL
+```
 
-N05D-03で解消すべきruntime blockerは残っていないが、formal performance riskは大きい。
+The two warm failures were caused by Qdrant disk exhaustion:
 
-特にLargeでは、Object-level Embeddingだけでdiagnostic上約628〜643秒を使用する。完全なformal sampleでは、Package/Validation/Import、他Search RepresentationのEmbedding、Vector sync、Render等も同一totalに含まれる。
+```text
+No space left on device
+WAL buffer size exceeds available disk space
+```
 
-したがってLarge warm p95 <= 1200 sを満たすかは未判定であり、N05D-04でのみ決める。
+Large had not completed its required formal sample set when the user stopped the run.
 
-またformal warm policyはpersistent preloaded providerで20 samplesを連続実行する。D02の3回はmemory viability切り分けのためfresh processだった。この差もformal benchmarkが実測すべき対象であり、追加shortcutの理由にはしない。
+Classification:
 
-## 11. N05D-04 authorization
+```text
+environment BLOCKED / user-aborted
+not a judgeable performance FAIL
+```
 
-N05D-04は開始可能である。
+The preserved run must never be resumed or converted into a formal PASS/FAIL dataset.
 
-開始条件:
+## 11. Resource preflight added
 
-1. clean `main == origin/main`。
-2. 新しいrun_idを使用し、旧formal/D01/D02 evidenceを保持。
-3. remediated Qdrant `C:\Qdrant\SGOKB` がlocalhost 6333/6334でready。
-4. frozen Harrier model/revision/BF16/CUDA/batch 1/max 32768/overflow rejectを維持。
-5. unexpected substantial competing CUDA workloadがないことを記録。勝手に他processを終了しない。
-6. host available/committed memoryをenvironment evidenceとして記録。新しいnumeric Gateにはしない。
-7. mandatory preflightをPASS。
-8. Standard cold-01から正式runを最初から開始。
-9. terminal failure/abortを置換しない。
+Future formal N-05 execution requires at least:
 
-Execution handoff:
+```text
+minimum free disk = 32 GiB
+```
 
-`docs/planning/phases/N/N05/execution/N05D04_FORMAL_RERUN_HANDOFF.md`
+on each volume hosting formal evidence or the active Qdrant runtime. Current topology places both on `C:`.
 
-## 12. Current conclusion
+This is an SGOKB Reference Workstation safety gate, not a general Qdrant product minimum.
+
+## 12. N05D-04R1 backend diagnostic — partial
+
+Run:
+
+`20261023T035147+0900`
+
+Status: **partial / user-aborted**.
+
+Confirmed before abort:
+
+```text
+auto SDPA smoke: PASS; profiler observed math backend
+forced FLASH_ATTENTION: FAIL; required Flash kernel unavailable in tested Windows build
+forced EFFICIENT_ATTENTION: FAIL; tested Q=16 / KV=8 GQA shape rejected
+full auto trial: ABORTED_by_user
+```
+
+After process termination, GPU memory returned near idle. Therefore no persistent cross-process VRAM leak was established.
+
+R1 is retained as diagnostic evidence but is not the selected root remediation.
+
+## 13. Adopted root remediation — N05D-04R2
+
+Design review established that current `object_overall` duplicates detailed Knowledge already materialized separately as `facet` and `statement` representations.
+
+Selected structure:
+
+```text
+Object
+├─ object_overview   # compact Object-level context
+├─ facet             # detailed Facet representation
+└─ statement         # detailed Statement representation
+       ↓
+ bounded multi-representation candidate generation
+       ↓
+ Object aggregation / hierarchical similarity
+       ↓
+ 1 Object = 1 result
+```
+
+This is semantic hierarchical partitioning based on canonical Object/Facet/Statement boundaries, not arbitrary token chunking.
+
+The redesign introduces `object_overview` rather than silently changing persisted `object_overall` semantics. Historical v1 artifacts remain distinguishable during migration and comparison.
+
+For the first causal acceptance, Harrier OSS v1 0.6B remains fixed. Harrier 270M and runtime/backend changes are later contingencies only if the structural redesign still fails explicit requirements.
+
+## 14. R2 task chain
+
+```text
+R2-01 Impact survey / redesign freeze
+R2-02 Requirements + representation contract revision
+R2-03 Persistence/versioning/migration design
+R2-04 compact object_overview implementation
+R2-05 Hybrid Search migration
+R2-06 Hierarchical Object Similarity redesign
+R2-07 Derived Search rebuild/cutover/rollback
+R2-08 Search-quality acceptance
+R2-09 Performance/resource acceptance + formal N-05 rerun
+R2-10 Closure / Phase N state update
+```
+
+Formal timing is prohibited before R2-08 passes.
+
+## 15. Future R2-09 formal execution
+
+When authorized, use a new run ID and start again from Standard cold-01:
+
+```text
+Standard cold 3 + warm 20
+Large cold    3 + warm 20
+```
+
+The gates remain:
+
+```text
+Standard warm p95 <= 600 s
+Large warm p95    <= 1200 s
+terminal failure / abort = 0
+```
+
+Diagnostic timings from old-contract D02 or R1 are never mixed into the new formal evidence.
+
+Before R2-09 require:
+
+```text
+R2-08 quality acceptance PASS
+main == origin/main
+working tree clean
+free disk >= 32 GiB
+Qdrant root = C:\Qdrant\SGOKB
+no material competing CUDA workload
+host memory/commit recorded
+full regression / Ruff / diff PASS
+```
+
+## 16. Current conclusion
 
 ```text
 N05D-01 = Complete
-N05D-02 = Complete / VIABLE_FOR_FORMAL_RERUN
-N05D-03 = Complete / READY_FOR_N05D04
-N05D-04 = Ready / Not Started
-N-05     = BLOCKED / Not Complete
+N05D-02 = Complete / old-contract memory viability
+N05D-03 = Complete historical checkpoint
+N05D-04 = BLOCKED / Not Complete
+N05D-04R1 = Historical partial / user-aborted
+N05D-04R2 = Active
+R2-01 = Next / Not Started
+N-05 = BLOCKED / Not Complete
 performance target = Not Judgeable
 ```
 
-Next: **N05D-04 — Formal benchmark rerun under the frozen contract**.
+Next: **R2-01 — Impact survey / redesign freeze**.
