@@ -36,7 +36,7 @@ from .evidence_search import (
     EvidenceSearchResponse,
     EvidenceSearchResult,
 )
-from .hybrid_search import HybridObjectSearch
+from .hybrid_search_r2 import HybridObjectSearch
 from .package import (
     EvidenceBudget,
     EvidencePackageSelector,
