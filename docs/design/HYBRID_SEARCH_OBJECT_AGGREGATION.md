@@ -1,20 +1,23 @@
-# Multi-representation Hybrid Search / Object Aggregation — Phase I / I-04
+# Multi-representation Hybrid Search / Object Aggregation — Phase I / I-04 + R2 v2
 
-更新日: 2026-10-13
+更新日: 2026-10-23
 
-- Status: **Accepted / Implemented**
-- Task: `I-04 [P0] Multi-representation Hybrid Search / Object Aggregationを実装する`
+- Status: **Accepted Phase-I baseline / R2-02 v2 contract frozen**
+- Original task: `I-04 [P0] Multi-representation Hybrid Search / Object Aggregation`
+- Superseding task: `N05D-04R2 / R2-02 Requirements + representation contract revision`
 - Prerequisites:
   - `docs/design/SEARCH_REPRESENTATION_SCHEMA.md`
   - `docs/design/EMBEDDING_PROVIDER_MODEL_EVALUATION.md`
   - `docs/design/VECTOR_INDEX_ADAPTER_BACKEND_EVALUATION.md`
-- Next task: `I-05 [P0] find_similar_objectsを実装する`
+- Normative R2 decision: `docs/planning/phases/N/N05/N05D04R2_REQUIREMENTS_REPRESENTATION_CONTRACT.md`
 
 ---
 
 ## 1. 結論
 
-SGOKBの通常Object検索は、次の複数channelを独立に候補生成し、Object単位へ集約した後にRRFで融合する。
+SGOKBの通常Object検索は、複数channelを独立にcandidate generationし、channel内でObjectへbounded aggregationした後にRRFで融合する。
+
+R2 active contract:
 
 ```text
 query
@@ -23,13 +26,13 @@ query
  │    ├─ exact alias
  │    └─ partial literal
  ├─ Knowledge lexical
- │    └─ Search Representation FTS / literal fallback
+ │    └─ active Search Representation FTS / literal fallback
  └─ Semantic
-      ├─ object_overall
+      ├─ object_overview
       ├─ facet
       └─ statement
              ↓
-       channel内 Object aggregation
+       channel内 bounded Object aggregation
              ↓
        cross-channel RRF
              ↓
@@ -38,22 +41,24 @@ query
        1 Object = 1 result
 ```
 
+`object_overall` is no longer an active channel after R2 cutover.
+
 BM25、cosine similarity、identity match等のraw scoreは尺度が異なるため直接加算しない。
 
-標準fusionは次で固定する。
+The first R2 baseline keeps the Phase I fusion constants:
 
 ```text
 RRF k = 60
 
-object_overall semantic contribution cap = 1
-facet semantic contribution cap          = 2
-statement semantic contribution cap      = 3
-knowledge lexical contribution cap       = 3
+object_overview semantic contribution cap = 1
+facet semantic contribution cap           = 2
+statement semantic contribution cap       = 3
+knowledge lexical contribution cap        = 3
 ```
 
-これにより、Statement数が多いObjectが単純なhit数だけで無制限にboostされることを防ぐ。
+Statement数やFacet数が多いObjectが単純なhit数だけで無制限にboostされないことがhard requirementである。
 
-exact name / aliasはRRF scoreとは別のpriority tierとする。
+Exact identity remains a separate priority tier:
 
 ```text
 exact name
@@ -61,13 +66,13 @@ exact name
   > non-exact lexical / semantic result
 ```
 
-同tierではRRF score、最後にstable Object / Version IDで決定論的にtie-breakする。
+同tierではRRF fused score、最後にstable Object / Version identityでdeterministic tie-breakする。
 
 ---
 
 ## 2. Search mode
 
-`ObjectSearchMode`は次の3種類とする。
+`ObjectSearchMode` remains:
 
 ```text
 lexical
@@ -77,91 +82,87 @@ hybrid
 
 ### lexical
 
-Embedding / Vector backendを必要としない。
+Embedding / Vector backend不要。
 
-- Object Registry name / alias
-- Knowledge Search Representation lexical
-
-を利用する。
+- Object Registry name / alias;
+- active Knowledge Search Representation lexical index.
 
 ### semantic
 
-EmbeddingProvider + VectorIndexAdapterを必須とする。
+EmbeddingProvider + VectorIndexAdapter必須。
 
-Vector backendが利用不能なら明示的に失敗し、lexicalへsilent fallbackしない。
+Vector backend利用不能時はexplicit failure。lexicalへsilent fallbackしない。
 
 ### hybrid
 
-通常free-text Object Searchの標準経路とする。
+通常free-text Object Searchの標準経路。
 
-Lexicalを実行した後にSemantic channelを追加する。Semantic backendが一時的に利用不能な場合は、canonical Knowledgeを壊さずLexical resultを返し、`degraded_channels`へ障害を明示する。
+Lexical実行後にSemantic channelsを追加する。Semantic backendが一時的に利用不能な場合は、canonical Knowledgeを変更せずLexical resultsを返し、`degraded_channels`へ障害を明示する。
 
-これは「backendを別backendへsilent fallbackする」こととは異なる。QdrantからLanceDBやexternal providerへ自動切替は行わない。
+別Provider / 別Vector backendへのsilent fallbackは禁止。
 
 ---
 
-## 3. Search channel
-
-I-04では次を明示channelとして扱う。
+## 3. Active search channels
 
 ```text
 exact_name
 exact_alias
 registry_lexical
 knowledge_lexical
-semantic_object_overall
+semantic_object_overview
 semantic_facet
 semantic_statement
 ```
 
+Legacy-only:
+
+```text
+semantic_object_overall
+```
+
 ### Registry lexical
 
-Object identity discovery用。
+Object identity discovery:
 
-- `objects.name`
-- `object_aliases.value`
+- `objects.name`;
+- `object_aliases.value`.
 
-を対象とする。
-
-Objectが`current_version_id = NULL`でも、Knowledge-specific filterがないIdentity / Lexical discoveryでは発見可能とする。
+KnowledgeがなくてもIdentity discoveryは可能。
 
 ### Knowledge lexical
 
-I-01のSearch Representationを対象とする。
-
-対象kind:
+Active Object Knowledge representation kinds:
 
 ```text
-object_overall
+object_overview
 facet
 statement
 ```
 
 EvidenceはObject Searchへ混ぜない。
 
-### Semantic Object overall
+### Semantic Object overview
 
-Object全体の意味を広く候補生成する。
+Object canonical name / aliases / Primary Class / facet-less Summary / Facet inventory / searchable Attributes / Relationsからなるcompact broad contextで候補生成する。
+
+Overviewは詳細Knowledgeの代替ではなく、content-Facet Statement bodiesを含まない。
 
 ### Semantic Facet
 
-特定観点の意味的matchを候補生成する。
+観点別意味matchを候補生成する。
 
 ### Semantic Statement
 
-条件・例外・細粒度Knowledgeを拾う主要channelとする。
+条件、例外、時間限定、細粒度Knowledgeを拾う主要channelとする。
 
 ---
 
 ## 4. Lexical Index
 
-Migration `016_hybrid_search.sql`で次の派生FTS5 tableを追加する。
+`search_representation_fts` remains a Derived FTS index over Search Representation content.
 
-```text
-search_representation_fts
-```
-
-column:
+Conceptual columns:
 
 ```text
 representation_id
@@ -169,76 +170,43 @@ kind
 content
 ```
 
-Tokenizerは現Prototype資産と同じtrigramを利用する。
+R2 migration must make active lexical retrieval see `object_overview / facet / statement` and must prevent legacy `object_overall` from participating in the active generation after cutover.
 
-`search_representations`のINSERT / UPDATE / DELETEに追従するtriggerを持つ。
+Tokenizer/short-query behavior remains Phase I baseline. 1〜2文字queryはliteral containment fallbackを維持し、日本語短語を検索不能にしない。
 
-Search Representation自体と同様、このFTS tableはcanonical Knowledgeではなく再構築可能な派生Indexである。
-
-### 短い日本語query
-
-trigramは1〜2文字queryをそのまま扱えないため、query termに3文字未満が含まれる場合はSQL literal containmentへ切り替える。
-
-例:
-
-```text
-愛
-剣
-AI
-```
-
-短語を「検索不能」としないB-05要件を維持する。
+FTS remains rebuildable Derived Search state, not canonical Knowledge.
 
 ---
 
 ## 5. Vector point identity
 
-I-03まではVectorIndexAdapterのpoint identityを抽象化していた。
-
-I-04ではKnowledge Vector Indexのpoint identityを**Search Representation IDではなくKnowledge membership ID**とする。
-
-理由:
-
-```text
-同一Search Representation content
-        ↓
-同一Embedding / Vectorをreuse可能
-        ↓
-しかし
-v1 membership != v2 membership
-```
-
-同一representation/vectorを複数Versionでreuseしても、次はmembershipごとに異なり得る。
-
-- current / historical
-- Object
-- Version
-- Facet
-- Statement
-- derivation
-- temporal scope
-- Class snapshot
-
-したがってDerived Vector Indexでは、同一Vectorをmembershipごとのpointとして持つ。
+Knowledge Vector Index point identity remains **Knowledge membership ID**, not Search Representation ID.
 
 ```text
 Embedding cache
-  representation_id -> vector     1回
+  representation_id -> vector
 
 Vector Index
-  membership-v1 -> same vector + v1 metadata
-  membership-v2 -> same vector + v2 metadata
+  membership -> vector + Version / Object / Facet / Statement metadata
 ```
 
-Embedding計算のdedupとfilter correctnessを両立する。
+This preserves:
+
+- embedding/content reuse;
+- current / historical membership identity;
+- Version identity;
+- Object identity;
+- Facet / Statement scope;
+- derivation / temporal filters;
+- classification snapshot filters.
+
+R2-03 defines how active/candidate generation identity is represented without mixing v1/v2 memberships.
 
 ---
 
 ## 6. Vector payload metadata
 
-`KnowledgeVectorIndexBuilder`はaccepted Knowledge membershipからQdrant pointを再構築する。
-
-主要payload:
+The existing semantic metadata contract remains valid:
 
 ```text
 membership_id
@@ -260,27 +228,15 @@ valid_from_ordinal
 valid_to_ordinal
 ```
 
-### Class metadata
+R2 changes active `kind` from legacy `object_overall` to `object_overview` for the broad Object representation.
 
-Primary / Additional ClassはVersion classification snapshotを使用する。
-
-Historical Version検索時に現在のObject classificationを誤って流用しない。
-
-`ancestor_classes`はPrimary / Additional Class自身を含むlineage key集合とし、ancestor Class filterをQdrant payload hard filterへ直接渡せるようにする。
-
-### current metadata
-
-`is_current`はIndex構築時点のcurrent pointerから導出する。
-
-ただしVector IndexはDerived artifactなので、query-timeでもSQLite current pointerを防御的に再確認する。
-
-stale Indexを新current Knowledgeとしてsilent利用しない。
+Classification metadata remains Version-snapshot based. Query-time SQLite current pointer verification remains mandatory because Vector Index is derived state.
 
 ---
 
-## 7. Hard filter
+## 7. Hard filters and semantic-scope safety
 
-I-04で正式に扱うObject Search filter:
+Supported filter semantics remain:
 
 ```text
 primary_class
@@ -294,11 +250,11 @@ derivation_kind
 include_archived
 ```
 
-unknown Class / Facetはsilent無視せずvalidation errorとする。
+Unknown Class / Facet is never silently ignored.
 
-### current / historical
+### 7.1 current / historical
 
-既定:
+Default:
 
 ```text
 active Object
@@ -309,120 +265,108 @@ active Object
 Historical:
 
 ```text
-version_idを明示
-+ そのVersionがaccepted
+explicit version_id
++ accepted Version
 ```
 
-currentとhistoricalを同一queryへsilent混合しない。
+Do not mix current and historical silently.
 
-### Facet
+### 7.2 Facet filter
 
-Facet指定時、`object_overall`はcandidate generation対象から除外する。
+When a Facet is requested, `object_overview` is excluded from candidate generation.
 
-対象:
+Active semantic kinds:
 
 ```text
 facet
 statement
 ```
 
-別Facetやoverallへsilent fallbackしない。
+and the requested Facet boundary is enforced.
 
-### derivation / temporal
+Do not fall back to:
 
-`derivation_kind`、`temporal_scope_id`、`knowledge_valid_at`指定時はStatement-only retrievalとする。
+- overview;
+- another Facet;
+- legacy `object_overall`.
 
-Object overall / Facetは複数Statementを集約した表現であり、個別Statementのtemporal / derivation条件を安全に適用できないためである。
+### 7.3 derivation / temporal filters
+
+`derivation_kind`, `temporal_scope_id`, and `knowledge_valid_at` remain Statement-only where the condition is defined on an individual Statement.
+
+Overview/Facet aggregate representations cannot claim to satisfy a narrower Statement condition merely because one child Statement might match.
 
 ---
 
 ## 8. Temporal hard filter
 
-Statement pointには、比較用のderived integer metadataを持たせる。
+Statement point temporal metadata remains:
 
 ```text
 valid_from_ordinal
 valid_to_ordinal
 ```
 
-### valid_from / valid_to
+`knowledge_valid_at` semantics remain:
 
 ```text
 valid_from <= query_date <= valid_to
 ```
 
-### as_ofのみ
+Timeless Statement semantics and exact `temporal_scope_id` behavior remain unchanged.
 
-その日だけを成立点として扱う。
-
-### temporal scopeなし
-
-timeless Knowledgeとして、全期間を覆うrangeを持つ。
-
-したがって`knowledge_valid_at`検索では、明示的に期間外のStatementは除外し、timeless Statementは候補として残る。
-
-`temporal_scope_id`指定時は完全一致filterとする。
-
-Version historyとKnowledge valid timeは引き続き別filterである。
+Version history and Knowledge valid time remain separate dimensions.
 
 ---
 
-## 9. Filter適用位置
+## 9. Filter application position
 
-hard filterは原則としてcandidate limitより前に適用する。
+Hard filters are applied before candidate limit whenever possible.
 
 ### Lexical
 
-FTS resultへ後からObject filterするのではなく、FTS tableとcanonical membership / Version / Class / FacetをJOINしたSQL内でfilterする。
+Filter inside canonical membership/Version/Class/Facet joins, not only after retrieving global FTS top-k.
 
 ### Semantic
 
-Class / Facet / Version / temporal等を`VectorSearchFilter`へ変換し、Qdrant payload filterとしてVector candidate generationへ渡す。
+Convert Class / Facet / Version / temporal conditions to Vector payload hard filters before ANN candidate limit.
 
-このため、例えば「Personality Facetだけ」の少数candidate検索で、全Facet top-k取得後のpost-filterによってRecallを失わない。
+This preserves Recall for narrow scopes.
 
 ---
 
-## 10. Object aggregation
+## 10. Bounded Object aggregation
 
-### 10.1 まずchannel内でObjectへ集約する
+### 10.1 Channel-local Object aggregation
 
-Semantic Statement top-kをそのままfinal resultへしない。
+Fine-grained hits are not final results. Hits are grouped by Object / Version before cross-channel fusion.
 
-同一Object / Versionの複数hitをgroupする。
+### 10.2 Contribution caps
 
-### 10.2 contribution cap
-
-同一Objectの類似Statement大量保持による過剰boostを抑える。
-
-I-04 baseline:
+First R2 baseline:
 
 ```text
-Object overall  上位1件
-Facet           上位2件
-Statement       上位3件
-Knowledge lexical 上位3件
+Object overview     top 1 contribution
+Facet               top 2 contributions
+Statement           top 3 contributions
+Knowledge lexical   top 3 contributions
 ```
 
-channel内Object scoreは、上記上限以内のhit rankに対するRRF寄与で算出する。
+The number of canonical Statements/Facets cannot directly translate into unbounded score contribution.
 
-そのscoreで各channel内のObject rankを作る。
+### 10.3 Cross-channel fusion
 
-### 10.3 cross-channel fusion
-
-各channelのObject rankを再度RRFで融合する。
+Object ranks from each channel are fused using:
 
 ```text
 fused_score = Σ 1 / (60 + channel_object_rank)
 ```
 
-raw BM25とraw cosineを直接足さない。
+Raw BM25 and raw cosine are not added directly.
 
-### 10.4 exact identity tier
+### 10.4 Exact identity tier
 
-exact name / aliasは通常Object discoveryで意味検索へ埋没させない。
-
-最終sort key概念:
+Final sort concept remains:
 
 ```text
 exact identity tier DESC
@@ -435,7 +379,7 @@ version_id ASC
 
 ## 11. Search result contract
 
-`ObjectSearchResult`は少なくとも次を保持する。
+`ObjectSearchResult` continues to expose conceptually:
 
 ```text
 object_id
@@ -451,7 +395,7 @@ matched_facets
 matches
 ```
 
-`ObjectSearchMatch`:
+`ObjectSearchMatch` continues to preserve:
 
 ```text
 channel
@@ -467,9 +411,17 @@ score_type
 source_rank
 ```
 
-これにより、Objectへ集約した後も「なぜhitしたか」を失わない。
+Active post-R2 `representation_kind` values for Object Knowledge matches are:
 
-raw match score typeは例として次を明示する。
+```text
+object_overview
+facet
+statement
+```
+
+Normal post-cutover results must not expose `object_overall` as if it were active v2 evidence.
+
+Raw match score types may still include:
 
 ```text
 identity_literal
@@ -479,173 +431,139 @@ literal_contains
 cosine_similarity
 ```
 
-これらはquery relevance signalであり、truth / confidenceへ変換しない。
+These are query relevance signals, not truth/confidence.
 
 ---
 
-## 12. Evidence groundingとの境界
+## 12. Evidence grounding boundary
 
-I-04 final resultはStatement ID / Version IDを保持する。
+Object result detail retains Version / Statement membership identity so canonical Evidence Links remain reachable.
 
-StatementからEvidence Linkへ辿る既存canonical relationを利用できるため、検索hitのgroundingを後続Application / MCP layerで取得可能である。
-
-I-04でEvidence本文をObject resultへ無制限に展開しない。
-
-Evidence Semantic Search自体もObject Searchへ混ぜず、独立familyを維持する。
+Object Search does not expand all Evidence text into results and does not merge Evidence Semantic Search into Object Search.
 
 ---
 
 ## 13. Failure / degraded behavior
 
-Search dependencyのfailure domain:
+Canonical/derived boundary remains:
 
 ```text
 SQLite canonical Knowledge
-  └─ 正本
+  └─ source of truth
 
 FTS / Search Representation / Embedding / Vector Index
-  └─ Derived
+  └─ derived
 ```
 
 ### Semantic mode
 
-Embedding Provider / Vector backendが利用不能:
-
-```text
-explicit failure
-```
+Provider/backend failure -> explicit failure.
 
 ### Hybrid mode
 
-Semantic channelが利用不能:
+Semantic failure -> lexical results + explicit `degraded_channels`.
 
-```text
-Lexical resultsを返す
-+ degraded_channelsへ明示
-```
+Forbidden:
 
-禁止:
-
-- external Providerへのsilent fallback
-- Qdrantから別Vector backendへのsilent fallback
-- stale historical pointをcurrentとして利用
-- canonical Version rollback
+- silent external-provider fallback;
+- silent Qdrant->other-backend fallback;
+- stale historical point as current;
+- canonical Version rollback;
+- active v1/v2 membership mixing.
 
 ---
 
-## 14. Index rebuild
+## 14. Derived rebuild implications
 
-`KnowledgeVectorIndexBuilder`を追加した。
-
-処理:
+The conceptual rebuild path remains:
 
 ```text
-accepted Knowledge memberships
+accepted active-generation Knowledge memberships
        +
 EmbeddingRepository vector cache
        ↓
-Version classification snapshot / filter metadata結合
+Version classification/filter metadata
        ↓
 membership-scoped VectorIndexPoint
        ↓
-VectorIndexAdapter.rebuild()
+VectorIndexAdapter candidate generation
 ```
 
-Vector generation自体は行わない。
-
-Embeddingが欠けているaccepted membershipがある場合、Indexを「完全」と偽装せずrebuildを失敗させる。
-
-canonical Knowledgeは変更しない。
-
-性能上、membership contextとAdditional Class snapshotはbulk取得し、Class lineageはClassごとにcacheする。
+R2-03/R2-07 must ensure a coherent active generation and side-by-side rebuild/cutover. Missing required embedding membership must not be reported as a complete index.
 
 ---
 
-## 15. 実装ファイル
+## 15. R2 migration mapping
 
-新規:
+Historical v1 -> active v2:
 
 ```text
-src/sgokb/domain/search.py
-src/sgokb/retrieval/hybrid_search.py
-src/sgokb/migrations/016_hybrid_search.sql
-tests/test_hybrid_search.py
+semantic_object_overall  -> semantic_object_overview
+object_overall lexical    -> object_overview lexical
+facet                      -> facet (retained)
+statement                  -> statement (retained)
 ```
 
-更新:
+This is a semantic replacement, not a database-string rename. Old v1 rows/vectors are legacy derived artifacts and must not be relabeled in place.
+
+---
+
+## 16. Regression requirements
+
+R2 implementation must prove:
+
+- `1 Object = 1 result`;
+- exact name/alias priority unchanged;
+- current/historical isolation;
+- Primary / Additional / ancestor Class filters;
+- Facet filter excludes overview;
+- derivation/temporal Statement-only safety;
+- unknown Class/Facet validation;
+- short Japanese lexical fallback;
+- Hybrid semantic outage explicit degradation;
+- Semantic-only outage explicit failure;
+- overview contribution max 1;
+- Facet contribution max 2;
+- Statement contribution max 3;
+- Knowledge lexical contribution max 3;
+- Qdrant/SQLite result semantics agree;
+- normal active results contain no legacy `object_overall` membership.
+
+---
+
+## 17. What R2-02 does not change
+
+Unless later quality evidence requires a separate accepted revision, keep:
 
 ```text
-src/sgokb/domain/__init__.py
-src/sgokb/retrieval/__init__.py
-src/sgokb/retrieval/vector_index.py
-migration count regression tests
+RRF k = 60
+exact identity tier
+Facet cap = 2
+Statement cap = 3
+Knowledge lexical cap = 3
+membership-scoped vector point identity
+current/historical semantics
+hard-filter-before-limit policy
+hybrid degraded behavior
+1 Object = 1 result
 ```
 
----
-
-## 16. Test coverage
-
-I-04 focused testsでは少なくとも次を固定した。
-
-- FTS migration / trigger
-- membership-scoped vector pointとVector reuse
-- exact alias priority
-- 1 Object = 1 result
-- current / historical isolation
-- Facet hard filter
-- Primary / Additional / ancestor Class hard filter
-- unknown Class / Facet validation
-- temporal valid-at filter
-- temporal scope exact filter
-- 1文字日本語Lexical fallback
-- Hybrid semantic outage時の明示degrade
-- Semantic-only outage時のexplicit failure
-- Statement contribution top-3 cap
-- Qdrant adapterとのmembership payload integration
+R2-08 is the gate for deliberate search-quality changes. Do not tune these constants merely to work around N05D-04 resource failure.
 
 ---
 
-## 17. I-04で固定しない事項
+## 18. Historical Phase I note
 
-### I-05
-
-- `find_similar_objects`
-- overall similarity専用query
-- Facet similarity専用query
-- same Primary Class default scope
-
-### I-06
-
-- reranker
-- cross encoder
-
-### I-07
-
-- 正式Search gold
-- RRF kの再調整
-- channel weight導入要否
-- contribution cap 1/2/3の最終妥当性
-- Object Recall / MRR / nDCG
-- actual canonical corpus latency
-- candidate_limit tuning
-
-I-04のRRFとcapは、無根拠な最終最適値ではなく、I-07で比較可能な**明示baseline**として固定する。
-
----
-
-## 18. I-05への固定入力
-
-I-05では次を変更せず利用する。
+Phase I/I-04 originally used:
 
 ```text
-Search Representation: I-01 contract
-Embedding Space:       Harrier OSS v1 0.6B / 1024-dim
-Vector backend:        local Qdrant HNSW
-Vector point identity: Knowledge membership ID
-current/history:       membership + canonical current pointer
-Class/Facet metadata:  Version snapshot based
+semantic_object_overall
++ semantic_facet
++ semantic_statement
 ```
 
-I-05はHybrid free-text rankingを再設計するTaskではない。
+with `object_overall` cap 1.
 
-**Status: I-04 Complete / I-05 Ready**
+That design was valid for the Phase I acceptance corpus and remains historical evidence. N05D-04 later exposed a real large-Object resource failure, so R2 supersedes only the broad Object representation/channel while preserving the bounded multi-representation Hybrid architecture.
+
+**Status: R2-02 Hybrid contract frozen / R2-05 implementation pending.**
