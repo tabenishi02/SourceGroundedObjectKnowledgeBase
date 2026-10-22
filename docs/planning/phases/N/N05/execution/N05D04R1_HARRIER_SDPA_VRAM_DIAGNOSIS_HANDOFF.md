@@ -3,20 +3,30 @@
 Updated: 2026-10-23
 
 - Parent: `N05D-04 — Formal benchmark rerun`
-- Status: **Ready / Not Started**
+- Status: **Historical partial / User-aborted — do not resume**
 - Formal N-05: **BLOCKED / Not Complete**
-- Trigger: formal attempt `20261023T025413+0900` aborted after disk-full and severe Harrier WDDM spill observations
-- Research basis: `docs/evaluation/N05D04_RESOURCE_PREFLIGHT_AND_VRAM_RESEARCH.md`
+- Run: `20261023T035147+0900`
+- Successor: `N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign`
+- Research/result record: `docs/evaluation/N05D04_RESOURCE_PREFLIGHT_AND_VRAM_RESEARCH.md`
 
-## Goal
+## 1. Purpose of this document
 
-Determine whether the current Harrier `_attn_implementation=sdpa` workload is using an avoidable high-memory SDPA path and whether forcing a fused PyTorch SDPA backend can materially reduce the exact 18,847-token input's GPU/shared-memory demand without changing model, tokenizer, representation, pooling, or batch size.
+This document preserves the R1 diagnostic intent and partial result. It is no longer the current execution handoff.
 
-This is a diagnostic. It is not a formal N-05 sample.
+Current work must follow:
 
-## Frozen input/runtime
+```text
+docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md
+docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md
+```
 
-Reuse the authoritative N05D-02 input and source reconstruction:
+Current next task is `R2-01 — Impact survey / redesign freeze`.
+
+## 2. Original diagnostic goal
+
+R1 was created to determine whether the current Harrier `_attn_implementation=sdpa` workload used an avoidable high-memory SDPA path and whether a fused PyTorch backend could reduce the exact 18,847-token input without changing model, tokenizer, representation, pooling, or batch size.
+
+Authoritative input:
 
 ```text
 source DB: .local/n05/20261022T130413+0900/large/cold-01/sgokb.sqlite
@@ -26,7 +36,7 @@ representation SHA-256: 54db1b0c5c2d966c08e5305e4f7951667f51dafb691b1448042875bc
 exact tokens: 18847
 ```
 
-Keep:
+Frozen runtime:
 
 ```text
 model: microsoft/harrier-oss-v1-0.6b
@@ -39,102 +49,92 @@ overflow_policy: reject
 normalize_embeddings: true
 ```
 
-No truncation, chunking, CPU fallback, model/revision change, or formal-run execution is allowed.
-
-## Required A/B/C trials
-
-Each trial must be an independent fresh Python process and must retain failures.
+## 3. Planned A/B/C comparison
 
 ```text
 A = current SDPA automatic backend selection
-B = force torch.nn.attention.SDPBackend.FLASH_ATTENTION
-C = force torch.nn.attention.SDPBackend.EFFICIENT_ATTENTION
+B = forced torch.nn.attention.SDPBackend.FLASH_ATTENTION
+C = forced torch.nn.attention.SDPBackend.EFFICIENT_ATTENTION
 ```
 
-Use `torch.nn.attention.sdpa_kernel(...)` for B/C. A forced backend must not silently fall back to another backend. If unsupported, record the exact warning/error and classify that candidate unsupported.
+R1 prohibited truncation, chunking, CPU fallback, model/revision changes, and formal N-05 execution.
 
-Run each supported candidate at least twice at full 18,847-token length after a shorter smoke proves it can start. Preserve every trial; do not retry until PASS and discard failures.
+## 4. Partial result before user abort
 
-## Measurements
-
-For every trial record:
+Confirmed evidence:
 
 ```text
-requested backend
-accepted/effective backend evidence where obtainable
-wall-clock embedding seconds
-Torch baseline/peak allocated
-Torch baseline/peak reserved
-Windows process Dedicated GPU memory peak
-Windows process Shared GPU memory peak
-process working set/private memory
-system committed/available memory
-output dimension
-finite check
-vector norm
-input/token-ID identity
-exception/warning
+A auto-SDPA smoke: PASS
+  profiler: math backend observed
+
+B forced FLASH_ATTENTION: FAIL
+  current tested Windows PyTorch build did not provide the required Flash Attention kernel
+
+C forced EFFICIENT_ATTENTION: FAIL
+  tested Q=16 / KV=8 GQA shape was rejected
+
+A full-1: ABORTED_by_user
 ```
 
-Compare candidate output to baseline A:
+The user stopped R1 after observing concerning VRAM behavior. Related processes were terminated and RTX 4090 usage returned near idle. Therefore this run does **not** establish a persistent cross-process VRAM leak.
+
+No alternative backend reached acceptance. R1 is not a completed performance or quality result.
+
+## 5. Why R1 is not resumed
+
+Subsequent design review found a more fundamental Derived Search issue:
 
 ```text
-cosine similarity
-max absolute component difference
-mean absolute component difference
+object_overall
+  = Object context
+  + every content-Facet Statement body
+
+facet
+  = the same detailed Statements grouped by Facet
+
+statement
+  = the same detailed Statements individually
 ```
 
-Do not set an arbitrary quality PASS threshold only to accept a faster backend. Preserve the measurements for retrieval-level validation.
+The giant `object_overall` duplicates detail already available through Facet/Statement representations and created the 18,847-token full-attention input.
 
-## Backend-dispatch evidence
-
-Where possible, use PyTorch profiler/logging or backend-forcing failure messages to establish which kernel can actually serve this input. Do not infer the active kernel merely because `_attn_implementation=sdpa` or because Flash/efficient availability flags are true.
-
-If the automatic A path cannot be identified precisely, it remains valid as the measured baseline, but document that the exact A dispatch remains unknown.
-
-## Acceptance for proceeding to runtime adoption review
-
-A candidate B/C is a strong adoption candidate if it:
-
-- completes the exact input reliably;
-- materially lowers the 51.061 GiB allocated / ~34.2 GiB shared-memory baseline or materially reduces ~630 s latency;
-- uses no CPU fallback/truncation;
-- emits valid normalized 1024-dimensional vectors;
-- has quantified numerical difference from baseline.
-
-Do not modify production `SentenceTransformerEmbeddingProvider` during the measurement phase.
-
-## If built-in fused SDPA is unavailable
-
-Stop after preserving the evidence and prepare a separate P1 evaluation of Transformers `attn_implementation="flash_attention_2"`. Do not install an unpinned package/kernel or enable network fallback inside this diagnostic without separate documentation and reproducibility review.
-
-## Disk preflight
-
-Before any future formal benchmark—not necessarily before this small diagnostic—run:
-
-```powershell
-python benchmark/tools/n05_resource_preflight.py `
-  --qdrant-root C:\Qdrant\SGOKB `
-  --output .local\n05d04\resource-preflight.json
-```
-
-Formal N05D-04 requires at least 32 GiB free on each relevant volume.
-
-## Regression and result recording
-
-Add focused tests for any diagnostic tool. After diagnostic implementation/results:
-
-```powershell
-python -m pytest -q <focused tests>
-python -m pytest -q
-python -m ruff check .
-git diff --check
-```
-
-Document results in:
+The user selected structural remediation instead:
 
 ```text
-docs/evaluation/N05D04_RESOURCE_PREFLIGHT_AND_VRAM_RESEARCH.md
+compact object_overview
++ facet representations
++ statement representations
++ bounded Object aggregation
++ hierarchical Object Similarity
 ```
 
-Do not restart formal N05D-04 automatically. The result must first decide whether to keep current SDPA, adopt a forced fused backend, or investigate Transformers FlashAttention-2 / design remediation.
+Therefore R1 runtime tuning is retained only as historical diagnostic evidence.
+
+## 6. Deferred runtime candidates
+
+The following remain optional later candidates if the structural redesign still leaves unacceptable resource use:
+
+- cuDNN/other supported SDPA backend;
+- math SDPA BF16 reduced-precision reduction;
+- Transformers FlashAttention-2 / Linux or WSL runtime;
+- PyTorch runtime upgrade;
+- Harrier 270M.
+
+They are not bundled into the R2 baseline.
+
+## 7. Safety / retention
+
+Do not delete or overwrite raw evidence from run `20261023T035147+0900`.
+
+Do not restart its full-input trial automatically.
+
+Any local uncommitted R1 diagnostic code must be inspected before syncing the local repository with newer `main`; do not discard it with `reset --hard` without an explicit disposition decision.
+
+## 8. Current successor
+
+```text
+N05D-04R1 = Historical partial / user-aborted
+N05D-04R2 = Active
+R2-01 = Next / Not Started
+N-05 = BLOCKED / Not Complete
+```
