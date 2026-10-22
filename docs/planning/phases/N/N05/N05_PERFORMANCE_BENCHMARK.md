@@ -4,9 +4,13 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-05 [P0] — Performance`
-- Status: **Active — benchmark contract frozen / Reference Workstation formal measurement pending**
+- Status: **Active / BLOCKED — formal run executed; performance target not judgeable**
 - Contract: `benchmark/n05-performance-contract-v1.json`
 - Evaluator: `benchmark/tools/n05_evaluate_performance.py`
+- Runner: `benchmark/tools/n05_run_performance.py`
+- Workflow fixture: `benchmark/tools/n05_performance_workflow.py`
+- Formal run: `20261022T130413+0900`
+- Formal run HEAD: `a7147f9842f94e96944bc7f67b4c3986970462b0`
 - Parent requirements: `docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md` NFR-PERF-01〜
 
 ## 1. Purpose
@@ -24,32 +28,7 @@ N-05は外部AIや人間の待ち時間を測るTaskではない。SGOKB自身�
 
 ## 2. Measurement boundary
 
-### Included
-
-Pre-analysis:
-
-```text
-Evidence Retrieval
-Package selection / budget
-manifest / instructions
-Package build
-Package stage
-Package preflight
-```
-
-Post-analysis:
-
-```text
-Result Validation
-Diff / Review artifact generation
-Version Import / current promotion
-Search Representation update
-incremental Object / Facet / Statement Embedding
-incremental Vector Index update
-standard derived rendering
-```
-
-Machine evidenceでは次の8 segmentとして記録する。
+Included:
 
 ```text
 package_build
@@ -62,11 +41,11 @@ derived_incremental_sync
 render
 ```
 
-`package_build`はObjectEvidencePackageBuilder内部のEvidence Retrieval / selectionを含む。
+`package_build`はEvidence Retrieval / selectionを含む。
 
 `derived_incremental_sync`はSearch Representation / Embedding / Vector Indexの通常incremental pathを含む。
 
-### Excluded
+Excluded:
 
 ```text
 Source探索
@@ -79,8 +58,6 @@ human review / approval wait
 full Vector Index rebuild
 ```
 
-full rebuildはFailure / Recoveryまたはbackend lifecycleの別計測であり、1 Object normal p95へ混ぜない。
-
 ## 3. Reference Environment
 
 正式結果はNFR-PERF-02のReference Workstationだけで判定する。
@@ -90,26 +67,21 @@ OS   Windows 11
 CPU  Intel Core i5-13600KF
 RAM  128 GB
 GPU  NVIDIA GeForce RTX 4090 24 GB
-Disk benchmark時の実device / volume / free spaceを記録
 ```
 
-さらに次をraw evidenceへ固定する。
-
-```text
-git HEAD
-Python version
-Embedding model + exact revision
-Qdrant version
-Qdrant transport
-collection prefix
-model cache mode
-```
-
-別PC、GPU無効、別Embedding model、別Vector backendの値をReference resultへ混ぜない。
+raw evidenceへGit HEAD、Python、Embedding model/revision、Qdrant version/transport、collection prefix、cache mode、disk情報を固定する。
 
 ## 4. Workload profiles
 
 ### Standard
+
+```text
+Source                   10
+Evidence candidates      500
+Package Evidence         120
+Knowledge Statements     300
+Gate                      warm p95 <= 600 s
+```
 
 Requirement envelope:
 
@@ -120,22 +92,15 @@ Package Evidence         50..200
 Knowledge Statements     <= 500
 ```
 
-Reference fixture target:
-
-```text
-Source                   10
-Evidence candidates      500
-Package Evidence         120
-Knowledge Statements     300
-```
-
-Gate:
-
-```text
-warm p95 <= 600 s
-```
-
 ### Large
+
+```text
+Source                   40
+Evidence candidates      2000
+Package Evidence         350
+Knowledge Statements     1200
+Gate                      warm p95 <= 1200 s
+```
 
 Requirement envelope:
 
@@ -146,127 +111,39 @@ Package Evidence         200..500
 Knowledge Statements     <= 2000
 ```
 
-Reference fixture target:
+## 5. Fixture / isolation policy
+
+N-03はreal-data ecological referenceとして保持するが、N-05 workload shapeはisolated deterministic synthetic fixtureで再現する。
+
+各sampleは同一starting stateから開始し、SQLite / package / result / renderをsample directory配下へ隔離する。
+
+Qdrant collection prefixもsample固有とする。
+
+production canonical DBをbenchmark workloadとして変更しない。
+
+外部AI区間はdeterministic prebuilt valid Resultで置換してよいが、通常のValidation / Diff / Import contractを通す。
+
+## 6. Cold / Warm policy
+
+Cold diagnostic:
 
 ```text
-Source                   40
-Evidence candidates      2000
-Package Evidence         350
-Knowledge Statements     1200
+>= 3 samples / profile
+non-gating
 ```
 
-Gate:
+Warm formal:
 
 ```text
-warm p95 <= 1200 s
+>= 20 samples / profile
+nearest-rank p95
+terminal failure / abort 0
+retry時間をtotalへ含む
 ```
 
-## 5. Why N-03 alone is not the performance fixture
+失敗sampleを削除したり追加成功sampleで置換してはならない。
 
-N-03は6 Object / 8 real Web Captureで、実データvertical sliceとして後続Phase Nに再利用する。
-
-しかしN-05 Standard/Large workloadは1 Objectに5〜100 Source、最大500 Package Evidence、最大2000 Knowledge Statementを持つload profileであり、N-03 datasetだけではそのload shapeを保証しない。
-
-したがって:
-
-```text
-N-03 = ecological / real-data integration reference
-N-05 synthetic load fixture = deterministic performance load shape
-N-06 = retrieval / ranking quality evidence
-```
-
-と責務を分離する。
-
-N-05 synthetic fixtureはcanonical schema/public workflowを使って作るが、検索品質や意味品質の証拠として使用しない。
-
-## 6. Isolation
-
-benchmarkはproduction DBを使用しない。
-
-各sampleで:
-
-```text
-.local/n05/<run_id>/<profile>/<condition>/<sample_id>/
-```
-
-へSQLite / Package / Result / Render evidenceを隔離する。
-
-Qdrantもsample固有collection prefixを使用する。
-
-各sampleは同一のfrozen starting stateから開始する。前sampleのImport、Embedding、Vectorが後sampleへ累積してはならない。
-
-## 7. Cold / Warm policy
-
-### Cold diagnostic
-
-各profile最低3 sample。
-
-- cold値は正式10/20分Gateへ使用しない。
-- first-use/model/backend initialization costを診断するため保存する。
-- cold sampleの失敗もraw evidenceから削除しない。
-
-### Warm formal
-
-各profile最低20 sample。
-
-- Standard/Largeの正式p95はwarm sampleだけから算出する。
-- p95はnearest-rank `ceil(0.95 * n)`。
-- warm sampleに`FAIL`または`ABORTED`が1件でもあれば、そのprofileはFAIL。
-- 失敗sampleの代わりに追加成功sampleを採用してはならない。
-- bounded automatic retryを行った場合、retry時間をtotalへ含め`retry_count`へ記録する。
-
-## 8. Timing semantics
-
-各sampleの`total_seconds`はIncluded segmentのlocal automatic wall-clockを対象とする。
-
-外部境界で停止している時間は加算しない。
-
-segment timerはmonotonic clockを使用する。
-
-結果には最低限:
-
-```text
-min
-p50
-p95
-max
-segment p95
-retry count
-warm failure count
-cold diagnostic
-```
-
-を残す。
-
-## 9. Result semantics
-
-### PASS
-
-- Standard / Large両方のworkloadがcontract内。
-- required environment metadataあり。
-- cold各3以上、warm各20以上。
-- formal warm failure 0。
-- Standard warm p95 <= 600 s。
-- Large warm p95 <= 1200 s。
-
-### FAIL
-
-valid formal workloadで:
-
-- warm p95がtarget超過、または
-- warm sampleにterminal failure / abortがある。
-
-### BLOCKED
-
-- workloadがenvelope外。
-- sample不足。
-- environment metadata不足。
-- Reference runtimeを実行できない。
-- raw evidenceが不足/破損。
-
-`BLOCKED`をSGOKB性能FAILへ読み替えない。
-
-## 10. Deterministic evaluator
+## 7. Deterministic evaluator
 
 ```powershell
 python benchmark/tools/n05_evaluate_performance.py `
@@ -274,69 +151,137 @@ python benchmark/tools/n05_evaluate_performance.py `
   --output .local/n05/<run_id>/performance-evaluation.json
 ```
 
-exit code:
-
 ```text
 0 PASS
 1 FAIL
 2 BLOCKED
 ```
 
-Evaluator自身の回帰:
+## 8. Formal runner
 
-```powershell
-python -m pytest -q tests/test_n05_performance_evaluator.py
-```
-
-## 11. Mandatory preflight before formal measurement
-
-Reference Workstationでformal sampleを開始する前に:
-
-```powershell
-python -m pytest -q tests/test_n05_performance_evaluator.py
-python -m pytest -q
-python -m ruff check .
-git diff --check
-```
-
-さらに:
-
-- `main` / expected Git HEADを記録。
-- Qdrant reachableを確認。
-- frozen local Embedding model/revisionを記録。
-- disk / free spaceを記録。
-- production canonical DBを参照していないことを確認。
-
-## 12. Current execution state
-
-2026-10-22、Reference WorkstationへのRemote Desktop Commander接続は確認した。
-
-ただしRemote Desktop Commanderのcurrent monthly execution limitによりcommand実行が拒否されたため、Reference Workstationでのformal samplesは未実行である。
-
-したがって現時点では:
+Reference Workstation runner:
 
 ```text
-Benchmark contract   Frozen
-Evaluator            Implemented
-Evaluator tests      Added / Reference Workstation execution pending
-Formal raw evidence  Not produced
-N-05 verdict         BLOCKED (execution access), not FAIL
-N-05 status          Active / not Complete
+benchmark/tools/n05_performance_workflow.py
+benchmark/tools/n05_run_performance.py
 ```
 
-実測値を推定・捏造してPASS/FAILを付けない。
+runnerは:
+
+- canonical APIsでfixtureを構築する。
+- sampleごとにSQLiteをcloneする。
+- actual Harrier embeddingを使用する。
+- sample固有Qdrant collection prefixを使用する。
+- 8 segmentをmonotonic wall-clockで計測する。
+- production canonical DB before/after fingerprintを比較する。
+- post-run regressionを保存する。
+
+## 9. Formal run 20261022T130413+0900
+
+実行HEAD:
+
+`a7147f9842f94e96944bc7f67b4c3986970462b0`
+
+### Standard
+
+計画どおり23 sampleを開始したが、23 / 23がterminal sample failureとなった。
+
+失敗地点:
+
+```text
+Derived Search sync
+→ Qdrant payload index creation
+→ server-side storage path error
+```
+
+観測されたmessageは`gridstore` pathが見つからない旨を示した。
+
+Renderへ到達していないため、required 8-segment evidenceは完成していない。
+
+### Large
+
+`cold-01`のEmbedding処理中に中断した。
+
+観測:
+
+```text
+Object representation: 18,847 tokens
+batch size: 1
+Dedicated VRAM: 約23.2 GiB
+Shared GPU memory: 約34.2 GiB
+```
+
+後続sampleは実行していない。
+
+このためLargeのrequired sample countを満たさない。
+
+## 10. Formal result
+
+```text
+N-05 formal verdict = BLOCKED
+N-05 status         = Active / Not Complete
+performance target  = Not Judgeable
+```
+
+これは性能目標未達を意味しない。
+
+Standard/Largeのformal warm p50 / p95 / maxは報告しない。
+
+## 11. Post-run validation
+
+```text
+Evaluator tests: 8 PASS
+Full pytest:      517 PASS
+Ruff:             PASS
+git diff --check: PASS
+```
+
+formal runの安全性:
+
+```text
+canonical DB unchanged
+tracked files unchanged during run
+HEAD unchanged during run
+```
+
+## 12. Diagnostic phase before rerun
+
+formal runの単純再試行は禁止する。
+
+次を分離して診断する。
+
+```text
+N05D-01 Qdrant storage/path blocker diagnosis
+N05D-02 Long-input Harrier memory diagnosis
+N05D-03 Evidence-based remediation
+N05D-04 Formal benchmark rerun
+```
+
+詳細:
+
+`docs/planning/phases/N/N05/N05_BLOCKER_DIAGNOSTIC_PLAN.md`
+
+N05D-01 / D-02の診断値はformal performance sampleへ混ぜない。
+
+Gateは変更しない。
 
 ## 13. Completion condition
 
 N-05 Completeには次が必要。
 
-1. Reference Workstation preflight PASS。
-2. Standard cold >=3 / warm >=20取得。
-3. Large cold >=3 / warm >=20取得。
-4. raw evidence保存。
-5. deterministic evaluator実行。
-6. Standard / Large formal verdict確定。
-7. full regression / Ruff / diff check。
-8. human-readable evaluation documentへ実測結果を記録。
+1. N05D-01とN05D-02のblockerを診断する。
+2. evidenceに基づいて必要な修復を行う。
+3. 新しいrun_idでformal benchmarkを最初から実行する。
+4. Standard cold >=3 / warm >=20を取得する。
+5. Large cold >=3 / warm >=20を取得する。
+6. deterministic evaluatorでPASS/FAILを確定する。
+7. full regression / Ruff / diff checkをPASSする。
+8. human-readable evaluationへ正式統計を記録する。
 
-実測が完了するまでN-05をCompleteとしない。
+## 14. Current next task
+
+```text
+N05D-01 — Qdrant storage/path blocker diagnosis
+```
+
+N-06はN-05のblockerとは独立して進行可能である。
