@@ -3,41 +3,64 @@
 Updated: 2026-10-23
 
 - Parent: `N-05 [P0] — Performance`
-- Status: **BLOCKED / Not Complete — resource remediation before a new run**
-- Authorization basis: `docs/evaluation/N05D03_EVIDENCE_BASED_REMEDIATION.md`
+- Status: **BLOCKED / Not Complete — hierarchical Derived Search redesign required before rerun**
+- Historical authorization basis: `docs/evaluation/N05D03_EVIDENCE_BASED_REMEDIATION.md`
 - Resource/VRAM research: `docs/evaluation/N05D04_RESOURCE_PREFLIGHT_AND_VRAM_RESEARCH.md`
-- VRAM diagnostic handoff: `docs/planning/phases/N/N05/execution/N05D04R1_HARRIER_SDPA_VRAM_DIAGNOSIS_HANDOFF.md`
-- Frozen contract: `benchmark/n05-performance-contract-v1.json`
+- Adopted redesign: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
+- Redesign tasks: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md`
+- Frozen performance contract: `benchmark/n05-performance-contract-v1.json`
 - Runner: `benchmark/tools/n05_run_performance.py`
 - Evaluator: `benchmark/tools/n05_evaluate_performance.py`
 - Old formal run: `20261022T130413+0900` — preserved BLOCKED evidence
 - Aborted rerun: `20261023T025413+0900` — preserved environment-blocked evidence
 
-## 1. Goal
+## 1. Current decision
 
-Execute a completely new formal N-05 run under the accepted contract and obtain a judgeable PASS/FAIL result for:
+Do **not** start another formal 46-sample N-05 run yet.
+
+After the aborted rerun and VRAM investigation, the user selected a structural Derived Search remediation:
 
 ```text
-Standard warm p95 <= 600 s
-Large warm p95    <= 1200 s
+retire giant active object_overall usage
+introduce compact object_overview
+keep/use Facet representations
+keep/use Statement representations
+aggregate child matches to Object results
+redesign overall Object Similarity as bounded hierarchical multi-vector similarity
 ```
 
-Diagnostic timings from N05D-01/N05D-02/N05D-04R1 are not formal samples.
+The redesign is N05D-04R2. Formal N05D-04 execution is re-authorized only after R2-01 through R2-08 complete and Search-quality acceptance passes.
 
-## 2. Aborted attempt 20261023T025413+0900
+## 2. Why another immediate rerun is prohibited
 
-The first D04 rerun started from execution HEAD `280a2af9fc9c5338137f46b366bd4e18b0b9416a` with the remediated Qdrant runtime and an initially uncongested RTX 4090.
+N05D-02 established that the exact 18,847-token `object_overall` is technically memory-completable but enters a severe resource regime:
 
-During the attempt:
+```text
+~51.1 GiB Torch peak allocated
+~34.2 GiB Windows Shared GPU memory
+~628–643 s for the Object-level embedding alone
+```
+
+The first D04 rerun also encountered disk exhaustion and was stopped before a judgeable Large sample set existed.
+
+R1 backend probing subsequently established partial evidence that native Windows auto-SDPA selected the math backend for the tested workload; forced Flash was unavailable in the current build and forced Efficient Attention rejected the tested GQA shape. R1 itself was user-aborted and is not an accepted runtime remediation.
+
+Because current `object_overall` duplicates detailed Knowledge already represented as Facet and Statement vectors, continuing to optimize the giant single-vector path is no longer the selected primary solution.
+
+## 3. Historical aborted attempt 20261023T025413+0900
+
+Execution HEAD:
+
+`280a2af9fc9c5338137f46b366bd4e18b0b9416a`
+
+Observed before abort:
 
 ```text
 Standard cold: 3/3 PASS
 Standard warm: 18 PASS / 2 FAIL
 ```
 
-The warm failures were caused by Qdrant disk exhaustion (`No space left on device` / WAL buffer cannot fit), not by a measured performance-gate exceedance. During Large cold, Harrier again entered the known near-full dedicated-VRAM + large Shared GPU memory spill regime. The user stopped the run before the Large formal sample set completed.
-
-The runner/workers were stopped, evidence retained, and no disk cleanup or sample replacement was performed by the benchmark task.
+The two warm failures were caused by Qdrant disk exhaustion (`No space left on device` / WAL buffer cannot fit), not by a valid performance-gate exceedance. Large had not completed its required sample set when the user stopped the run.
 
 Therefore:
 
@@ -47,105 +70,75 @@ N05D-04 = Not Complete
 N-05 = BLOCKED / Not Complete
 ```
 
-Do not resume this run. A future formal attempt must use a new run ID and start again at Standard cold-01.
+Never resume or patch this run. Preserve its evidence.
 
-## 3. Resource remediation before another formal attempt
+## 4. Redesign prerequisites before formal rerun
 
-A new formal run is not authorized until the resource preflight and N05D-04R1 VRAM investigation are completed/reviewed.
+Complete the task chain in:
 
-### Disk hard gate
+`docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md`
 
-Run:
-
-```powershell
-python benchmark/tools/n05_resource_preflight.py `
-  --qdrant-root C:\Qdrant\SGOKB `
-  --output .local\n05d04\resource-preflight.json
-```
-
-Required:
+Required before formal timing:
 
 ```text
-minimum free disk = 32 GiB
-scope = every volume hosting repository/formal evidence or active Qdrant runtime
-current topology = C: for both
+R2-01 impact survey / redesign freeze
+R2-02 requirements + design contract revision
+R2-03 persistence/versioning/migration design
+R2-04 object_overview implementation
+R2-05 Hybrid Search migration
+R2-06 hierarchical Object Similarity implementation
+R2-07 Derived Search rebuild/cutover/rollback validation
+R2-08 Search-quality acceptance
 ```
 
-This is an SGOKB Reference Workstation safety gate, not a general Qdrant minimum. The rationale combines Qdrant WAL/temp headroom with Windows page-file growth under the Harrier Shared-GPU-memory/commit load. See the resource research document for sources and derivation.
+Only R2-09 may authorize a new formal N-05 run.
 
-If free space is below 32 GiB, do not start formal samples.
+## 5. Model policy during redesign
 
-### VRAM investigation
-
-Before another many-hour formal run, execute/review:
-
-```text
-N05D-04R1 — Harrier SDPA backend / VRAM A-B diagnosis
-```
-
-Priority is to determine whether PyTorch built-in fused SDPA backends can lower the exact 18,847-token Harrier memory/latency profile without changing model/revision/tokenizer/representation/batch size.
-
-Do not install arbitrary runtime changes or modify the production provider before the diagnostic result is reviewed.
-
-## 4. Formal start prerequisites after resource review
-
-Before starting any new formal sample, verify and record:
-
-```text
-main == origin/main
-working tree clean
-new unique run_id
-resource preflight PASS (>=32 GiB free)
-Qdrant ready on localhost:6333/6334
-active Qdrant runtime root = C:\Qdrant\SGOKB
-active config = C:\Qdrant\SGOKB\qdrant.yaml
-accepted Harrier runtime/backend from the completed VRAM review
-CUDA available; no CPU fallback
-no unexpected substantial competing CUDA workload
-host available/committed memory snapshot
-```
-
-The preserved old Qdrant workspace storage and all previous N-05/N05D evidence must not be deleted or overwritten by the runner.
-
-If the runtime differs from the accepted reviewed state or another substantial CUDA workload materially confounds the workstation, stop before formal samples and classify the attempt BLOCKED. Do not kill unrelated user processes automatically.
-
-## 5. Frozen semantic/model identity
-
-Unless a separately reviewed VRAM-backend remediation is accepted, keep:
+Keep Harrier 0.6B fixed for the first causal comparison:
 
 ```text
 model: microsoft/harrier-oss-v1-0.6b
 revision: f9b9dc8d367d443f2479d27aa5d8d2850c0774ee
 dtype: bfloat16
-device: cuda
-batch_size: 1
-max_sequence_length: 32768
-overflow_policy: reject
-normalize_embeddings: true
 dimension: 1024
+normalization: unchanged
 ```
 
-No truncation, CPU fallback, model/revision change, sequence-limit reduction, or representation chunking is authorized as a benchmark shortcut.
+Do not combine the representation redesign with Harrier 270M adoption, PyTorch upgrade, FlashAttention-2 installation, CPU fallback, truncation, or arbitrary token chunking.
 
-An accepted attention-kernel/backend optimization must be documented with numerical/retrieval validation before the formal run and becomes part of the new execution environment evidence.
+A later model-change task may be opened only if the hierarchical redesign still fails resource/performance or other explicit requirements.
 
-## 6. Mandatory preflight
+## 6. Resource preflight retained
 
-Run the resource preflight first, then the existing formal preflight:
+The accepted hard disk start gate remains:
 
-```powershell
-python benchmark/tools/n05_resource_preflight.py --qdrant-root C:\Qdrant\SGOKB
-python -m pytest -q tests/test_n05_performance_evaluator.py
-python -m pytest -q
-python -m ruff check .
-git diff --check
+```text
+minimum free disk = 32 GiB
 ```
 
-Do not proceed if any mandatory preflight fails.
+for every volume hosting formal evidence or active Qdrant runtime. Current topology places both on `C:`.
 
-## 7. Formal sample sequence
+Before the future R2-09 run also confirm:
 
-Start from the beginning with a new run ID:
+```text
+main == origin/main
+working tree clean
+new unique run_id
+Qdrant ready on localhost:6333/6334
+active Qdrant runtime root = C:\Qdrant\SGOKB
+CUDA available
+no unexpected substantial competing CUDA workload
+host available/committed memory recorded
+Search-quality acceptance PASS
+full regression / Ruff / diff PASS
+```
+
+## 7. Future formal workload and gates
+
+The structural redesign does not lower the workload or performance requirements.
+
+Future formal run still starts from the beginning:
 
 ```text
 Standard cold  3
@@ -154,33 +147,34 @@ Large cold     3
 Large warm    20
 ```
 
-Never remove or replace a failed/aborted formal sample. Automatic retry time, if any, remains part of the sample total.
-
-## 8. Formal workload
-
-### Standard
+Workload remains:
 
 ```text
-Source                 10
-Evidence candidates    500
-Package Evidence       120
-Knowledge Statements   300
+Standard
+  Source                 10
+  Evidence candidates    500
+  Package Evidence       120
+  Knowledge Statements   300
+
+Large
+  Source                 40
+  Evidence candidates    2000
+  Package Evidence       350
+  Knowledge Statements   1200
 ```
 
-### Large
+Formal gates remain:
 
 ```text
-Source                 40
-Evidence candidates    2000
-Package Evidence       350
-Knowledge Statements   1200
+Standard warm p95 <= 600 s
+Large warm p95    <= 1200 s
+terminal failure / abort = 0
+nearest-rank p95
 ```
 
-No workload reduction is authorized.
+No failed/aborted sample replacement.
 
-## 9. Timed segments
-
-The existing eight-segment boundary remains unchanged:
+## 8. Timed boundary remains unchanged
 
 ```text
 package_build
@@ -193,50 +187,34 @@ derived_incremental_sync
 render
 ```
 
-External AI generation/return wait remains excluded according to the frozen contract.
+The new representation architecture is part of normal `derived_incremental_sync`; diagnostic redesign timing is not substituted for formal evidence.
 
-## 10. Evaluation and post-run validation
-
-Evaluate only the new run evidence:
-
-```powershell
-python benchmark/tools/n05_evaluate_performance.py `
-  --evidence .local\n05\<new_run_id>\performance-evidence.json `
-  --output .local\n05\<new_run_id>\performance-evaluation.json
-```
-
-Then run:
-
-```powershell
-python -m pytest -q tests/test_n05_performance_evaluator.py
-python -m pytest -q
-python -m ruff check .
-git diff --check
-```
-
-Confirm canonical fingerprints, tracked-file invariance, execution HEAD invariance, Qdrant runtime identity, and resource evidence.
-
-## 11. Result recording
+## 9. Formal result recording after R2-09
 
 Update at minimum:
 
 ```text
 docs/evaluation/N05_PERFORMANCE.md
+docs/evaluation/N05D04_RESOURCE_PREFLIGHT_AND_VRAM_RESEARCH.md
 docs/planning/phases/N/N05/N05_PERFORMANCE_BENCHMARK.md
 docs/planning/phases/N/N05/N05_BLOCKER_DIAGNOSTIC_PLAN.md
 docs/planning/phases/N/PHASE_N_PREPARATION.md
 this handoff
 ```
 
-Record run ID, execution HEAD, sample counts, p50/p95/max where judgeable, segment statistics, terminal failures, resource preflight, regression results, and final N-05 verdict.
+Record representation/builder identity so pre-redesign and post-redesign results cannot be confused.
 
-## 12. Current state
+## 10. Current state
 
 ```text
 N05D-01 = Complete
-N05D-02 = Complete
-N05D-03 = Complete / READY_FOR_N05D04
-N05D-04 = BLOCKED / Not Complete after environment-aborted attempt
-N05D-04R1 = Next / Ready
+N05D-02 = Complete / VIABLE_FOR_FORMAL_RERUN under old representation
+N05D-03 = Complete historical closure decision
+N05D-04 = BLOCKED / Not Complete
+N05D-04R1 = user-aborted diagnostic evidence; not selected remediation
+N05D-04R2 = Active / redesign planning
+R2-01 = Next / Not Started
 N-05 = BLOCKED / Not Complete
 ```
+
+Next: **R2-01 — Impact survey / redesign freeze**.
