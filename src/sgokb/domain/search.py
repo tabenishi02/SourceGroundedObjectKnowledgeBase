@@ -17,11 +17,12 @@ class ObjectSearchChannel(str, Enum):
     EXACT_ALIAS = "exact_alias"
     REGISTRY_LEXICAL = "registry_lexical"
     KNOWLEDGE_LEXICAL = "knowledge_lexical"
-    # Historical Python member/value retained for Phase-I pre-cutover compatibility.
-    SEMANTIC_OBJECT = "semantic_object_overall"
-    SEMANTIC_OBJECT_OVERALL = "semantic_object_overall"
-    # Active R2 Object-level channel.
+    # Canonical active Object-level channel after R2. Keep SEMANTIC_OBJECT as the
+    # source-compatible Python member while also exposing the explicit R2 name.
+    SEMANTIC_OBJECT = "semantic_object_overview"
     SEMANTIC_OBJECT_OVERVIEW = "semantic_object_overview"
+    # Explicit legacy value for historical diagnostics/compatibility only.
+    SEMANTIC_OBJECT_OVERALL = "semantic_object_overall"
     SEMANTIC_FACET = "semantic_facet"
     SEMANTIC_STATEMENT = "semantic_statement"
 
