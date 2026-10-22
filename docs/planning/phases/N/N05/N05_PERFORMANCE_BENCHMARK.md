@@ -1,16 +1,16 @@
 # N-05 — Performance Benchmark
 
-更新日: 2026-10-22
+更新日: 2026-10-23
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-05 [P0] — Performance`
-- Status: **Active / BLOCKED — formal run executed; performance target not judgeable**
+- Status: **Active / BLOCKED — N05D-01〜03 Complete; N05D-04 formal rerun Ready**
 - Contract: `benchmark/n05-performance-contract-v1.json`
 - Evaluator: `benchmark/tools/n05_evaluate_performance.py`
 - Runner: `benchmark/tools/n05_run_performance.py`
 - Workflow fixture: `benchmark/tools/n05_performance_workflow.py`
-- Formal run: `20261022T130413+0900`
-- Formal run HEAD: `a7147f9842f94e96944bc7f67b4c3986970462b0`
+- Historical formal run: `20261022T130413+0900`
+- Historical formal run HEAD: `a7147f9842f94e96944bc7f67b4c3986970462b0`
 - Parent requirements: `docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md` NFR-PERF-01〜
 
 ## 1. Purpose
@@ -70,6 +70,16 @@ GPU  NVIDIA GeForce RTX 4090 24 GB
 ```
 
 raw evidenceへGit HEAD、Python、Embedding model/revision、Qdrant version/transport、collection prefix、cache mode、disk情報を固定する。
+
+N05D-01でQdrant runtimeはworkspace内storageから次へ切替済みである。
+
+```text
+runtime root: C:\Qdrant\SGOKB
+config:       C:\Qdrant\SGOKB\qdrant.yaml
+HTTP/gRPC:    6333 / 6334
+```
+
+N05D-04では、このremediated runtimeがactiveであることをformal sample開始前に確認する。
 
 ## 4. Workload profiles
 
@@ -176,7 +186,7 @@ runnerは:
 - production canonical DB before/after fingerprintを比較する。
 - post-run regressionを保存する。
 
-## 9. Formal run 20261022T130413+0900
+## 9. Historical formal run 20261022T130413+0900
 
 実行HEAD:
 
@@ -215,7 +225,7 @@ Shared GPU memory: 約34.2 GiB
 
 このためLargeのrequired sample countを満たさない。
 
-## 10. Formal result
+## 10. Historical formal result
 
 ```text
 N-05 formal verdict = BLOCKED
@@ -227,7 +237,7 @@ performance target  = Not Judgeable
 
 Standard/Largeのformal warm p50 / p95 / maxは報告しない。
 
-## 11. Post-run validation
+## 11. Historical post-run validation
 
 ```text
 Evaluator tests: 8 PASS
@@ -244,44 +254,76 @@ tracked files unchanged during run
 HEAD unchanged during run
 ```
 
-## 12. Diagnostic phase before rerun
+## 12. Diagnostic/remediation chain before rerun
 
-formal runの単純再試行は禁止する。
-
-次を分離して診断する。
+formal runの単純再試行は禁止し、次を分離した。
 
 ```text
-N05D-01 Qdrant storage/path blocker diagnosis
-N05D-02 Long-input Harrier memory diagnosis
-N05D-03 Evidence-based remediation
-N05D-04 Formal benchmark rerun
+N05D-01 Qdrant storage/path blocker diagnosis          Complete
+N05D-02 Long-input Harrier memory diagnosis           Complete
+N05D-03 Evidence-based remediation / closure          Complete
+N05D-04 Formal benchmark rerun                        Ready / Not Started
 ```
 
 詳細:
 
-`docs/planning/phases/N/N05/N05_BLOCKER_DIAGNOSTIC_PLAN.md`
+- `docs/planning/phases/N/N05/N05_BLOCKER_DIAGNOSTIC_PLAN.md`
+- `docs/evaluation/N05D01_QDRANT_STORAGE_PATH_DIAGNOSIS.md`
+- `docs/evaluation/N05D02_HARRIER_MEMORY_DIAGNOSIS.md`
+- `docs/evaluation/N05D03_EVIDENCE_BASED_REMEDIATION.md`
+- `docs/planning/phases/N/N05/execution/N05D04_FORMAL_RERUN_HANDOFF.md`
 
 N05D-01 / D-02の診断値はformal performance sampleへ混ぜない。
 
-Gateは変更しない。
+Gate、workload、measurement boundary、Harrier model/revisionは変更しない。
 
-## 13. Completion condition
+### N05D-01 result
+
+Qdrant問題は`QDRANT_ENVIRONMENT_DEFECT`として分類し、`C:\Qdrant\SGOKB`へのexternal-storage cutoverを実施した。real semantic/filtered query、Vector rebuild、integrity、canonical invariance、regressionがPASSした。
+
+### N05D-02 result
+
+exact 18,847-token Large representationはfrozen Harrier条件でfresh process 3/3 PASSし、`VIABLE_FOR_FORMAL_RERUN`となった。
+
+一方、full Object embeddingは約628〜643秒、shared GPU memory約34.2 GiBであり、Large formal performanceに重大なriskを残す。この値はdiagnosticでありformal p95ではない。
+
+### N05D-03 result
+
+追加のproduction code / model / representation design remediationはEvidence上不要と判断した。Qdrantの既適用remediationを保持し、Harrier/representation/contractは凍結したままN05D-04へ進む。
+
+## 13. N05D-04 start conditions
+
+formal rerun開始前に最低限次を確認する。
+
+1. clean `main == origin/main`。
+2. old formal/diagnostic evidenceを保持し、新しいrun_idを使用。
+3. remediated Qdrant `C:\Qdrant\SGOKB` が6333/6334でactive/ready。
+4. Harrier model/revision/BF16/CUDA/batch 1/max length 32768/overflow rejectを維持。
+5. unexpected substantial competing CUDA workloadがないことを記録・確認。勝手に他processを終了しない。
+6. host available/committed memoryをenvironment evidenceとして記録する。これは新しいperformance Gateではない。
+7. mandatory preflightをPASS。
+8. Standard cold-01から新runを最初から開始。
+9. FAIL/ABORTED sampleを置換しない。
+
+正式実行handoff:
+
+`docs/planning/phases/N/N05/execution/N05D04_FORMAL_RERUN_HANDOFF.md`
+
+## 14. Completion condition
 
 N-05 Completeには次が必要。
 
-1. N05D-01とN05D-02のblockerを診断する。
-2. evidenceに基づいて必要な修復を行う。
-3. 新しいrun_idでformal benchmarkを最初から実行する。
-4. Standard cold >=3 / warm >=20を取得する。
-5. Large cold >=3 / warm >=20を取得する。
-6. deterministic evaluatorでPASS/FAILを確定する。
-7. full regression / Ruff / diff checkをPASSする。
-8. human-readable evaluationへ正式統計を記録する。
+1. 新しいrun_idでformal benchmarkを最初から実行する。
+2. Standard cold >=3 / warm >=20を取得する。
+3. Large cold >=3 / warm >=20を取得する。
+4. deterministic evaluatorでPASS/FAILを確定する。
+5. full regression / Ruff / diff checkをPASSする。
+6. human-readable evaluationへ正式統計を記録する。
 
-## 14. Current next task
+## 15. Current next task
 
 ```text
-N05D-01 — Qdrant storage/path blocker diagnosis
+N05D-04 — Formal benchmark rerun under the frozen contract
 ```
 
-N-06はN-05のblockerとは独立して進行可能である。
+N-06はN-05のformal rerunとは独立して進行可能である。
