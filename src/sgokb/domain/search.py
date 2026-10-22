@@ -1,4 +1,4 @@
-"""Backend-neutral object search contracts for Phase I / I-04."""
+"""Backend-neutral object search contracts for Phase I / R2 Hybrid Search."""
 
 from __future__ import annotations
 
@@ -17,7 +17,10 @@ class ObjectSearchChannel(str, Enum):
     EXACT_ALIAS = "exact_alias"
     REGISTRY_LEXICAL = "registry_lexical"
     KNOWLEDGE_LEXICAL = "knowledge_lexical"
-    SEMANTIC_OBJECT = "semantic_object_overall"
+    # Keep the Python member name for source compatibility while exposing the
+    # R2 active channel value. Normal R2 retrieval never emits the legacy value.
+    SEMANTIC_OBJECT = "semantic_object_overview"
+    SEMANTIC_OBJECT_OVERALL = "semantic_object_overall"
     SEMANTIC_FACET = "semantic_facet"
     SEMANTIC_STATEMENT = "semantic_statement"
 
