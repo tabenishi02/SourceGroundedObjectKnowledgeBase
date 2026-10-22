@@ -330,8 +330,13 @@ class HybridObjectSearch(_PhaseIHybridObjectSearch):
 
         space = self.embedding_provider.space
         query_vector = self.embedding_provider.embed_queries([query])[0]
+        object_channel = (
+            ObjectSearchChannel.SEMANTIC_OBJECT_OVERVIEW
+            if generation.contract_key == _R2_CONTRACT_KEY
+            else ObjectSearchChannel.SEMANTIC_OBJECT_OVERALL
+        )
         kind_channels = {
-            generation.object_kind: ObjectSearchChannel.SEMANTIC_OBJECT,
+            generation.object_kind: object_channel,
             SearchRepresentationKind.FACET: ObjectSearchChannel.SEMANTIC_FACET,
             SearchRepresentationKind.STATEMENT: ObjectSearchChannel.SEMANTIC_STATEMENT,
         }
