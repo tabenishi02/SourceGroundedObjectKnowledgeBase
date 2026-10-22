@@ -1,8 +1,8 @@
 # Source Grounded Object Knowledge Base — Phase N Preparation
 
-更新日: 2026-10-22
+更新日: 2026-10-23
 
-- Status: **Active — N-01〜N-04 Complete / N-05 Active (formal BLOCKED) / N-06 Ready**
+- Status: **Active — N-01〜N-04 Complete / N-05 Active (BLOCKED; hierarchical redesign in progress) / N-06 Ready**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - N-04 decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
@@ -11,6 +11,8 @@
 - N-05 plan: `docs/planning/phases/N/N05/N05_PERFORMANCE_BENCHMARK.md`
 - N-05 blocker diagnostics: `docs/planning/phases/N/N05/N05_BLOCKER_DIAGNOSTIC_PLAN.md`
 - N-05 evaluation: `docs/evaluation/N05_PERFORMANCE.md`
+- N-05 redesign: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
+- N-05 redesign tasks: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md`
 
 ## 1. Phase Nの目的
 
@@ -38,8 +40,8 @@ Phase Nでは、Phase A〜Mで成立したSGOKBが、新しい目的に対して
 | N-02 | P0 | **Complete (2026-10-16)** | cross-domain Integrationを確認 |
 | N-03 | P0 | **Complete (2026-10-16)** | Character / Work / Conceptの実データVertical Slice |
 | N-04 | P0 | **Complete / PASS (2026-10-22)** | Knowledge Access Boundaryを代表3用途で受入 |
-| N-05 | P0 | **Active / BLOCKED** | 1 Object local automatic processing性能を評価 |
-| N-06 | P0 | **Ready** | Retrieval / Vector Backend品質評価 |
+| N-05 | P0 | **Active / BLOCKED — N05D-04R2 redesign active** | 1 Object local automatic processing性能を評価 |
+| N-06 | P0 | **Ready; R2 quality acceptanceで連携** | Retrieval / Vector Backend品質評価 |
 | N-07 | P1 | Pending | Failure / Recovery試験 |
 
 ## 3. Phase dependency
@@ -51,7 +53,13 @@ N-02 Integration Test                 Complete
   ↓
 N-03 Real-data Vertical Slice         Complete
   ├─→ N-04 Knowledge Access Acceptance   Complete / PASS
-  ├─→ N-05 Performance                  Active / formal BLOCKED
+  ├─→ N-05 Performance                  Active / BLOCKED
+  │       ↓
+  │     N05D-04R2 hierarchical Derived Search redesign
+  │       ↓
+  │     Search-quality acceptance (N-06 assets/resultsと整合確認)
+  │       ↓
+  │     New formal N-05 rerun
   └─→ N-06 Retrieval / Vector quality   Ready
          ↓
        N-07 Failure / Recovery
@@ -59,7 +67,7 @@ N-03 Real-data Vertical Slice         Complete
        Phase N Closure Audit
 ```
 
-N-04 / N-05 / N-06は兄弟Taskであり、N-05のblockerを理由にN-06を停止しない。
+N-04 / N-05 / N-06は兄弟Taskであるが、N05D-04R2はRetrieval semanticsを変更するため、R2-08ではN-06 quality assets/resultsとの再整合が必要になる。
 
 ## 4. N-01 — Unit Test
 
@@ -155,88 +163,108 @@ old harness / execution tooling: RETIRE
 
 ## 9. N-05 — Performance
 
-Status: **Active / BLOCKED (2026-10-22 formal run)**
+Status: **Active / BLOCKED — structural Derived Search remediation selected**
 
-Formal target:
+Formal target remains:
 
 ```text
 Standard warm p95 <= 600 s
 Large warm p95    <= 1200 s
 ```
 
-formal run:
+### Historical formal run
 
 ```text
 run_id: 20261022T130413+0900
 HEAD:   a7147f9842f94e96944bc7f67b4c3986970462b0
 ```
 
-### Standard
+Standard planned cold 3 + warm 20 but reached 23/23 terminal failure at the then-current Qdrant storage path. N05D-01 later repaired the environment by cutover to `C:\Qdrant\SGOKB`.
+
+Large `cold-01` exposed the 18,847-token Harrier Object representation resource problem.
+
+N05D-02 measured the exact old-contract full representation:
 
 ```text
-Source / Evidence candidates / Package Evidence / Statements
-10 / 500 / 120 / 300
-
-planned: cold 3 + warm 20
-observed: 23 / 23 terminal sample failure
+full fresh-process 3/3 PASS
+Torch peak allocated ~51.1 GiB
+Windows Shared GPU memory ~34.2 GiB
+full embedding ~628–643 s
 ```
 
-Derived SearchのQdrant payload index作成時にserver-side storage path errorが発生した。観測messageは`gridstore` pathが見つからない旨を示した。Renderへ到達せず全segment evidenceが揃っていない。
+This proved memory completion, not acceptable performance or design efficiency.
 
-### Large
+### First N05D-04 rerun
+
+Run `20261023T025413+0900` used the remediated Qdrant runtime. It reached:
 
 ```text
-40 / 2000 / 350 / 1200
+Standard cold: 3/3 PASS
+Standard warm: 18 PASS / 2 FAIL
 ```
 
-`cold-01`のHarrier Embedding中に中断。
+The two failures were caused by disk exhaustion (`No space left on device` / WAL buffer cannot fit). Large had not completed when the user stopped the run. The attempt is retained as environment BLOCKED / user-aborted evidence, not a formal performance FAIL.
+
+A >=32 GiB free-disk hard start gate was added for future formal runs.
+
+### N05D-04R1 partial VRAM diagnostic
+
+A user-aborted backend diagnostic established partial evidence:
 
 ```text
-Object representation: 18,847 tokens
-batch size: 1
-Dedicated VRAM: 約23.2 GiB
-Shared GPU memory: 約34.2 GiB
+auto SDPA smoke -> math backend observed
+forced Flash -> unavailable in current tested Windows build
+forced Efficient -> tested GQA shape rejected
+full auto trial -> user-aborted
 ```
 
-後続sampleは未実行。
+R1 is not the selected root remediation.
 
-### Formal evaluator
+### Adopted root remediation — N05D-04R2
+
+Current `object_overall` repeats detailed Facet Statements even though the same Knowledge is separately materialized as Facet and Statement representations.
+
+The selected redesign is:
 
 ```text
-N-05 verdict = BLOCKED
+compact object_overview
++ Facet representations
++ Statement representations
++ bounded Object aggregation
++ hierarchical Object Similarity
+```
+
+This is semantic hierarchical partitioning, not arbitrary token chunking.
+
+For the first redesign acceptance, Harrier OSS v1 0.6B remains fixed so representation impact can be measured independently. Harrier 270M is a later contingency only.
+
+Design:
+
+`docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
+
+Tasks:
+
+`docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md`
+
+### Current N-05 state
+
+```text
+N05D-01 = Complete
+N05D-02 = Complete / old-contract memory viability
+N05D-03 = Complete historical checkpoint
+N05D-04 = BLOCKED / Not Complete
+N05D-04R1 = partial user-aborted evidence
+N05D-04R2 = Active
+R2-01 = Next / Not Started
+N-05 verdict = BLOCKED / Not Complete
 performance target = Not Judgeable
 ```
 
-Standard/Largeのformal warm p50 / p95 / maxは算出しない。
-
-Post-run:
-
-```text
-Evaluator tests 8 PASS
-Full pytest 517 PASS
-Ruff PASS
-diff check PASS
-canonical DB unchanged
-tracked files unchanged during run
-HEAD unchanged during run
-```
-
-次にformal benchmarkを繰り返さず、blockerを分離診断する。
-
-```text
-N05D-01 Qdrant storage/path diagnosis
-N05D-02 Long-input Harrier memory diagnosis
-N05D-03 Evidence-based remediation
-N05D-04 Formal benchmark rerun
-```
-
-診断計画:
-
-`docs/planning/phases/N/N05/N05_BLOCKER_DIAGNOSTIC_PLAN.md`
+Do not start another 46-sample formal run before R2-08 Search-quality acceptance and R2-09 authorization.
 
 ## 10. N-06 — Retrieval / Vector quality
 
-Status: **Ready**
+Status: **Ready; redesign interaction required**
 
 評価channel:
 
@@ -260,6 +288,8 @@ Relation / filter / current-historical isolation
 - RAM / VRAM / disk
 - index build / incremental update / rebuild
 
+N05D-04R2 changes active Object-level semantic representation and overall Object Similarity, so R2-08 must re-run/extend the relevant N-06/search-quality assets before formal N-05 timing is authorized.
+
 ## 11. N-07 — Failure / Recovery
 
 Status: **Pending**
@@ -276,12 +306,12 @@ Status: **Pending**
 
 ## 12. Current next work
 
-N-05の次Task:
+N-05 current next task:
 
 ```text
-N05D-01 — Qdrant storage/path blocker diagnosis
+N05D-04R2 / R2-01 — Impact survey / redesign freeze
 ```
 
-N05D-01 / N05D-02は独立して診断可能。N-05 formal rerunは両blockerのexit conditionを満たすまで開始しない。
+R2-01 inventories all active `object_overall` dependencies and freezes compatibility/migration boundaries before canonical design documents or code are changed.
 
-N-06は独立して開始可能である。
+Formal N-05 rerun is prohibited until R2-08 quality acceptance and R2-09 authorization.
