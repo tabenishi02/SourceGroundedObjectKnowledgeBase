@@ -3,8 +3,8 @@
 更新日: 2026-10-22
 
 - Parent: `N05D-01 — Qdrant storage/path diagnosis`
-- Status: **BLOCKED — external storage stress completed; ProcMon ACCESS DENIED gate failed**
-- Current N05D-01 status: **BLOCKED / Not Complete**
+- Status: **Complete - revised storage gate and post-switch runtime PASS**
+- Current N05D-01 status: **Complete**
 - Current `main` before this task: `2ea954c9c9ab0dcefd77720bf3dee606c5c87d25`
 
 ## 1. Purpose
@@ -161,7 +161,8 @@ stress cycle中にProcMon captureを行う。
 確認:
 
 - `C:\Qdrant\SGOKB\storage`配下を`Code.exe`がopenしていないこと。
-- qdrant.exeの`ACCESS DENIED` / `SHARING VIOLATION`が0件であること。
+- Unrecovered collection rename failure、delete API failure、successful-delete source survivors、terminal cleanup error、surfaced client/server OS error 3/5がすべて0件であること。
+- Recovered primary `ACCESS DENIED`はdiagnostic counterとして保持する。`SHARING VIOLATION`も記録する。
 - 異常な`PATH NOT FOUND`が診断failureとして出ていないこと。
 
 routine lookup missesはfailureと混同しない。
@@ -194,9 +195,9 @@ system integrity PASS
 - external short storage root `C:\Qdrant\SGOKB`使用。
 - direct indexed smoke PASS。
 - adapter indexed smoke PASS。
-- >=50 stress cyclesでOS error 3/5 = 0。
+- >=50 stress cyclesでsurfaced client/server OS error 3/5 = 0。
 - ProcMonでexternal storageへのCode.exe openが確認されない。
-- Qdrant ACCESS DENIED / SHARING VIOLATION = 0。
+- Unrecovered collection rename failure / delete API failure / surviving collection / terminal cleanup error / surfaced OS error 3/5 = 0。
 - security設定変更なし。
 - regression suite PASS。
 
@@ -206,7 +207,7 @@ system integrity PASS
 
 ### FAIL / BLOCKED
 
-external storageでもOS error 5が再現した場合:
+external storageでsurfaced / unrecovered OS error 5が再現した場合:
 
 - N05D-01をBLOCKEDのまま維持する。
 - WSL2/Linux filesystem Qdrantを次のremediation candidateとする。
@@ -232,7 +233,7 @@ N05D-02 Long-input Harrier memory diagnosisやN05 formal performance rerunへ自
 N05D-01をCompleteにできるのは、root-cause classificationとsafe remediationのexit conditionを満たした場合のみ。
 
 
-## N05D-01C external-storage result — 2026-10-22
+## Historical N05D-01C external-storage result (original gate; superseded below) — 2026-10-22
 
 **N05D-01C = BLOCKED; N05D-01 = BLOCKED / Not Complete. No production cutover.**
 
@@ -333,3 +334,41 @@ authorized task**. Do not execute N05D-02 or formal N-05 rerun from this result.
   occurred before stress; their logs and source snapshots are retained. Explicit
   bundled-module import validated ProcMon's signature; no security policy changed.
 - Old N-05 and N05D-01 evidence remain intact. Completion status stays BLOCKED.
+
+
+## N05D-01D gate correction — 2026-10-22
+
+All 50 primary ACCESS DENIED events are **RECOVERED_FALLBACK**, with no
+unrecovered or ambiguous event. This is not inference from API success alone:
+each PID/source/destination pair has a DELETE-access reopen, successful
+SetRenameInformationEx with REPLACE_IF_EXISTS + POSIX_SEMANTICS, destination
+close, matching file identity, successful cycle delete and absent source.
+No terminal cleanup error was found. The original raw gate/evidence is retained.
+
+The zero-primary-ACCESS-DENIED rule incorrectly rejected successful Windows
+rename fallback. The active gate now requires zero unrecovered collection rename
+failures, delete API failures, surviving source collections after successful delete,
+terminal cleanup errors, and surfaced client/server OS error 3/5. Recovered
+ACCESS DENIED remains a diagnostic counter (50); Code.exe storage opens = 0.
+The existing 50-cycle external-storage result passes this revised gate.
+
+Local evidence: `.local/n05d01/20261022T191928+0900/n05d01d/`.
+Controlled cutover and post-switch Derived Search acceptance passed (details below).
+The original surfaced payload-index preparation error is not equated with these recovered cleanup events.
+
+
+## Final remediation acceptance
+
+N05D-01C and N05D-01 are **Complete** after N05D-01D verified all 50 recovered
+rename sequences and corrected the gate. The historical BLOCKED result above
+is retained as the outcome under the original zero-primary-denial rule.
+
+Cutover/regression run `20261022T221858+0900`: old storage retained, new
+`C:\Qdrant\SGOKB` runtime on 6333/6334, 24 Vector points rebuilt through the
+approved CLI, real filtered semantic search and system integrity PASS.
+Canonical semantic state unchanged; focused 17 passed, full 541 passed (2 warnings),
+Ruff/diff PASS. No security setting changed. Remediation effectiveness is high
+confidence; the original payload-index OS error 5 has no proven unique cause.
+
+See [final local evidence and limitations](../../../../evaluation/N05D01_QDRANT_STORAGE_PATH_DIAGNOSIS.md#n05d-01d-final-local-outcome---2026-10-22).
+N05D-02 is next but not started. N-05 formal benchmark remains BLOCKED.

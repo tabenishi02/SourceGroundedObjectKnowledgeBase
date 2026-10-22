@@ -199,14 +199,15 @@ Large cold 3 + warm 20
 
 ## 7. Current next task
 
-最初に実施するTask:
+**N05D-01 = Complete** (N05D-01D correlation and external-storage cutover PASS).
 
-```text
-N05D-01 — Qdrant storage/path blocker diagnosis
-```
+Next: **N05D-02 - Long-input Harrier memory diagnosis (not started)**.
+The formal N-05 rerun remains blocked until both independent blockers and the
+frozen rerun prerequisites are satisfied. No N05D-02 experiment is authorized
+by the N05D-01D execution itself.
 
-N05D-01とN05D-02は独立して調査可能だが、formal rerunは両方のexit conditionを満たすまで開始しない。
-
+The chronological diagnostic results below are historical; the final N05D-01D
+outcome at the end supersedes their then-current BLOCKED decisions.
 
 ## 8. N05D-01 local result — 2026-10-22
 
@@ -271,3 +272,26 @@ N05D-01とN05D-02は独立して調査可能だが、formal rerunは両方のexi
   Ruff: PASS; diff: PASS.
 - Next candidate: separately authorized WSL2/Linux-filesystem Qdrant remediation.
   N05D-02 and formal N-05 rerun remain unstarted; do not disable security to pass.
+
+
+## N05D-01D final disposition - 2026-10-22
+
+**N05D-01 = Complete; N05D-01C/D = Complete.** Correlation source
+`20261022T191928+0900`; cutover/regression run `20261022T221858+0900`;
+execution HEAD `c1c8e5cdbaec786668f52fa9d2db95c461be3b6b`.
+
+All 50 ACCESS DENIED events recovered through exact POSIX rename fallback;
+unrecovered/ambiguous 0, delete API failure 0, source survivors 0, terminal
+cleanup errors 0. Revised semantic gate PASS; recovered primary denials remain
+visible diagnostic evidence. Surfaced OS error 3/5, SHARING VIOLATION and Code.exe
+external-storage opens are 0. Controlled cutover to `C:\Qdrant\SGOKB` PASS;
+old storage preserved. Approved CLI Vector rebuild (24 points), actual filtered
+semantic query, integrity and canonical invariance PASS. Focused 17/full 541
+passed; Ruff/diff PASS (full suite has 2 local-Qdrant warnings).
+
+Classification: QDRANT_ENVIRONMENT_DEFECT, high confidence in remediation
+coverage; no claim that VS Code or a security filter was the unique cause of
+the original payload-index OS error 5. Full evidence/limitations:
+[diagnostic evaluation](../../../../evaluation/N05D01_QDRANT_STORAGE_PATH_DIAGNOSIS.md).
+No security settings changed. Next N05D-02 remains unstarted; formal N-05 remains
+BLOCKED / Not Complete. No WSL2 migration was performed.

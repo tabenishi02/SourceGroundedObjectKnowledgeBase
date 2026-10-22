@@ -4,7 +4,7 @@
 
 - Parent: `N-05 [P0] — Performance`
 - Task: `N05D-01 — Qdrant storage/path diagnosis`
-- Status: **BLOCKED — local comparison completed; short-path access-denied failure remains**
+- Status: **Complete - external storage remediation and post-switch acceptance PASS**
 - Formal N-05 run: `20261022T130413+0900`
 - Formal run HEAD: `a7147f9842f94e96944bc7f67b4c3986970462b0`
 - N-05 formal verdict: **BLOCKED / performance target not judgeable**
@@ -484,3 +484,66 @@ authorized task**. Do not execute N05D-02 or formal N-05 rerun from this result.
   occurred before stress; their logs and source snapshots are retained. Explicit
   bundled-module import validated ProcMon's signature; no security policy changed.
 - Old N-05 and N05D-01 evidence remain intact. Completion status stays BLOCKED.
+
+
+## N05D-01D final local outcome - 2026-10-22
+
+**N05D-01D = Complete; N05D-01C = Complete; N05D-01 = Complete.**
+
+- Correlation source run: `20261022T191928+0900`; cutover/regression run:
+  `20261022T221858+0900`. Execution HEAD: `c1c8e5cdbaec786668f52fa9d2db95c461be3b6b`.
+- All 50 primary denials are **RECOVERED_FALLBACK**; unrecovered 0, ambiguous 0.
+  Same PID, exact source/destination, DELETE reopen, POSIX rename success,
+  matching file identity and destination close were correlated to each cycle.
+  Delete API PASS 50/50; surviving source directories 0; terminal cleanup errors 0.
+  Delta min/median/max: **0.9498 / 1.77175 / 40.226 ms**.
+- Revised storage gate: PASS. Recovered internal ACCESS DENIED remains 50 as a
+  diagnostic counter. Unrecovered rename, delete API failure, surviving source,
+  terminal cleanup error and surfaced OS error 3/5 are all 0.
+  ProcMon SHARING VIOLATION 0; Code.exe external-storage accesses/opens 0.
+- Old Qdrant PID 45700/config/31 collections were recorded before graceful
+  CTRL_C stop. Diagnostic PID 18756 was also stopped gracefully after recording
+  its empty collection state. Private-console checks excluded unrelated processes.
+  No force stop or security change was used.
+- Old `.local/n04p06/qdrant/storage` remains untouched for rollback/evidence;
+  no old storage state was copied. New runtime root: `C:\Qdrant\SGOKB`, config
+  `C:\Qdrant\SGOKB\qdrant.yaml`, absolute storage/snapshots/temp paths.
+- New native Qdrant **1.19.2**, build `016542aa5deb6c66380bb137badf73d54f742bde`,
+  PID **54084**, HTTP 6333 / gRPC 6334, non-admin. Command:
+  `.local/qdrant-1.19.2/qdrant.exe --config-path C:\Qdrant\SGOKB\qdrant.yaml --disable-telemetry`.
+  qdrant-client **1.19.1**. HTTP connectivity/readiness PASS.
+- Approved `system index rebuild` on the N-03 evaluation DB rebuilt **24 points**
+  (1024 dimensions, Qdrant green, configured payload indexes). No new Embedding
+  generation or manual SQL/readiness edits were needed. Small collections may
+  report indexed_points_count 0 below the vector indexing threshold.
+- Real `search --mode semantic --semantic-runtime --require-full-runtime
+  --primary-class character` returned Saber rank 1, semantic channels present,
+  no degraded channels. This also verifies the filtered Vector query path.
+- `system integrity` PASS. Evaluation and production canonical semantic
+  fingerprints match before/after. Production DB was not used for CLI writes.
+  New server logs contain no terminal cleanup / surfaced OS error 3/5 match.
+- Focused N05D-01/D tests: **17 passed**. Full pytest: **541 passed, 0 failed,
+  2 warnings** (local-Qdrant index/search-parameter notices), 174.35 seconds.
+  Repository Ruff and `git diff --check`: **PASS**.
+- Local-only readiness helper initially parsed the plain-text `/readyz` response
+  as JSON. Corrected response handling resumed against the already-ready server;
+  the failed helper log/attempt remains retained. No SGOKB production code changed.
+
+Classification: **QDRANT_ENVIRONMENT_DEFECT**; remediation subtype:
+workspace-resident Windows native storage / path-length sensitivity /
+external-reader contention candidate. Remediation effectiveness and recovered
+cleanup classification have high confidence. The unique cause of the original
+surfaced payload-index OS error 5, exact binary Rust compiler revision and native
+stack attribution remain unproven. Recovered internal cleanup ACCESS DENIED is
+not the original surfaced/unrecovered OS error 5. VS Code is not established as
+its sole cause; Defender/EDR causation is not asserted.
+
+Evidence is retained locally under both run roots, including all original
+PML/CSV, per-cycle API results, correlation JSON, old/new runtime metadata,
+canonical fingerprints, commands, smoke and regression logs. Raw evidence is
+not a Git asset. No security policy/service/exclusion/firewall changes, WSL2
+migration, N05D-02 execution or formal N-05 rerun were performed.
+
+Next task: **N05D-02 - Long-input Harrier memory diagnosis (not started)**.
+N-05 remains **BLOCKED / Not Complete** until its independent blockers and formal
+rerun requirements are satisfied.
