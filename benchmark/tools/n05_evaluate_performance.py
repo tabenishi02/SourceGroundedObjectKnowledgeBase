@@ -14,7 +14,6 @@ import math
 from pathlib import Path
 from typing import Any
 
-
 DEFAULT_CONTRACT = Path("benchmark/n05-performance-contract-v1.json")
 PLACEHOLDER_VALUES = {"REPLACE", "REPLACE_WITH_RUN_ID"}
 

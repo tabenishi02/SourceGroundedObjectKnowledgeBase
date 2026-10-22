@@ -2,7 +2,6 @@ import importlib.util
 import json
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 TOOL_PATH = ROOT / "benchmark" / "tools" / "n05_evaluate_performance.py"
 CONTRACT_PATH = ROOT / "benchmark" / "n05-performance-contract-v1.json"
