@@ -3,11 +3,12 @@
 Updated: 2026-10-23
 
 - Parent: `N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign`
-- Status: **Active / R2-01〜R2-02 Complete**
+- Status: **Active / R2-01〜R2-03 Complete**
 - Formal N-05: **BLOCKED / Not Complete**
 - Design plan: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
 - R2-01 freeze: `docs/planning/phases/N/N05/N05D04R2_IMPACT_SURVEY.md`
 - R2-02 freeze: `docs/planning/phases/N/N05/N05D04R2_REQUIREMENTS_REPRESENTATION_CONTRACT.md`
+- R2-03 freeze: `docs/planning/phases/N/N05/N05D04R2_PERSISTENCE_VERSIONING_MIGRATION_DESIGN.md`
 
 ## 1. Execution order
 
@@ -16,9 +17,9 @@ R2-01 Impact survey / design freeze                    Complete
   ↓
 R2-02 Requirements + representation contract revision Complete
   ↓
-R2-03 Persistence/versioning/migration design          Next
+R2-03 Persistence/versioning/migration design          Complete
   ↓
-R2-04 object_overview builder implementation
+R2-04 object_overview builder implementation           Next
   ├─→ R2-05 Hybrid Search migration
   └─→ R2-06 Hierarchical Object Similarity redesign
           ↓
@@ -39,8 +40,8 @@ Do not start R2-09 formal N-05 timing before R2-08 passes.
 |---|---|---|---|
 | R2-01 | P0 | **Complete** | affected contracts/code/data pathsをinventoryし、redesign boundaryをfreeze |
 | R2-02 | P0 | **Complete** | Search Requirements / Search Representation / Hybrid / Similarity designをv2へ改定 |
-| R2-03 | P0 | **Next / Not Started** | `object_overview` persistence、builder version、generation/cutover/rollbackを設計 |
-| R2-04 | P0 | Not Started | deterministic compact `object_overview` builderとmaterializationを実装 |
+| R2-03 | P0 | **Complete / Design Freeze** | `object_overview` persistence、builder version、generation/cutover/rollbackを設計 |
+| R2-04 | P0 | **Next / Not Started** | deterministic compact `object_overview` builderとmaterializationを実装 |
 | R2-05 | P0 | Not Started | Hybrid Searchを`object_overview + facet + statement`へ移行 |
 | R2-06 | P0 | Not Started | overall Object Similarityをhierarchical multi-vector方式へ再設計・実装 |
 | R2-07 | P0 | Not Started | Derived Search side-by-side rebuild / Qdrant cutover / rollbackを実装・検証 |
@@ -152,29 +153,48 @@ All implementation-visible R2 semantics are frozen. No unresolved semantic desig
 
 ## R2-03 [P0] — Persistence / versioning / migration design
 
+### Status
+
+**Complete / Design Freeze.**
+
+Normative deliverable:
+
+`docs/planning/phases/N/N05/N05D04R2_PERSISTENCE_VERSIONING_MIGRATION_DESIGN.md`
+
 ### Goal
 
 新kindを安全に導入し、v1 derived artifactsと混在・誤読しない migration contractを固定する。
 
-### Required decisions
-
-Evaluate and fix:
+### Frozen decisions
 
 ```text
-SearchRepresentationKind = object_overview addition
-legacy object_overall parse/read compatibility
-DB CHECK/enum constraints
-new migration number
-builder version persistence
-Derived Search generation identity
-active/candidate generation switching
-membership uniqueness
-embedding reuse eligibility
-vector point payload kind/generation
-full rebuild behavior
-rollback behavior
-legacy cleanup
+active Object kind          = object_overview
+legacy readable Object kind = object_overall
+generic OBJECT enum alias   = retired, not remapped
+next migration              = 018_search_generation_contract.sql
+builder version identity    = per representation kind
+Knowledge generation        = explicit generation identity
+active routing              = singleton SQLite pointer
+generation membership       = separate generation -> membership link
+Embedding reuse             = representation x Embedding Space
+Vector namespace            = generation x Embedding Space x backend
+Vector point identity       = membership ID inside generation namespace
+current/historical          = membership + canonical current pointer
 ```
+
+Additional rules:
+
+- `object_overall` rows are preserved and never relabeled to overview;
+- unchanged Facet/Statement memberships may be shared by v1/v2 generations;
+- unchanged Facet/Statement Harrier embeddings may be reused;
+- `object_overview` must receive new representation/embedding identity;
+- Qdrant v1 and v2 are isolated by namespace rather than mixed in one serving collection;
+- Knowledge lexical retrieval is active-generation scoped even though the FTS content table may contain both old and new rows;
+- candidate cutover is one transactional active-pointer switch after all preconditions pass;
+- interrupted candidate rebuild leaves the previous active generation unchanged;
+- rollback requires the previous generation to remain catalog/integrity compatible;
+- physical v1 cleanup is deferred until later acceptance/retention decisions;
+- Evidence Search remains outside the Knowledge generation migration.
 
 ### Safety requirements
 
@@ -185,13 +205,9 @@ legacy cleanup
 - current/historical semantics remain membership-based;
 - builder content-contract version is not misused as generation/cutover identity.
 
-### Deliverable
-
-Design note plus migration plan, before writing migration SQL.
-
 ### Exit
 
-Schema and cutover design approved; migration implementation can proceed without further semantic decisions.
+Schema and cutover design are frozen. Migration/domain/builder implementation can proceed without further persistence-semantic decisions.
 
 ---
 
@@ -231,9 +247,12 @@ Expected files include:
 src/sgokb/domain/knowledge.py
 src/sgokb/retrieval/search_representation.py
 src/sgokb/storage/semantic_repository.py
-migration(s)
+src/sgokb/migrations/018_search_generation_contract.sql
 tests/test_search_representation.py
+migration/generation-focused tests
 ```
+
+R2-04 may implement the persistence/domain pieces frozen by R2-03 that are necessary to store and materialize `object_overview`, but it must not perform production cutover.
 
 ### Tests
 
@@ -244,7 +263,9 @@ tests/test_search_representation.py
 - Facet identity inventory deterministic;
 - reuse/membership semantics correct;
 - current/historical isolation preserved;
-- accepted Version boundary preserved.
+- accepted Version boundary preserved;
+- migration preserves v1 IDs/content/memberships/embeddings;
+- generation membership cannot mix v1 overall into an R2 candidate.
 
 ### Resource diagnostic
 
@@ -274,7 +295,7 @@ Normal semantic/hybrid Object Searchをnew active representationへ移行する�
 
 ```text
 semantic_object_overall -> semantic_object_overview
-knowledge lexical active-kind update
+knowledge lexical active-kind/generation update
 Qdrant kind/generation filter update
 match/result representation_kind update
 bounded compatibility handling for old clients/tests
@@ -299,7 +320,8 @@ exact identity priority tier
 - Facet/temporal/derivation filters exclude Object-level overview where semantically unsafe;
 - degraded semantic behavior unchanged;
 - explanations identify overview/facet/statement matches;
-- legacy `object_overall` does not leak into active v2 results.
+- legacy `object_overall` does not leak into active v2 results;
+- one request resolves one generation for all Knowledge channels.
 
 ### Exit
 
@@ -342,7 +364,8 @@ Do not select an algorithm solely by implementation simplicity.
 - Source Object excluded before candidate limit;
 - historical Source / current Candidate semantics preserved;
 - final overall `score_type = hierarchical_similarity`; do not call a fused aggregate raw cosine similarity;
-- matched overview/Facet/Statement evidence remains inspectable and bounded.
+- matched overview/Facet/Statement evidence remains inspectable and bounded;
+- all Vector evidence must come from the request's resolved active generation.
 
 ### New gold cases
 
@@ -367,14 +390,15 @@ Candidate v2 representation/embedding/vector stateをside-by-sideで構築し、
 
 ### Required work
 
+- register/verify legacy v1 generation and existing Vector namespace;
 - rebuild v2 Search Representations from canonical accepted Knowledge;
-- generate missing Harrier 0.6B embeddings;
-- build isolated Qdrant namespace/generation;
-- verify counts and membership identity;
+- generate missing Harrier 0.6B embeddings while reusing eligible Facet/Statement embeddings;
+- build isolated generation-specific Qdrant namespace;
+- verify counts, digests, membership identity and generation payload;
 - run semantic + filtered query smoke;
-- switch active generation atomically or through an explicitly safe sequence;
+- switch active generation through the frozen transactional SQLite pointer contract;
 - verify old v1 state no longer serves normal current retrieval;
-- preserve rollback path and evidence.
+- rehearse eligible rollback and preserve evidence.
 
 ### Required invariants
 
@@ -385,6 +409,7 @@ all searchable Statements represented
 all content Facets represented
 no mixed v1/v2 active result
 Qdrant failure cannot corrupt canonical Knowledge
+active pointer never selects partial candidate
 ```
 
 ### Exit
@@ -549,6 +574,6 @@ A model change requires a new Embedding Space identity, full Derived Search rebu
 
 ## 4. Current next task
 
-**Next: R2-03 [P0] — Persistence / versioning / migration design.**
+**Next: R2-04 [P0] — Implement compact `object_overview`.**
 
-Do not start production implementation, migration execution, Derived Search rebuild, R2-08 quality acceptance, or R2-09 formal 46-sample execution as part of R2-02.
+Do not start Hybrid/Similarity production cutover, Derived Search active-generation cutover, R2-08 quality acceptance, or R2-09 formal 46-sample execution as part of R2-03.
