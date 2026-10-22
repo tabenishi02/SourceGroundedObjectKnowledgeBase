@@ -5,12 +5,14 @@ Updated: 2026-10-23
 - Parent: `N-05 [P0] — Performance`
 - Trigger: aborted formal attempt `20261023T025413+0900`
 - Attempt execution HEAD: `280a2af9fc9c5338137f46b366bd4e18b0b9416a`
-- Status: **Resource remediation / investigation before a new formal run**
+- Status: **Structural Derived Search remediation selected**
 - Formal N-05: **BLOCKED / Not Complete**
+- Adopted redesign: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
+- Task breakdown: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md`
 
 ## 1. Why the aborted attempt is not a performance FAIL
 
-The attempt was stopped after disk exhaustion became a confounding Reference Workstation condition. Standard warm samples encountered Qdrant `No space left on device` / `WAL buffer size exceeds available disk space`, and Large had not completed the required formal sample set. The preserved attempt must remain historical evidence and must never be resumed or converted into a judgeable PASS/FAIL dataset.
+The attempt was stopped after disk exhaustion became a confounding Reference Workstation condition. Standard warm samples encountered Qdrant `No space left on device` / `WAL buffer size exceeds available disk space`, and Large had not completed the required formal sample set. The preserved attempt remains historical evidence and must never be resumed or converted into a judgeable PASS/FAIL dataset.
 
 A future formal attempt must use a new run ID and start again from Standard cold-01.
 
@@ -41,15 +43,15 @@ N05D-02 observed approximately 136.0 GiB committed against a 148.8 GiB limit dur
 
 ### Accepted SGOKB preflight threshold
 
-The Reference Workstation hard start gate is now:
+The Reference Workstation hard start gate remains:
 
 ```text
 minimum free disk: 32 GiB
 scope: every volume hosting the repository/formal evidence or active Qdrant runtime
-current topology: both are on C:
+current topology: both are on C:\
 ```
 
-`32 GiB` is an SGOKB benchmark safety gate, **not** a general Qdrant product minimum. It is deliberately conservative relative to the ~1.47 GB nominal default WAL-capacity sum, Qdrant's temporary-storage headroom guidance, and the observed Windows page-file/commit pressure. If practical, 64 GiB free before starting a many-hour formal run is preferred operational margin, but only 32 GiB is the hard benchmark preflight gate.
+`32 GiB` is an SGOKB benchmark safety gate, **not** a general Qdrant product minimum. If practical, 64 GiB free before starting a many-hour formal run is preferred operational margin, but only 32 GiB is the hard benchmark preflight gate.
 
 Implemented guard:
 
@@ -57,8 +59,6 @@ Implemented guard:
 benchmark/tools/n05_resource_preflight.py
 tests/test_n05_resource_preflight.py
 ```
-
-The guard runs outside formal timed samples and exits non-zero below 32 GiB.
 
 ## 3. VRAM root observation
 
@@ -74,144 +74,152 @@ wall-clock:            ~628-643 s
 
 The model itself has only ~1.11 GiB baseline CUDA allocation. Therefore weight quantization alone cannot address the dominant peak. The dominant problem is sequence-dependent attention/intermediate memory.
 
-The loaded Transformers setting was `_attn_implementation = sdpa`, but N05D-02 did not profile the CUDA kernel actually selected by PyTorch SDPA.
+## 4. N05D-04R1 partial backend diagnosis
 
-## 4. Highest-priority VRAM investigation — force fused SDPA kernels
+Run `20261023T035147+0900` was started as a fresh-process A/B/C backend comparison and then stopped by user instruction during the first full auto-SDPA trial. Raw evidence and local diagnostic work are retained; the run is not a completed acceptance result.
 
-PyTorch SDPA can choose among FlashAttention-2, Memory-Efficient Attention, and the math/C++ implementation. Hugging Face documents that optimized attention avoids materializing the full attention matrix and can substantially reduce memory traffic. Qwen3 advertises support for both SDPA and Flash Attention.
+Confirmed before abort:
 
-Sources:
+```text
+A. auto SDPA smoke: PASS
+   profiler evidence: math backend selected
+
+B. forced FLASH_ATTENTION: FAIL
+   current Windows PyTorch build does not provide the required Flash Attention kernel
+
+C. forced EFFICIENT_ATTENTION: FAIL
+   current kernel rejected the Q=16 / KV=8 GQA shape
+
+A full-1: ABORTED_by_user
+```
+
+After process termination, observed RTX 4090 usage returned near idle. Therefore the partial run does not establish a cross-process persistent VRAM leak.
+
+These observations strengthen the interpretation that native Windows math-SDPA processing of the giant 18,847-token representation is the dominant resource problem. They do not establish a completed alternative-backend acceptance.
+
+## 5. Why runtime-only remediation is no longer the primary path
+
+The original R1 plan prioritized fused attention because it could potentially preserve the exact representation/model contract.
+
+Subsequent design review found a more fundamental issue: current `object_overall` duplicates detailed canonical Knowledge that is already materialized separately as `facet` and `statement` representations.
+
+Current structure:
+
+```text
+object_overall = Object-level context + all content-Facet Statement bodies
+facet          = the same detailed Statements grouped by Facet
+statement      = the same detailed Statements individually
+```
+
+For Large N-05 this creates one 18,847-token full-attention input even though the detailed semantic units already exist as child vectors.
+
+The user therefore selected structural remediation as the primary solution:
+
+```text
+compact object_overview
++ existing facet vectors
++ existing statement vectors
++ bounded Object aggregation / hierarchical similarity
+```
+
+This is not arbitrary token chunking. Boundaries follow canonical SGOKB semantic units.
+
+## 6. Deferred runtime candidates
+
+The following remain valid technical candidates but are no longer blockers to solve before the representation redesign:
+
+### Built-in / fused attention
+
+- PyTorch Flash SDPA: unavailable in the tested native Windows build.
+- Efficient Attention: tested GQA shape rejected in R1 smoke.
+- cuDNN / other supported SDPA backends may be investigated later if still needed.
+- Transformers FlashAttention-2 on Linux/WSL remains a possible runtime optimization.
+
+### Math-SDPA reduced precision
+
+`torch.backends.cuda.allow_fp16_bf16_reduction_math_sdp(True)` may reduce math-SDPA intermediate memory, but it changes numerical behavior and still leaves the architectural long-input scaling problem. It is deferred unless the redesigned representation still requires it.
+
+### Allocator tuning / empty_cache
+
+Allocator tuning can address fragmentation/reservation, but N05D-02 showed live allocated memory far above physical VRAM. It is not a root solution.
+
+### Model change
+
+Harrier 270M remains a later contingency, not part of the first structural redesign baseline. The redesign keeps Harrier 0.6B fixed so representation impact can be measured independently.
+
+## 7. Adopted root remediation
+
+Accepted direction:
+
+`docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
+
+Core change:
+
+```text
+old active path
+  giant object_overall
+  + facet
+  + statement
+
+new active path
+  compact object_overview
+  + facet
+  + statement
+  → Object aggregation / hierarchical similarity
+```
+
+The compact Object-level representation must not reproduce every Facet Statement body.
+
+The redesign requires Search Requirements, Search Representation, Hybrid Search, Object Similarity, persistence/versioning, Derived Search rebuild/cutover, search-quality acceptance, and N-05 formal remeasurement work.
+
+Task breakdown:
+
+`docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md`
+
+## 8. Resource acceptance retained for redesigned system
+
+The redesign does not remove general workstation safeguards.
+
+Before any future formal N-05 run:
+
+```text
+free disk >= 32 GiB
+remediated Qdrant runtime active
+clean main == origin/main
+no material competing CUDA workload
+host memory/commit recorded
+full regression / Ruff / diff PASS
+```
+
+The redesign itself must additionally prove:
+
+- no mandatory active representation concatenates all 1,200 Large-fixture Statements;
+- all Statement and Facet Knowledge remains searchable;
+- no truncation/CPU fallback is introduced;
+- quality acceptance passes before performance acceptance;
+- Harrier 0.6B remains fixed for the first causal comparison.
+
+## 9. Historical runtime-research sources
+
+Retained sources used by the earlier runtime investigation:
 
 - https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention
 - https://huggingface.co/docs/transformers/attention_interface
 - https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3/modeling_qwen3.py
-
-The current ~51 GiB allocated peak and sharp 12k→16k regime change are compatible with a non-fused/fallback path, but they do **not** prove that the math backend was selected. The next diagnostic must determine actual dispatch rather than infer it.
-
-### P0 test matrix
-
-Use the identical authoritative 18,847-token input, frozen model/revision/BF16/CUDA/batch-size-1 profile, each in a fresh process:
-
-```text
-A. current SDPA auto-selection (baseline)
-B. force PyTorch SDPBackend.FLASH_ATTENTION
-C. force PyTorch SDPBackend.EFFICIENT_ATTENTION
-```
-
-For B/C use `torch.nn.attention.sdpa_kernel(...)` so the model weights, tokenizer, representation, pooling, normalization, and Transformers model identity remain unchanged.
-
-Record:
-
-```text
-backend requested
-backend accepted/rejected and exact warning/error
-wall-clock
-Torch peak allocated/reserved
-Windows peak dedicated/shared
-process working set/private memory
-system committed/available
-vector dimension/norm
-cosine similarity and max absolute difference vs baseline embedding
-```
-
-If a forced fused backend is unsupported, retain the failure and reason. Do not silently fall back to math for that comparison.
-
-## 5. P1 option — Transformers FlashAttention-2 backend
-
-If PyTorch built-in forced Flash SDPA cannot execute the Harrier/Qwen3 workload, evaluate Transformers `attn_implementation="flash_attention_2"` as a separate runtime candidate.
-
-Hugging Face documents FlashAttention-2 as a tiled implementation using on-chip memory and shows Qwen3 support for Flash Attention. Current Transformers can also obtain FlashAttention kernels through its kernel interface when configured appropriately.
-
-Sources:
-
-- https://huggingface.co/docs/transformers/attention_interface
-- https://huggingface.co/docs/transformers/main/en/kernel_doc/loading_kernels
-- https://github.com/huggingface/transformers/blob/main/tests/models/qwen3/test_modeling_qwen3.py
-
-This option is more intrusive because the formal environment is offline and any additional package/kernel must be installed or cached and pinned reproducibly before acceptance. Do not change the formal run automatically merely because this backend is faster.
-
-## 6. Lower-priority VRAM techniques
-
-### Allocator tuning
-
-PyTorch documents `expandable_segments`, `cudaMallocAsync`, and allocator controls for fragmentation. These can reduce allocator reservation/fragmentation but cannot eliminate live tensor allocations.
-
-Source:
-
 - https://docs.pytorch.org/docs/main/notes/cuda.html
-
-N05D-02 allocated 51.061 GiB while reserving 56.787 GiB. Even eliminating the entire ~5.7 GiB reservation gap would still leave active allocation far above 24 GiB VRAM. Allocator tuning is therefore P2, after attention-kernel dispatch.
-
-### `empty_cache()`
-
-PyTorch explicitly states that `empty_cache()` releases unused cached blocks but does not increase the memory available to PyTorch for tensors that are still live. It can help fragmentation, not the 51 GiB active-allocation peak.
-
-Source:
-
 - https://docs.pytorch.org/docs/main/generated/torch.cuda.memory.empty_cache.html
-
-### FP16 instead of BF16
-
-Both are 16-bit formats, so changing BF16→FP16 does not materially halve this memory footprint and would change the frozen runtime without a strong memory rationale. Not prioritized.
-
-### Weight quantization
-
-The model baseline is ~1.11 GiB vs ~51 GiB sequence-dependent peak. 8-bit/4-bit weight quantization would attack the smaller term and would alter the embedding runtime/quality contract. Not prioritized.
-
-### Already-active protections
-
-- batch size is already 1;
-- `use_cache=false` in Harrier config;
-- Sentence Transformers `encode()` runs under `torch.inference_mode()`;
-- CPU fallback is prohibited.
-
-Sources:
-
 - https://huggingface.co/microsoft/harrier-oss-v1-0.6b
-- https://github.com/huggingface/sentence-transformers/blob/main/sentence_transformers/sentence_transformer/model.py
 
-## 7. Contract-changing last resorts
+These remain useful diagnostics but do not supersede the selected structural remediation.
 
-The following would likely reduce resource demand but change the system being evaluated and therefore require explicit design review rather than an N05-only shortcut:
+## 10. Current next action
 
-```text
-Object Search Representation chunking
-representation length cap / truncation
-smaller Harrier 270m model
-alternate embedding model
-sliding-window attention
-CPU/offload path
-```
+Do **not** resume the R1 full-input trial and do **not** restart the formal 46-sample N05D-04 run.
 
-If fused attention cannot bring the full-input resource profile into a practical range, these become N05 remediation/design candidates and must be evaluated against N-06 retrieval quality and the canonical Derived Search design.
-
-## 8. Adoption gate for an attention-backend change
-
-A candidate backend is not accepted solely for lower VRAM. Before a new formal N05D-04 run it must show:
-
-1. exact same authoritative full input and token IDs;
-2. same Harrier model/revision and BF16 weights;
-3. 1024-dimensional finite normalized output;
-4. materially lower peak dedicated/shared/allocated memory or materially lower wall-clock;
-5. no CPU fallback or truncation;
-6. numerical-difference evidence vs the current embedding;
-7. existing Derived Search smoke/regression PASS;
-8. representative retrieval ordering/quality check before treating the new runtime as the accepted embedding implementation.
-
-PyTorch notes that fused and math SDPA implementations can produce small floating-point differences. Exact bit equality is therefore not assumed, but the difference must be measured and retrieval behavior must remain acceptable.
-
-Source:
-
-- https://docs.pytorch.org/docs/main/generated/torch.nn.functional.scaled_dot_product_attention.html
-
-## 9. Next action
-
-Do **not** restart the formal 46-sample N05D-04 yet.
-
-Next local task:
+Current next task:
 
 ```text
-N05D-04R1 — Harrier SDPA backend / VRAM A-B diagnosis
+N05D-04R2 / R2-01 — Impact survey / redesign freeze
 ```
 
-Run A/B/C above on the Reference Workstation, retain all results, and decide whether a fused attention backend should be adopted. Only after that decision and the 32 GiB disk preflight PASS should a new formal N05D-04 run be authorized.
+After R2-01 through R2-08 complete and quality acceptance authorizes it, R2-09 starts a completely new formal N-05 run from Standard cold-01.
