@@ -1,66 +1,99 @@
-# Object Similarity Search — Phase I / I-05
+# Object Similarity Search — Phase I / I-05 + R2 v2
 
-更新日: 2026-10-14
+更新日: 2026-10-23
 
-- Status: **Accepted / Implemented**
-- Task: `I-05 [P0] find_similar_objectsを実装する`
+- Status: **Phase-I v1 implemented / R2-02 v2 semantics frozen / R2-06 implementation pending**
+- Original task: `I-05 [P0] find_similar_objects`
+- Superseding task: `N05D-04R2 / R2-02 Requirements + representation contract revision`
 - Prerequisites:
   - `docs/design/SEARCH_REPRESENTATION_SCHEMA.md`
   - `docs/design/EMBEDDING_PROVIDER_MODEL_EVALUATION.md`
   - `docs/design/VECTOR_INDEX_ADAPTER_BACKEND_EVALUATION.md`
   - `docs/design/HYBRID_SEARCH_OBJECT_AGGREGATION.md`
-- Next task: `I-06 [P1] Reranker / second-stage retrievalを評価する`
+- Normative R2 decision: `docs/planning/phases/N/N05/N05D04R2_REQUIREMENTS_REPRESENTATION_CONTRACT.md`
 
 ---
 
 ## 1. 結論
 
-SGOKBのObject Similarityは、free-text Queryを新しくEmbeddingする検索ではない。
+`find_similar_objects()` remains an Object-to-Object retrieval operation that reuses stored Search Representation embeddings rather than embedding a new free-text query.
 
-既存Objectのaccepted KnowledgeからI-01で生成済みのSearch Representationと、I-02で保存済みのEmbeddingをQuery Vectorとして再利用する。
+R2 splits the semantic contract by mode:
 
 ```text
-source Object
-  ↓
-current accepted Version
-  ↓
-object_overall または指定Facet Search Representation
-  ↓
-既存Embedding Vector
-  ↓
-I-03 VectorIndexAdapter / Qdrant
-  ↓
-current candidate Objects
-  ↓
-cosine similarity順
+facet=None
+  -> hierarchical multi-vector Object similarity
+     overview + same-Facet + bounded Statement evidence
+     score_type = hierarchical_similarity
+
+facet=<key>
+  -> direct same-Facet vector similarity
+     score_type = cosine_similarity
 ```
 
-I-05で正式に提供するAPIは`ObjectSimilaritySearch.find_similar_objects()`とする。
+The Phase I v1 design used one `object_overall` vector for overall similarity. N05D-04R2 retires that monolithic comparison unit because the giant active representation caused unacceptable resource behavior and duplicated detailed Facet/Statement Knowledge.
+
+The public Object-level operation remains stable; callers do not need to know or pass `object_overview`.
 
 ---
 
-## 2. overall similarity
+## 2. Overall similarity — active R2 semantics
 
-Facetを指定しない場合は`object_overall`同士を比較する。
+When `facet is None`, similarity is hierarchical:
 
 ```text
-Source Object A
-  object_overall vector
-       ↓
-Candidate Object B object_overall
-Candidate Object C object_overall
-Candidate Object D object_overall
+Source Object
+  ├─ object_overview
+  ├─ content Facets
+  └─ Statements
+          ↓ bounded candidate/evidence work
+Candidate Objects
+  ├─ object_overview
+  ├─ compatible/same Facets
+  └─ Statements
+          ↓ bounded aggregation
+1 Object = 1 similarity result
 ```
 
-Statement hit数やFacet数を集約してSimilarity scoreを作らない。
+Semantic components that the R2-06 algorithm must combine/evaluate are:
 
-I-01でObject全体用に決定論的に構築した`object_overall` Search RepresentationのVectorを、Object全体Similarity専用の比較単位とする。
+```text
+overview <-> overview
+same-Facet <-> same-Facet
+bounded Statement-level evidence
+```
+
+`object_overview` provides broad Object-level context but is **not** semantically equivalent to complete detailed Knowledge.
+
+The exact bounded numerical algorithm, candidate limits, component caps, and any weights are selected and benchmarked in R2-06. They are implementation choices inside the fixed semantics in this document; R2-06 may not return to the one-giant-vector design.
 
 ---
 
-## 3. Facet similarity
+## 3. Hierarchical invariants
 
-`facet="personality"`のようにFacetを指定した場合は、同じFacet同士だけを比較する。
+Any R2-06 implementation must satisfy all of the following:
+
+1. one Object remains one final result;
+2. no active dependency on `object_overall`;
+3. overview evidence compares `object_overview` to `object_overview`;
+4. Facet evidence compares compatible/same Facet semantics;
+5. Statement evidence contribution is bounded independently of Object Statement count;
+6. no unbounded all-source-Statement x all-candidate-Statement comparison;
+7. candidate count and per-channel contribution are bounded;
+8. a large Object cannot win merely because it contains more Statements;
+9. Source Object is excluded before final candidate limit;
+10. current/historical Version semantics are preserved;
+11. same Primary Class is the default candidate scope;
+12. `cross_class=True` remains explicit expansion;
+13. all raw vector comparisons occur within one Embedding Space;
+14. deterministic final tie-break is retained;
+15. contributing overview/Facet/Statement evidence remains inspectable.
+
+---
+
+## 4. Facet similarity — unchanged semantic contract
+
+With `facet="personality"` or another explicit Facet key, compare only the same Facet:
 
 ```text
 Source A / personality
@@ -69,21 +102,27 @@ Candidate B / personality
 Candidate C / personality
 ```
 
-禁止:
+The direct vector-pair score remains:
 
-- Sourceに指定Facetがない場合にoverallへfallbackする
-- Candidateに指定Facetがない場合にscore=0として混ぜる
-- 別FacetのVectorを代用する
+```text
+score_type = cosine_similarity
+```
 
-Source Versionにcontent Facetが存在しない場合は明示的なvalidation errorとする。
+Forbidden:
 
-Candidate側に同FacetがないObjectは、Vector Indexに該当Facet pointがないため候補にならない。
+- Source missing Facet -> overview fallback;
+- Candidate missing Facet -> assign score 0;
+- another Facet -> substitute;
+- legacy `object_overall` -> substitute;
+- `object_overview` -> substitute.
+
+A Source Version without the requested content Facet is explicit unavailable/validation failure according to the existing API behavior. A Candidate without that Facet is not a candidate.
 
 ---
 
-## 4. Source Version scope
+## 5. Source Version scope
 
-既定ではSource Objectの`current_version_id`を利用する。
+Default source:
 
 ```text
 find_similar_objects(object_id)
@@ -91,7 +130,7 @@ find_similar_objects(object_id)
 source = current accepted Version
 ```
 
-再現・比較用途では、accepted historical Versionを明示指定できる。
+Historical source remains explicit:
 
 ```text
 find_similar_objects(
@@ -100,173 +139,152 @@ find_similar_objects(
 )
 ```
 
-historical Sourceを使ってもCandidate側は既定でcurrent accepted Knowledgeだけを対象とする。
+A historical Source Version does not silently switch Candidate scope to historical. Candidate Objects remain current accepted by default.
 
-Source VersionのPrimary Classは、現在のObject Registry値ではなく、そのVersionのclassification snapshotから解決する。
-
-これによりHistorical Versionの分類文脈を失わない。
+Source Primary Class is resolved from the represented Version classification snapshot, not from a later Registry value.
 
 ---
 
-## 5. Candidate scope
+## 6. Candidate scope
 
-### 5.1 既定
-
-Candidateは次を満たす。
+### 6.1 Default
 
 ```text
 accepted Version
 + current Version
 + active Object
-+ sourceと同じPrimary Class
-+ source Object自身ではない
++ same Primary Class as source Version
++ source Object excluded
 ```
 
-したがってCharacterを起点にした通常Similarityでは、Character内で比較する。
+### 6.2 Cross-class
 
-### 5.2 cross-class
-
-Classを跨いだSimilarityは自動では有効化しない。
+Only explicit:
 
 ```text
 cross_class=True
 ```
 
-を明示した場合だけPrimary Class filterを外す。
+removes the same-Primary-Class constraint.
 
-例:
-
-```text
-Character ↔ Work
-Concept ↔ Theme
-Person ↔ Character
-```
-
-意味空間上の近さは取得できるが、Classを跨ぐ比較の解釈は利用側の責務とする。
+Class-crossing similarity remains a derived semantic relation for discovery, not canonical Object Relation truth.
 
 ---
 
-## 6. Source Object自身の除外
+## 7. Source Object exclusion
 
-SimilarityではSource Object自身は通常cosine=1に近く、何もしなければ必ず上位候補になる。
+Self exclusion remains a candidate-generation constraint, not a post-limit cleanup.
 
-I-05ではtop-k取得後に自己一致を捨てるのではなく、Vector candidate生成前に除外する。
+R2 overall mode must exclude source `object_id` from every candidate-acquisition channel before channel/final limits are consumed.
 
-`VectorSearchFilter`へ後方互換の`excludes`を追加した。
-
-概念:
-
-```text
-must:
-  kind = object_overall
-  is_current = true
-  primary_class = character
-
-must_not:
-  object_id = source_object_id
-```
-
-Qdrant adapterでは`must_not` payload filterへ変換する。
-
-これにより`limit=1`でもSource自身が1枠を消費しない。
+Facet mode retains the same behavior.
 
 ---
 
-## 7. Similarity score
+## 8. Score semantics
 
-I-04のHybrid Searchは異なるchannelのrankを統合するためRRFを使う。
+### 8.1 Overall mode
 
-I-05は異なる。
+Final score:
 
-比較対象はすべて、
+```text
+score_type = hierarchical_similarity
+```
 
-- 同じEmbedding Space
-- 同じrepresentation kind
-- Facet modeでは同じFacet
-- 同じcosine metric
+This is a bounded derived Object-ranking score composed from multiple representation-level signals.
 
-なので、raw cosine similarityをそのままSimilarity scoreとして返す。
+It is not:
+
+- a raw cosine similarity;
+- a probability;
+- truth;
+- confidence;
+- Source trust.
+
+Raw component vector pairs may use:
+
+```text
+raw_score_type = cosine_similarity
+```
+
+within the fixed Harrier Embedding Space.
+
+R2-06 must document the selected formula so the numerical meaning of `hierarchical_similarity` is reproducible.
+
+### 8.2 Facet mode
+
+Because Source/Candidate compare the same Facet representation in the same Embedding Space:
 
 ```text
 score_type = cosine_similarity
 ```
 
-このscoreはKnowledgeのtruth、confidence、Source trustではない。
-
-単にEmbedding Space上での意味的近さを表す。
+The score is still semantic proximity, not truth/confidence.
 
 ---
 
-## 8. Embedding再計算をしない
+## 9. Embedding reuse
 
-I-05はSource Objectの文章をEmbeddingProviderへ再送しない。
+Similarity reuses stored embeddings. It does not re-embed canonical text on every query.
 
-```text
-search_representation_embeddings
-```
+Benefits remain:
 
-に保存済みのVectorを使用する。
+- no unnecessary GPU recomputation;
+- deterministic Source representation reuse;
+- same Embedding Space enforcement;
+- historical Source reproducibility.
 
-利点:
+Missing required Source embeddings produce explicit failure. Do not silently switch model/provider/backend.
 
-- 同じKnowledgeに対する不要なGPU計算をしない
-- Providerが一時停止していても、既存Embedding + Vector IndexがあればSimilarity可能
-- SourceとCandidateが同じEmbedding Spaceであることを保証できる
-- historical Versionの再現性を維持できる
-
-Source RepresentationのEmbeddingが対象Spaceに存在しない場合は、別modelやexternal providerへsilent fallbackせず明示的に失敗する。
+The first R2 baseline remains Harrier OSS v1 0.6B / 1024-dim.
 
 ---
 
-## 9. Vector point / membership identity
+## 10. Representation / membership identity
 
-I-04のmembership-scoped pointをそのまま利用する。
+Embedding cache and Vector Index remain membership-aware:
 
 ```text
 Embedding cache:
 representation_id -> vector
 
 Vector Index:
-membership_id -> vector + Version / Class / Facet metadata
+membership_id -> vector + Object / Version / Class / Facet / Statement metadata
 ```
 
-Similarity queryのSourceはrepresentation embeddingからVectorを読む。
+R2 overall similarity may consume multiple representation/membership pairs for one Source and one Candidate, but every contributing pair remains individually identifiable.
 
-Candidateはmembership pointを検索する。
-
-これにより、同一content vectorを複数Versionでreuseしても、Candidateのcurrent/historical identityを失わない。
+Content reuse never merges current/historical membership semantics.
 
 ---
 
-## 10. Defensive current verification
+## 11. Defensive current verification
 
-QdrantはDerived Indexなので、current pointer変更直後などに一時的に古いpayloadが残る可能性をfailure modelとして考慮する。
+Qdrant remains Derived Search state. Candidate hits must be defensively verified against canonical SQLite state.
 
-Vector filterで`is_current=true`を要求したうえで、SQLite canonical DBでもCandidate membershipを再確認する。
+At minimum verify:
 
 ```text
-objects.current_version_id == membership.version_id
+accepted Version
+active/archive scope
+Object.current_version_id == membership.version_id
+expected active representation kind
+effective generation identity
+same Primary Class unless cross_class=True
+same Facet in facet-specific mode
 ```
 
-を満たさないhitは返さない。
-
-同様に、
-
-- accepted lifecycle
-- Object active/archive scope
-- expected representation kind
-- Facet一致
-- same Primary Class scope
-
-を防御的に再確認する。
-
-古いIndex pointをcurrent resultとしてsilent利用しない。
+Stale legacy `object_overall` points must not enter active R2 results even if they remain physically present during side-by-side migration.
 
 ---
 
-## 11. Result contract
+## 12. Result contract
 
-### ObjectSimilarityResponse
+The public operation remains source-compatible where possible.
+
+### 12.1 ObjectSimilarityResponse
+
+Conceptual stable fields:
 
 ```text
 source_object_id
@@ -279,7 +297,11 @@ cross_class
 results
 ```
 
-### SimilarObjectResult
+For overall R2 mode, `source_representation_id` may identify the source `object_overview` as the broad anchor. It must not be documented as the sole representation used to compute the final score.
+
+### 12.2 SimilarObjectResult
+
+Stable/base fields:
 
 ```text
 object_id
@@ -294,182 +316,220 @@ representation_id
 membership_id
 ```
 
-`version_id`は**Candidate側で実際に比較したtarget Knowledge Version**である。
-
-`matched_facet`は、
+Overall R2 mode:
 
 ```text
-overall similarity -> null
-Facet similarity   -> 指定Facet key
+score_type = hierarchical_similarity
+matched_facet = null
+representation_id / membership_id = candidate object_overview anchor where retained for compatibility
 ```
 
-とする。
+Facet mode:
 
-このため利用側は、Similarityの意味境界と対象Versionを追跡できる。
+```text
+score_type = cosine_similarity
+matched_facet = requested Facet
+representation_id / membership_id = compared Facet membership
+```
 
----
-
-## 12. Failure behavior
-
-次は明示失敗とする。
-
-- unknown source Object
-- sourceにcurrent Versionがない
-- source Versionがacceptedでない
-- unknown Facet
-- Source Versionに指定content Facetがない
-- Source Search Representationがない
-- Source Embeddingが指定Embedding Spaceにない
-- Vector backendが利用不能
-
-禁止:
-
-- Facet missing時のoverall fallback
-- 別Embedding Spaceへのsilent切替
-- 別Vector backendへのsilent fallback
-- external Providerへのsilent fallback
-- historical Candidateのsilent混入
-
-canonical SQLite Knowledgeは変更しない。
+`version_id` is always the Candidate Version actually scored.
 
 ---
 
-## 13. I-04との責務差
+## 13. Additive multi-vector explainability
 
-### I-04 Hybrid Search
+Overall hierarchical results require bounded component evidence.
 
-入力:
+The result must be able to expose a bounded list equivalent to:
+
+```text
+channel                    # overview | facet | statement
+source_representation_id
+source_membership_id
+candidate_representation_id
+candidate_membership_id
+representation_kind
+facet?
+source_statement_id?
+candidate_statement_id?
+raw_score
+raw_score_type             # cosine_similarity
+contribution               # selected algorithm's bounded contribution
+```
+
+The serialized DTO name/shape is R2-06 implementation work. The information semantics are frozen.
+
+Do not emit an unbounded list of every Statement pair merely for explanation.
+
+---
+
+## 14. Failure behavior
+
+Explicit failure/unavailable remains required for:
+
+- unknown source Object;
+- no current Source Version when current is requested;
+- Source Version not accepted;
+- unknown Facet;
+- Source missing requested content Facet;
+- required active Search Representation missing;
+- required Source embedding missing from selected Embedding Space;
+- Vector backend unavailable;
+- active generation incoherent/unavailable.
+
+Forbidden:
+
+- missing Facet -> overall/overview fallback;
+- another Embedding Space -> silent switch;
+- another Vector backend -> silent switch;
+- external Provider -> silent switch;
+- historical Candidate -> silent mix;
+- legacy `object_overall` -> active R2 fallback.
+
+Canonical SQLite Knowledge is not modified by Similarity failure.
+
+---
+
+## 15. Relationship to Hybrid Search
+
+### Hybrid Object Search
+
+Input:
 
 ```text
 free-text query
 ```
 
-複数channel:
+Active semantic channels:
 
 ```text
-Registry lexical
-Knowledge lexical
-Object semantic
-Facet semantic
-Statement semantic
+object_overview
+facet
+statement
 ```
 
-出力ranking:
+Final score:
 
 ```text
-RRF
+rrf
 ```
 
-### I-05 Similarity
+### Object Similarity
 
-入力:
+Input:
 
 ```text
 source Object ID
 ```
 
-比較単位:
+Overall mode:
 
 ```text
-object_overall
-または
-specified Facet
+hierarchical multi-vector aggregate
+score_type = hierarchical_similarity
 ```
 
-出力ranking:
+Facet mode:
 
 ```text
-cosine similarity
+same-Facet vector pair
+score_type = cosine_similarity
 ```
 
-したがってI-05はI-04のfree-text rankingを再設計しない。
+Hybrid RRF and overall Similarity aggregation are separate contracts even if R2-06 later chooses rank-fusion techniques internally.
 
 ---
 
-## 14. 実装ファイル
+## 16. R2-06 design space
 
-新規:
-
-```text
-src/sgokb/retrieval/similarity.py
-tests/test_object_similarity.py
-```
-
-更新:
+R2-06 must evaluate bounded algorithms such as:
 
 ```text
-src/sgokb/domain/search.py
-src/sgokb/domain/__init__.py
-src/sgokb/domain/vector_index.py
-src/sgokb/retrieval/__init__.py
-src/sgokb/retrieval/vector_index.py
+A. overview candidate generation + Facet/Statement rerank
+B. overview + Facet multi-channel candidate union + bounded score aggregation
+C. derived aggregate from existing child vectors, only if semantics/quality are demonstrated
 ```
 
-DB schema変更は不要なのでMigration 017は作成しない。
+Do not select solely by implementation simplicity.
 
-I-01〜I-04の既存canonical / derived schemaだけで実装できる。
+The selected algorithm must satisfy the invariants in Section 3 and new gold cases where:
+
+- overview/name/summary alone is insufficient;
+- detailed Facet semantics determine similarity;
+- a small number of important Statements determine similarity;
+- a very large Object with many irrelevant Statements does not outrank a genuinely similar smaller Object merely by volume.
+
+R2-06 fixes the formula/caps through quality + latency evidence.
 
 ---
 
-## 15. Test coverage
+## 17. R2 implementation test requirements
 
-I-05 focused testsでは少なくとも次を固定する。
+Focused regression must cover at least:
 
-- overall similarity
-- source Object自身を除外
-- same Primary Class default
-- explicit cross-class expansion
-- Facet similarityは同一Facetだけ
-- Source missing Facetは明示error
-- Candidate missing Facetは候補外
-- current target Versionだけを返す
-- target Versionをresultへ保持
-- accepted historical source Versionの明示利用
-- Source Embedding欠落時の明示failure
-- invalid source Version / limit validation
-- Qdrant adapterとのoverall / Facet integration
-- Vector `must_not` exclusion filter
-- native Windows Qdrant 1.19.2でsource除外`must_not`が動作すること
-
-Native smokeでは、深いrepo-local Qdrant storage rootでWindows `os error 3`を再現し、短いstorage rootへ変更すると同一testが成功した。この運用制約はI-03設計書にも追記した。
-
----
-
-## 16. I-05で固定しない事項
-
-### I-06
-
-- rerankerをSimilarity結果へ適用するか
-- Cross Encoderの採否
-
-Similarity first-stageにrerankerを自動追加しない。
-
-### I-07
-
-- 人間評価によるSimilarity品質
-- overallとFacetの用途別評価
-- cosine score distribution
-- Class別threshold要否
-- cross-class similarityの有用性
-- ANN Recall / latency
-- Harrier以外のquality ceiling profile比較
-
-特定score thresholdをI-05で「似ている / 似ていない」の真理値として固定しない。
+- hierarchical overall similarity;
+- source Object exclusion before limits;
+- same Primary Class default;
+- explicit cross-class expansion;
+- Facet similarity same-Facet only;
+- Source missing Facet explicit failure;
+- Candidate missing Facet excluded;
+- current Candidate Version only;
+- historical accepted Source Version explicit use;
+- target Version preserved in result;
+- no active legacy `object_overall` dependence;
+- same Embedding Space enforcement;
+- bounded Statement contribution;
+- deterministic tie-break;
+- additive component explainability bounded;
+- SQLite/Qdrant semantic parity;
+- legacy v1 points cannot leak into active v2 results.
 
 ---
 
-## 17. I-06への固定入力
+## 18. Historical Phase I v1 note
 
-I-06では次を変更せず利用する。
+Phase I/I-05 originally defined overall similarity as:
 
 ```text
-Search Representation: I-01
-Embedding Space:       Harrier OSS v1 0.6B / 1024-dim baseline
-Vector backend:        local Qdrant HNSW
-Hybrid Search:         I-04 RRF baseline
-Similarity:            I-05 direct cosine baseline
-Similarity scope:      same Primary Class default
-Facet missing:         explicit, no fallback
+object_overall <-> object_overall
+score_type = cosine_similarity
 ```
 
-**Status: I-05 Complete / I-06 Ready**
+This remains historical evidence and explains existing v1 implementation/tests/results. It is superseded for active R2 by the hierarchical contract above.
+
+Facet-specific direct cosine semantics remain valid and are carried forward.
+
+---
+
+## 19. R2-02 freeze / R2-06 handoff
+
+Frozen in R2-02:
+
+```text
+public Object-level operation stable
+facet=None => hierarchical multi-vector
+facet=<key> => same-Facet cosine
+final overall score_type = hierarchical_similarity
+raw component score type = cosine_similarity
+same-Class default / cross-class explicit
+self exclusion before limit
+current/historical semantics preserved
+bounded contributions and bounded explanation
+no object_overall active fallback
+no unbounded Statement cross-product
+```
+
+Not selected until R2-06:
+
+```text
+exact candidate-generation algorithm
+exact per-channel candidate limits
+exact Statement evidence selector
+exact aggregation formula
+exact weights/caps inside hierarchical_similarity
+```
+
+These are implementation-algorithm decisions, not open semantic contract questions.
+
+**Status: R2-02 Similarity semantics frozen / R2-06 design+implementation pending.**
