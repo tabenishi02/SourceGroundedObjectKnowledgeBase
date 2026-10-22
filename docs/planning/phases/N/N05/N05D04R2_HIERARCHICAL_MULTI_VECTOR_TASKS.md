@@ -3,7 +3,7 @@
 Updated: 2026-10-23
 
 - Parent: `N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign`
-- Status: **Active / R2-01〜R2-03 Complete / R2-04 Implementation Complete, Verification Pending**
+- Status: **Active / R2-01-R2-04 Complete / R2-05 Next**
 - Formal N-05: **BLOCKED / Not Complete**
 - Design plan: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
 - R2-01 freeze: `docs/planning/phases/N/N05/N05D04R2_IMPACT_SURVEY.md`
@@ -20,9 +20,9 @@ R2-02 Requirements + representation contract revision Complete
   ↓
 R2-03 Persistence/versioning/migration design          Complete
   ↓
-R2-04 object_overview builder implementation           Implementation Complete / Verification Pending
-  ↓ runtime verification gate
-R2-05 Hybrid Search migration                          Not Started
+R2-04 object_overview builder implementation           Complete
+  ↓ runtime verification PASS
+R2-05 Hybrid Search migration                          Next / Not Started
 R2-06 Hierarchical Object Similarity redesign          Not Started
           ↓
 R2-07 Derived Search rebuild / cutover / rollback
@@ -43,8 +43,8 @@ Do not start R2-05/R2-06 until the R2-04 runtime verification gate passes. Do no
 | R2-01 | P0 | **Complete** | affected contracts/code/data pathsをinventoryし、redesign boundaryをfreeze |
 | R2-02 | P0 | **Complete** | Search Requirements / Search Representation / Hybrid / Similarity designをv2へ改定 |
 | R2-03 | P0 | **Complete / Design Freeze** | `object_overview` persistence、builder version、generation/cutover/rollbackを設計 |
-| R2-04 | P0 | **Implementation Complete / Runtime Verification Pending** | deterministic compact `object_overview` builderとmaterializationを実装し、focused/runtime evidenceでexitを確認 |
-| R2-05 | P0 | Not Started | Hybrid Searchを`object_overview + facet + statement`へ移行 |
+| R2-04 | P0 | **Complete** | deterministic compact `object_overview` builderとmaterializationを実装し、focused/runtime evidenceでexitを確認 |
+| R2-05 | P0 | **Next / Not Started** | Hybrid Searchを`object_overview + facet + statement`へ移行 |
 | R2-06 | P0 | Not Started | overall Object Similarityをhierarchical multi-vector方式へ再設計・実装 |
 | R2-07 | P0 | Not Started | Derived Search side-by-side rebuild / Qdrant cutover / rollbackを実装・検証 |
 | R2-08 | P0 | Not Started | frozen gold拡張、quality acceptance、N-06影響確認 |
@@ -217,7 +217,7 @@ Schema and cutover design are frozen. Migration/domain/builder implementation ca
 
 ### Status
 
-**Implementation Complete / Runtime Verification Pending.**
+**Complete - Reference Workstation runtime verification PASS (2026-10-23).**
 
 Implementation record:
 
@@ -293,7 +293,9 @@ The existing `materialize_version()` remains the v1 serving path until R2-05/R2-
 - migration preserves v1 IDs/content/memberships/embeddings;
 - generation membership cannot mix v1 overall into an R2 candidate.
 
-Focused test cases are committed. Runtime execution evidence remains pending and must pass before R2-04 exit.
+Focused pytest: **14 passed**, including populated pre-018 migration preservation.
+R2 source/tests/diagnostic Ruff, test format and diff checks PASS. See the
+implementation record for the unrelated repository-wide baseline E501.
 
 ### Resource diagnostic
 
@@ -319,14 +321,14 @@ If >4096, do not truncate; return to design review.
 
 Builder/materialization focused tests PASS and Large fixture no longer produces a giant mandatory Object-level input.
 
-Pending exit evidence:
+Confirmed exit evidence (2026-10-23):
 
 ```text
 focused pytest PASS
 migration 003..018 preservation/integrity PASS
 repository-required static/Ruff checks PASS
 exact Large object_overview Harrier token count recorded
-exact token count <= 4096
+exact token count 103 <= 4096, truncation=False
 ```
 
 ---
@@ -620,14 +622,18 @@ A model change requires a new Embedding Space identity, full Derived Search rebu
 
 ## 4. Current next task
 
-**Next: finish R2-04 runtime verification.**
+**R2-04 = Complete. Next: R2-05 [P0] - Hybrid Search migration.**
 
-Required before R2-05:
+Runtime exit evidence: focused **14 passed**, real migration chain 003..018
+and populated v1 row/vector preservation PASS, FK/integrity/FTS PASS, targeted
+static checks PASS. The actual Large fixture has 1200 Statements; compact
+object_overview is **103 exact Harrier tokens**, `truncation=False`, below 4096.
+Summary 5 + Facet identities 3 remain; 1195 detailed bodies stay in Facet/Statement
+representations. The original DB and R1 uncommitted assets were preserved.
 
-```text
-focused pytest / migration checks PASS
-repository-required static checks PASS
-exact N-05 Large object_overview Harrier token count <= 4096 without truncation
-```
+Details and reproducible checks:
+[implementation/runtime record](N05D04R2_OBJECT_OVERVIEW_IMPLEMENTATION.md#9-reference-workstation-verification---2026-10-23).
 
-Do not start R2-05/R2-06 production migration, Derived Search active-generation cutover, R2-08 quality acceptance, or R2-09 formal 46-sample execution until the R2-04 exit gate passes.
+R2-05 itself was **not started**. R2-06/R2-07, active-generation/production cutover,
+quality acceptance and formal 46-sample rerun were not performed. N-05 remains
+BLOCKED / Not Complete.
