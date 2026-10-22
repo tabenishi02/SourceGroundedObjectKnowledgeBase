@@ -1,4 +1,4 @@
-"""Deterministic derived Search Representation builder for Phase I / I-01."""
+"""Deterministic derived Search Representation builders for legacy v1 and R2."""
 
 from __future__ import annotations
 
@@ -22,19 +22,30 @@ class BuiltSearchRepresentation:
 
 
 class SearchRepresentationBuilder:
-    """Build searchable text from accepted canonical Knowledge or canonical Evidence.
+    """Build deterministic searchable text from accepted canonical state.
 
-    The builder performs no embedding, ranking, inference, or generative synthesis.
-    Stable IDs and other coordination metadata stay in membership rows rather than
-    being injected into semantic text.
+    R2 adds compact ``object_overview`` without reinterpreting persisted v1
+    ``object_overall``. The builder performs no embedding, ranking, inference,
+    generative summarization, or token truncation. Stable IDs and coordination
+    metadata remain in membership rows rather than semantic text.
     """
 
     BUILDER_KEY = "sgokb-canonical-search"
-    BUILDER_VERSION = "1"
+    BUILDER_VERSIONS = {
+        SearchRepresentationKind.OBJECT_OVERALL: "1",
+        SearchRepresentationKind.OBJECT_OVERVIEW: "2",
+        SearchRepresentationKind.FACET: "1",
+        SearchRepresentationKind.STATEMENT: "1",
+        SearchRepresentationKind.EVIDENCE: "1",
+    }
 
     def __init__(self, repository):
         self.repository = repository
         self.db = repository.db
+
+    @classmethod
+    def builder_version(cls, kind: SearchRepresentationKind | str) -> str:
+        return cls.BUILDER_VERSIONS[SearchRepresentationKind(kind)]
 
     @staticmethod
     def _clean(value: object | None) -> str:
@@ -133,6 +144,20 @@ class SearchRepresentationBuilder:
             (version_id, facet_id),
         ).fetchall()
 
+    def _aliases(self, object_id: str, *, normalized_order: bool) -> list[str]:
+        rows = self.db.execute(
+            """SELECT value FROM object_aliases WHERE object_id=?
+               ORDER BY value COLLATE NOCASE,value,id""",
+            (object_id,),
+        ).fetchall()
+        aliases = [self._clean(row["value"]) for row in rows if self._clean(row["value"])]
+        if not normalized_order:
+            return aliases
+        # R2 orders after normalization and removes normalized duplicates so DB
+        # insertion order/collation cannot alter the semantic bytes.
+        unique = set(aliases)
+        return sorted(unique, key=lambda value: (value.casefold(), value))
+
     def build_statement(self, statement_id: str) -> BuiltSearchRepresentation | None:
         statement = self.db.execute(
             "SELECT * FROM knowledge_statements WHERE id=?", (statement_id,)
@@ -162,7 +187,7 @@ class SearchRepresentationBuilder:
         return BuiltSearchRepresentation(
             SearchRepresentationKind.STATEMENT,
             self.BUILDER_KEY,
-            self.BUILDER_VERSION,
+            self.builder_version(SearchRepresentationKind.STATEMENT),
             "\n".join(lines),
         )
 
@@ -182,9 +207,8 @@ class SearchRepresentationBuilder:
             f"({self._clean(context['class_name'])})"
         )
         lines.append(f"Facet: {self._clean(facet['name'])} ({self._clean(facet['key'])})")
-        if rows:
-            lines.append("Statements:")
-            lines.extend(f"- {self._statement_line(row)}" for row in rows)
+        lines.append("Statements:")
+        lines.extend(f"- {self._statement_line(row)}" for row in rows)
         if facet["key"] == "relationships":
             relations = self._relation_lines(version_id)
             if relations:
@@ -193,12 +217,12 @@ class SearchRepresentationBuilder:
         return BuiltSearchRepresentation(
             SearchRepresentationKind.FACET,
             self.BUILDER_KEY,
-            self.BUILDER_VERSION,
+            self.builder_version(SearchRepresentationKind.FACET),
             "\n".join(lines),
         )
 
-    def _attribute_lines(self, version_id: str) -> list[str]:
-        rows = self.db.execute(
+    def _attribute_rows(self, version_id: str) -> list:
+        return self.db.execute(
             """SELECT a.*,d.key,d.name,d.value_type
                FROM object_version_attributes a
                JOIN attribute_definitions d ON d.id=a.attribute_id
@@ -206,27 +230,44 @@ class SearchRepresentationBuilder:
                ORDER BY d.key,a.ordinal,a.id""",
             (version_id,),
         ).fetchall()
+
+    def _attribute_value(self, row) -> str | None:
+        for column in (
+            "value_text",
+            "value_integer",
+            "value_real",
+            "value_boolean",
+            "value_json",
+        ):
+            if row[column] is not None:
+                value = row[column]
+                if column == "value_boolean":
+                    value = "true" if bool(value) else "false"
+                return self._clean(value)
+        return None
+
+    def _attribute_lines(self, version_id: str) -> list[str]:
+        """Legacy v1 attribute bytes used by object_overall."""
         result: list[str] = []
-        for row in rows:
-            value = None
-            for column in (
-                "value_text",
-                "value_integer",
-                "value_real",
-                "value_boolean",
-                "value_json",
-            ):
-                if row[column] is not None:
-                    value = row[column]
-                    if column == "value_boolean":
-                        value = "true" if bool(value) else "false"
-                    break
+        for row in self._attribute_rows(version_id):
+            value = self._attribute_value(row)
             if value is not None:
-                result.append(f"- {self._clean(row['name'])}: {self._clean(value)}")
+                result.append(f"- {self._clean(row['name'])}: {value}")
         return result
 
-    def _relation_lines(self, version_id: str) -> list[str]:
-        rows = self.db.execute(
+    def _overview_attribute_lines(self, version_id: str) -> list[str]:
+        """R2 attributes expose canonical key plus human-readable display text."""
+        result: list[str] = []
+        for row in self._attribute_rows(version_id):
+            value = self._attribute_value(row)
+            if value is not None:
+                result.append(
+                    f"- {self._clean(row['key'])} ({self._clean(row['name'])}): {value}"
+                )
+        return result
+
+    def _relation_rows(self, version_id: str) -> list:
+        return self.db.execute(
             """SELECT r.id,rt.key,rt.name,subject.name AS subject_name,
                       object.name AS object_name,ts.temporal_scope_id
                FROM object_relations r
@@ -238,8 +279,11 @@ class SearchRepresentationBuilder:
                ORDER BY subject.name,rt.key,object.name,r.id""",
             (version_id,),
         ).fetchall()
+
+    def _relation_lines(self, version_id: str) -> list[str]:
+        """Legacy v1 relation bytes used by object_overall/facet."""
         result: list[str] = []
-        for row in rows:
+        for row in self._relation_rows(version_id):
             value = (
                 f"{self._clean(row['subject_name'])} "
                 f"{self._clean(row['name'])} {self._clean(row['object_name'])}"
@@ -250,17 +294,80 @@ class SearchRepresentationBuilder:
             result.append(f"- {value}")
         return result
 
-    def build_object_overall(self, version_id: str) -> BuiltSearchRepresentation:
-        context = self._version_context(version_id)
-        aliases = [
-            self._clean(row["value"])
-            for row in self.db.execute(
-                """SELECT value FROM object_aliases WHERE object_id=?
-                   ORDER BY value COLLATE NOCASE,value,id""",
-                (context["object_id"],),
+    def _overview_relation_lines(self, version_id: str) -> list[str]:
+        result: list[str] = []
+        for row in self._relation_rows(version_id):
+            value = (
+                f"{self._clean(row['subject_name'])} "
+                f"{self._clean(row['key'])} ({self._clean(row['name'])}) "
+                f"{self._clean(row['object_name'])}"
             )
-            if self._clean(row["value"])
+            temporal = self._temporal_text(row["temporal_scope_id"])
+            if temporal:
+                value += f" [temporal={temporal}]"
+            result.append(f"- {value}")
+        return result
+
+    def _content_facet_inventory(self, version_id: str) -> list[str]:
+        rows = self.db.execute(
+            """SELECT f.key,f.name
+               FROM object_version_facets vf
+               JOIN facet_definitions f ON f.id=vf.facet_id
+               WHERE vf.version_id=? AND vf.status='content'
+               ORDER BY f.key,f.id""",
+            (version_id,),
+        ).fetchall()
+        return [
+            f"- {self._clean(row['key'])} ({self._clean(row['name'])})"
+            for row in rows
         ]
+
+    def build_object_overview(self, version_id: str) -> BuiltSearchRepresentation:
+        """Build the compact R2 Object-level representation without Facet bodies."""
+        context = self._version_context(version_id)
+        lines: list[str] = []
+        self._append(lines, "Object", context["object_name"])
+
+        aliases = self._aliases(context["object_id"], normalized_order=True)
+        if aliases:
+            lines.append("Aliases: " + ", ".join(aliases))
+
+        lines.append(
+            f"Primary Class: {self._clean(context['class_key'])} "
+            f"({self._clean(context['class_name'])})"
+        )
+
+        summaries = self._statement_rows(version_id, None)
+        if summaries:
+            lines.append("Summary:")
+            lines.extend(f"- {self._statement_line(row)}" for row in summaries)
+
+        facets = self._content_facet_inventory(version_id)
+        if facets:
+            lines.append("Facets:")
+            lines.extend(facets)
+
+        attributes = self._overview_attribute_lines(version_id)
+        if attributes:
+            lines.append("Attributes:")
+            lines.extend(attributes)
+
+        relations = self._overview_relation_lines(version_id)
+        if relations:
+            lines.append("Relations:")
+            lines.extend(relations)
+
+        return BuiltSearchRepresentation(
+            SearchRepresentationKind.OBJECT_OVERVIEW,
+            self.BUILDER_KEY,
+            self.builder_version(SearchRepresentationKind.OBJECT_OVERVIEW),
+            "\n".join(lines),
+        )
+
+    def build_object_overall(self, version_id: str) -> BuiltSearchRepresentation:
+        """Build the historical Phase-I v1 Object representation unchanged."""
+        context = self._version_context(version_id)
+        aliases = self._aliases(context["object_id"], normalized_order=False)
         lines: list[str] = []
         self._append(lines, "Object", context["object_name"])
         if aliases:
@@ -303,7 +410,7 @@ class SearchRepresentationBuilder:
         return BuiltSearchRepresentation(
             SearchRepresentationKind.OBJECT_OVERALL,
             self.BUILDER_KEY,
-            self.BUILDER_VERSION,
+            self.builder_version(SearchRepresentationKind.OBJECT_OVERALL),
             "\n".join(lines),
         )
 
@@ -334,7 +441,7 @@ class SearchRepresentationBuilder:
         return BuiltSearchRepresentation(
             SearchRepresentationKind.EVIDENCE,
             self.BUILDER_KEY,
-            self.BUILDER_VERSION,
+            self.builder_version(SearchRepresentationKind.EVIDENCE),
             "\n".join(lines),
         )
 
@@ -346,20 +453,12 @@ class SearchRepresentationBuilder:
             built.content,
         )
 
-    def materialize_version(self, version_id: str) -> tuple[str, ...]:
-        context = self._version_context(version_id)
-        stored: list[str] = []
-
-        overall = self.build_object_overall(version_id)
-        representation_id = self._persist(overall)
-        self.repository.semantic_store.link_knowledge_search_representation(
-            context["object_id"],
-            version_id,
-            representation_id,
-            SearchRepresentationKind.OBJECT_OVERALL,
-        )
-        stored.append(representation_id)
-
+    def _materialize_detail_representations(
+        self,
+        version_id: str,
+        object_id: str,
+        stored: list[str],
+    ) -> None:
         facets = self.db.execute(
             """SELECT facet_id FROM object_version_facets
                WHERE version_id=? AND status='content' ORDER BY facet_id""",
@@ -371,7 +470,7 @@ class SearchRepresentationBuilder:
                 continue
             representation_id = self._persist(built)
             self.repository.semantic_store.link_knowledge_search_representation(
-                context["object_id"],
+                object_id,
                 version_id,
                 representation_id,
                 SearchRepresentationKind.FACET,
@@ -385,7 +484,7 @@ class SearchRepresentationBuilder:
                 continue
             representation_id = self._persist(built)
             self.repository.semantic_store.link_knowledge_search_representation(
-                context["object_id"],
+                object_id,
                 version_id,
                 representation_id,
                 SearchRepresentationKind.STATEMENT,
@@ -393,6 +492,44 @@ class SearchRepresentationBuilder:
                 statement_id=statement["id"],
             )
             stored.append(representation_id)
+
+    def materialize_version(self, version_id: str) -> tuple[str, ...]:
+        """Materialize the still-serving Phase-I v1 family during R2 transition.
+
+        R2-05/R2-06 have not yet migrated serving retrieval. Keeping this entrypoint
+        v1-compatible avoids an accidental half-cutover. New R2 candidate work must
+        call :meth:`materialize_version_r2` explicitly.
+        """
+        context = self._version_context(version_id)
+        stored: list[str] = []
+
+        overall = self.build_object_overall(version_id)
+        representation_id = self._persist(overall)
+        self.repository.semantic_store.link_knowledge_search_representation(
+            context["object_id"],
+            version_id,
+            representation_id,
+            SearchRepresentationKind.OBJECT_OVERALL,
+        )
+        stored.append(representation_id)
+        self._materialize_detail_representations(version_id, context["object_id"], stored)
+        return tuple(stored)
+
+    def materialize_version_r2(self, version_id: str) -> tuple[str, ...]:
+        """Materialize the R2 candidate family without legacy object_overall."""
+        context = self._version_context(version_id)
+        stored: list[str] = []
+
+        overview = self.build_object_overview(version_id)
+        representation_id = self._persist(overview)
+        self.repository.semantic_store.link_knowledge_search_representation(
+            context["object_id"],
+            version_id,
+            representation_id,
+            SearchRepresentationKind.OBJECT_OVERVIEW,
+        )
+        stored.append(representation_id)
+        self._materialize_detail_representations(version_id, context["object_id"], stored)
         return tuple(stored)
 
     def materialize_evidence(self, evidence_id: str) -> str:
