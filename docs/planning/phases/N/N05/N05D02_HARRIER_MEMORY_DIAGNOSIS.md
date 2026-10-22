@@ -3,7 +3,7 @@
 更新日: 2026-10-22
 
 - Parent: `N-05 [P0] — Performance`
-- Status: **Ready for Reference Workstation execution**
+- Status: **Complete - VIABLE_FOR_FORMAL_RERUN**
 - N05D-01: **Complete**
 - N-05: **BLOCKED / Not Complete**
 - Formal source run: `20261022T130413+0900`
@@ -267,3 +267,26 @@ this document
 ```
 
 Run focused tests, full pytest, Ruff, and `git diff --check` before commit/push.
+
+
+## Reference Workstation result - 2026-10-23
+
+Run `20261022T230242+0900`, execution HEAD `5806ebf5baf965051253dff7e20428d9a0b221aa`.
+Authoritative representation reproduced: **18847 tokens**, unchanged source DB.
+All six curve points and three independent full-input trials PASS. Full times:
+642.830 / 636.118 / 628.092 seconds. Full Torch peak allocated/reserved:
+51.061 / 56.787 GiB; Windows dedicated ~23.2 GiB, shared ~34.2 GiB.
+Large spill/time regime change is bracketed by 12278-16383 actual tokens.
+Loaded attention config is SDPA; selected CUDA kernel is not profiled.
+No OOM, abnormal process exit, CPU inference fallback, truncation or detected
+driver-reset event. Full vectors pass 1024-dimension/finite/normalization checks.
+
+**N05D-02 = Complete; VIABLE_FOR_FORMAL_RERUN**, with substantial performance and
+host-commit risk. Shared-memory usage alone is not a memory-viability failure.
+Diagnostic seconds are not formal N-05 p95 evidence. N-05 stays BLOCKED.
+Final post-review full regression: **552 passed, 0 failed, 2 warnings; focused 11 passed; repository Ruff and git diff --check PASS**.
+
+Full metrics, preprocessing verification correction, exact runtime and limits:
+[local diagnostic evaluation](../../../../evaluation/N05D02_HARRIER_MEMORY_DIAGNOSIS.md).
+Next: **N05D-03 remediation/closure checkpoint**, not automatically started;
+N05D-04 formal performance rerun remains unstarted.

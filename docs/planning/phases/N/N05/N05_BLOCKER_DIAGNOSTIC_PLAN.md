@@ -199,15 +199,17 @@ Large cold 3 + warm 20
 
 ## 7. Current next task
 
-**N05D-01 = Complete** (N05D-01D correlation and external-storage cutover PASS).
+**N05D-01 = Complete; N05D-02 = Complete (VIABLE_FOR_FORMAL_RERUN).**
 
-Next: **N05D-02 - Long-input Harrier memory diagnosis (not started)**.
-The formal N-05 rerun remains blocked until both independent blockers and the
-frozen rerun prerequisites are satisfied. No N05D-02 experiment is authorized
-by the N05D-01D execution itself.
+Next: **N05D-03 - Evidence-based remediation / closure checkpoint (not started)**.
+The exact 18847-token frozen input completed 3/3 fresh-process trials, with
+severe Windows shared-memory spill and 628-643 seconds per full embedding.
+This is memory viability evidence, not a formal performance PASS. Review
+remaining remediation/operational risks before authorizing N05D-04; neither
+N05D-03 nor the formal rerun was started by this diagnosis.
 
-The chronological diagnostic results below are historical; the final N05D-01D
-outcome at the end supersedes their then-current BLOCKED decisions.
+Chronological results below retain their original then-current decisions;
+final N05D-01D and N05D-02 outcomes supersede those historical next-task notes.
 
 ## 8. N05D-01 local result — 2026-10-22
 
@@ -295,3 +297,23 @@ the original payload-index OS error 5. Full evidence/limitations:
 [diagnostic evaluation](../../../../evaluation/N05D01_QDRANT_STORAGE_PATH_DIAGNOSIS.md).
 No security settings changed. Next N05D-02 remains unstarted; formal N-05 remains
 BLOCKED / Not Complete. No WSL2 migration was performed.
+
+
+## N05D-02 disposition - 2026-10-23
+
+Run `20261022T230242+0900`: **Complete / VIABLE_FOR_FORMAL_RERUN**.
+The original Large Object representation was reproduced exactly (18847 tokens),
+source DB hash unchanged. Six curve points PASS and all three independent full
+trials PASS with valid normalized 1024-dimensional vectors. No OOM/kill/detected
+driver-reset event, CPU inference fallback or truncation. Production unchanged.
+
+At 12278 vs 16383 tokens, sampled shared memory rises from 0.131 to 20.637 GiB
+and embedding time from 4.873 to 266.413 seconds; full input takes 628.092-642.830
+seconds with ~34.2 GiB shared usage. High memory-completion confidence, substantial
+performance/host-commit risk; exact spill onset and selected SDPA kernel remain
+unmeasured. These are not formal p95 samples.
+
+Final post-review full regression: **552 passed, 0 failed, 2 warnings; focused 11 passed; repository Ruff and git diff --check PASS**.
+Details: [N05D-02 evaluation](../../../../evaluation/N05D02_HARRIER_MEMORY_DIAGNOSIS.md).
+Next N05D-03 closure/remediation checkpoint is not started. N05D-04 formal rerun
+and overall N-05 completion remain blocked; no model/design tuning was performed.
