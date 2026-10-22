@@ -3,12 +3,13 @@
 Updated: 2026-10-23
 
 - Parent: `N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign`
-- Status: **Active / R2-01〜R2-03 Complete**
+- Status: **Active / R2-01〜R2-03 Complete / R2-04 Implementation Complete, Verification Pending**
 - Formal N-05: **BLOCKED / Not Complete**
 - Design plan: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
 - R2-01 freeze: `docs/planning/phases/N/N05/N05D04R2_IMPACT_SURVEY.md`
 - R2-02 freeze: `docs/planning/phases/N/N05/N05D04R2_REQUIREMENTS_REPRESENTATION_CONTRACT.md`
 - R2-03 freeze: `docs/planning/phases/N/N05/N05D04R2_PERSISTENCE_VERSIONING_MIGRATION_DESIGN.md`
+- R2-04 implementation: `docs/planning/phases/N/N05/N05D04R2_OBJECT_OVERVIEW_IMPLEMENTATION.md`
 
 ## 1. Execution order
 
@@ -19,9 +20,10 @@ R2-02 Requirements + representation contract revision Complete
   ↓
 R2-03 Persistence/versioning/migration design          Complete
   ↓
-R2-04 object_overview builder implementation           Next
-  ├─→ R2-05 Hybrid Search migration
-  └─→ R2-06 Hierarchical Object Similarity redesign
+R2-04 object_overview builder implementation           Implementation Complete / Verification Pending
+  ↓ runtime verification gate
+R2-05 Hybrid Search migration                          Not Started
+R2-06 Hierarchical Object Similarity redesign          Not Started
           ↓
 R2-07 Derived Search rebuild / cutover / rollback
           ↓
@@ -32,7 +34,7 @@ R2-09 Performance/resource acceptance + formal N-05 rerun
 R2-10 Closure / Phase N state update
 ```
 
-Do not start R2-09 formal N-05 timing before R2-08 passes.
+Do not start R2-05/R2-06 until the R2-04 runtime verification gate passes. Do not start R2-09 formal N-05 timing before R2-08 passes.
 
 ## 2. Task list
 
@@ -41,7 +43,7 @@ Do not start R2-09 formal N-05 timing before R2-08 passes.
 | R2-01 | P0 | **Complete** | affected contracts/code/data pathsをinventoryし、redesign boundaryをfreeze |
 | R2-02 | P0 | **Complete** | Search Requirements / Search Representation / Hybrid / Similarity designをv2へ改定 |
 | R2-03 | P0 | **Complete / Design Freeze** | `object_overview` persistence、builder version、generation/cutover/rollbackを設計 |
-| R2-04 | P0 | **Next / Not Started** | deterministic compact `object_overview` builderとmaterializationを実装 |
+| R2-04 | P0 | **Implementation Complete / Runtime Verification Pending** | deterministic compact `object_overview` builderとmaterializationを実装し、focused/runtime evidenceでexitを確認 |
 | R2-05 | P0 | Not Started | Hybrid Searchを`object_overview + facet + statement`へ移行 |
 | R2-06 | P0 | Not Started | overall Object Similarityをhierarchical multi-vector方式へ再設計・実装 |
 | R2-07 | P0 | Not Started | Derived Search side-by-side rebuild / Qdrant cutover / rollbackを実装・検証 |
@@ -213,6 +215,14 @@ Schema and cutover design are frozen. Migration/domain/builder implementation ca
 
 ## R2-04 [P0] — Implement compact `object_overview`
 
+### Status
+
+**Implementation Complete / Runtime Verification Pending.**
+
+Implementation record:
+
+`docs/planning/phases/N/N05/N05D04R2_OBJECT_OVERVIEW_IMPLEMENTATION.md`
+
 ### Goal
 
 全Facet Statementを再掲しないdeterministic Object-level representationを実装する。
@@ -254,6 +264,22 @@ migration/generation-focused tests
 
 R2-04 may implement the persistence/domain pieces frozen by R2-03 that are necessary to store and materialize `object_overview`, but it must not perform production cutover.
 
+Implemented on `main`:
+
+```text
+OBJECT_OVERVIEW enum + explicit legacy OBJECT_OVERALL
+per-kind builder version selection
+build_object_overview()
+materialize_version_r2()
+migration 018 coexistence/generation schema
+object_overview uniqueness + FTS support
+generation kind guards
+focused builder/migration tests
+exact Harrier token diagnostic tool
+```
+
+The existing `materialize_version()` remains the v1 serving path until R2-05/R2-06 migrate downstream retrieval; this prevents a half-cutover.
+
 ### Tests
 
 - deterministic byte-identical output;
@@ -267,6 +293,8 @@ R2-04 may implement the persistence/domain pieces frozen by R2-03 that are neces
 - migration preserves v1 IDs/content/memberships/embeddings;
 - generation membership cannot mix v1 overall into an R2 candidate.
 
+Focused test cases are committed. Runtime execution evidence remains pending and must pass before R2-04 exit.
+
 ### Resource diagnostic
 
 On the N-05 Large fixture:
@@ -277,11 +305,29 @@ engineering target <= 4096 tokens
 no truncation
 ```
 
+The frozen Large fixture has 1200 Statements. Its fixture builder places 5 into `knowledge.summary` and the remaining 1195 into three content Facets. The R2 overview structurally includes the five Summary Statements and Facet identities, not those 1195 Facet Statement bodies.
+
+Exact measurement is provided by:
+
+`benchmark/tools/n05d04r2_object_overview_diagnostic.py`
+
+The diagnostic uses the frozen Harrier revision with `truncation=False` and does not mutate the supplied benchmark database.
+
 If >4096, do not truncate; return to design review.
 
 ### Exit
 
 Builder/materialization focused tests PASS and Large fixture no longer produces a giant mandatory Object-level input.
+
+Pending exit evidence:
+
+```text
+focused pytest PASS
+migration 003..018 preservation/integrity PASS
+repository-required static/Ruff checks PASS
+exact Large object_overview Harrier token count recorded
+exact token count <= 4096
+```
 
 ---
 
@@ -574,6 +620,14 @@ A model change requires a new Embedding Space identity, full Derived Search rebu
 
 ## 4. Current next task
 
-**Next: R2-04 [P0] — Implement compact `object_overview`.**
+**Next: finish R2-04 runtime verification.**
 
-Do not start Hybrid/Similarity production cutover, Derived Search active-generation cutover, R2-08 quality acceptance, or R2-09 formal 46-sample execution as part of R2-03.
+Required before R2-05:
+
+```text
+focused pytest / migration checks PASS
+repository-required static checks PASS
+exact N-05 Large object_overview Harrier token count <= 4096 without truncation
+```
+
+Do not start R2-05/R2-06 production migration, Derived Search active-generation cutover, R2-08 quality acceptance, or R2-09 formal 46-sample execution until the R2-04 exit gate passes.
