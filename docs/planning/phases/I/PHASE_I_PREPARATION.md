@@ -1,15 +1,47 @@
 # Source Grounded Object Knowledge Base — Phase I Preparation
 
-更新日: 2026-10-14
+更新日: 2026-10-23
 
-- Status: **Complete (I-01〜I-07 Complete)**
+- Status: **Complete (I-01〜I-07 Complete) / historical Phase-I record**
 - Completed phase: Phase I — 意味検索・類似検索
-- Next phase: Phase J — MCP Knowledge Access Layer
-- Next task: `J-01 [P0] Retrieval CoreとMCP Adapterを分離する`
-- Working branch: `integration/knowledge-base-redesign`
+- Next phase at Phase-I closure: Phase J — MCP Knowledge Access Layer
+- Original next task: `J-01 [P0] Retrieval CoreとMCP Adapterを分離する`
+- Working branch at Phase-I execution: `integration/knowledge-base-redesign`
 - Closure input: `docs/planning/PHASE_H_CLOSURE_AUDIT.md`
-- Closure audit: `docs/planning/PHASE_I_CLOSURE_AUDIT.md`
-- Phase J preparation: `docs/planning/PHASE_J_PREPARATION.md`
+- Closure audit: `docs/planning/phases/I/PHASE_I_CLOSURE_AUDIT.md`
+- R2 superseding contract: `docs/planning/phases/N/N05/N05D04R2_REQUIREMENTS_REPRESENTATION_CONTRACT.md`
+
+---
+
+## 0. 2026-10-23 N05D-04R2 superseding amendment
+
+This document remains the historical record of how Phase I was planned and completed in October 2026. Phase I itself remains **Complete**; its original benchmark results and implementation history are not rewritten retroactively.
+
+N05D-04 later exposed a resource failure in the Phase-I v1 broad Object representation: the active `object_overall` duplicated detailed Facet/Statement Knowledge into one monolithic embedding input. N05D-04R2 therefore supersedes only the active Derived Search semantics that depend on that representation.
+
+Active post-R2 design is now:
+
+```text
+object_overview
++ facet
++ statement
++ bounded Object aggregation
++ hierarchical Object Similarity
+```
+
+Key superseding points:
+
+- `object_overall` is legacy/history/migration only after R2 cutover;
+- active broad Object representation is compact `object_overview`;
+- Facet and Statement remain first-class canonical semantic boundaries;
+- Relation remains in the overview and may also occur through a canonical `relationships` Facet;
+- Hybrid Search uses `semantic_object_overview + semantic_facet + semantic_statement` with the existing first-baseline caps `1 / 2 / 3` and RRF `k=60`;
+- `find_similar_objects(..., facet=None)` becomes bounded hierarchical multi-vector similarity with `score_type=hierarchical_similarity`;
+- Facet-specific similarity remains same-Facet direct cosine with no fallback;
+- arbitrary token chunking and truncation are prohibited;
+- Harrier OSS v1 0.6B remains fixed for the first R2 causal comparison.
+
+Normative current design is in the R2-02 contract and the revised Search/Representation/Hybrid/Similarity design documents. The original Phase-I text below is retained as historical context and should not be interpreted as overriding R2.
 
 ---
 
@@ -69,6 +101,8 @@ I-06は2026-10-14に完了し、その後の最新model surveyを受けて同日
 
 I-07は2026-10-14に完了した。`benchmark/search-quality-gold-v1.json`をfrozen goldとし、20 Object / 21 accepted Version / 24 QueryでLexical / Semantic / Hybrid、Statement、overall / Facet similarity、Evidence Search、filter / current-history / temporal contractを評価した。HybridはObject MRR 1.000 / Recall@10 100%、contract 5/5、Facet similarityはMRR 1.000だった。100k / 1024-dim backend benchmarkではNumPy Float32 ExactをreferenceにQdrant HNSWを評価し、100k scale tuningによりdefault `hnsw_ef`を256から768へ更新した。formal reranker goldではBGE / zerank-2ともObject MRR 1.000で、BGEをbalanced候補、zerank-2をquality候補として維持する。設計正本は`docs/design/SEARCH_QUALITY_GOLD_BACKEND_BENCHMARK.md`。Phase I完了条件を満たし、次はPhase Jへ進む。
 
+> R2 note: 上記I-04/I-05/I-07記述は当時のv1実装・評価結果であり、R2 v2が再評価済みであることを意味しない。R2のsearch-quality acceptanceはR2-08で別途必要である。
+
 ---
 
 ## 3. Phase Iのcanonical design inputs
@@ -77,7 +111,7 @@ I-07は2026-10-14に完了した。`benchmark/search-quality-gold-v1.json`をfro
 
 `docs/requirements/SEARCH_REQUIREMENTS.md`
 
-既に確定している主要要件:
+Phase I時点で確定していた主要要件:
 
 - Identity LookupとSearchを分離する。
 - accepted current Knowledgeを通常検索の既定scopeとする。
@@ -94,7 +128,7 @@ I-07は2026-10-14に完了した。`benchmark/search-quality-gold-v1.json`をfro
 
 `docs/reference/EMBEDDING_VECTOR_SEARCH_RESEARCH.md`
 
-既に採用された設計入力:
+Phase I時点で採用された設計入力:
 
 ```text
 Object overall representation
@@ -115,6 +149,8 @@ Statement-level Embeddingは標準方針とする。
 - Statement → Object Aggregator
 
 を採用する。
+
+> R2 note: active Object-level kind is now `object_overview`; Facet / Statement / Evidence remain first-class. The historical `Object overall representation` line records the Phase-I v1 input only.
 
 ### 3.3 Non-functional requirements
 
@@ -142,13 +178,13 @@ Phase HによりPhase Iの入力が安定した。
 
 ---
 
-## 4. I-01で確定すべき論点
+## 4. I-01で確定した論点 — historical Phase-I baseline
 
-I-01ではmodel/backendを選ばず、まずSearch Representation contractを確定する。
+I-01ではmodel/backendを選ばず、まずSearch Representation contractを確定した。
 
 ### 4.1 Representation kind
 
-最低限:
+Phase-I v1 baseline:
 
 ```text
 object_overall
@@ -157,7 +193,9 @@ statement
 evidence
 ```
 
-Relation text representationは必要性を評価し、独立kindとするかObject/Facet表現へ統合するか決める。
+Relation text representationは独立kindを作らずObject/Facet表現へ統合した。
+
+> R2 superseding note: active R2 kinds are `object_overview / facet / statement / evidence`; `object_overall` is legacy-only. Relation remains in overview and may also occur through the canonical relationships Facet.
 
 ### 4.2 Canonical membershipとcontent identityの分離
 
@@ -246,9 +284,9 @@ Package Retrievalで利用するため、Object Knowledge用representationと同
 
 ---
 
-## 5. I-01で意図的に決めない事項
+## 5. I-01で意図的に決めなかった事項
 
-次は後続Taskへ送る。
+次は後続Taskへ送った。
 
 ### I-02
 
@@ -278,13 +316,13 @@ Package Retrievalで利用するため、Object Knowledge用representationと同
 - reranker採否
 - cross encoder model
 
-I-01でこれらを先行固定しない。
+I-01でこれらを先行固定しなかった。
 
 ---
 
 ## 6. 既存実装の扱い
 
-`src/sgokb/search.py`には旧Prototype由来の次の資産がある。
+`src/sgokb/search.py`には旧Prototype由来の次の資産があった。
 
 - `SQLiteCosineIndex`
 - `merge_candidates()`によるRRF系fusion
@@ -292,9 +330,7 @@ I-01でこれらを先行固定しない。
 - `HybridSearch`
 - `EmbeddingSpace` isolation
 
-これらは削除対象と決めない。
-
-ただし現在の実装は旧`search_items`前提の小規模baselineであり、Phase Iの最終architectureとはみなさない。
+これらは削除対象と決めず、Phase I baseline比較資産として扱った。
 
 再利用方針:
 
@@ -309,7 +345,7 @@ EmbeddingSpace
   → model/revision/dimension/config isolation思想を継承
 ```
 
-I-01で新Search Representation contractを確定後、既存search.pyをadapter可能な部分と置換対象に分ける。
+I-01で新Search Representation contractを確定後、既存search.pyをadapter可能な部分と置換対象に分けた。
 
 ---
 
@@ -317,7 +353,7 @@ I-01で新Search Representation contractを確定後、既存search.pyをadapter
 
 Embedding model比較とVector backend比較は独立させる。
 
-推奨順序:
+Phase-I実行順序:
 
 ```text
 I-01 Representation contract確定
@@ -333,13 +369,15 @@ I-03 Vector backend比較
 最終候補組み合わせ再評価
 ```
 
-backend差とmodel差を同時に変える比較は禁止する。
+backend差とmodel差を同時に変える比較は禁止した。
+
+R2も同じcausal-isolation原則を継承し、最初の構造改定baselineではHarrier 0.6Bを固定する。
 
 ---
 
-## 8. I-07 goldを早期に設計する理由
+## 8. I-07 goldを早期に設計した理由
 
-Task番号上はI-07だが、I-01〜I-03の判断基準としてgold queryの骨格は早期に利用する。
+Task番号上はI-07だが、I-01〜I-03の判断基準としてgold queryの骨格を早期に利用した。
 
 最低限含めるquery category:
 
@@ -356,7 +394,9 @@ Task番号上はI-07だが、I-01〜I-03の判断基準としてgold queryの骨
 - current / historical isolation
 - Class / Facet filter correctness
 
-ただし正式benchmark fixture / acceptance suite化はI-07で行う。
+正式benchmark fixture / acceptance suite化はI-07で行った。
+
+R2-08ではこのhistorical goldを保持しつつ、hierarchical overall Similarityを評価する新しいcasesを追加・version化する。
 
 ---
 
@@ -383,11 +423,13 @@ Embedding / Vector生成が失敗しても、
 
 `object_derived_states`を通じて`pending / ready / failed / stale相当`を検出・再実行可能にする。
 
+R2はこのfailure-domain contractを変更しない。
+
 ---
 
-## 10. Phase I開始時の実装順序
+## 10. Phase I開始時の実装順序 — historical
 
-推奨順序:
+Phase-I開始時の推奨順序:
 
 1. I-01 Search Representation domain modelを定義する。
 2. SQLite persistence / membership / content hashの必要schemaを設計する。
@@ -396,30 +438,30 @@ Embedding / Vector生成が失敗しても、
 5. current/historical scopeとrepresentation reuse条件をtestする。
 6. I-02用Exact / provider evaluation interfaceを準備する。
 
-I-01完了時点ではANN backendを実装する必要はない。
+I-01完了時点ではANN backendを実装する必要はなかった。
 
 ---
 
-## 11. Phase I移行判定
+## 11. Phase I closure and current supersession state
 
-Phase H closure auditによりH-01〜H-04と完了条件は満たされている。
+Phase H closure auditによりPhase I開始条件を満たし、その後I-01〜I-07、正式Search gold、100k Backend benchmarkまで完了したため、Phase Iは**Complete**である。
 
-Phase Iに必要な前提も、
+その完了判定はhistorical factとして維持する。
 
-- structured accepted Knowledge
-- immutable Version
-- current/historical identity
-- Evidence grounding
-- derived-state lifecycle
-- Search requirements
-- Embedding / Vector技術調査
-
-が揃っている。
-
-Phase IはI-01〜I-07を完了し、正式Search gold / 100k Backend benchmarkを含む完了条件を満たした。Phase Iを**Complete**とする。
-
-次に実施するTask:
+ただしcurrent active Derived Search designについては、N05D-04のlarge-object resource evidenceを受けてN05D-04R2がPhase-I v1の以下をsupersedeした:
 
 ```text
-J-01 [P0] Retrieval CoreとMCP Adapterを分離する
+object_overall active representation
+semantic_object_overall Hybrid channel
+overall Object Similarity = object_overall cosine
 ```
+
+Current active target:
+
+```text
+object_overview + facet + statement
+bounded Hybrid Object aggregation
+hierarchical Object Similarity
+```
+
+R2 implementation/quality/performance acceptance is not implied by the Phase-I closure. R2-02 freezes semantics only; implementation and acceptance continue under R2-03〜R2-10.
