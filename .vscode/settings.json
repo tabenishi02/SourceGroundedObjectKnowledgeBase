@@ -1,0 +1,7 @@
+{
+  "files.watcherExclude": {
+    "**/.local/n04p06/qdrant/**": true,
+    "**/.local/n05d01/**": true,
+    "**/.local/q/**": true
+  }
+}
