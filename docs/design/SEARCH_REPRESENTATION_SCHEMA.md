@@ -1,7 +1,10 @@
 # Search Representation Schema Design
 
-更新日: 2026-10-13  
-対象: Phase I / I-01 `Search Representation / Embedding対象`
+更新日: 2026-10-23  
+対象: Phase I / I-01 contract + N05D-04R2 / R2-02 superseding revision  
+Status: **Accepted / R2 v2 contract frozen**
+
+Normative R2-02 decision: `docs/planning/phases/N/N05/N05D04R2_REQUIREMENTS_REPRESENTATION_CONTRACT.md`
 
 ## 1. 目的
 
@@ -11,40 +14,59 @@ Search Representationは、accepted canonical Knowledge / canonical Evidenceを�
 canonical SQLite data
   ↓ deterministic builder
 Search Representation
-  ↓ I-02 Embedding Provider
+  ↓ Embedding Provider
 Embedding
-  ↓ I-03 VectorIndexAdapter
+  ↓ VectorIndexAdapter
 Vector Index
 ```
 
 Search Representation、Embedding、Vector Indexはいずれもcanonical Knowledgeではない。生成失敗・削除・再構築によってaccepted Object Knowledge Versionを変更またはrollbackしてはならない。
 
-## 2. Representation kind
+N05D-04R2では、Phase I v1の`object_overall`だけをactive contractから退役させ、canonical Object / Facet / Statement semantic boundariesを利用したhierarchical multi-vector構造へ改定する。
 
-I-01では次の4種類を確定する。
+## 2. Active representation kinds
 
-| kind | 意味 | canonical membership |
-|---|---|---|
-| `object_overall` | Object Version全体の意味表現 | Object + Version |
-| `facet` | 1 Facetの意味表現 | Object + Version + Facet |
-| `statement` | 1 accepted Knowledge Statementの意味表現 | Object + Version + optional Facet + Statement |
-| `evidence` | 1 canonical Evidenceの意味表現 | Evidence + Source + Snapshot + Normalization Run |
+R2 active contract:
 
-旧`object` kindはdomain API上のみ`object_overall`の互換aliasとして残す。永続値は`object_overall`で統一する。
+| kind | 意味 | canonical membership | active builder version |
+|---|---|---|---:|
+| `object_overview` | compact Object-level semantic context | Object + Version | 2 |
+| `facet` | 1 content Facetの意味表現 | Object + Version + Facet | 1 while unchanged |
+| `statement` | 1 accepted searchable Knowledge Statementの意味表現 | Object + Version + optional Facet + Statement | 1 while unchanged |
+| `evidence` | 1 canonical Evidenceの意味表現 | Evidence + Source + Snapshot + Normalization Run | 1 |
 
-### Relation
+`object_overall` is a **legacy v1 kind**. It remains identifiable only for migration, rollback, historical inspection, historical benchmark interpretation, and controlled cleanup. It is not an active post-R2 retrieval kind.
 
-I-01では独立した`relation` representation kindを作らない。
+### 2.1 Compatibility rule
 
-RelationはObjectの意味構造の一部として`object_overall`へ統合する。`relationships` Facetが存在する場合はFacet表現にもRelation textを含められる。I-07のgoldでRelation単独retrievalに不足が確認された場合のみ、将来独立kindを再評価する。
+`object_overview` is not a rename or alias of `object_overall`.
 
-## 3. Content identityとMembership identity
+Prohibited:
 
-同じ意味表現を複数Versionから再利用できるよう、content identityとmembership identityを分離する。
+```text
+old object_overall row -> relabel as object_overview
+old representation ID -> reuse as overview identity
+legacy object_overall -> deserialize as if overview
+active retrieval -> continue selecting object_overall under a new display name
+```
+
+Any temporary enum/API alias is compatibility-only and must not blur persisted v1 semantics with active v2 semantics. The physical compatibility mechanism is R2-03 scope.
+
+### 2.2 Relation
+
+R2 does not create an independent `relation` representation kind.
+
+Relation semantics remain Object-level context and are represented in `object_overview` using deterministic human-readable Relation/endpoint text. If a canonical `relationships` content Facet exists, Relation semantics may also be represented through that Facet contract.
+
+This intentional semantic-role overlap does not permit copying unrelated Facet Statement bodies into the overview.
+
+## 3. Content identity and membership identity
+
+Content identity and membership identity remain separate.
 
 ### 3.1 Content identity
 
-`search_representations`:
+`search_representations` conceptually stores:
 
 ```text
 id
@@ -56,19 +78,17 @@ content_hash = SHA-256(UTF-8 content)
 created_at
 ```
 
-一意性:
+Reuse identity:
 
 ```text
 (kind, builder_key, builder_version, content_hash)
 ```
 
-同一builder contractで同一contentになった場合、異なるObject Versionでも同じSearch Representationを再利用できる。
-
-Embedding Space identityはI-02で定義する。I-01ではSearch Representation IDを、将来の`representation_id × embedding_space_id` reuse境界として扱う。
+The same representation content may be reused by different accepted Object Versions, but Version/current-historical identity remains on membership records.
 
 ### 3.2 Knowledge membership
 
-`knowledge_search_representation_memberships`は次を保持する。
+`knowledge_search_representation_memberships` keeps:
 
 ```text
 representation_id
@@ -79,23 +99,11 @@ facet_id?
 statement_id?
 ```
 
-contentが同一でも、Version membershipは統合しない。
-
-例:
-
-```text
-Version 1 ─┐
-           ├─ same Search Representation
-Version 2 ─┘
-```
-
-Vector再利用は可能だが、Version 1がhistoricalでVersion 2がcurrentである事実はmembership側で保持される。
+A shared content record never merges Version membership.
 
 ### 3.3 Evidence membership
 
-EvidenceはObject Knowledgeと別membership familyとする。
-
-`evidence_search_representation_memberships`:
+Evidence remains a separate membership family:
 
 ```text
 representation_id
@@ -105,11 +113,11 @@ snapshot_id
 run_id
 ```
 
-`source_id / snapshot_id / run_id`はembedding textへstable IDとして注入せず、filter / provenance / generation identityとして保持する。
+Generation/provenance IDs remain metadata rather than semantic embedding text.
 
 ## 4. current / historical scope
 
-通常Object Searchの既定scope:
+Normal Object Search:
 
 ```text
 Object.status = active
@@ -124,33 +132,52 @@ Version.state = accepted
 AND explicit version scope
 ```
 
-同じrepresentation/vectorがold/new Versionで共有されても、old membershipをcurrentとして扱ってはならない。
+A reused representation/vector does not change membership currentness.
 
-低レベルmembership persistenceは再構築・staging互換性のためVersion所属を検証する。正式なBuilderはaccepted Versionだけを入力として受理し、通常retrieval APIもaccepted/current条件を適用する。
+The active R2 generation must not mix v1 `object_overall` memberships with v2 `object_overview` memberships during normal retrieval. The physical generation/cutover mechanism is defined in R2-03.
 
-## 5. Deterministic Search Representation Builder
+## 5. Deterministic builder contract
 
-BuilderはLLMを使用しない。入力canonical dataが同一なら、同じ`builder_version`でbyte-identical UTF-8 contentを生成する。
+Builder rules remain:
 
-共通規則:
+- no LLM generation;
+- Unicode NFC normalization;
+- deterministic whitespace normalization;
+- fixed field order;
+- no DB rowid/UUID/internal stable ID in semantic text;
+- deterministic sorting for unordered collections;
+- byte-identical UTF-8 output for the same canonical input and same content contract;
+- builder content-contract version changes when semantic bytes/field contract changes.
 
-- UnicodeをNFCへ正規化する。
-- 連続whitespaceを単一spaceへ正規化する。
-- field順序を固定する。
-- DB rowidやUUID等のstable IDをsemantic textへ入れない。
-- 順序を持たない集合は明示的にsortする。
-- builder contract変更時は`builder_version`を更新する。
+### 5.1 Builder key
 
-現行builder:
+Keep:
 
 ```text
-builder_key     = sgokb-canonical-search
-builder_version = 1
+builder_key = sgokb-canonical-search
 ```
+
+### 5.2 Builder version policy
+
+Builder version is **content-contract identity**, not Derived Search generation identity.
+
+```text
+object_overall  -> historical version 1 only
+object_overview -> version 2
+facet           -> version 1 while its byte-level contract is unchanged
+statement       -> version 1 while its byte-level contract is unchanged
+evidence        -> version 1 / unchanged
+```
+
+If a later R2 task deliberately changes Facet or Statement bytes/semantic fields, that kind receives an explicit version bump then.
+
+R2-03 must provide/confirm a separate active/candidate Derived Search generation identity for side-by-side rebuild and atomic cutover.
 
 ## 6. Statement representation
 
-Statementは単独textだけでは主語・Facet・時点を失いやすいため、次の順序でsemantic contextを付与する。
+Statement remains a first-class semantic boundary.
+
+The current semantic context remains:
 
 ```text
 Object: <canonical name>
@@ -161,22 +188,15 @@ Derivation: <derivation kind>            # direct_statement以外
 Statement: <statement text>
 ```
 
-例:
+Version ID、Statement ID、Facet IDはsemantic textへ入れない。
 
-```text
-Object: 架空太郎
-Primary Class: character (Character)
-Facet: Personality (personality)
-Temporal Scope: 2026 arc; as_of=2026-01-01
-Derivation: interpretation
-Statement: 仲間を優先する。
-```
-
-Version ID、Statement ID、Facet IDは意味contextではないためcontentへ入れない。
+R2 does not arbitrarily split or truncate Statement text.
 
 ## 7. Facet representation
 
-Facet representationは`object_version_facets.status = content`だけを対象とする。
+Facet remains a first-class semantic boundary.
+
+`object_version_facets.status = content` only:
 
 ```text
 Object
@@ -185,78 +205,131 @@ Facet
 Statements (deterministic order)
 ```
 
-次は通常Semantic representationを生成しない。
+Do not produce normal semantic content for:
 
-- `insufficient_evidence`
-- `not_applicable`
-- `not_analyzed`
+- `insufficient_evidence`;
+- `not_applicable`;
+- `not_analyzed`.
 
-Facet statementは`local_key, id`の固定順で並べる。
+Facet Statement order remains deterministic.
 
-## 8. Object overall representation
+R2 does not split Facets into fixed-token chunks.
 
-`object_overall`は新しいsummaryをLLM生成せず、canonical Knowledgeを決定論的に組み立てる。
+## 8. Object overview representation — active v2 contract
 
-現行v1の順序:
+Exactly one active `object_overview` is materialized for each represented accepted Object Version.
 
-1. Object canonical name
-2. aliases
-3. Version classification snapshotのPrimary Class
-4. FacetなしSummary Statement
-5. `content` FacetごとのStatement
-6. known structured Attribute
-7. Relation text
+It is deterministic, non-generative, and structurally compact.
 
-Relationは次の形でObject overallへ統合する。
+### 8.1 Included semantic fields
+
+In deterministic order:
+
+1. Object canonical name.
+2. Aliases, deterministically normalized/ordered.
+3. Version classification snapshot Primary Class.
+4. Facet-less Summary Statements.
+5. `content` Facet identity inventory: Facet key/name only.
+6. Known searchable Structured Attributes as canonical key/display-value text.
+7. Deterministic canonical Relation text.
+
+Representative logical form:
 
 ```text
-<subject name> <relation display name> <target name>
+Object: <canonical name>
+Aliases: <aliases>
+Primary Class: <class key> (<class display name>)
+Summary:
+  <facet-less summary statements>
+Facets:
+  <facet key/name inventory>
+Attributes:
+  <searchable structured attributes>
+Relations:
+  <subject name> <relation display name> <target name>
 ```
 
-これにより独立Relation embeddingを持たなくてもObject similarityへRelation semanticsを反映できる。
+Exact delimiters/formatting are builder implementation details; the semantic field set is frozen.
 
-## 9. Evidence representation
+### 8.2 Explicit exclusions
 
-EvidenceはObject-result scopeへ混ぜず、独立index familyとして扱う。
+Do not include:
 
-semantic textには、検索意味として有効なものだけを含める。
+- content-Facet Statement bodies;
+- copies of all Statements under each Facet;
+- Statement/Facet/internal database IDs;
+- Evidence content or Evidence IDs;
+- gap / insufficient-evidence management text;
+- unresolved references;
+- Registry proposals;
+- conflict management records;
+- workflow/debug metadata;
+- LLM-generated summaries;
+- arbitrary fixed-token chunks.
+
+### 8.3 Boundedness
+
+The overview is bounded by semantic role, not destructive truncation.
+
+N-05 Large-fixture engineering diagnostic:
+
+```text
+object_overview <= 4096 tokens
+```
+
+No truncation is allowed to force this. If the deterministic included fields exceed the target, return to design review.
+
+## 9. Historical `object_overall` v1 contract
+
+The Phase I v1 representation was:
+
+```text
+Object canonical name
+aliases
+Primary Class
+Facet-less Summary Statements
+all content-Facet Statement bodies
+known structured Attributes
+Relation text
+```
+
+That historical definition is retained only to explain persisted v1 data, tests, and benchmark evidence.
+
+It is retired from active post-R2 materialization/retrieval because it duplicates detailed Facet/Statement Knowledge into a monolithic embedding input.
+
+## 10. Evidence representation
+
+Evidence contract is unchanged.
+
+Semantic text may include:
 
 ```text
 Source label          # 存在時
 Snapshot title        # 存在時
 Language              # 存在時
-Source classification # resource/site/genre等、存在時
+Source classification # 存在時
 Evidence content
 ```
 
-次のgeneration/provenance情報はmembership/canonical joinで保持し、embedding textへIDとして入れない。
+Keep generation/provenance IDs in membership/canonical metadata rather than embedding text.
 
-- `evidence_id`
-- `source_id`
-- `snapshot_id`
-- `run_id`
-- locator / provenance identity
-- extractor version等の技術的管理情報
+Evidence remains an independent search family and is not merged into Object overview.
 
-これによりEvidence generationを失わず、semantic embeddingへの管理ノイズを抑える。
+## 11. Normal semantic-index exclusions
 
-## 10. 通常Semantic Indexから除外する情報
+The following remain administrative/review metadata, not normal semantic Knowledge:
 
-次は検索対象Knowledge Statementではなく、review / workflow / uncertainty metadataであるため通常Statement Semantic Indexへ入れない。
+- gap;
+- insufficient-evidence Facet state;
+- unresolved reference;
+- Registry proposal;
+- conflict record metadata itself.
 
-- gap
-- insufficient evidence Facet
-- unresolved reference
-- Registry proposal
-- conflict record metadataそのもの
+Accepted grounded `knowledge_statements` remain searchable even when involved in a conflict.
 
-これらは`object_version_result_metadata`等の別canonical recordとして保持される。Builderは`knowledge_statements`と`content` FacetのみからStatement/Facet contentを構築し、これらmetadata tableをsemantic textへ展開しない。
+## 12. Reuse rule
 
-一方、Conflictに関与していてもaccepted Version内に存在するgrounded `knowledge_statements`自体は検索可能である。
-
-## 11. Reuse rule
-
-Search Representation reuse条件:
+Search Representation reuse:
 
 ```text
 same kind
@@ -265,21 +338,43 @@ AND same builder_version
 AND same SHA-256(content)
 ```
 
-reuseしてよいもの:
+May reuse:
 
-- Search Representation content record
-- I-02以降の同一Embedding Space内Vector
+- content representation record;
+- same-Embedding-Space vector for the same representation identity.
 
-reuseしてはいけないもの:
+Must not merge/reuse as semantic identity:
 
-- Version membership
-- current/historical判定
-- Evidence generation identity
-- filter scope
+- Version membership;
+- current/historical state;
+- Evidence generation identity;
+- filter scope.
 
-## 12. Failure domain / rebuild
+Consequences:
 
-Search派生層:
+- `object_overall` cannot be reused as `object_overview`;
+- unchanged Facet/Statement representations remain content-reuse eligible;
+- active generation coherence is a separate R2-03 concern.
+
+## 13. Retrieval-facing semantics
+
+Active Object Search representation family:
+
+```text
+object_overview
+facet
+statement
+```
+
+Facet-scoped retrieval excludes overview.
+
+Statement-specific temporal/derivation filters remain Statement-only where aggregate representations cannot satisfy the hard condition safely.
+
+Overall Object Similarity must not treat `object_overview` as equivalent to complete detailed Knowledge. It uses hierarchical multi-vector semantics defined in `OBJECT_SIMILARITY_SEARCH.md`.
+
+## 14. Failure domain / rebuild
+
+Derived layers:
 
 ```text
 Search Representation
@@ -287,70 +382,73 @@ Embedding
 Vector Index
 ```
 
-はSQLite canonical Knowledge/Evidenceからfull rebuild可能である。
+remain rebuildable from canonical SQLite Knowledge/Evidence.
 
-失敗時:
+Failure must not:
 
-- accepted Versionをrollbackしない。
-- canonical Statement/Evidenceを削除しない。
-- external providerへsilent fallbackしない。
-- stale/failed derived stateをready扱いしない。
+- rollback accepted Version;
+- delete canonical Statement/Evidence;
+- silently change provider/backend;
+- expose stale/failed derived state as ready;
+- mix active v1/v2 generations.
 
-Object側は既存`object_derived_states`の
+## 15. Persistence impact boundary
+
+R2-02 freezes semantics only.
+
+R2-03 must define the physical implementation for:
 
 ```text
-search_representation
-embedding
-vector_index
+object_overview kind persistence
+legacy object_overall readability
+DB CHECK/enum migration
+active/candidate Derived Search generation identity
+membership uniqueness
+side-by-side rebuild
+embedding/vector reuse eligibility
+Qdrant generation/namespace
+atomic cutover
+rollback
+legacy cleanup
 ```
 
-で`pending / ready / failed / stale` lifecycleを管理する。
+Historical migration `014_search_representations.sql` must not be edited in place.
 
-## 13. I-01実装
+## 16. Embedding baseline control
 
-- `src/sgokb/migrations/014_search_representations.sql`
-  - E-02由来のderived search tablesのみrebuild。
-  - canonical Knowledge/Evidence schemaは変更しない。
-  - Knowledge/Evidence membershipを分離。
-- `src/sgokb/domain/knowledge.py`
-  - 4 representation kindsをdomain contract化。
-- `src/sgokb/storage/semantic_repository.py`
-  - content dedup、Knowledge membership、Evidence membership API。
-  - accepted/current retrieval boundary。
-- `src/sgokb/retrieval/search_representation.py`
-  - deterministic builder。
-  - Object / Facet / Statement / Evidence materialization。
-- `tests/test_search_representation.py`
-  - deterministic output、4 kinds、membership reuse、current/historical isolation、Evidence generation、Relation integration、failure-domainを検証。
+The first R2 implementation/evaluation baseline keeps:
 
-## 14. I-01で決めない事項
+```text
+model: microsoft/harrier-oss-v1-0.6b
+revision: f9b9dc8d367d443f2479d27aa5d8d2850c0774ee
+dtype: bfloat16
+dimension: 1024
+normalization: unchanged
+```
 
-I-02へ送る:
+No concurrent Harrier 270M, FlashAttention-2, PyTorch/CUDA upgrade, CPU fallback, or truncation is introduced.
 
-- Embedding model
-- dimension
-- provider library
-- normalization方式
-- multilingual / cross-lingual model
-- Embedding Space schema詳細
+## 17. R2-02 frozen decisions
 
-I-03へ送る:
+```text
+active Object kind                         object_overview
+legacy overall kind                        object_overall / legacy-only
+object_overview content fields             FROZEN
+Facet representation                       retained
+Statement representation                   retained
+Evidence representation                    unchanged
+Relation placement                         overview + canonical relationships Facet where applicable
+independent relation kind                  no
+builder key                                sgokb-canonical-search
+object_overview builder version            2
+unchanged facet/statement/evidence version 1
+arbitrary chunking                         prohibited
+truncation                                 prohibited
+```
 
-- final Vector backend
-- ANN / HNSW parameters
-- quantization
-- server process採否
+The active Hybrid and Similarity composition contracts are defined in:
 
-I-04へ送る:
+- `docs/design/HYBRID_SEARCH_OBJECT_AGGREGATION.md`
+- `docs/design/OBJECT_SIMILARITY_SEARCH.md`
 
-- lexical/semantic fusion式
-- Statement → Object aggregation式
-- channel weight
-- final Search result schema
-
-I-06へ送る:
-
-- reranker採否
-- cross encoder model
-
-I-01の確定事項は、これら後続比較の入力contractとして固定する。
+**Status: R2-02 representation contract frozen / R2-03 persistence design ready.**
