@@ -381,3 +381,106 @@ commit, explicitly authorized even while the runtime defect remains unresolved.
   Repository Ruff and diff check: **PASS**.
 - This progress commit does not change N05D-01 completion status. N05D-02 and
   N-05 formal rerun remain unstarted.
+
+
+## N05D-01C external-storage result — 2026-10-22
+
+**N05D-01C = BLOCKED; N05D-01 = BLOCKED / Not Complete. No production cutover.**
+
+- Run: `20261022T191928+0900`; execution HEAD:
+  `a2e2a48fdc04ec730fc14b655dc00e0a4fd1a4a1` (clean main at start).
+- Existing native Qdrant: 1.19.2, build `016542aa`; qdrant-client: 1.19.1.
+  Executable `.local/qdrant-1.19.2/qdrant.exe`; existing PID 45700, HTTP 6333 /
+  gRPC 6334, config `.local/n04p06/qdrant.yaml`, unchanged.
+- Old storage `.local/n04p06/qdrant/storage` and snapshots were not moved,
+  deleted, or copied. Existing collections were unchanged (31 before/after).
+- Clean external root: `C:\Qdrant\SGOKB`. Storage, snapshots and temp are
+  absolute paths in `qdrant.yaml` and `qdrant-diagnostic.yaml`, outside the
+  workspace. External diagnostic PID 18756 used HTTP 6433 / gRPC 6434 with:
+  `qdrant.exe --config-path C:\Qdrant\SGOKB\qdrant-diagnostic.yaml`.
+  Qdrant was started without elevation. The root was absent before preparation;
+  no old storage state was copied. All path write probes passed.
+- The three required `files.watcherExclude` entries were verified. They supplement
+  external storage isolation; no security setting or exclusion was changed.
+
+### Smoke, stress and native-operation evidence
+
+| Check | Observed result |
+|---|---|
+| Direct plain / indexed smoke | PASS / PASS |
+| Adapter plain / indexed smoke | PASS / PASS |
+| Complete indexed lifecycle cycles | 50/50 (25 direct + 25 adapter) |
+| Terminal API failure / failed cleanup response | 0 / 0 |
+| Client/server exception OS error 3 / 5 | 0 / 0 |
+| ProcMon qdrant.exe ACCESS DENIED | **50 — mandatory gate failed** |
+| ProcMon qdrant.exe SHARING VIOLATION | 0 |
+| Code.exe external-storage successful opens / all accesses | 0 / 0 |
+| Entire stress interval covered by trace | PASS |
+| Post-switch Derived Search smoke | NOT RUN — cutover gate failed |
+| Existing evaluation DB system integrity | PASS (not a post-switch result) |
+
+Short namespaces were `n05` + first 12 hex SHA-256(run_id:sample_id), unchanged.
+Every cycle used all configured payload indexes, upload, filtered query and
+collection deletion. No failed cycle was replaced or hidden. No formal N-05
+performance sample or N05D-02 experiment was executed.
+
+ProcMon 4.12 was user-authorized for elevation; the server and probes stayed
+non-admin. The raw capture retained all processes; the analyzed scope was the
+exact external root. It spans `19:33:12.9521605` to `19:40:12.7519241` JST and
+fully covers stress `19:33:14.727329` to `19:38:56.432627` JST. Scoped events:
+1,722,290 (qdrant.exe 1,615,587; MsMpEng.exe 68,519; System 38,184; Code.exe 0).
+
+All 50 ACCESS DENIED events were `SetRenameInformationFile` during collection
+cleanup into `storage/.deleted`. Example:
+
+```text
+2026-10-22 19:33:23.7577958 +09:00
+qdrant.exe PID 18756
+SetRenameInformationFile -> ACCESS DENIED
+source: C:\Qdrant\SGOKB\storage\collections\n05a4b0a543c9cf
+destination: C:\Qdrant\SGOKB\storage\.deleted\ShuBVt
+ReplaceIfExists: True
+```
+
+The native ACCESS DENIED result represents denied file operations even though
+client/server exception-string counters for `os error 5` are zero. Those zero
+exception counters must not be interpreted as absence of native OS error 5.
+PATH NOT FOUND (17,100) and NAME NOT FOUND (63,527) were retained as observations;
+lookup misses were not automatically labeled abnormal failures. The explicit
+zero-ACCESS-DENIED gate was applied without weakening it for successful API calls.
+
+### Decision, confidence and remaining scope
+
+**Root-cause classification remains UNRESOLVED.** External workspace isolation
+was verified with high confidence (zero observed Code.exe storage accesses), but
+it did not satisfy the native-operation acceptance gate. Therefore no claim of
+successful environment remediation or `QDRANT_ENVIRONMENT_DEFECT` closure is made.
+
+This run demonstrates that Code.exe access is not necessary for these cleanup
+rename denials. It does not establish the cause of the original payload-index
+creation OS error 5, nor a unique backend/security-filter mechanism. MsMpEng.exe
+presence alone is not evidence of Defender causation; stack/filter attribution
+is unproven. No Defender/EDR service, exclusion, firewall, or system policy was
+changed. No Qdrant administrator fallback was used.
+
+Old PID 45700 / config / 6333/6334 were retained. No Vector artifacts were rebuilt
+and no Derived Search readiness flags were changed manually. The existing N-03
+evaluation DB passed the normal `system integrity` CLI; production canonical DBs
+were not modified by this diagnostic.
+
+Next remediation candidate is **WSL2/Linux-filesystem Qdrant in a separately
+authorized task**. Do not execute N05D-02 or formal N-05 rerun from this result.
+
+### Regression and retained artifacts
+
+- Focused N05D-01 tests: **10 PASS / 0 failed**.
+- Full pytest: **529 PASS / 0 failed**.
+- Repository Ruff: **PASS**.
+- `git diff --check`: **PASS**.
+- Evidence: `.local/n05d01/20261022T191928+0900/`, including pre-state,
+  minimal smoke, all 50 cycle results, gate/review JSON, raw split PML, raw and
+  filtered CSV, Qdrant logs and evaluation integrity output. These are not Git assets.
+- Wrapper pipe inheritance and PowerShell security-module auto-import failures
+  occurred before stress; their logs and source snapshots are retained. Explicit
+  bundled-module import validated ProcMon's signature; no security policy changed.
+- Old N-05 and N05D-01 evidence remain intact. Completion status stays BLOCKED.

@@ -248,3 +248,26 @@ N05D-01とN05D-02は独立して調査可能だが、formal rerunは両方のexi
   progress under the user's updated policy; this does not grant acceptance.
 - Next: correlate a reproduced access-denied operation with exact file/handle
   and PML stack evidence. N05D-02/formal rerun were not executed.
+
+
+## 10. N05D-01C external-storage remediation result — 2026-10-22
+
+- Run `20261022T191928+0900`, HEAD `a2e2a48fdc04ec730fc14b655dc00e0a4fd1a4a1`.
+- Clean external root `C:\Qdrant\SGOKB`, native Qdrant 1.19.2, non-admin,
+  temporary HTTP/gRPC 6433/6434. Old storage/state was not copied or removed.
+- Four-path minimal smoke PASS. 50/50 indexed cycles completed (25 direct,
+  25 adapter); terminal API failures 0; exception-string OS error 3/5 counts 0.
+- Full stress ProcMon coverage confirmed: Code.exe external-storage accesses
+  and opens 0, SHARING VIOLATION 0, **Qdrant ACCESS DENIED 50** during cleanup
+  rename. Native denials remain failures even when API responses report success.
+- **N05D-01C BLOCKED; N05D-01 BLOCKED / Not Complete.** Root cause unresolved;
+  isolation effectiveness is observed but the remediation acceptance gate failed.
+- 6333/6334 were not cut over; old PID/config/storage/31 collections preserved.
+  Post-switch smoke and vector rebuild were NOT RUN. Existing evaluation DB
+  system integrity PASS. Security settings and production canonical DB unchanged.
+- Full result: `docs/evaluation/N05D01_QDRANT_STORAGE_PATH_DIAGNOSIS.md` and
+  `docs/planning/phases/N/N05/N05D01C_QDRANT_STORAGE_ISOLATION_REMEDIATION.md`.
+- Focused: 10 PASS / 0 failed; full pytest: 529 PASS / 0 failed;
+  Ruff: PASS; diff: PASS.
+- Next candidate: separately authorized WSL2/Linux-filesystem Qdrant remediation.
+  N05D-02 and formal N-05 rerun remain unstarted; do not disable security to pass.
