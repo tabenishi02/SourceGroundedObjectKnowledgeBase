@@ -40,9 +40,10 @@ class AttributeStatus(str, Enum):
 
 
 class SearchRepresentationKind(str, Enum):
+    # Active R2 Object-level representation.
+    OBJECT_OVERVIEW = "object_overview"
+    # Legacy Phase-I v1 Object-level representation. Persisted historical rows remain readable.
     OBJECT_OVERALL = "object_overall"
-    # Compatibility alias for the pre-I-01 public enum name.
-    OBJECT = "object_overall"
     FACET = "facet"
     STATEMENT = "statement"
     EVIDENCE = "evidence"
