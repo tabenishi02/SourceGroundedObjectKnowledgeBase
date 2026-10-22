@@ -4,9 +4,11 @@
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-05 [P0] — Performance`
-- Status: **BLOCKED — Reference Workstation formal measurement not executed**
+- Status: **BLOCKED — formal benchmark executed but performance target not judgeable**
 - Task completion: **Not Complete**
-- Blocker type: **Execution access / not a performance failure**
+- Formal run: `20261022T130413+0900`
+- Formal run HEAD: `a7147f9842f94e96944bc7f67b4c3986970462b0`
+- Blocker class: **runtime/backend + long-input embedding resource pressure**
 
 ## 1. Evaluation question
 
@@ -71,36 +73,22 @@ full Vector rebuild
 
 ### Standard
 
-Reference target:
-
 ```text
 Source                 10
 Evidence candidates    500
 Package Evidence       120
 Knowledge Statements   300
-```
-
-Formal limit:
-
-```text
-p95 <= 600 s
+Gate                    warm p95 <= 600 s
 ```
 
 ### Large
-
-Reference target:
 
 ```text
 Source                 40
 Evidence candidates    2000
 Package Evidence       350
 Knowledge Statements   1200
-```
-
-Formal limit:
-
-```text
-p95 <= 1200 s
+Gate                    warm p95 <= 1200 s
 ```
 
 ## 5. Implemented evaluation assets
@@ -109,95 +97,169 @@ p95 <= 1200 s
 benchmark/n05-performance-contract-v1.json
 benchmark/n05-performance-evidence-template-v1.json
 benchmark/tools/n05_evaluate_performance.py
+benchmark/tools/n05_performance_workflow.py
+benchmark/tools/n05_run_performance.py
 tests/test_n05_performance_evaluator.py
+tests/test_n05_performance_workflow.py
 docs/planning/phases/N/N05/N05_PERFORMANCE_BENCHMARK.md
 docs/planning/phases/N/N05/execution/N05_REFERENCE_WORKSTATION_HANDOFF.md
 ```
 
-Evaluator behavior:
+formal runnerはproduction canonical dataを使用せず、isolated SQLite fixtureとsample固有Qdrant namespaceを使用する。
 
-- environment metadata不足 → BLOCKED
-- workload envelope外 → BLOCKED
-- minimum sample不足 → BLOCKED
-- warm terminal failureあり → FAIL
-- warm p95 target超過 → FAIL
-- Standard/Largeとも条件内 → PASS
+外部AI生成は計測境界から除外し、deterministic prebuilt valid Resultを通常のValidation / Diff / Import contractへ通す。
 
-## 6. Reference Workstation execution attempt
+## 6. Formal execution
 
-2026-10-22、Remote Desktop Commanderを使用してReference Workstationで次を確認しようとした。
+### Run identity
 
 ```text
-repository working tree
-branch
-local HEAD
-origin/main
+run_id: 20261022T130413+0900
+HEAD:   a7147f9842f94e96944bc7f67b4c3986970462b0
 ```
 
-Reference Workstationへのdevice connectionは取得できた。
+Reference Workstationで実Harrier / real Qdrantを使用した。
 
-しかしcommand executionはRemote Desktop Commanderのcurrent monthly execution limitにより拒否された。
+### Standard
 
-そのため:
+計画:
 
 ```text
-preflight tests      Not executed on Reference Workstation
-cold samples         0 formal samples
-warm samples         0 formal samples
-Standard p95         Not measured
-Large p95            Not measured
-formal performance   Not judgeable
+cold 3
+warm 20
+合計23 sample
 ```
 
-## 7. Formal verdict
+結果:
 
 ```text
-N-05 verdict = BLOCKED
+23 / 23 sample terminal failure
+```
+
+失敗地点はDerived SearchのVector同期で、Qdrant payload index作成時にserver-side storage path errorが発生した。
+
+観測されたエラーは`gridstore`のpathが見つからない旨を示した。
+
+全sampleがRenderまで到達していないため、formal sample schemaに必要な全segment timingが揃っていない。
+
+### Large
+
+`cold-01`のEmbedding処理中にユーザー指示で中断した。
+
+観測:
+
+```text
+Object representation: 18,847 tokens
+embedding batch size: 1
+Dedicated VRAM: 約23.2 GiB
+Shared GPU memory: 約34.2 GiB
+```
+
+後続sampleは実行していない。
+
+この観測はlong-input embeddingのresource pressureを示すが、Attention kernel / allocator内訳を取得していないためroot causeを断定しない。
+
+## 7. Formal evaluator result
+
+```text
+N-05 formal verdict = BLOCKED
 ```
 
 理由:
 
-> Reference Workstation上でformal measurementを実行するためのcommand accessを現在利用できず、required raw evidenceが存在しない。
+- Standardはterminal failureしたが、Render未実行のためrequired segment evidenceが欠けている。
+- Largeは必要cold/warm sample数を満たしていない。
+- したがってStandard/Largeのformal warm p95を算出できない。
 
-この`BLOCKED`は以下を意味しない。
+失敗sampleの削除、成功sampleによる置換、欠損値の補完は行っていない。
+
+この`BLOCKED`を次の意味へ読み替えてはならない。
 
 ```text
-SGOKB is too slow
-Standard > 600 s
-Large > 1200 s
+Standard p95 > 600 s
+Large p95 > 1200 s
 performance requirement failed
+performance requirement passed
 ```
 
-実測していないため、PASSまたはFAILを推定してはならない。
+性能目標の達成・未達は未判定である。
 
-## 8. Evidence integrity
+## 8. Post-run validation
 
-本Taskでは性能値の代替としてUnit Test時間や過去Phaseのwall-clockを流用しない。
+Reference Workstation post-run:
 
-理由:
+```text
+Evaluator tests: 8 PASS
+Full pytest:      517 PASS
+Ruff:             PASS
+git diff --check: PASS
+```
 
-- workloadが異なる。
-- timing boundaryが異なる。
-- cold/warm条件が異なる。
-- Standard/Large profileを満たす保証がない。
+安全性:
 
-したがって正式N-05 resultはReference Workstation raw evidenceからのみ確定する。
+```text
+production canonical DB unchanged
+tracked files unchanged during formal run
+formal run HEAD unchanged
+```
 
-## 9. Remaining work to complete N-05
+formal run自体がcanonical user dataを破壊した証拠はない。
 
-1. Reference Workstation command accessを利用可能にする。
-2. mandatory preflightをPASSさせる。
-3. isolated Standard/Large fixtureを構築する。
-4. cold各3以上を取得する。
-5. warm各20以上を取得する。
-6. raw evidenceを保存する。
-7. deterministic evaluatorを実行する。
-8. post-run regressionをPASSさせる。
-9. この文書へ実測p50/p95/max/segment p95/retry/failureを記録する。
-10. PASS/FAILを確定し、N-05 statusを更新する。
+## 9. Findings
 
-## 10. Current conclusion
+### 9.1 Qdrant real-path gap
 
-N-05の測定方法、負荷profile、formal Gate、evidence schema、判定器、実行handoffまでは確定した。
+Unit/Integration testがPASSしていても、Reference Workstationのreal Qdrant storage lifecycleが正常であることまでは保証していなかった。
 
-**性能値そのものだけは未測定であるため、N-05は現時点でCompleteではない。**
+今回、actual payload-index creation pathでstorage-related failureが発生した。
+
+現時点ではQdrant environment、filesystem、benchmark runner、SGOKB adapter、backend本体のどこがroot causeかは未確定である。
+
+### 9.2 Long Object representation resource pressure
+
+Large Objectの18,847-token representationはHarrierのconfigured 32,768-token上限内ではある。
+
+しかしReference WorkstationのRTX 4090 24GB上で、batch size 1でもdedicated VRAMをほぼ使い切りshared GPU memoryへ大きく退避した。
+
+したがって「入力長がcontract上許容される」ことと「Reference Workstationで実用的なresource profileで処理できる」ことは別問題である。
+
+## 10. Diagnostic work before rerun
+
+正式benchmarkをそのまま再実行しない。
+
+次の診断をformal timingとは分離して行う。
+
+```text
+N05D-01 Qdrant storage/path blocker diagnosis
+N05D-02 Long-input Harrier memory diagnosis
+N05D-03 Evidence-based remediation
+N05D-04 Formal benchmark rerun
+```
+
+正本:
+
+`docs/planning/phases/N/N05/N05_BLOCKER_DIAGNOSTIC_PLAN.md`
+
+Gateは維持する。
+
+```text
+Standard warm p95 <= 600 s
+Large warm p95    <= 1200 s
+```
+
+## 11. Current conclusion
+
+今回のN-05 formal executionは有効なBLOCKED evidenceである。
+
+- benchmark runnerはReference Workstationで実行された。
+- Standard/Large workloadを開始できた。
+- 2つの独立したruntime blockerを発見した。
+- 性能targetのPASS/FAIL判定に必要なformal sampleは揃わなかった。
+
+したがって:
+
+```text
+N-05 = BLOCKED / Not Complete
+performance target = Not Judgeable
+next = N05D-01 Qdrant diagnosis
+```
