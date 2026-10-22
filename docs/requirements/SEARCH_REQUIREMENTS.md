@@ -1,9 +1,9 @@
 # Source Grounded Object Knowledge Base — Search / Retrieval要件
 
-更新日: 2026-10-11
+更新日: 2026-10-23
 
 - Task: `B-05 [P0] 検索要件を定義する`
-- Status: Accepted
+- Status: Accepted / **R2-02 superseding amendment active**
 - Parent: Phase B — 要件定義の全面更新
 - Inputs:
   - `docs/requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md`
@@ -14,9 +14,137 @@
   - `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
   - `docs/decisions/KNOWLEDGE_BASE_REDESIGN_DECISION.md`
   - `docs/reference/EMBEDDING_VECTOR_SEARCH_RESEARCH.md`
+- R2-02 amendment: `docs/planning/phases/N/N05/N05D04R2_REQUIREMENTS_REPRESENTATION_CONTRACT.md`
 - B-06 result: `docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`
 - B-07 result: `docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md`
-- Next: `Phase C — SGOKB / UPDS責務境界`
+
+---
+
+## 0. R2-02 superseding amendment — active Search requirements
+
+This section is normative for the current R2 design. Where the historical B-05 / Phase I wording later in this file conflicts with this section, **this section takes precedence**. The older wording is retained to preserve the original requirement history.
+
+### R2-SRH-01 — Active Object semantic family is hierarchical
+
+Normal Object semantic retrieval MUST use the canonical semantic hierarchy:
+
+```text
+object_overview
++ facet
++ statement
+```
+
+`object_overview` is compact Object-level context. It is not a copy of all accepted Knowledge. Detailed Knowledge remains in Facet and Statement representations.
+
+### R2-SRH-02 — `object_overall` is legacy-only
+
+`object_overall` MUST NOT be used by normal active post-R2 Object Search, Hybrid Search, overall Object Similarity, new embedding memberships, or new Vector Index memberships.
+
+It MAY remain readable only for migration, rollback, historical inspection, historical benchmark interpretation, or controlled cleanup.
+
+`object_overview` is not a rename or semantic alias of `object_overall`; persisted v1 rows MUST NOT be relabeled in place.
+
+### R2-SRH-03 — Exact Object overview semantic scope
+
+The deterministic active `object_overview` MUST contain only:
+
+- Object canonical name;
+- aliases;
+- Primary Class from the represented Version classification snapshot;
+- Facet-less Summary Statements;
+- content Facet key/name inventory, without those Facets' Statement bodies;
+- known searchable Structured Attributes as canonical display text;
+- deterministic Relation text.
+
+It MUST NOT contain content-Facet Statement bodies, Evidence text, internal IDs, workflow/gap/unresolved/proposal/conflict-management metadata, or an LLM-generated synthetic summary.
+
+Relation semantics remain part of the overview. If a canonical `relationships` content Facet exists, Relation semantics MAY also appear there under the Facet representation contract. R2 does not create an independent Relation representation kind.
+
+### R2-SRH-04 — No arbitrary chunking or truncation
+
+R2 MUST NOT repair oversized Object retrieval by fixed-token chunking, silent Statement dropping, prefix clipping, model-context truncation, or synthetic summarization that replaces canonical semantic boundaries.
+
+Facet and Statement are the detailed semantic units. The Large-fixture engineering target is:
+
+```text
+object_overview <= 4096 tokens
+```
+
+without truncation. Exceeding this target requires design review.
+
+### R2-SRH-05 — Hybrid Object Search remains bounded and Object-level
+
+The active semantic channels are:
+
+```text
+semantic_object_overview
+semantic_facet
+semantic_statement
+```
+
+The accepted Phase I baseline remains the first R2 baseline:
+
+```text
+RRF k = 60
+object_overview contribution cap = 1
+facet contribution cap           = 2
+statement contribution cap       = 3
+knowledge lexical cap            = 3
+```
+
+Normal results remain `1 Object = 1 result`. Exact name/alias priority remains separate from fused semantic relevance.
+
+Facet-scoped search MUST exclude `object_overview`; derivation/temporal conditions that are only valid at Statement granularity remain Statement-only. A broad Object representation MUST NOT silently satisfy a narrower semantic filter.
+
+### R2-SRH-06 — Overall Object Similarity is hierarchical multi-vector
+
+`find_similar_objects(..., facet=None)` MUST NOT define Object-wide similarity as one compact-overview cosine.
+
+Overall similarity MUST combine, with bounded contribution and candidate work:
+
+```text
+overview <-> overview
+same-Facet <-> same-Facet
+bounded Statement-level evidence
+```
+
+The final Object-wide score is a derived aggregate:
+
+```text
+score_type = hierarchical_similarity
+```
+
+It MUST NOT be labeled raw cosine similarity, probability, truth, or confidence. The exact bounded formula/caps are selected and validated in R2-06, but any implementation MUST avoid unbounded all-Statement cross-products and Statement-count boost.
+
+Facet-specific similarity remains same-Facet only and continues to return `cosine_similarity`; it MUST NOT silently fall back to overview/another Facet or treat missing Facet as zero similarity.
+
+### R2-SRH-07 — Similarity explainability remains inspectable
+
+Overall hierarchical Similarity MUST retain bounded contributing evidence sufficient to identify the compared overview/Facet/Statement memberships and their raw vector-pair scores. Existing Object-level public operations remain stable; callers are not required to know or send `object_overview`.
+
+### R2-SRH-08 — Builder identity is content-contract identity
+
+Keep `builder_key = sgokb-canonical-search`.
+
+The active content-version policy is:
+
+```text
+object_overall  = historical builder_version 1
+object_overview = builder_version 2
+facet           = version 1 while content contract unchanged
+statement       = version 1 while content contract unchanged
+evidence        = version 1 / unaffected
+```
+
+Builder version MUST NOT be misused as whole-index generation identity. R2-03 defines a separate safe Derived Search generation/cutover identity.
+
+### R2-SRH-09 — Canonical Knowledge and Embedding baseline stay unchanged
+
+R2 changes derived representation/retrieval composition only. Canonical Object / Version / Facet / Statement / Attribute / Relation / Evidence / Provenance data are not rewritten.
+
+The first R2 baseline retains Harrier OSS v1 0.6B / 1024-dim and does not concurrently introduce Harrier 270M, FlashAttention-2, a PyTorch/CUDA upgrade, CPU fallback, or truncation.
+
+The complete R2-02 normative contract is `docs/planning/phases/N/N05/N05D04R2_REQUIREMENTS_REPRESENTATION_CONTRACT.md`.
 
 ---
 
@@ -285,6 +413,8 @@ Object全体の意味検索・Similarityのため、accepted current Knowledge�
 
 具体的にsummaryだけを使うか、複数Facetを統合するか、Relationsを含めるかはI-01で評価する。
 
+> **R2-02 superseded:** active Object-level representation is now the compact `object_overview` defined in Section 0. It is not a whole-Knowledge concatenation and is not sufficient by itself to define detailed overall Similarity.
+
 ### SEM-03 — Facet representationを独立して持てること
 
 Facet単位で意味検索・類似比較できるよう、少なくともFacetごとのsemantic representationを生成可能にする。
@@ -348,6 +478,8 @@ Facet representation
 Statement representation
   → 細粒度Knowledge、条件、例外、時間限定情報の意味検索
 ```
+
+> **R2-02 superseded:** the active family is `object_overview + facet + statement`. `object_overview` supplies broad Object context; detailed overall Similarity is hierarchical and also consumes bounded Facet/Statement evidence.
 
 Statement Embeddingを導入してもObject / Facet Embeddingを廃止しない。細粒度検索と全体・観点別Similarityは別の検索目的だからである。
 
@@ -506,6 +638,16 @@ Embedding model変更で値が変わり得るため、Similarity scoreはquery-t
 
 過去Versionの意味表現を比較したい場合は、target Versionを明示できる設計とする。
 
+### SIM-07 — overall Similarityはhierarchical multi-vectorとする
+
+R2-02以降、Facetを指定しないObject-wide Similarityは単一Object representationのraw cosineではなく、overview / same-Facet / bounded Statement evidenceを組み合わせたbounded hierarchical aggregateとする。
+
+最終scoreは`hierarchical_similarity`と識別し、component raw cosineと区別する。
+
+### SIM-08 — hierarchical Similarityの根拠を追跡可能にする
+
+overall resultは、最終scoreへ寄与したoverview / Facet / Statement pairをboundedな説明情報として追跡できなければならない。
+
 ---
 
 ## 11. Facet Similarity Search
@@ -518,7 +660,7 @@ SGOKBの主要利用目的に「性格は似るが価値観は違う」等の比
 
 例えば`personality`でqueryした場合、candidate側も`personality` representationを持つObjectを比較する。
 
-別FacetやObject overallへsilent fallbackしない。
+別FacetやObject-wide representationへsilent fallbackしない。
 
 ### FSIM-03 — Facetが存在しないObjectを0 similarityとして扱わない
 
@@ -1158,7 +1300,7 @@ Phase Iのgold評価でfusion / rerankingを決定する。
 
 ### I-01 Embedding対象
 
-標準対象として設計する。
+Historical Phase-I baseline:
 
 - Object overall representation
 - Facet representation
@@ -1166,7 +1308,14 @@ Phase Iのgold評価でfusion / rerankingを決定する。
 - Evidence representation
 - 必要ならRelation text representation
 
-Object / Facet / Statementは用途の異なるmulti-representationとして併用する。Statement Search Representationには必要に応じObject / Facet / temporal contextを決定論的に付加し、representation builder version / content hashを追跡する。
+R2-02 active amendment:
+
+- `object_overall` is legacy-only;
+- active Object-level representation is compact `object_overview`;
+- Facet / Statement / Evidence remain first-class under the contracts above;
+- Relation stays in `object_overview` and may also participate in a canonical relationships Facet; no independent Relation kind is introduced by R2.
+
+Statement Search Representationには必要に応じObject / Facet / temporal contextを決定論的に付加し、representation builder version / content hashを追跡する。
 
 ### I-02 Embedding Model
 
@@ -1192,6 +1341,7 @@ Object / Facet / Statementは用途の異なるmulti-representationとして併�
 - 同一ObjectのStatement数を単純合計して無制限にboostしない。best hit / top-N capped contribution / Facet diversity等をgoldで比較する。
 - Object-level resultは代表Statement / matched Facet / channel / Version / groundingをdetailとして保持する。
 - explainable match channels。
+- R2 active Object semantic channel is `semantic_object_overview` rather than `semantic_object_overall`.
 
 ### I-05 Similarity
 
@@ -1200,6 +1350,7 @@ Object / Facet / Statementは用途の異なるmulti-representationとして併�
 - explicit cross-class scope。
 - facet-specific similarity。
 - missing facetを0 similarity扱いしない。
+- R2 overall mode is hierarchical multi-vector and returns `hierarchical_similarity`; Facet mode remains direct same-Facet cosine.
 
 ### I-06 Reranker
 
@@ -1241,6 +1392,8 @@ Tool名・response schemaはPhase Jで確定する。
 ### N-06 Retrieval品質評価
 
 単一aggregate scoreだけで採用判断せず、Lexical / Semantic / Hybrid / Similarity / Evidence Searchを別々に評価する。Statement Embeddingあり / なしのfine-grained Recall差と、Exact baselineに対するANN Statement / Object Recallも評価する。
+
+R2後のN-06 inputは、active `object_overview + facet + statement` generationとhierarchical overall Similarityを前提に再評価する。
 
 ---
 
@@ -1289,6 +1442,8 @@ Tool名・response schemaはPhase Jで確定する。
 - bounded multi-hop Relation traversalの最大depth。
 - historical semantic indexの具体的保存方式。
 
+> **R2-02 superseding note:** Object-level representation semantics, R2 Hybrid baseline channel/caps, and overall hierarchical Similarity score semantics are no longer unresolved. They are frozen by Section 0 and `N05D04R2_REQUIREMENTS_REPRESENTATION_CONTRACT.md`. R2-06 still selects the bounded numerical overall-Similarity algorithm within that contract.
+
 これらは本書のscope / semantics要件を壊さない形でPhase I / J / Mで具体化する。
 
 ---
@@ -1301,15 +1456,15 @@ Object Identity / current accepted KnowledgeとEvidenceについてLexical Searc
 
 ### Semantic Search
 
-Object overall / Facet / accepted検索可能Knowledge StatementとEvidenceについてSemantic Searchを必須とした。
+R2 active Object overview / Facet / accepted検索可能Knowledge StatementとEvidenceについてSemantic Searchを必須とした。
 
 ### Object Similarity
 
-Object-to-Object similarityを必須とし、同Primary Classを既定scope、cross-classを明示拡張とした。
+Object-to-Object similarityを必須とし、同Primary Classを既定scope、cross-classを明示拡張とした。R2 overall modeはbounded hierarchical multi-vector、Facet modeはsame-Facet direct cosineとする。
 
 ### Facet Similarity
 
-Facet単位Similarityを正式要件とし、missing Facetをoverallへsilent fallbackしないことを定義した。
+Facet単位Similarityを正式要件とし、missing FacetをObject-wide representationへsilent fallbackしないことを定義した。
 
 ### Relation Search
 
@@ -1333,7 +1488,7 @@ conflict中のgrounded Knowledgeは検索可能だがflagを保持し、gap / un
 
 ### Index lifecycle
 
-FTS / Vector等を再構築可能な派生物とし、Embedding Space分離・Search Representation builder version / hash・Knowledge Version membership・Vector backend交換可能性を要件化した。
+FTS / Vector等を再構築可能な派生物とし、Embedding Space分離・Search Representation builder version / hash・Knowledge Version membership・Vector backend交換可能性を要件化した。R2ではbuilder content-versionとDerived Search generation/cutover identityも分離する。
 
 ---
 
@@ -1341,12 +1496,14 @@ FTS / Vector等を再構築可能な派生物とし、Embedding Space分離・Se
 
 SGOKBの通常検索では、**Objectを発見・取得する検索と、Source-grounded Evidenceを監査・再分析する検索を分離し、Object KnowledgeについてはLexical + SemanticのHybrid Retrievalを基本とする。**
 
-通常Object Searchは、Object / Facet / Statementのmulti-representationをSemantic candidate generationへ利用し、accepted検索可能Statementには標準で個別Embeddingを生成する。一方、最終結果は原則`1 Object = 1件`へ集約し、matched Statement / Facetをdetailとして保持する。Object全体SimilarityとFacet Similarityを別機能として提供し、Relationは構造化Graph検索、Evidenceは独立したLexical / Semantic Searchとして扱う。
+通常Object Searchは、active `object_overview` / Facet / Statementのmulti-representationをSemantic candidate generationへ利用し、accepted検索可能Statementには標準で個別Embeddingを生成する。一方、最終結果は原則`1 Object = 1件`へ集約し、matched Statement / Facetをdetailとして保持する。
+
+Object-wide SimilarityはR2以降、compact overviewだけのcosineではなく、overview + same-Facet + bounded Statement evidenceからなるhierarchical multi-vector operationとする。Facet Similarityはsame-Facet direct cosineを維持する。Relationは構造化Graph検索、Evidenceは独立したLexical / Semantic Searchとして扱う。
 
 通常検索はactive Object + current accepted Knowledge + active/effective Evidence generationを既定scopeとし、archived / historical / conflict audit / gap / unresolved等は明示的scopeへ分離する。
 
 検索scoreはrelevance / similarityの派生値であり、truth、confidence、Source trustを意味しない。Search Indexは正本ではなく、Object Knowledge / Evidenceから再生成可能な派生資産とする。
 
-B-05は以上をもって完了済みであり、B-06のWorkflow要件も`WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`として確定した。B-07非機能要件も`NON_FUNCTIONAL_REQUIREMENTS.md`として完了した。次はPhase Cへ進む。
+B-05は完了済みであり、その後のN05D-04R2 / R2-02が、N-05実測で得た新しい資源制約 evidence に基づいてObject-level derived representation / overall Similarity contractを上書きした。
 
-**Status: Complete / Statement Embedding amendment accepted (2026-10-11)**
+**Status: Complete / R2-02 hierarchical multi-vector amendment accepted (2026-10-23)**
