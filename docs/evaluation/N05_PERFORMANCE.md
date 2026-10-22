@@ -1,14 +1,13 @@
 # N-05 — Performance Evaluation
 
-更新日: 2026-10-22
+更新日: 2026-10-23
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-05 [P0] — Performance`
-- Status: **BLOCKED — formal benchmark executed but performance target not judgeable**
-- Task completion: **Not Complete**
-- Formal run: `20261022T130413+0900`
-- Formal run HEAD: `a7147f9842f94e96944bc7f67b4c3986970462b0`
-- Blocker class: **runtime/backend + long-input embedding resource pressure**
+- Status: **BLOCKED / Not Complete — N05D-01〜03 Complete; N05D-04 formal rerun Ready**
+- Historical formal run: `20261022T130413+0900`
+- Historical formal run HEAD: `a7147f9842f94e96944bc7f67b4c3986970462b0`
+- Current performance target: **Not Judgeable until N05D-04**
 
 ## 1. Evaluation question
 
@@ -102,14 +101,14 @@ benchmark/tools/n05_run_performance.py
 tests/test_n05_performance_evaluator.py
 tests/test_n05_performance_workflow.py
 docs/planning/phases/N/N05/N05_PERFORMANCE_BENCHMARK.md
-docs/planning/phases/N/N05/execution/N05_REFERENCE_WORKSTATION_HANDOFF.md
+docs/planning/phases/N/N05/execution/N05D04_FORMAL_RERUN_HANDOFF.md
 ```
 
 formal runnerはproduction canonical dataを使用せず、isolated SQLite fixtureとsample固有Qdrant namespaceを使用する。
 
 外部AI生成は計測境界から除外し、deterministic prebuilt valid Resultを通常のValidation / Diff / Import contractへ通す。
 
-## 6. Formal execution
+## 6. Historical formal execution
 
 ### Run identity
 
@@ -157,9 +156,7 @@ Shared GPU memory: 約34.2 GiB
 
 後続sampleは実行していない。
 
-この観測はlong-input embeddingのresource pressureを示すが、Attention kernel / allocator内訳を取得していないためroot causeを断定しない。
-
-## 7. Formal evaluator result
+## 7. Historical formal evaluator result
 
 ```text
 N-05 formal verdict = BLOCKED
@@ -184,7 +181,7 @@ performance requirement passed
 
 性能目標の達成・未達は未判定である。
 
-## 8. Post-run validation
+## 8. Historical post-run validation
 
 Reference Workstation post-run:
 
@@ -205,61 +202,103 @@ formal run HEAD unchanged
 
 formal run自体がcanonical user dataを破壊した証拠はない。
 
-## 9. Findings
+## 9. Blocker diagnosis and remediation
 
-### 9.1 Qdrant real-path gap
+### 9.1 N05D-01 — Qdrant
 
-Unit/Integration testがPASSしていても、Reference Workstationのreal Qdrant storage lifecycleが正常であることまでは保証していなかった。
+N05D-01は**Complete**。
 
-今回、actual payload-index creation pathでstorage-related failureが発生した。
-
-現時点ではQdrant environment、filesystem、benchmark runner、SGOKB adapter、backend本体のどこがroot causeかは未確定である。
-
-### 9.2 Long Object representation resource pressure
-
-Large Objectの18,847-token representationはHarrierのconfigured 32,768-token上限内ではある。
-
-しかしReference WorkstationのRTX 4090 24GB上で、batch size 1でもdedicated VRAMをほぼ使い切りshared GPU memoryへ大きく退避した。
-
-したがって「入力長がcontract上許容される」ことと「Reference Workstationで実用的なresource profileで処理できる」ことは別問題である。
-
-## 10. Diagnostic work before rerun
-
-正式benchmarkをそのまま再実行しない。
-
-次の診断をformal timingとは分離して行う。
+Qdrant問題は`QDRANT_ENVIRONMENT_DEFECT`として分類し、workspace-resident storageから外部runtimeへ切り替えた。
 
 ```text
-N05D-01 Qdrant storage/path blocker diagnosis
-N05D-02 Long-input Harrier memory diagnosis
-N05D-03 Evidence-based remediation
-N05D-04 Formal benchmark rerun
+runtime root: C:\Qdrant\SGOKB
+config:       C:\Qdrant\SGOKB\qdrant.yaml
+Qdrant:       native 1.19.2
+HTTP/gRPC:    6333 / 6334
 ```
+
+旧storageはrollback/evidenceとして保持し、active runtimeには使用しない。
+
+50件のcleanup `ACCESS DENIED`は50/50でRust Windows POSIX rename fallbackにより回復した内部eventであることを相関確認した。未回復rename、delete API failure、残存source directory、terminal cleanup error、surfaced OS error 3/5はいずれも0。
+
+切替後、Vector rebuild、real semantic/filtered query、system integrity、canonical invariance、regressionがPASSした。
+
+### 9.2 N05D-02 — Long-input Harrier
+
+N05D-02は**Complete / VIABLE_FOR_FORMAL_RERUN**。
+
+正式run由来のexact 18,847-token Large Object representationを、frozen Harrier profileのままfresh processで3回実行し、3/3 PASSした。
+
+```text
+full trial times: 642.830 / 636.118 / 628.092 s
+Torch peak allocated: 51.061 GiB
+Torch peak reserved:  56.787 GiB
+Windows peak dedicated: ~23.2 GiB
+Windows peak shared:    ~34.2 GiB
+```
+
+OOM、process kill、検出されたdriver reset、CPU inference fallback、truncation、chunking、model changeはない。
+
+12,278〜16,383 tokenの間で大きなWDDM/shared-memory spill regimeへ入る。これはperformance/host-memoryの重大riskだが、memory completionは成立している。
+
+このdiagnostic値はformal sample/p95ではない。
+
+### 9.3 N05D-03 — Evidence-based remediation
+
+N05D-03は**Complete / READY_FOR_N05D04**。
+
+Evidence reviewの結果:
+
+- D01で必要なQdrant environment remediationは既に適用・受入済み。
+- current SGOKB adapter/backendに追加production defectは確定していない。
+- D02はcurrent Harrier/representation contractのmemory viabilityを確認済み。
+- benchmark runner defectを示す残Evidenceはない。
+- よってmodel/revision、Search Representation、batch size、max sequence length、workload、formal Gateは変更しない。
+- silent truncation、CPU fallback、任意chunking等のbenchmark shortcutは導入しない。
 
 正本:
 
-`docs/planning/phases/N/N05/N05_BLOCKER_DIAGNOSTIC_PLAN.md`
+`docs/evaluation/N05D03_EVIDENCE_BASED_REMEDIATION.md`
 
-Gateは維持する。
+## 10. Remaining formal risk
+
+N05D-03で解消すべきruntime blockerは残っていないが、formal performance riskは大きい。
+
+特にLargeでは、Object-level Embeddingだけでdiagnostic上約628〜643秒を使用する。完全なformal sampleでは、Package/Validation/Import、他Search RepresentationのEmbedding、Vector sync、Render等も同一totalに含まれる。
+
+したがってLarge warm p95 <= 1200 sを満たすかは未判定であり、N05D-04でのみ決める。
+
+またformal warm policyはpersistent preloaded providerで20 samplesを連続実行する。D02の3回はmemory viability切り分けのためfresh processだった。この差もformal benchmarkが実測すべき対象であり、追加shortcutの理由にはしない。
+
+## 11. N05D-04 authorization
+
+N05D-04は開始可能である。
+
+開始条件:
+
+1. clean `main == origin/main`。
+2. 新しいrun_idを使用し、旧formal/D01/D02 evidenceを保持。
+3. remediated Qdrant `C:\Qdrant\SGOKB` がlocalhost 6333/6334でready。
+4. frozen Harrier model/revision/BF16/CUDA/batch 1/max 32768/overflow rejectを維持。
+5. unexpected substantial competing CUDA workloadがないことを記録。勝手に他processを終了しない。
+6. host available/committed memoryをenvironment evidenceとして記録。新しいnumeric Gateにはしない。
+7. mandatory preflightをPASS。
+8. Standard cold-01から正式runを最初から開始。
+9. terminal failure/abortを置換しない。
+
+Execution handoff:
+
+`docs/planning/phases/N/N05/execution/N05D04_FORMAL_RERUN_HANDOFF.md`
+
+## 12. Current conclusion
 
 ```text
-Standard warm p95 <= 600 s
-Large warm p95    <= 1200 s
-```
-
-## 11. Current conclusion
-
-今回のN-05 formal executionは有効なBLOCKED evidenceである。
-
-- benchmark runnerはReference Workstationで実行された。
-- Standard/Large workloadを開始できた。
-- 2つの独立したruntime blockerを発見した。
-- 性能targetのPASS/FAIL判定に必要なformal sampleは揃わなかった。
-
-したがって:
-
-```text
-N-05 = BLOCKED / Not Complete
+N05D-01 = Complete
+N05D-02 = Complete / VIABLE_FOR_FORMAL_RERUN
+N05D-03 = Complete / READY_FOR_N05D04
+N05D-04 = Ready / Not Started
+N-05     = BLOCKED / Not Complete
 performance target = Not Judgeable
-next = N05D-01 Qdrant diagnosis
 ```
+
+Next: **N05D-04 — Formal benchmark rerun under the frozen contract**.
