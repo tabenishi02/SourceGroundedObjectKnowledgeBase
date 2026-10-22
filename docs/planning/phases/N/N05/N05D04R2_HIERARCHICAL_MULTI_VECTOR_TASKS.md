@@ -3,18 +3,20 @@
 Updated: 2026-10-23
 
 - Parent: `N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign`
-- Status: **Planned / Not Started**
+- Status: **Active / R2-01〜R2-02 Complete**
 - Formal N-05: **BLOCKED / Not Complete**
 - Design plan: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
+- R2-01 freeze: `docs/planning/phases/N/N05/N05D04R2_IMPACT_SURVEY.md`
+- R2-02 freeze: `docs/planning/phases/N/N05/N05D04R2_REQUIREMENTS_REPRESENTATION_CONTRACT.md`
 
 ## 1. Execution order
 
 ```text
-R2-01 Impact survey / design freeze
+R2-01 Impact survey / design freeze                    Complete
   ↓
-R2-02 Requirements + representation contract revision
+R2-02 Requirements + representation contract revision Complete
   ↓
-R2-03 Persistence/versioning/migration design
+R2-03 Persistence/versioning/migration design          Next
   ↓
 R2-04 object_overview builder implementation
   ├─→ R2-05 Hybrid Search migration
@@ -35,9 +37,9 @@ Do not start R2-09 formal N-05 timing before R2-08 passes.
 
 | Task | Priority | Status | Purpose |
 |---|---|---|---|
-| R2-01 | P0 | Not Started | affected contracts/code/data pathsを完全にinventoryし、redesign boundaryをfreeze |
-| R2-02 | P0 | Not Started | Search Requirements / Search Representation / Hybrid / Similarity designをv2へ改定 |
-| R2-03 | P0 | Not Started | `object_overview` persistence、builder version、generation/cutover/rollbackを設計 |
+| R2-01 | P0 | **Complete** | affected contracts/code/data pathsをinventoryし、redesign boundaryをfreeze |
+| R2-02 | P0 | **Complete** | Search Requirements / Search Representation / Hybrid / Similarity designをv2へ改定 |
+| R2-03 | P0 | **Next / Not Started** | `object_overview` persistence、builder version、generation/cutover/rollbackを設計 |
 | R2-04 | P0 | Not Started | deterministic compact `object_overview` builderとmaterializationを実装 |
 | R2-05 | P0 | Not Started | Hybrid Searchを`object_overview + facet + statement`へ移行 |
 | R2-06 | P0 | Not Started | overall Object Similarityをhierarchical multi-vector方式へ再設計・実装 |
@@ -49,6 +51,14 @@ Do not start R2-09 formal N-05 timing before R2-08 passes.
 ---
 
 ## R2-01 [P0] — Impact survey / redesign freeze
+
+### Status
+
+**Complete.**
+
+Deliverable:
+
+`docs/planning/phases/N/N05/N05D04R2_IMPACT_SURVEY.md`
 
 ### Goal
 
@@ -84,49 +94,59 @@ UPDATE gold/test
 HISTORICAL only
 ```
 
-### Deliverable
-
-`docs/planning/phases/N/N05/N05D04R2_IMPACT_SURVEY.md`
-
 ### Exit
 
 - no unresolved active `object_overall` consumer remains outside the inventory;
 - canonical Knowledge tables confirmed out-of-scope for semantic content migration;
-- exact compatibility obligations for CLI/MCP/domain API are documented.
+- exact compatibility obligations for CLI/MCP/domain API documented.
 
 ---
 
 ## R2-02 [P0] — Requirements and design contract revision
 
-### Goal
+### Status
 
-新しいhierarchical multi-vector semanticsを、実装より先に正本designへ反映する。
+**Complete / Design Freeze.**
 
-### Update at minimum
+Normative deliverable:
+
+`docs/planning/phases/N/N05/N05D04R2_REQUIREMENTS_REPRESENTATION_CONTRACT.md`
+
+Updated canonical design:
 
 ```text
 docs/requirements/SEARCH_REQUIREMENTS.md
 docs/design/SEARCH_REPRESENTATION_SCHEMA.md
 docs/design/HYBRID_SEARCH_OBJECT_AGGREGATION.md
 docs/design/OBJECT_SIMILARITY_SEARCH.md
-docs/planning/phases/I/PHASE_I_PREPARATION.md
-docs/planning/phases/I/PHASE_I_CLOSURE_AUDIT.md   # historical note / superseding amendment
 ```
 
-### Decisions to freeze
+Historical superseding notes:
 
-1. `object_overview` exact semantic fields.
-2. `object_overall` deprecation / compatibility behavior.
-3. whether Relation stays in Object-level overview and relationships Facet.
-4. builder key/version policy.
-5. Hybrid Search active channel names and contribution-cap semantics.
-6. Object Similarity aggregation semantics and score type.
-7. explainability fields returned for multi-vector similarity.
-8. no arbitrary chunking/truncation.
+```text
+docs/planning/phases/I/PHASE_I_PREPARATION.md
+docs/planning/phases/I/PHASE_I_CLOSURE_AUDIT.md
+```
+
+### Goal
+
+新しいhierarchical multi-vector semanticsを、実装より先に正本designへ反映する。
+
+### Frozen decisions
+
+1. `object_overview` exact semantic fields: canonical name, aliases, Primary Class, facet-less Summary Statements, content Facet key/name inventory, searchable Attributes, Relations.
+2. `object_overall` is legacy-only after cutover and is not a rename/alias of `object_overview`.
+3. Relation remains in `object_overview`; a canonical `relationships` content Facet may also carry Relation semantics. No independent Relation representation kind is added.
+4. `builder_key = sgokb-canonical-search`; `object_overview` uses content-contract builder version 2; unchanged Facet/Statement/Evidence remain version 1. Builder version is not Derived Search generation identity.
+5. Hybrid active semantic channels are `semantic_object_overview / semantic_facet / semantic_statement`; first R2 baseline keeps RRF `k=60` and contribution caps `1 / 2 / 3`, with Knowledge lexical cap `3`.
+6. Overall Object Similarity is bounded hierarchical multi-vector; final `score_type = hierarchical_similarity`. Facet-specific Similarity remains same-Facet `cosine_similarity`.
+7. Overall Similarity exposes bounded overview/Facet/Statement component evidence including representation/membership identity, raw cosine, and aggregate contribution.
+8. Arbitrary token chunking, silent truncation, synthetic replacement summaries, and model-change workarounds are not the redesign.
+9. First R2 baseline keeps Harrier OSS v1 0.6B unchanged.
 
 ### Exit
 
-All implementation-visible semantics are frozen and no unresolved design question blocks schema/code work.
+All implementation-visible R2 semantics are frozen. No unresolved semantic design question blocks R2-03 persistence/schema/cutover design.
 
 ---
 
@@ -142,16 +162,18 @@ Evaluate and fix:
 
 ```text
 SearchRepresentationKind = object_overview addition
+legacy object_overall parse/read compatibility
 DB CHECK/enum constraints
 new migration number
-builder_version transition
-membership uniqueness
-embedding reuse eligibility
-vector point payload kind
+builder version persistence
 Derived Search generation identity
 active/candidate generation switching
+membership uniqueness
+embedding reuse eligibility
+vector point payload kind/generation
 full rebuild behavior
 rollback behavior
+legacy cleanup
 ```
 
 ### Safety requirements
@@ -160,7 +182,8 @@ rollback behavior
 - no destructive v1 delete before accepted v2 cutover;
 - v1/v2 query mixing impossible after cutover;
 - interrupted rebuild leaves previous active generation usable or explicitly unavailable, never half-current;
-- current/historical semantics remain membership-based.
+- current/historical semantics remain membership-based;
+- builder content-contract version is not misused as generation/cutover identity.
 
 ### Deliverable
 
@@ -251,17 +274,17 @@ Normal semantic/hybrid Object Searchをnew active representationへ移行する�
 
 ```text
 semantic_object_overall -> semantic_object_overview
-knowledge lexical target update as appropriate
-Qdrant kind filter/payload update
+knowledge lexical active-kind update
+Qdrant kind/generation filter update
 match/result representation_kind update
-compatibility handling for old clients/tests
+bounded compatibility handling for old clients/tests
 ```
 
 Keep unless quality evidence says otherwise:
 
 ```text
 RRF k=60
-Object-level contribution cap=1
+Object overview contribution cap=1
 Facet cap=2
 Statement cap=3
 Knowledge lexical cap=3
@@ -273,9 +296,10 @@ exact identity priority tier
 - `1 Object = 1 result`;
 - Statement-count boost remains bounded;
 - exact name/alias priority unchanged;
-- Facet/temporal/derivation filters still exclude Object-level representation when semantically unsafe;
+- Facet/temporal/derivation filters exclude Object-level overview where semantically unsafe;
 - degraded semantic behavior unchanged;
-- explanations identify overview/facet/statement matches.
+- explanations identify overview/facet/statement matches;
+- legacy `object_overall` does not leak into active v2 results.
 
 ### Exit
 
@@ -317,8 +341,8 @@ Do not select an algorithm solely by implementation simplicity.
 - Facet-specific API remains same-Facet only;
 - Source Object excluded before candidate limit;
 - historical Source / current Candidate semantics preserved;
-- final score semantics documented; do not call a fused rank score raw cosine similarity;
-- matched Facet/Statement evidence remains inspectable.
+- final overall `score_type = hierarchical_similarity`; do not call a fused aggregate raw cosine similarity;
+- matched overview/Facet/Statement evidence remains inspectable and bounded.
 
 ### New gold cases
 
@@ -384,7 +408,7 @@ benchmark/search-quality-gold-v1.json
 Object Semantic / Hybrid
 Statement retrieval
 Facet similarity
-Object overall/hierarchical similarity
+Object hierarchical similarity
 filters/current-history/temporal
 Evidence Search non-regression
 ```
@@ -523,8 +547,8 @@ or if a separately motivated quality/cost study justifies it.
 
 A model change requires a new Embedding Space identity, full Derived Search rebuild, and N-06/search-quality re-acceptance.
 
-## 4. Next task
+## 4. Current next task
 
-**Next: R2-01 — Impact survey / redesign freeze.**
+**Next: R2-03 [P0] — Persistence / versioning / migration design.**
 
-Do not resume N05D-04 formal 46-sample execution before R2-08 acceptance and R2-09 authorization.
+Do not start production implementation, migration execution, Derived Search rebuild, R2-08 quality acceptance, or R2-09 formal 46-sample execution as part of R2-02.
