@@ -9,116 +9,51 @@
 - Historical formal run HEAD: `a7147f9842f94e96944bc7f67b4c3986970462b0`
 - Performance contract: `benchmark/n05-performance-contract-v1.json`
 - Evaluation: `docs/evaluation/N05_PERFORMANCE.md`
+- Current redesign: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
+- Redesign tasks: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md`
 
 ## 1. Purpose
 
-N-05 formal benchmarkは性能target判定へ到達する前に2つの独立したruntime blockerで停止した。
+N-05 formal benchmark reached multiple independent environmental/resource blockers before a judgeable formal PASS/FAIL was obtained.
 
-したがって、正式Gateやworkloadを変更せず、formal benchmarkとは分離した診断を行う。
+The diagnostic/remediation chain is now:
 
 ```text
-N05D-01 Qdrant storage/path blocker diagnosis
-N05D-02 Long-input Harrier memory diagnosis
+N05D-01 Qdrant storage/path blocker diagnosis       Complete
+N05D-02 Long-input Harrier memory diagnosis         Complete
+N05D-03 Evidence-based remediation checkpoint       Complete (historical decision)
         ↓
-N05D-03 Evidence-based remediation
+N05D-04 first formal rerun                          Environment BLOCKED / aborted
         ↓
-N05D-04 Formal benchmark rerun under the frozen contract
+N05D-04R1 attention-backend diagnostic              User-aborted partial evidence
+        ↓
+N05D-04R2 hierarchical multi-vector redesign        Active
+        ↓
+R2-09 new formal N-05 rerun                         Future
 ```
 
-診断値はN-05 p95 formal sampleへ混ぜない。
+Diagnostic values are never mixed into N-05 formal p95 samples.
 
 ## 2. Observed blockers
 
 ### Blocker A — Qdrant storage/path
 
-Standard profileはcold 3 + warm 20、計23 sampleすべてでterminal sample failureとなった。
+The first formal Standard profile reached 23/23 terminal sample failures at Derived Search Qdrant payload-index preparation.
 
-失敗地点:
+Final disposition: resolved through N05D-01 environment remediation and external runtime root `C:\Qdrant\SGOKB`.
 
-```text
-Derived Search sync
-→ Qdrant collection / payload index preparation
-→ server-side storage error
-```
+### Blocker B — giant long-input Object representation
 
-観測エラーは`gridstore`の保存先pathが見つからない旨を示した。
-
-### Blocker B — long-input Harrier resource pressure
-
-Large profile `cold-01`はEmbedding処理中に中断した。
-
-観測:
+The historical Large fixture produced:
 
 ```text
-Object representation tokens: 18,847
+object_overall tokens: 18,847
 embedding batch size: 1
-Dedicated VRAM: 約23.2 GiB
-Shared GPU memory: 約34.2 GiB
+Dedicated VRAM: ~23.2 GiB
+Shared GPU memory: ~34.2 GiB
 ```
 
-当時はAttention kernel / allocator / sequence-length別memory curveを取得していなかったため、別診断とした。
-
-## 3. N05D-01 — Qdrant storage/path diagnosis
-
-### Goal
-
-SGOKB full benchmarkを回さず、Qdrant server側とSGOKB adapter側のどちらに原因があるかを最小再現で切り分ける。
-
-### Exit condition
-
-次のいずれかをevidence付きで確定する。
-
-```text
-QDRANT_ENVIRONMENT_DEFECT
-SGOKB_ADAPTER_DEFECT
-BENCHMARK_RUNNER_DEFECT
-BACKEND_PRODUCT_DEFECT
-OTHER_IDENTIFIED_CAUSE
-```
-
-修復後、最小real-Qdrant smokeが繰り返しPASSすること。
-
-### Final outcome
-
-**Complete**。
-
-`QDRANT_ENVIRONMENT_DEFECT`として分類し、workspace-resident storageから`C:\Qdrant\SGOKB`へcutoverした。
-
-50件のcleanup `ACCESS DENIED`は50/50でRust Windows POSIX rename fallbackにより回復した内部eventと相関確認し、未回復rename / delete API failure / surviving source directory / terminal cleanup error / surfaced OS error 3/5はいずれも0だった。
-
-切替後のVector rebuild、real semantic/filtered query、system integrity、canonical invariance、regressionはPASSした。
-
-## 4. N05D-02 — Long-input Harrier memory diagnosis
-
-### Goal
-
-Harrierにおける単一long representationのsequence lengthとGPU/host/shared-memory使用量、wall-clockの関係をformal benchmarkから分離して計測する。
-
-### Frozen conditions
-
-```text
-model: microsoft/harrier-oss-v1-0.6b
-revision: f9b9dc8d367d443f2479d27aa5d8d2850c0774ee
-dtype: bfloat16
-device: cuda
-batch size: 1
-max sequence length: 32768
-overflow policy: reject
-```
-
-### Prohibited shortcuts
-
-- formal benchmarkだけをPASSさせるためのsilent truncation
-- model/revisionの無断変更
-- max sequence lengthの無断縮小
-- CPU fallbackをformal Reference resultへ混入
-- Object representationを意味的根拠なく分割して別仕様にする
-
-### Final outcome
-
-**Complete / VIABLE_FOR_FORMAL_RERUN**。
-
-正式run由来のexact 18,847-token Object representationを再現し、fresh process full-input 3/3 PASS。
+N05D-02 later measured:
 
 ```text
 full times: 642.830 / 636.118 / 628.092 s
@@ -127,117 +62,179 @@ Torch peak reserved:  56.787 GiB
 Windows peak shared:  ~34.2 GiB
 ```
 
-OOM / kill / detected driver reset / CPU fallback / truncation / chunkingなし。
+The input completes, but it enters an operationally severe resource regime.
 
-12,278〜16,383 tokens間でWDDM/shared-memory spillが急増する。memory completionは成立するが、performance/host-memory riskは重大であり、formal Gate判定はN05D-04へ残す。
+### Blocker C — disk exhaustion in first D04 rerun
 
-## 5. N05D-03 — Evidence-based remediation
+Attempt `20261023T025413+0900` produced Standard cold 3/3 PASS and Standard warm 18 PASS / 2 FAIL before Qdrant reported disk exhaustion (`No space left on device` / WAL buffer cannot fit). Large had not completed the required sample set when the user stopped the run.
 
-診断結果に応じて必要な最小修正を行う。
+This attempt is environment BLOCKED / user-aborted evidence, not a performance FAIL.
 
-優先順位:
+A hard start gate of >=32 GiB free disk is now retained for future formal execution.
 
-1. environment/configuration defectならenvironmentを修復する。
-2. benchmark runner defectならrunnerだけを修復する。
-3. SGOKB production defectならproduction codeを修復しregressionを追加する。
-4. representation/model design issueなら、N-05だけの小細工にせずDerived Search設計として明示的に再検討する。
+## 3. N05D-01 — Qdrant storage/path diagnosis
 
-正式Gate:
+### Final outcome
+
+**Complete**.
+
+Classification: `QDRANT_ENVIRONMENT_DEFECT`.
+
+Workspace-resident storage was replaced by the accepted external runtime root:
 
 ```text
+C:\Qdrant\SGOKB
+```
+
+All 50 diagnostic cleanup `ACCESS DENIED` events were correlated as recovered Rust Windows POSIX rename fallback events; unrecovered/ambiguous failures, delete API failures, source survivors, terminal cleanup errors, and surfaced OS error 3/5 were zero.
+
+Vector rebuild, semantic/filtered query, integrity, canonical invariance, and regression passed after cutover.
+
+## 4. N05D-02 — Long-input Harrier memory diagnosis
+
+### Final outcome
+
+**Complete / VIABLE_FOR_FORMAL_RERUN under the old representation contract**.
+
+The exact 18,847-token representation completed 3/3 fresh-process trials without OOM, kill, detected driver reset, CPU fallback, truncation, or chunking.
+
+However, the observed ~51 GiB active allocation and ~628–643 second Object-level embedding made the representation a major performance/resource risk.
+
+This verdict means memory completion only. It does not mean the representation is an appropriate long-term Derived Search design.
+
+## 5. N05D-03 — Evidence-based remediation checkpoint
+
+### Historical outcome
+
+N05D-03 originally concluded **Complete / READY_FOR_N05D04** because D01 was repaired and D02 proved memory completion. It intentionally made no model/representation change before a formal rerun.
+
+That was a valid checkpoint given the evidence available at that time.
+
+### Superseding evidence
+
+The subsequent formal rerun and R1 investigation exposed additional operational evidence:
+
+- disk exhaustion during a multi-hour formal attempt;
+- recurrence of the severe Large shared-memory regime;
+- partial R1 profiler evidence that the native Windows auto-SDPA workload selected math attention;
+- forced Flash unavailable in the tested build;
+- forced Efficient Attention rejected the tested GQA shape;
+- process termination returned GPU memory near idle, so a persistent cross-process VRAM leak was not established.
+
+Most importantly, design review established that current `object_overall` duplicates detailed Statements that are already independently materialized as Facet and Statement representations.
+
+Therefore N05D-03's historical “no redesign required” decision is superseded for current planning by N05D-04R2. The historical document remains evidence and is not rewritten as if it had reached the later conclusion.
+
+## 6. N05D-04 — Formal rerun state
+
+N05D-04 remains **BLOCKED / Not Complete**.
+
+Do not resume historical run IDs:
+
+```text
+20261022T130413+0900
+20261023T025413+0900
+```
+
+Do not start a new 46-sample formal run until the hierarchical redesign task chain reaches R2-09 authorization.
+
+Formal workload/gates remain unchanged unless a separate requirements decision explicitly changes them:
+
+```text
+Standard cold 3 + warm 20
+Large cold    3 + warm 20
+
 Standard warm p95 <= 600 s
 Large warm p95    <= 1200 s
 ```
 
-はこの診断を理由に変更しない。
+## 7. N05D-04R1 — attention-backend diagnostic
 
-### Final outcome
+Run `20261023T035147+0900` is partial/user-aborted diagnostic evidence.
 
-**Complete / READY_FOR_N05D04**。
-
-Evidence reviewで次を確定した。
-
-- Qdrant environment remediationはD01で適用・受入済み。
-- current SGOKB adapter/backendに追加production defectは確定していない。
-- Harrier/model/representation contractはD02でmemory viabilityを満たす。
-- benchmark runner defectを示す残Evidenceはない。
-- よって追加production code変更、model変更、representation redesignは行わない。
-- batch size 1、max sequence length 32768、overflow reject、formal workload、Gateを維持する。
-- truncation / CPU fallback / arbitrary chunkingは導入しない。
-
-正本:
-
-`docs/evaluation/N05D03_EVIDENCE_BASED_REMEDIATION.md`
-
-## 6. N05D-04 — Formal rerun
-
-N05D-01〜03完了後、新しい`run_id`で最初からformal benchmarkを実行する。
-
-旧run `20261022T130413+0900`のevidenceは削除・上書きしない。
-
-新runでも:
+Confirmed before abort:
 
 ```text
-Standard cold 3 + warm 20
-Large cold 3 + warm 20
+auto SDPA smoke: math backend observed
+forced Flash: unsupported in current tested Windows build
+forced Efficient: tested Q=16 / KV=8 GQA shape rejected
+full auto trial: ABORTED_by_user
 ```
 
-を固定し、失敗sampleの置換を行わない。
+R1 is not the selected root remediation. Preserve evidence, but do not resume the full trial automatically.
 
-開始前にremediated Qdrant `C:\Qdrant\SGOKB`、frozen Harrier profile、clean main、競合CUDA workload、host memory state、mandatory preflightを確認する。
+## 8. N05D-04R2 — hierarchical multi-vector redesign
 
-Execution handoff:
+User-selected root remediation:
 
-`docs/planning/phases/N/N05/execution/N05D04_FORMAL_RERUN_HANDOFF.md`
+```text
+compact object_overview
++ Facet representations
++ Statement representations
++ bounded Object aggregation
++ hierarchical Object Similarity
+```
 
-## 7. Current next task
+This follows canonical semantic boundaries and is not arbitrary token chunking.
+
+The existing Phase I architecture already includes Object / Facet / Statement multi-representation retrieval and Statement → Object aggregation. R2 removes the redundant giant active `object_overall` detail duplication and redesigns the remaining overall similarity dependency.
+
+Model policy for first acceptance:
+
+```text
+Harrier OSS v1 0.6B remains fixed
+```
+
+Harrier 270M, FlashAttention-2, PyTorch upgrade, CPU fallback, and truncation are not bundled into R2 baseline execution.
+
+Design plan:
+
+`docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
+
+Task plan:
+
+`docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md`
+
+## 9. Current next task
 
 ```text
 N05D-01 = Complete
-N05D-02 = Complete / VIABLE_FOR_FORMAL_RERUN
-N05D-03 = Complete / READY_FOR_N05D04
-N05D-04 = Next / Not Started
-N-05     = BLOCKED / Not Complete
+N05D-02 = Complete / old-contract memory viability
+N05D-03 = Complete historical checkpoint
+N05D-04 = BLOCKED / Not Complete
+N05D-04R1 = partial user-aborted evidence
+N05D-04R2 = Active
+R2-01 = Next / Not Started
+N-05 = BLOCKED / Not Complete
 ```
 
-Next: **N05D-04 — Formal benchmark rerun under the frozen contract**.
+Next: **R2-01 — Impact survey / redesign freeze**.
 
-The historical chronology below is retained only as investigation evidence; final D01/D02/D03 dispositions above supersede their then-current status/next-task wording.
+## 10. Historical investigation chronology
 
-## 8. Historical N05D-01 local result — 2026-10-22
+### N05D-01 local diagnosis
 
-- **N05D-01 = BLOCKED / not Complete** at that time.
-- Run: `20261022T161445+0900`; execution HEAD `47d87ae13f621db8f6c6140209749d03d460a26c` plus local diagnostic fixes.
-- Isolated short storage passed all direct/adapter indexed/plain paths and indexed repeats.
-- Existing-server long-name OS error 3 was independently reproduced; short indexed path still retained intermittent OS error 5.
-- Focused tests: 16 PASS; full pytest: 524 PASS; Ruff/diff PASS.
+Run `20261022T161445+0900` established that an isolated short Qdrant storage path behaved materially better than the existing runtime, while path/access errors remained unresolved at that stage.
 
-## 9. Historical ProcMon observation — 2026-10-22
+### ProcMon investigation
 
-Run `20261022T172340+0900` captured a cleanup rename overlapping a `Code.exe` `ShareMode: None` open. This established a concrete external-reader contention candidate for cleanup but did not prove the original index-creation failure or a unique VS Code cause.
+Run `20261022T172340+0900` found a concrete cleanup rename overlap with a `Code.exe` `ShareMode: None` open but did not prove a unique VS Code/root-cause relationship.
 
-## 10. Historical N05D-01C external-storage result — 2026-10-22
+### N05D-01C external storage
 
-Run `20261022T191928+0900` used clean external root `C:\Qdrant\SGOKB`, native Qdrant 1.19.2, temporary 6433/6434.
+Run `20261022T191928+0900` passed the direct/adapter stress workload but exposed 50 raw cleanup rename `ACCESS DENIED` events, which initially failed the then-overstrict raw-event Gate.
 
-Four-path smoke and 50/50 indexed cycles completed, client/server surfaced OS error 3/5 was 0, Code.exe external-storage opens 0, but ProcMon showed 50 cleanup rename `ACCESS DENIED` events. The then-current zero-denial Gate therefore left N05D-01C BLOCKED pending semantic interpretation.
+### N05D-01D final interpretation/cutover
 
-## 11. N05D-01D final disposition — 2026-10-22
+The 50 events were proven recoverable internal primary rename attempts followed by successful fallback. The semantic Gate was corrected and `C:\Qdrant\SGOKB` became the accepted runtime.
 
-Correlation source `20261022T191928+0900`; cutover/regression run `20261022T221858+0900`.
+### N05D-02 long-input diagnosis
 
-All 50 denials were `RECOVERED_FALLBACK`; unrecovered/ambiguous 0, delete API failure 0, source survivors 0, terminal cleanup errors 0. The Gate was corrected to judge unrecovered failure rather than recoverable primary Windows rename attempts.
+Run `20261022T230242+0900` measured the exact Large representation and established the severe 12k→16k shared-memory regime while proving full-input completion.
 
-Controlled cutover to `C:\Qdrant\SGOKB` PASS; approved Vector rebuild 24 points, semantic/filtered query, integrity and canonical invariance PASS. Focused 17 / full 541 passed; Ruff/diff PASS.
-
-## 12. N05D-02 disposition — 2026-10-23
-
-Run `20261022T230242+0900`: **Complete / VIABLE_FOR_FORMAL_RERUN**.
-
-The exact Large representation was 18,847 tokens. Six curve points and all three independent full trials passed. Full trial times were 628–643 seconds with ~34.2 GiB shared GPU memory. Final post-review full regression: 552 passed, 0 failed, 2 warnings; focused 11 passed; Ruff/diff PASS.
-
-Details:
+Details remain in:
 
 - `docs/evaluation/N05D01_QDRANT_STORAGE_PATH_DIAGNOSIS.md`
 - `docs/evaluation/N05D02_HARRIER_MEMORY_DIAGNOSIS.md`
 - `docs/evaluation/N05D03_EVIDENCE_BASED_REMEDIATION.md`
+- `docs/evaluation/N05D04_RESOURCE_PREFLIGHT_AND_VRAM_RESEARCH.md`
