@@ -33,13 +33,22 @@ n05 + SHA-256(run_id:sample_id) first 12 hex
 
 ### 2.2 External short Qdrant storage root
 
-Reference Workstationのtarget runtime pathを次へ移す。
+Reference Workstationのtarget runtime rootを次とする。
 
 ```text
-C:\q\sgokb\storage
-C:\q\sgokb\snapshots
-C:\q\sgokb\temp
+C:\Qdrant\SGOKB
 ```
+
+最低限のruntime path:
+
+```text
+C:\Qdrant\SGOKB\storage
+C:\Qdrant\SGOKB\snapshots
+C:\Qdrant\SGOKB\temp
+C:\Qdrant\SGOKB\qdrant.yaml
+```
+
+`C:\Qdrant\SGOKB`は、Qdrant用runtimeであることとSGOKB専用領域であることをpath名から識別でき、かつWindows native pathを十分短く維持できる命名として採用する。
 
 要件:
 
@@ -94,8 +103,8 @@ security設定を変更せず成立することをAcceptance条件とする。
 1. current process / config / collectionsを記録する。
 2. existing serverをcontrolled stopする。
 3. 旧storageを削除・移動しない。
-4. 新storage rootを新規作成する。
-5. 新configをabsolute pathで作成する。
+4. `C:\Qdrant\SGOKB`を新規runtime rootとして作成する。
+5. `C:\Qdrant\SGOKB\qdrant.yaml`をabsolute pathで作成する。
 6. 新storageでQdrantを起動する。
 7. server version / ports / storage pathを確認する。
 
@@ -151,7 +160,7 @@ stress cycle中にProcMon captureを行う。
 
 確認:
 
-- external storage root配下を`Code.exe`がopenしていないこと。
+- `C:\Qdrant\SGOKB\storage`配下を`Code.exe`がopenしていないこと。
 - qdrant.exeの`ACCESS DENIED` / `SHARING VIOLATION`が0件であること。
 - 異常な`PATH NOT FOUND`が診断failureとして出ていないこと。
 
@@ -182,7 +191,7 @@ system integrity PASS
 次をすべて満たした場合、N05D-01 remediationは成功候補とする。
 
 - short namespace維持。
-- external short storage root使用。
+- external short storage root `C:\Qdrant\SGOKB`使用。
 - direct indexed smoke PASS。
 - adapter indexed smoke PASS。
 - >=50 stress cyclesでOS error 3/5 = 0。
