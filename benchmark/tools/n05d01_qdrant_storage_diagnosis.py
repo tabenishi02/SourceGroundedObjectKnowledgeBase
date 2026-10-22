@@ -159,7 +159,9 @@ def _error(exc: BaseException) -> dict[str, Any]:
     }
 
 
-def direct_probe(*, url: str, grpc_port: int, collection: str, indexed: bool, point_count: int) -> dict[str, Any]:
+def direct_probe(
+    *, url: str, grpc_port: int, collection: str, indexed: bool, point_count: int
+) -> dict[str, Any]:
     from qdrant_client import QdrantClient, models
 
     client = QdrantClient(url=url, grpc_port=grpc_port, prefer_grpc=True, timeout=120)
@@ -178,7 +180,9 @@ def direct_probe(*, url: str, grpc_port: int, collection: str, indexed: bool, po
         client.create_collection(
             collection,
             vectors_config=models.VectorParams(size=8, distance=models.Distance.COSINE),
-            optimizers_config=models.OptimizersConfigDiff(indexing_threshold=1000, default_segment_number=2),
+            optimizers_config=models.OptimizersConfigDiff(
+                indexing_threshold=1000, default_segment_number=2
+            ),
         )
         result["stages"].append({"stage": "collection_create", "status": "PASS"})
         if indexed:
@@ -245,7 +249,9 @@ def direct_probe(*, url: str, grpc_port: int, collection: str, indexed: bool, po
     return result
 
 
-def adapter_probe(*, url: str, grpc_port: int, prefix: str, indexed: bool, point_count: int) -> dict[str, Any]:
+def adapter_probe(
+    *, url: str, grpc_port: int, prefix: str, indexed: bool, point_count: int
+) -> dict[str, Any]:
     from sgokb.domain.embedding import EmbeddingSpaceSpec
     from sgokb.domain.vector_index import VectorIndexPoint, VectorMatch, VectorSearchFilter
     from sgokb.retrieval.vector_index import QdrantVectorIndexAdapter
@@ -342,7 +348,8 @@ def classify(report: dict[str, Any]) -> dict[str, Any]:
             "reason": (
                 "Direct client succeeds without payload indexes but fails when the SGOKB "
                 "payload-index schema is created. The SGOKB adapter is not the primary trigger; "
-                "use server/storage evidence to distinguish backend product behavior from the local environment."
+                "use server/storage evidence to distinguish backend product behavior "
+                "from the local environment."
             ),
         }
     if adapter_plain.get("status") != "PASS" or adapter_indexed.get("status") != "PASS":
@@ -353,7 +360,8 @@ def classify(report: dict[str, Any]) -> dict[str, Any]:
     return {
         "classification": "NOT_REPRODUCED",
         "reason": (
-            "Direct and adapter paths pass. Repeat against an isolated fresh Qdrant server and compare "
+            "Direct and adapter paths pass. Repeat against an isolated fresh Qdrant "
+            "server and compare "
             "process/config/storage evidence with the failed N-05 server."
         ),
     }

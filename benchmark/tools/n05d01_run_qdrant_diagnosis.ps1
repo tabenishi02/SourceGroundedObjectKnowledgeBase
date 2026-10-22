@@ -31,6 +31,8 @@ $meta = [ordered]@{
 }
 $meta | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $RunRoot "run-meta.json") -Encoding utf8
 
+@{stage="diagnostic_running"; run_id=$RunId; pid=$PID} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $RunRoot "execution-status.json") -Encoding utf8
+
 $python = (Get-Command python).Source
 $tool = Join-Path $RepoRoot "benchmark\tools\n05d01_qdrant_storage_diagnosis.py"
 
@@ -71,11 +73,18 @@ $currentExit = Invoke-DiagnosticPython `
 # Start a second native Qdrant instance with explicit absolute paths.
 $qdrantPath = (Resolve-Path (Join-Path $RepoRoot $QdrantExe)).Path
 $isolatedRoot = Join-Path $RunRoot "isolated-qdrant"
-$storage = Join-Path $isolatedRoot "storage"
-$snapshots = Join-Path $isolatedRoot "snapshots"
-$temp = Join-Path $isolatedRoot "temp"
+# Keep native Gridstore paths short; the full run evidence/config stays in RunRoot.
+$hashAlgorithm = [System.Security.Cryptography.SHA256]::Create()
+try {
+    $runHash = ([BitConverter]::ToString($hashAlgorithm.ComputeHash([Text.Encoding]::UTF8.GetBytes($RunId)))).Replace("-", "").Substring(0, 8).ToLowerInvariant()
+} finally { $hashAlgorithm.Dispose() }
+$shortRoot = Join-Path $RepoRoot ".local\q\$runHash"
+if (Test-Path -LiteralPath $shortRoot) { throw "Isolated storage already exists: $shortRoot" }
+$storage = $shortRoot
+$snapshots = "$shortRoot-snap"
+$temp = "$shortRoot-tmp"
 $config = Join-Path $isolatedRoot "config.yaml"
-New-Item -ItemType Directory -Path $storage,$snapshots,$temp -Force | Out-Null
+New-Item -ItemType Directory -Path $isolatedRoot,$storage,$snapshots,$temp -Force | Out-Null
 
 function As-QdrantPath([string]$Path) {
     return $Path.Replace("\", "/")
@@ -100,6 +109,8 @@ $stderr = Join-Path $RunRoot "isolated-qdrant.stderr.log"
 $env:RUST_BACKTRACE = "1"
 $process = Start-Process `
     -FilePath $qdrantPath `
+    -WindowStyle Hidden `
+    -WorkingDirectory $isolatedRoot `
     -ArgumentList @("--config-path", $config) `
     -RedirectStandardOutput $stdout `
     -RedirectStandardError $stderr `
@@ -113,8 +124,8 @@ try {
             break
         }
         try {
-            $response = Invoke-RestMethod -Uri "http://localhost:6433/" -TimeoutSec 2
-            if ($null -ne $response) {
+            & $python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:6433/', timeout=2).read()" 2>$null
+            if ($LASTEXITCODE -eq 0) {
                 $isolatedReady = $true
                 break
             }
@@ -128,7 +139,8 @@ try {
     }
 
     $isolatedArgs = @(
-        "--url", "http://localhost:6433",
+        "--prefix", "d$runHash",
+        "--url", "http://127.0.0.1:6433",
         "--http-port", "6433",
         "--grpc-port", "6434",
         "--point-count", "$PointCount",
@@ -153,6 +165,9 @@ $summary = [ordered]@{
     isolated_server_exit = $isolatedExit
     isolated_server_ready = $isolatedReady
     completed_at = (Get-Date).ToString("o")
+    storage_path = $storage
+    snapshots_path = $snapshots
+    temp_path = $temp
     note = "Diagnostic exits are evidence signals, not N-05 performance PASS/FAIL."
 }
 $summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $RunRoot "summary.json") -Encoding utf8

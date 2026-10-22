@@ -1,7 +1,6 @@
 import importlib.util
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "benchmark" / "tools" / "n05d01_qdrant_storage_diagnosis.py"
 
@@ -11,7 +10,14 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 
-def _report(*, server="PASS", direct_plain="PASS", direct_indexed="PASS", adapter_plain="PASS", adapter_indexed="PASS"):
+def _report(
+    *,
+    server="PASS",
+    direct_plain="PASS",
+    direct_indexed="PASS",
+    adapter_plain="PASS",
+    adapter_indexed="PASS",
+):
     return {
         "server": {"status": server},
         "probes": {

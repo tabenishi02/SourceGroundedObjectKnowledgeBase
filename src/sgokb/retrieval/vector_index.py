@@ -104,7 +104,9 @@ class QdrantVectorIndexAdapter:
         self.search_ef = search_ef
         self.full_scan_threshold = full_scan_threshold
         self.indexing_threshold = indexing_threshold
-        self.filter_schema = dict(filter_schema or DEFAULT_QDRANT_FILTER_SCHEMA)
+        self.filter_schema = dict(
+            DEFAULT_QDRANT_FILTER_SCHEMA if filter_schema is None else filter_schema
+        )
         self.wait_for_index = wait_for_index
         self.index_wait_timeout_seconds = index_wait_timeout_seconds
         self._client = client or QdrantClient(

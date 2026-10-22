@@ -142,3 +142,22 @@ def test_segment_clock_retains_failed_attempt_wall_time_without_retry_or_replace
     assert clock.seconds["package_build"] >= 0
     with pytest.raises(ValueError, match="repeated"):
         clock.measure("package_build", lambda: None)
+
+
+def test_native_qdrant_namespaces_are_short_stable_and_sample_specific(monkeypatch):
+    monkeypatch.syspath_prepend(str(ROOT / "benchmark/tools"))
+    runner_spec = importlib.util.spec_from_file_location(
+        "n05_runner", ROOT / "benchmark/tools/n05_run_performance.py"
+    )
+    runner = importlib.util.module_from_spec(runner_spec)
+    runner_spec.loader.exec_module(runner)
+    names = [
+        runner.sample_prefix("run-a", f"{profile}-{condition}-{number:02d}")
+        for profile in ("standard", "large")
+        for condition, count in (("cold", 3), ("warm", 20))
+        for number in range(1, count + 1)
+    ]
+    assert len(names) == len(set(names)) == 46
+    assert all(len(name) == 15 for name in names)
+    assert names[0] == runner.sample_prefix("run-a", "standard-cold-01")
+    assert names[0] != runner.sample_prefix("run-b", "standard-cold-01")

@@ -163,3 +163,15 @@ def test_qdrant_adapter_rejects_invalid_query_limit_and_dimension():
         adapter.search(space, (1.0, 0.0, 0.0), limit=0)
     with pytest.raises(ValueError, match="dimension"):
         adapter.search(space, (1.0, 0.0), limit=1)
+
+
+def test_explicit_empty_filter_schema_does_not_create_payload_indexes(monkeypatch):
+    client = qdrant_client.QdrantClient(location=":memory:")
+    calls = []
+    monkeypatch.setattr(client, "create_payload_index", lambda *a, **kw: calls.append(kw))
+    adapter = QdrantVectorIndexAdapter(client=client, filter_schema={}, wait_for_index=False)
+    adapter.upsert(_space(), _points())
+    assert calls == []
+    assert adapter.filter_schema == {}
+    assert QdrantVectorIndexAdapter(client=client).filter_schema["membership_id"] == "keyword"
+    client.close()

@@ -206,3 +206,45 @@ N05D-01 — Qdrant storage/path blocker diagnosis
 ```
 
 N05D-01とN05D-02は独立して調査可能だが、formal rerunは両方のexit conditionを満たすまで開始しない。
+
+
+## 8. N05D-01 local result — 2026-10-22
+
+- **N05D-01 = BLOCKED / not Complete**; it remains the current task.
+- Latest run: `20261022T161445+0900`; execution HEAD:
+  `47d87ae13f621db8f6c6140209749d03d460a26c` plus local diagnostic fixes.
+- Isolated short storage passed all four direct/adapter indexed/plain paths and
+  5/5 indexed repeats. Existing-server long-name OS error 3 is independently
+  reproduced by direct client. Short indexed adapter controls passed 2/3;
+  the retained failure is OS error 5 (access denied). Direct indexed also
+  exhibited OS error 5. Root cause is not fully classified or repaired.
+- Path-shortening and explicit-empty-schema fixes are validated by tests but
+  are not sufficient evidence to declare runtime recovery.
+- Focused tests: 16 PASS; full pytest: 524 PASS, 0 failed; Ruff/diff PASS.
+- Result/evidence details:
+  `docs/evaluation/N05D01_QDRANT_STORAGE_PATH_DIAGNOSIS.md`.
+- Additional file-operation tracing is needed; no security disable/exclusion or
+  existing-server restart is authorized by this result. Previous evidence and
+  failed collections are retained.
+- N-05 remains BLOCKED / not Complete. N05D-02 and the formal rerun were not started.
+
+
+## 9. ProcMon observation progress — 2026-10-22
+
+- Run `20261022T172340+0900`: official signed ProcMon 4.12, user-authorized ProcMon-only
+  elevation, local PML/CSV retained. Existing storage remained
+  `.local/n04p06/qdrant/storage`; server/security settings were not changed.
+- Short indexed diagnosis probes: 10/10 PASS;
+  client OS error 5: 0. Storage trace contains
+  9 ACCESS DENIED/SHARING VIOLATION events, requiring evidence review.
+- One cleanup rename overlaps a Code.exe ShareMode: None open on a descendant
+  index file (open 0.2844 ms before denial; close 0.2522 ms after). This is a
+  concrete external-reader contention candidate for cleanup, not proof of the
+  original index-creation error. Raw PML stacks/handle identity need review.
+- Root-cause attribution and safe full remediation remain unproven.
+  **N05D-01 = BLOCKED / Not Complete**; it stays the current task.
+- Focused tests 10 PASS; full pytest 529 PASS; Ruff/diff PASS.
+- Diagnostic tools and documented observations may be committed/pushed as
+  progress under the user's updated policy; this does not grant acceptance.
+- Next: correlate a reproduced access-denied operation with exact file/handle
+  and PML stack evidence. N05D-02/formal rerun were not executed.

@@ -41,6 +41,11 @@ CHECKS = {
 }
 
 
+def sample_prefix(run_id, sample_id):
+    """Bound native Windows Qdrant paths while retaining sample/run isolation."""
+    return "n05" + hashlib.sha256(f"{run_id}:{sample_id}".encode()).hexdigest()[:12]
+
+
 def capture(arguments):
     return subprocess.check_output(arguments, cwd=ROOT, text=True, encoding="utf-8").strip()
 
@@ -143,7 +148,7 @@ def worker(root, profile, condition, index):
     for number in indexes:
         sample_id = f"{profile}-{condition}-{number:02d}"
         sample = root / profile / f"{condition}-{number:02d}"
-        prefix = f"n05r{hashlib.sha256(root.name.encode()).hexdigest()[:8]}_{sample_id}"
+        prefix = sample_prefix(root.name, sample_id)
 
         def vector_factory(space, namespace=prefix):
             return QdrantVectorIndexAdapter(
@@ -184,8 +189,17 @@ def environment(root):
         qdrant = json.load(response)
     with urllib.request.urlopen("http://localhost:6333/collections", timeout=10) as response:
         collections = json.load(response)
-    prefix = f"n05r{hashlib.sha256(root.name.encode()).hexdigest()[:8]}"
-    if any(item["name"].startswith(prefix) for item in collections["result"]["collections"]):
+    prefixes = [
+        sample_prefix(root.name, f"{profile}-{condition}-{number:02d}")
+        for profile in TARGETS
+        for condition, count in (("cold", 3), ("warm", 20))
+        for number in range(1, count + 1)
+    ]
+    prefix = "n05 + 12 hex SHA-256(run_id:sample_id); 15 characters per sample"
+    if any(
+        any(item["name"].startswith(p + "_") for p in prefixes)
+        for item in collections["result"]["collections"]
+    ):
         raise RuntimeError("Run-specific Qdrant namespace already exists")
     return {
         **hardware,
@@ -207,6 +221,7 @@ def environment(root):
         "qdrant_version": qdrant["version"],
         "qdrant_transport": "gRPC localhost:6334",
         "collection_prefix": prefix,
+        "planned_collection_prefixes": prefixes,
         "model_cache_mode": "local-files-only; offline",
         "volume": ROOT.anchor,
         "free_bytes": shutil.disk_usage(ROOT).free,
