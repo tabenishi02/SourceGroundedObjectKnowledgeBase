@@ -36,6 +36,12 @@ from .evidence_search import (
     EvidenceSearchResponse,
     EvidenceSearchResult,
 )
+from .generation import (
+    GenerationAwareSearchRepresentationBuilder,
+    GenerationQdrantVectorIndexAdapter,
+    GenerationRoutingVectorIndexAdapter,
+    route_generation_vector_index,
+)
 from .hybrid_search_r2 import HybridObjectSearch
 from .package import (
     EvidenceBudget,
@@ -86,6 +92,10 @@ __all__ = [
     "HybridObjectSearch",
     "KnowledgeVectorIndexBuilder",
     "KnowledgeVectorMaintenanceBuilder",
+    "GenerationAwareSearchRepresentationBuilder",
+    "GenerationQdrantVectorIndexAdapter",
+    "GenerationRoutingVectorIndexAdapter",
+    "route_generation_vector_index",
     "EvidenceBudget",
     "EvidenceCandidate",
     "EvidencePackageSelector",
