@@ -102,9 +102,7 @@ class KnowledgeVectorMaintenanceBuilder(_R2KnowledgeVectorIndexBuilder):
             space,
             tuple(point.point_id for point in points),
             generation_id=self.generation_id,
-            require_generation_payload=(
-                row["contract_key"] == "n05d04r2-hierarchical-v2"
-            ),
+            require_generation_payload=(row["contract_key"] == "n05d04r2-hierarchical-v2"),
         )
 
     def rebuild_backend(self, space: EmbeddingSpaceSpec):

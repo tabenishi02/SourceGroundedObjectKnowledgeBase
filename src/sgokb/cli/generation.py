@@ -90,7 +90,9 @@ def run(arguments=None):
                 smoke=not args.no_smoke,
             )
         if args.action == "recover":
-            return {"recovered_generation_count": app.recover_interrupted_builds(reason=args.reason)}
+            return {
+                "recovered_generation_count": app.recover_interrupted_builds(reason=args.reason)
+            }
         raise AssertionError(f"Unknown generation action: {args.action}")
     finally:
         repository.close()

@@ -250,13 +250,13 @@ def test_search_representations_are_derived_and_version_membership_is_explicit(r
     object_b, version_b = _object_and_version(repo, suffix="b")
 
     representation_a = repo.semantic_store.get_or_create_search_representation(
-        SearchRepresentationKind.OBJECT,
+        SearchRepresentationKind.OBJECT_OVERALL,
         "object-overall",
         "1",
         "same deterministic representation",
     )
     representation_b = repo.semantic_store.get_or_create_search_representation(
-        SearchRepresentationKind.OBJECT,
+        SearchRepresentationKind.OBJECT_OVERALL,
         "object-overall",
         "1",
         "same deterministic representation",
@@ -264,10 +264,10 @@ def test_search_representations_are_derived_and_version_membership_is_explicit(r
     assert representation_a == representation_b
 
     repo.semantic_store.link_search_representation(
-        version_a, representation_a, SearchRepresentationKind.OBJECT, object_a
+        version_a, representation_a, SearchRepresentationKind.OBJECT_OVERALL, object_a
     )
     repo.semantic_store.link_search_representation(
-        version_b, representation_b, SearchRepresentationKind.OBJECT, object_b
+        version_b, representation_b, SearchRepresentationKind.OBJECT_OVERALL, object_b
     )
     memberships = repo.rows(
         "SELECT version_id,target_ref FROM search_representation_memberships "

@@ -23,6 +23,7 @@ from sgokb.domain import (
     VectorSearchFilter,
 )
 
+from .generation import vector_generation_scope
 from .hybrid_search import (
     HybridObjectSearch as _PhaseIHybridObjectSearch,
 )
@@ -171,7 +172,8 @@ class HybridObjectSearch(_PhaseIHybridObjectSearch):
         generation = self._resolve_generation()
         token = _GENERATION_CONTEXT.set(generation)
         try:
-            return super().search(*args, **kwargs)
+            with vector_generation_scope(self.vector_index, generation.generation_id):
+                return super().search(*args, **kwargs)
         finally:
             _GENERATION_CONTEXT.reset(token)
 

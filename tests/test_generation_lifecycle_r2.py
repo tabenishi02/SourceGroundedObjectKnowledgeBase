@@ -79,9 +79,9 @@ class _NamespaceIndex:
             if not self._matches(point, filters):
                 continue
             point_length = math.sqrt(sum(value * value for value in point.vector))
-            score = sum(
-                left * right for left, right in zip(query_vector, point.vector)
-            ) / (query_length * point_length)
+            score = sum(left * right for left, right in zip(query_vector, point.vector)) / (
+                query_length * point_length
+            )
             hits.append((point.point_id, score, point.metadata))
         hits.sort(key=lambda item: (-item[1], item[0]))
         return tuple(
@@ -101,9 +101,7 @@ class _NamespaceIndex:
         return count
 
     def rebuild(self, space, points):
-        self.backend.namespaces[self.namespace] = {
-            point.point_id: point for point in points
-        }
+        self.backend.namespaces[self.namespace] = {point.point_id: point for point in points}
         return self.metadata(space)
 
     def metadata(self, space):
@@ -387,3 +385,303 @@ def test_cutover_rejects_not_ready_generation_without_pointer_change(repo, space
         "SELECT active_generation_id FROM knowledge_search_active_generation"
     ).fetchone()
     assert active["active_generation_id"] == LEGACY_GENERATION_ID
+
+
+@pytest.mark.parametrize("start_r2", [False, True])
+@pytest.mark.parametrize("operation", ["hybrid", "overall", "facet"])
+def test_concurrent_cutover_pins_one_operation_generation(
+    repo, space, monkeypatch, start_r2, operation
+):
+    from test_object_similarity_r2 import _accepted_r2
+
+    from sgokb.application_read import KnowledgeReadApplication
+
+    for i in range(2):
+        oid = repo.object_store.create_object(
+            f"Character {i}", repo.object_store.class_by_key("character").class_id
+        )
+        _accepted_r2(repo, oid, f"v{i}", [{"facet": "values", "text": f"Value {i}"}])
+    _link_legacy_memberships(repo)
+    provider = FakeProvider(space)
+    _embed_generation(repo, provider, LEGACY_GENERATION_ID)
+    backend = FakeNamespaceVectorIndex()
+    KnowledgeVectorMaintenanceBuilder(
+        repo,
+        backend.bind_namespace(backend.namespace_key(space)),
+        generation_id=LEGACY_GENERATION_ID,
+    ).rebuild(space)
+    app = KnowledgeSearchGenerationApplication(
+        repo, embedding_provider=provider, vector_index=backend
+    )
+    app.bootstrap_legacy()
+    candidate = app.build_r2_candidate()
+    if start_r2:
+        app.cutover(candidate.generation_id)
+    original = _NamespaceIndex.search
+    seen = []
+
+    def switch_after_first(index, *args, **kwargs):
+        result = original(index, *args, **kwargs)
+        seen.append(index.namespace)
+        if len(seen) == 1:
+            if start_r2:
+                app.rollback(smoke=False)
+            else:
+                app.cutover(candidate.generation_id, smoke=False)
+        return result
+
+    monkeypatch.setattr(_NamespaceIndex, "search", switch_after_first)
+    read = KnowledgeReadApplication(
+        repo, embedding_provider=provider, embedding_space=space, vector_index=backend
+    )
+    source = repo.one("SELECT id FROM objects ORDER BY id")["id"]
+    if operation == "hybrid":
+        result = read.search_objects("Character", mode="semantic")
+        assert result.results
+        assert len(seen) >= 2
+    else:
+        result = read.find_similar_objects(source, facet="values" if operation == "facet" else None)
+        assert result.results
+        assert result.generation_id == (
+            candidate.generation_id if start_r2 else LEGACY_GENERATION_ID
+        )
+    assert set(seen) == {candidate.namespace_key if start_r2 else backend.namespace_key(space)}
+
+
+def test_active_incremental_sync_refreshes_digests_count_and_only_r2_family(repo, space):
+    from sgokb.application_derived import DerivedSearchOperatorApplication
+
+    app, provider, backend = _prepared(repo, space)
+    app.bootstrap_legacy()
+    candidate = app.build_r2_candidate()
+    app.cutover(candidate.generation_id)
+    legacy = app._generation_row(LEGACY_GENERATION_ID)
+    oid = repo.object_store.create_object(
+        "New Object", repo.object_store.class_by_key("character").class_id
+    )
+    version = repo.version_store.begin_candidate(oid, None, version_id="new-version")
+    repo.version_store.accept_candidate(version)
+    operator = DerivedSearchOperatorApplication(
+        repo, embedding_provider=provider, vector_index=backend
+    )
+    result = operator.sync(oid, semantic=True)
+    assert result.completed_object_count == 1
+    assert result.partial is False
+    kinds = {
+        r["target_kind"]
+        for r in repo.semantic_store.knowledge_search_memberships(version_id=version)
+    }
+    assert kinds == {"object_overview"}
+    row = app._generation_row(candidate.generation_id)
+    assert row["source_catalog_digest"] == app.source_catalog_digest()
+    assert row["source_catalog_digest"] != candidate.source_catalog_digest
+    assert row["membership_digest"] == app.membership_digest(candidate.generation_id)
+    assert row["membership_digest"] != candidate.membership_digest
+    binding = repo.one(
+        "SELECT * FROM knowledge_search_generation_vector_indexes WHERE generation_id=?",
+        (candidate.generation_id,),
+    )
+    assert binding["membership_digest"] == row["membership_digest"]
+    assert binding["point_count"] == candidate.point_count + 1
+    app._verify_switch_target(candidate.generation_id)
+    assert app._generation_row(LEGACY_GENERATION_ID) == legacy
+    with pytest.raises(KnowledgeSearchGenerationError, match="catalog digest is stale"):
+        app.rollback()
+
+
+@pytest.mark.parametrize("fault", ["digest", "count", "point_id", "payload"])
+def test_invalid_ready_candidate_fails_closed(repo, space, fault):
+    from dataclasses import replace
+
+    app, _, backend = _prepared(repo, space)
+    app.bootstrap_legacy()
+    candidate = app.build_r2_candidate()
+    if fault == "digest":
+        repo.db.execute(
+            "UPDATE knowledge_search_generations SET membership_digest=? WHERE id=?",
+            ("0" * 64, candidate.generation_id),
+        )
+    elif fault == "count":
+        repo.db.execute(
+            "UPDATE knowledge_search_generation_vector_indexes SET point_count=999 "
+            "WHERE generation_id=?",
+            (candidate.generation_id,),
+        )
+    else:
+        points = backend.namespaces[candidate.namespace_key]
+        point_id = next(iter(points))
+        if fault == "point_id":
+            points["foreign-membership"] = points.pop(point_id)
+        else:
+            points[point_id] = replace(
+                points[point_id],
+                metadata={**points[point_id].metadata, "generation_id": "foreign-generation"},
+            )
+    repo.db.commit()
+    with pytest.raises(KnowledgeSearchGenerationError):
+        app.cutover(candidate.generation_id)
+    assert app.status()["active_generation"]["active_generation_id"] == LEGACY_GENERATION_ID
+
+
+@pytest.mark.parametrize("rollback", [False, True])
+def test_smoke_failure_recovers_previous_pointer_and_audit(repo, space, monkeypatch, rollback):
+    app, _, _ = _prepared(repo, space)
+    app.bootstrap_legacy()
+    candidate = app.build_r2_candidate()
+    if rollback:
+        app.cutover(candidate.generation_id)
+    prior = app.status()["active_generation"]["active_generation_id"]
+
+    def fail():
+        raise RuntimeError("smoke failure fixture")
+
+    monkeypatch.setattr(app, "_smoke_active_generation", fail)
+    with pytest.raises(KnowledgeSearchGenerationError, match="previous generation was restored"):
+        if rollback:
+            app.rollback()
+        else:
+            app.cutover(candidate.generation_id)
+    assert app.status()["active_generation"]["active_generation_id"] == prior
+    assert (
+        repo.one(
+            "SELECT count(*) AS n FROM knowledge_search_generation_switches "
+            "WHERE switch_kind='recovery'"
+        )["n"]
+        == 1
+    )
+
+
+def test_bootstrap_rejects_equal_count_wrong_point_identity(repo, space):
+    app, _, backend = _prepared(repo, space)
+    points = backend.namespaces[backend.namespace_key(space)]
+    points["foreign"] = points.pop(next(iter(points)))
+    with pytest.raises(KnowledgeSearchGenerationError, match="membership identity"):
+        app.bootstrap_legacy()
+    assert app.status()["active_generation"] is None
+
+
+def test_catalog_change_during_candidate_build_fails_closed(repo, space, monkeypatch):
+    app, _, _ = _prepared(repo, space)
+    app.bootstrap_legacy()
+    original = app._complete_embeddings
+
+    def change(generation_id):
+        result = original(generation_id)
+        repo.db.execute("UPDATE objects SET status='archived' WHERE name='Beta'")
+        repo.db.commit()
+        return result
+
+    monkeypatch.setattr(app, "_complete_embeddings", change)
+    with pytest.raises(KnowledgeSearchGenerationError, match="catalog changed"):
+        app.build_r2_candidate()
+    assert app.status()["active_generation"]["active_generation_id"] == LEGACY_GENERATION_ID
+
+
+def test_child_embeddings_are_reused_and_only_overviews_created(repo, space):
+    from test_object_similarity_r2 import _accepted_r2
+
+    for i in range(2):
+        oid = repo.object_store.create_object(
+            f"Child {i}", repo.object_store.class_by_key("character").class_id
+        )
+        _accepted_r2(repo, oid, f"child-{i}", [{"facet": "values", "text": f"Value {i}"}])
+    _link_legacy_memberships(repo)
+    provider = FakeProvider(space)
+    _embed_generation(repo, provider, LEGACY_GENERATION_ID)
+    backend = FakeNamespaceVectorIndex()
+    KnowledgeVectorMaintenanceBuilder(
+        repo,
+        backend.bind_namespace(backend.namespace_key(space)),
+        generation_id=LEGACY_GENERATION_ID,
+    ).rebuild(space)
+    app = KnowledgeSearchGenerationApplication(
+        repo, embedding_provider=provider, vector_index=backend
+    )
+    app.bootstrap_legacy()
+    calls = provider.document_calls
+    candidate = app.build_r2_candidate()
+    assert candidate.reused_embedding_count == 4
+    assert candidate.created_embedding_count == 2
+    assert provider.document_calls - calls == 2
+
+
+def test_batch_incremental_sync_publishes_only_after_all_objects_synced(repo, space):
+    from sgokb.application_derived import DerivedSearchOperatorApplication
+
+    app, provider, backend = _prepared(repo, space)
+    app.bootstrap_legacy()
+    candidate = app.build_r2_candidate()
+    app.cutover(candidate.generation_id)
+    for i in range(2):
+        oid = repo.object_store.create_object(
+            f"New {i}", repo.object_store.class_by_key("character").class_id
+        )
+        version = repo.version_store.begin_candidate(oid, None)
+        repo.version_store.accept_candidate(version)
+    operator = DerivedSearchOperatorApplication(
+        repo, embedding_provider=provider, vector_index=backend
+    )
+    result = operator.sync(semantic=True)
+    assert result.completed_object_count == 4
+    app._verify_switch_target(candidate.generation_id)
+
+
+def test_incremental_audit_failure_does_not_publish_new_digest(repo, space, monkeypatch):
+    from sgokb.application_derived import DerivedSearchOperatorApplication
+
+    app, provider, backend = _prepared(repo, space)
+    app.bootstrap_legacy()
+    candidate = app.build_r2_candidate()
+    app.cutover(candidate.generation_id)
+    oid = repo.object_store.create_object(
+        "New", repo.object_store.class_by_key("character").class_id
+    )
+    version = repo.version_store.begin_candidate(oid, None)
+    repo.version_store.accept_candidate(version)
+    operator = DerivedSearchOperatorApplication(
+        repo, embedding_provider=provider, vector_index=backend
+    )
+
+    def fail(*args, **kwargs):
+        raise KnowledgeSearchGenerationError("audit failure fixture")
+
+    monkeypatch.setattr(operator._generation, "_audit_namespace", fail)
+    with pytest.raises(KnowledgeSearchGenerationError, match="audit failure fixture"):
+        operator.sync(oid, semantic=True)
+    assert (
+        app._generation_row(candidate.generation_id)["membership_digest"]
+        == candidate.membership_digest
+    )
+    assert (
+        app._generation_row(candidate.generation_id)["source_catalog_digest"]
+        == candidate.source_catalog_digest
+    )
+
+
+def test_cli_index_rebuild_routes_to_active_r2_and_preserves_v1(
+    repo, space, monkeypatch, capsys, tmp_path
+):
+    import importlib
+
+    from sgokb.application_derived import DerivedSearchOperatorApplication
+
+    app, provider, backend = _prepared(repo, space)
+    app.bootstrap_legacy()
+    candidate = app.build_r2_candidate()
+    app.cutover(candidate.generation_id)
+    legacy = dict(backend.namespaces[backend.namespace_key(space)])
+    cli = importlib.import_module("sgokb.cli.main")
+    monkeypatch.setattr(cli, "semantic_runtime", lambda: (provider, backend))
+    assert (
+        cli.main(["--db", str(tmp_path / "generation-r2.sqlite"), "system", "index", "rebuild"])
+        == 0
+    )
+    assert backend.namespaces[backend.namespace_key(space)] == legacy
+    assert set(backend.namespaces[candidate.namespace_key]) == {
+        row["membership_id"] for row in app._generation_membership_rows(candidate.generation_id)
+    }
+    status = DerivedSearchOperatorApplication(
+        repo, embedding_provider=provider, vector_index=backend
+    ).status()
+    assert all(obj["search_representations"]["membership_count"] == 1 for obj in status["objects"])
+    capsys.readouterr()

@@ -181,7 +181,7 @@ def test_migration_015_upgrades_i01_schema_without_losing_representations(tmp_pa
 
     upgraded = Repository(path)
     try:
-        assert upgraded.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 17
+        assert upgraded.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 18
         assert (
             upgraded.one(
                 "SELECT content FROM search_representations WHERE id='representation-before-i02'"

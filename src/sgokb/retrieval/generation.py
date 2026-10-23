@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager, nullcontext
+from contextvars import ContextVar
 from dataclasses import dataclass
 
 from sgokb.domain import VectorSearchFilter
@@ -11,6 +13,7 @@ from .vector_index import QdrantVectorIndexAdapter
 
 _PHASE_I_CONTRACT_KEY = "phase-i-search-v1"
 _R2_CONTRACT_KEY = "n05d04r2-hierarchical-v2"
+_UNRESOLVED = object()
 
 
 class GenerationAwareSearchRepresentationBuilder(SearchRepresentationBuilder):
@@ -44,9 +47,9 @@ class GenerationAwareSearchRepresentationBuilder(SearchRepresentationBuilder):
                 ORDER BY id""",
             (version_id, *kinds),
         ).fetchall()
-        now = self.db.execute(
-            "SELECT strftime('%Y-%m-%dT%H:%M:%fZ','now') AS value"
-        ).fetchone()["value"]
+        now = self.db.execute("SELECT strftime('%Y-%m-%dT%H:%M:%fZ','now') AS value").fetchone()[
+            "value"
+        ]
         self.db.executemany(
             """INSERT OR IGNORE INTO knowledge_search_generation_memberships(
                    generation_id,membership_id,created_at
@@ -142,6 +145,8 @@ class GenerationQdrantVectorIndexAdapter(QdrantVectorIndexAdapter):
                         "Vector namespace contains a point without membership identity"
                     )
                 membership_id = str(membership_id)
+                if str(record.id) != self._backend_id(space, membership_id):
+                    raise RuntimeError("Vector backend point ID differs from membership identity")
                 if membership_id in seen:
                     raise RuntimeError("Vector namespace contains duplicate membership identity")
                 seen.add(membership_id)
@@ -178,6 +183,7 @@ class GenerationRoutingVectorIndexAdapter:
         self.db = repository.db
         self.base_vector_index = base_vector_index
         self.backend_key = base_vector_index.backend_key
+        self._operation_generation = ContextVar("vector_operation_generation", default=_UNRESOLVED)
 
     def _active_generation_id(self) -> str | None:
         row = self.db.execute(
@@ -212,9 +218,7 @@ class GenerationRoutingVectorIndexAdapter:
             (generation_id, space_id, self.backend_key),
         ).fetchone()
         if row is None:
-            raise RuntimeError(
-                "Active Knowledge Search generation has no Vector namespace binding"
-            )
+            raise RuntimeError("Active Knowledge Search generation has no Vector namespace binding")
         if row["status"] != "ready":
             raise RuntimeError("Active Knowledge Search Vector namespace is not ready")
         return _VectorBinding(
@@ -256,9 +260,7 @@ class GenerationRoutingVectorIndexAdapter:
         if filters is None:
             return None
         return VectorSearchFilter(
-            matches=tuple(
-                match for match in filters.matches if match.field != "generation_id"
-            ),
+            matches=tuple(match for match in filters.matches if match.field != "generation_id"),
             excludes=filters.excludes,
             ranges=filters.ranges,
         )
@@ -269,8 +271,24 @@ class GenerationRoutingVectorIndexAdapter:
         binding = self._binding(generation_id, space.space_id)
         return self.bind_namespace(binding.namespace_key), binding
 
+    @contextmanager
+    def generation_scope(self, generation_id):
+        token = self._operation_generation.set(generation_id)
+        try:
+            yield
+        finally:
+            self._operation_generation.reset(token)
+
+    def _operation_generation_id(self):
+        pinned = self._operation_generation.get()
+        return self._active_generation_id() if pinned is _UNRESOLVED else pinned
+
     def search(self, space, query_vector, *, limit: int, filters=None):
-        generation_id = self._filter_generation_id(filters) or self._active_generation_id()
+        explicit = self._filter_generation_id(filters)
+        pinned = self._operation_generation.get()
+        if pinned is not _UNRESOLVED and explicit is not None and explicit != pinned:
+            raise RuntimeError("Vector route differs from operation generation")
+        generation_id = explicit if explicit is not None else self._operation_generation_id()
         adapter, binding = self._adapter_for(space, generation_id)
         delegated_filters = filters
         if binding is not None and binding.contract_key == _PHASE_I_CONTRACT_KEY:
@@ -283,7 +301,7 @@ class GenerationRoutingVectorIndexAdapter:
         )
 
     def _active_adapter(self, space):
-        return self._adapter_for(space, self._active_generation_id())[0]
+        return self._adapter_for(space, self._operation_generation_id())[0]
 
     def upsert(self, space, points):
         return self._active_adapter(space).upsert(space, points)
@@ -315,3 +333,9 @@ def route_generation_vector_index(repository, vector_index):
     ):
         return GenerationRoutingVectorIndexAdapter(repository, vector_index)
     return vector_index
+
+
+def vector_generation_scope(vector_index, generation_id):
+    """Pin namespace routing for one retrieval/maintenance operation, including v1."""
+    scope = getattr(vector_index, "generation_scope", None)
+    return scope(generation_id) if scope is not None else nullcontext()

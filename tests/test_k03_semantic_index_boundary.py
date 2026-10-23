@@ -70,6 +70,7 @@ def _schema_property_names(value: object) -> set[str]:
 def test_sgokb_semantic_representation_kinds_are_world_object_scoped():
     assert {kind.value for kind in SearchRepresentationKind} == {
         "object_overall",
+        "object_overview",
         "facet",
         "statement",
         "evidence",

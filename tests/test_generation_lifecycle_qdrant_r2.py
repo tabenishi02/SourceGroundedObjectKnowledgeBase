@@ -159,3 +159,52 @@ def test_qdrant_generation_cutover_rollback_and_recutover(tmp_path):
         assert "object_overview" in kinds
     finally:
         repo.close()
+
+
+@pytest.mark.parametrize("fault", ["backend_id", "payload", "membership"])
+def test_qdrant_namespace_identity_audit_rejects_corruption(tmp_path, fault):
+    import uuid
+
+    qdrant_client = pytest.importorskip("qdrant_client")
+    from qdrant_client import models
+
+    from sgokb.application_generation import KnowledgeSearchGenerationError
+
+    repo = Repository(tmp_path / "negative-qdrant.sqlite")
+    client = qdrant_client.QdrantClient(location=":memory:")
+    try:
+        _accepted(repo, "Alpha", "alpha-v1")
+        _link_legacy(repo)
+        space = _space()
+        provider = FakeProvider(space)
+        _save_legacy_embeddings(repo, provider)
+        base = QdrantVectorIndexAdapter(client=client, wait_for_index=False)
+        KnowledgeVectorMaintenanceBuilder(repo, base, generation_id=LEGACY_GENERATION_ID).rebuild(
+            space
+        )
+        app = KnowledgeSearchGenerationApplication(
+            repo, embedding_provider=provider, vector_index=base
+        )
+        app.bootstrap_legacy()
+        candidate = app.build_r2_candidate()
+        points, _ = client.scroll(candidate.namespace_key, with_vectors=True)
+        point = points[0]
+        if fault == "backend_id":
+            client.delete(candidate.namespace_key, models.PointIdsList(points=[point.id]))
+            client.upsert(
+                candidate.namespace_key,
+                [
+                    models.PointStruct(
+                        id=str(uuid.uuid4()), vector=point.vector, payload=point.payload
+                    )
+                ],
+            )
+        else:
+            field = "generation_id" if fault == "payload" else "__sgokb_point_id"
+            client.set_payload(candidate.namespace_key, {field: "foreign"}, points=[point.id])
+        with pytest.raises(KnowledgeSearchGenerationError, match="identity audit"):
+            app.cutover(candidate.generation_id)
+        assert app.status()["active_generation"]["active_generation_id"] == LEGACY_GENERATION_ID
+    finally:
+        client.close()
+        repo.close()

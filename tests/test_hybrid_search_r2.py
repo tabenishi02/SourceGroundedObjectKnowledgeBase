@@ -22,6 +22,7 @@ from sgokb.retrieval import (
     KnowledgeVectorIndexBuilder,
     SearchRepresentationBuilder,
 )
+from sgokb.retrieval.hybrid_search_r2 import KnowledgeVectorIndexBuilder as FixtureVectorBuilder
 
 
 class FakeEmbeddingProvider:
@@ -428,7 +429,8 @@ def test_r2_excludes_unlinked_knowledge_even_with_foreign_vector_points(repo, sp
             vector=p.vector,
             metadata={**p.metadata, "generation_id": "foreign-generation"},
         )
-        for p in KnowledgeVectorIndexBuilder(repo, index).points(space)
+        # Deliberately construct foreign points outside the active maintenance scope.
+        for p in FixtureVectorBuilder(repo, index).points(space)
         if p.metadata["object_id"] == late
     ]
     assert foreign

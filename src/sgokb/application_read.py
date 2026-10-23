@@ -64,7 +64,9 @@ class KnowledgeReadApplication:
     ) -> None:
         self._repository = repository
         self._embedding_provider = embedding_provider
-        self._vector_index = vector_index
+        from .retrieval.generation import route_generation_vector_index
+
+        self._vector_index = route_generation_vector_index(repository, vector_index)
         self._embedding_space = embedding_space
         self._evidence_embedder = evidence_embedder
         self._object_reader = ObjectKnowledgeReader(repository)

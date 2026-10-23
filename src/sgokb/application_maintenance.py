@@ -111,11 +111,27 @@ class DerivedSearchMaintenanceApplication:
     def _search_representation_state(self, object_id: str):
         return self._derived_state(object_id, self.SEARCH_REPRESENTATION_KIND)
 
-    def _membership_counts(self, object_id: str, version_id: str) -> tuple[int, int]:
-        memberships = self._repository.semantic_store.knowledge_search_memberships(
-            object_id=object_id,
-            version_id=version_id,
+    def _current_memberships(self, object_id, version_id):
+        rows = self._repository.semantic_store.knowledge_search_memberships(
+            object_id=object_id, version_id=version_id
         )
+        active = self._repository.one(
+            "SELECT active_generation_id FROM knowledge_search_active_generation"
+        )
+        if active is None:
+            return rows
+        ids = {
+            row["membership_id"]
+            for row in self._repository.rows(
+                "SELECT membership_id FROM knowledge_search_generation_memberships "
+                "WHERE generation_id=?",
+                (active["active_generation_id"],),
+            )
+        }
+        return tuple(row for row in rows if row["id"] in ids)
+
+    def _membership_counts(self, object_id: str, version_id: str) -> tuple[int, int]:
+        memberships = self._current_memberships(object_id, version_id)
         return len(memberships), len({row["representation_id"] for row in memberships})
 
     def _current_version_id(self, object_id: str) -> str:
@@ -260,10 +276,7 @@ class DerivedSearchMaintenanceApplication:
         revision = embedding_state.revision
         search_revision = search_state.revision
 
-        memberships = self._repository.semantic_store.knowledge_search_memberships(
-            object_id=object_id,
-            version_id=version_id,
-        )
+        memberships = self._current_memberships(object_id, version_id)
         representation_ids = tuple(dict.fromkeys(row["representation_id"] for row in memberships))
         if not representation_ids:
             raise DerivedMaintenanceError(

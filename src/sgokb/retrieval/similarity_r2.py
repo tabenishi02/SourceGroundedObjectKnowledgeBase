@@ -19,6 +19,7 @@ from sgokb.domain import (
     VectorSearchFilter,
 )
 
+from .generation import vector_generation_scope
 from .similarity import ObjectSimilaritySearch as _PhaseIObjectSimilaritySearch
 
 _PHASE_I_CONTRACT_KEY = "phase-i-search-v1"
@@ -628,13 +629,35 @@ class ObjectSimilaritySearch(_PhaseIObjectSimilaritySearch):
         source_version_id: str | None = None,
         include_archived: bool = False,
     ) -> ObjectSimilarityResponse:
+        generation = self._resolve_generation()
+        with vector_generation_scope(self.vector_index, generation.generation_id):
+            return self._find_for_generation(
+                object_id,
+                facet=facet,
+                limit=limit,
+                cross_class=cross_class,
+                source_version_id=source_version_id,
+                include_archived=include_archived,
+                generation=generation,
+            )
+
+    def _find_for_generation(
+        self,
+        object_id: str,
+        *,
+        generation: _ResolvedKnowledgeGeneration,
+        facet: str | None = None,
+        limit: int = 10,
+        cross_class: bool = False,
+        source_version_id: str | None = None,
+        include_archived: bool = False,
+    ) -> ObjectSimilarityResponse:
         if not 1 <= limit <= 1000:
             raise ValueError("Similarity limit must be between 1 and 1000")
         facet = facet.strip() if facet is not None else None
         if facet == "":
             raise ValueError("Facet key must be non-empty")
 
-        generation = self._resolve_generation()
         if generation.generation_id is None:
             return super().find_similar_objects(
                 object_id,

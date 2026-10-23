@@ -115,6 +115,29 @@ the active namespace accidentally.
 
 Existing `status` / `sync` behavior remains and generation status is additive.
 
+R2-07 local verification clarifies the incremental contract against R2-03 sections
+13 and 26: active generation digests describe the latest **successfully audited**
+active membership/catalog snapshot, not an immutable historical cutover snapshot.
+A successful semantic sync (including all Objects in a batch) verifies canonical
+membership shape, exact namespace point identity/payload, total point count and
+unchanged catalog/membership snapshots. Only then are active `source_catalog_digest`,
+`membership_digest` and the current space/backend binding digest/count published
+atomically. Partial/failed sync does not publish new digests. Other generations
+retain their previous snapshots and become stale rollback targets after canonical
+changes; there is no implicit dual-write to v1. Embedding sync and status count only
+the active family, avoiding new legacy `object_overall` work after cutover.
+
+One retrieval operation pins its resolved generation in a context-local Vector
+routing scope, including active-v1 and pre-bootstrap operations. A concurrent
+pointer switch cannot redirect subsequent Vector calls to another namespace.
+The Application constructor also routes injected namespace-capable backends;
+CLI `system index rebuild` routes to the active namespace instead of overwriting
+legacy storage. Lifecycle switches acquire `BEGIN IMMEDIATE` before final target
+verification and commit pointer/audit together. Smoke treats degraded/empty semantic
+Search as failure. Qdrant identity audit additionally checks each backend UUID
+against the deterministic Embedding Space + membership-ID mapping.
+
+
 ### 2.6 Read runtime
 
 `src/sgokb/cli/runtime.py` wraps the production Qdrant adapter with generation routing before it is
@@ -359,3 +382,30 @@ R2-08 = Next / Not Started
 ```
 
 Do not start R2-08 as part of R2-07.
+
+
+## 14. Local engineering verification (2026-10-23)
+
+Input implementation HEAD: `ade8e8d03dce04884765778ed97cfacdbfbbdb31`.
+Isolated worktree verification used Python 3.10.6. R1 user-aborted assets remain
+byte-identical (three SHA-256 checks). Local evidence run:
+`20261023T135304+0900`, under `.local/r2-07/` (raw files are not Git assets).
+
+- Focused lifecycle/Qdrant: 29 passed.
+- R2 regression: 104 passed (includes the 29 focused tests).
+- Maintenance/Application/CLI/MCP/Vector compatibility: 83 passed.
+- Full pytest: 635 passed, 0 failed/errors/skips, 2 local-Qdrant warnings.
+- Compile PASS; Ruff `src tests` PASS; changed Python format PASS (20 files);
+  diff check PASS. Global Ruff retains only the documented unrelated
+  `benchmark/tools/n05_resource_preflight.py:69 E501`, unchanged.
+- Regression proves concurrent cutover preserves one operation/one namespace,
+  active incremental digest/count publication after complete audit, batch sync,
+  cache reuse, invalid target identity/count/payload rejection and smoke recovery.
+- CLI index rebuild bypass and active-family status counts corrected.
+- Full suite first exposed six stale failures and two setup errors, reproduced
+  unchanged on pre-R2-07 main. Update only exact schema-018 expectations and the
+  explicit legacy/R2 representation enum expectations; do not relax assertions.
+  The rerun is entirely green. Original failure evidence is retained.
+
+**Production/reference bootstrap/build/cutover/rollback/re-cutover remains pending;
+R2-07 is not Complete at this engineering checkpoint.**

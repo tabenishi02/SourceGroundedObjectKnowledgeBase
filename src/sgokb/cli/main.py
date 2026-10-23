@@ -33,7 +33,7 @@ from sgokb.exchange.result_validation import ResultValidationService
 from sgokb.providers import embedder_from_env
 from sgokb.rendering import DEFAULT_RENDER_ROOT, MarkdownRenderService
 from sgokb.repository import Repository
-from sgokb.retrieval import KnowledgeVectorIndexBuilder
+from sgokb.retrieval import KnowledgeVectorIndexBuilder, route_generation_vector_index
 from sgokb.review import DiffReviewMarkdownRenderer, DiffReviewService
 from sgokb.storage import PackageExchangeAuditRepository
 from sgokb.system_ops import (
@@ -744,7 +744,9 @@ def _system_dispatch(repository, db_path: Path, args):
         if args.subaction == "status":
             return index_status(repository)
         provider, vector = semantic_runtime()
-        metadata = KnowledgeVectorIndexBuilder(repository, vector).rebuild(provider.space)
+        metadata = KnowledgeVectorIndexBuilder(
+            repository, route_generation_vector_index(repository, vector)
+        ).rebuild(provider.space)
         return metadata
     if args.action == "backup":
         if args.subaction == "status":

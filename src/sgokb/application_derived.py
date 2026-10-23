@@ -17,6 +17,7 @@ from .application_maintenance import (
 from .retrieval.generation import (
     GenerationAwareSearchRepresentationBuilder,
     route_generation_vector_index,
+    vector_generation_scope,
 )
 
 
@@ -148,10 +149,7 @@ class DerivedSearchOperatorApplication:
             current_version_id = row["current_version_id"]
             states = self._repository.version_store.derived_states(row["id"])
             by_kind = {state.kind: state for state in states}
-            memberships = self._repository.semantic_store.knowledge_search_memberships(
-                object_id=row["id"],
-                version_id=current_version_id,
-            )
+            memberships = self._maintenance._current_memberships(row["id"], current_version_id)
             representation_ids = tuple(
                 dict.fromkeys(item["representation_id"] for item in memberships)
             )
@@ -243,6 +241,21 @@ class DerivedSearchOperatorApplication:
         return self._generation.recover_interrupted_builds(reason=reason)
 
     def _sync_one(self, row: dict, *, semantic: bool) -> DerivedObjectSyncResult:
+        active = self._repository.one(
+            "SELECT active_generation_id FROM knowledge_search_active_generation"
+        )
+        generation_id = active["active_generation_id"] if active is not None else None
+        with vector_generation_scope(self._vector_index, generation_id):
+            result = self._sync_one_pinned(row, semantic=semantic)
+            current = self._repository.one(
+                "SELECT active_generation_id FROM knowledge_search_active_generation"
+            )
+            current_id = current["active_generation_id"] if current is not None else None
+            if current_id != generation_id:
+                raise DerivedMaintenanceSupersededError("Generation changed during derived sync")
+            return result
+
+    def _sync_one_pinned(self, row: dict, *, semantic: bool) -> DerivedObjectSyncResult:
         stages: list[DerivedSyncStageResult] = []
         pipeline = [("search_representation", self._maintenance.sync_search_representation)]
         if semantic:
@@ -286,9 +299,7 @@ class DerivedSearchOperatorApplication:
                 states = self._repository.version_store.derived_states(row["id"])
                 state = next((item for item in states if item.kind == kind), None)
                 status = state.status.value if state is not None else "blocked"
-                stages.append(
-                    DerivedSyncStageResult(kind=kind, status=status, error=str(exc))
-                )
+                stages.append(DerivedSyncStageResult(kind=kind, status=status, error=str(exc)))
                 return DerivedObjectSyncResult(
                     object_id=row["id"],
                     current_version_id=row["current_version_id"],
@@ -296,9 +307,7 @@ class DerivedSearchOperatorApplication:
                     complete=False,
                     stages=tuple(stages),
                 )
-            stages.append(
-                DerivedSyncStageResult(kind=kind, status="ready", result=result)
-            )
+            stages.append(DerivedSyncStageResult(kind=kind, status="ready", result=result))
 
         return DerivedObjectSyncResult(
             object_id=row["id"],
@@ -320,9 +329,15 @@ class DerivedSearchOperatorApplication:
             raise DerivedMaintenanceRuntimeUnavailableError(
                 "Semantic derived sync requires an explicitly configured local semantic runtime"
             )
+        active = self._repository.one(
+            "SELECT active_generation_id FROM knowledge_search_active_generation"
+        )
+        generation_id = active["active_generation_id"] if active is not None else None
         rows = self._target_rows(object_id)
         results = tuple(self._sync_one(row, semantic=semantic) for row in rows)
         completed = sum(result.complete for result in results)
+        if completed == len(results) and semantic and generation_id is not None:
+            self._generation.refresh_active_generation(generation_id)
         return DerivedBatchSyncResult(
             semantic_requested=semantic,
             object_count=len(results),

@@ -215,12 +215,8 @@ class KnowledgeSearchGenerationApplication:
                 "Generation contains membership for a non-accepted Version"
             )
 
-        object_kind = (
-            "object_overview" if contract_key == R2_CONTRACT_KEY else "object_overall"
-        )
-        forbidden_kind = (
-            "object_overall" if contract_key == R2_CONTRACT_KEY else "object_overview"
-        )
+        object_kind = "object_overview" if contract_key == R2_CONTRACT_KEY else "object_overall"
+        forbidden_kind = "object_overall" if contract_key == R2_CONTRACT_KEY else "object_overview"
         if any(row["target_kind"] == forbidden_kind for row in rows):
             raise KnowledgeSearchGenerationError(
                 f"Generation contains forbidden membership kind: {forbidden_kind}"
@@ -231,9 +227,7 @@ class KnowledgeSearchGenerationApplication:
             if row["target_kind"] == object_kind:
                 object_counts[row["version_id"]] = object_counts.get(row["version_id"], 0) + 1
         missing_object = sorted(
-            version_id
-            for version_id in accepted_versions
-            if object_counts.get(version_id) != 1
+            version_id for version_id in accepted_versions if object_counts.get(version_id) != 1
         )
         if missing_object:
             raise KnowledgeSearchGenerationError(
@@ -253,9 +247,7 @@ class KnowledgeSearchGenerationApplication:
             )
 
         actual_facets = {
-            (row["version_id"], row["facet_id"])
-            for row in rows
-            if row["target_kind"] == "facet"
+            (row["version_id"], row["facet_id"]) for row in rows if row["target_kind"] == "facet"
         }
         expected_facets = self._eligible_facet_keys()
         if actual_facets != expected_facets:
@@ -458,12 +450,15 @@ class KnowledgeSearchGenerationApplication:
             raise KnowledgeSearchGenerationError(
                 "Legacy Vector namespace point count does not match generation membership count"
             )
-        if self._audit_namespace(
-            legacy_index,
-            space,
-            LEGACY_GENERATION_ID,
-            PHASE_I_CONTRACT_KEY,
-        ) != count:
+        if (
+            self._audit_namespace(
+                legacy_index,
+                space,
+                LEGACY_GENERATION_ID,
+                PHASE_I_CONTRACT_KEY,
+            )
+            != count
+        ):
             raise KnowledgeSearchGenerationError(
                 "Legacy Vector namespace identity audit count mismatch"
             )
@@ -577,14 +572,18 @@ class KnowledgeSearchGenerationApplication:
             ).rebuild(space)
             if metadata.points_count != count:
                 raise KnowledgeSearchGenerationError(
-                    "Candidate Vector namespace point count does not match generation membership count"
+                    "Candidate Vector namespace point count does not match "
+                    "generation membership count"
                 )
-            if self._audit_namespace(
-                bound_index,
-                space,
-                generation_id,
-                R2_CONTRACT_KEY,
-            ) != count:
+            if (
+                self._audit_namespace(
+                    bound_index,
+                    space,
+                    generation_id,
+                    R2_CONTRACT_KEY,
+                )
+                != count
+            ):
                 raise KnowledgeSearchGenerationError(
                     "Candidate Vector namespace identity audit count mismatch"
                 )
@@ -651,6 +650,66 @@ class KnowledgeSearchGenerationApplication:
                 f"R2 candidate generation build failed: {error}"
             ) from exc
 
+    def refresh_active_generation(self, expected_generation_id: str) -> None:
+        """Publish current digests/count only after a complete live namespace audit.
+
+        Active incremental maintenance evolves this generation's snapshot. Other
+        generations keep their original snapshot and become stale rollback targets.
+        """
+        space, vector = self._runtime()
+        generation = self._generation_row(expected_generation_id)
+        count = self._validate_generation_shape(expected_generation_id, generation["contract_key"])
+        digest = self.membership_digest(expected_generation_id)
+        catalog = self.source_catalog_digest()
+        binding = self.db.execute(
+            "SELECT namespace_key FROM knowledge_search_generation_vector_indexes "
+            "WHERE generation_id=? AND embedding_space_id=? AND backend_key=? AND status='ready'",
+            (expected_generation_id, space.space_id, vector.backend_key),
+        ).fetchone()
+        if binding is None:
+            raise KnowledgeSearchGenerationError("Incremental generation binding is not ready")
+        index = self._bound_index(binding["namespace_key"])
+        if index.metadata(space).points_count != count:
+            raise KnowledgeSearchGenerationError("Incremental Vector point count mismatch")
+        self._audit_namespace(index, space, expected_generation_id, generation["contract_key"])
+        self.db.execute("BEGIN IMMEDIATE")
+        try:
+            active = self.db.execute(
+                "SELECT active_generation_id FROM knowledge_search_active_generation"
+            ).fetchone()
+            if active is None or active["active_generation_id"] != expected_generation_id:
+                raise KnowledgeSearchGenerationError(
+                    "Active generation changed during incremental sync"
+                )
+            if (
+                self.source_catalog_digest() != catalog
+                or self.membership_digest(expected_generation_id) != digest
+            ):
+                raise KnowledgeSearchGenerationError("Incremental generation changed during audit")
+            self.db.execute(
+                "UPDATE knowledge_search_generations "
+                "SET source_catalog_digest=?,membership_digest=? "
+                "WHERE id=? AND state='ready'",
+                (catalog, digest, expected_generation_id),
+            )
+            self.db.execute(
+                "UPDATE knowledge_search_generation_vector_indexes "
+                "SET membership_digest=?,point_count=?,updated_at=? "
+                "WHERE generation_id=? AND embedding_space_id=? AND backend_key=?",
+                (
+                    digest,
+                    count,
+                    self._now(),
+                    expected_generation_id,
+                    space.space_id,
+                    vector.backend_key,
+                ),
+            )
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
+            raise
+
     def _verify_switch_target(
         self,
         generation_id: str,
@@ -693,12 +752,15 @@ class KnowledgeSearchGenerationApplication:
             raise KnowledgeSearchGenerationError(
                 "Switch target live Vector namespace point count is inconsistent"
             )
-        if self._audit_namespace(
-            bound_index,
-            space,
-            generation_id,
-            generation["contract_key"],
-        ) != count:
+        if (
+            self._audit_namespace(
+                bound_index,
+                space,
+                generation_id,
+                generation["contract_key"],
+            )
+            != count
+        ):
             raise KnowledgeSearchGenerationError(
                 "Switch target Vector namespace identity audit count mismatch"
             )
@@ -712,13 +774,14 @@ class KnowledgeSearchGenerationApplication:
         reason: str,
         require_contract: str | None = None,
     ) -> GenerationSwitchResult:
-        _, source_digest, _ = self._verify_switch_target(
-            generation_id,
-            require_contract=require_contract,
-        )
         now = self._now()
         switch_id = f"search-generation-switch:{uuid.uuid4()}"
         with self.db:
+            self.db.execute("BEGIN IMMEDIATE")
+            _, source_digest, _ = self._verify_switch_target(
+                generation_id,
+                require_contract=require_contract,
+            )
             current = self.db.execute(
                 """SELECT active_generation_id,activation_revision
                    FROM knowledge_search_active_generation
@@ -774,11 +837,13 @@ class KnowledgeSearchGenerationApplication:
         ).fetchone()
         if source is None:
             return
-        HybridObjectSearch(
+        hybrid = HybridObjectSearch(
             self.repository,
             embedding_provider=self.embedding_provider,
             vector_index=routed,
         ).search(source["name"], mode="semantic", limit=1)
+        if hybrid.degraded_channels or not hybrid.results:
+            raise KnowledgeSearchGenerationError("Generation smoke semantic search unavailable")
         ObjectSimilaritySearch(
             self.repository,
             space=space,
