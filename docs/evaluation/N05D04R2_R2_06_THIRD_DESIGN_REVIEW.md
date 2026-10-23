@@ -2,13 +2,13 @@
 
 Updated: 2026-10-24
 
-Status: **Third design review complete / flattened component pooling rejected / Candidate D selected for diagnostic ablation only**
+Status: **Third design review revised / flattened pooling rejected / Candidate D canonical-Facet anchored design selected for diagnostic ablation only**
 
 ## 1. Trigger
 
 Candidate C (reciprocal-rank-discounted comparable-evidence pooling) was rejected by local run `20261024T010705`.
 
-It restored all four frozen Similarity cases and passed the first-round four probes, but failed the mandatory weak-evidence monotonicity property:
+It restored all four frozen Similarity cases and passed the first-round probes, but failed the mandatory weak-evidence monotonicity property:
 
 ```text
 before: [.8, .2] -> .6
@@ -16,22 +16,45 @@ append: .5 (< .6)
 after: [.8, .5, .2] -> .609090909...
 ```
 
-The failure is structural. Sorting by score and changing rank discounts means insertion can reduce the weight of an older weak item enough to raise the aggregate even when the inserted item is below the previous aggregate.
+The failure is structural. Sorting by score and changing rank discounts means insertion can reduce the weight of older weak evidence enough to raise the aggregate even when the inserted item is below the prior aggregate.
 
-Candidate C also showed a very narrow `character_overall` margin and 21/44 rank flips under the fixed +/-0.005 and +/-0.01 perturbations. This is not the formal rejection reason, but it is additional evidence that continuing to tune score-order discounts would be overfitting.
+Candidate C also showed a narrow `character_overall` margin and 21/44 rank flips under fixed +/-0.005 and +/-0.01 perturbations. This is not the formal rejection reason, but it is additional evidence that continued tuning of flat score-order pooling would overfit the current gold.
 
-Therefore do **not** search reciprocal exponents, geometric decay constants, temperature, missing-value priors, Class-specific weights, thresholds, or other scalar tuning on the flattened evidence list.
+Do **not** reopen reciprocal exponents, geometric decay constants, temperatures, thresholds, missing-value priors, Class-specific weights, or similar scalar tuning on a flattened evidence list.
 
-## 2. Design conclusion: the deeper problem is flattening heterogeneous Facets
+## 2. External design review conclusion
 
-The first three rejected policies now expose a more fundamental boundary problem.
+A follow-up review compared Candidate D against established multi-vector / late-interaction and field-aware retrieval designs.
 
-- Control/source-slot mean treats missing cross-Facet evidence as numeric zero and creates shared-Facet coverage bias.
-- Candidate A/candidate-local arithmetic mean removes the missing penalty, but a sparse set of high Statement hits can obtain full component authority and regress `character_overall`.
-- Candidate B/max pooling restores the frozen cases but ignores additional weak comparable evidence.
-- Candidate C/rank-discounted pooling keeps secondary evidence, but score-order reweighting violates weak-evidence monotonicity.
+The relevant common pattern is:
 
-All four policies aggregate evidence from different Facets inside one flat Facet bucket and one flat Statement bucket.
+```text
+preserve local semantic units
+  -> score locally
+  -> aggregate after local structure is retained
+```
+
+ColBERT-style late interaction preserves multiple local vectors rather than collapsing them into one representation before scoring. Field-aware / multi-vector systems likewise keep semantically distinct vector fields separate and fuse them only at a later stage. Nested retrieval systems also commonly allow child/local matches to be aggregated into a parent result.
+
+Candidate D therefore has a defensible architectural basis: **Facet is the semantic grouping boundary, not merely metadata attached to otherwise exchangeable evidence.**
+
+However, the original D1/D2 draft had two weaknesses:
+
+1. `statement-only` clusters could claim Object detail authority without a canonical Facet anchor;
+2. D2 treated an admitted Facet ANN hit as the anchor, conflating retrieval/cap behavior with canonical Facet existence.
+
+The revised design removes both weaknesses.
+
+## 3. Design conclusion: flattening heterogeneous Facets is the primary error
+
+The rejected policies expose a common boundary problem.
+
+- Control/source-slot mean synthesizes cross-Facet missing evidence as zero and creates shared-Facet coverage bias.
+- Candidate A/candidate-local mean removes the missing penalty, but sparse high-scoring evidence can receive full component authority.
+- Candidate B/max pooling ignores additional weak comparable evidence.
+- Candidate C/rank-discounted pooling preserves secondary evidence but violates weak-evidence monotonicity because score ordering changes weights.
+
+All of them aggregate evidence from different Facets inside one flat Facet bucket and one flat Statement bucket.
 
 That is inconsistent with the R2 hierarchy:
 
@@ -41,250 +64,354 @@ Object
       -> Statement
 ```
 
-A `behavior` Statement, a `values` Statement and a `personality` Statement are not repeated samples of one scalar latent variable. They belong to separate semantic dimensions. The same is true for `themes` vs `tone` and `definition` vs `implications`.
+A `behavior` Statement, `values` Statement and `personality` Statement are not repeated samples of one scalar latent variable. The same applies to `themes` vs `tone`, and `definition` vs `implications`.
 
-The next design must therefore restore the Facet boundary **inside the scorer**, rather than continue searching for another flat pooling formula.
+The scorer must therefore preserve canonical Facet identity before aggregation.
 
-## 3. Revised semantic properties
+## 4. Revised semantic contract
 
-The prior `present weak comparable evidence matters` and weak-evidence monotonicity requirements remain valid **within one Facet cluster**.
+Candidate D uses the following semantics.
 
-They must not be interpreted as requiring a weak evidence item from a different Facet to lower the strongest unrelated Facet match.
+1. Evidence is grouped by canonical Facet before detail aggregation.
+2. Missing evidence in another Facet is **not** synthesized as numeric zero.
+3. Within one Facet, all admitted bounded Statements remain real evidence.
+4. Adding a weaker same-Facet Statement below the existing Statement mean must not increase that Facet's Statement mean.
+5. A weak unrelated Facet must not dilute an already stronger Facet merely because the Object exposes more semantic dimensions.
+6. A stronger different-Facet cluster may replace the current winning Facet.
+7. A Statement may discover a candidate Object, but it may not independently create Object detail authority without a valid canonical Facet anchor.
+8. Facet-specific Similarity remains direct same-Facet cosine and is unchanged.
+9. Overall Object Similarity is defined as **broad Object similarity plus the strongest shared canonical Facet**, not breadth-of-Facet coverage.
 
-Revised contract:
+This is a semantic correction to aggregation boundaries, not a benchmark-specific exception.
 
-1. Missing evidence inside another Facet is not synthesized as cosine zero.
-2. Within one Facet, every admitted Statement remains real evidence and a weaker added Statement must not increase that Facet-local score.
-3. Evidence from different Facets is grouped first; it is not treated as exchangeable samples.
-4. A weak unrelated Facet must not dilute a stronger Facet merely because the Object exposes more semantic dimensions.
-5. A single Statement may not independently claim the entire detail half of Object Similarity without a valid Facet parent/cluster path.
-6. Facet-specific Similarity remains raw same-Facet cosine and is unchanged.
+## 5. Candidate D — canonical-Facet anchored hierarchical aggregation
 
-This is a semantic correction to the aggregation boundary, not a relaxation made only to pass the frozen cases.
+Candidate D is selected for **diagnostic ablation only**. It is not production-approved from static replay.
 
-## 4. Candidate D — Facet-cluster hierarchical aggregation
+### 5.1 Candidate acquisition remains unchanged
 
-Candidate D is selected for **diagnostic ablation**, not production implementation.
+Candidate acquisition still uses the existing bounded R2 paths:
 
-### 4.1 Build Facet clusters
+```text
+object_overview ANN
+Facet ANN
+Statement ANN
+        -> candidate Object union
+```
 
-For each source Facet represented in the existing R2 query set, group candidate evidence by canonical Facet identity:
+A candidate may therefore be discovered by a Statement hit even if its Facet vector did not appear in the bounded Facet ANN result.
+
+This is intentional: **candidate discovery and scoring authority are separate concerns.**
+
+### 5.2 Canonical Facet anchor
+
+For every candidate Object and source Facet that contributes admitted evidence, resolve whether the candidate has the corresponding **canonical active-generation Facet membership** in SQLite/generation membership state.
+
+The anchor condition is:
+
+```text
+candidate has canonical same-Facet membership
+in the active generation/current accepted Version
+```
+
+The anchor condition is **not**:
+
+```text
+candidate happened to return a Facet ANN hit
+```
+
+If the canonical same-Facet membership exists, retrieve/reuse its stored embedding in the fixed Embedding Space and compute the direct source-Facet <-> candidate-Facet cosine for scoring when needed.
+
+This prevents ANN top-k/cap misses from being misinterpreted as semantic absence.
+
+### 5.3 Statement-only cluster is not production-eligible
+
+A Statement hit may add the candidate Object to the union, but no Facet cluster is eligible for Object detail scoring unless the canonical same-Facet anchor exists.
+
+Therefore:
+
+```text
+Statement ANN hit
++ no canonical same-Facet candidate membership
+=> no detail cluster for that Facet
+```
+
+This eliminates the prior D1 single-Statement authority path.
+
+### 5.4 Build Facet clusters before applying local evidence caps
+
+For each canonical anchored Facet F:
 
 ```text
 Facet cluster F
-  facet_similarity(F)          # if admitted
-  statement_similarities(F)    # zero or more admitted same-Facet Statements
+  canonical facet_similarity(F)
+  admitted same-Facet Statement similarities(F)
 ```
 
-Do not move evidence between Facets.
+Do not flatten Facets before clustering.
 
-### 4.2 Statement aggregation inside one Facet
-
-Within a Facet cluster, aggregate admitted Statement cosines by ordinary arithmetic mean:
+The order is:
 
 ```text
-statement_mean(F) = mean(statement similarities in F)
+1. candidate Object union
+2. canonical Facet grouping / anchor resolution
+3. collect same-Facet Statement evidence
+4. apply Facet-local Statement cap
+5. compute Facet cluster score
+6. select winning Facet cluster
+7. combine with overview
 ```
 
-This is intentionally simple. Arithmetic mean has the desired insertion property for non-negative bounded scores:
+The previous global `Statement evidence cap = 3` must not be applied across heterogeneous Facets **before** clusters are formed, because doing so allows one Facet to remove another Facet's local evidence merely by score ordering.
+
+The diagnostic must preserve bounded work and bounded explanation. Any production design must define a Facet-local cap and a final explanation cap explicitly before cutover; this task may not introduce an unbounded all-Statement comparison.
+
+### 5.5 Statement aggregation inside one Facet
+
+Within one anchored Facet cluster:
 
 ```text
-new evidence < current mean  -> new mean decreases
-new evidence > current mean  -> new mean increases
+statement_mean(F) = arithmetic mean(admitted bounded same-Facet Statement cosines)
 ```
 
-No score-order weight, temperature, exponent or threshold is introduced.
-
-### 4.3 Facet-local detail score
-
-Use the existing detail-role weights only, normalized over the evidence roles actually available inside that Facet cluster:
+Arithmetic mean is retained because for bounded non-negative evidence:
 
 ```text
-facet role weight     = .30
-statement role weight = .20
-
-if facet and statements are present:
-    cluster_score(F)
-      = (.30 * facet_similarity(F)
-         + .20 * statement_mean(F)) / .50
-
-if only facet is present:
-    cluster_score(F) = facet_similarity(F)
-
-if only statements are present:
-    cluster_score(F) = statement_mean(F)
+new value < current mean -> mean decreases
+new value > current mean -> mean increases
 ```
 
-The diagnostic must report whether allowing statement-only clusters is safe. Production eligibility is not granted yet for that boundary.
+No score-order discount, exponent, temperature or threshold is introduced.
 
-### 4.4 Object detail score
+### 5.6 Facet-local cluster score
 
-For the diagnostic candidate, select the strongest Facet cluster:
+Use the existing relative detail-role weights:
+
+```text
+facet role     = .30
+statement role = .20
+```
+
+If both canonical Facet cosine and Statement evidence are present:
+
+```text
+cluster_score(F)
+  = (.30 * facet_similarity(F)
+     + .20 * statement_mean(F)) / .50
+```
+
+If the canonical Facet exists but no admitted Statement evidence exists:
+
+```text
+cluster_score(F) = facet_similarity(F)
+```
+
+There is no statement-only branch.
+
+This deliberately treats missing Statement evidence as unknown/not observed, while an actually observed weak Statement is real evidence and lowers the cluster score. That sparse-information behavior must be validated explicitly rather than hidden by a synthetic zero.
+
+### 5.7 Object detail score
+
+Select the strongest complete anchored Facet cluster:
 
 ```text
 best_detail = max_F cluster_score(F)
 ```
 
-Then combine with the overview using the existing top-level allocation:
+The max occurs **between complete Facet clusters**, not between raw Facet or Statement hits.
+
+Then:
 
 ```text
 object_score = .50 * overview + .50 * best_detail
 ```
 
-This preserves the existing total overview/detail authority (`.50` / `.50`) without inventing a new scalar.
-
-The max occurs **between Facet clusters**, not between raw evidence items. Weak Statements inside the winning Facet still affect that cluster score.
-
-## 5. Static replay from the saved exact hits
-
-Using the exact saved Candidate C evidence, Candidate D has the following preliminary values.
-
-### 5.1 Character overall
-
-Facet clusters:
+The existing top-level authority remains:
 
 ```text
-Mika
-personality ~= (.30*.839256714 + .20*.838431183)/.50 = .838926501
-values      ~= (.30*.834150214 + .20*.834553440)/.50 = .834311504
-behavior    ~= statement-only .733286716
-best detail = personality .838926501
-
-Ren
-personality ~= (.30*.828837925 + .20*.826149483)/.50 = .827762548
-values      ~= (.30*.814938735 + .20*.823673158)/.50 = .818432504
-best detail = personality .827762548
+overview = .50
+detail   = .50
 ```
 
-Preliminary Object scores:
+Candidate D therefore defines overall similarity as:
+
+> broad Object-level similarity plus the strongest observed shared canonical Facet.
+
+It does **not** claim that the winning Facet is canonically the most important Facet of either Object.
+
+## 6. Why the revised D differs from Candidate B
+
+Candidate B applies max pooling to raw Facet and raw Statement components separately. A weaker same-Facet Statement can disappear entirely from the score.
+
+Revised Candidate D first binds all Statement evidence to its canonical Facet parent and completes the Facet-local score. Weak same-Facet Statements remain visible through `statement_mean(F)`.
+
+Only then is max applied between completed Facet clusters.
+
+Therefore:
 
 ```text
-Mika = .50*.828102731 + .50*.838926501 = .833514616
-Ren  = .50*.832789060 + .50*.827762548 = .830275804
+same-Facet weak Statement
+  -> affects/lower that Facet-local score
+
+cross-Facet weak cluster
+  -> does not dilute another Facet
+
+stronger complete Facet cluster
+  -> may replace current winner
 ```
 
-This restores Mika with a substantially wider preliminary margin than Candidate C.
+## 7. Static replay status
 
-### 5.2 Work overall
+The previous saved-hit static calculations remain useful only as rough cross-checks because the revised canonical-anchor design may directly recover a Facet cosine even when that Facet was absent from the bounded Facet ANN result.
+
+The prior approximate values were:
 
 ```text
-Ash Garden themes ~= .842605764
-Iron Crown tone   ~= .834102150
-Iron Crown themes ~= .772840207
+Character
+  Mika ~= .833514616
+  Ren  ~= .830275804
 
-Ash Garden = .857757151
-Iron Crown = .846725707
+Work
+  Ash Garden ~= .857757151
+  Iron Crown ~= .846725707
+
+Concept
+  Altruism ~= .825645182
+  Autonomy ~= .819947120
 ```
 
-### 5.3 Concept overall
+These are **not acceptance evidence** and must not be treated as frozen expected scores.
+
+## 8. Risks that must be tested
+
+### 8.1 Facet-only sparse-information advantage
+
+Because missing Statement evidence is not synthesized as zero:
 
 ```text
-Altruism definition ~= .806882959
-Autonomy implications ~= .786106039
-Autonomy definition   ~= .767737741
+Candidate X
+facet=.80, no admitted Statements
+cluster=.80
 
-Altruism = .825645182
-Autonomy = .819947120
+Candidate Y
+facet=.80, statement=.20
+cluster=(.30*.80 + .20*.20)/.50=.56
 ```
 
-These are static calculations only. They are not acceptance evidence.
+This is mathematically intentional under `missing = unknown`, but it can create a sparse-information advantage if Knowledge density differs greatly between Objects.
 
-## 6. Why this candidate is different from Candidate B
-
-Candidate B performs max pooling over raw Facet hits and raw Statement hits independently. A weaker second Statement can therefore disappear from the score entirely.
-
-Candidate D first binds Statement evidence to its canonical Facet parent and computes a Facet-local score. Weak same-Facet Statements remain visible through `statement_mean(F)`.
-
-Only after the Facet-local score is complete does the Object-level detail selector choose the strongest semantic Facet.
-
-Therefore the next probes must distinguish:
+Required probe:
 
 ```text
-same-Facet weak evidence      -> must affect/lower that Facet-local score
-cross-Facet weak evidence     -> must not automatically dilute another Facet
-new stronger Facet cluster    -> may replace the previous winning Facet
+facet-only
+vs
+facet + weak Statement
+vs
+facet + strong Statement
 ```
 
-## 7. Risks that must be tested before any production change
+The design review must judge whether this semantic behavior is acceptable for SGOKB overall similarity.
 
-### 7.1 Statement-only cluster risk
+### 8.2 Max-over-Facet semantics / maximum-selection bias
 
-A high Statement with no admitted Facet representation could become a winning cluster. Test both:
+Max-over-Facet removes breadth/coverage reward, but an Object with more comparable Facets has more chances to obtain a high maximum.
 
-- permissive diagnostic: statement-only cluster allowed;
-- anchored diagnostic: cluster eligible for Object detail only when an admitted Facet representation exists.
+Required probes must compare Objects with different counts of valid shared Facets and verify that a broad Object does not win merely from an accidental single spike.
 
-This is a bounded architectural comparison, not a parameter sweep.
+Do not add a Facet-count bonus or threshold in this task.
 
-If the permissive form creates a single-hit spike and the anchored form preserves legitimate cases, prefer the anchored contract for the next design review. Do not implement either yet.
+### 8.3 Local cap ordering
 
-### 7.2 Max-over-Facet semantics
+Facet clusters must be formed before Statement evidence is capped for local scoring. The diagnostic must prove that evidence from one Facet cannot evict another Facet's local evidence merely because of a global score ordering.
 
-Candidate D intentionally says that overall Object similarity should be anchored by the strongest shared semantic Facet plus overview, rather than by breadth of matching Facet count.
+### 8.4 Canonical anchor versus retrieval artifact
 
-This must be tested against synthetic cases where:
+A candidate discovered through Statement ANN but missing from Facet ANN must still be scoreable when the canonical same-Facet membership exists.
 
-- one Facet is very strong and another is weak;
-- two moderate Facets should not automatically beat one genuinely strong Facet;
-- a stronger new Facet should improve the score;
-- a weak unrelated new Facet should not reduce the score;
-- within the winning Facet, weaker Statements must reduce its local score.
+Conversely, if no canonical same-Facet membership exists, Statement evidence may not fabricate that Facet cluster.
 
-### 7.3 Explainability
+### 8.5 Explainability
 
-Expose:
+Expose at minimum:
 
-- Facet cluster identity;
-- Facet cosine;
-- all admitted same-Facet Statement cosines;
+- winning canonical Facet identity;
+- canonical Facet membership / representation IDs;
+- direct Facet cosine;
+- all admitted same-Facet Statement IDs/cosines used by the cluster;
 - Statement mean;
-- normalized local role contributions;
-- winning detail Facet;
+- local role contributions;
 - overview contribution;
-- final Object score.
+- final score.
 
-Do not call the winning Facet canonically more important. It is only the strongest observed shared Facet for this query/object comparison.
+The winning Facet is score-derived comparison evidence, not canonical importance.
 
-## 8. Diagnostic acceptance boundary
+## 9. Diagnostic acceptance boundary
 
-Candidate D is not production-eligible from static replay alone.
+The prior D1/D2 comparison is superseded.
 
-The next local task is diagnostic-first. It must compare exactly two structural forms:
+The next local task evaluates exactly one revised architecture:
 
 ```text
-D1 = Facet-cluster max, statement-only clusters allowed
-D2 = Facet-cluster max, admitted Facet anchor required
+Candidate D revised
+= canonical-Facet anchored Facet-cluster hierarchical aggregation
 ```
-
-Both use the same fixed formulas above. No scalar tuning is allowed.
 
 Required checks:
 
 - four frozen Phase-I Similarity cases;
 - R2SIM-G01..G06;
-- existing first-round probes reinterpreted at the correct Facet boundary;
 - same-Facet weak-evidence monotonicity;
+- same-Facet strong-evidence monotonicity;
 - cross-Facet weak-evidence non-dilution;
 - stronger-Facet replacement;
-- single-Statement spike guard;
-- statement-only legitimate-match probe;
-- permutation invariance inside a Facet;
+- Statement-only discovery with canonical Facet anchor present;
+- Statement evidence with canonical Facet anchor absent must not create detail authority;
+- facet-only sparse-information behavior;
+- maximum-selection / Facet-count spike guard;
+- cluster-before-cap ordering;
+- permutation invariance inside one Facet;
 - duplicate source-query protection;
 - fixed Character perturbation report;
 - Facet-specific Similarity unchanged;
-- R2-05 Semantic/Hybrid unchanged if and only if a candidate reaches full verification.
+- generation/current/history/source exclusion unchanged;
+- R2-05 Semantic/Hybrid unchanged only if Candidate D reaches full verification.
 
-If neither D1 nor D2 satisfies the structural probes and frozen cases, stop and return to design review. Do not search numerical parameters.
+If any structural property fails, stop and return to design review. Do not search numerical parameters.
 
-## 9. Status
+## 10. Resource boundary
+
+Candidate D may change scorer-local lookup/aggregation work but must not reopen unbounded retrieval.
+
+Frozen ANN acquisition remains:
+
+```text
+source Facet queries <= 8
+source Statement queries <= 12
+ANN calls <= 21
+raw ANN hit slots <= 464
+candidate Objects <= 128
+```
+
+Canonical anchor resolution and direct Facet cosine reuse must be bounded by the candidate set and selected source Facets. Stored embeddings must be reused; do not re-embed canonical text per query.
+
+Before production cutover, define and verify:
+
+- maximum canonical anchor lookups;
+- maximum direct Facet cosine calculations;
+- Facet-local Statement evidence cap;
+- final explanation cap.
+
+No unbounded all-source-Statement x all-candidate-Statement comparison is permitted.
+
+## 11. Status
 
 ```text
 R2-05 Semantic remediation = Complete / verified
 R2-06 Candidate A = Rejected
 R2-06 Candidate B = Rejected
 R2-06 Candidate C = Rejected
-R2-06 third design review = Complete
-R2-06 Candidate D diagnostic ablation = Pending
+R2-06 Candidate D original D1/D2 draft = Superseded
+R2-06 Candidate D revised canonical-anchor diagnostic = Pending
 R2-08 = FAIL / Not Complete
 R2-09 = Blocked / Not Started
 ```
