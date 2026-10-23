@@ -3,7 +3,7 @@
 Updated: 2026-10-23
 
 - Parent: `N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign`
-- Status: **Active / R2-01-R2-05 Complete / R2-06 Next**
+- Status: **Active / R2-01-R2-06 Complete / R2-07 Next**
 - Formal N-05: **BLOCKED / Not Complete**
 - Design plan: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
 - R2-01 freeze: `docs/planning/phases/N/N05/N05D04R2_IMPACT_SURVEY.md`
@@ -23,9 +23,9 @@ R2-03 Persistence/versioning/migration design          Complete
 R2-04 object_overview builder implementation           Complete
   ↓ runtime verification PASS
 R2-05 Hybrid Search migration                          Complete
-R2-06 Hierarchical Object Similarity redesign          Next / Not Started
+R2-06 Hierarchical Object Similarity redesign          Complete
           ↓
-R2-07 Derived Search rebuild / cutover / rollback
+R2-07 Derived Search rebuild / cutover / rollback      Next / Not Started
           ↓
 R2-08 Search-quality acceptance
           ↓
@@ -45,8 +45,8 @@ Do not start R2-05/R2-06 until the R2-04 runtime verification gate passes. Do no
 | R2-03 | P0 | **Complete / Design Freeze** | `object_overview` persistence、builder version、generation/cutover/rollbackを設計 |
 | R2-04 | P0 | **Complete** | deterministic compact `object_overview` builderとmaterializationを実装し、focused/runtime evidenceでexitを確認 |
 | R2-05 | P0 | **Complete** | Hybrid Searchを`object_overview + facet + statement`へ移行 |
-| R2-06 | P0 | **Next / Not Started** | overall Object Similarityをhierarchical multi-vector方式へ再設計・実装 |
-| R2-07 | P0 | Not Started | Derived Search side-by-side rebuild / Qdrant cutover / rollbackを実装・検証 |
+| R2-06 | P0 | **Complete** | overall Object Similarityをhierarchical multi-vector方式へ再設計・実装 |
+| R2-07 | P0 | **Next / Not Started** | Derived Search side-by-side rebuild / Qdrant cutover / rollbackを実装・検証 |
 | R2-08 | P0 | Not Started | frozen gold拡張、quality acceptance、N-06影響確認 |
 | R2-09 | P0 | Not Started | resource acceptance後、新run_idでformal N-05を全46 sample再実行 |
 | R2-10 | P0 | Not Started | docs / decision / closure auditを更新しN-05 final stateを確定 |
@@ -393,6 +393,16 @@ Existing Hybrid gold passes or any deliberate ranking change is justified by new
 
 ## R2-06 [P0] — Hierarchical Object Similarity redesign
 
+### Status
+
+**Complete / runtime verification PASS (2026-10-23).** Candidate B uses frozen
+1/8/12 source queries, 128/24/12 query limits, weights 0.50/0.30/0.20 and evidence
+caps 1/2/3. G01-G06, generation/history isolation, active-v1, Facet and public
+Application/CLI/MCP compatibility PASS; 158 unique relevant tests passed.
+[Implementation and verification record](N05D04R2_HIERARCHICAL_OBJECT_SIMILARITY.md).
+
+The design alternatives below are the original selection requirements.
+
 ### Goal
 
 Remove the one-giant-vector assumption from `find_similar_objects(facet=None)`.
@@ -636,16 +646,18 @@ A model change requires a new Embedding Space identity, full Derived Search rebu
 
 ## 4. Current next task
 
-**R2-05 = Complete. Next: R2-06 [P0] - Hierarchical Object Similarity redesign.**
+**R2-06 = Complete. Next: R2-07 [P0] — Derived Search rebuild / cutover / rollback
+(Next / Not Started).**
 
-R2-05 runtime evidence: active generation lexical/semantic isolation,
-object_overall exclusion, explicit v1/R2 channel identities, one resolve/request,
-payload mismatch error, Facet no-fallback, Statement-only temporal/derivation
-filters, current/history isolation, bounded caps/RRF/exact priorities and semantic
-degradation PASS. Relevant tests total 117 non-overlapping passes. Details:
-[R2-05 runtime record](N05D04R2_HYBRID_SEARCH_MIGRATION.md).
+R2-06 runtime verification: 158 unique relevant tests PASS, including Qdrant
+in-memory Similarity/Hybrid/Vector regressions; frozen G01-G06, bounded work,
+generation integrity, `object_overall` exclusion, historical source/current
+candidate, active-v1 and Facet-specific compatibility, and Application/CLI/MCP
+serialization all PASS. Ruff `src tests`, scoped format (8 files) and diff checks
+PASS. Repository-wide Ruff retains only the documented unrelated
+`n05_resource_preflight.py:69 E501`; it was not changed.
 
-R1 uncommitted assets remain preserved in the original workspace. R2-06 is
-**Next / Not Started**; R2-07, production generation/namespace cutover, v1 artifact
-retirement and formal N-05 rerun were not performed. N-05 remains BLOCKED /
-Not Complete.
+Details: [R2-06 runtime record](N05D04R2_HIERARCHICAL_OBJECT_SIMILARITY.md).
+R1 uncommitted assets remain preserved in the original workspace. R2-07,
+production generation/namespace cutover, v1 artifact retirement and formal N-05
+rerun were not performed. N-05 remains BLOCKED / Not Complete.

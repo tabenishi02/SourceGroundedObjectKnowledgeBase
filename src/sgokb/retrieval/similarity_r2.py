@@ -175,9 +175,7 @@ class ObjectSimilaritySearch(_PhaseIObjectSimilaritySearch):
             )[:R2_SOURCE_FACET_QUERY_CAP]
         )
         statement_rows = [
-            row
-            for row in rows
-            if row["target_kind"] == "statement" and row["facet_id"] is not None
+            row for row in rows if row["target_kind"] == "statement" and row["facet_id"] is not None
         ]
         statements = self._round_robin_statements(statement_rows)
         return overviews[0], facets, statements
@@ -319,9 +317,7 @@ class ObjectSimilaritySearch(_PhaseIObjectSimilaritySearch):
         )
         for hit in hits:
             self._verify_payload_generation(hit, generation)
-        details = self._generation_target_rows(
-            tuple(hit.point_id for hit in hits), generation
-        )
+        details = self._generation_target_rows(tuple(hit.point_id for hit in hits), generation)
         best_by_object: dict[str, _ComponentHit] = {}
         for hit in hits:
             candidate = details.get(hit.point_id)
@@ -372,9 +368,7 @@ class ObjectSimilaritySearch(_PhaseIObjectSimilaritySearch):
             for component in ("overview", "facet", "statement")
             if source_counts.get(component, 0) > 0
         ]
-        active_weight = sum(
-            R2_COMPONENT_WEIGHTS[component] for component in active_components
-        )
+        active_weight = sum(R2_COMPONENT_WEIGHTS[component] for component in active_components)
         evidence: list[ObjectSimilarityEvidence] = []
         final_score = 0.0
         for component in active_components:
@@ -386,9 +380,7 @@ class ObjectSimilaritySearch(_PhaseIObjectSimilaritySearch):
             )[:cap]
             normalized_weight = R2_COMPONENT_WEIGHTS[component] / active_weight
             for hit in component_hits:
-                contribution = (
-                    normalized_weight * self._bounded_cosine(hit.raw_score) / slots
-                )
+                contribution = normalized_weight * self._bounded_cosine(hit.raw_score) / slots
                 final_score += contribution
                 evidence.append(
                     ObjectSimilarityEvidence(
@@ -432,9 +424,7 @@ class ObjectSimilaritySearch(_PhaseIObjectSimilaritySearch):
             raise RuntimeError("Hierarchical Similarity candidate has no inspectable evidence")
         membership_id = evidence[0].candidate_membership_id
         return next(
-            hit.candidate
-            for hit in hits
-            if hit.candidate["membership_id"] == membership_id
+            hit.candidate for hit in hits if hit.candidate["membership_id"] == membership_id
         )
 
     def _r2_overall_similarity(
@@ -519,9 +509,7 @@ class ObjectSimilaritySearch(_PhaseIObjectSimilaritySearch):
                 membership_id=anchor["membership_id"],
                 evidence=evidence,
             )
-            for rank, (_, score, evidence, anchor) in enumerate(
-                scored[:limit], start=1
-            )
+            for rank, (_, score, evidence, anchor) in enumerate(scored[:limit], start=1)
         )
         return ObjectSimilarityResponse(
             source_object_id=source["object_id"],
@@ -572,9 +560,7 @@ class ObjectSimilaritySearch(_PhaseIObjectSimilaritySearch):
         )
         for hit in hits:
             self._verify_payload_generation(hit, generation)
-        details = self._generation_target_rows(
-            tuple(hit.point_id for hit in hits), generation
-        )
+        details = self._generation_target_rows(tuple(hit.point_id for hit in hits), generation)
         best_by_object: dict[str, tuple[float, int, dict]] = {}
         for hit in hits:
             row = details.get(hit.point_id)

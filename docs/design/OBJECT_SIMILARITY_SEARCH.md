@@ -2,7 +2,7 @@
 
 更新日: 2026-10-23
 
-- Status: **Phase-I v1 implemented / R2-02 v2 semantics frozen / R2-06 implementation pending**
+- Status: **Phase-I v1 implemented / R2-02 v2 semantics frozen / R2-06 Complete / runtime verified**
 - Original task: `I-05 [P0] find_similar_objects`
 - Superseding task: `N05D-04R2 / R2-02 Requirements + representation contract revision`
 - Prerequisites:
@@ -55,7 +55,7 @@ Candidate Objects
 1 Object = 1 similarity result
 ```
 
-Semantic components that the R2-06 algorithm must combine/evaluate are:
+The verified R2-06 algorithm combines:
 
 ```text
 overview <-> overview
@@ -65,7 +65,7 @@ bounded Statement-level evidence
 
 `object_overview` provides broad Object-level context but is **not** semantically equivalent to complete detailed Knowledge.
 
-The exact bounded numerical algorithm, candidate limits, component caps, and any weights are selected and benchmarked in R2-06. They are implementation choices inside the fixed semantics in this document; R2-06 may not return to the one-giant-vector design.
+R2-06 selects candidate B and fixes the formula, query limits and evidence caps in Section 16. Local deterministic gold/regression verification passes; production cutover and real-model quality/performance acceptance remain later tasks.
 
 ---
 
@@ -209,7 +209,7 @@ raw_score_type = cosine_similarity
 
 within the fixed Harrier Embedding Space.
 
-R2-06 must document the selected formula so the numerical meaning of `hierarchical_similarity` is reproducible.
+Section 16 defines the selected formula so the numerical meaning of `hierarchical_similarity` is reproducible.
 
 ### 8.2 Facet mode
 
@@ -357,7 +357,7 @@ raw_score_type             # cosine_similarity
 contribution               # selected algorithm's bounded contribution
 ```
 
-The serialized DTO name/shape is R2-06 implementation work. The information semantics are frozen.
+`ObjectSimilarityEvidence` implements these frozen information semantics as additive result evidence; the existing result fields remain available.
 
 Do not emit an unbounded list of every Statement pair merely for explanation.
 
@@ -440,26 +440,39 @@ Hybrid RRF and overall Similarity aggregation are separate contracts even if R2-
 
 ---
 
-## 16. R2-06 design space
+## 16. Verified R2-06 algorithm
 
-R2-06 must evaluate bounded algorithms such as:
+Candidate B is implemented: overview + same-Facet + bounded same-Facet Statement
+candidate union, followed by bounded component aggregation. Candidate A loses
+child-only discovery; candidate C does not preserve inspectable detailed evidence.
+The implementation record documents the selection rationale and tie-breaking:
+[Hierarchical Object Similarity](../planning/phases/N/N05/N05D04R2_HIERARCHICAL_OBJECT_SIMILARITY.md).
 
-```text
-A. overview candidate generation + Facet/Statement rerank
-B. overview + Facet multi-channel candidate union + bounded score aggregation
-C. derived aggregate from existing child vectors, only if semantics/quality are demonstrated
-```
+| Component | Source queries | Hits per query | Base weight | Evidence cap |
+|---|---:|---:|---:|---:|
+| overview | 1 | 128 | 0.50 | 1 |
+| Facet | 8 | 24 | 0.30 | 2 |
+| Statement | 12 | 12 | 0.20 | 3 |
 
-Do not select solely by implementation simplicity.
+Select Facets by canonical key, then select faceted Statements deterministically
+by round-robin over canonical Facets. Every query excludes the source before its
+limit, and filters generation/current membership, Class and exact Facet as applicable.
+Per source query retain only the best hit per candidate Object. The maximum work
+is 21 ANN calls / 464 returned hit slots. Aggregate and deterministically order
+Objects, then cap candidates at 128 before applying the caller's result limit.
 
-The selected algorithm must satisfy the invariants in Section 3 and new gold cases where:
+For active source components, normalize their base weights to sum to one. For
+component `j`, `slots_j = min(evidence_cap_j, selected_source_count_j)`. Preserve raw
+cosine in evidence, but use `max(0, min(1, cosine))` for ranking. Sum the top capped
+bounded cosines, divide by `slots_j`, then multiply by the normalized component
+weight. Missing candidate evidence contributes zero. Sum the component contributions
+for `hierarchical_similarity` in `[0,1]`. Explanation is capped at six items.
 
-- overview/name/summary alone is insufficient;
-- detailed Facet semantics determine similarity;
-- a small number of important Statements determine similarity;
-- a very large Object with many irrelevant Statements does not outrank a genuinely similar smaller Object merely by volume.
-
-R2-06 fixes the formula/caps through quality + latency evidence.
+G01-G06 deterministic gold contracts pass: Facet/Statement tie-breaking, no count
+boost, canonical Facet boundary, generation/history integrity and boundedness.
+These checks establish bounded work and deterministic semantics; they do not claim
+measured production ANN latency or real-model retrieval quality. R2-07 remains
+Not Started; R2-08/R2-09 retain quality/resource/performance acceptance.
 
 ---
 
@@ -520,16 +533,19 @@ no object_overall active fallback
 no unbounded Statement cross-product
 ```
 
-Not selected until R2-06:
+Selected and locally verified in R2-06:
 
 ```text
-exact candidate-generation algorithm
-exact per-channel candidate limits
-exact Statement evidence selector
-exact aggregation formula
-exact weights/caps inside hierarchical_similarity
+candidate B: overview + same-Facet + same-Facet Statement union
+query caps 1/8/12; per-query limits 128/24/12
+21 ANN calls; 464 raw hit slots; 128 candidate Objects
+weights 0.50/0.30/0.20; contribution/evidence caps 1/2/3
+bounded cosine, active-source weight normalization, deterministic ordering
 ```
 
-These are implementation-algorithm decisions, not open semantic contract questions.
+Pre-cutover and active Phase-I v1 generations retain `object_overall` raw-cosine
+semantics. Only an active R2 generation uses the hierarchical family. Application,
+CLI and MCP require no new representation/generation arguments; additive evidence,
+source membership and generation identifiers preserve the base output fields.
 
-**Status: R2-02 Similarity semantics frozen / R2-06 design+implementation pending.**
+**Status: R2-02 semantics frozen / R2-06 Complete / R2-07 Next, Not Started.**

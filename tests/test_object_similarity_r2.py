@@ -1,7 +1,10 @@
+import importlib
+import json
 import math
 
 import pytest
 
+from sgokb.application_read import KnowledgeReadApplication
 from sgokb.domain import (
     DerivationKind,
     EmbeddingSpaceSpec,
@@ -12,6 +15,7 @@ from sgokb.domain import (
     VectorSearchFilter,
     VectorSearchHit,
 )
+from sgokb.mcp import MCPReadAdapter
 from sgokb.repository import Repository
 from sgokb.retrieval import (
     KnowledgeVectorIndexBuilder,
@@ -26,6 +30,7 @@ class FakeVectorIndex:
     def __init__(self):
         self.points = {}
         self.search_filters = []
+        self.search_limits = []
 
     @staticmethod
     def _matches(point, filters):
@@ -54,6 +59,7 @@ class FakeVectorIndex:
 
     def search(self, space, query_vector, *, limit, filters=None):
         self.search_filters.append(filters)
+        self.search_limits.append(limit)
         query_length = math.sqrt(sum(value * value for value in query_vector))
         scored = []
         for point in self.points.values():
@@ -101,9 +107,7 @@ class GenerationBlindFakeVectorIndex(FakeVectorIndex):
     def search(self, space, query_vector, *, limit, filters=None):
         if filters is not None:
             filters = VectorSearchFilter(
-                matches=tuple(
-                    item for item in filters.matches if item.field != "generation_id"
-                ),
+                matches=tuple(item for item in filters.matches if item.field != "generation_id"),
                 excludes=filters.excludes,
                 ranges=filters.ranges,
             )
@@ -162,9 +166,7 @@ def _evidence(repo, suffix):
         "a" * 64,
         10,
     )
-    run_id = repo.source_store.create_normalization_run(
-        snapshot_id, "fixture", "1", [artifact_id]
-    )
+    run_id = repo.source_store.create_normalization_run(snapshot_id, "fixture", "1", [artifact_id])
     return repo.source_store.add_evidence(
         run_id,
         f"Evidence for {suffix}",
@@ -174,9 +176,7 @@ def _evidence(repo, suffix):
 
 
 def _accepted_r2(repo, object_id, version_id, statements, *, base=None):
-    version_id = repo.version_store.begin_candidate(
-        object_id, base, version_id=version_id
-    )
+    version_id = repo.version_store.begin_candidate(object_id, base, version_id=version_id)
     evidence_id = _evidence(repo, version_id)
     seen_facets = set()
     for index, item in enumerate(statements):
@@ -185,9 +185,7 @@ def _accepted_r2(repo, object_id, version_id, statements, *, base=None):
         if facet_key is not None:
             facet_id = repo.semantic_store.facet_by_key(facet_key).facet_id
             if facet_id not in seen_facets:
-                repo.semantic_store.set_version_facet(
-                    version_id, facet_id, FacetStatus.CONTENT
-                )
+                repo.semantic_store.set_version_facet(version_id, facet_id, FacetStatus.CONTENT)
                 seen_facets.add(facet_id)
         statement_id = repo.semantic_store.add_statement(
             version_id,
@@ -206,7 +204,7 @@ def _accepted_r2(repo, object_id, version_id, statements, *, base=None):
     return version_id
 
 
-def _activate_r2_generation(repo, generation_id="test-r2-similarity-generation"):
+def _activate_generation(repo, generation_id="test-r2-similarity-generation", *, r2=True):
     now = "2026-10-23T00:00:00Z"
     repo.db.execute(
         """INSERT INTO knowledge_search_generations(
@@ -215,8 +213,8 @@ def _activate_r2_generation(repo, generation_id="test-r2-similarity-generation")
            ) VALUES(?,?,?,?,?,?,?,?)""",
         (
             generation_id,
-            "n05d04r2-hierarchical-v2",
-            2,
+            "n05d04r2-hierarchical-v2" if r2 else "phase-i-search-v1",
+            2 if r2 else 1,
             "ready",
             "a" * 64,
             "b" * 64,
@@ -226,7 +224,8 @@ def _activate_r2_generation(repo, generation_id="test-r2-similarity-generation")
     )
     rows = repo.db.execute(
         """SELECT id FROM knowledge_search_representation_memberships
-           WHERE target_kind IN ('object_overview','facet','statement') ORDER BY id"""
+           WHERE target_kind IN (?,'facet','statement') ORDER BY id""",
+        ("object_overview" if r2 else "object_overall",),
     ).fetchall()
     for row in rows:
         repo.db.execute(
@@ -265,18 +264,14 @@ def _save_embeddings(repo, space, vector_for):
         if representation_id in saved:
             continue
         vector = vector_for(row)
-        repo.embedding_store.save_representation_embedding(
-            space, representation_id, list(vector)
-        )
+        repo.embedding_store.save_representation_embedding(space, representation_id, list(vector))
         saved.add(representation_id)
 
 
 def _finder(repo, space, generation_id, vector_for, index=None):
     _save_embeddings(repo, space, vector_for)
     index = index or FakeVectorIndex()
-    KnowledgeVectorIndexBuilder(
-        repo, index, generation_id=generation_id
-    ).rebuild(space)
+    KnowledgeVectorIndexBuilder(repo, index, generation_id=generation_id).rebuild(space)
     return ObjectSimilaritySearch(repo, space=space, vector_index=index), index
 
 
@@ -314,7 +309,7 @@ def test_r2_overall_uses_detail_facet_when_overviews_are_indistinguishable(repo,
     _accepted_r2(repo, source, "source-v1", [{"facet": "personality", "text": "kind"}])
     _accepted_r2(repo, near, "near-v1", [{"facet": "personality", "text": "kindish"}])
     _accepted_r2(repo, far, "far-v1", [{"facet": "personality", "text": "cold"}])
-    generation = _activate_r2_generation(repo)
+    generation = _activate_generation(repo)
     finder, _ = _finder(
         repo,
         space,
@@ -335,7 +330,9 @@ def test_r2_overall_uses_detail_facet_when_overviews_are_indistinguishable(repo,
     assert response.results[0].object_id == near
     assert response.results[0].score_type == "hierarchical_similarity"
     assert any(item.component == "facet" for item in response.results[0].evidence)
-    assert all(item.representation_kind != "object_overall" for item in response.results[0].evidence)
+    assert all(
+        item.representation_kind != "object_overall" for item in response.results[0].evidence
+    )
 
 
 def test_r2_statement_evidence_can_break_overview_and_facet_tie(repo, space):
@@ -347,10 +344,8 @@ def test_r2_statement_evidence_can_break_overview_and_facet_tie(repo, space):
         (near, "near-v1", "protect companions"),
         (far, "far-v1", "prefer solitude"),
     ):
-        _accepted_r2(
-            repo, object_id, version, [{"facet": "values", "text": text}]
-        )
-    generation = _activate_r2_generation(repo)
+        _accepted_r2(repo, object_id, version, [{"facet": "values", "text": text}])
+    generation = _activate_generation(repo)
     finder, _ = _finder(
         repo,
         space,
@@ -392,7 +387,7 @@ def test_many_irrelevant_candidate_statements_do_not_create_count_boost(repo, sp
         "large-v1",
         [{"facet": "values", "text": f"irrelevant-{index}"} for index in range(40)],
     )
-    generation = _activate_r2_generation(repo)
+    generation = _activate_generation(repo)
 
     def vectors(row):
         if row["target_kind"] in {"object_overview", "facet"}:
@@ -417,7 +412,7 @@ def test_r2_same_facet_boundary_prevents_cross_facet_statement_match(repo, space
     _accepted_r2(repo, source, "source-v1", [{"facet": "personality", "text": "shared"}])
     _accepted_r2(repo, good, "good-v1", [{"facet": "personality", "text": "shared-good"}])
     _accepted_r2(repo, wrong, "wrong-v1", [{"facet": "values", "text": "shared-wrong"}])
-    generation = _activate_r2_generation(repo)
+    generation = _activate_generation(repo)
     finder, _ = _finder(
         repo,
         space,
@@ -443,16 +438,13 @@ def test_source_is_excluded_in_vector_filter_before_candidate_limit(repo, space)
     target = repo.object_store.create_object("Target", _class(repo, "character"))
     _accepted_r2(repo, source, "source-v1", [])
     _accepted_r2(repo, target, "target-v1", [])
-    generation = _activate_r2_generation(repo)
+    generation = _activate_generation(repo)
     finder, index = _finder(repo, space, generation, lambda row: (1.0, 0.0, 0.0))
     response = finder.find_similar_objects(source)
     assert response.results[0].object_id == target
     assert index.search_filters
     for filters in index.search_filters:
-        assert any(
-            item.field == "object_id" and source in item.values
-            for item in filters.excludes
-        )
+        assert any(item.field == "object_id" and source in item.values for item in filters.excludes)
 
 
 def test_same_class_default_and_cross_class_override(repo, space):
@@ -465,7 +457,7 @@ def test_same_class_default_and_cross_class_override(repo, space):
         (work, "work-v1"),
     ):
         _accepted_r2(repo, object_id, version, [])
-    generation = _activate_r2_generation(repo)
+    generation = _activate_generation(repo)
     finder, _ = _finder(
         repo,
         space,
@@ -488,11 +480,18 @@ def test_historical_source_uses_historical_vectors_but_candidates_are_current(re
     source = repo.object_store.create_object("Source", _class(repo, "character"))
     left = repo.object_store.create_object("Left", _class(repo, "character"))
     right = repo.object_store.create_object("Right", _class(repo, "character"))
-    first = _accepted_r2(repo, source, "source-v1", [])
-    _accepted_r2(repo, source, "source-v2", [], base=first)
-    _accepted_r2(repo, left, "left-v1", [])
+    first = _accepted_r2(repo, source, "source-v1", [{"text": "Historical summary"}])
+    _accepted_r2(repo, source, "source-v2", [{"text": "Current summary"}], base=first)
+    overview_ids = {
+        row["representation_id"]
+        for row in _membership_rows(repo)
+        if row["object_id"] == source and row["target_kind"] == "object_overview"
+    }
+    assert len(overview_ids) == 2
+    old_left = _accepted_r2(repo, left, "left-v0", [{"text": "Obsolete candidate"}])
+    _accepted_r2(repo, left, "left-v1", [], base=old_left)
     _accepted_r2(repo, right, "right-v1", [])
-    generation = _activate_r2_generation(repo)
+    generation = _activate_generation(repo)
     finder, _ = _finder(
         repo,
         space,
@@ -510,6 +509,8 @@ def test_historical_source_uses_historical_vectors_but_candidates_are_current(re
     current = finder.find_similar_objects(source)
     assert historical.source_version_id == "source-v1"
     assert historical.results[0].object_id == left
+    assert historical.results[0].version_id == "left-v1"
+    assert all(result.version_id != "left-v0" for result in historical.results)
     assert current.source_version_id == "source-v2"
     assert current.results[0].object_id == right
 
@@ -519,7 +520,7 @@ def test_active_generation_isolation_and_object_overall_exclusion(repo, space):
     target = repo.object_store.create_object("Target", _class(repo, "character"))
     _accepted_r2(repo, source, "source-v1", [{"facet": "values", "text": "source"}])
     _accepted_r2(repo, target, "target-v1", [{"facet": "values", "text": "target"}])
-    generation = _activate_r2_generation(repo)
+    generation = _activate_generation(repo)
     finder, index = _finder(repo, space, generation, lambda row: (1.0, 0.0, 0.0))
     assert {point.metadata["generation_id"] for point in index.points.values()} == {generation}
     assert "object_overall" not in {point.metadata["kind"] for point in index.points.values()}
@@ -537,11 +538,9 @@ def test_generation_payload_mismatch_is_integrity_error(repo, space):
     target = repo.object_store.create_object("Target", _class(repo, "character"))
     _accepted_r2(repo, source, "source-v1", [])
     _accepted_r2(repo, target, "target-v1", [])
-    generation = _activate_r2_generation(repo)
+    generation = _activate_generation(repo)
     index = GenerationBlindFakeVectorIndex()
-    finder, index = _finder(
-        repo, space, generation, lambda row: (1.0, 0.0, 0.0), index=index
-    )
+    finder, index = _finder(repo, space, generation, lambda row: (1.0, 0.0, 0.0), index=index)
     target_point = next(
         point
         for point in index.points.values()
@@ -561,7 +560,7 @@ def test_generation_is_resolved_once_per_similarity_operation(repo, space):
     target = repo.object_store.create_object("Target", _class(repo, "character"))
     _accepted_r2(repo, source, "source-v1", [{"facet": "values", "text": "source"}])
     _accepted_r2(repo, target, "target-v1", [{"facet": "values", "text": "target"}])
-    generation = _activate_r2_generation(repo)
+    generation = _activate_generation(repo)
     finder, index = _finder(repo, space, generation, lambda row: (1.0, 0.0, 0.0))
 
     class CountingFinder(ObjectSimilaritySearch):
@@ -581,27 +580,26 @@ def test_generation_is_resolved_once_per_similarity_operation(repo, space):
 def test_source_query_count_and_result_evidence_are_bounded(repo, space):
     source = repo.object_store.create_object("Source", _class(repo, "character"))
     target = repo.object_store.create_object("Target", _class(repo, "character"))
+    facet_keys = [
+        row["key"]
+        for row in repo.db.execute(
+            "SELECT key FROM facet_definitions ORDER BY key LIMIT 10"
+        ).fetchall()
+    ]
+    assert len(facet_keys) == 10
     statements = [
-        {"facet": "personality", "text": f"source-personality-{index}"}
-        for index in range(20)
-    ] + [
-        {"facet": "values", "text": f"source-values-{index}"}
-        for index in range(20)
+        {"facet": key, "text": f"source-{key}-{index}"} for key in facet_keys for index in range(3)
     ]
     _accepted_r2(repo, source, "source-v1", statements)
     _accepted_r2(
-        repo,
-        target,
-        "target-v1",
-        [
-            {"facet": "personality", "text": "target-personality"},
-            {"facet": "values", "text": "target-values"},
-        ],
+        repo, target, "target-v1", [{"facet": key, "text": f"target-{key}"} for key in facet_keys]
     )
-    generation = _activate_r2_generation(repo)
+    generation = _activate_generation(repo)
     finder, index = _finder(repo, space, generation, lambda row: (1.0, 0.0, 0.0))
     response = finder.find_similar_objects(source)
-    assert len(index.search_filters) <= 1 + 8 + 12
+    assert len(index.search_filters) == 1 + 8 + 12
+    assert index.search_limits == [128] + [24] * 8 + [12] * 12
+    assert sum(index.search_limits) == 464
     assert len(response.results[0].evidence) <= 1 + 2 + 3
     assert 0.0 <= response.results[0].score <= 1.0
 
@@ -613,7 +611,7 @@ def test_active_r2_facet_similarity_remains_same_facet_raw_cosine(repo, space):
     _accepted_r2(repo, source, "source-v1", [{"facet": "personality", "text": "source"}])
     _accepted_r2(repo, near, "near-v1", [{"facet": "personality", "text": "near"}])
     _accepted_r2(repo, wrong, "wrong-v1", [{"facet": "values", "text": "wrong"}])
-    generation = _activate_r2_generation(repo)
+    generation = _activate_generation(repo)
     finder, _ = _finder(
         repo,
         space,
@@ -631,6 +629,8 @@ def test_active_r2_facet_similarity_remains_same_facet_raw_cosine(repo, space):
     assert response.results[0].score_type == "cosine_similarity"
     assert response.results[0].matched_facet == "personality"
     assert wrong not in {item.object_id for item in response.results}
+    with pytest.raises(ValueError, match="no content Facet"):
+        finder.find_similar_objects(source, facet="values")
 
 
 def test_qdrant_r2_hierarchical_similarity_smoke(repo, space):
@@ -641,16 +641,107 @@ def test_qdrant_r2_hierarchical_similarity_smoke(repo, space):
     target = repo.object_store.create_object("Target", _class(repo, "character"))
     _accepted_r2(repo, source, "source-v1", [{"facet": "values", "text": "source"}])
     _accepted_r2(repo, target, "target-v1", [{"facet": "values", "text": "target"}])
-    generation = _activate_r2_generation(repo)
+    generation = _activate_generation(repo)
     _save_embeddings(repo, space, lambda row: (1.0, 0.0, 0.0))
     adapter = QdrantVectorIndexAdapter(
         client=qdrant_client.QdrantClient(location=":memory:"),
         wait_for_index=False,
     )
-    KnowledgeVectorIndexBuilder(
-        repo, adapter, generation_id=generation
-    ).rebuild(space)
+    KnowledgeVectorIndexBuilder(repo, adapter, generation_id=generation).rebuild(space)
     finder = ObjectSimilaritySearch(repo, space=space, vector_index=adapter)
     response = finder.find_similar_objects(source)
     assert response.results[0].object_id == target
     assert response.results[0].score_type == "hierarchical_similarity"
+
+
+@pytest.mark.parametrize("facet", [None, "personality"])
+def test_active_v1_generation_keeps_overall_and_facet_cosine_contract(repo, space, facet):
+    source = repo.object_store.create_object("Source", _class(repo, "character"))
+    target = repo.object_store.create_object("Target", _class(repo, "character"))
+    _accepted_r2(repo, source, "source-v1", [{"facet": "personality", "text": "source"}])
+    _accepted_r2(repo, target, "target-v1", [{"facet": "personality", "text": "target"}])
+    generation = _activate_generation(repo, "test-active-v1", r2=False)
+    finder, index = _finder(repo, space, generation, lambda row: (1.0, 0.0, 0.0))
+    response = finder.find_similar_objects(source, facet=facet)
+    assert response.generation_id == generation
+    result = response.results[0]
+    assert result.object_id == target
+    assert result.score_type == "cosine_similarity"
+    assert result.score == pytest.approx(1.0)
+    assert result.matched_facet == facet
+    assert result.evidence == ()
+    kind = "object_overall" if facet is None else "facet"
+    assert index.points[result.membership_id].metadata["kind"] == kind
+    assert "object_overview" not in {p.metadata["kind"] for p in index.points.values()}
+
+
+@pytest.mark.parametrize("facet", [None, "personality"])
+def test_r2_application_cli_mcp_keep_base_fields_and_additive_evidence(
+    repo, space, monkeypatch, capsys, tmp_path, facet
+):
+    source = repo.object_store.create_object("Source", _class(repo, "character"))
+    target = repo.object_store.create_object("Target", _class(repo, "character"))
+    _accepted_r2(repo, source, "source-v1", [{"facet": "personality", "text": "source"}])
+    _accepted_r2(repo, target, "target-v1", [{"facet": "personality", "text": "target"}])
+    generation = _activate_generation(repo)
+    _, index = _finder(repo, space, generation, lambda row: (1.0, 0.0, 0.0))
+    app = KnowledgeReadApplication(repo, embedding_space=space, vector_index=index)
+    expected = app.find_similar_objects(source, facet=facet)
+    mcp = MCPReadAdapter(app).call_tool(
+        "find_similar_objects", {"object_id": source, "facet": facet}
+    )
+    cli = importlib.import_module("sgokb.cli.main")
+    monkeypatch.setattr(cli, "build_read_application", lambda *args, **kwargs: app)
+    args = ["--db", str(tmp_path / "object-similarity-r2.sqlite"), "similar", "--object", source]
+    if facet is not None:
+        args.extend(["--facet", facet])
+    assert cli.main(args) == 0
+    cli_data = json.loads(capsys.readouterr().out)["data"]
+    for data in (mcp["data"], cli_data):
+        assert data["source_object_id"] == source
+        assert data["source_version_id"] == "source-v1"
+        assert data["source_representation_id"] == expected.source_representation_id
+        assert data["source_membership_id"] == expected.source_membership_id
+        assert data["generation_id"] == generation
+        assert data["facet"] == facet
+        result = data["results"][0]
+        assert result["object_id"] == target
+        assert result["representation_id"] == expected.results[0].representation_id
+        assert result["membership_id"] == expected.results[0].membership_id
+        assert result["score_type"] == (
+            "hierarchical_similarity" if facet is None else "cosine_similarity"
+        )
+        assert bool(result["evidence"]) == (facet is None)
+
+
+def test_candidate_object_cap_applies_even_when_caller_requests_more(repo, space):
+    source = repo.object_store.create_object("Source", _class(repo, "character"))
+    _accepted_r2(repo, source, "source-v1", [])
+    for i in range(130):
+        target = repo.object_store.create_object(f"Target {i}", _class(repo, "character"))
+        _accepted_r2(repo, target, f"target-{i}-v1", [])
+    generation = _activate_generation(repo)
+    finder, index = _finder(repo, space, generation, lambda row: (1.0, 0.0, 0.0))
+    response = finder.find_similar_objects(source, limit=1000)
+    assert len(response.results) == 128
+    assert len({item.object_id for item in response.results}) == 128
+    assert index.search_limits == [128]
+    assert source not in {item.object_id for item in response.results}
+
+
+def test_correct_payload_cannot_bypass_sqlite_generation_membership(repo, space):
+    source = repo.object_store.create_object("Source", _class(repo, "character"))
+    target = repo.object_store.create_object("Target", _class(repo, "character"))
+    _accepted_r2(repo, source, "source-v1", [])
+    _accepted_r2(repo, target, "target-v1", [])
+    generation = _activate_generation(repo)
+    finder, index = _finder(repo, space, generation, lambda row: (1.0, 0.0, 0.0))
+    target_point = next(p for p in index.points.values() if p.metadata["object_id"] == target)
+    assert target_point.metadata["generation_id"] == generation
+    repo.db.execute(
+        "DELETE FROM knowledge_search_generation_memberships "
+        "WHERE generation_id=? AND membership_id=?",
+        (generation, target_point.point_id),
+    )
+    with pytest.raises(RuntimeError, match="outside active generation"):
+        finder.find_similar_objects(source)

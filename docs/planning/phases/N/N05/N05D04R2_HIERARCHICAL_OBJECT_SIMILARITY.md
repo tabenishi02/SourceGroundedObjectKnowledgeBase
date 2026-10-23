@@ -4,7 +4,7 @@ Updated: 2026-10-23
 
 - Parent: `N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign`
 - Task: `R2-06 [P0] — Hierarchical Object Similarity redesign`
-- Status: **Implementation Complete / Runtime Verification Pending**
+- Status: **Complete / Runtime Verification PASS**
 - Production cutover: **Not Started — R2-07 owns cutover / rollback**
 - Baseline model: **Harrier OSS v1 0.6B unchanged**
 
@@ -376,28 +376,70 @@ R2-06 adds focused cases for:
 12. active-R2 Facet-specific raw-cosine behavior unchanged;
 13. Qdrant in-memory R2 smoke when the optional dependency is present.
 
-## 15. Runtime verification gate
+## 15. Runtime verification — PASS (2026-10-23)
 
-R2-06 is not Complete until local verification confirms:
+Verified GitHub main input: `d1c491bd89913a0adf2c70fc80604dc3752634ce`.
+Reference Workstation: Python 3.10.6, pytest 9.1.1, Ruff 0.17.0,
+qdrant-client 1.19.1. An isolated verification worktree was used. The original workspace's three R1
+user-aborted assets were backed up and preserved byte-for-byte (SHA-256).
+
+| Command (`python -m pytest -q`) | Result |
+|---|---|
+| `tests/test_object_similarity_r2.py` | 19 passed |
+| `tests/test_object_similarity.py tests/test_object_similarity_r2.py` | 28 passed |
+| `tests/test_hybrid_search.py tests/test_hybrid_search_r2.py` | 33 passed |
+| `tests/test_search_generation_migration.py tests/test_search_representation.py tests/test_object_overview_r2.py` | 14 passed |
+| Application / MCP / CLI / Vector / Derived Search group below | 83 passed |
+
+**158 unique tests passed, 0 failed, 0 skipped**; the standalone 19 R2 tests are
+included in the joint Similarity count. The 83-test group covers
+`test_j01_similarity_application.py`, `test_j01_retrieval_mcp_boundary.py`,
+`test_j01_application_semantics.py`, `test_j02_mcp_read_tools.py`,
+`test_j06_mcp_client_acceptance.py`, `test_m01_cli.py`, `test_vector_index.py`,
+`test_n04p02_search_representation_sync.py`, `test_n04p03_embedding_sync.py`,
+`test_n04p04_vector_index_sync.py`, `test_n04p05_derived_cli.py` and
+`test_n02_integration.py`.
+
+Findings and scoped maintenance:
+
+- The historical-source fixture assigned different vectors to identical reused
+  overview content. Give its Versions different Summary content, assert distinct
+  overview representation IDs, and retain historical-source/current-candidate
+  ranking assertions. Embedding reuse and production behavior are unchanged.
+- Update the stale CLI integrity assertion from schema 17 to 18.
+- Add active-v1 overall/Facet cosine compatibility and real Application -> CLI/MCP
+  serialization checks, including established fields and additive evidence.
+- Exercise ten source Facets / thirty Statements: only 8/12 child queries run,
+  exactly 21 ANN calls / 464 maximum hit slots; 130 candidates still yield at most
+  128 distinct Objects. Per-result evidence remains at most 1/2/3 and score `[0,1]`.
+- Verify both generation payload mismatch rejection and SQLite membership rejection
+  even with a matching payload, one generation resolution per operation, active-R2
+  `object_overall` exclusion, current/historical isolation, and explicit no-fallback
+  on a missing source Facet. G01-G06 contracts PASS with frozen constants unchanged.
+- Canonical consumer import review finds only the internal Phase-I base import in
+  `similarity_r2.py`; active consumers use the public R2 wrapper.
+- Ruff formatting of `similarity_r2.py` is AST-identical to the input implementation.
+
+Qdrant dependency is available. R2 hierarchical, existing v1 Similarity, Hybrid and
+Vector adapter regressions PASS in memory. Local Qdrant warns that payload indexes
+have no effect and search is brute force: this proves adapter/filter semantics,
+not native-server ANN performance. No production Qdrant namespace was touched.
+
+Static checks:
+
+- `python -m ruff check src tests`: PASS.
+- R2-06 source/domain/export/test files plus the maintained CLI test:
+  `python -m ruff format --check`: PASS (8 files).
+- `git diff --check`: PASS.
+- `python -m ruff check .`: only the documented unrelated baseline
+  `benchmark/tools/n05_resource_preflight.py:69 E501`; left unchanged. All R2-06
+  files and `src tests` pass. Full pytest was not required or run for this task.
 
 ```text
-focused R2-06 tests PASS
-existing Phase-I similarity regression PASS
-R2-05 Hybrid regression PASS
-Application / CLI / MCP similarity compatibility PASS
-Qdrant local regression PASS when dependency is available
-Ruff / format / diff checks PASS
-active-generation isolation PASS
-object_overall exclusion PASS
-boundedness regression PASS
+R2-06 = Complete
+R2-07 = Next / Not Started
+N-05 = BLOCKED / Not Complete
 ```
 
-Until that evidence exists:
-
-```text
-R2-06 = Implementation Complete / Runtime Verification Pending
-R2-07 = Not Started
-```
-
-No R2-07 generation rebuild, production pointer switch, namespace cutover, or
-rollback is performed by this task.
+No production generation readiness/active pointer, canonical DB, Qdrant namespace,
+v1 artifact retirement, R2-07 rebuild/cutover/rollback or formal N-05 run was performed.
