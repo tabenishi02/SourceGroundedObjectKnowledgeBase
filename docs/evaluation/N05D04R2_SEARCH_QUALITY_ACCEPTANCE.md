@@ -232,7 +232,7 @@ R2-09 = Next / Not Started
 Until then:
 
 ```text
-R2-08 = Implementation Complete / Local Quality Verification Pending
+R2-08 = FAIL / Not Complete (separate R2-06 Overall Similarity losses)
 R2-09 = Not Started
 N05D-04R2 = Active
 N05D-04 = BLOCKED / Not Complete
@@ -240,10 +240,22 @@ N-05 = BLOCKED / Not Complete
 performance target = Not Judgeable
 ```
 
-## 10. Current result
+## 10. Current result (2026-10-24)
 
-The acceptance contract, R2 gold harness, and contract test are implemented on the R2-08 candidate branch.
+**R2-08 = FAIL / Not Complete. R2-09 = blocked / Not Started.**
 
-Local/reference execution is **not yet evidenced in this record** because the current ChatGPT session did not have an available local command-execution path. No PASS/FAIL metric result is inferred from static review.
+Reference Workstation execution is now evidenced. R2-05 Semantic remediation
+restores `short_japanese_love` from rank 3 to rank 1; all 24 Semantic and Hybrid
+queries have no negative case-level metric delta versus the saved comparable
+Phase-I result. The fixed Harrier harness automatic gate passes.
 
-**Current verdict: PENDING LOCAL QUALITY VERIFICATION. R2-09 is prohibited.**
+The separate R2-06 `work_overall` and `concept_overall` losses remain unchanged;
+this task does not implement Similarity remediation or close R2-08. Re-run the
+full R2-08 acceptance after separately addressing that cause.
+
+Detailed runtime proof, ablations, overview probes and regression counts:
+`N05D04R2_R2_05_SEMANTIC_REGRESSION_ROOT_CAUSE_REVIEW.md`, Reference Workstation
+remediation verification section. Machine-readable synthetic result:
+`benchmark/results/n05d04r2-r2-05-semantic-remediation.json`.
+
+N-05 remains BLOCKED / Not Complete. No formal performance run was started.

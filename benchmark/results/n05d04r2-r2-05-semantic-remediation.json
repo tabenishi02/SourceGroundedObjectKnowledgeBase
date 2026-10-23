@@ -1,0 +1,6620 @@
+{
+  "schema_version": "sgokb.r2-05-semantic-remediation/1.0",
+  "run_id": "20261024T000056",
+  "execution_head": "62c2748e7bdf552d5f7fd29bec817ffa5e04ceff",
+  "selected_overview_weight": 0.5,
+  "stable_adjacent_overview_weight": 0.25,
+  "facet_weight": 1.0,
+  "statement_weight": 1.0,
+  "rrf_k": 60,
+  "selection": "largest stable passing tested weight; 0.75 fails short_japanese_love",
+  "fixed_runtime": {
+    "device": "cuda",
+    "dtype": "bfloat16",
+    "space": {
+      "provider_key": "sentence-transformers",
+      "provider_version": "6.1.0",
+      "model": "microsoft/harrier-oss-v1-0.6b",
+      "model_revision": "f9b9dc8d367d443f2479d27aa5d8d2850c0774ee",
+      "dimension": 1024,
+      "native_dimension": 1024,
+      "preprocessing_key": "sgokb-search-representation",
+      "preprocessing_version": "2",
+      "query_instruction": "Given a query about an object knowledge base, retrieve semantically relevant object knowledge statements.",
+      "document_instruction": "",
+      "normalize_embeddings": true,
+      "max_sequence_length": 32768,
+      "overflow_policy": "reject",
+      "output_dtype": "float32",
+      "provider_configuration": {
+        "dtype": "bfloat16",
+        "local_files_only": true,
+        "truncate_dim": null
+      }
+    }
+  },
+  "diagnostic": {
+    "case_id": "short_japanese_love",
+    "query": "愛",
+    "execution_head": "62c2748e7bdf552d5f7fd29bec817ffa5e04ceff",
+    "fixed_space": {
+      "provider_key": "sentence-transformers",
+      "provider_version": "6.1.0",
+      "model": "microsoft/harrier-oss-v1-0.6b",
+      "model_revision": "f9b9dc8d367d443f2479d27aa5d8d2850c0774ee",
+      "dimension": 1024,
+      "native_dimension": 1024,
+      "preprocessing_key": "sgokb-search-representation",
+      "preprocessing_version": "2",
+      "query_instruction": "Given a query about an object knowledge base, retrieve semantically relevant object knowledge statements.",
+      "document_instruction": "",
+      "normalize_embeddings": true,
+      "max_sequence_length": 32768,
+      "overflow_policy": "reject",
+      "output_dtype": "float32",
+      "provider_configuration": {
+        "dtype": "bfloat16",
+        "local_files_only": true,
+        "truncate_dim": null
+      }
+    },
+    "generation_id": "search-generation:r2:search-quality-gold-v1",
+    "channels": {
+      "semantic_object_overview": [
+        {
+          "object_id": "obj:aoi",
+          "version_id": "ver:aoi:v2",
+          "channel_object_rank": 1,
+          "final_rrf_contribution": 0.01639344262295082,
+          "channel_local_score": 0.01639344262295082,
+          "hits": [
+            {
+              "channel": "semantic_object_overview",
+              "version_id": "ver:aoi:v2",
+              "representation_id": "9a674dba-4cdd-4338-bb5d-a57fee9bc2fa",
+              "membership_id": "b94bd96c-eece-408c-8727-2d6ed206af56",
+              "representation_kind": "object_overview",
+              "facet": null,
+              "statement_id": null,
+              "snippet": "Object: 蒼井アオイ Aliases: Aoi Aoi, 蒼 Primary Class: character (Character) Facets: - behavior (Behavior) - personality (Personality) - values (Values)",
+              "score": 0.5459666960424047,
+              "score_type": "cosine_similarity",
+              "source_rank": 1,
+              "admitted": true,
+              "local_contribution": 0.01639344262295082
+            }
+          ]
+        },
+        {
+          "object_id": "obj:ash_garden",
+          "version_id": "ver:ash_garden:v1",
+          "channel_object_rank": 2,
+          "final_rrf_contribution": 0.016129032258064516,
+          "channel_local_score": 0.016129032258064516,
+          "hits": [
+            {
+              "channel": "semantic_object_overview",
+              "version_id": "ver:ash_garden:v1",
+              "representation_id": "e16ccb57-1b49-4481-b45d-7bd0883303c2",
+              "membership_id": "d6fad257-6c0a-4375-abe0-77cc31d6a0f6",
+              "representation_kind": "object_overview",
+              "facet": null,
+              "statement_id": null,
+              "snippet": "Object: 灰の庭 Primary Class: work (Work) Facets: - relationships (Relationships) - themes (Themes)",
+              "score": 0.5437567899025593,
+              "score_type": "cosine_similarity",
+              "source_rank": 2,
+              "admitted": true,
+              "local_contribution": 0.016129032258064516
+            }
+          ]
+        },
+        {
+          "object_id": "obj:mika",
+          "version_id": "ver:mika:v1",
+          "channel_object_rank": 8,
+          "final_rrf_contribution": 0.014705882352941176,
+          "channel_local_score": 0.014705882352941176,
+          "hits": [
+            {
+              "channel": "semantic_object_overview",
+              "version_id": "ver:mika:v1",
+              "representation_id": "4c2cc8d9-f2db-45b4-a694-5843fd56b947",
+              "membership_id": "ff5a91dc-682b-4320-ae17-406363bfd9a7",
+              "representation_kind": "object_overview",
+              "facet": null,
+              "statement_id": null,
+              "snippet": "Object: 水城ミカ Primary Class: character (Character) Facets: - behavior (Behavior) - personality (Personality) - values (Values)",
+              "score": 0.5165148097841348,
+              "score_type": "cosine_similarity",
+              "source_rank": 8,
+              "admitted": true,
+              "local_contribution": 0.014705882352941176
+            }
+          ]
+        }
+      ],
+      "semantic_facet": [
+        {
+          "object_id": "obj:mika",
+          "version_id": "ver:mika:v1",
+          "channel_object_rank": 1,
+          "final_rrf_contribution": 0.01639344262295082,
+          "channel_local_score": 0.03200204813108039,
+          "hits": [
+            {
+              "channel": "semantic_facet",
+              "version_id": "ver:mika:v1",
+              "representation_id": "e3da1324-9125-43d2-b3e6-b46a628a7994",
+              "membership_id": "137e29a4-84e9-47fe-bd19-5df1215dff1d",
+              "representation_kind": "facet",
+              "facet": "behavior",
+              "statement_id": null,
+              "snippet": "Object: 水城ミカ Primary Class: character (Character) Facet: Behavior (behavior) Statements: - 慈愛を行動原理とし、弱い立場の人へ先に手を差し伸べる。",
+              "score": 0.5619092038309049,
+              "score_type": "cosine_similarity",
+              "source_rank": 2,
+              "admitted": true,
+              "local_contribution": 0.016129032258064516
+            },
+            {
+              "channel": "semantic_facet",
+              "version_id": "ver:mika:v1",
+              "representation_id": "9a684c69-507d-4065-a6a2-432540bfe4c6",
+              "membership_id": "07964cd3-8af5-4fd4-be35-f7bd644361d7",
+              "representation_kind": "facet",
+              "facet": "values",
+              "statement_id": null,
+              "snippet": "Object: 水城ミカ Primary Class: character (Character) Facet: Values (values) Statements: - 相互扶助と人との信頼関係を大切にする。",
+              "score": 0.5584771153375934,
+              "score_type": "cosine_similarity",
+              "source_rank": 3,
+              "admitted": true,
+              "local_contribution": 0.015873015873015872
+            },
+            {
+              "channel": "semantic_facet",
+              "version_id": "ver:mika:v1",
+              "representation_id": "557b2c10-6ccd-48a0-9c3d-272819ee976f",
+              "membership_id": "2f18c16c-d161-4f8d-a123-51f2dbca3f6b",
+              "representation_kind": "facet",
+              "facet": "personality",
+              "statement_id": null,
+              "snippet": "Object: 水城ミカ Primary Class: character (Character) Facet: Personality (personality) Statements: - 困っている人を放っておけず、危険を承知で助けに入る。",
+              "score": 0.5232883249478787,
+              "score_type": "cosine_similarity",
+              "source_rank": 10,
+              "admitted": false,
+              "local_contribution": 0
+            }
+          ]
+        },
+        {
+          "object_id": "obj:ash_garden",
+          "version_id": "ver:ash_garden:v1",
+          "channel_object_rank": 2,
+          "final_rrf_contribution": 0.016129032258064516,
+          "channel_local_score": 0.03177805800756621,
+          "hits": [
+            {
+              "channel": "semantic_facet",
+              "version_id": "ver:ash_garden:v1",
+              "representation_id": "629255ce-2496-4537-b436-5ea48890e8b6",
+              "membership_id": "666ee505-a939-414c-bd1a-de728c965174",
+              "representation_kind": "facet",
+              "facet": "themes",
+              "statement_id": null,
+              "snippet": "Object: 灰の庭 Primary Class: work (Work) Facet: Themes (themes) Statements: - 悲嘆を抱えた共同体が互いを支えながら再生していく物語である。",
+              "score": 0.5695995838783419,
+              "score_type": "cosine_similarity",
+              "source_rank": 1,
+              "admitted": true,
+              "local_contribution": 0.01639344262295082
+            },
+            {
+              "channel": "semantic_facet",
+              "version_id": "ver:ash_garden:v1",
+              "representation_id": "4eb98773-0706-4c1b-a694-63e832368992",
+              "membership_id": "418eec8d-964e-4dd9-a78e-f615aadb10ca",
+              "representation_kind": "facet",
+              "facet": "relationships",
+              "statement_id": null,
+              "snippet": "Object: 灰の庭 Primary Class: work (Work) Facet: Relationships (relationships) Statements: - 対立していた住民が協力を通して信頼関係を築く。",
+              "score": 0.5411822049316006,
+              "score_type": "cosine_similarity",
+              "source_rank": 5,
+              "admitted": true,
+              "local_contribution": 0.015384615384615385
+            }
+          ]
+        },
+        {
+          "object_id": "obj:aoi",
+          "version_id": "ver:aoi:v2",
+          "channel_object_rank": 4,
+          "final_rrf_contribution": 0.015625,
+          "channel_local_score": 0.02919863597612958,
+          "hits": [
+            {
+              "channel": "semantic_facet",
+              "version_id": "ver:aoi:v2",
+              "representation_id": "b67b563d-f7bb-4b18-9620-c5a887692818",
+              "membership_id": "98a73de7-68aa-46a9-9a24-3dcbd5e9274e",
+              "representation_kind": "facet",
+              "facet": "behavior",
+              "statement_id": null,
+              "snippet": "Object: 蒼井アオイ Primary Class: character (Character) Facet: Behavior (behavior) Statements: - [temporal=from=2026-01-01; to=2026-12-31] 2026年中は単独行動を避け、必ず仲間と行動する。",
+              "score": 0.5307177598977999,
+              "score_type": "cosine_similarity",
+              "source_rank": 8,
+              "admitted": true,
+              "local_contribution": 0.014705882352941176
+            },
+            {
+              "channel": "semantic_facet",
+              "version_id": "ver:aoi:v2",
+              "representation_id": "09f8a069-db2a-482c-a3e6-af5fe9210104",
+              "membership_id": "da2416e9-66b2-4310-b846-29b76734841c",
+              "representation_kind": "facet",
+              "facet": "values",
+              "statement_id": null,
+              "snippet": "Object: 蒼井アオイ Primary Class: character (Character) Facet: Values (values) Statements: - 仲間との信頼を自己保身より優先する。",
+              "score": 0.5293084978407523,
+              "score_type": "cosine_similarity",
+              "source_rank": 9,
+              "admitted": true,
+              "local_contribution": 0.014492753623188406
+            },
+            {
+              "channel": "semantic_facet",
+              "version_id": "ver:aoi:v2",
+              "representation_id": "1ad96cf5-83e7-49b6-a867-da1ae0b30930",
+              "membership_id": "1d710678-353d-4bcc-a82d-efab19240305",
+              "representation_kind": "facet",
+              "facet": "personality",
+              "statement_id": null,
+              "snippet": "Object: 蒼井アオイ Primary Class: character (Character) Facet: Personality (personality) Statements: - 普段は穏やかだが、仲間が危険にさらされると自分を危険にさらしてでも守ろうとする。",
+              "score": 0.521144701658606,
+              "score_type": "cosine_similarity",
+              "source_rank": 12,
+              "admitted": false,
+              "local_contribution": 0
+            }
+          ]
+        }
+      ],
+      "semantic_statement": [
+        {
+          "object_id": "obj:mika",
+          "version_id": "ver:mika:v1",
+          "channel_object_rank": 1,
+          "final_rrf_contribution": 0.01639344262295082,
+          "channel_local_score": 0.04635096553822022,
+          "hits": [
+            {
+              "channel": "semantic_statement",
+              "version_id": "ver:mika:v1",
+              "representation_id": "fd78b43e-1863-493a-b7dc-149319e19728",
+              "membership_id": "ee6e51f8-345d-40ad-9a46-6c942ab980cb",
+              "representation_kind": "statement",
+              "facet": "behavior",
+              "statement_id": "15888911-9de6-4010-aa8d-7fbf81a49684",
+              "snippet": "慈愛を行動原理とし、弱い立場の人へ先に手を差し伸べる。",
+              "score": 0.5649126539262936,
+              "score_type": "cosine_similarity",
+              "source_rank": 1,
+              "admitted": true,
+              "local_contribution": 0.01639344262295082
+            },
+            {
+              "channel": "semantic_statement",
+              "version_id": "ver:mika:v1",
+              "representation_id": "b8a71478-bf52-401d-bfe0-712dffe8a792",
+              "membership_id": "856e62bc-2828-4e4e-9cb6-1fd0792b53a2",
+              "representation_kind": "statement",
+              "facet": "values",
+              "statement_id": "1df14076-6305-4d76-bd81-8a82835e2cab",
+              "snippet": "相互扶助と人との信頼関係を大切にする。",
+              "score": 0.5571525095099036,
+              "score_type": "cosine_similarity",
+              "source_rank": 3,
+              "admitted": true,
+              "local_contribution": 0.015873015873015872
+            },
+            {
+              "channel": "semantic_statement",
+              "version_id": "ver:mika:v1",
+              "representation_id": "fc0722b8-096a-4b2d-9603-baa4e838e78e",
+              "membership_id": "00e81a7b-5476-4b10-b35a-b8296b84d1e8",
+              "representation_kind": "statement",
+              "facet": "personality",
+              "statement_id": "01562f92-6a89-4a5f-a12d-f7bc7d766672",
+              "snippet": "困っている人を放っておけず、危険を承知で助けに入る。",
+              "score": 0.5233500595362256,
+              "score_type": "cosine_similarity",
+              "source_rank": 11,
+              "admitted": true,
+              "local_contribution": 0.014084507042253521
+            }
+          ]
+        },
+        {
+          "object_id": "obj:aoi",
+          "version_id": "ver:aoi:v2",
+          "channel_object_rank": 2,
+          "final_rrf_contribution": 0.016129032258064516,
+          "channel_local_score": 0.043484350261843864,
+          "hits": [
+            {
+              "channel": "semantic_statement",
+              "version_id": "ver:aoi:v2",
+              "representation_id": "fdcb375d-b769-46b7-bb04-631c9a60db43",
+              "membership_id": "7330290f-f823-49b8-83f3-22232c296c31",
+              "representation_kind": "statement",
+              "facet": "behavior",
+              "statement_id": "4f2d2a77-0315-4419-988d-abdeacb3cfc9",
+              "snippet": "2026年中は単独行動を避け、必ず仲間と行動する。",
+              "score": 0.5292471957819198,
+              "score_type": "cosine_similarity",
+              "source_rank": 8,
+              "admitted": true,
+              "local_contribution": 0.014705882352941176
+            },
+            {
+              "channel": "semantic_statement",
+              "version_id": "ver:aoi:v2",
+              "representation_id": "35376a59-ff3d-474b-b5fd-53cd60ea9e0e",
+              "membership_id": "7568ab62-2bfe-4fb9-9455-0163b0f5915a",
+              "representation_kind": "statement",
+              "facet": "values",
+              "statement_id": "a3e0db7d-5fbd-4542-bd7f-115e02b7e7b0",
+              "snippet": "仲間との信頼を自己保身より優先する。",
+              "score": 0.5263401875811161,
+              "score_type": "cosine_similarity",
+              "source_rank": 9,
+              "admitted": true,
+              "local_contribution": 0.014492753623188406
+            },
+            {
+              "channel": "semantic_statement",
+              "version_id": "ver:aoi:v2",
+              "representation_id": "983277e3-333c-4a6e-8167-bef967ef2ba4",
+              "membership_id": "75b45fad-d2ea-43ae-b709-06a21752e780",
+              "representation_kind": "statement",
+              "facet": "personality",
+              "statement_id": "e3513c34-4ed8-4ec8-b576-acd3c201257c",
+              "snippet": "普段は穏やかだが、仲間が危険にさらされると自分を危険にさらしてでも守ろうとする。",
+              "score": 0.524873331790123,
+              "score_type": "cosine_similarity",
+              "source_rank": 10,
+              "admitted": true,
+              "local_contribution": 0.014285714285714285
+            }
+          ]
+        },
+        {
+          "object_id": "obj:ash_garden",
+          "version_id": "ver:ash_garden:v1",
+          "channel_object_rank": 3,
+          "final_rrf_contribution": 0.015873015873015872,
+          "channel_local_score": 0.03128054740957967,
+          "hits": [
+            {
+              "channel": "semantic_statement",
+              "version_id": "ver:ash_garden:v1",
+              "representation_id": "8e592ed9-4483-4c92-806d-350e4f1b75ae",
+              "membership_id": "46b71dd7-dc3a-422b-8ca6-09b375e22ec0",
+              "representation_kind": "statement",
+              "facet": "themes",
+              "statement_id": "06e2b032-75ce-4efc-8f33-92ec371b7780",
+              "snippet": "悲嘆を抱えた共同体が互いを支えながら再生していく物語である。",
+              "score": 0.5640006569878675,
+              "score_type": "cosine_similarity",
+              "source_rank": 2,
+              "admitted": true,
+              "local_contribution": 0.016129032258064516
+            },
+            {
+              "channel": "semantic_statement",
+              "version_id": "ver:ash_garden:v1",
+              "representation_id": "51dcc731-3eee-45e1-acee-37c09c82f90f",
+              "membership_id": "6ce9384b-6c60-418e-8f90-e2a7e6b941a5",
+              "representation_kind": "statement",
+              "facet": "relationships",
+              "statement_id": "b375fc07-2c0c-41ca-9e21-80b98378bcc9",
+              "snippet": "対立していた住民が協力を通して信頼関係を築く。",
+              "score": 0.5388461187315069,
+              "score_type": "cosine_similarity",
+              "source_rank": 6,
+              "admitted": true,
+              "local_contribution": 0.015151515151515152
+            }
+          ]
+        }
+      ]
+    },
+    "final": [
+      {
+        "object_id": "obj:aoi",
+        "name": "蒼井アオイ",
+        "primary_class": "character",
+        "version_id": "ver:aoi:v2",
+        "rank": 1,
+        "fused_score": 0.04814747488101534,
+        "score_type": "rrf",
+        "exact_identity": null,
+        "channels": [
+          "semantic_facet",
+          "semantic_object_overview",
+          "semantic_statement"
+        ],
+        "matched_facets": [
+          "behavior",
+          "personality",
+          "values"
+        ]
+      },
+      {
+        "object_id": "obj:ash_garden",
+        "name": "灰の庭",
+        "primary_class": "work",
+        "version_id": "ver:ash_garden:v1",
+        "rank": 2,
+        "fused_score": 0.048131080389144903,
+        "score_type": "rrf",
+        "exact_identity": null,
+        "channels": [
+          "semantic_facet",
+          "semantic_object_overview",
+          "semantic_statement"
+        ],
+        "matched_facets": [
+          "relationships",
+          "themes"
+        ]
+      },
+      {
+        "object_id": "obj:mika",
+        "name": "水城ミカ",
+        "primary_class": "character",
+        "version_id": "ver:mika:v1",
+        "rank": 3,
+        "fused_score": 0.047492767598842814,
+        "score_type": "rrf",
+        "exact_identity": null,
+        "channels": [
+          "semantic_facet",
+          "semantic_object_overview",
+          "semantic_statement"
+        ],
+        "matched_facets": [
+          "behavior",
+          "personality",
+          "values"
+        ]
+      }
+    ],
+    "channel_local_primary_anomaly": false,
+    "cross_channel_inversion_confirmed": true,
+    "generation_current_filters_verified": true,
+    "object_overall_leakage": 0,
+    "phase_i": {
+      "rank": 1,
+      "authority": ".local/i07-search-gold-result.json",
+      "point_trace": "not available without generating legacy embeddings; not substituted"
+    }
+  },
+  "ablation": {
+    "control": {
+      "cases": [
+        {
+          "id": "identity_name_aoi",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:night_glider",
+                "obj:aurora_lab",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:night_glider",
+                "obj:aurora_lab",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "identity_alias_aoi",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:night_glider",
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:mika",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:aurora_lab",
+                "obj:rivergate",
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:night_glider",
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:mika",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:aurora_lab",
+                "obj:rivergate",
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "short_japanese_love",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:ash_garden",
+                "obj:mika",
+                "obj:altruism",
+                "obj:glass_sky",
+                "obj:iron_crown",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:night_glider",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 0.3333333333333333,
+                "recall@1": 0.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 0.5
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:mika",
+                "obj:aoi",
+                "obj:ash_garden",
+                "obj:altruism",
+                "obj:glass_sky",
+                "obj:iron_crown",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:night_glider",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "char_self_risk",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:self_sacrifice",
+                "obj:ren",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:altruism",
+                "obj:glass_sky",
+                "obj:night_glider",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:self_sacrifice",
+                "obj:ren",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:altruism",
+                "obj:glass_sky",
+                "obj:night_glider",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "char_trust_values",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "en_char_protect",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "work_loss_recovery",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "en_work_recovery",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "concept_self_sacrifice",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:self_sacrifice",
+                "obj:altruism",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:self_sacrifice",
+                "obj:altruism",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "concept_autonomy",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:self_sacrifice"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:self_sacrifice"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "person_education",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "organization_structure",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aurora_lab"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aurora_lab"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "series_scope",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "place_geography",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "event_causes",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:harbor_accord"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:harbor_accord"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "software_features",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:forgeedit"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:forgeedit"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "product_usage",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:orion_gpu"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:orion_gpu"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "species_distribution",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "phenomenon_mechanism",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:supply_squeeze"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:supply_squeeze"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "language_vocabulary",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "ability_condition",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "en_ability_mechanism",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "ancestor_agent_person",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:dr_sora",
+                "obj:aurora_lab",
+                "obj:mika",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dr_sora",
+                "obj:aurora_lab",
+                "obj:mika",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "additional_fictional",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:mika",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 0.8339912323981488
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        }
+      ],
+      "aggregate": {
+        "semantic": {
+          "mrr": 0.9722222222222222,
+          "recall@1": 0.8125,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 0.9722496346832562
+        },
+        "hybrid": {
+          "mrr": 1.0,
+          "recall@1": 0.8541666666666666,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 1.0
+        }
+      },
+      "negative_deltas": [
+        {
+          "id": "short_japanese_love",
+          "mode": "semantic",
+          "delta": {
+            "mrr": -0.6666666666666667,
+            "recall@1": -1.0,
+            "recall@5": 0.0,
+            "recall@10": 0.0,
+            "ndcg@10": -0.5
+          }
+        }
+      ],
+      "case_rank_changes_vs_control": []
+    },
+    "0.25": {
+      "cases": [
+        {
+          "id": "identity_name_aoi",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:dr_sora",
+                "obj:ren",
+                "obj:mika",
+                "obj:glass_sky",
+                "obj:night_glider",
+                "obj:ash_garden",
+                "obj:aurora_lab",
+                "obj:iron_crown",
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:dr_sora",
+                "obj:ren",
+                "obj:mika",
+                "obj:glass_sky",
+                "obj:night_glider",
+                "obj:ash_garden",
+                "obj:aurora_lab",
+                "obj:iron_crown",
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "identity_alias_aoi",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:night_glider",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:dr_sora",
+                "obj:ren",
+                "obj:aurora_lab",
+                "obj:rivergate",
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:night_glider",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:dr_sora",
+                "obj:ren",
+                "obj:aurora_lab",
+                "obj:rivergate",
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "short_japanese_love",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:aoi",
+                "obj:glass_sky",
+                "obj:altruism",
+                "obj:iron_crown",
+                "obj:dr_sora",
+                "obj:ren",
+                "obj:night_glider",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:aoi",
+                "obj:glass_sky",
+                "obj:altruism",
+                "obj:iron_crown",
+                "obj:dr_sora",
+                "obj:ren",
+                "obj:night_glider",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "char_self_risk",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:self_sacrifice",
+                "obj:ren",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:glass_sky",
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:self_sacrifice",
+                "obj:ren",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:glass_sky",
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "char_trust_values",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "en_char_protect",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "work_loss_recovery",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "en_work_recovery",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "concept_self_sacrifice",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:self_sacrifice",
+                "obj:altruism",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:self_sacrifice",
+                "obj:altruism",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "concept_autonomy",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:self_sacrifice"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:self_sacrifice"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "person_education",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "organization_structure",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aurora_lab"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aurora_lab"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "series_scope",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "place_geography",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "event_causes",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:harbor_accord"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:harbor_accord"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "software_features",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:forgeedit"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:forgeedit"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "product_usage",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:orion_gpu"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:orion_gpu"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "species_distribution",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "phenomenon_mechanism",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:supply_squeeze"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:supply_squeeze"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "language_vocabulary",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "ability_condition",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "en_ability_mechanism",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "ancestor_agent_person",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:dr_sora",
+                "obj:mika",
+                "obj:aurora_lab",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dr_sora",
+                "obj:mika",
+                "obj:aurora_lab",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "additional_fictional",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:mika",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 0.8339912323981488
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        }
+      ],
+      "aggregate": {
+        "semantic": {
+          "mrr": 1.0,
+          "recall@1": 0.8541666666666666,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 0.9930829680165895
+        },
+        "hybrid": {
+          "mrr": 1.0,
+          "recall@1": 0.8541666666666666,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 1.0
+        }
+      },
+      "negative_deltas": [],
+      "case_rank_changes_vs_control": [
+        {
+          "case_id": "identity_name_aoi",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:ash_garden",
+              "before": 8,
+              "after": 7
+            },
+            {
+              "object_id": "obj:aurora_lab",
+              "before": 7,
+              "after": 8
+            },
+            {
+              "object_id": "obj:dawn_chronicles",
+              "before": null,
+              "after": 10
+            },
+            {
+              "object_id": "obj:dr_sora",
+              "before": 3,
+              "after": 2
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 4,
+              "after": 5
+            },
+            {
+              "object_id": "obj:mika",
+              "before": 5,
+              "after": 4
+            },
+            {
+              "object_id": "obj:ren",
+              "before": 2,
+              "after": 3
+            },
+            {
+              "object_id": "obj:rivergate",
+              "before": 10,
+              "after": null
+            }
+          ]
+        },
+        {
+          "case_id": "identity_name_aoi",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:ash_garden",
+              "before": 8,
+              "after": 7
+            },
+            {
+              "object_id": "obj:aurora_lab",
+              "before": 7,
+              "after": 8
+            },
+            {
+              "object_id": "obj:dawn_chronicles",
+              "before": null,
+              "after": 10
+            },
+            {
+              "object_id": "obj:dr_sora",
+              "before": 3,
+              "after": 2
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 4,
+              "after": 5
+            },
+            {
+              "object_id": "obj:mika",
+              "before": 5,
+              "after": 4
+            },
+            {
+              "object_id": "obj:ren",
+              "before": 2,
+              "after": 3
+            },
+            {
+              "object_id": "obj:rivergate",
+              "before": 10,
+              "after": null
+            }
+          ]
+        },
+        {
+          "case_id": "identity_alias_aoi",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:ash_garden",
+              "before": 4,
+              "after": 5
+            },
+            {
+              "object_id": "obj:dawn_chronicles",
+              "before": null,
+              "after": 10
+            },
+            {
+              "object_id": "obj:dr_sora",
+              "before": 7,
+              "after": 6
+            },
+            {
+              "object_id": "obj:luma_language",
+              "before": 10,
+              "after": null
+            },
+            {
+              "object_id": "obj:mika",
+              "before": 5,
+              "after": 4
+            },
+            {
+              "object_id": "obj:ren",
+              "before": 6,
+              "after": 7
+            }
+          ]
+        },
+        {
+          "case_id": "identity_alias_aoi",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:ash_garden",
+              "before": 4,
+              "after": 5
+            },
+            {
+              "object_id": "obj:dawn_chronicles",
+              "before": null,
+              "after": 10
+            },
+            {
+              "object_id": "obj:dr_sora",
+              "before": 7,
+              "after": 6
+            },
+            {
+              "object_id": "obj:luma_language",
+              "before": 10,
+              "after": null
+            },
+            {
+              "object_id": "obj:mika",
+              "before": 5,
+              "after": 4
+            },
+            {
+              "object_id": "obj:ren",
+              "before": 6,
+              "after": 7
+            }
+          ]
+        },
+        {
+          "case_id": "short_japanese_love",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:altruism",
+              "before": 4,
+              "after": 5
+            },
+            {
+              "object_id": "obj:aoi",
+              "before": 1,
+              "after": 3
+            },
+            {
+              "object_id": "obj:dr_sora",
+              "before": 8,
+              "after": 7
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 5,
+              "after": 4
+            },
+            {
+              "object_id": "obj:mika",
+              "before": 3,
+              "after": 1
+            },
+            {
+              "object_id": "obj:ren",
+              "before": 7,
+              "after": 8
+            }
+          ]
+        },
+        {
+          "case_id": "short_japanese_love",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:altruism",
+              "before": 4,
+              "after": 5
+            },
+            {
+              "object_id": "obj:aoi",
+              "before": 2,
+              "after": 3
+            },
+            {
+              "object_id": "obj:ash_garden",
+              "before": 3,
+              "after": 2
+            },
+            {
+              "object_id": "obj:dr_sora",
+              "before": 8,
+              "after": 7
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 5,
+              "after": 4
+            },
+            {
+              "object_id": "obj:ren",
+              "before": 7,
+              "after": 8
+            }
+          ]
+        },
+        {
+          "case_id": "char_self_risk",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:altruism",
+              "before": 7,
+              "after": 8
+            },
+            {
+              "object_id": "obj:autonomy",
+              "before": 10,
+              "after": 7
+            },
+            {
+              "object_id": "obj:dr_sora",
+              "before": null,
+              "after": 10
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 8,
+              "after": 9
+            },
+            {
+              "object_id": "obj:night_glider",
+              "before": 9,
+              "after": null
+            }
+          ]
+        },
+        {
+          "case_id": "char_self_risk",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:altruism",
+              "before": 7,
+              "after": 8
+            },
+            {
+              "object_id": "obj:autonomy",
+              "before": 10,
+              "after": 7
+            },
+            {
+              "object_id": "obj:dr_sora",
+              "before": null,
+              "after": 10
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 8,
+              "after": 9
+            },
+            {
+              "object_id": "obj:night_glider",
+              "before": 9,
+              "after": null
+            }
+          ]
+        },
+        {
+          "case_id": "ancestor_agent_person",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:aurora_lab",
+              "before": 2,
+              "after": 3
+            },
+            {
+              "object_id": "obj:mika",
+              "before": 3,
+              "after": 2
+            }
+          ]
+        },
+        {
+          "case_id": "ancestor_agent_person",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:aurora_lab",
+              "before": 2,
+              "after": 3
+            },
+            {
+              "object_id": "obj:mika",
+              "before": 3,
+              "after": 2
+            }
+          ]
+        }
+      ]
+    },
+    "0.50": {
+      "cases": [
+        {
+          "id": "identity_name_aoi",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:night_glider",
+                "obj:ash_garden",
+                "obj:aurora_lab",
+                "obj:iron_crown",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:night_glider",
+                "obj:ash_garden",
+                "obj:aurora_lab",
+                "obj:iron_crown",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "identity_alias_aoi",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:night_glider",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:dr_sora",
+                "obj:ren",
+                "obj:aurora_lab",
+                "obj:rivergate",
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:night_glider",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:dr_sora",
+                "obj:ren",
+                "obj:aurora_lab",
+                "obj:rivergate",
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "short_japanese_love",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:aoi",
+                "obj:glass_sky",
+                "obj:altruism",
+                "obj:iron_crown",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:night_glider",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:aoi",
+                "obj:glass_sky",
+                "obj:altruism",
+                "obj:iron_crown",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:night_glider",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "char_self_risk",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:self_sacrifice",
+                "obj:ren",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:glass_sky",
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:self_sacrifice",
+                "obj:ren",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:glass_sky",
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "char_trust_values",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "en_char_protect",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "work_loss_recovery",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "en_work_recovery",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "concept_self_sacrifice",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:self_sacrifice",
+                "obj:altruism",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:self_sacrifice",
+                "obj:altruism",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "concept_autonomy",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:self_sacrifice"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:self_sacrifice"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "person_education",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "organization_structure",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aurora_lab"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aurora_lab"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "series_scope",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "place_geography",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "event_causes",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:harbor_accord"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:harbor_accord"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "software_features",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:forgeedit"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:forgeedit"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "product_usage",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:orion_gpu"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:orion_gpu"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "species_distribution",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "phenomenon_mechanism",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:supply_squeeze"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:supply_squeeze"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "language_vocabulary",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "ability_condition",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "en_ability_mechanism",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "ancestor_agent_person",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:dr_sora",
+                "obj:mika",
+                "obj:aurora_lab",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dr_sora",
+                "obj:mika",
+                "obj:aurora_lab",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "additional_fictional",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:mika",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 0.8339912323981488
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        }
+      ],
+      "aggregate": {
+        "semantic": {
+          "mrr": 1.0,
+          "recall@1": 0.8541666666666666,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 0.9930829680165895
+        },
+        "hybrid": {
+          "mrr": 1.0,
+          "recall@1": 0.8541666666666666,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 1.0
+        }
+      },
+      "negative_deltas": [],
+      "case_rank_changes_vs_control": [
+        {
+          "case_id": "identity_name_aoi",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:ash_garden",
+              "before": 8,
+              "after": 7
+            },
+            {
+              "object_id": "obj:aurora_lab",
+              "before": 7,
+              "after": 8
+            }
+          ]
+        },
+        {
+          "case_id": "identity_name_aoi",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:ash_garden",
+              "before": 8,
+              "after": 7
+            },
+            {
+              "object_id": "obj:aurora_lab",
+              "before": 7,
+              "after": 8
+            }
+          ]
+        },
+        {
+          "case_id": "identity_alias_aoi",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:ash_garden",
+              "before": 4,
+              "after": 5
+            },
+            {
+              "object_id": "obj:dawn_chronicles",
+              "before": null,
+              "after": 10
+            },
+            {
+              "object_id": "obj:dr_sora",
+              "before": 7,
+              "after": 6
+            },
+            {
+              "object_id": "obj:luma_language",
+              "before": 10,
+              "after": null
+            },
+            {
+              "object_id": "obj:mika",
+              "before": 5,
+              "after": 4
+            },
+            {
+              "object_id": "obj:ren",
+              "before": 6,
+              "after": 7
+            }
+          ]
+        },
+        {
+          "case_id": "identity_alias_aoi",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:ash_garden",
+              "before": 4,
+              "after": 5
+            },
+            {
+              "object_id": "obj:dawn_chronicles",
+              "before": null,
+              "after": 10
+            },
+            {
+              "object_id": "obj:dr_sora",
+              "before": 7,
+              "after": 6
+            },
+            {
+              "object_id": "obj:luma_language",
+              "before": 10,
+              "after": null
+            },
+            {
+              "object_id": "obj:mika",
+              "before": 5,
+              "after": 4
+            },
+            {
+              "object_id": "obj:ren",
+              "before": 6,
+              "after": 7
+            }
+          ]
+        },
+        {
+          "case_id": "short_japanese_love",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:altruism",
+              "before": 4,
+              "after": 5
+            },
+            {
+              "object_id": "obj:aoi",
+              "before": 1,
+              "after": 3
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 5,
+              "after": 4
+            },
+            {
+              "object_id": "obj:mika",
+              "before": 3,
+              "after": 1
+            }
+          ]
+        },
+        {
+          "case_id": "short_japanese_love",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:altruism",
+              "before": 4,
+              "after": 5
+            },
+            {
+              "object_id": "obj:aoi",
+              "before": 2,
+              "after": 3
+            },
+            {
+              "object_id": "obj:ash_garden",
+              "before": 3,
+              "after": 2
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 5,
+              "after": 4
+            }
+          ]
+        },
+        {
+          "case_id": "char_self_risk",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:altruism",
+              "before": 7,
+              "after": 8
+            },
+            {
+              "object_id": "obj:autonomy",
+              "before": 10,
+              "after": 7
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 8,
+              "after": 9
+            },
+            {
+              "object_id": "obj:night_glider",
+              "before": 9,
+              "after": 10
+            }
+          ]
+        },
+        {
+          "case_id": "char_self_risk",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:altruism",
+              "before": 7,
+              "after": 8
+            },
+            {
+              "object_id": "obj:autonomy",
+              "before": 10,
+              "after": 7
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 8,
+              "after": 9
+            },
+            {
+              "object_id": "obj:night_glider",
+              "before": 9,
+              "after": 10
+            }
+          ]
+        },
+        {
+          "case_id": "ancestor_agent_person",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:aurora_lab",
+              "before": 2,
+              "after": 3
+            },
+            {
+              "object_id": "obj:mika",
+              "before": 3,
+              "after": 2
+            }
+          ]
+        },
+        {
+          "case_id": "ancestor_agent_person",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:aurora_lab",
+              "before": 2,
+              "after": 3
+            },
+            {
+              "object_id": "obj:mika",
+              "before": 3,
+              "after": 2
+            }
+          ]
+        }
+      ]
+    },
+    "0.75": {
+      "cases": [
+        {
+          "id": "identity_name_aoi",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:night_glider",
+                "obj:ash_garden",
+                "obj:aurora_lab",
+                "obj:iron_crown",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:night_glider",
+                "obj:ash_garden",
+                "obj:aurora_lab",
+                "obj:iron_crown",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "identity_alias_aoi",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:night_glider",
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:mika",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:aurora_lab",
+                "obj:rivergate",
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:night_glider",
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:mika",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:aurora_lab",
+                "obj:rivergate",
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "short_japanese_love",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:ash_garden",
+                "obj:aoi",
+                "obj:mika",
+                "obj:glass_sky",
+                "obj:altruism",
+                "obj:iron_crown",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:night_glider",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 0.3333333333333333,
+                "recall@1": 0.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 0.5
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:aoi",
+                "obj:glass_sky",
+                "obj:altruism",
+                "obj:iron_crown",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:night_glider",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "char_self_risk",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:self_sacrifice",
+                "obj:ren",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:altruism",
+                "obj:autonomy",
+                "obj:glass_sky",
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:self_sacrifice",
+                "obj:ren",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:altruism",
+                "obj:autonomy",
+                "obj:glass_sky",
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "char_trust_values",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "en_char_protect",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "work_loss_recovery",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "en_work_recovery",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "concept_self_sacrifice",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:self_sacrifice",
+                "obj:altruism",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:self_sacrifice",
+                "obj:altruism",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "concept_autonomy",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:self_sacrifice"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:self_sacrifice"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "person_education",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "organization_structure",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:aurora_lab"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aurora_lab"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "series_scope",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "place_geography",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "event_causes",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:harbor_accord"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:harbor_accord"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "software_features",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:forgeedit"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:forgeedit"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "product_usage",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:orion_gpu"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:orion_gpu"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "species_distribution",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "phenomenon_mechanism",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:supply_squeeze"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:supply_squeeze"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "language_vocabulary",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "ability_condition",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "en_ability_mechanism",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "ancestor_agent_person",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:dr_sora",
+                "obj:aurora_lab",
+                "obj:mika",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dr_sora",
+                "obj:aurora_lab",
+                "obj:mika",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        },
+        {
+          "id": "additional_fictional",
+          "modes": {
+            "semantic": {
+              "ids": [
+                "obj:mika",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 0.8339912323981488
+              }
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              }
+            }
+          }
+        }
+      ],
+      "aggregate": {
+        "semantic": {
+          "mrr": 0.9722222222222222,
+          "recall@1": 0.8125,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 0.9722496346832562
+        },
+        "hybrid": {
+          "mrr": 1.0,
+          "recall@1": 0.8541666666666666,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 1.0
+        }
+      },
+      "negative_deltas": [
+        {
+          "id": "short_japanese_love",
+          "mode": "semantic",
+          "delta": {
+            "mrr": -0.6666666666666667,
+            "recall@1": -1.0,
+            "recall@5": 0.0,
+            "recall@10": 0.0,
+            "ndcg@10": -0.5
+          }
+        }
+      ],
+      "case_rank_changes_vs_control": [
+        {
+          "case_id": "identity_name_aoi",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:ash_garden",
+              "before": 8,
+              "after": 7
+            },
+            {
+              "object_id": "obj:aurora_lab",
+              "before": 7,
+              "after": 8
+            }
+          ]
+        },
+        {
+          "case_id": "identity_name_aoi",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:ash_garden",
+              "before": 8,
+              "after": 7
+            },
+            {
+              "object_id": "obj:aurora_lab",
+              "before": 7,
+              "after": 8
+            }
+          ]
+        },
+        {
+          "case_id": "identity_alias_aoi",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:dawn_chronicles",
+              "before": null,
+              "after": 10
+            },
+            {
+              "object_id": "obj:luma_language",
+              "before": 10,
+              "after": null
+            }
+          ]
+        },
+        {
+          "case_id": "identity_alias_aoi",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:dawn_chronicles",
+              "before": null,
+              "after": 10
+            },
+            {
+              "object_id": "obj:luma_language",
+              "before": 10,
+              "after": null
+            }
+          ]
+        },
+        {
+          "case_id": "short_japanese_love",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:altruism",
+              "before": 4,
+              "after": 5
+            },
+            {
+              "object_id": "obj:aoi",
+              "before": 1,
+              "after": 2
+            },
+            {
+              "object_id": "obj:ash_garden",
+              "before": 2,
+              "after": 1
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 5,
+              "after": 4
+            }
+          ]
+        },
+        {
+          "case_id": "short_japanese_love",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:altruism",
+              "before": 4,
+              "after": 5
+            },
+            {
+              "object_id": "obj:aoi",
+              "before": 2,
+              "after": 3
+            },
+            {
+              "object_id": "obj:ash_garden",
+              "before": 3,
+              "after": 2
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 5,
+              "after": 4
+            }
+          ]
+        },
+        {
+          "case_id": "char_self_risk",
+          "mode": "semantic",
+          "changes": [
+            {
+              "object_id": "obj:autonomy",
+              "before": 10,
+              "after": 8
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 8,
+              "after": 9
+            },
+            {
+              "object_id": "obj:night_glider",
+              "before": 9,
+              "after": 10
+            }
+          ]
+        },
+        {
+          "case_id": "char_self_risk",
+          "mode": "hybrid",
+          "changes": [
+            {
+              "object_id": "obj:autonomy",
+              "before": 10,
+              "after": 8
+            },
+            {
+              "object_id": "obj:glass_sky",
+              "before": 8,
+              "after": 9
+            },
+            {
+              "object_id": "obj:night_glider",
+              "before": 9,
+              "after": 10
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "overview_owned_probes": [
+    {
+      "kind": "attribute",
+      "query": "deep sea coral reef restoration specialist",
+      "decisive_phrase": "Deep sea coral reef restoration specialist.",
+      "content_facet_duplication": false,
+      "weights": {
+        "0.25": {
+          "ids": [
+            "target",
+            "distractor"
+          ],
+          "pass": true
+        },
+        "0.5": {
+          "ids": [
+            "target",
+            "distractor"
+          ],
+          "pass": true
+        },
+        "0.75": {
+          "ids": [
+            "target",
+            "distractor"
+          ],
+          "pass": true
+        }
+      },
+      "production_selected": {
+        "ids": [
+          "target",
+          "distractor"
+        ],
+        "pass": true
+      }
+    },
+    {
+      "kind": "relation",
+      "query": "mentorship connection with Polar Glacier Observatory",
+      "decisive_phrase": "Polar Glacier Observatory",
+      "content_facet_duplication": false,
+      "weights": {
+        "0.25": {
+          "ids": [
+            "target",
+            "distractor"
+          ],
+          "pass": true
+        },
+        "0.5": {
+          "ids": [
+            "target",
+            "distractor"
+          ],
+          "pass": true
+        },
+        "0.75": {
+          "ids": [
+            "target",
+            "distractor"
+          ],
+          "pass": true
+        }
+      },
+      "production_selected": {
+        "ids": [
+          "target",
+          "distractor"
+        ],
+        "pass": true
+      }
+    },
+    {
+      "kind": "summary",
+      "query": "repairs antique astronomical clocks",
+      "decisive_phrase": "Repairs antique astronomical clocks.",
+      "content_facet_duplication": false,
+      "weights": {
+        "0.25": {
+          "ids": [
+            "target",
+            "distractor"
+          ],
+          "pass": true
+        },
+        "0.5": {
+          "ids": [
+            "target",
+            "distractor"
+          ],
+          "pass": true
+        },
+        "0.75": {
+          "ids": [
+            "target",
+            "distractor"
+          ],
+          "pass": true
+        }
+      },
+      "production_selected": {
+        "ids": [
+          "target",
+          "distractor"
+        ],
+        "pass": true
+      }
+    }
+  ],
+  "production": {
+    "case_rankings_match_selected_ablation": true,
+    "search": {
+      "modes": {
+        "lexical": {
+          "quality": {
+            "mrr": 0.16666666666666666,
+            "recall@1": 0.14583333333333334,
+            "recall@5": 0.14583333333333334,
+            "recall@10": 0.14583333333333334,
+            "ndcg@10": 0.15779810845795716
+          },
+          "latency": {
+            "count": 24,
+            "p50_ms": 0.41969999438151717,
+            "p95_ms": 0.7575999479740858,
+            "mean_ms": 0.4545333213172853
+          }
+        },
+        "semantic": {
+          "quality": {
+            "mrr": 1.0,
+            "recall@1": 0.8541666666666666,
+            "recall@5": 1.0,
+            "recall@10": 1.0,
+            "ndcg@10": 0.9930829680165895
+          },
+          "latency": {
+            "count": 24,
+            "p50_ms": 31.447049987036735,
+            "p95_ms": 57.524099946022034,
+            "mean_ms": 37.56371249619406
+          }
+        },
+        "hybrid": {
+          "quality": {
+            "mrr": 1.0,
+            "recall@1": 0.8541666666666666,
+            "recall@5": 1.0,
+            "recall@10": 1.0,
+            "ndcg@10": 1.0
+          },
+          "latency": {
+            "count": 24,
+            "p50_ms": 32.192149956244975,
+            "p95_ms": 47.90190001949668,
+            "mean_ms": 35.43134165617327
+          }
+        }
+      },
+      "statement_semantic": {
+        "quality": {
+          "mrr": 1.0,
+          "recall@1": 0.8636363636363636,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 0.9927018899225625
+        },
+        "latency": {
+          "count": 22,
+          "p50_ms": 0.672049995046109,
+          "p95_ms": 7.211899966932833,
+          "mean_ms": 1.5686272580007259
+        },
+        "cases": 22
+      },
+      "statement_embedding_ablation": {
+        "with_statement": {
+          "mrr": 1.0,
+          "recall@1": 0.8409090909090909,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 1.0
+        },
+        "without_statement": {
+          "mrr": 1.0,
+          "recall@1": 0.8409090909090909,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 1.0
+        },
+        "cases": 22
+      },
+      "exact_lookup_accuracy": 1.0,
+      "cases": [
+        {
+          "id": "identity_name_aoi",
+          "category": "exact_name",
+          "modes": {
+            "lexical": {
+              "ids": [
+                "obj:aoi"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:night_glider",
+                "obj:ash_garden",
+                "obj:aurora_lab",
+                "obj:iron_crown",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:night_glider",
+                "obj:ash_garden",
+                "obj:aurora_lab",
+                "obj:iron_crown",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          }
+        },
+        {
+          "id": "identity_alias_aoi",
+          "category": "exact_alias",
+          "modes": {
+            "lexical": {
+              "ids": [
+                "obj:aoi"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:night_glider",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:dr_sora",
+                "obj:ren",
+                "obj:aurora_lab",
+                "obj:rivergate",
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:night_glider",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:dr_sora",
+                "obj:ren",
+                "obj:aurora_lab",
+                "obj:rivergate",
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          }
+        },
+        {
+          "id": "short_japanese_love",
+          "category": "short_japanese",
+          "modes": {
+            "lexical": {
+              "ids": [
+                "obj:mika"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:aoi",
+                "obj:glass_sky",
+                "obj:altruism",
+                "obj:iron_crown",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:night_glider",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:aoi",
+                "obj:glass_sky",
+                "obj:altruism",
+                "obj:iron_crown",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:night_glider",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "3f4a168b-6201-4107-939f-d71f7b5ec75a",
+              "dc23bb3d-468a-4ae2-9b3a-b478419fa4ce",
+              "22c28768-3e57-4548-bf0d-7fc9c9f45a9f",
+              "28cb9379-b364-4d77-a25a-a7edca37b264",
+              "9fc437b6-43eb-408a-a245-a7aebca0ae19",
+              "74635edc-8c9e-4d07-b7d9-a1cc15342c7e",
+              "c945c9a4-24f9-4f43-b813-bed486258cfc",
+              "cb31a4a6-8808-494b-b218-7c7dc7890525",
+              "3d051254-25f5-40c9-a1f3-74a0b61da002",
+              "cb23a232-328c-46f0-afea-566e866d2216"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "char_self_risk",
+          "category": "fine_statement",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:self_sacrifice",
+                "obj:ren",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:glass_sky",
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:self_sacrifice",
+                "obj:ren",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:glass_sky",
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "cb23a232-328c-46f0-afea-566e866d2216",
+              "3d051254-25f5-40c9-a1f3-74a0b61da002",
+              "3fa9a355-7043-4fa5-9c84-f4594f350db1",
+              "021bc569-2dfa-474f-8f3e-2753dcaf2194",
+              "99b1818b-6270-469a-b867-f501acdba9c3",
+              "cb31a4a6-8808-494b-b218-7c7dc7890525",
+              "9efa87e7-44c6-41c3-b49c-cf385843ca47",
+              "22c28768-3e57-4548-bf0d-7fc9c9f45a9f",
+              "554fad43-36c9-47ab-8fad-12e59aab606c",
+              "080b6605-d845-4d01-b2b4-611bb6462380"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 0.5,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 0.9197207891481876
+            }
+          }
+        },
+        {
+          "id": "char_trust_values",
+          "category": "facet_specific",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "3d051254-25f5-40c9-a1f3-74a0b61da002",
+              "22c28768-3e57-4548-bf0d-7fc9c9f45a9f",
+              "99b1818b-6270-469a-b867-f501acdba9c3"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 0.5,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "en_char_protect",
+          "category": "cross_lingual",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "cb23a232-328c-46f0-afea-566e866d2216",
+              "3d051254-25f5-40c9-a1f3-74a0b61da002",
+              "3fa9a355-7043-4fa5-9c84-f4594f350db1",
+              "22c28768-3e57-4548-bf0d-7fc9c9f45a9f",
+              "cb31a4a6-8808-494b-b218-7c7dc7890525",
+              "080b6605-d845-4d01-b2b4-611bb6462380",
+              "3f4a168b-6201-4107-939f-d71f7b5ec75a",
+              "99b1818b-6270-469a-b867-f501acdba9c3"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 0.5,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 0.9197207891481876
+            }
+          }
+        },
+        {
+          "id": "work_loss_recovery",
+          "category": "work_theme",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "9fc437b6-43eb-408a-a245-a7aebca0ae19",
+              "dc23bb3d-468a-4ae2-9b3a-b478419fa4ce",
+              "3391cdab-993d-42c5-ad98-8a8df1d8254a"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 0.5,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "en_work_recovery",
+          "category": "cross_lingual",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "9fc437b6-43eb-408a-a245-a7aebca0ae19",
+              "dc23bb3d-468a-4ae2-9b3a-b478419fa4ce",
+              "74635edc-8c9e-4d07-b7d9-a1cc15342c7e",
+              "5cb1ab03-936a-47e0-b0e8-cf079d061fe1",
+              "3391cdab-993d-42c5-ad98-8a8df1d8254a",
+              "c945c9a4-24f9-4f43-b813-bed486258cfc"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 0.5,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "concept_self_sacrifice",
+          "category": "concept_definition",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:self_sacrifice",
+                "obj:altruism",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:self_sacrifice",
+                "obj:altruism",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "9efa87e7-44c6-41c3-b49c-cf385843ca47",
+              "021bc569-2dfa-474f-8f3e-2753dcaf2194",
+              "218b2ccb-573d-4cf2-9d48-67ccf13c4157",
+              "28cb9379-b364-4d77-a25a-a7edca37b264",
+              "554fad43-36c9-47ab-8fad-12e59aab606c",
+              "dc337af7-628e-4ea6-ac8d-54d56f07a9e6"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "concept_autonomy",
+          "category": "concept_definition",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:self_sacrifice"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:self_sacrifice"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "dc337af7-628e-4ea6-ac8d-54d56f07a9e6",
+              "554fad43-36c9-47ab-8fad-12e59aab606c",
+              "218b2ccb-573d-4cf2-9d48-67ccf13c4157",
+              "021bc569-2dfa-474f-8f3e-2753dcaf2194",
+              "9efa87e7-44c6-41c3-b49c-cf385843ca47",
+              "28cb9379-b364-4d77-a25a-a7edca37b264"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "person_education",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "4e9fc765-27f2-467f-9a4c-e40d2a752c38",
+              "7f6a4405-04c1-46ec-aa09-b86eec02de7d"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "organization_structure",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:aurora_lab"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aurora_lab"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "a08e5675-f8a0-46b6-bc6e-d54d7fca2fbf",
+              "8ba0d1bf-1bc9-433f-ba3a-45c6b79187f1"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "series_scope",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "b4f62c13-ae91-49c0-8b8b-56db9bef18f3",
+              "483a92ab-9ccb-43db-a1a3-1159fcf0e362"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "place_geography",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "1113b965-427f-408e-9df8-dd11f4350c6e",
+              "6a6d741e-90d3-4a09-ae05-b0086a219044"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "event_causes",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:harbor_accord"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:harbor_accord"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "8e579370-a19a-4f08-bdcb-fb83e92aab08"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "software_features",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:forgeedit"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:forgeedit"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "3b0d4ffe-c581-4474-80ae-4201e74dee16",
+              "9087a33c-ef3c-4381-aa2d-0aebda2e232d"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "product_usage",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:orion_gpu"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:orion_gpu"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "26d023d2-563a-4e74-9e8a-111f605614e0",
+              "0d2546b3-af0a-4b8b-8fe9-20e085b08819"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "species_distribution",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "6e41774c-aaa5-448e-8b05-804af0298a04",
+              "3fb36d76-da73-49cf-8a31-80952f77fe12"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "phenomenon_mechanism",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:supply_squeeze"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:supply_squeeze"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "c7a0b8ee-086f-4b61-97a7-4b8d8e0088db",
+              "76e53404-028f-4ef8-b4eb-646de41a7952"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "language_vocabulary",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "f0b0c4bb-02a4-45ca-89f6-64ae6861072e",
+              "f127435b-f977-4980-9d5f-74f6f3f7c445"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "ability_condition",
+          "category": "conditional_exception",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "9745e667-6e44-42de-bfce-72de10a44469"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "en_ability_mechanism",
+          "category": "cross_lingual",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "520aa3c9-ab16-4be1-9546-35a083228e49",
+              "9745e667-6e44-42de-bfce-72de10a44469"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "ancestor_agent_person",
+          "category": "class_filter",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:dr_sora",
+                "obj:mika",
+                "obj:aurora_lab",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dr_sora",
+                "obj:mika",
+                "obj:aurora_lab",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "4e9fc765-27f2-467f-9a4c-e40d2a752c38",
+              "7f6a4405-04c1-46ec-aa09-b86eec02de7d",
+              "a08e5675-f8a0-46b6-bc6e-d54d7fca2fbf",
+              "8ba0d1bf-1bc9-433f-ba3a-45c6b79187f1",
+              "22c28768-3e57-4548-bf0d-7fc9c9f45a9f",
+              "3f4a168b-6201-4107-939f-d71f7b5ec75a",
+              "99b1818b-6270-469a-b867-f501acdba9c3",
+              "3fa9a355-7043-4fa5-9c84-f4594f350db1",
+              "cb23a232-328c-46f0-afea-566e866d2216",
+              "cb31a4a6-8808-494b-b218-7c7dc7890525"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "additional_fictional",
+          "category": "class_filter",
+          "modes": {
+            "lexical": {
+              "ids": [
+                "obj:aoi"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 0.5,
+                "recall@10": 0.5,
+                "ndcg@10": 0.7871546029909718
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:mika",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 0.8339912323981488
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "22c28768-3e57-4548-bf0d-7fc9c9f45a9f",
+              "3d051254-25f5-40c9-a1f3-74a0b61da002",
+              "cb31a4a6-8808-494b-b218-7c7dc7890525",
+              "99b1818b-6270-469a-b867-f501acdba9c3",
+              "cb23a232-328c-46f0-afea-566e866d2216",
+              "3fa9a355-7043-4fa5-9c84-f4594f350db1",
+              "3f4a168b-6201-4107-939f-d71f7b5ec75a",
+              "080b6605-d845-4d01-b2b4-611bb6462380"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 0.5,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        }
+      ]
+    },
+    "contracts": {
+      "passed": 5,
+      "total": 5,
+      "cases": [
+        {
+          "id": "current_excludes_old",
+          "passed": true,
+          "ids": []
+        },
+        {
+          "id": "historical_finds_old",
+          "passed": true,
+          "ids": [
+            "obj:aoi"
+          ]
+        },
+        {
+          "id": "temporal_inside",
+          "passed": true,
+          "ids": [
+            "obj:aoi"
+          ]
+        },
+        {
+          "id": "temporal_outside",
+          "passed": true,
+          "ids": []
+        },
+        {
+          "id": "facet_hard_filter",
+          "passed": true,
+          "ids": [
+            "obj:mika",
+            "obj:aoi",
+            "obj:ren"
+          ]
+        }
+      ]
+    },
+    "structural_audit": {
+      "active_generation_contract": "n05d04r2-hierarchical-v2",
+      "membership_kinds": [
+        "facet",
+        "object_overview",
+        "statement"
+      ],
+      "vector_kinds": [
+        "facet",
+        "object_overview",
+        "statement"
+      ],
+      "vector_generation_ids": [
+        "search-generation:r2:search-quality-gold-v1"
+      ],
+      "object_overall_leakage": false,
+      "allowed_family_only": true,
+      "single_generation_payload": true,
+      "one_object_one_result": true,
+      "duplicate_result_cases": []
+    },
+    "similarity": {
+      "judgement_channel": "human_authored_synthetic_gold",
+      "quality": {
+        "mrr": 0.75,
+        "recall@1": 0.5,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "ndcg@10": 0.8154648767857288
+      },
+      "overall_quality": {
+        "mrr": 0.6666666666666666,
+        "recall@1": 0.3333333333333333,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "ndcg@10": 0.7539531690476383
+      },
+      "facet_quality": {
+        "mrr": 1.0,
+        "recall@1": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "ndcg@10": 1.0
+      },
+      "cases": [
+        {
+          "id": "character_overall",
+          "ids": [
+            "obj:mika",
+            "obj:ren"
+          ],
+          "metrics": {
+            "mrr": 1.0,
+            "recall@1": 1.0,
+            "recall@5": 1.0,
+            "recall@10": 1.0,
+            "ndcg@10": 1.0
+          }
+        },
+        {
+          "id": "character_values",
+          "ids": [
+            "obj:mika",
+            "obj:ren"
+          ],
+          "metrics": {
+            "mrr": 1.0,
+            "recall@1": 1.0,
+            "recall@5": 1.0,
+            "recall@10": 1.0,
+            "ndcg@10": 1.0
+          }
+        },
+        {
+          "id": "work_overall",
+          "ids": [
+            "obj:iron_crown",
+            "obj:ash_garden"
+          ],
+          "metrics": {
+            "mrr": 0.5,
+            "recall@1": 0.0,
+            "recall@5": 1.0,
+            "recall@10": 1.0,
+            "ndcg@10": 0.6309297535714575
+          }
+        },
+        {
+          "id": "concept_overall",
+          "ids": [
+            "obj:autonomy",
+            "obj:altruism"
+          ],
+          "metrics": {
+            "mrr": 0.5,
+            "recall@1": 0.0,
+            "recall@5": 1.0,
+            "recall@10": 1.0,
+            "ndcg@10": 0.6309297535714575
+          }
+        }
+      ]
+    },
+    "evidence_search": {
+      "lexical_association": {
+        "quality": {
+          "mrr": 1.0,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 1.0
+        },
+        "cases": [
+          {
+            "id": "evidence_aoi",
+            "ids": [
+              "ev:aoi:v2"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          },
+          {
+            "id": "evidence_software",
+            "ids": [
+              "ev:forgeedit:v1"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          },
+          {
+            "id": "evidence_event",
+            "ids": [
+              "ev:harbor_accord:v1"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        ]
+      },
+      "semantic": {
+        "quality": {
+          "mrr": 1.0,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 1.0
+        },
+        "cases": [
+          {
+            "id": "evidence_aoi",
+            "ids": [
+              "ev:aoi:v2",
+              "ev:dr_sora:v1",
+              "ev:ren:v1",
+              "ev:mika:v1",
+              "ev:glass_sky:v1",
+              "ev:night_glider:v1",
+              "ev:ash_garden:v1",
+              "ev:heat_shift:v1",
+              "ev:aurora_lab:v1",
+              "ev:noise:cooking",
+              "ev:luma_language:v1",
+              "ev:iron_crown:v1",
+              "ev:altruism:v1",
+              "ev:dawn_chronicles:v1",
+              "ev:rivergate:v1",
+              "ev:forgeedit:v1",
+              "ev:self_sacrifice:v1",
+              "ev:orion_gpu:v1",
+              "ev:autonomy:v1",
+              "ev:noise:finance"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          },
+          {
+            "id": "evidence_software",
+            "ids": [
+              "ev:forgeedit:v1",
+              "ev:orion_gpu:v1",
+              "ev:aoi:v1",
+              "ev:ash_garden:v1",
+              "ev:dr_sora:v1",
+              "ev:heat_shift:v1",
+              "ev:glass_sky:v1",
+              "ev:aurora_lab:v1",
+              "ev:aoi:v2",
+              "ev:iron_crown:v1",
+              "ev:mika:v1",
+              "ev:ren:v1",
+              "ev:luma_language:v1",
+              "ev:rivergate:v1",
+              "ev:noise:cooking",
+              "ev:autonomy:v1",
+              "ev:night_glider:v1",
+              "ev:dawn_chronicles:v1",
+              "ev:supply_squeeze:v1",
+              "ev:noise:finance"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          },
+          {
+            "id": "evidence_event",
+            "ids": [
+              "ev:harbor_accord:v1",
+              "ev:ash_garden:v1",
+              "ev:rivergate:v1",
+              "ev:iron_crown:v1",
+              "ev:aoi:v2",
+              "ev:ren:v1",
+              "ev:aoi:v1",
+              "ev:self_sacrifice:v1",
+              "ev:noise:finance",
+              "ev:supply_squeeze:v1",
+              "ev:autonomy:v1",
+              "ev:dr_sora:v1",
+              "ev:noise:weather",
+              "ev:mika:v1",
+              "ev:aurora_lab:v1",
+              "ev:glass_sky:v1",
+              "ev:night_glider:v1",
+              "ev:altruism:v1",
+              "ev:heat_shift:v1",
+              "ev:dawn_chronicles:v1"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        ]
+      }
+    },
+    "benchmark_seconds": 13.580054899910465,
+    "resource_observation": {
+      "torch_available": true,
+      "cuda_available": true,
+      "device": "NVIDIA GeForce RTX 4090",
+      "max_memory_allocated_bytes": 1338302464,
+      "max_memory_reserved_bytes": 1430257664
+    },
+    "fixture_sha256": "b71b8f10e62225f4b121f78153943c6e6b9c7272f53cb09ab222152d67d59c75"
+  },
+  "verification": {
+    "commands": {
+      "quality-test": {
+        "returncode": 0,
+        "seconds": 0.6421597000444308
+      },
+      "quality-harness": {
+        "returncode": 0,
+        "seconds": 14.604930100031197
+      },
+      "focused": {
+        "returncode": 0,
+        "seconds": 19.0519547999138
+      },
+      "full": {
+        "returncode": 0,
+        "seconds": 144.64414930006023
+      },
+      "compile": {
+        "returncode": 0,
+        "seconds": 0.31804969999939203
+      },
+      "ruff": {
+        "returncode": 0,
+        "seconds": 0.13045589998364449
+      },
+      "format": {
+        "returncode": 0,
+        "seconds": 0.09470160002820194
+      },
+      "diff": {
+        "returncode": 0,
+        "seconds": 0.1165490000275895
+      }
+    },
+    "passed_counts": {
+      "quality-test": 6,
+      "focused": 92,
+      "full": 647
+    },
+    "hybrid_suite_passed": 39
+  },
+  "safety": {
+    "r1_sha256_before": {
+      "benchmark/tools/n05_resource_preflight.py": "996c057354ff032235940775995c46054e0cfd92cb2aa44dd511271acde91cff",
+      "benchmark/tools/n05d04r1_sdpa_vram_diagnosis.py": "e11efff44264c5a152aaa284e2534c4cb85f058b7b03aab5290eec60eb2bcb40",
+      "tests/test_n05d04r1_sdpa_vram_diagnosis.py": "9ecfe8e767944c541a1481f0d16454caacfa0d4e576de9afe5e7ccef9cb16ee0"
+    },
+    "r1_sha256_after": {
+      "benchmark/tools/n05_resource_preflight.py": "996c057354ff032235940775995c46054e0cfd92cb2aa44dd511271acde91cff",
+      "benchmark/tools/n05d04r1_sdpa_vram_diagnosis.py": "e11efff44264c5a152aaa284e2534c4cb85f058b7b03aab5290eec60eb2bcb40",
+      "tests/test_n05d04r1_sdpa_vram_diagnosis.py": "9ecfe8e767944c541a1481f0d16454caacfa0d4e576de9afe5e7ccef9cb16ee0"
+    },
+    "r1_unchanged": true,
+    "production_canonical_or_vector_writes": false,
+    "gold_or_model_changes": false
+  },
+  "status": {
+    "r2_05_remediation": "Complete / verified on branch",
+    "r2_08": "FAIL / Not Complete; separate R2-06 Overall Similarity losses remain",
+    "r2_09": "Not Started / blocked"
+  }
+}

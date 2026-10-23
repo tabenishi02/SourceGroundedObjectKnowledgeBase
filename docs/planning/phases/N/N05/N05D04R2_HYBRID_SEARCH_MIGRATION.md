@@ -315,3 +315,120 @@ No quality/ANN/production cutover acceptance is claimed from these tests.
 Next: **R2-06 [P0] - Hierarchical Object Similarity redesign (Not Started)**.
 R2-06/R2-07 and the formal N-05 rerun were not started. N-05 remains BLOCKED /
 Not Complete.
+
+
+## Reference Workstation remediation verification (2026-10-24)
+
+R2-05 Semantic remediation: **Complete / verified on the remediation branch**.
+R2-08 remains **FAIL / Not Complete** because the separate R2-06 Overall
+Similarity regressions are unchanged. R2-09 remains blocked / Not Started.
+No main merge, production cutover or Similarity remediation was performed.
+
+Evidence: `benchmark/results/n05d04r2-r2-05-semantic-remediation.json`;
+local raw evidence: `.local/r2-05-remediation/20261024T000056/`.
+Execution baseline: `62c2748e7bdf552d5f7fd29bec817ffa5e04ceff`.
+
+### Measured root cause
+
+For `short_japanese_love` (`愛`), independent channel-local Object ranks were:
+
+| Object | Overview | Facet | Statement | Old fused score | Old final rank |
+|---|---:|---:|---:|---:|---:|
+| Aoi | 1 | 4 | 2 | 0.04814747488101534 | 1 |
+| Ash Garden | 2 | 2 | 3 | 0.048131080389144903 | 2 |
+| Mika | 8 | 1 | 1 | 0.047492767598842814 | 3 |
+
+Facet and Statement aggregation both correctly rank Mika first. The inversion
+occurs at the inherited equal-channel final RRF, where compact overview has the
+same authority as each detailed family. The machine-readable diagnostic retains
+all contributing representation/membership IDs, Facet/Statement identities,
+raw cosine, representation source ranks, admitted top-cap hits, local reciprocal
+contributions, Object ranks and final RRF scores for these three Objects.
+Current Version and generation scope are valid; active overall leakage is zero.
+
+### Bounded ablation and selection
+
+Each row evaluated all 24 frozen Object queries in Semantic and Hybrid modes.
+Facet/Statement weights remain 1.0. No query, relevance or model was modified.
+
+| Overview weight | Mika Semantic rank | Semantic MRR | Semantic nDCG@10 | Hybrid MRR / nDCG@10 | Negative case metrics vs Phase I |
+|---|---:|---:|---:|---:|---|
+| Control: old flat final RRF | 3 | 0.972222 | 0.972250 | 1.0 / 1.0 | love / Semantic |
+| 0.25 | 1 | 1.0 | 0.993083 | 1.0 / 1.0 | none |
+| 0.50 | 1 | 1.0 | 0.993083 | 1.0 / 1.0 | none |
+| 0.75 | 3 | 0.972222 | 0.972250 | 1.0 / 1.0 | love / Semantic |
+
+Selected **0.50**, the largest passing weight with adjacent tested 0.25 also
+passing. Attribute, Relation and facet-less Summary probes passed at all three
+weights (3/3 per weight), with a distinct target and distractor, actual frozen
+Harrier embeddings and no decisive phrase in a content-Facet Statement.
+Facet-less Summary may also legitimately have its own Statement representation;
+no claim of exclusive overview storage is made. Independent overview retrieval
+is additionally exercised by focused tests. These probes are separate from the
+frozen Phase-I corpus.
+
+R2 now computes bounded local family Object ranks as before, combines them with
+weights overview=0.5 / Facet=1 / Statement=1 and k=60, and produces one Semantic
+Object ranking. Only that ranking votes alongside Registry and Knowledge lexical
+in outer Hybrid RRF. Raw cosine and lexical scores are never added.
+Public match channels, exact identity priority, caps 1/2/3/3, hard filters and
+request-scoped generation resolution are unchanged. v1/pre-cutover retains the
+old flat RRF. Public fused scores consequently use one outer Semantic vote
+(e.g. a sole semantic Object scores 1/61, retaining all three match identities).
+
+### Production verification
+
+The unchanged quality harness was run with `--local-files-only` and an existing
+local cache. All 24 Semantic and Hybrid production rankings exactly match the
+selected isolated ablation. Against the saved Phase-I result with the same
+fixture hash and Embedding Space, no case has a negative comparable metric.
+Non-relevant distractor reorderings are retained in the case-level result.
+
+- Semantic: MRR=1.0, Recall@1=0.8541666666666666, Recall@10=1.0,
+  nDCG@10=0.9930829680165895.
+- Hybrid: MRR=1.0, Recall@1=0.8541666666666666, Recall@10=1.0, nDCG@10=1.0.
+- Statement retrieval: 22 queries, unchanged MRR=1.0 / Recall@10=1.0 /
+  nDCG@10=0.9927018899225625.
+- Contracts 5/5 PASS; active-generation isolation PASS; active overall leakage=0;
+  one Object/one result PASS. Facet-specific, temporal/derivation Statement-only,
+  current/history, exact identity, degradation and CLI/MCP/Application contracts
+  pass focused/full regression. Qdrant in-memory regression passes.
+- Existing Overall Similarity losses remain; Evidence and Facet Similarity are
+  unchanged. No R2-06 source was modified. Harness automatic PASS is not an
+  R2-08 completion decision.
+- Quality-harness workflow: 13.580s; CUDA peak allocated
+  1338302464 bytes, reserved
+  1430257664 bytes. These observations
+  are not formal N-05 timing.
+
+Commands/results:
+
+```text
+python -m pytest -q tests/test_hybrid_search.py tests/test_hybrid_search_r2.py tests/test_hybrid_search_r2_semantic_fusion.py
+  39 passed
+python -m pytest -q tests/test_n05d04r2_search_quality_acceptance.py
+  6 passed
+python scripts/run_n05d04r2_search_quality_acceptance.py --local-files-only --cache <existing-local-cache>
+  automatic PASS; R2-08 remains FAIL after manual Similarity review
+R2-08 focused set plus semantic fusion tests
+  92 passed
+python -m pytest -q
+  647 passed, 0 failed, 0 skipped
+python -m compileall -q src tests scripts
+  PASS
+python -m ruff check src tests scripts
+  PASS
+python -m ruff format --check <four changed Python files>
+  PASS
+git diff --check
+  PASS
+```
+
+The pre-existing repository-wide E501 in
+`benchmark/tools/n05_resource_preflight.py:69` was not modified.
+Original-workspace R1 assets remain unstaged and all three before/after SHA-256
+values match; exact hashes are recorded in the result. Canonical user data,
+reference DB/active generation and production Qdrant were not written.
+
+Next permitted review: separate R2-06 Overall Similarity remediation and then
+R2-08 re-acceptance. Neither is started here. R2-09 must not start.

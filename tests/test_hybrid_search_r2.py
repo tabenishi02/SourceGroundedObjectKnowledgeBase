@@ -595,7 +595,13 @@ def test_r2_exact_identity_priority_and_rrf_are_preserved(repo, space):
         "Needle", mode="semantic", filters=ObjectSearchFilters(version_id="priority-0")
     )
     assert len(semantic.results) == 1 and semantic.results[0].object_id == ids[0]
-    assert semantic.results[0].fused_score == pytest.approx(3 / 61)
+    # Three public semantic match families now produce one outer Semantic vote.
+    assert semantic.results[0].fused_score == pytest.approx(1 / 61)
+    assert {m.channel for m in semantic.results[0].matches} == {
+        ObjectSearchChannel.SEMANTIC_OBJECT_OVERVIEW,
+        ObjectSearchChannel.SEMANTIC_FACET,
+        ObjectSearchChannel.SEMANTIC_STATEMENT,
+    }
 
 
 @pytest.mark.parametrize(

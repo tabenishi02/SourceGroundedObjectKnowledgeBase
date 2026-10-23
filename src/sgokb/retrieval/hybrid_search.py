@@ -758,6 +758,13 @@ class HybridObjectSearch:
         details = {key: ordered for key, _, ordered in scored}
         return ranks, details
 
+    def _fusion_scores(self, candidates: dict[tuple[str, str | None], _Candidate]) -> dict:
+        """Phase-I channel-rank fusion; R2 supplies its semantic grouping here."""
+        return {
+            key: sum(1.0 / (RRF_K + rank) for rank in candidate.channel_ranks.values())
+            for key, candidate in candidates.items()
+        }
+
     def search(
         self,
         query: str,
@@ -879,10 +886,8 @@ class HybridObjectSearch:
                 candidate.channel_ranks[channel] = rank
                 candidate.channel_matches[channel].extend(details[key])
 
-        scored = []
-        for candidate in candidates.values():
-            fused = sum(1.0 / (RRF_K + rank) for rank in candidate.channel_ranks.values())
-            scored.append((candidate, fused))
+        fusion_scores = self._fusion_scores(candidates)
+        scored = [(candidate, fusion_scores[key]) for key, candidate in candidates.items()]
         scored.sort(
             key=lambda item: (
                 -item[0].exact_tier,

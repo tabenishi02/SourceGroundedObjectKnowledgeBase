@@ -25,13 +25,15 @@ from sgokb.domain import (
 
 from .generation import vector_generation_scope
 from .hybrid_search import (
+    RRF_K,
+    _Candidate,
+    _normalize,
+)
+from .hybrid_search import (
     HybridObjectSearch as _PhaseIHybridObjectSearch,
 )
 from .hybrid_search import (
     KnowledgeVectorIndexBuilder as _PhaseIKnowledgeVectorIndexBuilder,
-)
-from .hybrid_search import (
-    _normalize,
 )
 
 _PHASE_I_CONTRACT_KEY = "phase-i-search-v1"
@@ -176,6 +178,39 @@ class HybridObjectSearch(_PhaseIHybridObjectSearch):
                 return super().search(*args, **kwargs)
         finally:
             _GENERATION_CONTEXT.reset(token)
+
+    def _fusion_scores(self, candidates: dict[tuple[str, str | None], _Candidate]) -> dict:
+        if self._current_generation().contract_key != _R2_CONTRACT_KEY:
+            return super()._fusion_scores(candidates)
+        weights = {
+            ObjectSearchChannel.SEMANTIC_OBJECT_OVERVIEW: 0.5,
+            ObjectSearchChannel.SEMANTIC_FACET: 1.0,
+            ObjectSearchChannel.SEMANTIC_STATEMENT: 1.0,
+        }
+        inner_scores = {
+            key: sum(
+                weights[channel] / (RRF_K + rank)
+                for channel, rank in candidate.channel_ranks.items()
+                if channel in weights
+            )
+            for key, candidate in candidates.items()
+        }
+        ordered = sorted(
+            (key for key, score in inner_scores.items() if score > 0),
+            key=lambda key: (-inner_scores[key], key[0], key[1] or ""),
+        )
+        semantic_ranks = {key: rank for rank, key in enumerate(ordered, start=1)}
+        # One Semantic Object ranking votes alongside Registry/Knowledge lexical.
+        # Keep actual public match channels and their bounded local ranks intact.
+        return {
+            key: sum(
+                1.0 / (RRF_K + rank)
+                for channel, rank in candidate.channel_ranks.items()
+                if channel not in weights
+            )
+            + (1.0 / (RRF_K + semantic_ranks[key]) if key in semantic_ranks else 0.0)
+            for key, candidate in candidates.items()
+        }
 
     def _representation_kinds(self, filters: ObjectSearchFilters) -> tuple[str, ...]:
         if filters.knowledge_valid_at is not None or filters.temporal_scope_id is not None:

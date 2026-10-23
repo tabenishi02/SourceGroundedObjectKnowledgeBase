@@ -1,9 +1,9 @@
 # N05D-04R2 — Hierarchical Multi-Vector Redesign Task Breakdown
 
-Updated: 2026-10-23
+Updated: 2026-10-24
 
 - Parent: `N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign`
-- Status: **Active / R2-01-R2-07 Complete / R2-08 Next**
+- Status: **Active / R2-05 Semantic remediation verified / R2-08 FAIL; R2-06 quality remediation pending**
 - Formal N-05: **BLOCKED / Not Complete**
 - Design plan: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
 - R2-01 freeze: `docs/planning/phases/N/N05/N05D04R2_IMPACT_SURVEY.md`
@@ -27,7 +27,7 @@ R2-06 Hierarchical Object Similarity redesign          Complete
           ↓
 R2-07 Derived Search rebuild / cutover / rollback      Complete
           ↓
-R2-08 Search-quality acceptance                       Next / Not Started
+R2-08 Search-quality acceptance                       FAIL / Not Complete
           ↓
 R2-09 Performance/resource acceptance + formal N-05 rerun
           ↓
@@ -47,7 +47,7 @@ Do not start R2-05/R2-06 until the R2-04 runtime verification gate passes. Do no
 | R2-05 | P0 | **Complete** | Hybrid Searchを`object_overview + facet + statement`へ移行 |
 | R2-06 | P0 | **Complete** | overall Object Similarityをhierarchical multi-vector方式へ再設計・実装 |
 | R2-07 | P0 | **Complete** | Derived Search side-by-side rebuild / Qdrant cutover / rollbackを実装・検証 |
-| R2-08 | P0 | **Next / Not Started** | frozen gold拡張、quality acceptance、N-06影響確認 |
+| R2-08 | P0 | **FAIL / Not Complete** | frozen gold拡張、quality acceptance、N-06影響確認 |
 | R2-09 | P0 | Not Started | resource acceptance後、新run_idでformal N-05を全46 sample再実行 |
 | R2-10 | P0 | Not Started | docs / decision / closure auditを更新しN-05 final stateを確定 |
 
@@ -670,3 +670,22 @@ diff PASS; documented unrelated `n05_resource_preflight.py:69 E501` remains unch
 [Implementation / runtime record](N05D04R2_DERIVED_SEARCH_CUTOVER.md).
 R2-08, artifact retirement and formal N-05 rerun were not started.
 N-05 remains BLOCKED / Not Complete.
+
+
+## R2-05 Semantic remediation update (2026-10-24)
+
+R2-05 = Complete / Semantic remediation runtime verified on the remediation branch.
+Measured cause: compact overview over-authority in the inherited equal final
+RRF. Stable tested weights 0.25 and 0.50 pass; selected overview=0.50 with
+Facet=Statement=1.0. One internal Semantic Object ranking now votes in outer
+Hybrid fusion. The 24-query Semantic regression is restored without changing
+representations, model, filters, public match identities or R2-06 Similarity.
+
+See `docs/evaluation/N05D04R2_R2_05_SEMANTIC_REGRESSION_ROOT_CAUSE_REVIEW.md`
+and `benchmark/results/n05d04r2-r2-05-semantic-remediation.json`.
+
+Current quality state supersedes the historical next-task notes above:
+R2-08 = FAIL / Not Complete (separate R2-06 work/concept Similarity losses);
+R2-09 = blocked / Not Started. R2-08 can be re-executed after separate Similarity
+remediation. No Similarity remediation, performance benchmark or main merge
+was performed by this task.
