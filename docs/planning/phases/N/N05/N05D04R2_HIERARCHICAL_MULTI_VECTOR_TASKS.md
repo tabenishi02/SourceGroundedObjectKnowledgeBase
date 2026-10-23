@@ -1,10 +1,33 @@
 # N05D-04R2 — Hierarchical Multi-Vector Redesign Task Breakdown
 
+## Current acceptance update (2026-10-24)
+
+This update supersedes historical BLOCKED/next-task notes below.
+**R2-08 = Complete / PASS; R2-09 = Complete / PASS;
+R2-10 = Next / Not Started.** N05D-04R2 remains Active until R2-10 closure;
+N05D-04 and N-05 are Not Complete until that separate closure.
+
+Formal run `20261024T044506+0900` measured clean main
+`2711d4c389c4d1c722e864e17a7b6afb05af4c62`: exact 3/20/3/20 samples,
+46 PASS, 0 FAIL/ABORTED/retry. Standard warm p50/p95/max =
+11.3099469 / 12.2832216 / 12.3947986 s; Large =
+49.9412004 / 53.7066947 / 54.1282194 s. Evaluator Standard/Large/overall PASS
+against unchanged 600/1200 s Gates. Every sample used R2 only, overall leakage 0;
+46 namespaces / 34684 live points audited. Original canonical snapshots, measured
+HEAD, tracked state and all three R1 asset hashes were unchanged. Post-run evaluator
+8 tests / full suite 669 tests / repository-wide Ruff / diff PASS. Accepted Large
+resource diagnostic was reused without rerun; source/runtime identity unchanged.
+No R2-10 closure, performance tuning or additional benchmark was started.
+
+Formal result: `docs/evaluation/N05D04R2_R2_09_PERFORMANCE_ACCEPTANCE_RESULT.md`.
+Aggregate: `benchmark/results/n05d04r2-r2-09-performance-acceptance.json`.
+
+
 Updated: 2026-10-24
 
 - Parent: `N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign`
-- Status: **Active / R2-05 and Candidate E R2-06 remediation verified / R2-08 formal review pending**
-- Formal N-05: **BLOCKED / Not Complete**
+- Status: **Active / R2-08 and R2-09 Complete / PASS; R2-10 Next / Not Started**
+- Formal N-05: **Performance PASS / Not Complete until R2-10**
 - Design plan: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
 - R2-01 freeze: `docs/planning/phases/N/N05/N05D04R2_IMPACT_SURVEY.md`
 - R2-02 freeze: `docs/planning/phases/N/N05/N05D04R2_REQUIREMENTS_REPRESENTATION_CONTRACT.md`
@@ -27,7 +50,7 @@ R2-06 Hierarchical Object Similarity redesign          Complete
           ↓
 R2-07 Derived Search rebuild / cutover / rollback      Complete
           ↓
-R2-08 Search-quality acceptance                       FAIL / Not Complete
+R2-08 Search-quality acceptance                       Complete / PASS
           ↓
 R2-09 Performance/resource acceptance + formal N-05 rerun
           ↓
@@ -47,9 +70,9 @@ Do not start R2-05/R2-06 until the R2-04 runtime verification gate passes. Do no
 | R2-05 | P0 | **Complete** | Hybrid Searchを`object_overview + facet + statement`へ移行 |
 | R2-06 | P0 | **Complete** | overall Object Similarityをhierarchical multi-vector方式へ再設計・実装 |
 | R2-07 | P0 | **Complete** | Derived Search side-by-side rebuild / Qdrant cutover / rollbackを実装・検証 |
-| R2-08 | P0 | **FAIL / Not Complete** | frozen gold拡張、quality acceptance、N-06影響確認 |
-| R2-09 | P0 | Not Started | resource acceptance後、新run_idでformal N-05を全46 sample再実行 |
-| R2-10 | P0 | Not Started | docs / decision / closure auditを更新しN-05 final stateを確定 |
+| R2-08 | P0 | **Complete / PASS** | frozen gold拡張、quality acceptance、N-06影響確認 |
+| R2-09 | P0 | **Complete / PASS** | resource acceptance後、新run_idでformal N-05を全46 sample再実行 |
+| R2-10 | P0 | **Next / Not Started** | docs / decision / closure auditを更新しN-05 final stateを確定 |
 
 ---
 

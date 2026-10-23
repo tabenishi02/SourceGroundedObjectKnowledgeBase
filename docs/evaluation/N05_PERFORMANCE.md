@@ -1,17 +1,40 @@
 # N-05 — Performance Evaluation
 
+## Current acceptance update (2026-10-24)
+
+This update supersedes historical BLOCKED/next-task notes below.
+**R2-08 = Complete / PASS; R2-09 = Complete / PASS;
+R2-10 = Next / Not Started.** N05D-04R2 remains Active until R2-10 closure;
+N05D-04 and N-05 are Not Complete until that separate closure.
+
+Formal run `20261024T044506+0900` measured clean main
+`2711d4c389c4d1c722e864e17a7b6afb05af4c62`: exact 3/20/3/20 samples,
+46 PASS, 0 FAIL/ABORTED/retry. Standard warm p50/p95/max =
+11.3099469 / 12.2832216 / 12.3947986 s; Large =
+49.9412004 / 53.7066947 / 54.1282194 s. Evaluator Standard/Large/overall PASS
+against unchanged 600/1200 s Gates. Every sample used R2 only, overall leakage 0;
+46 namespaces / 34684 live points audited. Original canonical snapshots, measured
+HEAD, tracked state and all three R1 asset hashes were unchanged. Post-run evaluator
+8 tests / full suite 669 tests / repository-wide Ruff / diff PASS. Accepted Large
+resource diagnostic was reused without rerun; source/runtime identity unchanged.
+No R2-10 closure, performance tuning or additional benchmark was started.
+
+Formal result: `docs/evaluation/N05D04R2_R2_09_PERFORMANCE_ACCEPTANCE_RESULT.md`.
+Aggregate: `benchmark/results/n05d04r2-r2-09-performance-acceptance.json`.
+
+
 更新日: 2026-10-23
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-05 [P0] — Performance`
-- Status: **BLOCKED / Not Complete — N05D-04R2 hierarchical redesign active**
+- Status: **Formal performance PASS / N-05 Not Complete until R2-10 closure**
 - Historical formal run: `20261022T130413+0900`
 - Historical formal run HEAD: `a7147f9842f94e96944bc7f67b4c3986970462b0`
 - First D04 rerun: `20261023T025413+0900` — environment BLOCKED / user-aborted
 - R1 backend diagnostic: `20261023T035147+0900` — partial / user-aborted
 - Current redesign: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
 - Current tasks: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md`
-- Current performance target: **Not Judgeable until redesigned system reaches R2-09 formal rerun**
+- Current performance target: **PASS — R2-09 formal run 20261024T044506+0900**
 
 ## 1. Evaluation question
 

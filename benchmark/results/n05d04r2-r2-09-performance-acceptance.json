@@ -1,0 +1,186 @@
+{
+  "schema_version": "sgokb.r2-09.formal-summary.v1",
+  "run_id": "20261024T044506+0900",
+  "measured_head": "2711d4c389c4d1c722e864e17a7b6afb05af4c62",
+  "accepted_large_diagnostic": "20261024T040021+0900",
+  "overall": "PASS",
+  "profiles": {
+    "standard": {
+      "statistics": {
+        "target_p95_seconds": 600.0,
+        "warm_sample_count": 20,
+        "cold_sample_count": 3,
+        "warm_failure_count": 0,
+        "retry_count_total": 0,
+        "min_seconds": 10.2192924,
+        "p50_seconds": 11.309946899999998,
+        "p95_seconds": 12.2832216,
+        "max_seconds": 12.3947986,
+        "segment_p95_seconds": {
+          "package_build": 1.2188512,
+          "package_stage": 0.4785016,
+          "package_preflight": 0.1196152,
+          "result_validation": 0.2703156,
+          "diff_review": 0.0067212,
+          "result_import": 0.0332824,
+          "derived_incremental_sync": 10.4310613,
+          "render": 0.0151591
+        },
+        "cold_diagnostic": {
+          "pass_count": 3,
+          "min_seconds": 16.4993831,
+          "p95_seconds": 16.914638,
+          "max_seconds": 16.914638
+        }
+      },
+      "counts": {
+        "cold": 3,
+        "warm": 20,
+        "PASS": 23,
+        "FAIL": 0,
+        "ABORTED": 0,
+        "retries": 0
+      },
+      "warm_sync_fraction": 0.8416323108501106,
+      "warm_segments": {
+        "package_build": {
+          "p50": 0.9908429,
+          "p95": 1.2188512,
+          "max": 1.3570348
+        },
+        "package_stage": {
+          "p50": 0.3969889,
+          "p95": 0.4785016,
+          "max": 0.4831506
+        },
+        "package_preflight": {
+          "p50": 0.1031948,
+          "p95": 0.1196152,
+          "max": 0.1357572
+        },
+        "result_validation": {
+          "p50": 0.2167127,
+          "p95": 0.2703156,
+          "max": 0.2972216
+        },
+        "diff_review": {
+          "p50": 0.0037168,
+          "p95": 0.0067212,
+          "max": 0.0122321
+        },
+        "result_import": {
+          "p50": 0.0178416,
+          "p95": 0.0332824,
+          "max": 0.0367199
+        },
+        "derived_incremental_sync": {
+          "p50": 9.5000486,
+          "p95": 10.4310613,
+          "max": 10.5095242
+        },
+        "render": {
+          "p50": 0.0125162,
+          "p95": 0.0151591,
+          "max": 0.0184306
+        }
+      }
+    },
+    "large": {
+      "statistics": {
+        "target_p95_seconds": 1200.0,
+        "warm_sample_count": 20,
+        "cold_sample_count": 3,
+        "warm_failure_count": 0,
+        "retry_count_total": 0,
+        "min_seconds": 45.6563244,
+        "p50_seconds": 49.9412004,
+        "p95_seconds": 53.70669470000001,
+        "max_seconds": 54.1282194,
+        "segment_p95_seconds": {
+          "package_build": 6.211083,
+          "package_stage": 0.957427,
+          "package_preflight": 0.2249785,
+          "result_validation": 0.6097816,
+          "diff_review": 0.0124819,
+          "result_import": 0.1454492,
+          "derived_incremental_sync": 46.3862137,
+          "render": 0.0760917
+        },
+        "cold_diagnostic": {
+          "pass_count": 3,
+          "min_seconds": 54.7359171,
+          "p95_seconds": 61.8104252,
+          "max_seconds": 61.8104252
+        }
+      },
+      "counts": {
+        "cold": 3,
+        "warm": 20,
+        "PASS": 23,
+        "FAIL": 0,
+        "ABORTED": 0,
+        "retries": 0
+      },
+      "warm_sync_fraction": 0.864872602569369,
+      "warm_segments": {
+        "package_build": {
+          "p50": 4.69045,
+          "p95": 6.211083,
+          "max": 6.4146303
+        },
+        "package_stage": {
+          "p50": 0.8228850000000001,
+          "p95": 0.957427,
+          "max": 0.9876556
+        },
+        "package_preflight": {
+          "p50": 0.19246449999999998,
+          "p95": 0.2249785,
+          "max": 0.2630196
+        },
+        "result_validation": {
+          "p50": 0.55988305,
+          "p95": 0.6097816,
+          "max": 0.6683851
+        },
+        "diff_review": {
+          "p50": 0.0091889,
+          "p95": 0.0124819,
+          "max": 0.0155532
+        },
+        "result_import": {
+          "p50": 0.11808455000000001,
+          "p95": 0.1454492,
+          "max": 0.2675899
+        },
+        "derived_incremental_sync": {
+          "p50": 43.31013205,
+          "p95": 46.3862137,
+          "max": 47.0050612
+        },
+        "render": {
+          "p50": 0.043139,
+          "p95": 0.0760917,
+          "max": 0.0868334
+        }
+      }
+    }
+  },
+  "audit": {
+    "status": "PASS",
+    "samples": 46,
+    "namespaces": 46,
+    "generation_ids": 46,
+    "points": 34684,
+    "canonical_original_sha256": "0ee6bdca3a674cabf961804676c90840cfb8684b3949460b4e87e7a5286c3599",
+    "r1_current_unchanged": true
+  },
+  "r1_unchanged": true,
+  "states": {
+    "R2-09": "Complete / PASS",
+    "R2-10": "Next / Not Started",
+    "N05D-04R2": "Active until R2-10 closure",
+    "N05D-04": "Not Complete until R2-10",
+    "N-05": "Not Complete until R2-10"
+  }
+}

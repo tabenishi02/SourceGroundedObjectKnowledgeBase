@@ -1,8 +1,31 @@
 # Source Grounded Object Knowledge Base — Phase N Preparation
 
+## Current acceptance update (2026-10-24)
+
+This update supersedes historical BLOCKED/next-task notes below.
+**R2-08 = Complete / PASS; R2-09 = Complete / PASS;
+R2-10 = Next / Not Started.** N05D-04R2 remains Active until R2-10 closure;
+N05D-04 and N-05 are Not Complete until that separate closure.
+
+Formal run `20261024T044506+0900` measured clean main
+`2711d4c389c4d1c722e864e17a7b6afb05af4c62`: exact 3/20/3/20 samples,
+46 PASS, 0 FAIL/ABORTED/retry. Standard warm p50/p95/max =
+11.3099469 / 12.2832216 / 12.3947986 s; Large =
+49.9412004 / 53.7066947 / 54.1282194 s. Evaluator Standard/Large/overall PASS
+against unchanged 600/1200 s Gates. Every sample used R2 only, overall leakage 0;
+46 namespaces / 34684 live points audited. Original canonical snapshots, measured
+HEAD, tracked state and all three R1 asset hashes were unchanged. Post-run evaluator
+8 tests / full suite 669 tests / repository-wide Ruff / diff PASS. Accepted Large
+resource diagnostic was reused without rerun; source/runtime identity unchanged.
+No R2-10 closure, performance tuning or additional benchmark was started.
+
+Formal result: `docs/evaluation/N05D04R2_R2_09_PERFORMANCE_ACCEPTANCE_RESULT.md`.
+Aggregate: `benchmark/results/n05d04r2-r2-09-performance-acceptance.json`.
+
+
 更新日: 2026-10-23
 
-- Status: **Active — N-01〜N-04 Complete / N-05 Active (BLOCKED; hierarchical redesign in progress) / N-06 Ready**
+- Status: **Active — N-01〜N-04 Complete / N-05 Active (R2-09 PASS; R2-10 closure not started) / N-06 Ready**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - N-04 decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
@@ -40,7 +63,7 @@ Phase Nでは、Phase A〜Mで成立したSGOKBが、新しい目的に対して
 | N-02 | P0 | **Complete (2026-10-16)** | cross-domain Integrationを確認 |
 | N-03 | P0 | **Complete (2026-10-16)** | Character / Work / Conceptの実データVertical Slice |
 | N-04 | P0 | **Complete / PASS (2026-10-22)** | Knowledge Access Boundaryを代表3用途で受入 |
-| N-05 | P0 | **Active / BLOCKED — N05D-04R2 redesign active** | 1 Object local automatic processing性能を評価 |
+| N-05 | P0 | **Active / R2-09 PASS; Not Complete until R2-10** | 1 Object local automatic processing性能を評価 |
 | N-06 | P0 | **Ready; R2 quality acceptanceで連携** | Retrieval / Vector Backend品質評価 |
 | N-07 | P1 | Pending | Failure / Recovery試験 |
 
