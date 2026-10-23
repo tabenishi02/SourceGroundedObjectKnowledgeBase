@@ -4,11 +4,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .application_generation import (
+    LEGACY_GENERATION_ID,
+    KnowledgeSearchGenerationApplication,
+)
 from .application_maintenance import (
     DerivedMaintenanceError,
     DerivedMaintenanceRuntimeUnavailableError,
     DerivedMaintenanceSupersededError,
     DerivedSearchMaintenanceApplication,
+)
+from .retrieval.generation import (
+    GenerationAwareSearchRepresentationBuilder,
+    route_generation_vector_index,
 )
 
 
@@ -39,11 +47,11 @@ class DerivedBatchSyncResult:
 
 
 class DerivedSearchOperatorApplication:
-    """Public Application boundary used by `system derived` operator commands.
+    """Public Application boundary used by ``system derived`` operator commands.
 
-    The facade exposes status and ordered pipeline synchronization without exposing
-    internal builders. Semantic work is possible only when the caller explicitly
-    injects the frozen local embedding provider and Vector backend.
+    Normal incremental maintenance follows the active generation after R2-07
+    bootstrap. Generation lifecycle methods are explicit operator actions and never
+    run as a side effect of read traffic.
     """
 
     _PIPELINE_KINDS = ("search_representation", "embedding", "vector_index", "rendering")
@@ -51,11 +59,17 @@ class DerivedSearchOperatorApplication:
     def __init__(self, repository, *, embedding_provider=None, vector_index=None) -> None:
         self._repository = repository
         self._embedding_provider = embedding_provider
-        self._vector_index = vector_index
-        self._maintenance = DerivedSearchMaintenanceApplication(
+        self._vector_index = route_generation_vector_index(repository, vector_index)
+        self._generation = KnowledgeSearchGenerationApplication(
             repository,
             embedding_provider=embedding_provider,
-            vector_index=vector_index,
+            vector_index=self._vector_index,
+        )
+        self._maintenance = DerivedSearchMaintenanceApplication(
+            repository,
+            search_representation_builder=GenerationAwareSearchRepresentationBuilder(repository),
+            embedding_provider=embedding_provider,
+            vector_index=self._vector_index,
             embedding_space=(embedding_provider.space if embedding_provider is not None else None),
         )
 
@@ -125,7 +139,7 @@ class DerivedSearchOperatorApplication:
         }
 
     def status(self, object_id: str | None = None) -> dict:
-        """Return operator-visible derived state without changing canonical/derived data."""
+        """Return operator-visible derived state without changing data."""
 
         runtime = self._runtime_payload()
         space = self._embedding_provider.space if self._embedding_provider is not None else None
@@ -183,7 +197,50 @@ class DerivedSearchOperatorApplication:
             "object_count": len(objects),
             "objects": objects,
             "runtime": runtime,
+            "generation": self._generation.status(),
         }
+
+    def generation_status(self) -> dict:
+        return self._generation.status()
+
+    def bootstrap_legacy_generation(self, *, reason: str = "R2-07 legacy bootstrap"):
+        return self._generation.bootstrap_legacy(reason=reason)
+
+    def build_r2_candidate_generation(self):
+        return self._generation.build_r2_candidate()
+
+    def cutover_generation(
+        self,
+        generation_id: str,
+        *,
+        reason: str = "R2-07 cutover",
+        smoke: bool = True,
+    ):
+        return self._generation.cutover(
+            generation_id,
+            reason=reason,
+            smoke=smoke,
+        )
+
+    def rollback_generation(
+        self,
+        generation_id: str = LEGACY_GENERATION_ID,
+        *,
+        reason: str = "R2-07 rollback rehearsal",
+        smoke: bool = True,
+    ):
+        return self._generation.rollback(
+            generation_id,
+            reason=reason,
+            smoke=smoke,
+        )
+
+    def recover_interrupted_generations(
+        self,
+        *,
+        reason: str = "R2-07 interrupted build recovery",
+    ) -> int:
+        return self._generation.recover_interrupted_builds(reason=reason)
 
     def _sync_one(self, row: dict, *, semantic: bool) -> DerivedObjectSyncResult:
         stages: list[DerivedSyncStageResult] = []
@@ -201,7 +258,11 @@ class DerivedSearchOperatorApplication:
                 result = operation(row["id"])
             except DerivedMaintenanceRuntimeUnavailableError as exc:
                 stages.append(
-                    DerivedSyncStageResult(kind=kind, status="runtime_unavailable", error=str(exc))
+                    DerivedSyncStageResult(
+                        kind=kind,
+                        status="runtime_unavailable",
+                        error=str(exc),
+                    )
                 )
                 return DerivedObjectSyncResult(
                     object_id=row["id"],
@@ -225,7 +286,9 @@ class DerivedSearchOperatorApplication:
                 states = self._repository.version_store.derived_states(row["id"])
                 state = next((item for item in states if item.kind == kind), None)
                 status = state.status.value if state is not None else "blocked"
-                stages.append(DerivedSyncStageResult(kind=kind, status=status, error=str(exc)))
+                stages.append(
+                    DerivedSyncStageResult(kind=kind, status=status, error=str(exc))
+                )
                 return DerivedObjectSyncResult(
                     object_id=row["id"],
                     current_version_id=row["current_version_id"],
@@ -233,7 +296,9 @@ class DerivedSearchOperatorApplication:
                     complete=False,
                     stages=tuple(stages),
                 )
-            stages.append(DerivedSyncStageResult(kind=kind, status="ready", result=result))
+            stages.append(
+                DerivedSyncStageResult(kind=kind, status="ready", result=result)
+            )
 
         return DerivedObjectSyncResult(
             object_id=row["id"],
@@ -249,12 +314,7 @@ class DerivedSearchOperatorApplication:
         *,
         semantic: bool = False,
     ) -> DerivedBatchSyncResult:
-        """Synchronize one or all current Objects in dependency order.
-
-        Search Representation always runs. Embedding and Vector stages run only when
-        `semantic=True`, which requires explicitly injected local semantic runtime.
-        Per-Object failures are returned as partial results so a batch can continue.
-        """
+        """Synchronize one or all current Objects in dependency order."""
 
         if semantic and (self._embedding_provider is None or self._vector_index is None):
             raise DerivedMaintenanceRuntimeUnavailableError(
