@@ -5,11 +5,15 @@ from __future__ import annotations
 import os
 
 from sgokb.application_read import KnowledgeReadApplication, RetrievalRuntimeUnavailableError
-from sgokb.retrieval import QdrantVectorIndexAdapter, default_sentence_transformer_provider
+from sgokb.retrieval import (
+    QdrantVectorIndexAdapter,
+    default_sentence_transformer_provider,
+    route_generation_vector_index,
+)
 
 
 def semantic_runtime():
-    """Build the frozen Phase I local semantic runtime; never fall back to cloud."""
+    """Build the frozen local semantic runtime; never fall back to cloud."""
 
     try:
         provider = default_sentence_transformer_provider(
@@ -33,6 +37,7 @@ def build_read_application(repository, *, with_semantic: bool = False):
     if not with_semantic:
         return KnowledgeReadApplication(repository)
     provider, vector = semantic_runtime()
+    vector = route_generation_vector_index(repository, vector)
     return KnowledgeReadApplication(
         repository,
         embedding_provider=provider,
