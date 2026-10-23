@@ -43,15 +43,17 @@ def test_r2_08_reuses_frozen_phase_i_gold_without_rewriting_historical_expectati
 def test_r2_08_connects_all_six_hierarchical_similarity_gold_cases():
     contract = _load(CONTRACT)
     similarity = _load(R2_SIMILARITY_GOLD)
-    actual = [case["id"] for case in similarity["cases"]]
-    assert actual == contract["required_r2_similarity_case_ids"]
-    assert actual == [
-        "G01_detail_facet_breaks_overview_tie",
-        "G02_small_statement_evidence_breaks_overview_and_facet_tie",
-        "G03_large_irrelevant_statement_count_has_no_volume_boost",
-        "G04_canonical_facet_boundary_is_hard",
-        "G05_generation_and_current_version_isolation",
-        "G06_bounded_work_contract",
+    ids = [case["id"] for case in similarity["cases"]]
+    names = [case["name"] for case in similarity["cases"]]
+    assert ids == contract["required_r2_similarity_case_ids"]
+    assert names == contract["required_r2_similarity_case_names"]
+    assert ids == [
+        "R2SIM-G01",
+        "R2SIM-G02",
+        "R2SIM-G03",
+        "R2SIM-G04",
+        "R2SIM-G05",
+        "R2SIM-G06",
     ]
 
 
