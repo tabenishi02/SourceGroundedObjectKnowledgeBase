@@ -88,11 +88,31 @@ class KnowledgeVectorMaintenanceBuilder(_R2KnowledgeVectorIndexBuilder):
         written = self.vector_index.upsert(space, points)
         return len(points), int(written)
 
+    def _audit_rebuild(self, space: EmbeddingSpaceSpec, points) -> None:
+        auditor = getattr(self.vector_index, "audit_memberships", None)
+        if auditor is None or self.generation_id is None:
+            return
+        row = self.db.execute(
+            "SELECT contract_key FROM knowledge_search_generations WHERE id=?",
+            (self.generation_id,),
+        ).fetchone()
+        if row is None:
+            raise ValueError("Vector Index rebuild generation disappeared during audit")
+        auditor(
+            space,
+            tuple(point.point_id for point in points),
+            generation_id=self.generation_id,
+            require_generation_payload=(
+                row["contract_key"] == "n05d04r2-hierarchical-v2"
+            ),
+        )
+
     def rebuild_backend(self, space: EmbeddingSpaceSpec):
-        """Rebuild the selected generation from persisted memberships + Embeddings."""
+        """Rebuild and audit the selected generation from persisted derived state."""
 
         points = self.points(space)
         metadata = self.vector_index.rebuild(space, points)
+        self._audit_rebuild(space, points)
         return metadata, len(points)
 
     def rebuild(self, space: EmbeddingSpaceSpec):
