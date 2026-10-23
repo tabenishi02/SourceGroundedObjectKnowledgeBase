@@ -6,10 +6,11 @@ import importlib.util
 from pathlib import Path
 
 import pytest
+from qdrant_client import QdrantClient
 
 from sgokb.domain import EmbeddingSpaceSpec
 from sgokb.repository import Repository
-from sgokb.retrieval import ExactVectorIndexAdapter
+from sgokb.retrieval import QdrantVectorIndexAdapter
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location(
@@ -59,7 +60,14 @@ def test_fixture_is_fresh_and_canonical_samples_do_not_carry_versions_or_embeddi
     for number in range(2):
         sample = tmp_path / f"sample-{number}"
         result = WORK.run_sample(
-            fixture, sample, f"unit-{number}", UnitProvider, lambda space: ExactVectorIndexAdapter()
+            fixture,
+            sample,
+            f"unit-{number}",
+            UnitProvider,
+            lambda space: QdrantVectorIndexAdapter(
+                client=QdrantClient(":memory:"), wait_for_index=False
+            ),
+            bootstrap_space=UnitProvider().space,
         )
         assert result["status"] == "PASS", (
             WORK.read(sample / "execution-error.json") if result["status"] != "PASS" else result
@@ -92,7 +100,14 @@ def test_prebuilt_result_statements_are_exact_explicit_readings_from_selected_ev
     WORK.prepare_fixture(fixture, "unit", target())
     sample = tmp_path / "sample"
     result = WORK.run_sample(
-        fixture, sample, "unit", UnitProvider, lambda space: ExactVectorIndexAdapter()
+        fixture,
+        sample,
+        "unit",
+        UnitProvider,
+        lambda space: QdrantVectorIndexAdapter(
+            client=QdrantClient(":memory:"), wait_for_index=False
+        ),
+        bootstrap_space=UnitProvider().space,
     )
     assert result["status"] == "PASS"
     payload = WORK.read(sample / "external-result/result.json")
@@ -116,7 +131,14 @@ def test_failed_workflow_keeps_evidence_and_does_not_invent_unexecuted_timings(t
         raise RuntimeError("unit runtime unavailable")
 
     result = WORK.run_sample(
-        fixture, sample, "failed", unavailable, lambda space: ExactVectorIndexAdapter()
+        fixture,
+        sample,
+        "failed",
+        unavailable,
+        lambda space: QdrantVectorIndexAdapter(
+            client=QdrantClient(":memory:"), wait_for_index=False
+        ),
+        bootstrap_space=UnitProvider().space,
     )
     assert result["status"] == "FAIL"
     assert result["retry_count"] == 0
@@ -126,7 +148,14 @@ def test_failed_workflow_keeps_evidence_and_does_not_invent_unexecuted_timings(t
     assert WORK.read(sample / "sample.json")["status"] == "FAIL"
     with pytest.raises(FileExistsError):
         WORK.run_sample(
-            fixture, sample, "failed", UnitProvider, lambda space: ExactVectorIndexAdapter()
+            fixture,
+            sample,
+            "failed",
+            UnitProvider,
+            lambda space: QdrantVectorIndexAdapter(
+                client=QdrantClient(":memory:"), wait_for_index=False
+            ),
+            bootstrap_space=UnitProvider().space,
         )
 
 

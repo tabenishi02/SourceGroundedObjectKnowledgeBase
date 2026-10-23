@@ -62,6 +62,11 @@ class GenerationAwareSearchRepresentationBuilder(SearchRepresentationBuilder):
         generation = self._active_generation()
         if generation is None:
             return super().materialize_version(version_id)
+        if (generation["contract_key"], generation["contract_version"]) not in {
+            (_PHASE_I_CONTRACT_KEY, 1),
+            (_R2_CONTRACT_KEY, 2),
+        }:
+            raise RuntimeError("Unsupported active Knowledge Search generation contract/version")
         if generation["state"] != "ready":
             raise RuntimeError("Active Knowledge Search generation is not ready")
         if generation["contract_key"] == _R2_CONTRACT_KEY:

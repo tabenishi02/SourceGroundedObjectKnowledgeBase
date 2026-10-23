@@ -12,6 +12,7 @@ from dataclasses import asdict, is_dataclass
 from enum import Enum
 from pathlib import Path
 
+from sgokb.application_generation import KnowledgeSearchGenerationApplication
 from sgokb.application_maintenance import DerivedSearchMaintenanceApplication
 from sgokb.exchange import (
     ObjectEvidencePackageBuilder,
@@ -22,6 +23,7 @@ from sgokb.exchange import (
 )
 from sgokb.rendering.markdown import MarkdownRenderService
 from sgokb.repository import Repository
+from sgokb.retrieval.embedding import frozen_harrier_space
 from sgokb.review.diff import DiffReviewService
 from sgokb.storage import PackageExchangeAuditRepository
 
@@ -302,7 +304,16 @@ class SegmentClock:
             )
 
 
-def run_sample(fixture, sample, sample_id, provider_factory, vector_factory, *, warm_provider=None):
+def run_sample(
+    fixture,
+    sample,
+    sample_id,
+    provider_factory,
+    vector_factory,
+    *,
+    warm_provider=None,
+    bootstrap_space=None,
+):
     """Service calls and artifact materialization timed; external-boundary work untimed."""
     description = read(fixture / "fixture.json")
     target = description["workload"]
@@ -319,6 +330,25 @@ def run_sample(fixture, sample, sample_id, provider_factory, vector_factory, *, 
     vector = None
     try:
         assert fixture_counts(repo) == description["actual_start_counts"]
+        # Explicit empty-catalog bootstrap is excluded setup, before all timed work.
+        # Cold model initialization remains inside derived_incremental_sync.
+        declared_space = bootstrap_space or frozen_harrier_space()
+        vector = vector_factory(declared_space)
+        bootstrap = KnowledgeSearchGenerationApplication(
+            repo,
+            embedding_space=declared_space,
+            vector_index=vector,
+        ).bootstrap_empty_r2()
+        write(
+            sample / "empty-r2-bootstrap.json",
+            {
+                "switch": bootstrap,
+                "space": declared_space,
+                "counts": fixture_counts(repo),
+                "provider_constructed_during_bootstrap": False,
+                "warm_model_preloaded": warm_provider is not None,
+            },
+        )
         object_id = description["object_id"]
         transfer = PackageTransferService()
         audit = PackageExchangeAuditRepository(repo.db)
@@ -416,10 +446,10 @@ def run_sample(fixture, sample, sample_id, provider_factory, vector_factory, *, 
         imported = clock.measure("result_import", import_result)
 
         def sync():
-            nonlocal vector
             provider = warm_provider if warm_provider is not None else provider_factory()
+            if provider.space != declared_space:
+                raise RuntimeError("Loaded provider differs from bootstrap Embedding Space")
             write(sample / "embedding-space.json", provider.space)
-            vector = vector_factory(provider.space)
             app = DerivedSearchMaintenanceApplication(
                 repo,
                 embedding_provider=provider,

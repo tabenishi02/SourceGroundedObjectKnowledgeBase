@@ -257,6 +257,14 @@ class QdrantVectorIndexAdapter:
             time.sleep(0.25)
         raise RuntimeError("Qdrant HNSW index did not become ready before timeout")
 
+    def initialize_empty(self, space: EmbeddingSpaceSpec) -> VectorIndexMetadata:
+        """Prepare the normal schema without uploading a dummy point or dropping data."""
+        self._ensure_collection(space, bulk_build=False)
+        result = self.metadata(space)
+        if result.points_count != 0:
+            raise RuntimeError("Empty namespace initialization requires zero points")
+        return result
+
     def upsert(self, space: EmbeddingSpaceSpec, points: Sequence[VectorIndexPoint]) -> int:
         if not points:
             return 0

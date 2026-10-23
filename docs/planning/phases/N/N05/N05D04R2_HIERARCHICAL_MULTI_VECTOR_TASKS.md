@@ -721,3 +721,19 @@ byte-identical. A separately reviewed R2 benchmark-wiring change is required
 before a new acceptance attempt; no closure or optimization is started here.
 
 Execution record: `docs/evaluation/N05D04R2_R2_09_PERFORMANCE_ACCEPTANCE_RESULT.md`.
+
+
+## R2-09 wiring remediation verification (2026-10-24)
+
+The v1-fallback blocker is resolved on `r2-09-runner-wiring-remediation`, pending
+review/integration into main. Existing generation-aware maintenance, explicit
+model-free empty-R2 bootstrap, and incremental namespace audit/metadata refresh
+are connected without changing workload, model, scoring or performance gates.
+Focused 158 and Windows full 669 tests PASS; compile, repository-wide Ruff,
+changed-file format and diff PASS. One fresh Large diagnostic PASS: active R2,
+overall leakage 0, overview 103 exact tokens, 1204 audited points, sync 49.1221762 s,
+included total 54.8322218 s; canonical snapshots and three R1 asset hashes unchanged.
+
+See `docs/evaluation/N05D04R2_R2_09_RUNNER_WIRING_REMEDIATION.md` for evidence and
+resource peaks. No main merge or formal 46-sample benchmark performed. R2-09/N-05
+remain Not Complete pending integration and formal acceptance; R2-10 Not Started.

@@ -281,6 +281,37 @@ class FastEmbedEmbeddingProvider:
         return self.embed_queries(texts) if query else self.embed_documents(texts)
 
 
+def frozen_harrier_space(*, local_files_only: bool = True) -> EmbeddingSpaceSpec:
+    """Declare the frozen provider identity without importing/loading an encoder.
+
+    The loaded provider is checked against this declaration before any sample
+    embedding. Package version is part of the persisted Embedding Space identity.
+    """
+    return EmbeddingSpaceSpec(
+        provider_key="sentence-transformers",
+        provider_version=metadata.version("sentence-transformers"),
+        model=DEFAULT_EMBEDDING_MODEL,
+        model_revision=DEFAULT_EMBEDDING_REVISION,
+        dimension=DEFAULT_EMBEDDING_DIMENSION,
+        native_dimension=DEFAULT_EMBEDDING_DIMENSION,
+        preprocessing_key=PREPROCESSING_KEY,
+        preprocessing_version=PREPROCESSING_VERSION,
+        query_instruction=DEFAULT_RETRIEVAL_INSTRUCTION,
+        document_instruction="",
+        normalize_embeddings=True,
+        max_sequence_length=DEFAULT_EMBEDDING_MAX_SEQUENCE_LENGTH,
+        overflow_policy="reject",
+        output_dtype="float32",
+        provider_configuration=json.dumps(
+            {
+                "dtype": "bfloat16",
+                "truncate_dim": None,
+                "local_files_only": local_files_only,
+            }
+        ),
+    )
+
+
 def default_sentence_transformer_provider(
     *, cache_folder: str | None = None, local_files_only: bool = False
 ) -> SentenceTransformerEmbeddingProvider:

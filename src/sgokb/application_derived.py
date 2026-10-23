@@ -68,6 +68,8 @@ class DerivedSearchOperatorApplication:
         )
         self._maintenance = DerivedSearchMaintenanceApplication(
             repository,
+            # Batch audit is performed only after every target Object is synchronized.
+            refresh_generation=False,
             search_representation_builder=GenerationAwareSearchRepresentationBuilder(repository),
             embedding_provider=embedding_provider,
             vector_index=self._vector_index,

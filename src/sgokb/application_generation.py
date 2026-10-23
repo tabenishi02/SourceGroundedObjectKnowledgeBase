@@ -62,6 +62,7 @@ class KnowledgeSearchGenerationApplication:
         repository,
         *,
         embedding_provider=None,
+        embedding_space=None,
         vector_index=None,
         embedding_batch_size: int = 32,
     ) -> None:
@@ -70,6 +71,7 @@ class KnowledgeSearchGenerationApplication:
         self.repository = repository
         self.db = repository.db
         self.embedding_provider = embedding_provider
+        self.embedding_space = embedding_space
         self.vector_index = route_generation_vector_index(repository, vector_index)
         self.embedding_batch_size = embedding_batch_size
         self.builder = GenerationAwareSearchRepresentationBuilder(repository)
@@ -257,11 +259,20 @@ class KnowledgeSearchGenerationApplication:
         return len(rows)
 
     def _runtime(self):
-        if self.embedding_provider is None or self.vector_index is None:
+        if self.vector_index is None or (
+            self.embedding_provider is None and self.embedding_space is None
+        ):
             raise KnowledgeSearchGenerationRuntimeUnavailableError(
                 "Generation build/cutover requires an explicitly configured local semantic runtime"
             )
-        return self.embedding_provider.space, self.vector_index
+        space = (
+            self.embedding_provider.space
+            if self.embedding_provider is not None
+            else self.embedding_space
+        )
+        if self.embedding_space is not None and space != self.embedding_space:
+            raise KnowledgeSearchGenerationError("Configured Embedding Space identity mismatch")
+        return space, self.vector_index
 
     def _bound_index(self, namespace_key: str):
         vector_index = self.vector_index
@@ -427,6 +438,72 @@ class KnowledgeSearchGenerationApplication:
             ),
         )
         self.db.commit()
+
+    def bootstrap_empty_r2(self, *, reason: str = "Empty catalog R2 bootstrap"):
+        """Explicit opt-in for an empty catalog; never loads or calls a provider.
+
+        Existing catalogs and active pointers require the established build/cutover
+        lifecycle instead. Namespace setup uses the backend's normal filter schema.
+        """
+        space, vector = self._runtime()
+        if (
+            self._accepted_versions()
+            or self.db.execute(
+                "SELECT 1 FROM knowledge_search_active_generation LIMIT 1"
+            ).fetchone()
+            or self.db.execute(
+                "SELECT 1 FROM knowledge_search_representation_memberships LIMIT 1"
+            ).fetchone()
+            or self.db.execute("SELECT 1 FROM search_representation_embeddings LIMIT 1").fetchone()
+        ):
+            raise KnowledgeSearchGenerationError("R2 bootstrap requires an empty inactive catalog")
+        generation_id = f"search-generation:r2:{uuid.uuid4()}"
+        now = self._now()
+        catalog = self.source_catalog_digest()
+        with self.db:
+            self.db.execute(
+                "INSERT INTO knowledge_search_generations "
+                "(id,contract_key,contract_version,state,source_catalog_digest,created_at) "
+                "VALUES(?,?,2,'building',?,?)",
+                (generation_id, R2_CONTRACT_KEY, catalog, now),
+            )
+        try:
+            namespace = self._candidate_namespace(generation_id, space.space_id)
+            index = self._bound_index(namespace)
+            index.initialize_empty(space)
+            self._validate_generation_shape(generation_id, R2_CONTRACT_KEY)
+            self._audit_namespace(index, space, generation_id, R2_CONTRACT_KEY)
+            digest = self.membership_digest(generation_id)
+            self.repository.embedding_store.ensure_space(space)
+            self._upsert_binding(
+                generation_id,
+                space_id=space.space_id,
+                backend_key=vector.backend_key,
+                namespace_key=namespace,
+                status="ready",
+                membership_digest=digest,
+                point_count=0,
+            )
+            with self.db:
+                self.db.execute(
+                    "UPDATE knowledge_search_generations SET state='ready',membership_digest=?,"
+                    "ready_at=? WHERE id=?",
+                    (digest, now, generation_id),
+                )
+            return self._switch(
+                generation_id,
+                switch_kind="bootstrap",
+                reason=reason,
+                require_contract=R2_CONTRACT_KEY,
+            )
+        except Exception as exc:
+            with self.db:
+                self.db.execute(
+                    "UPDATE knowledge_search_generations SET state='failed',last_error=? "
+                    "WHERE id=?",
+                    (f"{type(exc).__name__}: {exc}", generation_id),
+                )
+            raise
 
     def bootstrap_legacy(
         self,
@@ -787,6 +864,11 @@ class KnowledgeSearchGenerationApplication:
                    FROM knowledge_search_active_generation
                    WHERE scope='knowledge'"""
             ).fetchone()
+            if switch_kind == "bootstrap" and require_contract == R2_CONTRACT_KEY:
+                if current is not None or self._accepted_versions():
+                    raise KnowledgeSearchGenerationError(
+                        "Empty R2 bootstrap catalog or active pointer changed"
+                    )
             from_generation_id = current["active_generation_id"] if current else None
             revision = int(current["activation_revision"]) + 1 if current else 1
             if current is None:

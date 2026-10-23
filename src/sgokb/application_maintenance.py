@@ -5,7 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .domain import DerivedState
-from .retrieval import SearchRepresentationBuilder
+from .retrieval.generation import (
+    GenerationAwareSearchRepresentationBuilder,
+    route_generation_vector_index,
+    vector_generation_scope,
+)
 from .retrieval.vector_maintenance import KnowledgeVectorMaintenanceBuilder
 
 
@@ -89,11 +93,15 @@ class DerivedSearchMaintenanceApplication:
         embedding_provider=None,
         vector_index=None,
         embedding_space=None,
+        refresh_generation: bool = True,
     ) -> None:
         self._repository = repository
-        self._builder = search_representation_builder or SearchRepresentationBuilder(repository)
+        self._builder = search_representation_builder or GenerationAwareSearchRepresentationBuilder(
+            repository
+        )
         self._embedding_provider = embedding_provider
-        self._vector_index = vector_index
+        self._vector_index = route_generation_vector_index(repository, vector_index)
+        self._refresh_generation = refresh_generation
         self._embedding_space = embedding_space
 
     def _derived_state(self, object_id: str, kind: str):
@@ -427,7 +435,16 @@ class DerivedSearchMaintenanceApplication:
         builder = KnowledgeVectorMaintenanceBuilder(self._repository, vector_index)
 
         try:
-            point_count, written_count = builder.upsert_object(space, object_id)
+            with vector_generation_scope(vector_index, builder.generation_id):
+                point_count, written_count = builder.upsert_object(space, object_id)
+            if builder.generation_id is not None and self._refresh_generation:
+                from .application_generation import KnowledgeSearchGenerationApplication
+
+                KnowledgeSearchGenerationApplication(
+                    self._repository,
+                    embedding_space=space,
+                    vector_index=vector_index,
+                ).refresh_active_generation(builder.generation_id)
 
             current_search_state = self._search_representation_state(object_id)
             current_embedding_state = self._derived_state(object_id, self.EMBEDDING_KIND)
