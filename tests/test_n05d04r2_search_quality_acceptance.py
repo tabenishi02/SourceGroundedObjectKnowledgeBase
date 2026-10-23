@@ -7,6 +7,10 @@ ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "benchmark/n05d04r2-search-quality-acceptance-v1.json"
 PHASE_I_GOLD = ROOT / "benchmark/search-quality-gold-v1.json"
 R2_SIMILARITY_GOLD = ROOT / "benchmark/n05d04r2-object-similarity-gold-v1.json"
+R2_SIMILARITY_TEST_MAP = (
+    ROOT / "benchmark/n05d04r2-object-similarity-gold-test-map-v1.json"
+)
+R2_SIMILARITY_TESTS = ROOT / "tests/test_object_similarity_r2.py"
 
 
 def _load(path):
@@ -15,7 +19,10 @@ def _load(path):
 
 def test_r2_08_acceptance_contract_is_frozen_and_keeps_harrier_baseline():
     contract = _load(CONTRACT)
-    assert contract["schema_version"] == "sgokb.n05d04r2-search-quality-acceptance/1.0"
+    assert (
+        contract["schema_version"]
+        == "sgokb.n05d04r2-search-quality-acceptance/1.0"
+    )
     assert contract["status"] == "frozen"
     assert contract["fixed_runtime"] == {
         "embedding_model": "microsoft/harrier-oss-v1-0.6b",
@@ -24,7 +31,10 @@ def test_r2_08_acceptance_contract_is_frozen_and_keeps_harrier_baseline():
         "representation_family": ["object_overview", "facet", "statement"],
         "forbidden_active_representation": "object_overall",
     }
-    assert contract["n06_interaction"]["status"] == "N-06 Ready; R2 interaction required"
+    assert (
+        contract["n06_interaction"]["status"]
+        == "N-06 Ready; R2 interaction required"
+    )
 
 
 def test_r2_08_reuses_frozen_phase_i_gold_without_rewriting_historical_expectations():
@@ -55,6 +65,18 @@ def test_r2_08_connects_all_six_hierarchical_similarity_gold_cases():
         "R2SIM-G05",
         "R2SIM-G06",
     ]
+
+
+def test_r2_similarity_gold_has_explicit_regression_test_traceability():
+    contract = _load(CONTRACT)
+    mapping = _load(R2_SIMILARITY_TEST_MAP)
+    source = R2_SIMILARITY_TESTS.read_text(encoding="utf-8")
+    assert mapping["status"] == "frozen"
+    assert set(mapping["cases"]) == set(contract["required_r2_similarity_case_ids"])
+    for test_names in mapping["cases"].values():
+        assert test_names
+        for test_name in test_names:
+            assert f"def {test_name}(" in source
 
 
 def _passing_result():
@@ -106,7 +128,9 @@ def _passing_result():
             "lexical_association": {
                 "quality": {"mrr": 1.0, "recall@10": 1.0, "ndcg@10": 1.0}
             },
-            "semantic": {"quality": {"mrr": 1.0, "recall@10": 1.0, "ndcg@10": 1.0}},
+            "semantic": {
+                "quality": {"mrr": 1.0, "recall@10": 1.0, "ndcg@10": 1.0}
+            },
         },
     }
 
