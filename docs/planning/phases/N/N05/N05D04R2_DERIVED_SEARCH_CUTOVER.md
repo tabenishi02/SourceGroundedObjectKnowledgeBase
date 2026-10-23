@@ -2,10 +2,10 @@
 
 Updated: 2026-10-23
 
-Status: **Implementation Complete / Local Runtime Verification Pending**
+Status: **Complete / Local Verification and Reference Cutover PASS**
 
-R2-07 remains **Not Complete** until the local Codex verification and cutover/rollback drill in
-`execution/N05D04R2_R2_07_CODEX_VERIFICATION.md` passes.
+The local verification and reference cutover/rollback/re-cutover drill in
+`execution/N05D04R2_R2_07_CODEX_VERIFICATION.md` passed. R2-08 is Next / Not Started.
 
 R2-08 is not started.
 
@@ -407,5 +407,89 @@ byte-identical (three SHA-256 checks). Local evidence run:
   explicit legacy/R2 representation enum expectations; do not relax assertions.
   The rerun is entirely green. Original failure evidence is retained.
 
-**Production/reference bootstrap/build/cutover/rollback/re-cutover remains pending;
-R2-07 is not Complete at this engineering checkpoint.**
+This engineering checkpoint preceded the reference drill in Section 15; completion is based on both stages.
+
+
+## 15. Reference workstation acceptance — PASS (2026-10-23)
+
+Execution HEAD: `0b835e6ebecc6db3cd8545d27510fb17f364ef02`.
+Run: `20261023T135304+0900`, under `.local/r2-07/`; backup/raw evidence remains
+local and is not committed. The original R1 assets remain SHA-256 identical.
+
+Reference identity was discovered from existing R-04 execution/runtime config:
+`.local/n03/sgokb-n03.sqlite`, six Objects / six accepted Versions. Default
+`.local/sgokb.sqlite` was absent and remains absent. Native Qdrant 1.19.2,
+qdrant-client 1.19.1, PID 54084; external config/storage remain
+`C:/Qdrant/SGOKB/qdrant.yaml` / `C:/Qdrant/SGOKB/storage`, HTTP 6333 / gRPC 6334.
+Old workspace storage and all historical N05/N05D evidence are retained.
+
+Frozen model: `microsoft/harrier-oss-v1-0.6b`, revision
+`f9b9dc8d367d443f2479d27aa5d8d2850c0774ee`, CUDA/bfloat16, dimension 1024,
+maximum sequence length 32768, overflow reject, normalization enabled. No
+truncation, CPU fallback, model/backend substitution or runtime update occurred.
+The accepted reference provider batch size remains 64; no formal N-05 workload ran.
+Embedding Space:
+`23027d8fcb47c6ffb9e95681742e4c0aa8d14b301b642a974159f05883204bbf`.
+
+SQLite backup API ran before Repository applied migration 018:
+- source DB SHA-256: `0e4760d46105efeb6d46729c513493d9ee816282cc8d0c283fed60de568eab3d`;
+- backup SHA-256: `40f55bf301ac3b27ef230f0bb964497b652f8b76f839f915e44e623d2755995b`;
+- schema 003..017 upgraded to 018; before/after integrity `ok`, zero foreign-key violations.
+
+| Identity | Verified v1 | R2 candidate / final |
+|---|---|---|
+| Generation | `search-generation:phase-i-v1` | `search-generation:r2:5c80093a-fd89-49a0-9431-d2d6f3f454ce` |
+| State | ready, rollback-capable for this catalog | ready, final active |
+| Namespace | `sgokb_n03_eval_23027d8fcb47c6ffb9e95681` | `sgokb_n03_eval_generation_3688b3402f3b519d3b6fabed` |
+| Memberships / points | 24 / 24 | 24 / 24 |
+| Family | overall 6, Facet 6, Statement 12 | overview 6, Facet 6, Statement 12; overall 0 |
+
+Shared source catalog digest:
+`73c3cf216f732d68e2bd092bcfae6766b032027adfbb715d0dc912275922a804`.
+
+v1 membership/binding digest:
+`4e4423e25eac3f5f4fe1be058180bbf380c1dda81d5f07bfac8eb1e7aa658f49`.
+
+R2 membership/binding digest:
+`3e43deb9368eef4af13ca2f1888728777c5267e1159f1648dacd0d59b302592b`.
+
+
+Build reused 18 compatible Facet/Statement embeddings and created six missing
+overview embeddings. Exact membership-ID/point UUID sets, Embedding Space identity,
+point count and every R2 generation payload passed live namespace audit. All six
+accepted Versions have exactly one overview; eligible Facets/Statements match
+canonical data. Ready candidate left the active pointer on verified v1.
+
+Operator CLI executed bootstrap -> R2 cutover -> v1 rollback -> same-candidate
+forward re-cutover. Activation revisions 1/2/3/4 and audit kinds
+bootstrap/cutover/rollback/cutover are verified. Built-in smoke remained enabled.
+Independent candidate, cutover, rollback and re-cutover checks passed semantic
+Hybrid (no degraded channels), Overall Similarity (hierarchical for R2, raw cosine
+for v1), exact-Facet cosine and MCP adapter -> real Application reads. Query tracing
+confirms each phase used only the expected namespace. Both namespaces remain;
+v1 point/vector/payload digest is unchanged. Rollback did not rebuild/drop/rename
+legacy storage. Final R2 vectors also equal the original ready-candidate snapshot.
+
+The first candidate smoke helper incorrectly supplied Hybrid's private generation
+DTO to Similarity and stopped before cutover with `AttributeError: is_r2`. Only
+that untracked helper was corrected to use the actual DTO for each implementation.
+Original helper/error/log evidence is retained. Continuation used the same ready
+candidate, backup and canonical baseline and wrote separate continuation logs.
+No production source/model/Gate changed after engineering verification.
+
+Canonical proof covers 45 non-derived tables, including registry, Object/Version/
+classification/Facet/Statement/Attribute/Relation/Source/Snapshot/Evidence/provenance
+and package/import records. Deterministic row digests and counts are compared;
+Search/FTS/embedding/generation metadata and Object derived status are excluded.
+Before == after:
+
+`2bc1ce515e5a15eef84ba9ab74fbb26fd4f0c0449dd4f0fb9316eea99618de21`.
+
+
+Final independent audit rechecked live namespaces, UUID/payload identity, both
+vector snapshots, revision/audit order, canonical equality, integrity/FK and all
+three R1 asset hashes. RTX 4090 returned to 301 MiB after worker exit.
+
+**R2-07 Complete; R2-08 Next / Not Started.** N-05 remains BLOCKED / Not Complete
+pending quality/resource/performance acceptance. R2-08, formal N-05 rerun, artifact
+retirement and security configuration changes were not performed.
