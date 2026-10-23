@@ -29,8 +29,8 @@ from scripts.run_search_quality_gold import (  # noqa: E402
     populate_repository,
 )
 from sgokb.application_generation import (  # noqa: E402
-    KnowledgeSearchGenerationApplication,
     R2_CONTRACT_KEY,
+    KnowledgeSearchGenerationApplication,
 )
 from sgokb.domain import SearchRepresentationKind  # noqa: E402
 from sgokb.repository import Repository  # noqa: E402
