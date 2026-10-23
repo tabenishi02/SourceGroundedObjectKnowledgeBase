@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "contract_key": "n05d04r2-hierarchical-object-similarity-v1",
+  "frozen_at": "2026-10-23",
+  "purpose": "Focused R2-06 semantic and boundedness gold. This is not the R2-09 formal N-05 performance run.",
+  "cases": [
+    {
+      "id": "R2SIM-G01",
+      "name": "detail_facet_breaks_overview_tie",
+      "requirement": "Two candidates may be indistinguishable at overview level; the candidate with matching same-Facet semantics must rank higher.",
+      "expected": [
+        "same-Facet evidence contributes to hierarchical_similarity",
+        "matching detailed Facet candidate ranks above overview-only tie"
+      ]
+    },
+    {
+      "id": "R2SIM-G02",
+      "name": "small_statement_evidence_breaks_overview_and_facet_tie",
+      "requirement": "A small number of important same-Facet Statements may determine similarity after overview and Facet ties.",
+      "expected": [
+        "Statement evidence is inspectable",
+        "raw Statement score_type is cosine_similarity",
+        "final score_type is hierarchical_similarity"
+      ]
+    },
+    {
+      "id": "R2SIM-G03",
+      "name": "large_irrelevant_statement_count_has_no_volume_boost",
+      "requirement": "A large candidate with many irrelevant Statements must not outrank a smaller genuinely similar candidate merely because it has more Statements.",
+      "expected": [
+        "per-source-query candidate Object contribution is deduplicated",
+        "Statement evidence contribution is capped at 3 items per candidate",
+        "Statement count beyond the cap adds no direct score"
+      ]
+    },
+    {
+      "id": "R2SIM-G04",
+      "name": "canonical_facet_boundary_is_hard",
+      "requirement": "Facet and Statement evidence may compare only within the same canonical Facet.",
+      "expected": [
+        "personality does not match values merely because vector proximity is high",
+        "facet-specific API never falls back to overview, another Facet, or object_overall"
+      ]
+    },
+    {
+      "id": "R2SIM-G05",
+      "name": "generation_and_current_version_isolation",
+      "requirement": "All R2 component evidence comes from one resolved active generation while candidates remain current accepted Versions.",
+      "expected": [
+        "one operation resolves one generation",
+        "object_overall does not appear in R2 evidence",
+        "generation payload mismatch is an integrity error",
+        "historical source remains compatible with current candidate scope"
+      ]
+    },
+    {
+      "id": "R2SIM-G06",
+      "name": "bounded_work_contract",
+      "requirement": "Overall similarity work is structurally bounded independently of Object Statement count.",
+      "expected": [
+        "source Facet queries <= 8",
+        "source Statement queries <= 12",
+        "total ANN searches <= 21",
+        "raw ANN hits <= 464",
+        "candidate Objects <= 128",
+        "exposed component evidence <= 6 per result"
+      ]
+    }
+  ]
+}
