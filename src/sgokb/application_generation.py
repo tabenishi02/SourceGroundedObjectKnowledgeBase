@@ -6,7 +6,7 @@ import hashlib
 import json
 import uuid
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 from .retrieval.generation import (
     GenerationAwareSearchRepresentationBuilder,
@@ -76,7 +76,7 @@ class KnowledgeSearchGenerationApplication:
 
     @staticmethod
     def _now() -> str:
-        return datetime.now(UTC).isoformat().replace("+00:00", "Z")
+        return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
     @staticmethod
     def _hash_rows(rows) -> str:
@@ -215,8 +215,12 @@ class KnowledgeSearchGenerationApplication:
                 "Generation contains membership for a non-accepted Version"
             )
 
-        object_kind = "object_overview" if contract_key == R2_CONTRACT_KEY else "object_overall"
-        forbidden_kind = "object_overall" if contract_key == R2_CONTRACT_KEY else "object_overview"
+        object_kind = (
+            "object_overview" if contract_key == R2_CONTRACT_KEY else "object_overall"
+        )
+        forbidden_kind = (
+            "object_overall" if contract_key == R2_CONTRACT_KEY else "object_overview"
+        )
         if any(row["target_kind"] == forbidden_kind for row in rows):
             raise KnowledgeSearchGenerationError(
                 f"Generation contains forbidden membership kind: {forbidden_kind}"
@@ -290,6 +294,49 @@ class KnowledgeSearchGenerationApplication:
             )
         key = str(getter(space))
         return key, vector_index
+
+    def _audit_namespace(
+        self,
+        index,
+        space,
+        generation_id: str,
+        contract_key: str,
+    ) -> int:
+        expected_ids = tuple(
+            row["membership_id"] for row in self._generation_membership_rows(generation_id)
+        )
+        auditor = getattr(index, "audit_memberships", None)
+        if auditor is not None:
+            try:
+                return int(
+                    auditor(
+                        space,
+                        expected_ids,
+                        generation_id=generation_id,
+                        require_generation_payload=(contract_key == R2_CONTRACT_KEY),
+                    )
+                )
+            except Exception as exc:
+                raise KnowledgeSearchGenerationError(
+                    f"Vector namespace identity audit failed: {exc}"
+                ) from exc
+
+        points = getattr(index, "points", None)
+        if points is None:
+            raise KnowledgeSearchGenerationError(
+                "Vector backend cannot prove generation membership identity"
+            )
+        if set(points) != set(expected_ids):
+            raise KnowledgeSearchGenerationError(
+                "Vector namespace membership identity differs from generation membership set"
+            )
+        if contract_key == R2_CONTRACT_KEY:
+            for point in points.values():
+                if point.metadata.get("generation_id") != generation_id:
+                    raise KnowledgeSearchGenerationError(
+                        "Vector namespace generation payload mismatch"
+                    )
+        return len(points)
 
     def _candidate_namespace(self, generation_id: str, space_id: str) -> str:
         base = getattr(
@@ -389,20 +436,36 @@ class KnowledgeSearchGenerationApplication:
         )
         self.db.commit()
 
-    def bootstrap_legacy(self, *, reason: str = "R2-07 legacy bootstrap") -> GenerationSwitchResult:
+    def bootstrap_legacy(
+        self,
+        *,
+        reason: str = "R2-07 legacy bootstrap",
+    ) -> GenerationSwitchResult:
         space, vector_index = self._runtime()
         generation = self._generation_row(LEGACY_GENERATION_ID)
         if generation["contract_key"] != PHASE_I_CONTRACT_KEY:
             raise KnowledgeSearchGenerationError("Legacy generation contract identity is invalid")
 
         source_digest = self.source_catalog_digest()
-        count = self._validate_generation_shape(LEGACY_GENERATION_ID, PHASE_I_CONTRACT_KEY)
+        count = self._validate_generation_shape(
+            LEGACY_GENERATION_ID,
+            PHASE_I_CONTRACT_KEY,
+        )
         membership_digest = self.membership_digest(LEGACY_GENERATION_ID)
         namespace_key, legacy_index = self._legacy_namespace(space)
         metadata = legacy_index.metadata(space)
         if metadata.points_count != count:
             raise KnowledgeSearchGenerationError(
                 "Legacy Vector namespace point count does not match generation membership count"
+            )
+        if self._audit_namespace(
+            legacy_index,
+            space,
+            LEGACY_GENERATION_ID,
+            PHASE_I_CONTRACT_KEY,
+        ) != count:
+            raise KnowledgeSearchGenerationError(
+                "Legacy Vector namespace identity audit count mismatch"
             )
 
         self._upsert_binding(
@@ -424,17 +487,16 @@ class KnowledgeSearchGenerationApplication:
                 (source_digest, membership_digest, now, LEGACY_GENERATION_ID),
             )
         active = self.db.execute(
-            "SELECT active_generation_id FROM knowledge_search_active_generation WHERE scope='knowledge'"
+            """SELECT active_generation_id,activation_revision
+               FROM knowledge_search_active_generation
+               WHERE scope='knowledge'"""
         ).fetchone()
         if active is not None:
             return GenerationSwitchResult(
                 from_generation_id=active["active_generation_id"],
                 to_generation_id=active["active_generation_id"],
                 switch_kind="bootstrap",
-                activation_revision=self.db.execute(
-                    """SELECT activation_revision
-                       FROM knowledge_search_active_generation WHERE scope='knowledge'"""
-                ).fetchone()["activation_revision"],
+                activation_revision=active["activation_revision"],
                 source_catalog_digest=source_digest,
             )
         return self._switch(
@@ -516,6 +578,15 @@ class KnowledgeSearchGenerationApplication:
             if metadata.points_count != count:
                 raise KnowledgeSearchGenerationError(
                     "Candidate Vector namespace point count does not match generation membership count"
+                )
+            if self._audit_namespace(
+                bound_index,
+                space,
+                generation_id,
+                R2_CONTRACT_KEY,
+            ) != count:
+                raise KnowledgeSearchGenerationError(
+                    "Candidate Vector namespace identity audit count mismatch"
                 )
 
             final_digest = self.membership_digest(generation_id)
@@ -621,6 +692,15 @@ class KnowledgeSearchGenerationApplication:
         if metadata.points_count != count:
             raise KnowledgeSearchGenerationError(
                 "Switch target live Vector namespace point count is inconsistent"
+            )
+        if self._audit_namespace(
+            bound_index,
+            space,
+            generation_id,
+            generation["contract_key"],
+        ) != count:
+            raise KnowledgeSearchGenerationError(
+                "Switch target Vector namespace identity audit count mismatch"
             )
         return generation, source_digest, count
 
