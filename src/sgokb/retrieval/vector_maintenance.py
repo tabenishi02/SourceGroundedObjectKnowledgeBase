@@ -8,14 +8,34 @@ from .hybrid_search_r2 import KnowledgeVectorIndexBuilder as _R2KnowledgeVectorI
 
 
 class KnowledgeVectorMaintenanceBuilder(_R2KnowledgeVectorIndexBuilder):
-    """Build membership-scoped Vector points without mutating derived lifecycle state.
+    """Build generation-scoped Vector points without lifecycle side effects.
 
-    The R2-capable builder owns the canonical metadata projection used by
-    Semantic/Hybrid/Similarity retrieval and can optionally scope points to one
-    Knowledge Search generation. This subclass adds Object-scoped point generation
-    and removes lifecycle-state side effects from rebuild. Derived state remains the
-    responsibility of the Application layer.
+    If a generation is supplied explicitly, that exact membership set is used.
+    Otherwise an active Knowledge Search generation is resolved for normal
+    maintenance. Before R2-07 bootstrap there is no pointer, so the historical
+    Phase-I all-membership compatibility behavior remains available.
     """
+
+    def __init__(
+        self,
+        repository,
+        vector_index,
+        *,
+        generation_id: str | None = None,
+    ) -> None:
+        if generation_id is None:
+            row = repository.db.execute(
+                """SELECT active_generation_id
+                   FROM knowledge_search_active_generation
+                   WHERE scope='knowledge'"""
+            ).fetchone()
+            if row is not None:
+                generation_id = row["active_generation_id"]
+        super().__init__(
+            repository,
+            vector_index,
+            generation_id=generation_id,
+        )
 
     def points_for_object(
         self,
@@ -58,10 +78,10 @@ class KnowledgeVectorMaintenanceBuilder(_R2KnowledgeVectorIndexBuilder):
         )
 
     def upsert_object(self, space: EmbeddingSpaceSpec, object_id: str) -> tuple[int, int]:
-        """Upsert every accepted membership for one Object.
+        """Upsert every accepted membership for one Object in the selected generation.
 
         Re-upserting historical memberships is intentional: after current Version
-        promotion their `is_current` metadata must be rewritten from true to false.
+        promotion their ``is_current`` metadata must be rewritten from true to false.
         """
 
         points = self.points_for_object(space, object_id)
@@ -69,7 +89,7 @@ class KnowledgeVectorMaintenanceBuilder(_R2KnowledgeVectorIndexBuilder):
         return len(points), int(written)
 
     def rebuild_backend(self, space: EmbeddingSpaceSpec):
-        """Rebuild the backend from canonical memberships + persisted Embeddings only."""
+        """Rebuild the selected generation from persisted memberships + Embeddings."""
 
         points = self.points(space)
         metadata = self.vector_index.rebuild(space, points)
@@ -79,8 +99,8 @@ class KnowledgeVectorMaintenanceBuilder(_R2KnowledgeVectorIndexBuilder):
         """Compatibility entrypoint retaining Vector-only rebuild semantics.
 
         Unlike the original Phase I implementation, this method does not mutate
-        `object_derived_states`. Lifecycle promotion is revision-guarded by
-        `DerivedSearchMaintenanceApplication.rebuild_vector_index()`.
+        ``object_derived_states``. Lifecycle promotion is revision-guarded by
+        ``DerivedSearchMaintenanceApplication.rebuild_vector_index()``.
         """
 
         metadata, _ = self.rebuild_backend(space)
