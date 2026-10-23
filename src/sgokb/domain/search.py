@@ -81,6 +81,24 @@ class ObjectSearchResponse:
 
 
 @dataclass(frozen=True, slots=True)
+class ObjectSimilarityEvidence:
+    """One bounded raw-cosine component contributing to hierarchical similarity."""
+
+    component: str
+    source_representation_id: str
+    source_membership_id: str
+    candidate_representation_id: str
+    candidate_membership_id: str
+    representation_kind: str
+    facet: str | None
+    source_statement_id: str | None
+    candidate_statement_id: str | None
+    score: float
+    score_type: str
+    contribution: float
+
+
+@dataclass(frozen=True, slots=True)
 class SimilarObjectResult:
     object_id: str
     name: str
@@ -92,6 +110,7 @@ class SimilarObjectResult:
     matched_facet: str | None
     representation_id: str
     membership_id: str
+    evidence: tuple[ObjectSimilarityEvidence, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -104,3 +123,5 @@ class ObjectSimilarityResponse:
     facet: str | None
     cross_class: bool
     results: tuple[SimilarObjectResult, ...]
+    source_membership_id: str | None = None
+    generation_id: str | None = None
