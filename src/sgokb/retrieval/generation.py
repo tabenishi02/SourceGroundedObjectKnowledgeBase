@@ -30,7 +30,12 @@ class GenerationAwareSearchRepresentationBuilder(SearchRepresentationBuilder):
         ).fetchone()
         return dict(row) if row else None
 
-    def _link_version(self, version_id: str, generation_id: str, kinds: tuple[str, ...]) -> None:
+    def _link_version(
+        self,
+        version_id: str,
+        generation_id: str,
+        kinds: tuple[str, ...],
+    ) -> None:
         marks = ",".join("?" for _ in kinds)
         rows = self.db.execute(
             f"""SELECT id
@@ -103,6 +108,60 @@ class GenerationQdrantVectorIndexAdapter(QdrantVectorIndexAdapter):
     def _collection(self, space) -> str:
         return self.namespace_key
 
+    def audit_memberships(
+        self,
+        space,
+        expected_membership_ids,
+        *,
+        generation_id: str | None,
+        require_generation_payload: bool,
+    ) -> int:
+        """Scan one exact namespace and verify point identity/payload integrity."""
+
+        name = self._collection(space)
+        if not self._client.collection_exists(name):
+            raise RuntimeError("Vector namespace is unavailable")
+        expected = set(expected_membership_ids)
+        seen: set[str] = set()
+        offset = None
+        while True:
+            records, offset = self._client.scroll(
+                name,
+                limit=256,
+                offset=offset,
+                with_payload=True,
+                with_vectors=False,
+            )
+            for record in records:
+                payload = dict(record.payload or {})
+                if payload.get("__sgokb_space_id") != space.space_id:
+                    raise RuntimeError("Vector namespace contains a point from another space")
+                membership_id = payload.get("__sgokb_point_id")
+                if not membership_id:
+                    raise RuntimeError(
+                        "Vector namespace contains a point without membership identity"
+                    )
+                membership_id = str(membership_id)
+                if membership_id in seen:
+                    raise RuntimeError("Vector namespace contains duplicate membership identity")
+                seen.add(membership_id)
+                payload_generation = payload.get("generation_id")
+                if require_generation_payload and payload_generation != generation_id:
+                    raise RuntimeError("Vector namespace generation payload mismatch")
+                if (
+                    payload_generation is not None
+                    and generation_id is not None
+                    and payload_generation != generation_id
+                ):
+                    raise RuntimeError("Vector namespace generation payload mismatch")
+            if offset is None:
+                break
+        if seen != expected:
+            raise RuntimeError(
+                "Vector namespace membership identity differs from generation membership set"
+            )
+        return len(seen)
+
 
 @dataclass(frozen=True, slots=True)
 class _VectorBinding:
@@ -153,7 +212,9 @@ class GenerationRoutingVectorIndexAdapter:
             (generation_id, space_id, self.backend_key),
         ).fetchone()
         if row is None:
-            raise RuntimeError("Active Knowledge Search generation has no Vector namespace binding")
+            raise RuntimeError(
+                "Active Knowledge Search generation has no Vector namespace binding"
+            )
         if row["status"] != "ready":
             raise RuntimeError("Active Knowledge Search Vector namespace is not ready")
         return _VectorBinding(
@@ -189,11 +250,15 @@ class GenerationRoutingVectorIndexAdapter:
         return str(value)
 
     @staticmethod
-    def _without_generation_filter(filters: VectorSearchFilter | None) -> VectorSearchFilter | None:
+    def _without_generation_filter(
+        filters: VectorSearchFilter | None,
+    ) -> VectorSearchFilter | None:
         if filters is None:
             return None
         return VectorSearchFilter(
-            matches=tuple(match for match in filters.matches if match.field != "generation_id"),
+            matches=tuple(
+                match for match in filters.matches if match.field != "generation_id"
+            ),
             excludes=filters.excludes,
             ranges=filters.ranges,
         )
@@ -210,7 +275,12 @@ class GenerationRoutingVectorIndexAdapter:
         delegated_filters = filters
         if binding is not None and binding.contract_key == _PHASE_I_CONTRACT_KEY:
             delegated_filters = self._without_generation_filter(filters)
-        return adapter.search(space, query_vector, limit=limit, filters=delegated_filters)
+        return adapter.search(
+            space,
+            query_vector,
+            limit=limit,
+            filters=delegated_filters,
+        )
 
     def _active_adapter(self, space):
         return self._adapter_for(space, self._active_generation_id())[0]
@@ -234,8 +304,14 @@ class GenerationRoutingVectorIndexAdapter:
 def route_generation_vector_index(repository, vector_index):
     """Wrap Qdrant / namespace-capable backends exactly once."""
 
-    if vector_index is None or isinstance(vector_index, GenerationRoutingVectorIndexAdapter):
+    if vector_index is None or isinstance(
+        vector_index,
+        GenerationRoutingVectorIndexAdapter,
+    ):
         return vector_index
-    if isinstance(vector_index, QdrantVectorIndexAdapter) or hasattr(vector_index, "bind_namespace"):
+    if isinstance(vector_index, QdrantVectorIndexAdapter) or hasattr(
+        vector_index,
+        "bind_namespace",
+    ):
         return GenerationRoutingVectorIndexAdapter(repository, vector_index)
     return vector_index
