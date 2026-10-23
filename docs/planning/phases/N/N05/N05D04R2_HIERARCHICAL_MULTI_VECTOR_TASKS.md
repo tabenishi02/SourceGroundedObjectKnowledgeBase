@@ -703,3 +703,21 @@ See `docs/evaluation/N05D04R2_R2_06_CANDIDATE_E_RESULT.md`.
 R2-08 remains Not Complete (prior FAIL not formally closed); code is eligible
 for separate formal re-acceptance review. R2-09 remains blocked / Not Started.
 No main merge or formal N-05 timing was performed.
+
+
+## R2-09 execution update (2026-10-24)
+
+This execution result supersedes earlier R2-09 next-task notes:
+**R2-09 = BLOCKED / Not Complete; N-05 = BLOCKED / Not Complete;
+N05D-04R2 = Active; R2-10 = Not Started.** R2-08 quality acceptance is unchanged.
+
+Mandatory preflight PASS (654 pytest passed; repository-wide Ruff/diff PASS;
+124.740 GiB free; external Qdrant healthy; no material competing CUDA workload).
+Before GPU timing, source inspection established that the frozen performance
+workflow uses default v1 `materialize_version` for fresh samples, producing
+`object_overall` instead of the required R2 family. No Large diagnostic or formal
+sample was started. Runner/model/scoring/gates were not changed. R1 assets remain
+byte-identical. A separately reviewed R2 benchmark-wiring change is required
+before a new acceptance attempt; no closure or optimization is started here.
+
+Execution record: `docs/evaluation/N05D04R2_R2_09_PERFORMANCE_ACCEPTANCE_RESULT.md`.
