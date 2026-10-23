@@ -66,7 +66,8 @@ def _volume(path: Path) -> dict:
 def _windows_memory() -> dict:
     script = r"""
 $o = Get-CimInstance Win32_OperatingSystem
-$p = Get-CimInstance Win32_PageFileUsage | Select-Object Name,AllocatedBaseSize,CurrentUsage,PeakUsage
+$p = Get-CimInstance Win32_PageFileUsage |
+  Select-Object Name,AllocatedBaseSize,CurrentUsage,PeakUsage
 @{
   total_visible_kib = [int64]$o.TotalVisibleMemorySize
   free_physical_kib = [int64]$o.FreePhysicalMemory
@@ -119,7 +120,10 @@ def main() -> int:
     try:
         result = evaluate(args.repo_root, args.qdrant_root)
     except Exception as exc:
-        result = {"status": "BLOCKED_RESOURCE_PREFLIGHT", "error": f"{type(exc).__name__}: {exc}"}
+        result = {
+            "status": "BLOCKED_RESOURCE_PREFLIGHT",
+            "error": f"{type(exc).__name__}: {exc}",
+        }
     text = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
