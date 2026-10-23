@@ -110,11 +110,18 @@ Then run relevant Application / CLI / MCP / vector-maintenance regressions, incl
 
 ```text
 tests/test_j01_similarity_application.py
+tests/test_j02_mcp_read_tools.py
+tests/test_m01_cli.py
 similarity-related CLI tests
 similarity-related MCP tests
 Derived Search maintenance tests
 Vector Index/Qdrant tests
 ```
+
+`tests/test_m01_cli.py` still contains a stale historical assertion expecting schema
+migration `17`. Migration 018 is already the current schema. If this assertion is
+still present in the verification checkout, update only that stale expectation to
+`18`; do not treat it as an R2-06 algorithm change.
 
 Use repository-supported test selection rather than inventing a new formal N-05 run.
 
@@ -140,8 +147,9 @@ Explicitly verify:
 16. total source ANN query count is at most 21;
 17. Facet-specific similarity remains raw same-Facet cosine with no fallback;
 18. pre-cutover/no-pointer Phase-I similarity remains compatible;
-19. active Phase-I v1 generation/rollback compatibility remains valid or, if not yet
-    covered, add a focused regression without starting R2-07.
+19. active Phase-I v1 generation/rollback compatibility remains valid. Add a focused
+    regression if this active-v1 path is not already explicitly covered; do not start
+    R2-07 to perform this check.
 
 ## 7. Qdrant
 
@@ -171,6 +179,10 @@ Check:
 
 - `KnowledgeReadApplication.find_similar_objects()` remains source-compatible;
 - CLI and MCP callers do not need representation kind or generation arguments;
+- MCP `find_similar_objects` output schema intentionally allows additive properties,
+  so `evidence`, `source_membership_id`, and `generation_id` remain additive output;
+- CLI/MCP dataclass serialization accepts the additive fields without dropping the
+  established fields;
 - additive similarity evidence serialization does not break exact-schema tests;
 - old base result fields remain present;
 - Facet-specific callers still see the existing raw cosine contract.
@@ -222,6 +234,7 @@ object_overall exclusion result
 payload mismatch result
 one-operation/one-generation result
 historical/current result
+active-v1 generation compatibility result
 Facet-specific regression result
 Application/CLI/MCP compatibility result
 commit SHA
