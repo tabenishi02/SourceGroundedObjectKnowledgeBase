@@ -10,6 +10,7 @@ from sgokb.domain import (
     FacetStatus,
     ObjectSearchChannel,
     ObjectSearchFilters,
+    ObjectSearchMatch,
     VectorIndexMetadata,
     VectorIndexPoint,
     VectorSearchFilter,
@@ -190,7 +191,9 @@ def _evidence(repo, suffix):
 
 
 def _accepted_r2(repo, object_id, version_id, statements):
-    version_id = repo.version_store.begin_candidate(object_id, None, version_id=version_id)
+    version_id = repo.version_store.begin_candidate(
+        object_id, repo.version_store.current_version_id(object_id), version_id=version_id
+    )
     evidence_id = _evidence(repo, version_id)
     for index, item in enumerate(statements):
         facet_key = item.get("facet")
@@ -198,12 +201,18 @@ def _accepted_r2(repo, object_id, version_id, statements):
         if facet_key is not None:
             facet_id = repo.semantic_store.facet_by_key(facet_key).facet_id
             repo.semantic_store.set_version_facet(version_id, facet_id, FacetStatus.CONTENT)
+        temporal_scope_id = None
+        if item.get("temporal"):
+            temporal_scope_id = repo.semantic_store.create_temporal_scope(
+                version_id, **item["temporal"]
+            )
         statement_id = repo.semantic_store.add_statement(
             version_id,
             f"s-{index}",
             item["text"],
             item.get("derivation", DerivationKind.DIRECT_STATEMENT),
             facet_id=facet_id,
+            temporal_scope_id=temporal_scope_id,
         )
         repo.source_store.link_evidence(
             version_id, EvidenceTargetKind.STATEMENT, statement_id, evidence_id
@@ -292,9 +301,7 @@ def test_r2_channel_value_and_active_semantic_family_exclude_object_overall(repo
     engine, index = _engine(repo, space, generation_id)
 
     assert ObjectSearchChannel.SEMANTIC_OBJECT.value == "semantic_object_overview"
-    assert {point.metadata["generation_id"] for point in index.points.values()} == {
-        generation_id
-    }
+    assert {point.metadata["generation_id"] for point in index.points.values()} == {generation_id}
     assert "object_overall" not in {point.metadata["kind"] for point in index.points.values()}
 
     response = engine.search("仲間", mode="semantic")
@@ -401,3 +408,290 @@ def test_r2_vector_generation_payload_mismatch_is_integrity_error(repo, space):
 
     with pytest.raises(RuntimeError, match="generation payload mismatch"):
         engine.search("mismatch sentinel", mode="semantic")
+
+
+@pytest.mark.parametrize("mode", ["lexical", "semantic", "hybrid"])
+def test_r2_excludes_unlinked_knowledge_even_with_foreign_vector_points(repo, space, mode):
+    active = repo.object_store.create_object("Active", _class(repo, "character"))
+    _accepted_r2(
+        repo, active, "active-isolation", [{"facet": "values", "text": "isolation-sentinel"}]
+    )
+    generation_id = _activate_r2_generation(repo)
+    late = repo.object_store.create_object("Unlinked", _class(repo, "character"))
+    _accepted_r2(
+        repo, late, "unlinked-isolation", [{"facet": "values", "text": "isolation-sentinel"}]
+    )
+    engine, index = _engine(repo, space, generation_id)
+    foreign = [
+        VectorIndexPoint(
+            point_id=p.point_id,
+            vector=p.vector,
+            metadata={**p.metadata, "generation_id": "foreign-generation"},
+        )
+        for p in KnowledgeVectorIndexBuilder(repo, index).points(space)
+        if p.metadata["object_id"] == late
+    ]
+    assert foreign
+    index.upsert(space, foreign)
+    response = engine.search("isolation-sentinel", mode=mode)
+    assert {r.object_id for r in response.results} == {active}
+    assert all(
+        m.representation_kind != "object_overall" for r in response.results for m in r.matches
+    )
+
+
+@pytest.mark.parametrize("generation", ["pre-cutover", "v1", "r2"])
+def test_object_channel_identity_is_explicit_for_each_generation(repo, space, generation):
+    object_id = repo.object_store.create_object("Identity", _class(repo, "character"))
+    _accepted_r2(repo, object_id, "identity-v1", [{"text": "identity-sentinel"}])
+    generation_id = None
+    if generation == "r2":
+        generation_id = _activate_r2_generation(repo)
+    elif generation == "v1":
+        generation_id = "search-generation:phase-i-v1"
+        with repo.db:
+            repo.db.execute(
+                "UPDATE knowledge_search_generations SET state='ready',source_catalog_digest=?,"
+                "membership_digest=?,ready_at=? WHERE id=?",
+                ("a" * 64, "b" * 64, "2026-10-23T00:00:00Z", generation_id),
+            )
+            repo.db.execute(
+                "INSERT INTO knowledge_search_generation_memberships "
+                "SELECT ?,id,created_at FROM knowledge_search_representation_memberships "
+                "WHERE target_kind IN ('object_overall','facet','statement')",
+                (generation_id,),
+            )
+            repo.db.execute(
+                "INSERT INTO knowledge_search_active_generation VALUES('knowledge',?,1,?)",
+                (generation_id, "2026-10-23T00:00:00Z"),
+            )
+    engine, _ = _engine(repo, space, generation_id)
+    response = engine.search("identity-sentinel", mode="semantic")
+    kind = "object_overview" if generation == "r2" else "object_overall"
+    channel = "semantic_object_overview" if generation == "r2" else "semantic_object_overall"
+    object_matches = [
+        m for r in response.results for m in r.matches if m.representation_kind == kind
+    ]
+    assert object_matches and all(m.channel.value == channel for m in object_matches)
+    excluded = "object_overall" if generation == "r2" else "object_overview"
+    assert all(m.representation_kind != excluded for r in response.results for m in r.matches)
+
+
+def test_r2_missing_facet_has_no_overview_or_other_facet_rescue(repo, space):
+    object_id = repo.object_store.create_object("No Rescue", _class(repo, "character"))
+    _accepted_r2(
+        repo,
+        object_id,
+        "no-rescue-v1",
+        [
+            {"text": "rescue-sentinel"},
+            {"facet": "personality", "text": "rescue-sentinel"},
+        ],
+    )
+    generation_id = _activate_r2_generation(repo)
+    engine, _ = _engine(repo, space, generation_id)
+    for mode in ("lexical", "semantic", "hybrid"):
+        assert (
+            engine.search(
+                "rescue-sentinel", mode=mode, filters=ObjectSearchFilters(facet="values")
+            ).results
+            == ()
+        )
+
+
+@pytest.mark.parametrize("filter_kind", ["temporal_scope", "valid_at", "derivation"])
+def test_r2_temporal_and_derivation_filters_are_statement_only(repo, space, filter_kind):
+    object_id = repo.object_store.create_object("Filtered", _class(repo, "character"))
+    _accepted_r2(
+        repo,
+        object_id,
+        "filtered-v1",
+        [
+            {"text": "filter-sentinel overview"},
+            {
+                "facet": "personality",
+                "text": "filter-sentinel dated",
+                "temporal": {"valid_from": "2026-01-01", "valid_to": "2026-12-31"},
+            },
+            {
+                "facet": "personality",
+                "text": "filter-sentinel interpreted",
+                "derivation": DerivationKind.INTERPRETATION,
+            },
+        ],
+    )
+    generation_id = _activate_r2_generation(repo)
+    engine, _ = _engine(repo, space, generation_id)
+    dated = repo.one("SELECT id,temporal_scope_id FROM knowledge_statements WHERE local_key='s-1'")
+    if filter_kind == "temporal_scope":
+        filters = ObjectSearchFilters(temporal_scope_id=dated["temporal_scope_id"])
+        expected = {dated["id"]}
+    elif filter_kind == "valid_at":
+        filters = ObjectSearchFilters(knowledge_valid_at="2025-06-01")
+        expected = {
+            r["id"]
+            for r in repo.rows(
+                "SELECT id FROM knowledge_statements WHERE temporal_scope_id IS NULL"
+            )
+        }
+    else:
+        filters = ObjectSearchFilters(derivation_kind="interpretation")
+        expected = {
+            r["id"]
+            for r in repo.rows(
+                "SELECT id FROM knowledge_statements WHERE derivation_kind='interpretation'"
+            )
+        }
+    for mode in ("lexical", "semantic"):
+        response = engine.search("filter-sentinel", mode=mode, filters=filters)
+        matches = [m for r in response.results for m in r.matches]
+        assert matches and {m.statement_id for m in matches} == expected
+        assert all(m.representation_kind == "statement" for m in matches)
+
+
+def test_r2_current_historical_isolation_and_one_result_per_object(repo, space):
+    object_id = repo.object_store.create_object("History", _class(repo, "character"))
+    _accepted_r2(repo, object_id, "history-old", [{"facet": "values", "text": "history-sentinel"}])
+    _accepted_r2(
+        repo, object_id, "history-current", [{"facet": "values", "text": "history-sentinel"}]
+    )
+    generation_id = _activate_r2_generation(repo)
+    engine, _ = _engine(repo, space, generation_id)
+    for mode in ("lexical", "semantic", "hybrid"):
+        current = engine.search("history-sentinel", mode=mode)
+        assert len(current.results) == 1 and current.results[0].version_id == "history-current"
+        historical = engine.search(
+            "history-sentinel", mode=mode, filters=ObjectSearchFilters(version_id="history-old")
+        )
+        assert len(historical.results) == 1 and historical.results[0].version_id == "history-old"
+        assert all(m.version_id == "history-old" for m in historical.results[0].matches)
+
+
+def test_r2_exact_identity_priority_and_rrf_are_preserved(repo, space):
+    ids = []
+    for name, aliases in [("Needle", []), ("Alias Holder", ["Needle"]), ("Other", [])]:
+        object_id = repo.object_store.create_object(
+            name, _class(repo, "character"), aliases=aliases
+        )
+        _accepted_r2(
+            repo,
+            object_id,
+            "priority-" + str(len(ids)),
+            [
+                {"text": "Needle overview"},
+                {"facet": "personality", "text": "Needle detail"},
+            ],
+        )
+        ids.append(object_id)
+    generation_id = _activate_r2_generation(repo)
+    engine, _ = _engine(repo, space, generation_id)
+    response = engine.search("Needle", mode="hybrid")
+    assert [r.object_id for r in response.results] == ids
+    assert [r.exact_identity for r in response.results] == ["name", "alias", None]
+    assert len(set(r.object_id for r in response.results)) == 3
+    semantic = engine.search(
+        "Needle", mode="semantic", filters=ObjectSearchFilters(version_id="priority-0")
+    )
+    assert len(semantic.results) == 1 and semantic.results[0].object_id == ids[0]
+    assert semantic.results[0].fused_score == pytest.approx(3 / 61)
+
+
+@pytest.mark.parametrize(
+    "channel,cap",
+    [
+        (ObjectSearchChannel.SEMANTIC_OBJECT_OVERVIEW, 1),
+        (ObjectSearchChannel.SEMANTIC_FACET, 2),
+        (ObjectSearchChannel.SEMANTIC_STATEMENT, 3),
+        (ObjectSearchChannel.KNOWLEDGE_LEXICAL, 3),
+    ],
+)
+def test_r2_channel_growth_is_bounded_at_frozen_caps(channel, cap):
+    from sgokb.retrieval.hybrid_search import _CHANNEL_CONTRIBUTION_CAPS, RRF_K
+
+    assert RRF_K == 60 and _CHANNEL_CONTRIBUTION_CAPS[channel] == cap
+
+    def row(object_id, rank):
+        match = ObjectSearchMatch(
+            channel=channel,
+            version_id="v",
+            representation_id=str(rank),
+            membership_id=str(rank),
+            representation_kind="statement",
+            facet="values",
+            statement_id=str(rank),
+            snippet="detail",
+            score=1,
+            score_type="test",
+            source_rank=rank,
+        )
+        return ((object_id, "v"), match)
+
+    base = [row("a", x) for x in (1, 4, 7)[:cap]] + [row("b", x) for x in (2, 3, 5)[:cap]]
+    before, _ = HybridObjectSearch._aggregate_channel(base, channel)
+    after, _ = HybridObjectSearch._aggregate_channel(
+        base + [row("a", x) for x in range(8, 80)], channel
+    )
+    assert before == after
+
+
+def test_r2_hybrid_degrades_runtime_failure_but_semantic_raises(repo, space):
+    object_id = repo.object_store.create_object("Degrade", _class(repo, "character"))
+    _accepted_r2(repo, object_id, "degrade-v1", [{"facet": "values", "text": "degrade-sentinel"}])
+    generation_id = _activate_r2_generation(repo)
+    engine, index = _engine(repo, space, generation_id)
+
+    def unavailable(*args, **kwargs):
+        raise RuntimeError("offline backend unavailable")
+
+    index.search = unavailable
+    hybrid = engine.search("degrade-sentinel", mode="hybrid")
+    assert hybrid.results and hybrid.degraded_channels == ("semantic:RuntimeError",)
+    with pytest.raises(RuntimeError, match="offline backend unavailable"):
+        engine.search("degrade-sentinel", mode="semantic")
+
+
+def test_r2_qdrant_adapter_scopes_active_family(repo, space):
+    qdrant = pytest.importorskip("qdrant_client")
+    from sgokb.retrieval.vector_index import QdrantVectorIndexAdapter
+
+    object_id = repo.object_store.create_object("Qdrant R2", _class(repo, "character"))
+    _accepted_r2(repo, object_id, "qdrant-r2", [{"facet": "values", "text": "qdrant-r2-sentinel"}])
+    generation_id = _activate_r2_generation(repo)
+    adapter = QdrantVectorIndexAdapter(
+        client=qdrant.QdrantClient(location=":memory:"), wait_for_index=False
+    )
+    try:
+        engine, _ = _engine(repo, space, generation_id, index=adapter)
+        response = engine.search("qdrant-r2-sentinel", mode="semantic")
+        assert {r.object_id for r in response.results} == {object_id}
+        assert all(
+            m.representation_kind != "object_overall" for r in response.results for m in r.matches
+        )
+        assert ObjectSearchChannel.SEMANTIC_OBJECT_OVERVIEW in response.results[0].channels
+    finally:
+        adapter.client.close() if hasattr(adapter, "client") else adapter._client.close()
+
+
+def test_mcp_search_reaches_r2_wrapper_through_real_read_application(repo, space):
+    from sgokb.application_read import KnowledgeReadApplication
+    from sgokb.mcp import MCPReadAdapter
+
+    active = repo.object_store.create_object("MCP Active", _class(repo, "character"))
+    _accepted_r2(
+        repo, active, "mcp-active", [{"facet": "values", "text": "mcp-generation-sentinel"}]
+    )
+    generation_id = _activate_r2_generation(repo)
+    late = repo.object_store.create_object("MCP Late", _class(repo, "character"))
+    _accepted_r2(repo, late, "mcp-late", [{"facet": "values", "text": "mcp-generation-sentinel"}])
+    _, index = _engine(repo, space, generation_id)
+    application = KnowledgeReadApplication(
+        repo, embedding_provider=FakeEmbeddingProvider(space), vector_index=index
+    )
+    response = MCPReadAdapter(application).call_tool(
+        "search_objects", {"query": "mcp-generation-sentinel", "mode": "semantic"}
+    )
+    results = response["data"]["results"]
+    assert {r["object_id"] for r in results} == {active}
+    assert "semantic_object_overview" in results[0]["channels"]
+    assert "semantic_object_overall" not in results[0]["channels"]
+    assert all(m["representation_kind"] != "object_overall" for r in results for m in r["matches"])

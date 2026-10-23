@@ -4,8 +4,8 @@ Updated: 2026-10-23
 
 - Task: `R2-05 [P0] — Hybrid Search migration`
 - Base before R2-05: `b3cb0150632a4a121bda5967a0ae172b95204688`
-- Status: **Implementation Complete / Runtime Verification Pending**
-- R2-06: **Not Started**
+- Status: **Complete - Reference Workstation runtime verification PASS**
+- R2-06: **Next / Not Started**
 - Production cutover: **Not Performed**
 
 ## 1. Goal
@@ -204,40 +204,114 @@ R2-05 does **not**:
 - begin R2-06 or R2-07;
 - change Harrier 0.6B, embedding dimension, truncation policy, CUDA/PyTorch, or FA2.
 
-## 11. Runtime verification gate
+## 11. Reference Workstation verification - 2026-10-23
 
-Do not mark R2-05 Complete until the reference workstation verifies at minimum:
+**R2-05 = Complete; R2-06 = Next / Not Started.**
+Verification HEAD before local fixes: `c061631b2837b752b43272c10274a8be0fe8b191`;
+R2-05 implementation base: `b3cb0150632a4a121bda5967a0ae172b95204688`.
 
-```text
-pytest tests/test_hybrid_search_r2.py
-pytest tests/test_hybrid_search.py tests/test_hybrid_search_r2.py
-relevant generation/migration tests
-Ruff / format / diff checks for R2-05 files
-```
+R1 user-aborted assets were locally backed up and preserved byte-for-byte in the
+original workspace. Checks ran in isolated `verification/r2-05-runtime` using the
+existing workstation venv and this worktree's `src`. No package/model/GPU change.
 
-The existing Phase-I Hybrid test file contains a historical migration-version
-assertion written before Migration 018. If it still expects schema version 17,
-update that expectation to the current migration version as a test-maintenance
-change; do not change runtime behavior to satisfy the stale assertion.
-
-Required evidence:
-
-- focused Hybrid tests PASS;
-- exact-name/alias priority regression PASS;
-- contribution-cap regression PASS;
-- current/historical and Class/Facet/temporal regression PASS;
-- active R2 results contain no `object_overall` match;
-- active generation isolation PASS for lexical and semantic paths;
-- Qdrant adapter regression PASS where the optional dependency is available;
-- R2-05 Ruff/static checks PASS.
-
-If all pass, update:
+### Executed tests
 
 ```text
-R2-05 = Complete
-R2-06 = Next / Not Started
+python -m pytest -q tests/test_hybrid_search_r2.py
+  24 passed
+python -m pytest -q tests/test_hybrid_search.py tests/test_hybrid_search_r2.py
+  33 passed
+python -m pytest -q tests/test_search_generation_migration.py tests/test_search_representation.py tests/test_object_overview_r2.py
+  14 passed
 ```
 
-Next task after verified completion:
+Related tests: **70 passed** across:
 
-`R2-06 [P0] — Object Similarity migration`
+```text
+tests/test_j01_application_semantics.py
+tests/test_j01_retrieval_mcp_boundary.py
+tests/test_j02_mcp_read_tools.py
+tests/test_j06_mcp_client_acceptance.py
+tests/test_n04p02_search_representation_sync.py
+tests/test_n04p03_embedding_sync.py
+tests/test_n04p04_vector_index_sync.py
+tests/test_n04p05_derived_cli.py
+tests/test_n02_integration.py
+tests/test_vector_index.py
+```
+
+The non-overlapping Hybrid + migration/builder + related groups total **117
+passed, 0 failed, 0 skipped**. R2-only 24 is a subset of Hybrid 33, not additional.
+Qdrant dependency was available. Both the existing v1 Hybrid adapter regression
+and the new active-R2 adapter regression passed using real qdrant-client local
+`:memory:` mode. Its payload-index/full-scan parameter warnings are expected;
+this does not certify a production ANN namespace or constitute a cutover test.
+No full-suite run beyond these scoped groups was required or performed.
+
+### Findings and fixes
+
+- Initial combined Hybrid run: 1 failure / 13 passes. The failure was the stale
+  `max(schema_migrations.version) == 17` assertion. Updated only that expected
+  current schema version to **18**; no migration/runtime behavior change.
+- R2 wrapper had I001, two unused imports and one overlong condition. Removed
+  unused imports and formatted the wrapper. Production class ASTs match exactly
+  before/after; no algorithm/contract change.
+- Added 19 parameterized regression cases (R2 total 5 -> 24) for missing runtime
+  evidence. An initial new RRF fixture incorrectly assumed one Object would rank
+  first in every channel among equal vectors with independently ordered UUIDs.
+  It now scopes the RRF calculation to one explicit Version and still asserts
+  the exact `3 / 61` score; name/alias/non-exact ordering remains separately
+  asserted across three Objects. No skip/xfail or relaxed contract was added.
+
+### Mandatory contract results
+
+| Contract | Runtime evidence |
+|---|---|
+| Active-generation lexical/semantic isolation | PASS in lexical, semantic and hybrid modes; unlinked Knowledge and injected foreign-generation points excluded |
+| Active R2 family/channels | PASS: overview/facet/statement; no overall match; overview channel serialized through real MCP/Application chain |
+| v1/pre-cutover channel identity | PASS: both emit semantic_object_overall; active R2 emits semantic_object_overview |
+| One generation resolution/request | PASS for hybrid request |
+| Generation payload mismatch | PASS: explicit RuntimeError in semantic mode; no foreign hit accepted |
+| Facet no-fallback | PASS for populated requested Facet and missing requested Facet, including no overview/other-Facet rescue |
+| Temporal/derivation scopes | PASS: Statement-only; valid-at/specific temporal scope and derivation selection verified |
+| Current/historical isolation | PASS in all three modes; one Object result, matches remain in selected Version |
+| RRF and caps | PASS: k=60, overview=1, Facet=2, Statement=3, Knowledge lexical=3; extra Statement/match counts cannot increase ranks beyond caps |
+| Exact identity | PASS: exact name > exact alias > non-exact |
+| Semantic degradation | PASS: missing backend raises in semantic mode, hybrid retains lexical results with explicit degraded channel |
+| Application/maintenance/CLI/MCP | PASS: relevant regression groups plus active-R2 real MCPReadAdapter -> KnowledgeReadApplication -> Retrieval Core |
+
+### Direct-import bypass review
+
+Searched all tracked Python consumers for `hybrid_search` imports and
+`HybridObjectSearch` references. The only import of the Phase-I Hybrid class is
+the intentional internal base import in `hybrid_search_r2.py`. Application,
+scripts and tests consume `sgokb.retrieval.HybridObjectSearch`; no active consumer
+bypass remains. A regression imports only frozen RRF/cap constants from the base,
+not its engine. Canonical Hybrid export resolves to the R2 wrapper; canonical
+Vector builder aliases the maintenance builder, whose parent is the R2 builder.
+
+### Static checks
+
+```text
+python -m ruff check src tests
+  PASS
+python -m ruff format --check src/sgokb/domain/search.py src/sgokb/retrieval/hybrid_search_r2.py src/sgokb/retrieval/vector_maintenance.py src/sgokb/retrieval/__init__.py tests/test_hybrid_search.py tests/test_hybrid_search_r2.py
+  PASS (6 files)
+git diff --check
+  PASS
+```
+
+Repository-wide `ruff check .` reports only the known unrelated
+`benchmark/tools/n05_resource_preflight.py:69 E501`. That pre-existing resource
+script and its original-workspace uncommitted fix were deliberately untouched.
+
+### Safety and next task
+
+All active-generation pointers/readiness writes were limited to fresh disposable
+pytest fixture databases. No production DB pointer/readiness, Qdrant collection,
+v1 artifact, accepted model, truncation policy, CUDA/PyTorch or FA2 setting changed.
+No quality/ANN/production cutover acceptance is claimed from these tests.
+
+Next: **R2-06 [P0] - Hierarchical Object Similarity redesign (Not Started)**.
+R2-06/R2-07 and the formal N-05 rerun were not started. N-05 remains BLOCKED /
+Not Complete.

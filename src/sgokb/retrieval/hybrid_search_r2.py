@@ -15,19 +15,21 @@ from contextvars import ContextVar
 from dataclasses import dataclass
 
 from sgokb.domain import (
-    EmbeddingSpaceSpec,
     ObjectSearchChannel,
     ObjectSearchFilters,
     SearchRepresentationKind,
     VectorIndexAdapter,
-    VectorIndexPoint,
     VectorMatch,
     VectorSearchFilter,
 )
 
 from .hybrid_search import (
     HybridObjectSearch as _PhaseIHybridObjectSearch,
+)
+from .hybrid_search import (
     KnowledgeVectorIndexBuilder as _PhaseIKnowledgeVectorIndexBuilder,
+)
+from .hybrid_search import (
     _normalize,
 )
 
@@ -219,10 +221,7 @@ class HybridObjectSearch(_PhaseIHybridObjectSearch):
                  LEFT JOIN facet_definitions f ON f.id=m.facet_id
                  LEFT JOIN knowledge_statements s ON s.id=m.statement_id
                  WHERE """ + " AND ".join(clauses)
-        allowed = {
-            (row["object_id"], row["version_id"])
-            for row in self.db.execute(sql, params)
-        }
+        allowed = {(row["object_id"], row["version_id"]) for row in self.db.execute(sql, params)}
         return [row for row in rows if (row["object_id"], row["version_id"]) in allowed]
 
     def _knowledge_lexical_hits(
@@ -382,7 +381,10 @@ class HybridObjectSearch(_PhaseIHybridObjectSearch):
         output = []
         for channel, hit in raw_hits:
             payload_generation = hit.metadata.get("generation_id")
-            if generation.requires_generation_payload and payload_generation != generation.generation_id:
+            if (
+                generation.requires_generation_payload
+                and payload_generation != generation.generation_id
+            ):
                 raise RuntimeError("Vector Index generation payload mismatch")
             if payload_generation is not None and payload_generation != generation.generation_id:
                 raise RuntimeError("Vector Index generation payload mismatch")

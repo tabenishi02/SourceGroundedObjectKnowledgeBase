@@ -3,7 +3,7 @@
 Updated: 2026-10-23
 
 - Parent: `N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign`
-- Status: **Active / R2-01-R2-04 Complete / R2-05 Next**
+- Status: **Active / R2-01-R2-05 Complete / R2-06 Next**
 - Formal N-05: **BLOCKED / Not Complete**
 - Design plan: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
 - R2-01 freeze: `docs/planning/phases/N/N05/N05D04R2_IMPACT_SURVEY.md`
@@ -22,8 +22,8 @@ R2-03 Persistence/versioning/migration design          Complete
   ↓
 R2-04 object_overview builder implementation           Complete
   ↓ runtime verification PASS
-R2-05 Hybrid Search migration                          Next / Not Started
-R2-06 Hierarchical Object Similarity redesign          Not Started
+R2-05 Hybrid Search migration                          Complete
+R2-06 Hierarchical Object Similarity redesign          Next / Not Started
           ↓
 R2-07 Derived Search rebuild / cutover / rollback
           ↓
@@ -44,8 +44,8 @@ Do not start R2-05/R2-06 until the R2-04 runtime verification gate passes. Do no
 | R2-02 | P0 | **Complete** | Search Requirements / Search Representation / Hybrid / Similarity designをv2へ改定 |
 | R2-03 | P0 | **Complete / Design Freeze** | `object_overview` persistence、builder version、generation/cutover/rollbackを設計 |
 | R2-04 | P0 | **Complete** | deterministic compact `object_overview` builderとmaterializationを実装し、focused/runtime evidenceでexitを確認 |
-| R2-05 | P0 | **Next / Not Started** | Hybrid Searchを`object_overview + facet + statement`へ移行 |
-| R2-06 | P0 | Not Started | overall Object Similarityをhierarchical multi-vector方式へ再設計・実装 |
+| R2-05 | P0 | **Complete** | Hybrid Searchを`object_overview + facet + statement`へ移行 |
+| R2-06 | P0 | **Next / Not Started** | overall Object Similarityをhierarchical multi-vector方式へ再設計・実装 |
 | R2-07 | P0 | Not Started | Derived Search side-by-side rebuild / Qdrant cutover / rollbackを実装・検証 |
 | R2-08 | P0 | Not Started | frozen gold拡張、quality acceptance、N-06影響確認 |
 | R2-09 | P0 | Not Started | resource acceptance後、新run_idでformal N-05を全46 sample再実行 |
@@ -335,6 +335,20 @@ exact token count 103 <= 4096, truncation=False
 
 ## R2-05 [P0] — Hybrid Search migration
 
+### Status
+
+**Complete - Reference Workstation runtime verification PASS (2026-10-23).**
+R2-only 24 passed; Hybrid combined 33 passed; migration/representation 14 passed;
+Application/maintenance/CLI/MCP/Vector 70 passed (**117 non-overlapping passes**).
+Both v1 and R2 Qdrant local adapter regressions passed. R2 source/tests Ruff,
+target format and diff checks PASS; known unrelated resource-preflight E501 is
+unchanged. Stale migration expectation 17 -> 18 and wrapper lint were corrected;
+no production algorithm change. Active generation, family/channel identity,
+filter/no-fallback/history/RRF/cap/exact-priority/degradation gates passed.
+
+Details: [runtime verification record](N05D04R2_HYBRID_SEARCH_MIGRATION.md#11-reference-workstation-verification---2026-10-23).
+No production readiness/pointer/Qdrant/v1 artifact change or R2-06/R2-07 work.
+
 ### Goal
 
 Normal semantic/hybrid Object Searchをnew active representationへ移行する。
@@ -622,18 +636,16 @@ A model change requires a new Embedding Space identity, full Derived Search rebu
 
 ## 4. Current next task
 
-**R2-04 = Complete. Next: R2-05 [P0] - Hybrid Search migration.**
+**R2-05 = Complete. Next: R2-06 [P0] - Hierarchical Object Similarity redesign.**
 
-Runtime exit evidence: focused **14 passed**, real migration chain 003..018
-and populated v1 row/vector preservation PASS, FK/integrity/FTS PASS, targeted
-static checks PASS. The actual Large fixture has 1200 Statements; compact
-object_overview is **103 exact Harrier tokens**, `truncation=False`, below 4096.
-Summary 5 + Facet identities 3 remain; 1195 detailed bodies stay in Facet/Statement
-representations. The original DB and R1 uncommitted assets were preserved.
+R2-05 runtime evidence: active generation lexical/semantic isolation,
+object_overall exclusion, explicit v1/R2 channel identities, one resolve/request,
+payload mismatch error, Facet no-fallback, Statement-only temporal/derivation
+filters, current/history isolation, bounded caps/RRF/exact priorities and semantic
+degradation PASS. Relevant tests total 117 non-overlapping passes. Details:
+[R2-05 runtime record](N05D04R2_HYBRID_SEARCH_MIGRATION.md).
 
-Details and reproducible checks:
-[implementation/runtime record](N05D04R2_OBJECT_OVERVIEW_IMPLEMENTATION.md#9-reference-workstation-verification---2026-10-23).
-
-R2-05 itself was **not started**. R2-06/R2-07, active-generation/production cutover,
-quality acceptance and formal 46-sample rerun were not performed. N-05 remains
-BLOCKED / Not Complete.
+R1 uncommitted assets remain preserved in the original workspace. R2-06 is
+**Next / Not Started**; R2-07, production generation/namespace cutover, v1 artifact
+retirement and formal N-05 rerun were not performed. N-05 remains BLOCKED /
+Not Complete.
