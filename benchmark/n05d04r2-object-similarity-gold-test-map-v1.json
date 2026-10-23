@@ -1,0 +1,31 @@
+{
+  "schema_version": "sgokb.n05d04r2-similarity-gold-test-map/1.0",
+  "status": "frozen",
+  "gold": "benchmark/n05d04r2-object-similarity-gold-v1.json",
+  "test_file": "tests/test_object_similarity_r2.py",
+  "cases": {
+    "R2SIM-G01": [
+      "test_r2_overall_uses_detail_facet_when_overviews_are_indistinguishable"
+    ],
+    "R2SIM-G02": [
+      "test_r2_statement_evidence_can_break_overview_and_facet_tie"
+    ],
+    "R2SIM-G03": [
+      "test_many_irrelevant_candidate_statements_do_not_create_count_boost"
+    ],
+    "R2SIM-G04": [
+      "test_r2_same_facet_boundary_prevents_cross_facet_statement_match",
+      "test_active_r2_facet_similarity_remains_same_facet_raw_cosine"
+    ],
+    "R2SIM-G05": [
+      "test_historical_source_uses_historical_vectors_but_candidates_are_current",
+      "test_active_generation_isolation_and_object_overall_exclusion",
+      "test_generation_payload_mismatch_is_integrity_error",
+      "test_generation_is_resolved_once_per_similarity_operation"
+    ],
+    "R2SIM-G06": [
+      "test_source_query_count_and_result_evidence_are_bounded",
+      "test_candidate_object_cap_applies_even_when_caller_requests_more"
+    ]
+  }
+}
