@@ -1,0 +1,4799 @@
+{
+  "schema_version": "sgokb.r2-06-candidate-e-remediation/1.0",
+  "run_id": "20261024T020709",
+  "execution_head": "4ec0cf3b80102098671ddda8275094226dd9c638",
+  "decision": "Candidate E accepted and production implementation verified on remediation branch; no main merge",
+  "formula": {
+    "statement": "arithmetic mean of all observations from selected source queries after per-query Object dedup; no score eviction",
+    "cluster_with_statements": "(.30*facet+.20*statement_mean)/.50",
+    "cluster_without_statements": "facet",
+    "detail": "ordinary median of all eligible canonical same-Facet clusters",
+    "object": ".50*bounded_overview+.50*detail",
+    "empty_detail": 0
+  },
+  "diagnostic": {
+    "run_id": "20261024T020709",
+    "execution_head": "4ec0cf3b80102098671ddda8275094226dd9c638",
+    "space": {
+      "provider_key": "sentence-transformers",
+      "provider_version": "6.1.0",
+      "model": "microsoft/harrier-oss-v1-0.6b",
+      "model_revision": "f9b9dc8d367d443f2479d27aa5d8d2850c0774ee",
+      "dimension": 1024,
+      "native_dimension": 1024,
+      "preprocessing_key": "sgokb-search-representation",
+      "preprocessing_version": "2",
+      "query_instruction": "Given a query about an object knowledge base, retrieve semantically relevant object knowledge statements.",
+      "document_instruction": "",
+      "normalize_embeddings": true,
+      "max_sequence_length": 32768,
+      "overflow_policy": "reject",
+      "output_dtype": "float32",
+      "provider_configuration": {
+        "dtype": "bfloat16",
+        "local_files_only": true,
+        "truncate_dim": null
+      }
+    },
+    "previous_evidence_sha256": "91229dfd03f45083ca1c1b14a48980b0eadf5da0d9443060cb209b2d8ae38707",
+    "generation_id": "search-generation:r2:search-quality-gold-v1",
+    "cases": [
+      {
+        "id": "character_overall",
+        "candidates": [
+          {
+            "object_id": "obj:mika",
+            "anchor_checks": [
+              {
+                "facet": "behavior",
+                "canonical_anchor": true,
+                "facet_ann_hit": true
+              },
+              {
+                "facet": "personality",
+                "canonical_anchor": true,
+                "facet_ann_hit": true
+              },
+              {
+                "facet": "values",
+                "canonical_anchor": true,
+                "facet_ann_hit": true
+              }
+            ],
+            "overview": 0.8281027313265004,
+            "overview_contribution": 0.4140513656632502,
+            "clusters": [
+              {
+                "facet": "behavior",
+                "anchor": {
+                  "source": {
+                    "membership_id": "0daed031-03f6-4c84-b430-5f6da20d8613",
+                    "representation_id": "163571b6-bbb1-42d9-973f-c6feab0ca8a2",
+                    "target_kind": "facet",
+                    "facet_id": "facet:behavior",
+                    "facet": "behavior",
+                    "statement_id": null,
+                    "local_key": null
+                  },
+                  "candidate": {
+                    "membership_id": "201fd81e-134c-40ac-ba65-319c5a33934c",
+                    "representation_id": "143f6016-9148-4f9d-a582-b30c6837924f",
+                    "object_id": "obj:mika",
+                    "version_id": "ver:mika:v1",
+                    "facet_id": "facet:behavior",
+                    "facet": "behavior"
+                  },
+                  "cosine": 0.7396479288045495,
+                  "facet_ann_hit": true,
+                  "cosine_origin": "same-membership saved Facet ANN cosine"
+                },
+                "facet_cosine": 0.7396479288045495,
+                "observations": [
+                  {
+                    "source_query_id": "4dd59594-def7-488e-bd66-fa806e3e9f00",
+                    "facet": "behavior",
+                    "raw_cosine": 0.7332867155680151,
+                    "candidate_membership_id": "5124e874-deee-4c07-8e04-745f9164132c",
+                    "source_statement_id": "cb31a4a6-8808-494b-b218-7c7dc7890525",
+                    "candidate_statement_id": "3f4a168b-6201-4107-939f-d71f7b5ec75a"
+                  }
+                ],
+                "statement_mean": 0.7332867155680151,
+                "score": 0.7371034435099357
+              },
+              {
+                "facet": "values",
+                "anchor": {
+                  "source": {
+                    "membership_id": "865c593c-e645-4428-be89-1635e865f2fe",
+                    "representation_id": "310861d8-ee9c-4c01-a9d1-405ad82a4e57",
+                    "target_kind": "facet",
+                    "facet_id": "facet:values",
+                    "facet": "values",
+                    "statement_id": null,
+                    "local_key": null
+                  },
+                  "candidate": {
+                    "membership_id": "3b9a8c83-e542-41f2-b907-7b80c0e9729f",
+                    "representation_id": "2c56b25a-9cc1-4408-a558-8b56ad5027be",
+                    "object_id": "obj:mika",
+                    "version_id": "ver:mika:v1",
+                    "facet_id": "facet:values",
+                    "facet": "values"
+                  },
+                  "cosine": 0.8341502142144167,
+                  "facet_ann_hit": true,
+                  "cosine_origin": "same-membership saved Facet ANN cosine"
+                },
+                "facet_cosine": 0.8341502142144167,
+                "observations": [
+                  {
+                    "source_query_id": "5ce2c6fb-5859-46b6-8bb7-d07cc827a666",
+                    "facet": "values",
+                    "raw_cosine": 0.8345534395658506,
+                    "candidate_membership_id": "95f82a1f-468c-4616-8915-55dfe9b5c5fc",
+                    "source_statement_id": "3d051254-25f5-40c9-a1f3-74a0b61da002",
+                    "candidate_statement_id": "22c28768-3e57-4548-bf0d-7fc9c9f45a9f"
+                  }
+                ],
+                "statement_mean": 0.8345534395658506,
+                "score": 0.8343115043549902
+              },
+              {
+                "facet": "personality",
+                "anchor": {
+                  "source": {
+                    "membership_id": "cc3e4111-da06-4218-9b5a-69167f351633",
+                    "representation_id": "263e247b-9d13-4a54-9c24-e7f370b051aa",
+                    "target_kind": "facet",
+                    "facet_id": "facet:personality",
+                    "facet": "personality",
+                    "statement_id": null,
+                    "local_key": null
+                  },
+                  "candidate": {
+                    "membership_id": "91e576be-d0bf-427b-bec7-62abe77935f6",
+                    "representation_id": "05434528-9dc4-498d-a3b5-8a5e600a0430",
+                    "object_id": "obj:mika",
+                    "version_id": "ver:mika:v1",
+                    "facet_id": "facet:personality",
+                    "facet": "personality"
+                  },
+                  "cosine": 0.8392567136437925,
+                  "facet_ann_hit": true,
+                  "cosine_origin": "same-membership saved Facet ANN cosine"
+                },
+                "facet_cosine": 0.8392567136437925,
+                "observations": [
+                  {
+                    "source_query_id": "d466cb3c-96f3-4829-b37d-72479f4d7549",
+                    "facet": "personality",
+                    "raw_cosine": 0.8384311825281261,
+                    "candidate_membership_id": "2e8c5028-0495-4d1f-9500-d7a9f9987932",
+                    "source_statement_id": "cb23a232-328c-46f0-afea-566e866d2216",
+                    "candidate_statement_id": "3fa9a355-7043-4fa5-9c84-f4594f350db1"
+                  }
+                ],
+                "statement_mean": 0.8384311825281261,
+                "score": 0.838926501197526
+              }
+            ],
+            "eligible_shared_facet_count": 3,
+            "median_support_facets": [
+              "values"
+            ],
+            "detail_median": 0.8343115043549902,
+            "detail_contribution": 0.4171557521774951,
+            "score": 0.8312071178407453,
+            "score_type": "hierarchical_similarity",
+            "statement_observations": 3,
+            "numeric_support_explanation_items": 3,
+            "all_evidence_explanation_items": 7,
+            "rank": 1
+          },
+          {
+            "object_id": "obj:ren",
+            "anchor_checks": [
+              {
+                "facet": "behavior",
+                "canonical_anchor": false,
+                "facet_ann_hit": false
+              },
+              {
+                "facet": "personality",
+                "canonical_anchor": true,
+                "facet_ann_hit": true
+              },
+              {
+                "facet": "values",
+                "canonical_anchor": true,
+                "facet_ann_hit": true
+              }
+            ],
+            "overview": 0.8327890599777558,
+            "overview_contribution": 0.4163945299888779,
+            "clusters": [
+              {
+                "facet": "values",
+                "anchor": {
+                  "source": {
+                    "membership_id": "865c593c-e645-4428-be89-1635e865f2fe",
+                    "representation_id": "310861d8-ee9c-4c01-a9d1-405ad82a4e57",
+                    "target_kind": "facet",
+                    "facet_id": "facet:values",
+                    "facet": "values",
+                    "statement_id": null,
+                    "local_key": null
+                  },
+                  "candidate": {
+                    "membership_id": "bdbbff29-959d-478a-b3b7-95effe1dcf58",
+                    "representation_id": "16f357ae-cb05-4ccb-babb-c43fb067a7b2",
+                    "object_id": "obj:ren",
+                    "version_id": "ver:ren:v1",
+                    "facet_id": "facet:values",
+                    "facet": "values"
+                  },
+                  "cosine": 0.8149387351704018,
+                  "facet_ann_hit": true,
+                  "cosine_origin": "same-membership saved Facet ANN cosine"
+                },
+                "facet_cosine": 0.8149387351704018,
+                "observations": [
+                  {
+                    "source_query_id": "5ce2c6fb-5859-46b6-8bb7-d07cc827a666",
+                    "facet": "values",
+                    "raw_cosine": 0.8236731583395063,
+                    "candidate_membership_id": "9ae42d65-494f-4718-aa4d-59a891876a72",
+                    "source_statement_id": "3d051254-25f5-40c9-a1f3-74a0b61da002",
+                    "candidate_statement_id": "99b1818b-6270-469a-b867-f501acdba9c3"
+                  }
+                ],
+                "statement_mean": 0.8236731583395063,
+                "score": 0.8184325044380436
+              },
+              {
+                "facet": "personality",
+                "anchor": {
+                  "source": {
+                    "membership_id": "cc3e4111-da06-4218-9b5a-69167f351633",
+                    "representation_id": "263e247b-9d13-4a54-9c24-e7f370b051aa",
+                    "target_kind": "facet",
+                    "facet_id": "facet:personality",
+                    "facet": "personality",
+                    "statement_id": null,
+                    "local_key": null
+                  },
+                  "candidate": {
+                    "membership_id": "d99e37c9-6ca9-42bd-a2c7-79823ead20cb",
+                    "representation_id": "70bb0721-1de3-4353-910e-5d1394158d9a",
+                    "object_id": "obj:ren",
+                    "version_id": "ver:ren:v1",
+                    "facet_id": "facet:personality",
+                    "facet": "personality"
+                  },
+                  "cosine": 0.8288379251491049,
+                  "facet_ann_hit": true,
+                  "cosine_origin": "same-membership saved Facet ANN cosine"
+                },
+                "facet_cosine": 0.8288379251491049,
+                "observations": [
+                  {
+                    "source_query_id": "d466cb3c-96f3-4829-b37d-72479f4d7549",
+                    "facet": "personality",
+                    "raw_cosine": 0.8261494827219857,
+                    "candidate_membership_id": "2413e94b-7309-4832-9312-253c63d45143",
+                    "source_statement_id": "cb23a232-328c-46f0-afea-566e866d2216",
+                    "candidate_statement_id": "080b6605-d845-4d01-b2b4-611bb6462380"
+                  }
+                ],
+                "statement_mean": 0.8261494827219857,
+                "score": 0.8277625481782572
+              }
+            ],
+            "eligible_shared_facet_count": 2,
+            "median_support_facets": [
+              "values",
+              "personality"
+            ],
+            "detail_median": 0.8230975263081504,
+            "detail_contribution": 0.4115487631540752,
+            "score": 0.8279432931429531,
+            "score_type": "hierarchical_similarity",
+            "statement_observations": 2,
+            "numeric_support_explanation_items": 5,
+            "all_evidence_explanation_items": 5,
+            "rank": 2
+          }
+        ],
+        "scorer_union_objects": 2,
+        "work": {
+          "candidate_membership_lookups": 6,
+          "stored_embedding_reads": 0,
+          "direct_facet_cosines": 0,
+          "ann_facet_cosines_reused": 5
+        },
+        "pass": true
+      },
+      {
+        "id": "character_values",
+        "candidates": [
+          {
+            "object_id": "obj:mika",
+            "name": "水城ミカ",
+            "primary_class": "character",
+            "version_id": "ver:mika:v1",
+            "rank": 1,
+            "score": 0.8341502142144167,
+            "score_type": "cosine_similarity",
+            "matched_facet": "values",
+            "representation_id": "2c56b25a-9cc1-4408-a558-8b56ad5027be",
+            "membership_id": "3b9a8c83-e542-41f2-b907-7b80c0e9729f",
+            "evidence": []
+          },
+          {
+            "object_id": "obj:ren",
+            "name": "黒瀬レン",
+            "primary_class": "character",
+            "version_id": "ver:ren:v1",
+            "rank": 2,
+            "score": 0.8149387351704018,
+            "score_type": "cosine_similarity",
+            "matched_facet": "values",
+            "representation_id": "16f357ae-cb05-4ccb-babb-c43fb067a7b2",
+            "membership_id": "bdbbff29-959d-478a-b3b7-95effe1dcf58",
+            "evidence": []
+          }
+        ],
+        "facet_specific_unchanged": true,
+        "pass": true
+      },
+      {
+        "id": "work_overall",
+        "candidates": [
+          {
+            "object_id": "obj:ash_garden",
+            "anchor_checks": [
+              {
+                "facet": "themes",
+                "canonical_anchor": true,
+                "facet_ann_hit": true
+              },
+              {
+                "facet": "tone",
+                "canonical_anchor": false,
+                "facet_ann_hit": false
+              }
+            ],
+            "overview": 0.8729085385171961,
+            "overview_contribution": 0.43645426925859804,
+            "clusters": [
+              {
+                "facet": "themes",
+                "anchor": {
+                  "source": {
+                    "membership_id": "177dcdff-e58d-42f3-ac4b-8d082b605b0d",
+                    "representation_id": "f8921de0-04f0-4461-bf19-72e015aea676",
+                    "target_kind": "facet",
+                    "facet_id": "facet:themes",
+                    "facet": "themes",
+                    "statement_id": null,
+                    "local_key": null
+                  },
+                  "candidate": {
+                    "membership_id": "6982c65c-117f-4666-b130-79c6cff66652",
+                    "representation_id": "b2ed5722-6b36-4465-8b2c-676f0069d09e",
+                    "object_id": "obj:ash_garden",
+                    "version_id": "ver:ash_garden:v1",
+                    "facet_id": "facet:themes",
+                    "facet": "themes"
+                  },
+                  "cosine": 0.8413411787363723,
+                  "facet_ann_hit": true,
+                  "cosine_origin": "same-membership saved Facet ANN cosine"
+                },
+                "facet_cosine": 0.8413411787363723,
+                "observations": [
+                  {
+                    "source_query_id": "da92dd21-8d4c-464f-be31-f2b0c7a1611a",
+                    "facet": "themes",
+                    "raw_cosine": 0.8445026426343814,
+                    "candidate_membership_id": "e2bb9db4-9e85-4b43-b4ea-018a1e6bb23f",
+                    "source_statement_id": "9fc437b6-43eb-408a-a245-a7aebca0ae19",
+                    "candidate_statement_id": "dc23bb3d-468a-4ae2-9b3a-b478419fa4ce"
+                  }
+                ],
+                "statement_mean": 0.8445026426343814,
+                "score": 0.842605764295576
+              }
+            ],
+            "eligible_shared_facet_count": 1,
+            "median_support_facets": [
+              "themes"
+            ],
+            "detail_median": 0.842605764295576,
+            "detail_contribution": 0.421302882147788,
+            "score": 0.857757151406386,
+            "score_type": "hierarchical_similarity",
+            "statement_observations": 1,
+            "numeric_support_explanation_items": 3,
+            "all_evidence_explanation_items": 3,
+            "rank": 1
+          },
+          {
+            "object_id": "obj:iron_crown",
+            "anchor_checks": [
+              {
+                "facet": "themes",
+                "canonical_anchor": true,
+                "facet_ann_hit": true
+              },
+              {
+                "facet": "tone",
+                "canonical_anchor": true,
+                "facet_ann_hit": true
+              }
+            ],
+            "overview": 0.859349262991483,
+            "overview_contribution": 0.4296746314957415,
+            "clusters": [
+              {
+                "facet": "themes",
+                "anchor": {
+                  "source": {
+                    "membership_id": "177dcdff-e58d-42f3-ac4b-8d082b605b0d",
+                    "representation_id": "f8921de0-04f0-4461-bf19-72e015aea676",
+                    "target_kind": "facet",
+                    "facet_id": "facet:themes",
+                    "facet": "themes",
+                    "statement_id": null,
+                    "local_key": null
+                  },
+                  "candidate": {
+                    "membership_id": "694bfe46-debd-4bea-9f17-09a85733669c",
+                    "representation_id": "d7bd0655-97fc-413d-9034-8410d569948f",
+                    "object_id": "obj:iron_crown",
+                    "version_id": "ver:iron_crown:v1",
+                    "facet_id": "facet:themes",
+                    "facet": "themes"
+                  },
+                  "cosine": 0.7731601287184018,
+                  "facet_ann_hit": true,
+                  "cosine_origin": "same-membership saved Facet ANN cosine"
+                },
+                "facet_cosine": 0.7731601287184018,
+                "observations": [
+                  {
+                    "source_query_id": "da92dd21-8d4c-464f-be31-f2b0c7a1611a",
+                    "facet": "themes",
+                    "raw_cosine": 0.7723603254231791,
+                    "candidate_membership_id": "a60623c1-b1b2-4f76-9e7a-870cf2494249",
+                    "source_statement_id": "9fc437b6-43eb-408a-a245-a7aebca0ae19",
+                    "candidate_statement_id": "3391cdab-993d-42c5-ad98-8a8df1d8254a"
+                  }
+                ],
+                "statement_mean": 0.7723603254231791,
+                "score": 0.7728402074003127
+              },
+              {
+                "facet": "tone",
+                "anchor": {
+                  "source": {
+                    "membership_id": "9d6abd11-648e-461b-8c1d-d1f6e5b50936",
+                    "representation_id": "d784f512-9771-47f6-9fa9-553a3595f649",
+                    "target_kind": "facet",
+                    "facet_id": "facet:tone",
+                    "facet": "tone",
+                    "statement_id": null,
+                    "local_key": null
+                  },
+                  "candidate": {
+                    "membership_id": "427e5050-48a1-46c5-a5e2-c76ba040259e",
+                    "representation_id": "35255279-f811-41e8-bfad-a8e32e629e6a",
+                    "object_id": "obj:iron_crown",
+                    "version_id": "ver:iron_crown:v1",
+                    "facet_id": "facet:tone",
+                    "facet": "tone"
+                  },
+                  "cosine": 0.836662818029136,
+                  "facet_ann_hit": true,
+                  "cosine_origin": "same-membership saved Facet ANN cosine"
+                },
+                "facet_cosine": 0.836662818029136,
+                "observations": [
+                  {
+                    "source_query_id": "43016b9c-132d-4240-adf9-10a84c979ee5",
+                    "facet": "tone",
+                    "raw_cosine": 0.8302611479847423,
+                    "candidate_membership_id": "035f6852-6eb9-4aa1-8d1d-ce34867b7c12",
+                    "source_statement_id": "5cb1ab03-936a-47e0-b0e8-cf079d061fe1",
+                    "candidate_statement_id": "c945c9a4-24f9-4f43-b813-bed486258cfc"
+                  }
+                ],
+                "statement_mean": 0.8302611479847423,
+                "score": 0.8341021500113786
+              }
+            ],
+            "eligible_shared_facet_count": 2,
+            "median_support_facets": [
+              "themes",
+              "tone"
+            ],
+            "detail_median": 0.8034711787058456,
+            "detail_contribution": 0.4017355893529228,
+            "score": 0.8314102208486642,
+            "score_type": "hierarchical_similarity",
+            "statement_observations": 2,
+            "numeric_support_explanation_items": 5,
+            "all_evidence_explanation_items": 5,
+            "rank": 2
+          }
+        ],
+        "scorer_union_objects": 2,
+        "work": {
+          "candidate_membership_lookups": 4,
+          "stored_embedding_reads": 0,
+          "direct_facet_cosines": 0,
+          "ann_facet_cosines_reused": 3
+        },
+        "pass": true
+      },
+      {
+        "id": "concept_overall",
+        "candidates": [
+          {
+            "object_id": "obj:altruism",
+            "anchor_checks": [
+              {
+                "facet": "definition",
+                "canonical_anchor": true,
+                "facet_ann_hit": true
+              },
+              {
+                "facet": "implications",
+                "canonical_anchor": false,
+                "facet_ann_hit": false
+              }
+            ],
+            "overview": 0.8444074041161959,
+            "overview_contribution": 0.42220370205809793,
+            "clusters": [
+              {
+                "facet": "definition",
+                "anchor": {
+                  "source": {
+                    "membership_id": "a688b69d-1017-4f1a-851c-e281e6e96ab5",
+                    "representation_id": "1133f4d3-6723-434b-8c27-5f7a460dbcde",
+                    "target_kind": "facet",
+                    "facet_id": "facet:definition",
+                    "facet": "definition",
+                    "statement_id": null,
+                    "local_key": null
+                  },
+                  "candidate": {
+                    "membership_id": "d414ec6e-e790-4056-af78-5257a42f8731",
+                    "representation_id": "c3ab3a12-c8c3-41a8-8236-54d3824653e0",
+                    "object_id": "obj:altruism",
+                    "version_id": "ver:altruism:v1",
+                    "facet_id": "facet:definition",
+                    "facet": "definition"
+                  },
+                  "cosine": 0.8025491317024354,
+                  "facet_ann_hit": true,
+                  "cosine_origin": "same-membership saved Facet ANN cosine"
+                },
+                "facet_cosine": 0.8025491317024354,
+                "observations": [
+                  {
+                    "source_query_id": "b9226e20-1c0f-4a91-a1c5-a13fe0ec9fe5",
+                    "facet": "definition",
+                    "raw_cosine": 0.8133837003750559,
+                    "candidate_membership_id": "e6772025-f9ab-4565-bfff-f8c109354f56",
+                    "source_statement_id": "9efa87e7-44c6-41c3-b49c-cf385843ca47",
+                    "candidate_statement_id": "28cb9379-b364-4d77-a25a-a7edca37b264"
+                  }
+                ],
+                "statement_mean": 0.8133837003750559,
+                "score": 0.8068829591714837
+              }
+            ],
+            "eligible_shared_facet_count": 1,
+            "median_support_facets": [
+              "definition"
+            ],
+            "detail_median": 0.8068829591714837,
+            "detail_contribution": 0.40344147958574184,
+            "score": 0.8256451816438397,
+            "score_type": "hierarchical_similarity",
+            "statement_observations": 1,
+            "numeric_support_explanation_items": 3,
+            "all_evidence_explanation_items": 3,
+            "rank": 1
+          },
+          {
+            "object_id": "obj:autonomy",
+            "anchor_checks": [
+              {
+                "facet": "definition",
+                "canonical_anchor": true,
+                "facet_ann_hit": true
+              },
+              {
+                "facet": "implications",
+                "canonical_anchor": true,
+                "facet_ann_hit": true
+              }
+            ],
+            "overview": 0.8537882005007914,
+            "overview_contribution": 0.4268941002503957,
+            "clusters": [
+              {
+                "facet": "definition",
+                "anchor": {
+                  "source": {
+                    "membership_id": "a688b69d-1017-4f1a-851c-e281e6e96ab5",
+                    "representation_id": "1133f4d3-6723-434b-8c27-5f7a460dbcde",
+                    "target_kind": "facet",
+                    "facet_id": "facet:definition",
+                    "facet": "definition",
+                    "statement_id": null,
+                    "local_key": null
+                  },
+                  "candidate": {
+                    "membership_id": "095ba6b9-df7a-4835-9cfe-80fd6e452ad1",
+                    "representation_id": "15bcd667-c8c2-443a-9549-1d55e40ce470",
+                    "object_id": "obj:autonomy",
+                    "version_id": "ver:autonomy:v1",
+                    "facet_id": "facet:definition",
+                    "facet": "definition"
+                  },
+                  "cosine": 0.7616107455731786,
+                  "facet_ann_hit": true,
+                  "cosine_origin": "same-membership saved Facet ANN cosine"
+                },
+                "facet_cosine": 0.7616107455731786,
+                "observations": [
+                  {
+                    "source_query_id": "b9226e20-1c0f-4a91-a1c5-a13fe0ec9fe5",
+                    "facet": "definition",
+                    "raw_cosine": 0.7769282345183279,
+                    "candidate_membership_id": "e9db1da1-a994-4302-80d6-2d999d2c2288",
+                    "source_statement_id": "9efa87e7-44c6-41c3-b49c-cf385843ca47",
+                    "candidate_statement_id": "dc337af7-628e-4ea6-ac8d-54d56f07a9e6"
+                  }
+                ],
+                "statement_mean": 0.7769282345183279,
+                "score": 0.7677377411512384
+              },
+              {
+                "facet": "implications",
+                "anchor": {
+                  "source": {
+                    "membership_id": "bec8dc67-2553-474f-95dc-df5a69ade8a1",
+                    "representation_id": "cdb2be00-5361-48e7-ae7a-7d4944b1acdb",
+                    "target_kind": "facet",
+                    "facet_id": "facet:implications",
+                    "facet": "implications",
+                    "statement_id": null,
+                    "local_key": null
+                  },
+                  "candidate": {
+                    "membership_id": "6956b5e6-219d-48dd-81ea-6ec752d2a9bb",
+                    "representation_id": "689a0a6d-070b-490a-be14-4509c7bcbf21",
+                    "object_id": "obj:autonomy",
+                    "version_id": "ver:autonomy:v1",
+                    "facet_id": "facet:implications",
+                    "facet": "implications"
+                  },
+                  "cosine": 0.7802198158692647,
+                  "facet_ann_hit": true,
+                  "cosine_origin": "same-membership saved Facet ANN cosine"
+                },
+                "facet_cosine": 0.7802198158692647,
+                "observations": [
+                  {
+                    "source_query_id": "8fa534e2-0c51-4b16-99a7-4661e26f7f60",
+                    "facet": "implications",
+                    "raw_cosine": 0.7949353746124606,
+                    "candidate_membership_id": "77c74d23-2a1c-407f-bf29-d7625383ccbc",
+                    "source_statement_id": "021bc569-2dfa-474f-8f3e-2753dcaf2194",
+                    "candidate_statement_id": "554fad43-36c9-47ab-8fad-12e59aab606c"
+                  }
+                ],
+                "statement_mean": 0.7949353746124606,
+                "score": 0.7861060393665431
+              }
+            ],
+            "eligible_shared_facet_count": 2,
+            "median_support_facets": [
+              "definition",
+              "implications"
+            ],
+            "detail_median": 0.7769218902588908,
+            "detail_contribution": 0.3884609451294454,
+            "score": 0.815355045379841,
+            "score_type": "hierarchical_similarity",
+            "statement_observations": 2,
+            "numeric_support_explanation_items": 5,
+            "all_evidence_explanation_items": 5,
+            "rank": 2
+          }
+        ],
+        "scorer_union_objects": 2,
+        "work": {
+          "candidate_membership_lookups": 4,
+          "stored_embedding_reads": 0,
+          "direct_facet_cosines": 0,
+          "ann_facet_cosines_reused": 3
+        },
+        "pass": true
+      }
+    ],
+    "E5": {
+      "pass": true,
+      "anchor": {
+        "source": {
+          "membership_id": "177dcdff-e58d-42f3-ac4b-8d082b605b0d",
+          "representation_id": "f8921de0-04f0-4461-bf19-72e015aea676",
+          "target_kind": "facet",
+          "facet_id": "facet:themes",
+          "facet": "themes",
+          "statement_id": null,
+          "local_key": null
+        },
+        "candidate": {
+          "membership_id": "6982c65c-117f-4666-b130-79c6cff66652",
+          "representation_id": "b2ed5722-6b36-4465-8b2c-676f0069d09e",
+          "object_id": "obj:ash_garden",
+          "version_id": "ver:ash_garden:v1",
+          "facet_id": "facet:themes",
+          "facet": "themes"
+        },
+        "cosine": 0.8413411787363723,
+        "facet_ann_hit": false,
+        "cosine_origin": "direct cosine from pinned-space stored embeddings"
+      },
+      "result": {
+        "overview": 0.0,
+        "overview_contribution": 0.0,
+        "clusters": [
+          {
+            "facet": "themes",
+            "anchor": {
+              "source": {
+                "membership_id": "177dcdff-e58d-42f3-ac4b-8d082b605b0d",
+                "representation_id": "f8921de0-04f0-4461-bf19-72e015aea676",
+                "target_kind": "facet",
+                "facet_id": "facet:themes",
+                "facet": "themes",
+                "statement_id": null,
+                "local_key": null
+              },
+              "candidate": {
+                "membership_id": "6982c65c-117f-4666-b130-79c6cff66652",
+                "representation_id": "b2ed5722-6b36-4465-8b2c-676f0069d09e",
+                "object_id": "obj:ash_garden",
+                "version_id": "ver:ash_garden:v1",
+                "facet_id": "facet:themes",
+                "facet": "themes"
+              },
+              "cosine": 0.8413411787363723,
+              "facet_ann_hit": false,
+              "cosine_origin": "direct cosine from pinned-space stored embeddings"
+            },
+            "facet_cosine": 0.8413411787363723,
+            "observations": [
+              {
+                "source_query_id": "da92dd21-8d4c-464f-be31-f2b0c7a1611a",
+                "facet": "themes",
+                "raw_cosine": 0.8445026426343814,
+                "candidate_membership_id": "e2bb9db4-9e85-4b43-b4ea-018a1e6bb23f"
+              }
+            ],
+            "statement_mean": 0.8445026426343814,
+            "score": 0.842605764295576
+          }
+        ],
+        "eligible_shared_facet_count": 1,
+        "median_support_facets": [
+          "themes"
+        ],
+        "detail_median": 0.842605764295576,
+        "detail_contribution": 0.421302882147788,
+        "score": 0.421302882147788,
+        "score_type": "hierarchical_similarity",
+        "statement_observations": 1,
+        "numeric_support_explanation_items": 3,
+        "all_evidence_explanation_items": 3
+      },
+      "work": {
+        "candidate_membership_lookups": 1,
+        "stored_embedding_reads": 2,
+        "direct_facet_cosines": 1,
+        "ann_facet_cosines_reused": 0
+      },
+      "controlled_ANN_miss": true
+    },
+    "E6": {
+      "pass": true,
+      "result": {
+        "overview": 0.0,
+        "overview_contribution": 0.0,
+        "clusters": [],
+        "eligible_shared_facet_count": 0,
+        "median_support_facets": [],
+        "detail_median": 0.0,
+        "detail_contribution": 0.0,
+        "score": 0.0,
+        "score_type": "hierarchical_similarity",
+        "statement_observations": 0,
+        "numeric_support_explanation_items": 1,
+        "all_evidence_explanation_items": 1
+      },
+      "work": {
+        "candidate_membership_lookups": 1,
+        "stored_embedding_reads": 0,
+        "direct_facet_cosines": 0,
+        "ann_facet_cosines_reused": 0
+      }
+    },
+    "probes": [
+      {
+        "id": "E1",
+        "pass": true,
+        "before_mean": 0.6,
+        "after_mean": 0.5750000000000001
+      },
+      {
+        "id": "E2",
+        "pass": true
+      },
+      {
+        "id": "E3",
+        "pass": true,
+        "retained": [
+          0.9,
+          0.8,
+          0.1,
+          0.5
+        ]
+      },
+      {
+        "id": "E4",
+        "pass": true
+      },
+      {
+        "id": "E5",
+        "pass": true,
+        "anchor": {
+          "source": {
+            "membership_id": "177dcdff-e58d-42f3-ac4b-8d082b605b0d",
+            "representation_id": "f8921de0-04f0-4461-bf19-72e015aea676",
+            "target_kind": "facet",
+            "facet_id": "facet:themes",
+            "facet": "themes",
+            "statement_id": null,
+            "local_key": null
+          },
+          "candidate": {
+            "membership_id": "6982c65c-117f-4666-b130-79c6cff66652",
+            "representation_id": "b2ed5722-6b36-4465-8b2c-676f0069d09e",
+            "object_id": "obj:ash_garden",
+            "version_id": "ver:ash_garden:v1",
+            "facet_id": "facet:themes",
+            "facet": "themes"
+          },
+          "cosine": 0.8413411787363723,
+          "facet_ann_hit": false,
+          "cosine_origin": "direct cosine from pinned-space stored embeddings"
+        },
+        "result": {
+          "overview": 0.0,
+          "overview_contribution": 0.0,
+          "clusters": [
+            {
+              "facet": "themes",
+              "anchor": {
+                "source": {
+                  "membership_id": "177dcdff-e58d-42f3-ac4b-8d082b605b0d",
+                  "representation_id": "f8921de0-04f0-4461-bf19-72e015aea676",
+                  "target_kind": "facet",
+                  "facet_id": "facet:themes",
+                  "facet": "themes",
+                  "statement_id": null,
+                  "local_key": null
+                },
+                "candidate": {
+                  "membership_id": "6982c65c-117f-4666-b130-79c6cff66652",
+                  "representation_id": "b2ed5722-6b36-4465-8b2c-676f0069d09e",
+                  "object_id": "obj:ash_garden",
+                  "version_id": "ver:ash_garden:v1",
+                  "facet_id": "facet:themes",
+                  "facet": "themes"
+                },
+                "cosine": 0.8413411787363723,
+                "facet_ann_hit": false,
+                "cosine_origin": "direct cosine from pinned-space stored embeddings"
+              },
+              "facet_cosine": 0.8413411787363723,
+              "observations": [
+                {
+                  "source_query_id": "da92dd21-8d4c-464f-be31-f2b0c7a1611a",
+                  "facet": "themes",
+                  "raw_cosine": 0.8445026426343814,
+                  "candidate_membership_id": "e2bb9db4-9e85-4b43-b4ea-018a1e6bb23f"
+                }
+              ],
+              "statement_mean": 0.8445026426343814,
+              "score": 0.842605764295576
+            }
+          ],
+          "eligible_shared_facet_count": 1,
+          "median_support_facets": [
+            "themes"
+          ],
+          "detail_median": 0.842605764295576,
+          "detail_contribution": 0.421302882147788,
+          "score": 0.421302882147788,
+          "score_type": "hierarchical_similarity",
+          "statement_observations": 1,
+          "numeric_support_explanation_items": 3,
+          "all_evidence_explanation_items": 3
+        },
+        "work": {
+          "candidate_membership_lookups": 1,
+          "stored_embedding_reads": 2,
+          "direct_facet_cosines": 1,
+          "ann_facet_cosines_reused": 0
+        },
+        "controlled_ANN_miss": true
+      },
+      {
+        "id": "E6",
+        "pass": true,
+        "result": {
+          "overview": 0.0,
+          "overview_contribution": 0.0,
+          "clusters": [],
+          "eligible_shared_facet_count": 0,
+          "median_support_facets": [],
+          "detail_median": 0.0,
+          "detail_contribution": 0.0,
+          "score": 0.0,
+          "score_type": "hierarchical_similarity",
+          "statement_observations": 0,
+          "numeric_support_explanation_items": 1,
+          "all_evidence_explanation_items": 1
+        },
+        "work": {
+          "candidate_membership_lookups": 1,
+          "stored_embedding_reads": 0,
+          "direct_facet_cosines": 0,
+          "ann_facet_cosines_reused": 0
+        }
+      },
+      {
+        "id": "E7",
+        "pass": true,
+        "before": 0.8,
+        "after": 0.5
+      },
+      {
+        "id": "E8",
+        "pass": true,
+        "before": 0.8,
+        "after": 0.8500000000000001
+      },
+      {
+        "id": "E9",
+        "pass": true,
+        "score_values": [
+          0.7,
+          0.9
+        ],
+        "multiplicities": [
+          1,
+          1
+        ],
+        "weighted_outcomes": 256,
+        "narrow_expected": 0.8,
+        "wide_expected": 0.8,
+        "wide_wins": 64,
+        "wide_losses": 64,
+        "ties": 128,
+        "one_sided_width_dominance": false
+      },
+      {
+        "id": "E10",
+        "pass": true,
+        "report_only_finite_sample_effect": true,
+        "controls": [
+          {
+            "score_values": [
+              0.7,
+              0.9
+            ],
+            "multiplicities": [
+              3,
+              1
+            ],
+            "weighted_outcomes": 65536,
+            "narrow_expected": 0.775,
+            "wide_expected": 0.7570556640625,
+            "wide_wins": 3468,
+            "wide_losses": 15228,
+            "ties": 46840,
+            "one_sided_width_dominance": false
+          },
+          {
+            "score_values": [
+              0.7,
+              0.9
+            ],
+            "multiplicities": [
+              1,
+              3
+            ],
+            "weighted_outcomes": 65536,
+            "narrow_expected": 0.825,
+            "wide_expected": 0.8429443359375,
+            "wide_wins": 15228,
+            "wide_losses": 3468,
+            "ties": 46840,
+            "one_sided_width_dominance": false
+          }
+        ],
+        "interpretation": "skewed-law expected median shifts with support size, but wider candidates also lose; no D/P8 one-sided dominance; no formula tuning"
+      },
+      {
+        "id": "E11",
+        "pass": true,
+        "report_only": true,
+        "sparse_score": 0.875,
+        "moderate_score": 0.8,
+        "eligible_counts": [
+          1,
+          4
+        ],
+        "interpretation": "single genuinely higher shared Facet wins; support=1 is exposed and is not probability/reliability; sparse-support variance remains explicit"
+      },
+      {
+        "id": "E12",
+        "pass": true
+      }
+    ],
+    "structural_pass": true
+  },
+  "production_public_explanations": [
+    {
+      "id": "character_overall",
+      "response": {
+        "source_object_id": "obj:aoi",
+        "source_name": "蒼井アオイ",
+        "source_primary_class": "character",
+        "source_version_id": "ver:aoi:v2",
+        "source_representation_id": "2df97dc4-db11-4191-884b-44f9352f5ab7",
+        "facet": null,
+        "cross_class": false,
+        "results": [
+          {
+            "object_id": "obj:mika",
+            "name": "水城ミカ",
+            "primary_class": "character",
+            "version_id": "ver:mika:v1",
+            "rank": 1,
+            "score": 0.8312071178407453,
+            "score_type": "hierarchical_similarity",
+            "matched_facet": null,
+            "representation_id": "8ba05d5c-c812-4313-bed7-34b11df28175",
+            "membership_id": "7bd1847d-4350-498f-bea2-e00d9a7f41e4",
+            "evidence": [
+              {
+                "component": "overview",
+                "source_representation_id": "2df97dc4-db11-4191-884b-44f9352f5ab7",
+                "source_membership_id": "2bef29bb-5f47-471a-9069-cf0173f27410",
+                "candidate_representation_id": "8ba05d5c-c812-4313-bed7-34b11df28175",
+                "candidate_membership_id": "7bd1847d-4350-498f-bea2-e00d9a7f41e4",
+                "representation_kind": "object_overview",
+                "facet": null,
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.8281027313265004,
+                "score_type": "cosine_similarity",
+                "contribution": 0.4140513656632502,
+                "facet_median": {
+                  "eligible_shared_facet_count": 3,
+                  "clusters": [
+                    {
+                      "facet": "behavior",
+                      "source_membership_id": "eb6b48f4-136a-4bb6-916c-075c34f7aeb9",
+                      "candidate_membership_id": "0cedfc34-59e9-4559-b3f9-c1af7687f3a5",
+                      "source_representation_id": "5e015811-7525-44e6-be63-b0e9d1421037",
+                      "candidate_representation_id": "37f2c32a-cfa4-4f63-a58c-c2bf36f9653e",
+                      "raw_facet_cosine": 0.7396479288045495,
+                      "bounded_facet_cosine": 0.7396479288045495,
+                      "statement_mean": 0.7332867155680151,
+                      "statement_observation_count": 1,
+                      "cluster_score": 0.7371034435099357,
+                      "median_support": false
+                    },
+                    {
+                      "facet": "values",
+                      "source_membership_id": "3bc2c8b4-24b8-4796-a52d-197032270745",
+                      "candidate_membership_id": "28934e2c-dd93-406b-8e54-53c40bfb80aa",
+                      "source_representation_id": "fb67811a-1a44-44cb-8207-dfdeab189918",
+                      "candidate_representation_id": "8d843bf1-55a8-4641-99dd-03e064b713bc",
+                      "raw_facet_cosine": 0.8341502142144167,
+                      "bounded_facet_cosine": 0.8341502142144167,
+                      "statement_mean": 0.8345534395658506,
+                      "statement_observation_count": 1,
+                      "cluster_score": 0.8343115043549902,
+                      "median_support": true
+                    },
+                    {
+                      "facet": "personality",
+                      "source_membership_id": "f69f24bf-7179-406f-a5b6-e2554bb10d52",
+                      "candidate_membership_id": "13cf0830-9302-4cb6-815e-383c8aa42faf",
+                      "source_representation_id": "092ff34d-5271-422a-b506-5c7e57267751",
+                      "candidate_representation_id": "e89710e7-64a6-4689-9e21-d6f658f7efbb",
+                      "raw_facet_cosine": 0.8392567136437925,
+                      "bounded_facet_cosine": 0.8392567136437925,
+                      "statement_mean": 0.8384311825281261,
+                      "statement_observation_count": 1,
+                      "cluster_score": 0.838926501197526,
+                      "median_support": false
+                    }
+                  ],
+                  "median_support_facets": [
+                    "values"
+                  ],
+                  "detail_median": 0.8343115043549902,
+                  "overview_contribution": 0.4140513656632502,
+                  "detail_contribution": 0.4171557521774951
+                }
+              },
+              {
+                "component": "facet",
+                "source_representation_id": "fb67811a-1a44-44cb-8207-dfdeab189918",
+                "source_membership_id": "3bc2c8b4-24b8-4796-a52d-197032270745",
+                "candidate_representation_id": "8d843bf1-55a8-4641-99dd-03e064b713bc",
+                "candidate_membership_id": "28934e2c-dd93-406b-8e54-53c40bfb80aa",
+                "representation_kind": "facet",
+                "facet": "values",
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.8341502142144167,
+                "score_type": "cosine_similarity",
+                "contribution": 0.250245064264325
+              },
+              {
+                "component": "statement",
+                "source_representation_id": "ad86de0f-facf-44e5-9ba9-2b29362eefb3",
+                "source_membership_id": "407da6ac-14e9-4f39-9a15-b70ebb03d6aa",
+                "candidate_representation_id": "dda2ac48-7d03-49d2-ad97-ee5a1eafa7e4",
+                "candidate_membership_id": "49144d56-096f-445b-96ba-97103eeda2eb",
+                "representation_kind": "statement",
+                "facet": "values",
+                "source_statement_id": "8856ee02-a12d-466b-8136-00a5bd9299e3",
+                "candidate_statement_id": "9409cc30-9d3a-4269-a18f-1e630364da73",
+                "score": 0.8345534395658506,
+                "score_type": "cosine_similarity",
+                "contribution": 0.16691068791317012
+              }
+            ]
+          },
+          {
+            "object_id": "obj:ren",
+            "name": "黒瀬レン",
+            "primary_class": "character",
+            "version_id": "ver:ren:v1",
+            "rank": 2,
+            "score": 0.8279432931429531,
+            "score_type": "hierarchical_similarity",
+            "matched_facet": null,
+            "representation_id": "1fee0c3b-0dd4-4fdb-9e2c-4e7b7815ad31",
+            "membership_id": "27599777-87b4-42f2-b015-2886b19a34a5",
+            "evidence": [
+              {
+                "component": "overview",
+                "source_representation_id": "2df97dc4-db11-4191-884b-44f9352f5ab7",
+                "source_membership_id": "2bef29bb-5f47-471a-9069-cf0173f27410",
+                "candidate_representation_id": "1fee0c3b-0dd4-4fdb-9e2c-4e7b7815ad31",
+                "candidate_membership_id": "27599777-87b4-42f2-b015-2886b19a34a5",
+                "representation_kind": "object_overview",
+                "facet": null,
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.8327890599777558,
+                "score_type": "cosine_similarity",
+                "contribution": 0.4163945299888779,
+                "facet_median": {
+                  "eligible_shared_facet_count": 2,
+                  "clusters": [
+                    {
+                      "facet": "values",
+                      "source_membership_id": "3bc2c8b4-24b8-4796-a52d-197032270745",
+                      "candidate_membership_id": "e9146c1d-7c8e-438e-b446-70e43ccf7fc6",
+                      "source_representation_id": "fb67811a-1a44-44cb-8207-dfdeab189918",
+                      "candidate_representation_id": "b1d20443-682a-4194-9da5-9eef92fe4bbc",
+                      "raw_facet_cosine": 0.8149387351704018,
+                      "bounded_facet_cosine": 0.8149387351704018,
+                      "statement_mean": 0.8236731583395063,
+                      "statement_observation_count": 1,
+                      "cluster_score": 0.8184325044380436,
+                      "median_support": true
+                    },
+                    {
+                      "facet": "personality",
+                      "source_membership_id": "f69f24bf-7179-406f-a5b6-e2554bb10d52",
+                      "candidate_membership_id": "8fd0329f-02a7-419c-9768-36e18c0d5027",
+                      "source_representation_id": "092ff34d-5271-422a-b506-5c7e57267751",
+                      "candidate_representation_id": "0ed4d58b-0974-46d7-868f-0cd117e7c1cb",
+                      "raw_facet_cosine": 0.8288379251491049,
+                      "bounded_facet_cosine": 0.8288379251491049,
+                      "statement_mean": 0.8261494827219857,
+                      "statement_observation_count": 1,
+                      "cluster_score": 0.8277625481782572,
+                      "median_support": true
+                    }
+                  ],
+                  "median_support_facets": [
+                    "values",
+                    "personality"
+                  ],
+                  "detail_median": 0.8230975263081504,
+                  "overview_contribution": 0.4163945299888779,
+                  "detail_contribution": 0.4115487631540752
+                }
+              },
+              {
+                "component": "facet",
+                "source_representation_id": "fb67811a-1a44-44cb-8207-dfdeab189918",
+                "source_membership_id": "3bc2c8b4-24b8-4796-a52d-197032270745",
+                "candidate_representation_id": "b1d20443-682a-4194-9da5-9eef92fe4bbc",
+                "candidate_membership_id": "e9146c1d-7c8e-438e-b446-70e43ccf7fc6",
+                "representation_kind": "facet",
+                "facet": "values",
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.8149387351704018,
+                "score_type": "cosine_similarity",
+                "contribution": 0.12224081027556027
+              },
+              {
+                "component": "statement",
+                "source_representation_id": "ad86de0f-facf-44e5-9ba9-2b29362eefb3",
+                "source_membership_id": "407da6ac-14e9-4f39-9a15-b70ebb03d6aa",
+                "candidate_representation_id": "f8f0afbd-43b6-4c7e-93c1-fb4ed1425b8b",
+                "candidate_membership_id": "ea339b8c-e233-41ed-a118-50d3c534ab3c",
+                "representation_kind": "statement",
+                "facet": "values",
+                "source_statement_id": "8856ee02-a12d-466b-8136-00a5bd9299e3",
+                "candidate_statement_id": "60eeedfc-b353-4b10-865b-eec35ccabd3d",
+                "score": 0.8236731583395063,
+                "score_type": "cosine_similarity",
+                "contribution": 0.08236731583395063
+              },
+              {
+                "component": "facet",
+                "source_representation_id": "092ff34d-5271-422a-b506-5c7e57267751",
+                "source_membership_id": "f69f24bf-7179-406f-a5b6-e2554bb10d52",
+                "candidate_representation_id": "0ed4d58b-0974-46d7-868f-0cd117e7c1cb",
+                "candidate_membership_id": "8fd0329f-02a7-419c-9768-36e18c0d5027",
+                "representation_kind": "facet",
+                "facet": "personality",
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.8288379251491049,
+                "score_type": "cosine_similarity",
+                "contribution": 0.12432568877236573
+              },
+              {
+                "component": "statement",
+                "source_representation_id": "50aa1648-933d-4f28-839b-d810b0e92bfa",
+                "source_membership_id": "8303a02d-564d-4de8-ba0b-c5565610f3df",
+                "candidate_representation_id": "5e83b8ea-8c8a-452c-a379-ce4d283cc997",
+                "candidate_membership_id": "f8143b62-597c-47c3-aff2-86bca5c5a953",
+                "representation_kind": "statement",
+                "facet": "personality",
+                "source_statement_id": "85407e04-73f4-4f40-96dc-6a8935e226a5",
+                "candidate_statement_id": "41bb3641-2f6c-4e90-b4a3-47e7c31cebac",
+                "score": 0.8261494827219857,
+                "score_type": "cosine_similarity",
+                "contribution": 0.08261494827219858
+              }
+            ]
+          }
+        ],
+        "source_membership_id": "2bef29bb-5f47-471a-9069-cf0173f27410",
+        "generation_id": "search-generation:r2:search-quality-gold-v1"
+      }
+    },
+    {
+      "id": "character_values",
+      "response": {
+        "source_object_id": "obj:aoi",
+        "source_name": "蒼井アオイ",
+        "source_primary_class": "character",
+        "source_version_id": "ver:aoi:v2",
+        "source_representation_id": "fb67811a-1a44-44cb-8207-dfdeab189918",
+        "facet": "values",
+        "cross_class": false,
+        "results": [
+          {
+            "object_id": "obj:mika",
+            "name": "水城ミカ",
+            "primary_class": "character",
+            "version_id": "ver:mika:v1",
+            "rank": 1,
+            "score": 0.8341502142144167,
+            "score_type": "cosine_similarity",
+            "matched_facet": "values",
+            "representation_id": "8d843bf1-55a8-4641-99dd-03e064b713bc",
+            "membership_id": "28934e2c-dd93-406b-8e54-53c40bfb80aa",
+            "evidence": []
+          },
+          {
+            "object_id": "obj:ren",
+            "name": "黒瀬レン",
+            "primary_class": "character",
+            "version_id": "ver:ren:v1",
+            "rank": 2,
+            "score": 0.8149387351704018,
+            "score_type": "cosine_similarity",
+            "matched_facet": "values",
+            "representation_id": "b1d20443-682a-4194-9da5-9eef92fe4bbc",
+            "membership_id": "e9146c1d-7c8e-438e-b446-70e43ccf7fc6",
+            "evidence": []
+          }
+        ],
+        "source_membership_id": "3bc2c8b4-24b8-4796-a52d-197032270745",
+        "generation_id": "search-generation:r2:search-quality-gold-v1"
+      }
+    },
+    {
+      "id": "work_overall",
+      "response": {
+        "source_object_id": "obj:glass_sky",
+        "source_name": "硝子の空",
+        "source_primary_class": "work",
+        "source_version_id": "ver:glass_sky:v1",
+        "source_representation_id": "827731e4-6e8d-4efa-8c75-cb79f054acfe",
+        "facet": null,
+        "cross_class": false,
+        "results": [
+          {
+            "object_id": "obj:ash_garden",
+            "name": "灰の庭",
+            "primary_class": "work",
+            "version_id": "ver:ash_garden:v1",
+            "rank": 1,
+            "score": 0.857757151406386,
+            "score_type": "hierarchical_similarity",
+            "matched_facet": null,
+            "representation_id": "184e1f8c-c44e-44be-83ec-f3dd6a9fadb8",
+            "membership_id": "7ffb320e-89fc-4902-b9da-2d1097e7d444",
+            "evidence": [
+              {
+                "component": "overview",
+                "source_representation_id": "827731e4-6e8d-4efa-8c75-cb79f054acfe",
+                "source_membership_id": "45f7f341-6928-4a39-a5d3-e1b06c2edf19",
+                "candidate_representation_id": "184e1f8c-c44e-44be-83ec-f3dd6a9fadb8",
+                "candidate_membership_id": "7ffb320e-89fc-4902-b9da-2d1097e7d444",
+                "representation_kind": "object_overview",
+                "facet": null,
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.8729085385171961,
+                "score_type": "cosine_similarity",
+                "contribution": 0.43645426925859804,
+                "facet_median": {
+                  "eligible_shared_facet_count": 1,
+                  "clusters": [
+                    {
+                      "facet": "themes",
+                      "source_membership_id": "d795231f-284d-427f-800c-10ad312d8143",
+                      "candidate_membership_id": "9bb5231f-ba1b-40dd-8489-b9f81279a5a5",
+                      "source_representation_id": "8bfe090f-e32b-41cc-9b45-3ddf7f3d89dd",
+                      "candidate_representation_id": "d8b77ef2-33bd-4976-bff8-6482ee92101f",
+                      "raw_facet_cosine": 0.8413411787363723,
+                      "bounded_facet_cosine": 0.8413411787363723,
+                      "statement_mean": 0.8445026426343814,
+                      "statement_observation_count": 1,
+                      "cluster_score": 0.842605764295576,
+                      "median_support": true
+                    }
+                  ],
+                  "median_support_facets": [
+                    "themes"
+                  ],
+                  "detail_median": 0.842605764295576,
+                  "overview_contribution": 0.43645426925859804,
+                  "detail_contribution": 0.421302882147788
+                }
+              },
+              {
+                "component": "facet",
+                "source_representation_id": "8bfe090f-e32b-41cc-9b45-3ddf7f3d89dd",
+                "source_membership_id": "d795231f-284d-427f-800c-10ad312d8143",
+                "candidate_representation_id": "d8b77ef2-33bd-4976-bff8-6482ee92101f",
+                "candidate_membership_id": "9bb5231f-ba1b-40dd-8489-b9f81279a5a5",
+                "representation_kind": "facet",
+                "facet": "themes",
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.8413411787363723,
+                "score_type": "cosine_similarity",
+                "contribution": 0.2524023536209117
+              },
+              {
+                "component": "statement",
+                "source_representation_id": "e89d1ac3-7aad-4a7a-bf47-0f5e134053ec",
+                "source_membership_id": "5b7c5447-1323-4b4c-9eda-e5683be679ab",
+                "candidate_representation_id": "24f8d8bf-d7ce-4c6a-8550-6d9ccb2fbc95",
+                "candidate_membership_id": "9d20c952-4ab3-4b66-a002-5109f4130bed",
+                "representation_kind": "statement",
+                "facet": "themes",
+                "source_statement_id": "56c6f6e4-8f2a-4d2f-b459-6a0009036e03",
+                "candidate_statement_id": "3a1c7318-a518-42cb-ba70-b842956b9f0f",
+                "score": 0.8445026426343814,
+                "score_type": "cosine_similarity",
+                "contribution": 0.1689005285268763
+              }
+            ]
+          },
+          {
+            "object_id": "obj:iron_crown",
+            "name": "鉄の王冠",
+            "primary_class": "work",
+            "version_id": "ver:iron_crown:v1",
+            "rank": 2,
+            "score": 0.8314102208486642,
+            "score_type": "hierarchical_similarity",
+            "matched_facet": null,
+            "representation_id": "de96e0a7-e787-4411-abb8-51e69907711c",
+            "membership_id": "ce905407-858f-4480-8f72-8d61b9e55659",
+            "evidence": [
+              {
+                "component": "overview",
+                "source_representation_id": "827731e4-6e8d-4efa-8c75-cb79f054acfe",
+                "source_membership_id": "45f7f341-6928-4a39-a5d3-e1b06c2edf19",
+                "candidate_representation_id": "de96e0a7-e787-4411-abb8-51e69907711c",
+                "candidate_membership_id": "ce905407-858f-4480-8f72-8d61b9e55659",
+                "representation_kind": "object_overview",
+                "facet": null,
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.859349262991483,
+                "score_type": "cosine_similarity",
+                "contribution": 0.4296746314957415,
+                "facet_median": {
+                  "eligible_shared_facet_count": 2,
+                  "clusters": [
+                    {
+                      "facet": "themes",
+                      "source_membership_id": "d795231f-284d-427f-800c-10ad312d8143",
+                      "candidate_membership_id": "88c2fee4-2740-4ba4-a36c-e86b4f056587",
+                      "source_representation_id": "8bfe090f-e32b-41cc-9b45-3ddf7f3d89dd",
+                      "candidate_representation_id": "8d5c2982-dab1-427c-a04e-23ecf5604fe2",
+                      "raw_facet_cosine": 0.7731601287184018,
+                      "bounded_facet_cosine": 0.7731601287184018,
+                      "statement_mean": 0.7723603254231791,
+                      "statement_observation_count": 1,
+                      "cluster_score": 0.7728402074003127,
+                      "median_support": true
+                    },
+                    {
+                      "facet": "tone",
+                      "source_membership_id": "2aa07751-7091-4c98-b886-2f01fcbb3bc6",
+                      "candidate_membership_id": "c9d3ea21-e479-4783-80ed-91e30bfc8cf0",
+                      "source_representation_id": "9e66c8b3-2ba0-4fcb-a285-cceeb62ce315",
+                      "candidate_representation_id": "c398792f-23d3-4753-9e2c-ee7367cf5e14",
+                      "raw_facet_cosine": 0.836662818029136,
+                      "bounded_facet_cosine": 0.836662818029136,
+                      "statement_mean": 0.8302611479847423,
+                      "statement_observation_count": 1,
+                      "cluster_score": 0.8341021500113786,
+                      "median_support": true
+                    }
+                  ],
+                  "median_support_facets": [
+                    "themes",
+                    "tone"
+                  ],
+                  "detail_median": 0.8034711787058456,
+                  "overview_contribution": 0.4296746314957415,
+                  "detail_contribution": 0.4017355893529228
+                }
+              },
+              {
+                "component": "facet",
+                "source_representation_id": "8bfe090f-e32b-41cc-9b45-3ddf7f3d89dd",
+                "source_membership_id": "d795231f-284d-427f-800c-10ad312d8143",
+                "candidate_representation_id": "8d5c2982-dab1-427c-a04e-23ecf5604fe2",
+                "candidate_membership_id": "88c2fee4-2740-4ba4-a36c-e86b4f056587",
+                "representation_kind": "facet",
+                "facet": "themes",
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.7731601287184018,
+                "score_type": "cosine_similarity",
+                "contribution": 0.11597401930776026
+              },
+              {
+                "component": "statement",
+                "source_representation_id": "e89d1ac3-7aad-4a7a-bf47-0f5e134053ec",
+                "source_membership_id": "5b7c5447-1323-4b4c-9eda-e5683be679ab",
+                "candidate_representation_id": "05b873ba-906c-4584-bb47-a7c39045a2cf",
+                "candidate_membership_id": "5c4e78da-c4fd-47d1-a45f-a50a84955ab2",
+                "representation_kind": "statement",
+                "facet": "themes",
+                "source_statement_id": "56c6f6e4-8f2a-4d2f-b459-6a0009036e03",
+                "candidate_statement_id": "993590b0-d1bc-461c-bff3-81e01e59f697",
+                "score": 0.7723603254231791,
+                "score_type": "cosine_similarity",
+                "contribution": 0.07723603254231792
+              },
+              {
+                "component": "facet",
+                "source_representation_id": "9e66c8b3-2ba0-4fcb-a285-cceeb62ce315",
+                "source_membership_id": "2aa07751-7091-4c98-b886-2f01fcbb3bc6",
+                "candidate_representation_id": "c398792f-23d3-4753-9e2c-ee7367cf5e14",
+                "candidate_membership_id": "c9d3ea21-e479-4783-80ed-91e30bfc8cf0",
+                "representation_kind": "facet",
+                "facet": "tone",
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.836662818029136,
+                "score_type": "cosine_similarity",
+                "contribution": 0.1254994227043704
+              },
+              {
+                "component": "statement",
+                "source_representation_id": "5ac9c667-edfd-4142-98f1-0b40f082536d",
+                "source_membership_id": "c4128cad-c3b7-4356-a667-870b5bc202b7",
+                "candidate_representation_id": "22ce6157-ce02-41f6-85ad-9e33c0f844ec",
+                "candidate_membership_id": "a4beffee-86e3-4344-9df7-fc30893b477b",
+                "representation_kind": "statement",
+                "facet": "tone",
+                "source_statement_id": "f520ae7a-2a52-476f-915d-7726992b6034",
+                "candidate_statement_id": "aa9ef1c5-88d1-4421-b5dc-8183b3f1be19",
+                "score": 0.8302611479847423,
+                "score_type": "cosine_similarity",
+                "contribution": 0.08302611479847423
+              }
+            ]
+          }
+        ],
+        "source_membership_id": "45f7f341-6928-4a39-a5d3-e1b06c2edf19",
+        "generation_id": "search-generation:r2:search-quality-gold-v1"
+      }
+    },
+    {
+      "id": "concept_overall",
+      "response": {
+        "source_object_id": "obj:self_sacrifice",
+        "source_name": "自己犠牲",
+        "source_primary_class": "concept",
+        "source_version_id": "ver:self_sacrifice:v1",
+        "source_representation_id": "7d763860-4bb1-4251-b04b-ef9f90f3ba03",
+        "facet": null,
+        "cross_class": false,
+        "results": [
+          {
+            "object_id": "obj:altruism",
+            "name": "利他主義",
+            "primary_class": "concept",
+            "version_id": "ver:altruism:v1",
+            "rank": 1,
+            "score": 0.8256451816438397,
+            "score_type": "hierarchical_similarity",
+            "matched_facet": null,
+            "representation_id": "b8fadaf9-9297-49a7-8aa5-1b4591cc0dca",
+            "membership_id": "60c6302a-0edf-45f3-8772-7865a8e00443",
+            "evidence": [
+              {
+                "component": "overview",
+                "source_representation_id": "7d763860-4bb1-4251-b04b-ef9f90f3ba03",
+                "source_membership_id": "08921d85-a459-4da7-a3fb-3e2276020a02",
+                "candidate_representation_id": "b8fadaf9-9297-49a7-8aa5-1b4591cc0dca",
+                "candidate_membership_id": "60c6302a-0edf-45f3-8772-7865a8e00443",
+                "representation_kind": "object_overview",
+                "facet": null,
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.8444074041161959,
+                "score_type": "cosine_similarity",
+                "contribution": 0.42220370205809793,
+                "facet_median": {
+                  "eligible_shared_facet_count": 1,
+                  "clusters": [
+                    {
+                      "facet": "definition",
+                      "source_membership_id": "42be3424-c93a-498d-b269-d35d8ddce00f",
+                      "candidate_membership_id": "533dbd0d-8280-42ff-ab52-5cf1745166ee",
+                      "source_representation_id": "e61734cf-8d66-4c5d-ac96-34a939936855",
+                      "candidate_representation_id": "91959d29-1043-4704-896d-4f4c8ab25565",
+                      "raw_facet_cosine": 0.8025491317024354,
+                      "bounded_facet_cosine": 0.8025491317024354,
+                      "statement_mean": 0.8133837003750559,
+                      "statement_observation_count": 1,
+                      "cluster_score": 0.8068829591714837,
+                      "median_support": true
+                    }
+                  ],
+                  "median_support_facets": [
+                    "definition"
+                  ],
+                  "detail_median": 0.8068829591714837,
+                  "overview_contribution": 0.42220370205809793,
+                  "detail_contribution": 0.40344147958574184
+                }
+              },
+              {
+                "component": "facet",
+                "source_representation_id": "e61734cf-8d66-4c5d-ac96-34a939936855",
+                "source_membership_id": "42be3424-c93a-498d-b269-d35d8ddce00f",
+                "candidate_representation_id": "91959d29-1043-4704-896d-4f4c8ab25565",
+                "candidate_membership_id": "533dbd0d-8280-42ff-ab52-5cf1745166ee",
+                "representation_kind": "facet",
+                "facet": "definition",
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.8025491317024354,
+                "score_type": "cosine_similarity",
+                "contribution": 0.2407647395107306
+              },
+              {
+                "component": "statement",
+                "source_representation_id": "61ff16a9-9400-49b3-997c-189970d9674e",
+                "source_membership_id": "effcd79e-0381-47ed-9c3b-bc929d342618",
+                "candidate_representation_id": "c95bd794-7a30-4df0-b831-72ab0e488def",
+                "candidate_membership_id": "62a2c110-2689-4268-8cf8-51b370b8c40a",
+                "representation_kind": "statement",
+                "facet": "definition",
+                "source_statement_id": "1de1d422-dbf7-4e76-8a88-e9a5dc27341f",
+                "candidate_statement_id": "7fa4ae31-ab4d-488f-94a7-3dee8af29123",
+                "score": 0.8133837003750559,
+                "score_type": "cosine_similarity",
+                "contribution": 0.1626767400750112
+              }
+            ]
+          },
+          {
+            "object_id": "obj:autonomy",
+            "name": "自律",
+            "primary_class": "concept",
+            "version_id": "ver:autonomy:v1",
+            "rank": 2,
+            "score": 0.815355045379841,
+            "score_type": "hierarchical_similarity",
+            "matched_facet": null,
+            "representation_id": "ee1bf5f4-6351-49bb-b930-ff8b7b77dedb",
+            "membership_id": "c5816737-ab74-4608-a8dd-cbc94c06c520",
+            "evidence": [
+              {
+                "component": "overview",
+                "source_representation_id": "7d763860-4bb1-4251-b04b-ef9f90f3ba03",
+                "source_membership_id": "08921d85-a459-4da7-a3fb-3e2276020a02",
+                "candidate_representation_id": "ee1bf5f4-6351-49bb-b930-ff8b7b77dedb",
+                "candidate_membership_id": "c5816737-ab74-4608-a8dd-cbc94c06c520",
+                "representation_kind": "object_overview",
+                "facet": null,
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.8537882005007914,
+                "score_type": "cosine_similarity",
+                "contribution": 0.4268941002503957,
+                "facet_median": {
+                  "eligible_shared_facet_count": 2,
+                  "clusters": [
+                    {
+                      "facet": "definition",
+                      "source_membership_id": "42be3424-c93a-498d-b269-d35d8ddce00f",
+                      "candidate_membership_id": "b348f181-2058-4191-abd4-0a012eb9f5ac",
+                      "source_representation_id": "e61734cf-8d66-4c5d-ac96-34a939936855",
+                      "candidate_representation_id": "c336d1db-b0e0-403d-8532-059145422180",
+                      "raw_facet_cosine": 0.7616107455731786,
+                      "bounded_facet_cosine": 0.7616107455731786,
+                      "statement_mean": 0.7769282345183279,
+                      "statement_observation_count": 1,
+                      "cluster_score": 0.7677377411512384,
+                      "median_support": true
+                    },
+                    {
+                      "facet": "implications",
+                      "source_membership_id": "b38f48f8-d893-4116-826b-92c444e2ada6",
+                      "candidate_membership_id": "b092ecc9-e108-45d6-b592-9a22574cd290",
+                      "source_representation_id": "e710f666-0238-4417-9028-d3f5dca72a93",
+                      "candidate_representation_id": "27c44081-4ba2-4584-80ca-8c423498b68c",
+                      "raw_facet_cosine": 0.7802198158692647,
+                      "bounded_facet_cosine": 0.7802198158692647,
+                      "statement_mean": 0.7949353746124606,
+                      "statement_observation_count": 1,
+                      "cluster_score": 0.7861060393665431,
+                      "median_support": true
+                    }
+                  ],
+                  "median_support_facets": [
+                    "definition",
+                    "implications"
+                  ],
+                  "detail_median": 0.7769218902588908,
+                  "overview_contribution": 0.4268941002503957,
+                  "detail_contribution": 0.3884609451294454
+                }
+              },
+              {
+                "component": "facet",
+                "source_representation_id": "e61734cf-8d66-4c5d-ac96-34a939936855",
+                "source_membership_id": "42be3424-c93a-498d-b269-d35d8ddce00f",
+                "candidate_representation_id": "c336d1db-b0e0-403d-8532-059145422180",
+                "candidate_membership_id": "b348f181-2058-4191-abd4-0a012eb9f5ac",
+                "representation_kind": "facet",
+                "facet": "definition",
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.7616107455731786,
+                "score_type": "cosine_similarity",
+                "contribution": 0.1142416118359768
+              },
+              {
+                "component": "statement",
+                "source_representation_id": "61ff16a9-9400-49b3-997c-189970d9674e",
+                "source_membership_id": "effcd79e-0381-47ed-9c3b-bc929d342618",
+                "candidate_representation_id": "1291e0d4-5631-4738-9e0d-94ccf15232b6",
+                "candidate_membership_id": "9dc314ab-7149-42ab-aab3-a4d48228f7db",
+                "representation_kind": "statement",
+                "facet": "definition",
+                "source_statement_id": "1de1d422-dbf7-4e76-8a88-e9a5dc27341f",
+                "candidate_statement_id": "6047555b-c7b6-41b3-ac75-e82701e92bad",
+                "score": 0.7769282345183279,
+                "score_type": "cosine_similarity",
+                "contribution": 0.0776928234518328
+              },
+              {
+                "component": "facet",
+                "source_representation_id": "e710f666-0238-4417-9028-d3f5dca72a93",
+                "source_membership_id": "b38f48f8-d893-4116-826b-92c444e2ada6",
+                "candidate_representation_id": "27c44081-4ba2-4584-80ca-8c423498b68c",
+                "candidate_membership_id": "b092ecc9-e108-45d6-b592-9a22574cd290",
+                "representation_kind": "facet",
+                "facet": "implications",
+                "source_statement_id": null,
+                "candidate_statement_id": null,
+                "score": 0.7802198158692647,
+                "score_type": "cosine_similarity",
+                "contribution": 0.1170329723803897
+              },
+              {
+                "component": "statement",
+                "source_representation_id": "1d17f147-0280-4b2d-acee-074a6a8f9cae",
+                "source_membership_id": "cd3f6898-7df3-4eab-ad17-6ce1ce2da52f",
+                "candidate_representation_id": "3bb30334-a334-4aa9-8084-ac824c6270b0",
+                "candidate_membership_id": "f3716a48-cdde-4ed2-aead-17f8154f627e",
+                "representation_kind": "statement",
+                "facet": "implications",
+                "source_statement_id": "23c5d6bc-8b33-4ae5-ae36-c2f2f60c7302",
+                "candidate_statement_id": "dbbe630d-9eea-4ee2-996b-c03ad02ef611",
+                "score": 0.7949353746124606,
+                "score_type": "cosine_similarity",
+                "contribution": 0.07949353746124606
+              }
+            ]
+          }
+        ],
+        "source_membership_id": "08921d85-a459-4da7-a3fb-3e2276020a02",
+        "generation_id": "search-generation:r2:search-quality-gold-v1"
+      }
+    }
+  ],
+  "quality": {
+    "search": {
+      "modes": {
+        "lexical": {
+          "quality": {
+            "mrr": 0.16666666666666666,
+            "recall@1": 0.14583333333333334,
+            "recall@5": 0.14583333333333334,
+            "recall@10": 0.14583333333333334,
+            "ndcg@10": 0.15779810845795716
+          },
+          "latency": {
+            "count": 24,
+            "p50_ms": 0.41864998638629913,
+            "p95_ms": 0.6662999512627721,
+            "mean_ms": 0.46753749969260144
+          }
+        },
+        "semantic": {
+          "quality": {
+            "mrr": 1.0,
+            "recall@1": 0.8541666666666666,
+            "recall@5": 1.0,
+            "recall@10": 1.0,
+            "ndcg@10": 0.9930829680165895
+          },
+          "latency": {
+            "count": 24,
+            "p50_ms": 28.885149920824915,
+            "p95_ms": 53.80350002087653,
+            "mean_ms": 34.00411249216025
+          }
+        },
+        "hybrid": {
+          "quality": {
+            "mrr": 1.0,
+            "recall@1": 0.8541666666666666,
+            "recall@5": 1.0,
+            "recall@10": 1.0,
+            "ndcg@10": 1.0
+          },
+          "latency": {
+            "count": 24,
+            "p50_ms": 29.5837500016205,
+            "p95_ms": 47.05239995382726,
+            "mean_ms": 32.087791677137524
+          }
+        }
+      },
+      "statement_semantic": {
+        "quality": {
+          "mrr": 1.0,
+          "recall@1": 0.8636363636363636,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 0.9927018899225625
+        },
+        "latency": {
+          "count": 22,
+          "p50_ms": 0.6207000114955008,
+          "p95_ms": 7.340799900703132,
+          "mean_ms": 1.4250136181627486
+        },
+        "cases": 22
+      },
+      "statement_embedding_ablation": {
+        "with_statement": {
+          "mrr": 1.0,
+          "recall@1": 0.8409090909090909,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 1.0
+        },
+        "without_statement": {
+          "mrr": 1.0,
+          "recall@1": 0.8409090909090909,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 1.0
+        },
+        "cases": 22
+      },
+      "exact_lookup_accuracy": 1.0,
+      "cases": [
+        {
+          "id": "identity_name_aoi",
+          "category": "exact_name",
+          "modes": {
+            "lexical": {
+              "ids": [
+                "obj:aoi"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:night_glider",
+                "obj:ash_garden",
+                "obj:aurora_lab",
+                "obj:iron_crown",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:night_glider",
+                "obj:ash_garden",
+                "obj:aurora_lab",
+                "obj:iron_crown",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          }
+        },
+        {
+          "id": "identity_alias_aoi",
+          "category": "exact_alias",
+          "modes": {
+            "lexical": {
+              "ids": [
+                "obj:aoi"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:night_glider",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:dr_sora",
+                "obj:ren",
+                "obj:aurora_lab",
+                "obj:rivergate",
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:night_glider",
+                "obj:glass_sky",
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:dr_sora",
+                "obj:ren",
+                "obj:aurora_lab",
+                "obj:rivergate",
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          }
+        },
+        {
+          "id": "short_japanese_love",
+          "category": "short_japanese",
+          "modes": {
+            "lexical": {
+              "ids": [
+                "obj:mika"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:aoi",
+                "obj:glass_sky",
+                "obj:altruism",
+                "obj:iron_crown",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:night_glider",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:mika",
+                "obj:ash_garden",
+                "obj:aoi",
+                "obj:glass_sky",
+                "obj:altruism",
+                "obj:iron_crown",
+                "obj:ren",
+                "obj:dr_sora",
+                "obj:night_glider",
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "7ca5126d-bbe5-4e6a-9253-0bc5e3ee8d1b",
+              "3a1c7318-a518-42cb-ba70-b842956b9f0f",
+              "9409cc30-9d3a-4269-a18f-1e630364da73",
+              "7fa4ae31-ab4d-488f-94a7-3dee8af29123",
+              "56c6f6e4-8f2a-4d2f-b459-6a0009036e03",
+              "75fa23a4-dcb7-444b-9b16-9a368b7c5612",
+              "aa9ef1c5-88d1-4421-b5dc-8183b3f1be19",
+              "df5d48b8-3291-4871-94e6-aff3a5b9144b",
+              "8856ee02-a12d-466b-8136-00a5bd9299e3",
+              "85407e04-73f4-4f40-96dc-6a8935e226a5"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "char_self_risk",
+          "category": "fine_statement",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:self_sacrifice",
+                "obj:ren",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:glass_sky",
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:self_sacrifice",
+                "obj:ren",
+                "obj:ash_garden",
+                "obj:iron_crown",
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:glass_sky",
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "85407e04-73f4-4f40-96dc-6a8935e226a5",
+              "8856ee02-a12d-466b-8136-00a5bd9299e3",
+              "49ac1fc8-965c-42e6-a6b7-806ece74e18a",
+              "23c5d6bc-8b33-4ae5-ae36-c2f2f60c7302",
+              "60eeedfc-b353-4b10-865b-eec35ccabd3d",
+              "df5d48b8-3291-4871-94e6-aff3a5b9144b",
+              "1de1d422-dbf7-4e76-8a88-e9a5dc27341f",
+              "9409cc30-9d3a-4269-a18f-1e630364da73",
+              "dbbe630d-9eea-4ee2-996b-c03ad02ef611",
+              "41bb3641-2f6c-4e90-b4a3-47e7c31cebac"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 0.5,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 0.9197207891481876
+            }
+          }
+        },
+        {
+          "id": "char_trust_values",
+          "category": "facet_specific",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "8856ee02-a12d-466b-8136-00a5bd9299e3",
+              "9409cc30-9d3a-4269-a18f-1e630364da73",
+              "60eeedfc-b353-4b10-865b-eec35ccabd3d"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 0.5,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "en_char_protect",
+          "category": "cross_lingual",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "85407e04-73f4-4f40-96dc-6a8935e226a5",
+              "8856ee02-a12d-466b-8136-00a5bd9299e3",
+              "49ac1fc8-965c-42e6-a6b7-806ece74e18a",
+              "9409cc30-9d3a-4269-a18f-1e630364da73",
+              "df5d48b8-3291-4871-94e6-aff3a5b9144b",
+              "41bb3641-2f6c-4e90-b4a3-47e7c31cebac",
+              "7ca5126d-bbe5-4e6a-9253-0bc5e3ee8d1b",
+              "60eeedfc-b353-4b10-865b-eec35ccabd3d"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 0.5,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 0.9197207891481876
+            }
+          }
+        },
+        {
+          "id": "work_loss_recovery",
+          "category": "work_theme",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "56c6f6e4-8f2a-4d2f-b459-6a0009036e03",
+              "3a1c7318-a518-42cb-ba70-b842956b9f0f",
+              "993590b0-d1bc-461c-bff3-81e01e59f697"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 0.5,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "en_work_recovery",
+          "category": "cross_lingual",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:glass_sky",
+                "obj:ash_garden",
+                "obj:iron_crown"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "56c6f6e4-8f2a-4d2f-b459-6a0009036e03",
+              "3a1c7318-a518-42cb-ba70-b842956b9f0f",
+              "75fa23a4-dcb7-444b-9b16-9a368b7c5612",
+              "f520ae7a-2a52-476f-915d-7726992b6034",
+              "993590b0-d1bc-461c-bff3-81e01e59f697",
+              "aa9ef1c5-88d1-4421-b5dc-8183b3f1be19"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 0.5,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "concept_self_sacrifice",
+          "category": "concept_definition",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:self_sacrifice",
+                "obj:altruism",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:self_sacrifice",
+                "obj:altruism",
+                "obj:autonomy"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "1de1d422-dbf7-4e76-8a88-e9a5dc27341f",
+              "23c5d6bc-8b33-4ae5-ae36-c2f2f60c7302",
+              "5e9094fc-eae6-443d-92b3-ece94609060e",
+              "7fa4ae31-ab4d-488f-94a7-3dee8af29123",
+              "dbbe630d-9eea-4ee2-996b-c03ad02ef611",
+              "6047555b-c7b6-41b3-ac75-e82701e92bad"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "concept_autonomy",
+          "category": "concept_definition",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:self_sacrifice"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:autonomy",
+                "obj:altruism",
+                "obj:self_sacrifice"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "6047555b-c7b6-41b3-ac75-e82701e92bad",
+              "dbbe630d-9eea-4ee2-996b-c03ad02ef611",
+              "5e9094fc-eae6-443d-92b3-ece94609060e",
+              "23c5d6bc-8b33-4ae5-ae36-c2f2f60c7302",
+              "1de1d422-dbf7-4e76-8a88-e9a5dc27341f",
+              "7fa4ae31-ab4d-488f-94a7-3dee8af29123"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "person_education",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dr_sora"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "3866ac4c-c609-4541-a154-6ce73ee9736a",
+              "f05fefff-f2b9-405d-af58-335a044d92d1"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "organization_structure",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:aurora_lab"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aurora_lab"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "8a6704bf-f3c3-4288-90a0-360c3156c615",
+              "a7c41f88-f2c4-46d1-a6f9-d4aa0521bfc2"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "series_scope",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dawn_chronicles"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "2f476b91-bb99-4c46-8995-9ea66f5ecca6",
+              "8a5a1de3-aa1f-4750-b5ce-df1697041ef2"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "place_geography",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:rivergate"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "1f157acb-7cec-4516-b31a-4f4f6ced3242",
+              "7d2b39ab-00a4-462e-81e0-117ac155cd08"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "event_causes",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:harbor_accord"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:harbor_accord"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "caeae0bb-6b89-4cdc-b49e-8f62bea670c9"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "software_features",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:forgeedit"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:forgeedit"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "5e9dd4d2-b7eb-4b02-aa6c-a63c2f1946df",
+              "b2684d67-cbbe-4abe-94a5-1754be0d91b4"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "product_usage",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:orion_gpu"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:orion_gpu"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "5da4655e-4f7a-4d01-8c1d-1e19af3aa06b",
+              "ffbdb42e-67ca-428a-9037-465715fd4f81"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "species_distribution",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:night_glider"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "570aaf70-7740-443b-af56-ebb886d282d5",
+              "7b82821e-e20c-4a1b-9a5d-9a1d08110a15"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "phenomenon_mechanism",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:supply_squeeze"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:supply_squeeze"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "ec53ad05-5f06-4262-9be8-d1335b90809f",
+              "08c1629e-da59-4db1-b607-a3258a1cce76"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "language_vocabulary",
+          "category": "later_class",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:luma_language"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "c69b547f-9079-4fea-8a9f-2cbc624dab5d",
+              "0e94ccb7-6baf-4782-ad95-4c08cb1c599b"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "ability_condition",
+          "category": "conditional_exception",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "c5c3ed19-23a7-49b6-8967-5cd0d56c9b03"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "en_ability_mechanism",
+          "category": "cross_lingual",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:heat_shift"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "5f1ac4cc-e213-4c3c-a6d8-4e847d045fd2",
+              "c5c3ed19-23a7-49b6-8967-5cd0d56c9b03"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "ancestor_agent_person",
+          "category": "class_filter",
+          "modes": {
+            "lexical": {
+              "ids": [],
+              "metrics": {
+                "mrr": 0.0,
+                "recall@1": 0.0,
+                "recall@5": 0.0,
+                "recall@10": 0.0,
+                "ndcg@10": 0.0
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:dr_sora",
+                "obj:mika",
+                "obj:aurora_lab",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:dr_sora",
+                "obj:mika",
+                "obj:aurora_lab",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 1.0,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "3866ac4c-c609-4541-a154-6ce73ee9736a",
+              "f05fefff-f2b9-405d-af58-335a044d92d1",
+              "8a6704bf-f3c3-4288-90a0-360c3156c615",
+              "a7c41f88-f2c4-46d1-a6f9-d4aa0521bfc2",
+              "9409cc30-9d3a-4269-a18f-1e630364da73",
+              "7ca5126d-bbe5-4e6a-9253-0bc5e3ee8d1b",
+              "60eeedfc-b353-4b10-865b-eec35ccabd3d",
+              "49ac1fc8-965c-42e6-a6b7-806ece74e18a",
+              "85407e04-73f4-4f40-96dc-6a8935e226a5",
+              "df5d48b8-3291-4871-94e6-aff3a5b9144b"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        },
+        {
+          "id": "additional_fictional",
+          "category": "class_filter",
+          "modes": {
+            "lexical": {
+              "ids": [
+                "obj:aoi"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 0.5,
+                "recall@10": 0.5,
+                "ndcg@10": 0.7871546029909718
+              },
+              "degraded": []
+            },
+            "semantic": {
+              "ids": [
+                "obj:mika",
+                "obj:aoi",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 0.8339912323981488
+              },
+              "degraded": []
+            },
+            "hybrid": {
+              "ids": [
+                "obj:aoi",
+                "obj:mika",
+                "obj:ren"
+              ],
+              "metrics": {
+                "mrr": 1.0,
+                "recall@1": 0.5,
+                "recall@5": 1.0,
+                "recall@10": 1.0,
+                "ndcg@10": 1.0
+              },
+              "degraded": []
+            }
+          },
+          "statement_semantic": {
+            "ids": [
+              "9409cc30-9d3a-4269-a18f-1e630364da73",
+              "8856ee02-a12d-466b-8136-00a5bd9299e3",
+              "df5d48b8-3291-4871-94e6-aff3a5b9144b",
+              "60eeedfc-b353-4b10-865b-eec35ccabd3d",
+              "85407e04-73f4-4f40-96dc-6a8935e226a5",
+              "49ac1fc8-965c-42e6-a6b7-806ece74e18a",
+              "7ca5126d-bbe5-4e6a-9253-0bc5e3ee8d1b",
+              "41bb3641-2f6c-4e90-b4a3-47e7c31cebac"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 0.5,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        }
+      ]
+    },
+    "similarity": {
+      "judgement_channel": "human_authored_synthetic_gold",
+      "quality": {
+        "mrr": 1.0,
+        "recall@1": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "ndcg@10": 1.0
+      },
+      "overall_quality": {
+        "mrr": 1.0,
+        "recall@1": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "ndcg@10": 1.0
+      },
+      "facet_quality": {
+        "mrr": 1.0,
+        "recall@1": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "ndcg@10": 1.0
+      },
+      "cases": [
+        {
+          "id": "character_overall",
+          "ids": [
+            "obj:mika",
+            "obj:ren"
+          ],
+          "metrics": {
+            "mrr": 1.0,
+            "recall@1": 1.0,
+            "recall@5": 1.0,
+            "recall@10": 1.0,
+            "ndcg@10": 1.0
+          }
+        },
+        {
+          "id": "character_values",
+          "ids": [
+            "obj:mika",
+            "obj:ren"
+          ],
+          "metrics": {
+            "mrr": 1.0,
+            "recall@1": 1.0,
+            "recall@5": 1.0,
+            "recall@10": 1.0,
+            "ndcg@10": 1.0
+          }
+        },
+        {
+          "id": "work_overall",
+          "ids": [
+            "obj:ash_garden",
+            "obj:iron_crown"
+          ],
+          "metrics": {
+            "mrr": 1.0,
+            "recall@1": 1.0,
+            "recall@5": 1.0,
+            "recall@10": 1.0,
+            "ndcg@10": 1.0
+          }
+        },
+        {
+          "id": "concept_overall",
+          "ids": [
+            "obj:altruism",
+            "obj:autonomy"
+          ],
+          "metrics": {
+            "mrr": 1.0,
+            "recall@1": 1.0,
+            "recall@5": 1.0,
+            "recall@10": 1.0,
+            "ndcg@10": 1.0
+          }
+        }
+      ]
+    },
+    "evidence_search": {
+      "lexical_association": {
+        "quality": {
+          "mrr": 1.0,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 1.0
+        },
+        "cases": [
+          {
+            "id": "evidence_aoi",
+            "ids": [
+              "ev:aoi:v2"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          },
+          {
+            "id": "evidence_software",
+            "ids": [
+              "ev:forgeedit:v1"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          },
+          {
+            "id": "evidence_event",
+            "ids": [
+              "ev:harbor_accord:v1"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        ]
+      },
+      "semantic": {
+        "quality": {
+          "mrr": 1.0,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "recall@10": 1.0,
+          "ndcg@10": 1.0
+        },
+        "cases": [
+          {
+            "id": "evidence_aoi",
+            "ids": [
+              "ev:aoi:v2",
+              "ev:dr_sora:v1",
+              "ev:ren:v1",
+              "ev:mika:v1",
+              "ev:glass_sky:v1",
+              "ev:night_glider:v1",
+              "ev:ash_garden:v1",
+              "ev:heat_shift:v1",
+              "ev:aurora_lab:v1",
+              "ev:noise:cooking",
+              "ev:luma_language:v1",
+              "ev:iron_crown:v1",
+              "ev:altruism:v1",
+              "ev:dawn_chronicles:v1",
+              "ev:rivergate:v1",
+              "ev:forgeedit:v1",
+              "ev:self_sacrifice:v1",
+              "ev:orion_gpu:v1",
+              "ev:autonomy:v1",
+              "ev:noise:finance"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          },
+          {
+            "id": "evidence_software",
+            "ids": [
+              "ev:forgeedit:v1",
+              "ev:orion_gpu:v1",
+              "ev:aoi:v1",
+              "ev:ash_garden:v1",
+              "ev:dr_sora:v1",
+              "ev:heat_shift:v1",
+              "ev:glass_sky:v1",
+              "ev:aurora_lab:v1",
+              "ev:aoi:v2",
+              "ev:iron_crown:v1",
+              "ev:mika:v1",
+              "ev:ren:v1",
+              "ev:luma_language:v1",
+              "ev:rivergate:v1",
+              "ev:noise:cooking",
+              "ev:autonomy:v1",
+              "ev:night_glider:v1",
+              "ev:dawn_chronicles:v1",
+              "ev:supply_squeeze:v1",
+              "ev:noise:finance"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          },
+          {
+            "id": "evidence_event",
+            "ids": [
+              "ev:harbor_accord:v1",
+              "ev:ash_garden:v1",
+              "ev:rivergate:v1",
+              "ev:iron_crown:v1",
+              "ev:aoi:v2",
+              "ev:ren:v1",
+              "ev:aoi:v1",
+              "ev:self_sacrifice:v1",
+              "ev:noise:finance",
+              "ev:supply_squeeze:v1",
+              "ev:autonomy:v1",
+              "ev:dr_sora:v1",
+              "ev:noise:weather",
+              "ev:mika:v1",
+              "ev:aurora_lab:v1",
+              "ev:glass_sky:v1",
+              "ev:night_glider:v1",
+              "ev:altruism:v1",
+              "ev:heat_shift:v1",
+              "ev:dawn_chronicles:v1"
+            ],
+            "metrics": {
+              "mrr": 1.0,
+              "recall@1": 1.0,
+              "recall@5": 1.0,
+              "recall@10": 1.0,
+              "ndcg@10": 1.0
+            }
+          }
+        ]
+      }
+    },
+    "contracts": {
+      "passed": 5,
+      "total": 5,
+      "cases": [
+        {
+          "id": "current_excludes_old",
+          "passed": true,
+          "ids": []
+        },
+        {
+          "id": "historical_finds_old",
+          "passed": true,
+          "ids": [
+            "obj:aoi"
+          ]
+        },
+        {
+          "id": "temporal_inside",
+          "passed": true,
+          "ids": [
+            "obj:aoi"
+          ]
+        },
+        {
+          "id": "temporal_outside",
+          "passed": true,
+          "ids": []
+        },
+        {
+          "id": "facet_hard_filter",
+          "passed": true,
+          "ids": [
+            "obj:mika",
+            "obj:aoi",
+            "obj:ren"
+          ]
+        }
+      ]
+    },
+    "structural_audit": {
+      "active_generation_contract": "n05d04r2-hierarchical-v2",
+      "membership_kinds": [
+        "facet",
+        "object_overview",
+        "statement"
+      ],
+      "vector_kinds": [
+        "facet",
+        "object_overview",
+        "statement"
+      ],
+      "vector_generation_ids": [
+        "search-generation:r2:search-quality-gold-v1"
+      ],
+      "object_overall_leakage": false,
+      "allowed_family_only": true,
+      "single_generation_payload": true,
+      "one_object_one_result": true,
+      "duplicate_result_cases": []
+    },
+    "runtime": {
+      "provider_key": "sentence-transformers",
+      "provider_version": "6.1.0",
+      "model": "microsoft/harrier-oss-v1-0.6b",
+      "model_revision": "f9b9dc8d367d443f2479d27aa5d8d2850c0774ee",
+      "dimension": 1024,
+      "native_dimension": 1024,
+      "preprocessing_key": "sgokb-search-representation",
+      "preprocessing_version": "2",
+      "query_instruction": "Given a query about an object knowledge base, retrieve semantically relevant object knowledge statements.",
+      "document_instruction": "",
+      "normalize_embeddings": true,
+      "max_sequence_length": 32768,
+      "overflow_policy": "reject",
+      "output_dtype": "float32",
+      "provider_configuration": {
+        "dtype": "bfloat16",
+        "local_files_only": true,
+        "truncate_dim": null
+      }
+    },
+    "automatic_verdict": "PASS",
+    "fixture_sha256": "b71b8f10e62225f4b121f78153943c6e6b9c7272f53cb09ab222152d67d59c75",
+    "seconds": 12.51374450000003,
+    "resources": {
+      "torch_available": true,
+      "cuda_available": true,
+      "device": "NVIDIA GeForce RTX 4090",
+      "max_memory_allocated_bytes": 1338302464,
+      "max_memory_reserved_bytes": 1430257664
+    }
+  },
+  "resource_cardinality": {
+    "fixture_kind": "cardinality-only synthetic 3-D unit vectors; no model inference or formal quality/performance claim",
+    "scorer_union_objects": 164,
+    "exposed_objects": 128,
+    "ann_calls": 5,
+    "ann_limits": [
+      128,
+      24,
+      24,
+      12,
+      12
+    ],
+    "raw_ann_hit_slots": 200,
+    "work": {
+      "candidate_membership_lookups": 328,
+      "stored_embedding_reads": 282,
+      "direct_facet_cosines": 280,
+      "ann_facet_cosines_reused": 48
+    },
+    "max_clusters": 2,
+    "max_observations_per_facet": 1,
+    "max_observations_per_object": 2,
+    "max_median_input_size": 2,
+    "max_numeric_support_explanation_items": 4,
+    "max_all_evidence_items": 5,
+    "elapsed_seconds_not_formal_performance": 5.148875400074758
+  },
+  "perturbations": {
+    "trials": [
+      {
+        "object_id": "obj:mika",
+        "component": "overview",
+        "facet": null,
+        "observation": null,
+        "delta": -0.01,
+        "scores": {
+          "obj:mika": 0.8262071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:ren",
+          "obj:mika"
+        ],
+        "flipped": true,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "overview",
+        "facet": null,
+        "observation": null,
+        "delta": -0.005,
+        "scores": {
+          "obj:mika": 0.8287071178407452,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "overview",
+        "facet": null,
+        "observation": null,
+        "delta": 0.005,
+        "scores": {
+          "obj:mika": 0.8337071178407454,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "overview",
+        "facet": null,
+        "observation": null,
+        "delta": 0.01,
+        "scores": {
+          "obj:mika": 0.8362071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "facet",
+        "facet": "behavior",
+        "observation": null,
+        "delta": -0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "facet",
+        "facet": "behavior",
+        "observation": null,
+        "delta": -0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "facet",
+        "facet": "behavior",
+        "observation": null,
+        "delta": 0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "facet",
+        "facet": "behavior",
+        "observation": null,
+        "delta": 0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "facet",
+        "facet": "values",
+        "observation": null,
+        "delta": -0.01,
+        "scores": {
+          "obj:mika": 0.8282071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "facet",
+        "facet": "values",
+        "observation": null,
+        "delta": -0.005,
+        "scores": {
+          "obj:mika": 0.8297071178407454,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "facet",
+        "facet": "values",
+        "observation": null,
+        "delta": 0.005,
+        "scores": {
+          "obj:mika": 0.8327071178407454,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "facet",
+        "facet": "values",
+        "observation": null,
+        "delta": 0.01,
+        "scores": {
+          "obj:mika": 0.8335146162620132,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "personality"
+        ],
+        "median_support_changed": true
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "facet",
+        "facet": "personality",
+        "observation": null,
+        "delta": -0.01,
+        "scores": {
+          "obj:mika": 0.8305146162620132,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "personality"
+        ],
+        "median_support_changed": true
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "facet",
+        "facet": "personality",
+        "observation": null,
+        "delta": -0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "facet",
+        "facet": "personality",
+        "observation": null,
+        "delta": 0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "facet",
+        "facet": "personality",
+        "observation": null,
+        "delta": 0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "statement",
+        "facet": "behavior",
+        "observation": 0,
+        "delta": -0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "statement",
+        "facet": "behavior",
+        "observation": 0,
+        "delta": -0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "statement",
+        "facet": "behavior",
+        "observation": 0,
+        "delta": 0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "statement",
+        "facet": "behavior",
+        "observation": 0,
+        "delta": 0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "statement",
+        "facet": "values",
+        "observation": 1,
+        "delta": -0.01,
+        "scores": {
+          "obj:mika": 0.8292071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "statement",
+        "facet": "values",
+        "observation": 1,
+        "delta": -0.005,
+        "scores": {
+          "obj:mika": 0.8302071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "statement",
+        "facet": "values",
+        "observation": 1,
+        "delta": 0.005,
+        "scores": {
+          "obj:mika": 0.8322071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "statement",
+        "facet": "values",
+        "observation": 1,
+        "delta": 0.01,
+        "scores": {
+          "obj:mika": 0.8332071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "statement",
+        "facet": "personality",
+        "observation": 2,
+        "delta": -0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "statement",
+        "facet": "personality",
+        "observation": 2,
+        "delta": -0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "statement",
+        "facet": "personality",
+        "observation": 2,
+        "delta": 0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:mika",
+        "component": "statement",
+        "facet": "personality",
+        "observation": 2,
+        "delta": 0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8279432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "overview",
+        "facet": null,
+        "observation": null,
+        "delta": -0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.822943293142953
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "overview",
+        "facet": null,
+        "observation": null,
+        "delta": -0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8254432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "overview",
+        "facet": null,
+        "observation": null,
+        "delta": 0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8304432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "overview",
+        "facet": null,
+        "observation": null,
+        "delta": 0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.832943293142953
+        },
+        "order": [
+          "obj:ren",
+          "obj:mika"
+        ],
+        "flipped": true,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "facet",
+        "facet": "values",
+        "observation": null,
+        "delta": -0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8264432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "facet",
+        "facet": "values",
+        "observation": null,
+        "delta": -0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8271932931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "facet",
+        "facet": "values",
+        "observation": null,
+        "delta": 0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8286932931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "facet",
+        "facet": "values",
+        "observation": null,
+        "delta": 0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8294432931429532
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "facet",
+        "facet": "personality",
+        "observation": null,
+        "delta": -0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8264432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "facet",
+        "facet": "personality",
+        "observation": null,
+        "delta": -0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8271932931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "facet",
+        "facet": "personality",
+        "observation": null,
+        "delta": 0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8286932931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "facet",
+        "facet": "personality",
+        "observation": null,
+        "delta": 0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8294432931429532
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "statement",
+        "facet": "values",
+        "observation": 0,
+        "delta": -0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.826943293142953
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "statement",
+        "facet": "values",
+        "observation": 0,
+        "delta": -0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8274432931429532
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "statement",
+        "facet": "values",
+        "observation": 0,
+        "delta": 0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8284432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "statement",
+        "facet": "values",
+        "observation": 0,
+        "delta": 0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.828943293142953
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "statement",
+        "facet": "personality",
+        "observation": 1,
+        "delta": -0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.826943293142953
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "statement",
+        "facet": "personality",
+        "observation": 1,
+        "delta": -0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8274432931429532
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "statement",
+        "facet": "personality",
+        "observation": 1,
+        "delta": 0.005,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.8284432931429531
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      },
+      {
+        "object_id": "obj:ren",
+        "component": "statement",
+        "facet": "personality",
+        "observation": 1,
+        "delta": 0.01,
+        "scores": {
+          "obj:mika": 0.8312071178407453,
+          "obj:ren": 0.828943293142953
+        },
+        "order": [
+          "obj:mika",
+          "obj:ren"
+        ],
+        "flipped": false,
+        "median_support": [
+          "values",
+          "personality"
+        ],
+        "median_support_changed": false
+      }
+    ],
+    "summary": {
+      "-0.01": {
+        "trials": 12,
+        "rank_flips": 1,
+        "median_support_changes": 1
+      },
+      "-0.005": {
+        "trials": 12,
+        "rank_flips": 0,
+        "median_support_changes": 0
+      },
+      "0.005": {
+        "trials": 12,
+        "rank_flips": 0,
+        "median_support_changes": 0
+      },
+      "0.01": {
+        "trials": 12,
+        "rank_flips": 1,
+        "median_support_changes": 1
+      }
+    }
+  },
+  "derived_bounds": {
+    "union_objects": 464,
+    "exposed_objects": 128,
+    "relevant_source_facet_keys": 20,
+    "candidate_anchor_lookups_and_direct_cosines": 9280,
+    "source_facet_lookup_upper_bound": 20,
+    "memoized_embedding_reads": 9300,
+    "clusters_per_candidate": 20,
+    "statement_observations_per_facet_and_object": 12,
+    "numeric_support_evidence_items": 15,
+    "cluster_summary_rows": 20,
+    "note": "conservative 8 Facet-query keys + 12 Statement-query Facet keys; post-scoring public cap is not pre-scoring shortlist"
+  },
+  "verification": {
+    "similarity_and_acceptance_tests_passed": 41,
+    "local_preproduction_structural_and_pipeline_tests_passed": 14,
+    "counts": {
+      "focused": 99,
+      "full": 654
+    },
+    "commands": {
+      "quality": {
+        "returncode": 0,
+        "seconds": 13.462696899892762
+      },
+      "focused": {
+        "returncode": 0,
+        "seconds": 15.686578700086102
+      },
+      "full": {
+        "returncode": 0,
+        "seconds": 128.05828709993511
+      },
+      "compile": {
+        "returncode": 0,
+        "seconds": 0.17740509996656328
+      },
+      "ruff": {
+        "returncode": 0,
+        "seconds": 0.0808178000152111
+      },
+      "format": {
+        "returncode": 0,
+        "seconds": 0.07534300000406802
+      },
+      "diff": {
+        "returncode": 0,
+        "seconds": 0.05071540002245456
+      }
+    },
+    "r2sim": "6/6 mapped cases PASS",
+    "r2_05_rankings_and_metrics_unchanged": true
+  },
+  "safety": {
+    "r1_before": {
+      "tests/test_n05d04r1_sdpa_vram_diagnosis.py": "9ecfe8e767944c541a1481f0d16454caacfa0d4e576de9afe5e7ccef9cb16ee0",
+      "benchmark/tools/n05d04r1_sdpa_vram_diagnosis.py": "e11efff44264c5a152aaa284e2534c4cb85f058b7b03aab5290eec60eb2bcb40",
+      "benchmark/tools/n05_resource_preflight.py": "996c057354ff032235940775995c46054e0cfd92cb2aa44dd511271acde91cff"
+    },
+    "r1_after": {
+      "tests/test_n05d04r1_sdpa_vram_diagnosis.py": "9ecfe8e767944c541a1481f0d16454caacfa0d4e576de9afe5e7ccef9cb16ee0",
+      "benchmark/tools/n05d04r1_sdpa_vram_diagnosis.py": "e11efff44264c5a152aaa284e2534c4cb85f058b7b03aab5290eec60eb2bcb40",
+      "benchmark/tools/n05_resource_preflight.py": "996c057354ff032235940775995c46054e0cfd92cb2aa44dd511271acde91cff"
+    },
+    "r1_unchanged": true,
+    "production_canonical_or_qdrant_writes": false,
+    "model_runtime_or_representation_changes": false,
+    "r2_05_code_changes": false,
+    "invalid_manual_import_artifact_excluded": true
+  },
+  "status": {
+    "R2-06 remediation": "Complete / Candidate E runtime verified on branch",
+    "R2-08": "Not Complete / formal re-acceptance review pending; prior FAIL not closed",
+    "R2-09": "blocked / Not Started"
+  }
+}

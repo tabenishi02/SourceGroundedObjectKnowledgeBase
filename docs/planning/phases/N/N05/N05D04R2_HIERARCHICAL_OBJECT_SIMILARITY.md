@@ -1,16 +1,18 @@
 # N05D-04R2 / R2-06 — Hierarchical Object Similarity Redesign
 
-Updated: 2026-10-23
+Updated: 2026-10-24
 
 - Parent: `N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign`
 - Task: `R2-06 [P0] — Hierarchical Object Similarity redesign`
 - Status: **Complete / Runtime Verification PASS**
-- Production cutover: **Not Started — R2-07 owns cutover / rollback**
+- Candidate E deployment: **Not Started — remediation branch only; no reference cutover**
 - Baseline model: **Harrier OSS v1 0.6B unchanged**
 
-## 1. Decision
+## 1. Historical original R2 decision
 
-For `find_similar_objects(object_id, facet=None, ...)`, adopt **candidate B**:
+The original R2 implementation selected the historical hierarchical candidate B.
+The current Candidate E formula is recorded in the final section below. The
+original acquisition structure remains:
 
 ```text
 Object overview candidate channel
@@ -215,7 +217,7 @@ Frozen R2-06 baseline:
 These are R2-06 algorithm constants. They are not representation builder versions
 or generation identifiers.
 
-## 8. Aggregation formula
+## 8. Historical original R2 aggregation formula
 
 For each raw component cosine `c`:
 
@@ -443,3 +445,28 @@ N-05 = BLOCKED / Not Complete
 
 No production generation readiness/active pointer, canonical DB, Qdrant namespace,
 v1 artifact retirement, R2-07 rebuild/cutover/rollback or formal N-05 run was performed.
+
+
+## Current R2-06 scoring: Candidate E (2026-10-24)
+
+The original source-slot formula/caps above are retained as implementation history.
+Candidate E supersedes overall pooling: canonical same-Facet anchor in the pinned
+generation/current accepted candidate Version; all observations from selected
+source Statement queries, best point per query/Object, arithmetic same-Facet mean
+with no score top-k. Cluster=(.30*Facet+.20*Statement mean)/.50, or Facet cosine
+when no Statement observed. No anchor means no cluster. Detail is ordinary median
+of ALL eligible clusters (even count: mean of two middle values). Final score is
+.50*bounded overview+.50*detail, in [0,1], hierarchical_similarity. Missing Facets
+are not zeros and support count is not a score multiplier.
+
+At most12 total Statement observations per candidate are retained from the fixed
+source budget. ANN/acquisition/source selection/routing remain unchanged; the
+128 output cap is applied after scoring the full bounded union (up to464).
+Source keys from Facet/Statement queries bound clusters by20 conservatively.
+Numerical median-support evidence is bounded by15 items; additive metadata holds
+up to20 cluster summaries/count/means/support and actual top-level contributions.
+Existing public arguments/core fields, v1 and explicit Facet cosine are unchanged.
+
+Candidate E runtime verified: see
+`docs/evaluation/N05D04R2_R2_06_CANDIDATE_E_RESULT.md`.
+R2-08 remains Not Complete pending separate formal review; R2-09 is blocked.

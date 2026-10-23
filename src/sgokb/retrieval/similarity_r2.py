@@ -19,6 +19,7 @@ from sgokb.domain import (
     VectorSearchFilter,
 )
 
+from .facet_median import FacetMedianScorer
 from .generation import vector_generation_scope
 from .similarity import ObjectSimilaritySearch as _PhaseIObjectSimilaritySearch
 
@@ -359,57 +360,6 @@ class ObjectSimilaritySearch(_PhaseIObjectSimilaritySearch):
     def _bounded_cosine(value: float) -> float:
         return max(0.0, min(1.0, value))
 
-    def _score_candidate(
-        self,
-        hits: list[_ComponentHit],
-        source_counts: dict[str, int],
-    ) -> tuple[float, tuple[ObjectSimilarityEvidence, ...]]:
-        active_components = [
-            component
-            for component in ("overview", "facet", "statement")
-            if source_counts.get(component, 0) > 0
-        ]
-        active_weight = sum(R2_COMPONENT_WEIGHTS[component] for component in active_components)
-        evidence: list[ObjectSimilarityEvidence] = []
-        final_score = 0.0
-        for component in active_components:
-            cap = R2_COMPONENT_EVIDENCE_CAPS[component]
-            slots = min(cap, source_counts[component])
-            component_hits = sorted(
-                (hit for hit in hits if hit.component == component),
-                key=self._hit_sort_key,
-            )[:cap]
-            normalized_weight = R2_COMPONENT_WEIGHTS[component] / active_weight
-            for hit in component_hits:
-                contribution = normalized_weight * self._bounded_cosine(hit.raw_score) / slots
-                final_score += contribution
-                evidence.append(
-                    ObjectSimilarityEvidence(
-                        component=component,
-                        source_representation_id=hit.source["representation_id"],
-                        source_membership_id=hit.source["membership_id"],
-                        candidate_representation_id=hit.candidate["representation_id"],
-                        candidate_membership_id=hit.candidate["membership_id"],
-                        representation_kind=hit.candidate["target_kind"],
-                        facet=hit.candidate.get("facet"),
-                        source_statement_id=hit.source.get("statement_id"),
-                        candidate_statement_id=hit.candidate.get("statement_id"),
-                        score=hit.raw_score,
-                        score_type="cosine_similarity",
-                        contribution=contribution,
-                    )
-                )
-        component_order = {"overview": 0, "facet": 1, "statement": 2}
-        evidence.sort(
-            key=lambda item: (
-                component_order[item.component],
-                -item.contribution,
-                item.source_membership_id,
-                item.candidate_membership_id,
-            )
-        )
-        return final_score, tuple(evidence)
-
     @staticmethod
     def _compatibility_anchor(
         hits: list[_ComponentHit],
@@ -421,12 +371,9 @@ class ObjectSimilaritySearch(_PhaseIObjectSimilaritySearch):
         )
         if overview:
             return overview[0].candidate
-        if not evidence:
-            raise RuntimeError("Hierarchical Similarity candidate has no inspectable evidence")
-        membership_id = evidence[0].candidate_membership_id
-        return next(
-            hit.candidate for hit in hits if hit.candidate["membership_id"] == membership_id
-        )
+        # A recovered canonical Facet need not itself be an acquisition hit.
+        # Identity fields use an already-validated acquisition membership.
+        return sorted(hits, key=ObjectSimilaritySearch._hit_sort_key)[0].candidate
 
     def _r2_overall_similarity(
         self,
@@ -484,14 +431,12 @@ class ObjectSimilaritySearch(_PhaseIObjectSimilaritySearch):
         grouped: dict[str, list[_ComponentHit]] = defaultdict(list)
         for hit in all_hits:
             grouped[hit.candidate["object_id"]].append(hit)
-        source_counts = {
-            "overview": 1,
-            "facet": len(facets),
-            "statement": len(statements),
-        }
+        scorer = FacetMedianScorer(
+            self, source, generation, facets, statements, R2_COMPONENT_WEIGHTS
+        )
         scored = []
         for object_id, hits in grouped.items():
-            score, evidence = self._score_candidate(hits, source_counts)
+            score, evidence = scorer.score(hits)
             anchor = self._compatibility_anchor(hits, evidence)
             scored.append((object_id, score, evidence, anchor))
         scored.sort(key=lambda item: (-item[1], item[0], item[3]["version_id"]))

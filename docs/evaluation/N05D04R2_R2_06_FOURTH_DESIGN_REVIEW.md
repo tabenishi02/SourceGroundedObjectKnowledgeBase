@@ -2,7 +2,7 @@
 
 Updated: 2026-10-24
 
-Status: **Candidate D revised rejected / Candidate E selected for diagnostic ablation only**
+Status: **Candidate E accepted / Reference Workstation runtime verified on remediation branch**
 
 ## 1. Trigger
 
@@ -400,3 +400,11 @@ R2-06 Candidate E diagnostic ablation = Pending
 R2-08 = FAIL / Not Complete
 R2-09 = Blocked / Not Started
 ```
+
+
+## Reference Workstation outcome (2026-10-24)
+
+Candidate E diagnostic and production regression PASS. E10/E11 observations remain
+explicit; no universal support-count invariance is claimed. See
+`N05D04R2_R2_06_CANDIDATE_E_RESULT.md` and the machine-readable result.
+R2-08 is not Complete; R2-09 remains blocked. No main merge.

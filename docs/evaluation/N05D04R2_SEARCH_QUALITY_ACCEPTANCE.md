@@ -259,3 +259,15 @@ remediation verification section. Machine-readable synthetic result:
 `benchmark/results/n05d04r2-r2-05-semantic-remediation.json`.
 
 N-05 remains BLOCKED / Not Complete. No formal performance run was started.
+
+
+## Candidate E branch re-execution (2026-10-24)
+
+The unchanged fixed-Harrier harness now passes all4 Similarity cases on the
+remediation branch, with Overall MRR/Recall@1/nDCG@10 all1.0. Semantic/Hybrid
+case rankings and metrics are unchanged from verified R2-05. All required
+regressions pass; see `N05D04R2_R2_06_CANDIDATE_E_RESULT.md`.
+
+This supersedes the stale code-defect description above for this branch only.
+R2-08 remains Not Complete / prior FAIL not formally closed: separate formal
+re-acceptance review is required. Do not start R2-09; no main merge was done.

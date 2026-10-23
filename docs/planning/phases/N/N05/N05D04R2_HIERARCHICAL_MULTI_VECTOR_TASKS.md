@@ -3,7 +3,7 @@
 Updated: 2026-10-24
 
 - Parent: `N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign`
-- Status: **Active / R2-05 Semantic remediation verified / R2-08 FAIL; R2-06 quality remediation pending**
+- Status: **Active / R2-05 and Candidate E R2-06 remediation verified / R2-08 formal review pending**
 - Formal N-05: **BLOCKED / Not Complete**
 - Design plan: `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
 - R2-01 freeze: `docs/planning/phases/N/N05/N05D04R2_IMPACT_SURVEY.md`
@@ -689,3 +689,17 @@ R2-08 = FAIL / Not Complete (separate R2-06 work/concept Similarity losses);
 R2-09 = blocked / Not Started. R2-08 can be re-executed after separate Similarity
 remediation. No Similarity remediation, performance benchmark or main merge
 was performed by this task.
+
+
+## R2-06 Candidate E runtime update (2026-10-24)
+
+R2-06 remediation = Complete / Candidate E runtime verified on review branch.
+All4 frozen Similarity cases, E1-E12 under handoff boundaries, R2SIM-G01..G06,
+public/integrity regressions and Windows full suite PASS. All selected-query
+Statement observations are retained; ordinary Facet median replaces global
+source-slot pooling. Model, acquisition, generation and R2-05 remain unchanged.
+See `docs/evaluation/N05D04R2_R2_06_CANDIDATE_E_RESULT.md`.
+
+R2-08 remains Not Complete (prior FAIL not formally closed); code is eligible
+for separate formal re-acceptance review. R2-09 remains blocked / Not Started.
+No main merge or formal N-05 timing was performed.
