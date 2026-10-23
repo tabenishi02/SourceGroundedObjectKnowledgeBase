@@ -1,37 +1,36 @@
 # N05D-04R2 — Next Chat Handoff
 
-Updated: 2026-10-23
+Updated: 2026-10-24
 
 - Project: Source Grounded Object Knowledge Base
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Parent task: `N-05 [P0] — Performance`
 - Current remediation: `N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign`
-- Current next task: **R2-01 — Impact survey / redesign freeze**
+- Current branch: `r2-06-similarity-regression-review`
+- Current accepted implementation commit: `d0eaa50efc97adb9fbba8756c3c83ac166f05bf0`
+- R2-08 formal acceptance record: `docs/evaluation/N05D04R2_R2_08_FORMAL_REACCEPTANCE.md`
+- Current next task: **R2-09 — Performance/resource acceptance + formal N-05 rerun**
+- R2-09 start prerequisite: **accepted remediation/acceptance state must be integrated to clean `main == origin/main` first**
 - Formal N-05: **BLOCKED / Not Complete**
-- Formal performance target: **Not Judgeable**
-- Authoritative branch: **GitHub `main`**
+- Formal performance target: **Not Judgeable until R2-09**
 
 ## 1. Read these documents first
 
-Use GitHub `main` as the source of truth and read in this order:
+Read in this order:
 
 1. `docs/planning/phases/N/N05/execution/N05D04R2_NEXT_CHAT_HANDOFF.md`
-2. `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
-3. `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md`
-4. `docs/planning/phases/N/N05/N05_BLOCKER_DIAGNOSTIC_PLAN.md`
-5. `docs/evaluation/N05D04_RESOURCE_PREFLIGHT_AND_VRAM_RESEARCH.md`
-6. `docs/evaluation/N05_PERFORMANCE.md`
-7. `docs/planning/phases/N/N05/N05_PERFORMANCE_BENCHMARK.md`
-8. `docs/planning/phases/N/N05/execution/N05D04_FORMAL_RERUN_HANDOFF.md`
-9. `docs/planning/phases/N/PHASE_N_PREPARATION.md`
-10. historical Phase I designs relevant to R2-01:
-    - `docs/requirements/SEARCH_REQUIREMENTS.md`
-    - `docs/design/SEARCH_REPRESENTATION_SCHEMA.md`
-    - `docs/design/HYBRID_SEARCH_OBJECT_AGGREGATION.md`
-    - `docs/design/OBJECT_SIMILARITY_SEARCH.md`
-    - `docs/planning/phases/I/PHASE_I_PREPARATION.md`
+2. `docs/evaluation/N05D04R2_R2_08_FORMAL_REACCEPTANCE.md`
+3. `docs/evaluation/N05D04R2_SEARCH_QUALITY_ACCEPTANCE.md`
+4. `docs/evaluation/N05D04R2_R2_06_CANDIDATE_E_RESULT.md`
+5. `docs/evaluation/N05D04R2_R2_05_SEMANTIC_REGRESSION_ROOT_CAUSE_REVIEW.md`
+6. `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md`
+7. `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_REDESIGN.md`
+8. `docs/planning/phases/N/N05/N05_PERFORMANCE_BENCHMARK.md`
+9. `docs/planning/phases/N/N05/execution/N05D04_FORMAL_RERUN_HANDOFF.md`
+10. `docs/evaluation/N05_PERFORMANCE.md`
+11. `docs/planning/phases/N/PHASE_N_PREPARATION.md`
 
-Do not infer current state from old chat text if it conflicts with these main-branch documents.
+The accepted remediation is currently on `r2-06-similarity-regression-review`, not `main`. Do not begin R2-09 formal timing from an older `main` tree.
 
 ## 2. Current state
 
@@ -42,264 +41,223 @@ N05D-03 = Complete historical checkpoint
 N05D-04 = BLOCKED / Not Complete
 N05D-04R1 = Historical partial / user-aborted
 N05D-04R2 = Active
-R2-01 = Next / Not Started
+
+R2-01 = Complete
+R2-02 = Complete
+R2-03 = Complete
+R2-04 = Complete
+R2-05 = Complete / Semantic remediation Accepted
+R2-06 = Complete / Candidate E Accepted
+R2-07 = Complete
+R2-08 = Complete / PASS
+R2-09 = Next / Not Started
+R2-10 = Not Started
+
 N-05 = BLOCKED / Not Complete
 performance target = Not Judgeable
 ```
 
-Do not start R2-02 or implementation work before R2-01 exit conditions are satisfied.
+## 3. R2-08 formal result
 
-## 3. Why R2 exists
+R2-08 is formally accepted using the already-complete Reference Workstation evidence from the Candidate E remediation run because that run executed the full R2-08 acceptance harness and post-remediation regressions on the implementation committed as `d0eaa50...`.
 
-The old active Object-level search representation duplicated all detailed content-Facet Statement bodies even though the same accepted Knowledge was also materialized as Facet and Statement representations.
-
-Large N-05 produced:
+Key accepted evidence:
 
 ```text
-object_overall tokens: 18,847
-Harrier 0.6B full embedding: ~628–643 s
-Torch peak allocated: ~51.1 GiB
-Windows Shared GPU memory: ~34.2 GiB
+Harrier OSS v1 0.6B fixed
+R2 acceptance harness automatic verdict = PASS
+Phase-I 24 Object queries = PASS / reviewed
+22 Statement retrieval queries = PASS / reviewed
+5 filter/version/temporal contracts = 5/5 PASS
+4 existing Similarity cases = PASS / reviewed
+R2SIM-G01..G06 = 6/6 PASS
+3 Evidence Search cases / both paths = PASS
+Facet-specific Similarity = PASS
+active generation isolation = PASS
+object_overall active leakage = 0
+unexplained material metric regression = 0
+R2-08 focused + Candidate E tests = 99 passed
+Windows full pytest = 654 passed / 0 failed / 0 skipped
+Ruff/format/diff = PASS
+R1 assets = SHA-256 unchanged
+N-06 interaction = documented
 ```
 
-The issue is therefore not only model size/runtime tuning. The active Derived Search representation architecture itself duplicated detailed Knowledge into one giant full-attention input.
+Formal record:
 
-The user explicitly selected the structural remediation:
+`docs/evaluation/N05D04R2_R2_08_FORMAL_REACCEPTANCE.md`
+
+## 4. Accepted Search-quality metrics
 
 ```text
-compact object_overview
-+ Facet representations
-+ Statement representations
-+ bounded Object aggregation
-+ hierarchical Object Similarity
+Semantic
+  MRR        1.0
+  Recall@1   0.8541666666666666
+  Recall@10  1.0
+  nDCG@10    0.9930829680165895
+
+Hybrid
+  MRR        1.0
+  Recall@1   0.8541666666666666
+  Recall@10  1.0
+  nDCG@10    1.0
+
+Statement semantic
+  MRR        1.0
+  Recall@1   0.8636363636363636
+  Recall@10  1.0
+  nDCG@10    0.9927018899225625
+
+Overall Similarity
+  MRR        1.0
+  Recall@1   1.0
+  Recall@10  1.0
+  nDCG@10    1.0
+
+Facet Similarity
+  MRR        1.0
+  Recall@10  1.0
+  nDCG@10    1.0
 ```
 
-This is semantic partitioning along canonical Object / Facet / Statement boundaries, not arbitrary token chunking.
+Semantic/Hybrid/Statement values match the exact historical comparable Phase-I values. Overall Similarity improves after the accepted remediation.
 
-## 4. Target architecture
+## 5. Accepted R2-06 Overall Similarity semantics
+
+Candidate A/B/C/D were rejected during remediation.
+
+Accepted Candidate E:
 
 ```text
-Object
-├─ object_overview   # compact Object-level context
-├─ facet             # existing detailed Facet representation
-└─ statement         # existing detailed Statement representation
-       ↓
- bounded multi-representation candidate generation
-       ↓
- Object aggregation / hierarchical similarity
-       ↓
- 1 Object = 1 result
+candidate acquisition:
+  object_overview ANN
+  + same-Facet Facet ANN
+  + same-Facet Statement ANN
+
+canonical same-Facet anchor required
+
+Facet-local Statement score:
+  retain all observations from selected source Statement queries
+  after one-best-point-per-source-query/Object dedup
+  no score-based local eviction
+  statement_mean = arithmetic mean
+
+Facet cluster:
+  with Statements:
+    (.30 * Facet cosine + .20 * Statement mean) / .50
+  without Statements:
+    Facet cosine
+
+Object detail:
+  ordinary median of all eligible canonical Facet cluster scores
+
+final:
+  .50 * overview + .50 * detail_median
+
+score_type:
+  hierarchical_similarity
 ```
 
-`object_overview` should contain deterministic canonical Object-level context such as:
+`eligible_shared_facet_count` is support metadata, not confidence or a score multiplier.
+
+## 6. R2-08 resource observations
+
+R2-08 records these observations only; they are not the formal N-05 performance verdict:
 
 ```text
-canonical name
-aliases
-Primary Class
-Facet-less Summary Statements
-content Facet identities (name/key only)
-known Attributes
-Relations
+Semantic p95:  53.804 ms
+Hybrid p95:    47.052 ms
+Statement p95: 7.341 ms
+quality harness wall-clock: 12.5137445 s
+CUDA: NVIDIA GeForce RTX 4090
+Torch max allocated: 1,338,302,464 bytes
+Torch max reserved:  1,430,257,664 bytes
 ```
 
-It must not re-copy all content-Facet Statement bodies.
+R2-09 owns formal resource/performance acceptance.
 
-## 5. Migration principle
+## 7. N-06 interaction
 
-Do not silently redefine persisted `object_overall` v1 semantics.
+N-06 remains `Ready` and is not closed by R2-08.
 
-Default redesign direction:
+When N-06 is eventually executed, it must evaluate Retrieval / Vector quality using:
 
 ```text
-new active kind = object_overview
-old object_overall = historical/transition artifact
+R2 active generation
+object_overview / Facet / Statement active family
+Candidate E Overall Similarity semantics
 ```
 
-Use a side-by-side Derived Search migration so old and new artifacts remain distinguishable for:
+Do not return to the retired active `object_overall` path.
 
-- quality comparison;
-- performance comparison;
-- cutover validation;
-- rollback.
+## 8. Important R2-09 prerequisite
 
-Canonical Knowledge must not be rewritten to implement the Derived Search redesign.
+The accepted remediation branch has not been merged to `main`.
 
-## 6. Model policy
+R2-09 preflight requires:
 
-For the first R2 acceptance, keep:
+```text
+clean main == origin/main
+```
+
+Therefore before R2-09 formal timing:
+
+1. review the accepted branch diff/commit history;
+2. integrate the accepted R2-05/R2-06/R2-08 state to `main` through the user's chosen Git workflow;
+3. verify `main == origin/main` and clean worktree;
+4. preserve the three R1 user-aborted assets byte-for-byte;
+5. only then perform the R2-09 preflight and formal performance work.
+
+Do not silently merge or reset the user's local workspace.
+
+## 9. R2-09 scope reminder
+
+R2-09 performs performance/resource acceptance and then the new formal N-05 run.
+
+Before the 46 formal samples, compare v1 vs R2 Large fixture for:
+
+```text
+object-level token length
+peak allocated/reserved GPU memory
+Dedicated/Shared GPU memory
+derived_incremental_sync wall-clock
+end-to-end sample wall-clock
+```
+
+Formal samples remain:
+
+```text
+Standard cold 3 + warm 20
+Large cold    3 + warm 20
+```
+
+Use a new run ID. Do not reuse historical N-05 verdicts.
+
+## 10. Fixed model/runtime policy
+
+For R2-09 keep the accepted causal baseline unless an explicit later task changes it:
 
 ```text
 model: microsoft/harrier-oss-v1-0.6b
 revision: f9b9dc8d367d443f2479d27aa5d8d2850c0774ee
 dtype: bfloat16
 dimension: 1024
+normalization: unchanged
+truncation: prohibited
 ```
 
-Do not combine representation redesign with:
+Do not introduce Harrier 270M, CPU fallback, FlashAttention-2, PyTorch/CUDA upgrades or arbitrary token chunking as part of R2-09.
 
-- Harrier 270M adoption;
-- PyTorch upgrade;
-- FlashAttention-2 installation;
-- CPU fallback;
-- truncation;
-- arbitrary token chunking.
-
-Harrier 270M is a later contingency only if the hierarchical redesign still fails explicit performance/resource/operational requirements.
-
-## 7. Historical diagnostic evidence to retain
-
-### N05D-01
-
-Qdrant storage/path problem resolved by controlled cutover to:
+## 11. Final handoff state
 
 ```text
-C:\Qdrant\SGOKB
+R2-08 = Complete / PASS
+R2-09 = Next / Not Started
+R2-10 = Not Started
+N05D-04R2 = Active
+N05D-04 = BLOCKED / Not Complete
+N-05 = BLOCKED / Not Complete
+performance target = Not Judgeable
 ```
 
-### N05D-02
-
-Old-contract 18,847-token input completed fresh-process 3/3 but with severe memory/time cost.
-
-### First N05D-04 rerun
-
-Run `20261023T025413+0900`:
-
-```text
-Standard cold 3/3 PASS
-Standard warm 18 PASS / 2 FAIL
-```
-
-The two failures were disk exhaustion (`No space left on device` / WAL buffer cannot fit). Large had not completed when stopped. Treat as environment BLOCKED / user-aborted, not a performance FAIL.
-
-Future formal start gate:
-
-```text
-free disk >= 32 GiB
-```
-
-### N05D-04R1
-
-Run `20261023T035147+0900` was user-aborted partial diagnostic evidence:
-
-```text
-auto SDPA smoke -> math backend observed
-forced Flash -> unavailable in tested Windows PyTorch build
-forced Efficient -> tested Q=16 / KV=8 GQA shape rejected
-full auto trial -> ABORTED_by_user
-```
-
-Do not resume R1 automatically.
-
-## 8. Important local-worktree warning
-
-The user/Codex reported that R1 raw evidence and **uncommitted local diagnostic changes were retained** when the R1 test was stopped.
-
-Therefore, before any local `git pull`, checkout, reset, or R2 implementation:
-
-1. inspect `git status` and local diff;
-2. identify which uncommitted files belong to R1 diagnostic tooling/tests/docs;
-3. preserve/stash/commit/dispose them explicitly according to evidence-retention needs;
-4. do not use `git reset --hard` or otherwise discard them implicitly;
-5. only after local state is reconciled, sync to current `origin/main`.
-
-GitHub `main` remains the design/documentation source of truth; local uncommitted R1 work is historical diagnostic material, not the R2 design source of truth.
-
-## 9. R2 task sequence
-
-```text
-R2-01 Impact survey / redesign freeze
-  ↓
-R2-02 Requirements + representation contract revision
-  ↓
-R2-03 Persistence/versioning/migration design
-  ↓
-R2-04 compact object_overview implementation
-  ├─→ R2-05 Hybrid Search migration
-  └─→ R2-06 Hierarchical Object Similarity redesign
-          ↓
-R2-07 Derived Search rebuild / cutover / rollback
-          ↓
-R2-08 Search-quality acceptance
-          ↓
-R2-09 Performance/resource acceptance + formal N-05 rerun
-          ↓
-R2-10 Closure / Phase N state update
-```
-
-Formal N-05 timing is prohibited before R2-08 quality acceptance passes.
-
-## 10. R2-01 — exact next task
-
-### Goal
-
-Inventory every active dependency on the old `object_overall` semantics before changing canonical design documents or production code.
-
-### Search/inventory at minimum
-
-```text
-object_overall
-SearchRepresentationKind
-build_object_overall
-semantic_object_overall
-find_similar_objects
-knowledge_search_representation_memberships
-search_representation_embeddings
-KnowledgeVectorIndexBuilder
-search-quality gold
-N-03 / N-04 / N-05 / N-06 fixtures
-CLI/MCP/public outputs exposing representation_kind
-migrations / DB constraints
-rebuild / derived-state lifecycle
-```
-
-### Classification
-
-Every dependency must be assigned one of:
-
-```text
-KEEP unchanged
-RENAME / compatibility shim
-CHANGE semantics
-MIGRATE data
-REBUILD derived artifact
-UPDATE gold/test
-HISTORICAL only
-```
-
-### Required deliverable
-
-`docs/planning/phases/N/N05/N05D04R2_IMPACT_SURVEY.md`
-
-### Exit conditions
-
-R2-01 is Complete only when:
-
-- no unresolved active `object_overall` consumer remains outside the inventory;
-- canonical Knowledge tables are confirmed outside semantic-content migration scope;
-- CLI/MCP/domain API compatibility obligations are explicitly documented;
-- migration/rebuild/test/gold/doc impact is fully enumerated;
-- unresolved design questions are listed for R2-02/R2-03 instead of being silently decided in implementation.
-
-## 11. Formal performance remains frozen
-
-Do not alter N-05 workload or gates as part of R2-01:
-
-```text
-Standard warm p95 <= 600 s
-Large warm p95    <= 1200 s
-Standard cold 3 + warm 20
-Large cold    3 + warm 20
-```
-
-Future formal execution occurs only at R2-09 with a new run ID.
-
-## 12. Expected first response in the next chat
-
-After reading the handoff and linked documents, report briefly:
-
-1. current N-05/R2 state;
-2. why R2 was selected;
-3. what R2-01 will inspect;
-4. what it will produce;
-5. confirm that no implementation or formal benchmark will be started before the impact survey/design freeze.
+Next action: integrate the accepted remediation state to `main`, then execute R2-09 preflight/performance acceptance.
