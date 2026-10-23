@@ -43,6 +43,7 @@ from .search import (
     ObjectSearchMode,
     ObjectSearchResponse,
     ObjectSearchResult,
+    ObjectSimilarityEvidence,
     ObjectSimilarityResponse,
     SimilarObjectResult,
 )
@@ -88,6 +89,7 @@ __all__ = [
     "ObjectSearchMode",
     "ObjectSearchResponse",
     "ObjectSearchResult",
+    "ObjectSimilarityEvidence",
     "ObjectSimilarityResponse",
     "SimilarObjectResult",
     "DerivedState",
