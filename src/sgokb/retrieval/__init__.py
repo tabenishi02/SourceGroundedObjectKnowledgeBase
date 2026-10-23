@@ -45,7 +45,7 @@ from .package import (
     estimate_tokens,
 )
 from .search_representation import BuiltSearchRepresentation, SearchRepresentationBuilder
-from .similarity import ObjectSimilaritySearch
+from .similarity_r2 import ObjectSimilaritySearch
 from .vector_index import (
     DEFAULT_QDRANT_EF_CONSTRUCT,
     DEFAULT_QDRANT_FULL_SCAN_THRESHOLD,
