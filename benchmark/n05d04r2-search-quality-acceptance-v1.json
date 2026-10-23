@@ -8,11 +8,7 @@
     "embedding_model": "microsoft/harrier-oss-v1-0.6b",
     "embedding_revision": "f9b9dc8d367d443f2479d27aa5d8d2850c0774ee",
     "embedding_dimension": 1024,
-    "representation_family": [
-      "object_overview",
-      "facet",
-      "statement"
-    ],
+    "representation_family": ["object_overview", "facet", "statement"],
     "forbidden_active_representation": "object_overall"
   },
   "inputs": {
@@ -24,50 +20,14 @@
   },
   "phase_i_observed_baseline": {
     "exact_lookup_accuracy": 1.0,
-    "hybrid": {
-      "mrr": 1.0,
-      "recall@1": 0.854,
-      "recall@10": 1.0,
-      "ndcg@10": 1.0
-    },
-    "semantic": {
-      "mrr": 1.0,
-      "recall@1": 0.854,
-      "recall@10": 1.0,
-      "ndcg@10": 0.993
-    },
-    "statement_semantic": {
-      "mrr": 1.0,
-      "recall@1": 0.864,
-      "recall@10": 1.0,
-      "ndcg@10": 0.993
-    },
-    "similarity_overall": {
-      "mrr": 0.833,
-      "recall@1": 0.667,
-      "recall@10": 1.0,
-      "ndcg@10": 0.877
-    },
-    "similarity_facet": {
-      "mrr": 1.0,
-      "recall@1": 1.0,
-      "recall@10": 1.0,
-      "ndcg@10": 1.0
-    },
-    "evidence_lexical_association": {
-      "mrr": 1.0,
-      "recall@10": 1.0,
-      "ndcg@10": 1.0
-    },
-    "evidence_semantic": {
-      "mrr": 1.0,
-      "recall@10": 1.0,
-      "ndcg@10": 1.0
-    },
-    "contract_cases": {
-      "passed": 5,
-      "total": 5
-    }
+    "hybrid": {"mrr": 1.0, "recall@1": 0.854, "recall@10": 1.0, "ndcg@10": 1.0},
+    "semantic": {"mrr": 1.0, "recall@1": 0.854, "recall@10": 1.0, "ndcg@10": 0.993},
+    "statement_semantic": {"mrr": 1.0, "recall@1": 0.864, "recall@10": 1.0, "ndcg@10": 0.993},
+    "similarity_overall": {"mrr": 0.833, "recall@1": 0.667, "recall@10": 1.0, "ndcg@10": 0.877},
+    "similarity_facet": {"mrr": 1.0, "recall@1": 1.0, "recall@10": 1.0, "ndcg@10": 1.0},
+    "evidence_lexical_association": {"mrr": 1.0, "recall@10": 1.0, "ndcg@10": 1.0},
+    "evidence_semantic": {"mrr": 1.0, "recall@10": 1.0, "ndcg@10": 1.0},
+    "contract_cases": {"passed": 5, "total": 5}
   },
   "automatic_gates": {
     "strict_non_regression": [
@@ -103,14 +63,8 @@
     ],
     "structural": {
       "active_generation_contract": "n05d04r2-hierarchical-v2",
-      "allowed_representation_kinds": [
-        "object_overview",
-        "facet",
-        "statement"
-      ],
-      "forbidden_representation_kinds": [
-        "object_overall"
-      ],
+      "allowed_representation_kinds": ["object_overview", "facet", "statement"],
+      "forbidden_representation_kinds": ["object_overall"],
       "require_single_generation_payload": true,
       "require_one_object_one_result": true,
       "require_facet_scope_no_overview": true,
@@ -127,12 +81,20 @@
     "tests/test_j02_evidence_search.py"
   ],
   "required_r2_similarity_case_ids": [
-    "G01_detail_facet_breaks_overview_tie",
-    "G02_small_statement_evidence_breaks_overview_and_facet_tie",
-    "G03_large_irrelevant_statement_count_has_no_volume_boost",
-    "G04_canonical_facet_boundary_is_hard",
-    "G05_generation_and_current_version_isolation",
-    "G06_bounded_work_contract"
+    "R2SIM-G01",
+    "R2SIM-G02",
+    "R2SIM-G03",
+    "R2SIM-G04",
+    "R2SIM-G05",
+    "R2SIM-G06"
+  ],
+  "required_r2_similarity_case_names": [
+    "detail_facet_breaks_overview_tie",
+    "small_statement_evidence_breaks_overview_and_facet_tie",
+    "large_irrelevant_statement_count_has_no_volume_boost",
+    "canonical_facet_boundary_is_hard",
+    "generation_and_current_version_isolation",
+    "bounded_work_contract"
   ],
   "manual_acceptance_rules": [
     "automatic strict_non_regression gateは全件PASSであること",
@@ -147,9 +109,6 @@
   "n06_interaction": {
     "status": "N-06 Ready; R2 interaction required",
     "decision": "Phase I search-quality-gold-v1をN-06のcurrent inputとして維持し、R2-08でR2 semantics上の再受入を行う。N-06実施時はR2 active generationを前提にRetrieval / Vector品質を評価する。",
-    "r2_08_does_not_execute": [
-      "N-06 closure",
-      "R2-09 formal N-05 performance rerun"
-    ]
+    "r2_08_does_not_execute": ["N-06 closure", "R2-09 formal N-05 performance rerun"]
   }
 }
