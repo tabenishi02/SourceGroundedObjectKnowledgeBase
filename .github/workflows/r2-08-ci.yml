@@ -38,3 +38,5 @@ jobs:
           tests/test_search_quality_gold.py
           tests/test_j02_evidence_search.py
           -q
+      - name: Full regression
+        run: python -m pytest -q
