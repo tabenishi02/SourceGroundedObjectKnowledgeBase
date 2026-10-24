@@ -1,5 +1,26 @@
 # N05D-04 — Formal N-05 benchmark rerun handoff
 
+## R2-10 closure update (2026-10-24)
+
+This handoff is **closed / historical**. It no longer authorizes another N-05 rerun.
+
+```text
+R2-10     = Complete
+N05D-04R2 = Complete
+N05D-04   = Complete
+N-05      = Complete / PASS
+Next      = N-06 Retrieval / Vector quality
+```
+
+The authorized formal rerun was completed as run `20261024T044506+0900` with 46/46 PASS, Standard warm p95 `12.2832216 s`, Large warm p95 `53.7066947 s`, zero FAIL/ABORTED/retry, R2-only serving and safety/regression gates PASS. This handoff remains only as execution history and should not be used to restart the accepted run.
+
+Closure authority: `docs/evaluation/N05D04R2_R2_10_CLOSURE_AUDIT.md`.
+Formal result: `docs/evaluation/N05D04R2_R2_09_PERFORMANCE_ACCEPTANCE_RESULT.md`.
+
+---
+
+## Historical handoff record retained below
+
 ## Current acceptance update (2026-10-24)
 
 This update supersedes historical BLOCKED/next-task notes below.
