@@ -1,5 +1,26 @@
 # N-05 — Formal Benchmark Blocker Diagnostic Plan
 
+## R2-10 closure update (2026-10-24)
+
+This is the current authoritative state for this document and supersedes older current-state / next-task notes retained below.
+
+```text
+R2-10     = Complete
+N05D-04R2 = Complete
+N05D-04   = Complete
+N-05      = Complete / PASS
+```
+
+All blocker classes recorded by this plan are now dispositioned for N-05: Qdrant storage/path was remediated, the monolithic long-input representation was replaced by the accepted hierarchical R2 design, the fresh-sample v1 wiring gap was repaired, and the final 46-sample formal run passed the unchanged performance gates with no failure/abort/retry. Historical blocker evidence remains preserved below and is not reclassified retroactively.
+
+Current next Phase N task: **N-06 — Retrieval / Vector quality**.
+
+Closure authority: `docs/evaluation/N05D04R2_R2_10_CLOSURE_AUDIT.md`.
+
+---
+
+## Historical diagnostic/remediation record retained below
+
 ## Current acceptance update (2026-10-24)
 
 This update supersedes historical BLOCKED/next-task notes below.
