@@ -202,6 +202,36 @@ def test_fresh_gold_is_active_r2_without_legacy_membership(tmp_path, monkeypatch
         gold = harness.read(ROOT / "benchmark/search-quality-gold-v1.json")
         routed, refs, audit = harness.prepare_generation(repo, Provider(), "n06unit", gold)
         assert audit["leakage"] == 0
+        # Direct Statement evaluation is a separate request, after Hybrid context reset.
+        engine = harness.HybridObjectSearch(
+            repo, embedding_provider=Provider(), vector_index=routed
+        )
+        engine.search(gold["objects"][0]["name"], mode="hybrid")
+        hits = harness.statement_candidates(engine, routed, Provider(), "probe")
+        assert hits and all(hit["statement_id"] for hit in hits)
+        for hit in hits:
+            assert (
+                repo.one(
+                    "SELECT 1 AS linked FROM knowledge_search_generation_memberships gm "
+                    "JOIN knowledge_search_representation_memberships m ON m.id=gm.membership_id "
+                    "WHERE gm.generation_id=? AND m.statement_id=?",
+                    (audit["generation_id"], hit["statement_id"]),
+                )["linked"]
+                == 1
+            )
+        from dataclasses import replace
+
+        real_search = routed.search
+
+        def corrupted(*args, **kwargs):
+            rows = real_search(*args, **kwargs)
+            return (replace(rows[0], metadata={**rows[0].metadata, "generation_id": "wrong"}),)
+
+        with monkeypatch.context() as context:
+            context.setattr(routed, "search", corrupted)
+            with pytest.raises(RuntimeError, match="generation payload mismatch"):
+                harness.statement_candidates(engine, routed, Provider(), "probe")
+
         assert set(audit["kinds"]) == {"object_overview", "facet", "statement"}
         assert len(refs["current_versions"]) == len(gold["objects"])
         assert not repo.rows("SELECT * FROM search_representations WHERE kind='object_overall'")

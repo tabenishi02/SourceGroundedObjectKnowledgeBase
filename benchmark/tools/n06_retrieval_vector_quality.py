@@ -20,7 +20,12 @@ sys.path[:0] = [str(ROOT), str(ROOT / "src"), str(ROOT / "benchmark/tools")]
 
 from scripts import run_search_quality_gold as gold_helper  # noqa: E402
 from sgokb.application_generation import KnowledgeSearchGenerationApplication  # noqa: E402
-from sgokb.domain import ObjectSearchFilters, SearchRepresentationKind  # noqa: E402
+from sgokb.domain import (  # noqa: E402
+    ObjectSearchFilters,
+    SearchRepresentationKind,
+    VectorMatch,
+    VectorSearchFilter,
+)
 from sgokb.repository import Repository  # noqa: E402
 from sgokb.retrieval import (  # noqa: E402
     HybridObjectSearch,
@@ -35,6 +40,7 @@ from sgokb.retrieval.embedding import (  # noqa: E402
 from sgokb.retrieval.generation import (  # noqa: E402
     GenerationAwareSearchRepresentationBuilder,
     route_generation_vector_index,
+    vector_generation_scope,
 )
 from sgokb.retrieval.vector_index import QdrantVectorIndexAdapter  # noqa: E402
 
@@ -162,19 +168,50 @@ def prepare_generation(repo, provider, prefix, gold=None):
 
 
 def statement_candidates(engine, index, provider, query, filters=None, limit=50):
+    """Resolve/pin one R2 generation without assuming a Hybrid request context.
+
+    Reuse the normal hard-filter projection, then verify every returned membership
+    and payload against that generation before reading canonical Statement text.
+    """
     filters = filters or ObjectSearchFilters()
+    generation = engine._resolve_generation()
+    if generation.contract_key != "n05d04r2-hierarchical-v2" or generation.generation_id is None:
+        raise RuntimeError("Direct Statement evaluation requires an active R2 generation")
     vector = provider.embed_queries([query])[0]
-    vf = engine._vector_filters_for_generation(filters, SearchRepresentationKind.STATEMENT)
-    hits = index.search(provider.space, vector, limit=limit, filters=vf)
+    base = engine._vector_filters(filters, SearchRepresentationKind.STATEMENT)
+    vf = VectorSearchFilter(
+        matches=(*base.matches, VectorMatch("generation_id", (generation.generation_id,))),
+        excludes=base.excludes,
+        ranges=base.ranges,
+    )
+    with vector_generation_scope(index, generation.generation_id):
+        hits = index.search(provider.space, vector, limit=limit, filters=vf)
     output = []
     for hit in hits:
-        sid = hit.metadata["statement_id"]
-        row = engine.repository.one("SELECT text FROM knowledge_statements WHERE id=?", (sid,))
+        if hit.metadata.get("generation_id") != generation.generation_id:
+            raise RuntimeError("Direct Statement generation payload mismatch")
+        row = engine.repository.one(
+            "SELECT s.id,s.text,m.object_id,m.version_id "
+            "FROM knowledge_search_generation_memberships gm "
+            "JOIN knowledge_search_representation_memberships m ON m.id=gm.membership_id "
+            "JOIN knowledge_statements s ON s.id=m.statement_id "
+            "WHERE gm.generation_id=? AND m.id=? AND m.target_kind='statement'",
+            (generation.generation_id, hit.point_id),
+        )
+        if row is None or any(
+            hit.metadata.get(key) != row[column]
+            for key, column in (
+                ("statement_id", "id"),
+                ("object_id", "object_id"),
+                ("version_id", "version_id"),
+            )
+        ):
+            raise RuntimeError("Direct Statement membership identity mismatch")
         output.append(
             {
-                "statement_id": sid,
-                "object_id": hit.metadata["object_id"],
-                "version_id": hit.metadata["version_id"],
+                "statement_id": row["id"],
+                "object_id": row["object_id"],
+                "version_id": row["version_id"],
                 "text": row["text"],
             }
         )
@@ -426,9 +463,20 @@ def main():
         search = evaluate_queries(gold["search_queries"], engine)
         candidates = []
         statement_metrics = []
+        statement_latencies = []
         for case in gold["search_queries"]:
             if not case.get("statement_refs"):
                 continue
+            started = time.perf_counter()
+            direct_hits = statement_candidates(
+                engine,
+                index,
+                provider,
+                case["query"],
+                gold_helper.filters_from(case.get("filters")),
+                limit=10,
+            )
+            statement_latencies.append(time.perf_counter() - started)
             cs = statement_candidates(
                 engine,
                 index,
@@ -438,7 +486,7 @@ def main():
             )
             rel = {refs["statement_refs"][key]: 3 for key in case["statement_refs"]}
             statement_metrics.append(
-                ranked_retrieval_metrics([c["statement_id"] for c in cs[:10]], rel)
+                ranked_retrieval_metrics([c["statement_id"] for c in direct_hits], rel)
             )
             candidates.append(
                 {
@@ -519,6 +567,7 @@ def main():
             "generation": audit,
             "r2_similarity": r2cases,
             "statement_quality": aggregate_metric_rows(statement_metrics),
+            "statement_latency": latency_summary(statement_latencies),
             "similarity_passed": sum(c["metrics"]["mrr"] == 1 for c in similarity["cases"]),
             "evidence_passed": sum(
                 c["metrics"]["recall@10"] == 1 for v in ev.values() for c in v["cases"]
