@@ -17,8 +17,8 @@ O-01 README update = Complete
 O-02 Current design documentation = Complete
 O-03 Prototype Archived / Legacy labels = Complete
 O-04 main integration = Complete
-O-05 Branch cleanup = BLOCKED
-Next = O-05 remote branch deletion
+O-05 Branch cleanup = Complete
+Next = O-06 Release / Tag policy
 ```
 
 Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSで、独立ChatGPT reviewにより受理済みです。旧N-07 `47 PASS / 3 FAIL`等のhistorical evidenceは保持し、後続remediation / re-acceptanceと区別します。
@@ -28,7 +28,7 @@ Phase Oのcurrent task stateは [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_
 ## Current authority
 
 - Phase O current status: [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_STATUS.md)
-- O-05 branch cleanup audit: [`phases/O/O05_BRANCH_CLEANUP.md`](phases/O/O05_BRANCH_CLEANUP.md)
+- O-05 branch cleanup result: [`phases/O/O05_BRANCH_CLEANUP.md`](phases/O/O05_BRANCH_CLEANUP.md)
 - Current integrated architecture: [`../design/SGOKB_CURRENT_ARCHITECTURE.md`](../design/SGOKB_CURRENT_ARCHITECTURE.md)
 - Current design index: [`../design/README.md`](../design/README.md)
 - Operational safety / recovery: [`../operations/OPERATIONAL_SAFETY_RECOVERY.md`](../operations/OPERATIONAL_SAFETY_RECOVERY.md)
@@ -48,8 +48,8 @@ Phase O実行中のcurrent task statusは`PHASE_O_STATUS.md`を優先する。pr
 | O-02 | **Complete** | current architecture / operations designを整理・更新 |
 | O-03 | **Complete** | Prototype文書へArchived / Legacy表示 |
 | O-04 | **Complete** | branch historyを`main`へ統合 |
-| O-05 | **BLOCKED** | 35 branchの削除安全性は確認済み。remote branch/ref削除mutationがcurrent action setにないため削除未実行 |
-| O-06 | Not Started | Release / Tag policy |
+| O-05 | **Complete** | 不要remote branch 35本を削除し`main`のみへ整理 |
+| O-06 | **Next / Not Started** | Release / Tag policy |
 
 O-04はPhase Oの通常順序より先にユーザー指示で実施済みです。全remote branch historyの最終統合commitは`77d79ccac1017f167736c742ac199858a3a010a7`です。
 
@@ -91,13 +91,22 @@ PROTOTYPE_UPGRADE.md
 
 O-02完了commitとの差分では6文書すべてが7行追加・0行削除で、歴史本文の意味内容は変更していない。
 
-## O-05 status
+## O-05 result
 
-live GitHub inventoryではremote branchは36本で、`main`以外の35本をcleanup candidateとした。open PRは0件、cleanup candidateのprotected branchも0本。
+O-05開始時のlive GitHub inventoryではremote branchは36本で、`main`以外の35本をcleanup candidateとした。open PRは0件、cleanup candidateのprotected branchも0本。
 
-O-04の全branch integration確認に加え、O-05ではplanning再編 / Phase N closure / N07 / N06 / R2 / N04の代表tipをcurrent `main`と再比較し、すべて`behind_by=0`かつbranch HEAD自身がmerge baseであることを確認した。削除後に失われる未統合historyはないと判定している。
+O-04の全branch integration確認に加え、O-05ではplanning再編 / Phase N closure / N07 / N06 / R2 / N04の代表tipをcurrent `main`と再比較し、すべて`behind_by=0`かつbranch HEAD自身がmerge baseであることを確認した。削除後に失われる未統合historyはないと判定した。
 
-ただしcurrent GitHub action setにはremote branch / Git ref削除mutationが提供されていないため、削除自体は未実行。詳細は [`phases/O/O05_BRANCH_CLEANUP.md`](phases/O/O05_BRANCH_CLEANUP.md) を参照する。
+ユーザーがGit clientから35本を削除した後、live GitHubを再確認した結果:
+
+```text
+remote branches = 1
+remaining branch = main
+open PR = 0
+main HEAD before status updates = 4f16835aef54206c248240c40d3870f1d0e35cfd
+```
+
+branch cleanup前後で`main` HEADは不変であり、history変更はない。O-05はComplete。詳細は [`phases/O/O05_BRANCH_CLEANUP.md`](phases/O/O05_BRANCH_CLEANUP.md) を参照する。
 
 ## Directory layout
 
@@ -178,10 +187,10 @@ Phase NではN-04〜N-07の検証過程で多数のremediation / benchmark文書
 
 ## Next
 
-次Taskは引き続き:
+次Taskは:
 
 ```text
-O-05 [P1] 不要branchを削除する
+O-06 [P1] Release / Tag policy、Prototypeと新KBの境界、Breaking Change記録
 ```
 
-安全性監査は完了済み。remote ref削除を実行し、`main`だけが残ったことを確認した時点でO-05をCompleteにする。
+O-01〜O-05はComplete。O-06完了後にPhase O全体のclosureを判定する。
