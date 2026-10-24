@@ -13,8 +13,9 @@ Phase N closure audit = Complete / PASS
 Phase O = Active
 O-01 README update = Complete
 O-02 Current design documentation = Complete
+O-03 Prototype Archived / Legacy labels = Complete
 O-04 main integration = Complete
-Next = O-03 Prototype Archived / Legacy labels
+Next = O-05 Branch cleanup
 ```
 
 Phase NはReference Workstationでのclosure audit C01-C07 PASSと独立レビューを完了しています。Phase OではDocumentation / Release / Git cleanupを進めます。Release / TagはO-06まで未確定です。
@@ -404,7 +405,7 @@ Web取得部分の詳細は [Web Page Capture README](extensions/web-page-captur
 - [MCP Read Tool Contract](docs/decisions/J02_MCP_READ_TOOL_CONTRACT.md)
 - [Phase N Closure Result](docs/evaluation/PHASE_N_CLOSURE_AUDIT.md)
 
-旧Prototypeの要件・設計・評価・モデル比較等は [`docs/archive/prototype-0.2/`](docs/archive/prototype-0.2/) に保存しています。Archiveはcurrent specificationではありません。
+旧Prototypeの要件・設計・評価・モデル比較等は [`docs/archive/prototype-0.2/`](docs/archive/prototype-0.2/) に保存しています。O-03でArchived / Legacy stateを明示済みであり、Archiveはcurrent specificationではありません。
 
 ---
 
