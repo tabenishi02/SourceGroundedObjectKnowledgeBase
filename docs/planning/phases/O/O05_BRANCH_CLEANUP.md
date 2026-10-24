@@ -3,10 +3,11 @@
 Updated: 2026-10-25
 
 - Task: `O-05 [P1] 不要branchを削除する`
-- Status: **BLOCKED — deletion safety verified, remote ref deletion unavailable in current execution environment**
+- Status: **Complete**
 - Repository: `tabenishi02/SourceGroundedObjectKnowledgeBase`
 - Current authority branch: `main`
 - Audit starting `main`: `fd73101532e8903ce568e4299d8966743a61595a`
+- Pre-deletion status commit: `4f16835aef54206c248240c40d3870f1d0e35cfd`
 
 ## Purpose
 
@@ -14,9 +15,9 @@ O-04で全remote branch historyを`main`へ統合した後、不要なremote bra
 
 削除は履歴を失わないことを最優先とし、branch名だけを根拠に実施しない。
 
-## Live branch inventory
+## Pre-deletion inventory
 
-2026-10-25のlive GitHub inventoryではremote branchは **36本**。
+2026-10-25のlive GitHub inventoryではremote branchは **36本**だった。
 
 - keep: `main`
 - cleanup candidate: **35本**
@@ -65,7 +66,7 @@ r2-09-runner-wiring-remediation
 
 ## Safety verification
 
-O-04では全remote branch historyを`main`へ統合し、最終統合commit `77d79ccac1017f167736c742ac199858a3a010a7`を作成した。現在のbranch inventoryはO-04時点のcleanup対象集合から新規branchが増えていない。
+O-04では全remote branch historyを`main`へ統合し、最終統合commit `77d79ccac1017f167736c742ac199858a3a010a7`を作成した。O-05開始時のbranch inventoryはO-04時点のcleanup対象集合から新規branchが増えていなかった。
 
 O-05開始時に独立系列の代表tipをlive GitHub compareで再確認した。
 
@@ -78,37 +79,33 @@ O-05開始時に独立系列の代表tipをlive GitHub compareで再確認した
 | `r2-09-runner-wiring-remediation` | `30f6bba79d2447d0708fa21f3313239d971bc4d6` | `behind_by=0`; main ahead 60 | branch HEAD itself |
 | `phase-n/n04g25a-development-classifier-benchmark` | `f3b400c8106fc1d5d6db1808f3d7502ea98d3696` | `behind_by=0`; main ahead 275 | branch HEAD itself |
 
-これらはplanning再編、Phase N closure、N07、N06、R2、N04の各独立系列のtipを代表する。O-04の全branch統合確認と合わせ、35本すべてについて削除後に失われる未統合historyはないと判定する。
+これらはplanning再編、Phase N closure、N07、N06、R2、N04の各独立系列のtipを代表する。O-04の全branch統合確認と合わせ、35本すべてについて削除後に失われる未統合historyはないと判定した。
 
-## Deletion policy
+## Deletion execution
 
-削除対象は上記35本すべて。
+このChatGPT sessionにはremote branch / Git ref削除mutationが提供されていなかったため、ユーザーがGit clientから35本のremote branchを削除した。
 
-次は削除しない。
-
-- `main`
-- 今後O-05完了前に新規作成されたbranch（再監査が必要）
-- future auditで`main`に含まれないunique commitが検出されたbranch
-
-削除後もcommit objectと`main`側の統合historyは保持される。historical FAIL / BLOCKED evidenceはbranchではなく`main`上のcommit / document / benchmark resultで保持する。
-
-## Execution blocker
-
-現在このChatGPT sessionに接続されているGitHub action setには、branchの検索・作成・ref更新はあるが、**remote branch / Git refを削除するmutationが提供されていない**。
-
-そのため、安全性監査は完了したが、35本のremote ref削除そのものはこのsessionから実行できない。branchを`main`へforce-moveして削除済みと扱うことはしない。
-
-O-05は削除が実行されるまで **Completeにしない**。
-
-## Required final action
-
-branch/ref deletionが可能なGitHub API / Git client環境で、上記35本を削除する。その直後にlive branch inventoryを再取得し、次を確認する。
+削除後にlive GitHubを再確認し、次を確認した。
 
 ```text
 remote branches = 1
 remaining branch = main
 open PR = 0
-main history unchanged
+main HEAD = 4f16835aef54206c248240c40d3870f1d0e35cfd
 ```
 
-削除後に本書と`PHASE_O_STATUS.md`を`Complete`へ更新し、NextをO-06へ進める。
+`main` HEADは削除前と同一であり、branch cleanupによる`main` historyの変更はない。
+
+## Completion assessment
+
+O-05の完了条件を満たした。
+
+- 35 cleanup candidateをすべて削除した。
+- remote branchは`main`のみ。
+- open PRは0件。
+- `main` historyは不変。
+- historical FAIL / BLOCKED evidenceは`main`上のcommit / document / benchmark resultとして保持されている。
+
+**O-05 = Complete**。
+
+次Taskは `O-06 [P1] Release / Tag policyとBreaking Change記録`。
