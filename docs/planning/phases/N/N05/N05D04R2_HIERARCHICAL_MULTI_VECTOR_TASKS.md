@@ -1,5 +1,36 @@
 # N05D-04R2 — Hierarchical Multi-Vector Redesign Task Breakdown
 
+## R2-10 closure update (2026-10-24)
+
+This is the current authoritative state for the R2 task chain and supersedes older current-state / next-task notes retained below.
+
+```text
+R2-01 = Complete
+R2-02 = Complete / Design Freeze
+R2-03 = Complete / Design Freeze
+R2-04 = Complete
+R2-05 = Complete
+R2-06 = Complete
+R2-07 = Complete
+R2-08 = Complete / PASS
+R2-09 = Complete / PASS
+R2-10 = Complete
+
+N05D-04R2 = Complete
+N05D-04   = Complete
+N-05      = Complete / PASS
+```
+
+Formal N-05 acceptance: run `20261024T044506+0900`, 46/46 PASS, Standard warm p95 `12.2832216 s <= 600 s`, Large warm p95 `53.7066947 s <= 1200 s`, zero FAIL/ABORTED/retry. R2-only generation serving, `object_overall` leakage 0, 46 unique namespaces / 34,684 audited points, canonical/tracked/HEAD invariance and post-run regression/static gates PASS.
+
+R2-10 does not close Phase N. **N-06 — Retrieval / Vector quality** is the next Phase N P0 task.
+
+Closure authority: `docs/evaluation/N05D04R2_R2_10_CLOSURE_AUDIT.md`.
+
+---
+
+## Historical task planning / execution record retained below
+
 ## Current acceptance update (2026-10-24)
 
 This update supersedes historical BLOCKED/next-task notes below.
