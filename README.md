@@ -12,13 +12,14 @@ Phase N = Complete / PASS
 Phase N closure audit = Complete / PASS
 Phase O = Active
 O-01 README update = Complete
+O-02 Current design documentation = Complete
 O-04 main integration = Complete
-Next = O-02 Current design documentation
+Next = O-03 Prototype Archived / Legacy labels
 ```
 
 Phase NはReference Workstationでのclosure audit C01-C07 PASSと独立レビューを完了しています。Phase OではDocumentation / Release / Git cleanupを進めます。Release / TagはO-06まで未確定です。
 
-現在のPhase O状態は [Phase O Status](docs/planning/phases/O/PHASE_O_STATUS.md)、Phase Nの最終受入結果は [Phase N Closure Audit](docs/evaluation/PHASE_N_CLOSURE_AUDIT.md) を参照してください。
+現在のPhase O状態は [Phase O Status](docs/planning/phases/O/PHASE_O_STATUS.md)、現行全体設計は [Current System Architecture](docs/design/SGOKB_CURRENT_ARCHITECTURE.md)、運用安全・復旧設計は [Operational Safety / Backup / Recovery](docs/operations/OPERATIONAL_SAFETY_RECOVERY.md) を参照してください。
 
 ---
 
@@ -120,6 +121,8 @@ Lexical Search   Search Representation  Markdown
 | Evidence Package | 外部AIへ渡す交換artifact | Yes / reproducible from current source state |
 
 Vector IndexやMarkdownを失っても、それらをcanonical Knowledgeの代わりにはしません。
+
+現行Architectureの詳細なauthority mapは [SGOKB Current System Architecture](docs/design/SGOKB_CURRENT_ARCHITECTURE.md) を参照してください。
 
 ---
 
@@ -348,7 +351,7 @@ SGOKBでは次の境界を明示します。
 - Vector Indexはcanonical SQLite / Search Representationから再構築可能にする。
 - backup / restoreではcanonical dataとRaw / Provenanceを保全する。
 
-Failure / Recovery、Composite backup / restore、RPO / RTOはPhase Nで正式受入済みです。詳細は [N07-R01 Re-Acceptance](docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md) を参照してください。
+Failure / Recovery、Composite backup / restore、RPO / RTOはPhase Nで正式受入済みです。現行運用設計は [Operational Safety / Backup / Recovery](docs/operations/OPERATIONAL_SAFETY_RECOVERY.md)、formal evidenceは [N07-R01 Re-Acceptance](docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md) を参照してください。
 
 ---
 
@@ -362,7 +365,7 @@ docs/
   decisions/                 # accepted decisions / design freeze
   design/                    # implementation-level current design
   evaluation/                # benchmark / acceptance / failure analysis
-  operations/                # operator workflow
+  operations/                # operator workflow / recovery
   planning/                  # project / phase / task status and handoff
   reference/                 # survey / inventory / gold/reference material
   archive/                   # historical Prototype / rename material
@@ -381,6 +384,9 @@ Web取得部分の詳細は [Web Page Capture README](extensions/web-page-captur
 入口:
 
 - [Documentation Index](docs/README.md)
+- [Current Design Index](docs/design/README.md)
+- [Current System Architecture](docs/design/SGOKB_CURRENT_ARCHITECTURE.md)
+- [Operational Safety / Backup / Recovery](docs/operations/OPERATIONAL_SAFETY_RECOVERY.md)
 - [Planning Index](docs/planning/README.md)
 - [Phase O Status](docs/planning/phases/O/PHASE_O_STATUS.md)
 - [Project Task Master](docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md)
@@ -415,7 +421,7 @@ git diff --check
 
 Phase N closureではfull suite **783 passed / 0 failed / 0 skipped** を確認しています。
 
-Repository-wide `ruff format --check .`にはaccepted baseline由来の既存22ファイルが残っています。O-01のような変更では無関係なhistorical/baseline fileを一括formatせず、変更対象のformatとdiff hygieneを維持してください。詳細は [Phase N Closure Audit](docs/evaluation/PHASE_N_CLOSURE_AUDIT.md) を参照してください。
+Repository-wide `ruff format --check .`にはaccepted baseline由来の既存22ファイルが残っています。O-01/O-02のようなdocumentation変更では無関係なhistorical/baseline fileを一括formatせず、変更対象のformatとdiff hygieneを維持してください。詳細は [Phase N Closure Audit](docs/evaluation/PHASE_N_CLOSURE_AUDIT.md) を参照してください。
 
 ---
 

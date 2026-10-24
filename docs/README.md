@@ -10,8 +10,9 @@ Phase N = Complete / PASS
 Phase N closure audit = Complete / PASS
 Phase O = Active
 O-01 README update = Complete
+O-02 Current design documentation = Complete
 O-04 main integration = Complete
-Next = O-02 Current design documentation
+Next = O-03 Prototype Archived / Legacy labels
 ```
 
 Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSとなり、独立ChatGPT reviewで受理済みです。旧N-07 `47 PASS / 3 FAIL`はhistorical evidenceとして保持され、N07-R01 Composite backup / restore remediationの後続PASSでclosureしています。
@@ -22,13 +23,20 @@ Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSとなり、�
 
 システム全体を把握する場合は、次の順で読むことを推奨します。
 
-1. [`../README.md`](../README.md) — SGOKB概要、Architecture、標準workflow、MCP利用例
-2. [`requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md`](requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md) — SGOKBの目的・非目的
-3. [`requirements/OBJECT_REQUIREMENTS.md`](requirements/OBJECT_REQUIREMENTS.md) — Object identity / lifecycle
-4. [`requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`](requirements/SOURCE_EVIDENCE_REQUIREMENTS.md) — Source / Evidence / Provenance
-5. [`requirements/SEARCH_REQUIREMENTS.md`](requirements/SEARCH_REQUIREMENTS.md) — Retrieval / Similarity
-6. [`operations/OBJECT_STANDARD_WORKFLOW.md`](operations/OBJECT_STANDARD_WORKFLOW.md) — 1 Object標準運用
-7. [`planning/README.md`](planning/README.md) — current planning / task state
+1. [`../README.md`](../README.md) — SGOKB概要、標準workflow、MCP利用例
+2. [`design/SGOKB_CURRENT_ARCHITECTURE.md`](design/SGOKB_CURRENT_ARCHITECTURE.md) — current end-to-end Architecture / Data Model / Retrieval / Exchange / MCP / UPDS Boundary
+3. [`operations/OPERATIONAL_SAFETY_RECOVERY.md`](operations/OPERATIONAL_SAFETY_RECOVERY.md) — Offline / Backup / Restore / Retention / Security / External Egress / Failure Recovery / Benchmark条件
+4. [`design/README.md`](design/README.md) — current detailed design map
+5. [`operations/OBJECT_STANDARD_WORKFLOW.md`](operations/OBJECT_STANDARD_WORKFLOW.md) — 1 Object標準運用
+6. [`planning/README.md`](planning/README.md) — current planning / task state
+
+要件から確認する場合:
+
+- [`requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md`](requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md)
+- [`requirements/OBJECT_REQUIREMENTS.md`](requirements/OBJECT_REQUIREMENTS.md)
+- [`requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`](requirements/SOURCE_EVIDENCE_REQUIREMENTS.md)
+- [`requirements/SEARCH_REQUIREMENTS.md`](requirements/SEARCH_REQUIREMENTS.md)
+- [`requirements/NON_FUNCTIONAL_REQUIREMENTS.md`](requirements/NON_FUNCTIONAL_REQUIREMENTS.md)
 
 ## Documentation map
 
@@ -51,7 +59,7 @@ Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSとなり、�
 
 Architecture Decision、Design Freeze、public contract、運用上の固定方針。
 
-特にoperator / client surface:
+主要surface:
 
 - [`M01_OBJECT_CENTERED_CLI_CONTRACT.md`](decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md)
 - [`J02_MCP_READ_TOOL_CONTRACT.md`](decisions/J02_MCP_READ_TOOL_CONTRACT.md)
@@ -61,17 +69,28 @@ Architecture Decision、Design Freeze、public contract、運用上の固定方�
 
 確定した実装設計。
 
-主な領域:
+Current entry points:
+
+- [`design/SGOKB_CURRENT_ARCHITECTURE.md`](design/SGOKB_CURRENT_ARCHITECTURE.md) — O-02 current integrated architecture
+- [`design/README.md`](design/README.md) — detailed design index / authority map
+
+主要領域:
 
 - Object / Facet / Version data model
 - Source / Evidence pipeline
-- Object Result JSON schema
+- Object Result / Package exchange
 - Search Representation / Embedding / Vector Index
 - Hybrid Search / Similarity
-- Package / Result exchange
 - Rendering
 
-O-02では、これらの現行設計をArchitecture / Data Model / Retrieval / Exchange / MCP / UPDS Boundaryと運用要件の観点から再整理します。
+Post-R2 current Object semantic representationは`object_overview / facet / statement`であり、legacy `object_overall`はactive retrieval kindではありません。
+
+### [`operations/`](operations/)
+
+実運用手順・運用安全設計。
+
+- [`operations/OBJECT_STANDARD_WORKFLOW.md`](operations/OBJECT_STANDARD_WORKFLOW.md) — Object登録 → Evidence → Package → ChatGPT → Result → Import → Search / MCP
+- [`operations/OPERATIONAL_SAFETY_RECOVERY.md`](operations/OPERATIONAL_SAFETY_RECOVERY.md) — Offline / Backup / Restore / Retention / Security / External Egress / Failure Recovery / Benchmark
 
 ### [`evaluation/`](evaluation/)
 
@@ -87,23 +106,18 @@ Phase N最終authority:
 
 Historical FAIL / BLOCKED evidenceは削除せず、current authorityと区別して保持します。
 
-### [`operations/`](operations/)
-
-実運用手順。
-
-- [`OBJECT_STANDARD_WORKFLOW.md`](operations/OBJECT_STANDARD_WORKFLOW.md) — Object登録 → Evidence → Package → ChatGPT → Result → Import → Search / MCP
-
 ### [`planning/`](planning/)
 
 Project / Phase / Taskの現在状態、handoff、実行計画。
 
 主要入口:
 
-- [`planning/README.md`](planning/README.md) — planning index
-- [`planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md`](planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md) — 全体task master
-- [`planning/phases/O/PHASE_O_STATUS.md`](planning/phases/O/PHASE_O_STATUS.md) — current Phase O state
-- [`planning/phases/N/PHASE_N_CLOSURE_AUDIT.md`](planning/phases/N/PHASE_N_CLOSURE_AUDIT.md) — Phase N closure contract / final state
-- [`planning/phases/N/PHASE_N_PREPARATION.md`](planning/phases/N/PHASE_N_PREPARATION.md) — Phase N authority history
+- [`planning/README.md`](planning/README.md)
+- [`planning/phases/O/PHASE_O_STATUS.md`](planning/phases/O/PHASE_O_STATUS.md)
+- [`planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md`](planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md)
+- [`planning/phases/N/PHASE_N_CLOSURE_AUDIT.md`](planning/phases/N/PHASE_N_CLOSURE_AUDIT.md)
+
+Phase Oの実行中は`planning/phases/O/PHASE_O_STATUS.md`をcurrent Phase O status authorityとする。project-wide task masterの古いPhase O checklist記述と状態が異なる場合、このstatus文書のcurrent stateを優先する。
 
 ### [`reference/`](reference/)
 
@@ -115,12 +129,10 @@ Project / Phase / Taskの現在状態、handoff、実行計画。
 
 Archiveはcurrent specificationの正本として使用しません。
 
-- [`archive/prototype-0.2/`](archive/prototype-0.2/) — 旧Fragment / Final Document中心Prototype
-- [`archive/rename-2026-10/`](archive/rename-2026-10/) — 名称変更履歴
+- [`archive/prototype-0.2/`](archive/prototype-0.2/)
+- [`archive/rename-2026-10/`](archive/rename-2026-10/)
 
 ## Current architecture boundary
-
-現行SGOKBは概念的に次の境界を持ちます。
 
 ```text
 Source / Raw / Evidence
@@ -147,10 +159,9 @@ CLI / read-only MCP
 - ChatGPT APIはstandard Knowledge generationの成立条件ではない。
 - MCP MVPはread-only。
 - Personal InferenceはUPDSの責務。
+- complete canonical backupにはSQLiteだけでなくRaw / accepted Result provenanceを含むComposite generationを使用する。
 
 ## Placement rules
-
-新規文書は内容に応じて配置します。
 
 ```text
 requirement       -> docs/requirements/

@@ -14,8 +14,9 @@ Phase N = Complete / PASS
 Phase N closure audit = Complete / PASS
 Phase O = Active
 O-01 README update = Complete
+O-02 Current design documentation = Complete
 O-04 main integration = Complete
-Next = O-02 Current design documentation
+Next = O-03 Prototype Archived / Legacy labels
 ```
 
 Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSで、独立ChatGPT reviewにより受理済みです。旧N-07 `47 PASS / 3 FAIL`等のhistorical evidenceは保持し、後続remediation / re-acceptanceと区別します。
@@ -25,27 +26,52 @@ Phase Oのcurrent task stateは [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_
 ## Current authority
 
 - Phase O current status: [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_STATUS.md)
+- Current integrated architecture: [`../design/SGOKB_CURRENT_ARCHITECTURE.md`](../design/SGOKB_CURRENT_ARCHITECTURE.md)
+- Current design index: [`../design/README.md`](../design/README.md)
+- Operational safety / recovery: [`../operations/OPERATIONAL_SAFETY_RECOVERY.md`](../operations/OPERATIONAL_SAFETY_RECOVERY.md)
+- 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
 - 全体task master: [`project/KNOWLEDGE_BASE_REDESIGN_TASKS.md`](project/KNOWLEDGE_BASE_REDESIGN_TASKS.md)
 - 全体handoff: [`project/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`](project/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md)
 - Phase N closure planning authority: [`phases/N/PHASE_N_CLOSURE_AUDIT.md`](phases/N/PHASE_N_CLOSURE_AUDIT.md)
-- Phase N preparation/history: [`phases/N/PHASE_N_PREPARATION.md`](phases/N/PHASE_N_PREPARATION.md)
 - Phase N formal result: [`../evaluation/PHASE_N_CLOSURE_AUDIT.md`](../evaluation/PHASE_N_CLOSURE_AUDIT.md)
-- 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
 
-Phase Oでは、Phase N以前の完了済みhandoffをcurrent workとして再利用しません。必要な場合はhistorical evidenceとして参照します。
+Phase O実行中のcurrent task statusは`PHASE_O_STATUS.md`を優先する。project-wide task masterのPhase O checklistがまだhistorical planning stateを示す場合でも、current Phase O statusを上書きしない。
 
 ## Phase O task state
 
 | Task | Status | Purpose |
 |---|---|---|
 | O-01 | **Complete** | READMEを新SGOKBへ全面更新 |
-| O-02 | **Next / Not Started** | 現行設計書を整理・更新 |
-| O-03 | Not Started | Prototype文書へArchived / Legacy表示 |
+| O-02 | **Complete** | current architecture / operations designを整理・更新 |
+| O-03 | **Next / Not Started** | Prototype文書へArchived / Legacy表示 |
 | O-04 | **Complete** | branch historyを`main`へ統合 |
 | O-05 | Not Started | 不要branch cleanup |
 | O-06 | Not Started | Release / Tag policy |
 
 O-04はPhase Oの通常順序より先にユーザー指示で実施済みです。全remote branch historyの最終統合commitは`77d79ccac1017f167736c742ac199858a3a010a7`です。
+
+## O-02 result
+
+O-02では次をcurrent design authority surfaceとして追加・整理した。
+
+- `docs/design/SGOKB_CURRENT_ARCHITECTURE.md`
+  - Architecture / Data Model / Evidence Exchange / Retrieval / CLI / MCP / UPDS Boundary
+  - canonical / derived / transient boundary
+  - current R2 representation family / Harrier / Qdrant baseline
+  - responsibility / failure isolation / authority map
+- `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
+  - Offline / graceful degradation
+  - Security / External Egress
+  - Composite Backup / Verify / Restore
+  - RPO / RTO
+  - Retention / Hard delete
+  - Failure Recovery
+  - Benchmark / Reference Workstation conditions
+- `docs/design/README.md`
+  - current detailed design index
+  - historical / research design warning
+
+既存のObject / Source / Evidence / Version / Retrieval / MCP個別contract自体の意味は変更していない。O-02はそれらを現在形のsystem-wide designへ統合したTaskである。
 
 ## Directory layout
 
@@ -114,8 +140,6 @@ Phase NではN-04〜N-07の検証過程で多数のremediation / benchmark文書
 
 ## Document placement rules
 
-今後Planning文書を追加する際は次に従います。
-
 1. 全Phase共通の進捗 / project-wide handoff → `project/`
 2. Phase単位のstatus / preparation / closure → `phases/<Phase>/`
 3. 特定Taskに複数文書が増える場合 → `phases/<Phase>/<Task>/`
@@ -123,14 +147,14 @@ Phase NではN-04〜N-07の検証過程で多数のremediation / benchmark文書
 5. 結果・調査報告 → `docs/evaluation/`
 6. 設計Decision → `docs/decisions/`
 7. 実装設計 → `docs/design/`
-8. operator手順 → `docs/operations/`
+8. operator手順 / operational safety → `docs/operations/`
 
 ## Next
 
 次Taskは:
 
 ```text
-O-02 [P0] 現行設計書を更新する
+O-03 [P1] Prototype文書へArchived/Legacy表示を追加する
 ```
 
-対象はArchitecture / Data Model / Retrieval / Exchange / MCP / UPDS Boundary、およびOffline / Backup / Restore / Retention / Security / External Egress / Failure Recovery / Benchmark条件です。
+旧Prototype文書をcurrent specificationと誤認しないよう、archive entrypoint / representative documentsへArchived / Legacy stateを明示する。
