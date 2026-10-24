@@ -12,7 +12,7 @@ N-05 = Complete / PASS
 N-06 = Complete / PASS
 N-07 = Complete / PASS
 N07-R01 = Complete / PASS
-Phase N closure audit = Active / formal execution pending
+Phase N closure audit = Complete / PASS candidate — ChatGPT review pending
 Phase N = Active / Not Complete
 ```
 <!-- phase-n-current:end -->
@@ -1105,7 +1105,7 @@ O  Documentation / Release / Cleanup
 
 Phase A〜MはComplete。Phase LではL-01〜L-04のDecisionをL-05で実装し、旧runtime・001/002・互換surfaceをactive treeから削除した。現行canonical workflowとSample Rawは保持している。受入結果・既知制約は`docs/planning/PHASE_L_CLOSURE_AUDIT.md`を正本とする。
 
-Current next task: **Phase N closure audit — Active / formal execution pending**.
+Current next task: **Phase N closure audit — Complete / PASS candidate / ChatGPT review pending**.
 N-01..N-07 are Complete; N07-R01 Complete/PASS is review accepted. Phase O
 O-01..O-06 remain downstream / Not Started. No main integration or branch cleanup
 is performed by closure audit.
@@ -1119,3 +1119,5 @@ N-04 [P0] 3つの代表AI利用ケースを受入試験する
 ```
 
 Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01〜N-03のReference Workstation検証・dataset構築を完了し、N-04P-01〜P-06もCompleteとなり、N-04本体を実施したがgrounding条件でFailedとなり、同Taskを未完了として維持する。N-03の派生表現pending制約はP-06で解消した。未採用のKnowledge coverageと順位品質はN-06へ引き渡す。
+
+Closure formal result: `docs/evaluation/PHASE_N_CLOSURE_AUDIT.md`, run `20261025T014024+0900`, measured source `e5415503a62d12c3e39fd68e1107c4a8c1f3bbf5`. Phase N remains Active / Not Complete until independent review.

@@ -12,7 +12,7 @@ N-05 = Complete / PASS
 N-06 = Complete / PASS
 N-07 = Complete / PASS
 N07-R01 = Complete / PASS
-Phase N closure audit = Active / formal execution pending
+Phase N closure audit = Complete / PASS candidate — ChatGPT review pending
 Phase N = Active / Not Complete
 ```
 <!-- phase-n-current:end -->
@@ -438,7 +438,7 @@ Status: **Complete / PASS after accepted N07-R01** — `docs/evaluation/N07_R01_
 
 ## 12. Current next work
 
-Phase N closure audit is Active / formal execution pending. Phase O O-01..O-06
+Phase N closure audit is Complete / PASS candidate — ChatGPT review pending. Phase O O-01..O-06
 remain downstream / Not Started. Do not restart accepted historical benchmarks.
 
 ### Historical pre-R2 next-work plan (superseded)
@@ -470,3 +470,5 @@ byte-identical. A separately reviewed R2 benchmark-wiring change is required
 before a new acceptance attempt; no closure or optimization is started here.
 
 Execution record: `docs/evaluation/N05D04R2_R2_09_PERFORMANCE_ACCEPTANCE_RESULT.md`.
+
+Closure formal result: `docs/evaluation/PHASE_N_CLOSURE_AUDIT.md`, run `20261025T014024+0900`, measured source `e5415503a62d12c3e39fd68e1107c4a8c1f3bbf5`. Phase N remains Active / Not Complete until independent review.

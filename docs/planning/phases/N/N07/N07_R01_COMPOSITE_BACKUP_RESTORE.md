@@ -7,7 +7,7 @@ Authoritative source: GitHub `main` for accepted project state; this remediation
 <!-- phase-n-current:start -->
 N07-R01 = Complete / PASS — ChatGPT review accepted 2026-10-24
 N-07 = Complete / PASS after accepted remediation
-Phase N closure audit = Active / formal execution pending
+Phase N closure audit = Complete / PASS candidate — ChatGPT review pending
 Phase N = Active / Not Complete
 <!-- phase-n-current:end -->
 
@@ -198,3 +198,5 @@ Result: `docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md`.
 Aggregate: `benchmark/results/n07-r01-composite-backup-restore.json`.
 N07-R01 is **Complete / PASS candidate**, pending ChatGPT review. Accepted N-07
 and Phase N states are unchanged; no main merge or closure audit was performed.
+
+Closure formal result: `docs/evaluation/PHASE_N_CLOSURE_AUDIT.md`, run `20261025T014024+0900`, measured source `e5415503a62d12c3e39fd68e1107c4a8c1f3bbf5`. Phase N remains Active / Not Complete until independent review.

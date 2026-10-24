@@ -1,0 +1,434 @@
+{
+  "schema": "sgokb.phase-n-closure-audit-result.v1",
+  "run_id": "20261025T014024+0900",
+  "branch": "phase-n-closure-audit",
+  "initial_closure_head": "45977e09f17fa40128cb7f030c4d66e4c3710095",
+  "measured_source_commit": "e5415503a62d12c3e39fd68e1107c4a8c1f3bbf5",
+  "base_accepted_n07_r01_result": "9cda43e9303488d2b0905f61fa3dbbed4f03a4fb",
+  "origin_main_baseline": "fc7609db60a310cd153aa256a5fe183e44ab8fcb",
+  "overall": "PASS",
+  "evaluation": {
+    "overall": "PASS",
+    "gates": {
+      "C01": "PASS",
+      "C02": "PASS",
+      "C03": "PASS",
+      "C04": "PASS",
+      "C05": "PASS",
+      "C06": "PASS",
+      "C07": "PASS"
+    }
+  },
+  "gates": {
+    "C01": {
+      "checks": {
+        "N-01": true,
+        "N-02": true,
+        "N-03": true,
+        "N-04R-05": true,
+        "N-04": true,
+        "N-05": true,
+        "N-06": true,
+        "N07-R01 review": true,
+        "N-07 after remediation": true
+      },
+      "missing": [],
+      "errors": [],
+      "status": "PASS"
+    },
+    "C02": {
+      "checks": {
+        "accepted result ancestor": true,
+        "unchanged accepted/historical aggregate:benchmark/results/n06-retrieval-vector-quality.json": true,
+        "unchanged accepted/historical aggregate:benchmark/results/n07-r01-composite-backup-restore.json": true,
+        "unchanged accepted/historical aggregate:benchmark/results/n07-failure-recovery.json": true,
+        "historical FAIL narrative unchanged": true,
+        "N06 PASS": true,
+        "R01 PASS": true,
+        "original FAIL preserved": true,
+        "N03 completed fixture": true,
+        "N05 run/source in authority": true,
+        "N05 measured ancestor": true,
+        "N06 run/source in authority": true,
+        "N06 measured ancestor": true,
+        "R01 run/source in authority": true,
+        "R01 measured ancestor": true,
+        "N04 run/source parse": true,
+        "N04 measured ancestor": true
+      },
+      "missing": [],
+      "errors": [],
+      "status": "PASS"
+    },
+    "C03": {
+      "checks": {
+        "N05 R2 contract": true,
+        "N05 frozen revision": true,
+        "model": true,
+        "revision": true,
+        "N06 family": true,
+        "restored R2 rebuild": true,
+        "derived outside RTO": true,
+        "production semantics unchanged since accepted remediation": true
+      },
+      "missing": [],
+      "errors": [],
+      "status": "PASS"
+    },
+    "C04": {
+      "checks": {
+        "docs/planning/phases/N/PHASE_N_PREPARATION.md:N-01": true,
+        "docs/planning/phases/N/PHASE_N_PREPARATION.md:N-02": true,
+        "docs/planning/phases/N/PHASE_N_PREPARATION.md:N-03": true,
+        "docs/planning/phases/N/PHASE_N_PREPARATION.md:N-04": true,
+        "docs/planning/phases/N/PHASE_N_PREPARATION.md:N-05": true,
+        "docs/planning/phases/N/PHASE_N_PREPARATION.md:N-06": true,
+        "docs/planning/phases/N/PHASE_N_PREPARATION.md:N-07": true,
+        "docs/planning/phases/N/PHASE_N_PREPARATION.md:N07-R01": true,
+        "docs/planning/phases/N/PHASE_N_PREPARATION.md:Phase N": true,
+        "docs/planning/phases/N/PHASE_N_PREPARATION.md:no unresolved required task": true,
+        "docs/planning/phases/N/N07/N07_FAILURE_RECOVERY_ACCEPTANCE.md:N-07": true,
+        "docs/planning/phases/N/N07/N07_FAILURE_RECOVERY_ACCEPTANCE.md:N07-R01": true,
+        "docs/planning/phases/N/N07/N07_FAILURE_RECOVERY_ACCEPTANCE.md:no unresolved required task": true,
+        "docs/planning/phases/N/N07/N07_R01_COMPOSITE_BACKUP_RESTORE.md:N-07": true,
+        "docs/planning/phases/N/N07/N07_R01_COMPOSITE_BACKUP_RESTORE.md:N07-R01": true,
+        "docs/planning/phases/N/N07/N07_R01_COMPOSITE_BACKUP_RESTORE.md:no unresolved required task": true,
+        "docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md:N-07": true,
+        "docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md:N07-R01": true,
+        "docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md:no unresolved required task": true,
+        "docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md:N-01": true,
+        "docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md:N-02": true,
+        "docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md:N-03": true,
+        "docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md:N-04": true,
+        "docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md:N-05": true,
+        "docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md:N-06": true,
+        "docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md:N-07": true,
+        "docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md:N07-R01": true,
+        "docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md:Phase N": true,
+        "docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md:no unresolved required task": true,
+        "current task table N-01": true,
+        "project checklist N-01": true,
+        "current task table N-02": true,
+        "project checklist N-02": true,
+        "current task table N-03": true,
+        "project checklist N-03": true,
+        "current task table N-04": true,
+        "project checklist N-04": true,
+        "current task table N-05": true,
+        "project checklist N-05": true,
+        "current task table N-06": true,
+        "project checklist N-06": true,
+        "current task table N-07": true,
+        "project checklist N-07": true
+      },
+      "missing": [],
+      "errors": [],
+      "status": "PASS"
+    },
+    "C07": {
+      "checks": {
+        "O-01 downstream unchecked": true,
+        "O-02 downstream unchecked": true,
+        "O-03 downstream unchecked": true,
+        "O-04 downstream unchecked": true,
+        "O-05 downstream unchecked": true,
+        "O-06 downstream unchecked": true,
+        "Phase O task definitions unchanged": true
+      },
+      "missing": [],
+      "errors": [],
+      "status": "PASS"
+    },
+    "C05": {
+      "checks": {
+        "pytest": true,
+        "ruff": true,
+        "compile": true,
+        "diff": true,
+        "tests executed": true,
+        "zero failed": true,
+        "format": true
+      },
+      "missing": [],
+      "status": "PASS"
+    },
+    "C06": {
+      "checks": {
+        "r1_unchanged": true,
+        "originals_unchanged": true,
+        "reference_qdrant_unchanged": true,
+        "head_unchanged": true,
+        "tracked_state_unchanged": true,
+        "main_unchanged": true,
+        "no_run_owned_child_processes": true,
+        "required_assets_available": true
+      },
+      "missing": [],
+      "status": "PASS"
+    }
+  },
+  "authority_inventory": {
+    "docs/planning/phases/N/N01_UNIT_TEST_COVERAGE.md": {
+      "bytes": 8699,
+      "sha256": "31bbd6dcf8ec8fafd58135fa8c0083438240e127c2e891fa83c1e3f29eac66a8"
+    },
+    "docs/planning/phases/N/N02_INTEGRATION_TESTS.md": {
+      "bytes": 9939,
+      "sha256": "34e8d28223491a375b22c69fd39c8d638cb6d94dc2c0fdc4a3ac98372013e0d8"
+    },
+    "docs/evaluation/N03_REAL_DATA_VERTICAL_SLICE.md": {
+      "bytes": 27064,
+      "sha256": "b650e909debdcb2067bd2520889b28ee777be39959bc3f92eb02281eb293bb68"
+    },
+    "benchmark/n03-real-data-vertical-slice-v1.json": {
+      "bytes": 77296,
+      "sha256": "0a7f61cbe32db162a1e502558e81f202ad4bf1c896b171754d208d919f8e111e"
+    },
+    "docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md": {
+      "bytes": 8542,
+      "sha256": "f995f4d9696d5e4e7b49fc83b63af3631e00803f4c52fc5904318b252519eb9d"
+    },
+    "docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md": {
+      "bytes": 12848,
+      "sha256": "6163c8bd68200c5582892525a89208724131026d930c39cad9317ea573d8fde5"
+    },
+    "docs/evaluation/N05D04R2_R2_10_CLOSURE_AUDIT.md": {
+      "bytes": 8485,
+      "sha256": "7e152de7194d12afa56e56331355ea1e11823599f846b30d94b5dbd651d204e0"
+    },
+    "docs/evaluation/N06_RETRIEVAL_VECTOR_QUALITY.md": {
+      "bytes": 10570,
+      "sha256": "0664e4e7a2be54d4a2c9593feaa84113b9ee8ff6400265e7ae5d1029e646b913"
+    },
+    "benchmark/results/n06-retrieval-vector-quality.json": {
+      "bytes": 16335,
+      "sha256": "b10204a76bd82f53dbb8ef3d55001f809d09f83b63301eaf26ad430517e10dd6"
+    },
+    "docs/evaluation/N07_FAILURE_RECOVERY.md": {
+      "bytes": 11194,
+      "sha256": "42dea9efa95a065de68473a369773d816d83f812d28e93ff8ff21c07668dce54"
+    },
+    "benchmark/results/n07-failure-recovery.json": {
+      "bytes": 17179,
+      "sha256": "cd6e865f460e2c415d4d1d8292455992379b6b10b7a4471a36a9b834746dc971"
+    },
+    "docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md": {
+      "bytes": 11233,
+      "sha256": "15bce344d542a2b29dd41ae91eb798b0a4095275173b565d50752fa7ebefc897"
+    },
+    "benchmark/results/n07-r01-composite-backup-restore.json": {
+      "bytes": 7972,
+      "sha256": "84cae230fbe440b8e85d87164cea686b524fffc99c3a1e4257923a18d7575f06"
+    },
+    "docs/planning/phases/N/PHASE_N_PREPARATION.md": {
+      "bytes": 16025,
+      "sha256": "6a41bc96f65e532400c212fc6e1b2a9bbeac725fd529bd7fa65512edcad74f2e"
+    },
+    "docs/planning/phases/N/N07/N07_FAILURE_RECOVERY_ACCEPTANCE.md": {
+      "bytes": 17624,
+      "sha256": "e03345d200dc3d0021fc63389cabbd3001a6f49298f85511c94ccc409578273d"
+    },
+    "docs/planning/phases/N/N07/N07_R01_COMPOSITE_BACKUP_RESTORE.md": {
+      "bytes": 10397,
+      "sha256": "0032c9d0a013c429b27cd6863f19272c1b5ee42812f5d790d637677945f63a4f"
+    },
+    "docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md": {
+      "bytes": 98742,
+      "sha256": "12586ff20de2c1325fadd77e0e6f5d35eba5a2487f53a96a36bed535a8ab4841"
+    },
+    "benchmark/results/n05d04r2-r2-09-performance-acceptance.json": {
+      "bytes": 5183,
+      "sha256": "c6ef52d1218c743086e1d4f86772b63530d508256908e9b6ef4cd1e99ae764a9"
+    },
+    "docs/evaluation/N05D04R2_R2_09_PERFORMANCE_ACCEPTANCE_RESULT.md": {
+      "bytes": 15485,
+      "sha256": "ff64b59c800cae1a37f3ec034c424a027f16e841baf02329836785354f0ab676"
+    }
+  },
+  "cross_task_compatibility": "Accepted R2 contract/family/model/revision compatible; Composite recovery semantics unchanged; restored R2 rebuild accepted separately from canonical RTO; active object_overall leakage zero.",
+  "documentation_reconciliation": "Five designated current-state documents reconciled; original N-07 47 PASS / 3 FAIL aggregate and narrative retained unchanged.",
+  "regression": {
+    "pytest": {
+      "return_code": 0,
+      "seconds": 206.34011250000913,
+      "log": "full-pytest.log",
+      "passed": 783,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 2
+    },
+    "ruff": {
+      "return_code": 0,
+      "seconds": 0.08453700004611164,
+      "log": "ruff.log"
+    },
+    "compile": {
+      "return_code": 0,
+      "seconds": 0.29279740003403276,
+      "log": "compile.log"
+    },
+    "format": {
+      "return_code": 1,
+      "seconds": 0.283633999992162,
+      "log": "format-all.log",
+      "baseline_exception": {
+        "offenders": [
+          "benchmark\\tools\\n04g21r_minicheck_offline_proof.py",
+          "benchmark\\tools\\n04g21v_compare_results.py",
+          "benchmark\\tools\\n04g21v_verifier_benchmark.py",
+          "benchmark\\tools\\n04g23ar_compare_candidates.py",
+          "benchmark\\tools\\n04g23ar_preflight.py",
+          "benchmark\\tools\\n04r03_harness_preflight.py",
+          "benchmark\\tools\\n04r04_evaluate_evidence.py",
+          "src\\sgokb\\application_grounding_v4.py",
+          "src\\sgokb\\exchange\\instructions.py",
+          "src\\sgokb\\grounding\\v4_adapters.py",
+          "src\\sgokb\\grounding\\v4_contracts.py",
+          "src\\sgokb\\grounding\\v4_pipeline.py",
+          "src\\sgokb\\grounding\\v4_reference.py",
+          "src\\sgokb\\grounding\\v4_validation.py",
+          "src\\sgokb\\retrieval\\search_representation.py",
+          "tests\\test_n04g21_harness_freeze_candidate.py",
+          "tests\\test_n04g23ar_candidate_eval_contract.py",
+          "tests\\test_n04g24_v4_implementation.py",
+          "tests\\test_n04g24_v4_provider_runtime.py",
+          "tests\\test_n04r03_knowledge_access_harness.py",
+          "tests\\test_n04r04_evidence_evaluator.py",
+          "tests\\test_search_representation.py"
+        ],
+        "all_unchanged_since_accepted_result": true,
+        "scoped_return_code": 0,
+        "policy": "handoff Step E accepted baseline exception",
+        "offender_count_matches_summary": true,
+        "unchanged_proof": {
+          "benchmark\\tools\\n04g21r_minicheck_offline_proof.py": true,
+          "benchmark\\tools\\n04g21v_compare_results.py": true,
+          "benchmark\\tools\\n04g21v_verifier_benchmark.py": true,
+          "benchmark\\tools\\n04g23ar_compare_candidates.py": true,
+          "benchmark\\tools\\n04g23ar_preflight.py": true,
+          "benchmark\\tools\\n04r03_harness_preflight.py": true,
+          "benchmark\\tools\\n04r04_evaluate_evidence.py": true,
+          "src\\sgokb\\application_grounding_v4.py": true,
+          "src\\sgokb\\exchange\\instructions.py": true,
+          "src\\sgokb\\grounding\\v4_adapters.py": true,
+          "src\\sgokb\\grounding\\v4_contracts.py": true,
+          "src\\sgokb\\grounding\\v4_pipeline.py": true,
+          "src\\sgokb\\grounding\\v4_reference.py": true,
+          "src\\sgokb\\grounding\\v4_validation.py": true,
+          "src\\sgokb\\retrieval\\search_representation.py": true,
+          "tests\\test_n04g21_harness_freeze_candidate.py": true,
+          "tests\\test_n04g23ar_candidate_eval_contract.py": true,
+          "tests\\test_n04g24_v4_implementation.py": true,
+          "tests\\test_n04g24_v4_provider_runtime.py": true,
+          "tests\\test_n04r03_knowledge_access_harness.py": true,
+          "tests\\test_n04r04_evidence_evaluator.py": true,
+          "tests\\test_search_representation.py": true
+        },
+        "base_accepted_result": "9cda43e9303488d2b0905f61fa3dbbed4f03a4fb"
+      }
+    },
+    "diff": {
+      "return_code": 0,
+      "seconds": 0.038361200015060604,
+      "log": "diff.log"
+    }
+  },
+  "runtime": {
+    "python": "3.10.6",
+    "platform": "Windows Reference Workstation",
+    "packages": {
+      "pytest": "9.1.1",
+      "ruff": "0.17.0",
+      "qdrant-client": "1.19.1",
+      "torch": "2.6.0+cu124",
+      "transformers": "5.20.1"
+    },
+    "free_disk_gib": 92.20182800292969
+  },
+  "safety": {
+    "checks": {
+      "r1_unchanged": true,
+      "originals_unchanged": true,
+      "reference_qdrant_unchanged": true,
+      "head_unchanged": true,
+      "tracked_state_unchanged": true,
+      "main_unchanged": true,
+      "no_run_owned_child_processes": true,
+      "required_assets_available": true
+    },
+    "r1_before": {
+      "benchmark/tools/n05_resource_preflight.py": "996c057354ff032235940775995c46054e0cfd92cb2aa44dd511271acde91cff",
+      "benchmark/tools/n05d04r1_sdpa_vram_diagnosis.py": "e11efff44264c5a152aaa284e2534c4cb85f058b7b03aab5290eec60eb2bcb40",
+      "tests/test_n05d04r1_sdpa_vram_diagnosis.py": "9ecfe8e767944c541a1481f0d16454caacfa0d4e576de9afe5e7ccef9cb16ee0"
+    },
+    "r1_after": {
+      "benchmark/tools/n05_resource_preflight.py": "996c057354ff032235940775995c46054e0cfd92cb2aa44dd511271acde91cff",
+      "benchmark/tools/n05d04r1_sdpa_vram_diagnosis.py": "e11efff44264c5a152aaa284e2534c4cb85f058b7b03aab5290eec60eb2bcb40",
+      "tests/test_n05d04r1_sdpa_vram_diagnosis.py": "9ecfe8e767944c541a1481f0d16454caacfa0d4e576de9afe5e7ccef9cb16ee0"
+    },
+    "n03_database_before": {
+      "exists": true,
+      "sha256": "6bb2fea226205369cf97e8c7fb9d79949610efc0166f2165ec6547df7804bb98",
+      "tables_digest": "30302f4389e15ee5fae25f5efe9e4589d8dd39847da92497601afec6ea30eed8"
+    },
+    "n03_database_after": {
+      "exists": true,
+      "sha256": "6bb2fea226205369cf97e8c7fb9d79949610efc0166f2165ec6547df7804bb98",
+      "tables_digest": "30302f4389e15ee5fae25f5efe9e4589d8dd39847da92497601afec6ea30eed8"
+    },
+    "production_database_present": false,
+    "raw_artifact_count": 8,
+    "raw_unchanged": true,
+    "reference_vector_fingerprints": {
+      "sgokb_n03_eval_23027d8fcb47c6ffb9e95681": {
+        "exists": true,
+        "points": 24,
+        "sha256": "e98d14e2b886d71bc251c1242591b848b7d0946ed9f98d1445ad95371183212a"
+      },
+      "sgokb_n03_eval_generation_3688b3402f3b519d3b6fabed": {
+        "exists": true,
+        "points": 24,
+        "sha256": "ab832bed9b063d0d4d54027bac9d93880e9add92d803a7b8b7e144f737ed7bec"
+      }
+    },
+    "reference_collection_inventory_unchanged": true,
+    "reference_collection_count": 79,
+    "run_owned_process_residue": 0,
+    "main_before": "fc7609db60a310cd153aa256a5fe183e44ab8fcb",
+    "main_after": "fc7609db60a310cd153aa256a5fe183e44ab8fcb"
+  },
+  "collection_correction": {
+    "reason": "Ruff 0.17 diagnostic format uses --> file:line:column, not Would reformat: file. Corrected evidence collection only; measured source and Gates unchanged.",
+    "original_evaluation": "closure-evaluation.json",
+    "original_verdict": "FAIL",
+    "raw_format_log_sha256": "279b656797db465bcc3685bf6ea2035f9a513892b2965fe89df952ccf1bd0138"
+  },
+  "deferred_phase_o": [
+    "O-01",
+    "O-02",
+    "O-03",
+    "O-04",
+    "O-05",
+    "O-06"
+  ],
+  "limitations": [
+    "N-03 is a small ecological real-data dataset",
+    "recorded lexical wording-coverage misses do not authorize canonical supplementation",
+    "N-06 rerankers remain optional",
+    "N07-R01 RPO capability proof is daily-equivalent and does not claim scheduler execution",
+    "N07-R01 RTO is a small complete fixture measurement, not production-scale extrapolation",
+    "retention scheduler/rotation remains downstream operational/documentation work",
+    "Full format command returned 1 for 22 existing accepted files; every offender is unchanged from accepted N07-R01 result. Handoff Step E and prior accepted changed-file format policy used; both new Python files pass. No unrelated formatting changes.",
+    "Initial collection incorrectly parsed Ruff 0.17 output and emitted FAIL. Original evaluation and logs retained locally. Supplementary evidence derives all 22 paths from actual diagnostics and verifies their accepted baseline identity, then reruns the unchanged deterministic evaluator; no formal Gate or measured source changed.",
+    "No expensive accepted performance/100k ANN/recovery benchmark was rerun.",
+    "Formal PASS remains a review candidate; Phase N final acceptance and Phase O work require subsequent independent review."
+  ],
+  "states": {
+    "N-01..N-07": "Complete",
+    "N07-R01": "Complete / PASS",
+    "Phase N closure audit": "Complete / PASS candidate - ChatGPT review pending",
+    "Phase N": "Active / Not Complete",
+    "Phase O": "Not Started"
+  },
+  "raw_evidence_root": ".local/phase-n-closure/20261025T014024+0900/"
+}
