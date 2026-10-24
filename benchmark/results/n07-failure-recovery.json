@@ -1,0 +1,636 @@
+{
+  "schema_version": "sgokb.n07-failure-recovery-result/1.0",
+  "run_id": "20261024T201856+0900",
+  "baseline_head": "19bd646d1d14aff946896e6eefb3eaf155625383",
+  "execution_head": "e78cf81a1c7d1daddfed729146579b4aacff8434",
+  "overall": "FAIL",
+  "evaluation": {
+    "overall": "FAIL",
+    "failures": [
+      "gate:raw_provenance_restore_verification",
+      "raw_provenance_present_and_verified",
+      "rpo_24h_capability",
+      "rto_4h_measured"
+    ],
+    "blocked": [
+      "gate:rpo_hours_max",
+      "gate:rto_hours_max"
+    ],
+    "contract_schema": "sgokb.n07-failure-recovery-contract/1.0"
+  },
+  "local_evidence_root": ".local/n07/20261024T201856+0900/",
+  "preflight": {
+    "status": "PASS",
+    "baseline_head": "19bd646d1d14aff946896e6eefb3eaf155625383",
+    "prior_attempt_head": "d17a48032da3b0b2cb515257110fdecaee5f61c3",
+    "tested_tree": "b733094ae5012f8c29e9d920095840098d8d0c29",
+    "return_codes": {
+      "focused": 0,
+      "full": 0,
+      "ruff": 0,
+      "format": 0,
+      "compile": 0,
+      "diff": 0,
+      "staged_diff": 0
+    }
+  },
+  "runtime": {
+    "python": "3.10.6",
+    "os": "Windows 11",
+    "packages": {
+      "pytest": "9.1.1",
+      "ruff": "0.17.0",
+      "torch": "2.6.0+cu124",
+      "transformers": "5.20.1",
+      "sentence-transformers": "6.1.0",
+      "qdrant-client": "1.19.1",
+      "mcp": "2.3.0"
+    },
+    "free_bytes": 103794864128
+  },
+  "case_counts": {
+    "PASS": 47,
+    "FAIL": 3
+  },
+  "cases": {
+    "invalid_result_schema": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.633773099980317
+    },
+    "package_id_mismatch": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.767839099979028
+    },
+    "manifest_sha_mismatch": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.7334149000234902
+    },
+    "stale_base_version": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.5513962000841275
+    },
+    "immutable_result_byte_count_mismatch": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.738366900011897
+    },
+    "immutable_result_sha_mismatch": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.6823232000460848
+    },
+    "truncated_result": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.580003699986264
+    },
+    "package_missing_file": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.278552999952808
+    },
+    "package_size_mismatch": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.21676519990433
+    },
+    "package_sha_mismatch": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.1665095000062138
+    },
+    "unsafe_or_unexpected_package_layout": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.1834036000072956
+    },
+    "failure_after_candidate_created": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.6221795999445021
+    },
+    "failure_after_knowledge_written": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.5658981999149546
+    },
+    "failure_after_accepted_before_commit": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.6290664999978617
+    },
+    "controlled_process_termination_supporting_case": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.8561583999544382
+    },
+    "package_stage_enospc_or_write_failure": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.1422231999458745
+    },
+    "restore_temp_copy_enospc_or_write_failure": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.9045286000473425
+    },
+    "additional_supported_file_output_failure": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.296910300035961
+    },
+    "embedding_provider_failure": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.6940547999693081
+    },
+    "qdrant_read_outage": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 2.8026565000182018
+    },
+    "vector_update_failure": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.68303180008661
+    },
+    "stale_or_missing_derived_state": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.6798888999037445
+    },
+    "normal_sync_or_rebuild_recovery": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.1137441999744624
+    },
+    "candidate_build_failure": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.6870862999930978
+    },
+    "invalid_candidate_cutover_rejected": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.7174080000258982
+    },
+    "failed_cutover_pointer_stable": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.889895600033924
+    },
+    "interrupted_build_recovery": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.7178927999921143
+    },
+    "valid_isolated_rebuild": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.6432388999965042
+    },
+    "compatible_rollback_if_supported": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.7582085999893025
+    },
+    "immutable_result_tamper_detected": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.592143899993971
+    },
+    "package_tamper_detected": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.2638987000100315
+    },
+    "canonical_provenance_fk_corruption_detected": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.5967760999919847
+    },
+    "required_raw_artifact_corruption_or_loss_detected": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.7673082000110298
+    },
+    "internet_or_external_service_unavailable_local_read_works": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.0470118999946862
+    },
+    "cached_local_provider_offline_no_cloud_fallback": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.5580438999459147
+    },
+    "embedding_provider_unavailable_explicit": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.7232170000206679
+    },
+    "mcp_unavailable_direct_read_works": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 4.3700543999439105
+    },
+    "mcp_restart_recovers_without_canonical_mutation": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 4.416416599997319
+    },
+    "sqlite_online_backup_integrity": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.6628269999055192
+    },
+    "separate_backup_destination": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.7046451999340206
+    },
+    "overwrite_ack_required": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.9212961999000981
+    },
+    "corrupt_backup_refused": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.854895900003612
+    },
+    "temporary_restore_replacement": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 0.8963460999075323
+    },
+    "restored_canonical_digest_equal": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.6206513000652194
+    },
+    "restored_integrity_and_fk_clean": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.7165838000364602
+    },
+    "raw_provenance_present_and_verified": {
+      "status": "FAIL",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.7542846000287682
+    },
+    "minimum_read_and_lexical_recovery": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.6503662000177428
+    },
+    "r2_derived_rebuild_after_restore": {
+      "status": "PASS",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 11.465315700042993
+    },
+    "rpo_24h_capability": {
+      "status": "FAIL",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.6484864000231028
+    },
+    "rto_4h_measured": {
+      "status": "FAIL",
+      "return_code": 0,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "setup_errors": 0,
+      "seconds": 1.6904401000356302
+    }
+  },
+  "gates": {
+    "mandatory_invalid_inputs_rejected_fraction": 1.0,
+    "partial_accepted_versions_after_transaction_fault": 0,
+    "successful_import_rows_after_transaction_rollback": 0,
+    "finalized_partial_file_artifacts": 0,
+    "silent_provider_cloud_cpu_backend_fallbacks": 0,
+    "failed_generation_transition_active_pointer_changes": 0,
+    "canonical_corruption_from_derived_failure": 0,
+    "mandatory_corruption_detection_fraction": 1.0,
+    "restored_canonical_digest_equal": true,
+    "restored_integrity_ok": true,
+    "restored_foreign_key_violations": 0,
+    "minimum_restored_local_read": true,
+    "minimum_restored_lexical_retrieval": true,
+    "post_restore_r2_rebuild_audit": true,
+    "original_reference_asset_mutations": 0,
+    "raw_provenance_restore_verification": false,
+    "rpo_hours_max": null,
+    "rto_hours_max": null
+  },
+  "canonical_recovery_inventory": {
+    "canonical_sqlite": {
+      "required": true,
+      "covered": true
+    },
+    "raw_artifact_store": {
+      "required": true,
+      "covered": false,
+      "member_rows": 9,
+      "capture_bundles": 1
+    },
+    "external_canonical_or_provenance_manifests_if_any": {
+      "required": true,
+      "covered": false,
+      "accepted_original_results": 1
+    },
+    "recovery_configuration_metadata_without_plaintext_secrets": {
+      "required": true,
+      "covered": false,
+      "items": [
+        "Raw store resolution",
+        "Result incoming root"
+      ]
+    },
+    "rebuildable_derived": [
+      "Search representations",
+      "Embedding cache",
+      "Vector index",
+      "Rendered artifacts"
+    ]
+  },
+  "backup_restore": {
+    "backup_files": [
+      "canonical.sqlite",
+      "canonical.sqlite-shm",
+      "canonical.sqlite-wal"
+    ],
+    "backup_seconds": 0.01516860001720488,
+    "restore_seconds": 0.011564899934455752,
+    "db_read_lexical_seconds": 0.029456699965521693,
+    "restored_digest_equal": true,
+    "sqlite_integrity_ok": true,
+    "raw_restored": false,
+    "original_result_coverage": false,
+    "configuration_coverage": false,
+    "complete_canonical_rpo_hours": null,
+    "complete_canonical_rto_seconds": null,
+    "coverage_verdict": "FAIL"
+  },
+  "rpo_rto_interpretation": "Complete canonical recovery cannot finish from SQLite-only backup. No numeric full-canonical RPO/RTO was established; capability FAIL, not measured time exceedance.",
+  "post_restore_rebuild": {
+    "seconds": 0.12384919996839017,
+    "generation_id": "search-generation:r2:24e1f469-4fba-49d9-95ba-e9c910d6ba67",
+    "memberships": 2,
+    "points": 2,
+    "runtime": "frozen Harrier CUDA",
+    "note": "Small restore fixture; not reference-scale rebuild timing"
+  },
+  "rebuild_timing_scope": "Small two-Object fixture. Legacy Vector rebuild and R2 build/cutover/audit; excludes provider initialization and legacy Embedding preparation; not reference-scale full rebuild timing.",
+  "offline_provider": {
+    "status": "PASS",
+    "socket_attempts": 0,
+    "model": "microsoft/harrier-oss-v1-0.6b",
+    "revision": "f9b9dc8d367d443f2479d27aa5d8d2850c0774ee",
+    "device": "cuda",
+    "dimension": 1024,
+    "local_files_only": true,
+    "no_cpu_or_cloud_fallback": true
+  },
+  "safety": {
+    "status": "PASS",
+    "checks": {
+      "no_run_owned_processes": true,
+      "original_assets": true,
+      "reference_vectors": true,
+      "reference_inventory": true,
+      "head": true,
+      "tracked": true
+    }
+  },
+  "regression": {
+    "preflight_full_passed": 727,
+    "preflight_focused_passed": 38,
+    "post_full_passed": 727,
+    "post_focused_passed": 38,
+    "failed": 0,
+    "warnings": 2,
+    "return_codes": {
+      "focused": 0,
+      "full": 0,
+      "ruff": 0,
+      "diff": 0
+    },
+    "compile_format": "PASS before formal execution"
+  },
+  "historical_attempts": [
+    {
+      "run_id": "20261024T171708+0900",
+      "execution_head": "d17a48032da3b0b2cb515257110fdecaee5f61c3",
+      "disposition": "Invalid for product acceptance: fixture setup errors and launcher-ancestor false positive. Original evaluation and raw evidence preserved."
+    }
+  ],
+  "remediation_task": "N07-R01 — Composite canonical / Raw / Provenance backup and restore",
+  "state": {
+    "N-07": "Complete / FAIL",
+    "Phase N": "Active / Not Complete",
+    "Phase N closure audit": "Not Started / blocked by remediation",
+    "N07-R01": "Required / Not Started"
+  }
+}

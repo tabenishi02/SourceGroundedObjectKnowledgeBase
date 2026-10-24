@@ -1,5 +1,30 @@
 # Source Grounded Object Knowledge Base — Phase N Preparation
 
+## N-07 formal failure/recovery update (2026-10-24)
+
+This is the current authoritative state; earlier updates below are historical.
+
+```text
+N-01 ... N-06 = Complete
+N-07 = Complete / FAIL
+N07-R01 = Required / Not Started
+Phase N closure audit = Not Started / blocked by remediation
+Phase N = Active / Not Complete
+```
+
+Run `20261024T201856+0900`, source `e78cf81a1c7d1daddfed729146579b4aacff8434`,
+completed A-J: 47 PASS / 3 FAIL. Required external Raw, original Result and recovery
+metadata are absent from SQLite-only recovery. Complete canonical RPO/RTO are not
+established; no DB-only timing is substituted. Safety PASS; focused 38 / full 727
+passed; Ruff/format/compile/diff PASS. Invalid historical attempt is retained.
+Next: **N07-R01 — Composite canonical / Raw / Provenance backup and restore**.
+Neither remediation nor Phase N closure audit has started.
+Result: `docs/evaluation/N07_FAILURE_RECOVERY.md`.
+Aggregate: `benchmark/results/n07-failure-recovery.json`.
+
+---
+
+
 ## N-06 formal acceptance update (2026-10-24)
 
 This is the current authoritative state; older next-task notes below are historical.

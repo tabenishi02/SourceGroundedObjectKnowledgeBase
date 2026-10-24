@@ -4,7 +4,7 @@ Updated: 2026-10-24
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-07 [P1] — Failure / Recovery`
-- Status: **Active / formal Reference Workstation execution pending**
+- Status: **Complete / FAIL — required composite recovery coverage missing**
 - Parent state: N-06 `Complete / PASS`; Phase N `Active / Not Complete`
 - Primary requirements: `docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md`
 - Previous acceptance: `docs/evaluation/N06_RETRIEVAL_VECTOR_QUALITY.md`
@@ -383,6 +383,34 @@ N-07 = BLOCKED / Not Complete
 Phase N = Active / Not Complete
 ```
 
-## 8. Current next action
+## 8. Formal result and next task
 
-Implement the formal N-07 harness/evaluator and focused tests, pass preflight, freeze a clean measurement HEAD, then execute stages A-J on the Reference Workstation using isolated copies and run-owned services only.
+Run `20261024T201856+0900`, measured clean HEAD
+`e78cf81a1c7d1daddfed729146579b4aacff8434`, completed A-J.
+Deterministic result: **FAIL**; cases 47 PASS / 3 FAIL / 0 BLOCKED.
+I08/I11/I12 fail because supported SQLite-only recovery omits required external
+Raw, accepted original Result and recovery metadata. Complete canonical RPO/RTO
+are not established; DB-only restore time is not a substitute. All other cases,
+original/reference/R1 safety and pre/post full 727 / focused 38 tests PASS;
+Ruff/format/compile/diff PASS. Invalid historical attempt is retained separately.
+
+Result: `docs/evaluation/N07_FAILURE_RECOVERY.md`.
+Aggregate: `benchmark/results/n07-failure-recovery.json`.
+
+### N07-R01 — Composite canonical / Raw / Provenance backup and restore
+
+**Required / Not Started**. Provide supported consistent generations containing
+SQLite, referenced Raw/capture bundles, original Results/external provenance and
+secret-free recovery metadata; checksum/consistency inventory and verified atomic
+restore with correct path resolution. Re-accept frozen RPO <=24 h and canonical+
+Raw/Provenance RTO <=4 h, with derived rebuild measured separately. Retention stays
+daily >=7 / weekly >=4; scheduler stays Phase O. No benchmark-only copier.
+
+```text
+N-07 = Complete / FAIL
+N07-R01 = Required / Not Started
+Phase N closure audit = Not Started / blocked by remediation
+Phase N = Active / Not Complete
+```
+
+No remediation or Phase N closure audit was started.
