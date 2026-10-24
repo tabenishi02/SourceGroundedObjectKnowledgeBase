@@ -1,5 +1,28 @@
 # N-05 — Performance Benchmark
 
+## R2-10 closure update (2026-10-24)
+
+This is the current authoritative state for this document and supersedes older current-state / next-task notes retained below.
+
+```text
+R2-10     = Complete
+N05D-04R2 = Complete
+N05D-04   = Complete
+N-05      = Complete / PASS
+Phase N   = Active / Not Complete
+Next      = N-06 Retrieval / Vector quality
+```
+
+Formal run `20261024T044506+0900` completed the frozen benchmark exactly: Standard cold/warm `3/20`, Large cold/warm `3/20`, 46 PASS, zero FAIL/ABORTED/retry. Standard warm nearest-rank p95 was `12.2832216 s <= 600 s`; Large was `53.7066947 s <= 1200 s`. All samples used the R2 generation family with active `object_overall` leakage 0. Post-run canonical/tracked/HEAD invariance and regression/static gates passed.
+
+The benchmark contract remains frozen evidence for this acceptance. Another N-05 rerun is not part of R2-10.
+
+Closure authority: `docs/evaluation/N05D04R2_R2_10_CLOSURE_AUDIT.md`.
+
+---
+
+## Historical planning/evidence record retained below
+
 ## Current acceptance update (2026-10-24)
 
 This update supersedes historical BLOCKED/next-task notes below.
