@@ -98,11 +98,13 @@ def make_source_evidence(
     return evidence_id
 
 
-def populate_repository(repo: Repository, gold: dict) -> dict:
+def populate_repository(
+    repo: Repository, gold: dict, *, builder_factory=SearchRepresentationBuilder
+) -> dict:
     statement_refs: dict[str, str] = {}
     current_versions: dict[str, str] = {}
     evidence_by_object: dict[str, list[str]] = {}
-    builder = SearchRepresentationBuilder(repo)
+    builder = builder_factory(repo)
 
     for item in gold["objects"]:
         oid = item["id"]
