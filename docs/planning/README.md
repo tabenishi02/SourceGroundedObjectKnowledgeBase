@@ -15,8 +15,9 @@ Phase N closure audit = Complete / PASS
 Phase O = Active
 O-01 README update = Complete
 O-02 Current design documentation = Complete
+O-03 Prototype Archived / Legacy labels = Complete
 O-04 main integration = Complete
-Next = O-03 Prototype Archived / Legacy labels
+Next = O-05 Branch cleanup
 ```
 
 Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSで、独立ChatGPT reviewにより受理済みです。旧N-07 `47 PASS / 3 FAIL`等のhistorical evidenceは保持し、後続remediation / re-acceptanceと区別します。
@@ -43,9 +44,9 @@ Phase O実行中のcurrent task statusは`PHASE_O_STATUS.md`を優先する。pr
 |---|---|---|
 | O-01 | **Complete** | READMEを新SGOKBへ全面更新 |
 | O-02 | **Complete** | current architecture / operations designを整理・更新 |
-| O-03 | **Next / Not Started** | Prototype文書へArchived / Legacy表示 |
+| O-03 | **Complete** | Prototype文書へArchived / Legacy表示 |
 | O-04 | **Complete** | branch historyを`main`へ統合 |
-| O-05 | Not Started | 不要branch cleanup |
+| O-05 | **Next / Not Started** | 不要branch cleanup |
 | O-06 | Not Started | Release / Tag policy |
 
 O-04はPhase Oの通常順序より先にユーザー指示で実施済みです。全remote branch historyの最終統合commitは`77d79ccac1017f167736c742ac199858a3a010a7`です。
@@ -72,6 +73,21 @@ O-02では次をcurrent design authority surfaceとして追加・整理した�
   - historical / research design warning
 
 既存のObject / Source / Evidence / Version / Retrieval / MCP個別contract自体の意味は変更していない。O-02はそれらを現在形のsystem-wide designへ統合したTaskである。
+
+## O-03 result
+
+`docs/archive/prototype-0.2/`の18 Markdown文書を棚卸しした。12文書は既にArchive / Historical表示を持っていたため保持し、direct viewで表示がなかった次の6文書へ統一 `ARCHIVED / LEGACY — Prototype 0.2` warningを追加した。
+
+```text
+AI_CAPABILITY_BENCHMARK.md
+DEVELOPMENT_STATUS.md
+KNOWLEDGE_PIPELINE_EFFICIENCY_REDESIGN.md
+MODEL_COMPARISON_PLAN.md
+PROTOTYPE.md
+PROTOTYPE_UPGRADE.md
+```
+
+O-02完了commitとの差分では6文書すべてが7行追加・0行削除で、歴史本文の意味内容は変更していない。
 
 ## Directory layout
 
@@ -154,7 +170,7 @@ Phase NではN-04〜N-07の検証過程で多数のremediation / benchmark文書
 次Taskは:
 
 ```text
-O-03 [P1] Prototype文書へArchived/Legacy表示を追加する
+O-05 [P1] 不要branchを削除する
 ```
 
-旧Prototype文書をcurrent specificationと誤認しないよう、archive entrypoint / representative documentsへArchived / Legacy stateを明示する。
+O-04は先行完了済みのため、O-03完了後はbranch cleanupへ進みます。
