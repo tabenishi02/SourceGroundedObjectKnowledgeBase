@@ -1,0 +1,128 @@
+{
+  "schema_version": "sgokb.n07-failure-recovery-contract/1.0",
+  "status": "frozen",
+  "task": "N-07",
+  "requirements": {
+    "rpo_hours_max": 24,
+    "rto_hours_max": 4,
+    "backup_must_cover": [
+      "canonical_sqlite",
+      "raw_artifact_store",
+      "external_canonical_or_provenance_manifests_if_any",
+      "recovery_configuration_metadata_without_plaintext_secrets"
+    ],
+    "rebuildable_derived_may_be_excluded": [
+      "search_representation_cache",
+      "embedding_cache",
+      "vector_index",
+      "rendered_artifacts",
+      "exchange_package_payload"
+    ],
+    "retention_targets": {
+      "daily_generations_min": 7,
+      "weekly_generations_min": 4,
+      "scheduler_implementation_deferred_to_phase_o": true
+    }
+  },
+  "stages": {
+    "B_exchange_input": [
+      "invalid_result_schema",
+      "package_id_mismatch",
+      "manifest_sha_mismatch",
+      "stale_base_version",
+      "immutable_result_byte_count_mismatch",
+      "immutable_result_sha_mismatch",
+      "truncated_result",
+      "package_missing_file",
+      "package_size_mismatch",
+      "package_sha_mismatch",
+      "unsafe_or_unexpected_package_layout"
+    ],
+    "C_transaction": [
+      "failure_after_candidate_created",
+      "failure_after_knowledge_written",
+      "failure_after_accepted_before_commit",
+      "controlled_process_termination_supporting_case"
+    ],
+    "D_io": [
+      "package_stage_enospc_or_write_failure",
+      "restore_temp_copy_enospc_or_write_failure",
+      "additional_supported_file_output_failure"
+    ],
+    "E_derived": [
+      "embedding_provider_failure",
+      "qdrant_read_outage",
+      "vector_update_failure",
+      "stale_or_missing_derived_state",
+      "normal_sync_or_rebuild_recovery"
+    ],
+    "F_generation": [
+      "candidate_build_failure",
+      "invalid_candidate_cutover_rejected",
+      "failed_cutover_pointer_stable",
+      "interrupted_build_recovery",
+      "valid_isolated_rebuild",
+      "compatible_rollback_if_supported"
+    ],
+    "G_corruption": [
+      "immutable_result_tamper_detected",
+      "package_tamper_detected",
+      "canonical_provenance_fk_corruption_detected",
+      "required_raw_artifact_corruption_or_loss_detected"
+    ],
+    "H_outage": [
+      "internet_or_external_service_unavailable_local_read_works",
+      "cached_local_provider_offline_no_cloud_fallback",
+      "embedding_provider_unavailable_explicit",
+      "mcp_unavailable_direct_read_works",
+      "mcp_restart_recovers_without_canonical_mutation"
+    ],
+    "I_backup_restore": [
+      "sqlite_online_backup_integrity",
+      "separate_backup_destination",
+      "overwrite_ack_required",
+      "corrupt_backup_refused",
+      "temporary_restore_replacement",
+      "restored_canonical_digest_equal",
+      "restored_integrity_and_fk_clean",
+      "raw_provenance_present_and_verified",
+      "minimum_read_and_lexical_recovery",
+      "r2_derived_rebuild_after_restore",
+      "rpo_24h_capability",
+      "rto_4h_measured"
+    ]
+  },
+  "hard_gates": {
+    "mandatory_invalid_inputs_rejected_fraction": 1.0,
+    "partial_accepted_versions_after_transaction_fault": 0,
+    "successful_import_rows_after_transaction_rollback": 0,
+    "finalized_partial_file_artifacts": 0,
+    "silent_provider_cloud_cpu_backend_fallbacks": 0,
+    "failed_generation_transition_active_pointer_changes": 0,
+    "canonical_corruption_from_derived_failure": 0,
+    "mandatory_corruption_detection_fraction": 1.0,
+    "restored_canonical_digest_equal": true,
+    "restored_integrity_ok": true,
+    "restored_foreign_key_violations": 0,
+    "raw_provenance_restore_verification": true,
+    "rpo_hours_max": 24,
+    "rto_hours_max": 4,
+    "minimum_restored_local_read": true,
+    "minimum_restored_lexical_retrieval": true,
+    "post_restore_r2_rebuild_audit": true,
+    "original_reference_asset_mutations": 0
+  },
+  "fault_safety": {
+    "system_drive_fill_for_enospc": false,
+    "global_network_disable": false,
+    "kill_normal_codex_or_reference_qdrant": false,
+    "destructive_tests_on_original_assets": false,
+    "benchmark_only_recovery_bypass": false
+  },
+  "verdicts": ["PASS", "FAIL", "BLOCKED"],
+  "verdict_semantics": {
+    "PASS": "all mandatory safety/recovery gates satisfied with complete evidence",
+    "FAIL": "valid evidence proves a required contract/capability is not satisfied",
+    "BLOCKED": "environment or missing prerequisite prevents a valid judgement"
+  }
+}
