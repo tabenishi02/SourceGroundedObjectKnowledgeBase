@@ -13,9 +13,9 @@ Updated: 2026-10-25
 |---|---|---|
 | O-01 | **Complete** | Root READMEを新SGOKBの目的・Architecture・1 Object workflow・ChatGPT manual step・MCP利用例へ全面更新 |
 | O-02 | **Complete** | Current Architecture / Data Model / Retrieval / Exchange / MCP / UPDS Boundaryとoperations safety/recoveryを統合文書化 |
-| O-03 | **Next / Not Started** | Prototype文書へArchived / Legacy表示を追加 |
+| O-03 | **Complete** | Prototype 0.2文書をArchived / Legacyとして明示しcurrent specificationとの誤認を防止 |
 | O-04 | **Complete** | 全remote branch historyを`main`へ統合。統合commit `77d79ccac1017f167736c742ac199858a3a010a7` |
-| O-05 | Not Started | 不要branch cleanup |
+| O-05 | **Next / Not Started** | 不要branch cleanup |
 | O-06 | Not Started | Release / Tag policyとBreaking Change記録 |
 
 Phase Oのcurrent statusは本書を正本とする。project-wide task masterに古いPhase O checklist/statusが残る場合、本書の状態が優先する。
@@ -88,6 +88,34 @@ Current detailed design indexを追加し、current architecture / operations en
 
 O-02は既存のaccepted Object / Evidence / Version / Retrieval / MCP contractの意味を変更していない。個別schema・algorithmは従来のdetail documentをnormative authorityとして維持する。
 
+## O-03 result
+
+`docs/archive/prototype-0.2/`を全件棚卸しした。
+
+- Markdown document: **18 files**
+- 既にArchive / Historical表示あり: **12 files**
+- direct viewでArchive表示がなかった文書: **6 files**
+
+未表示だった次の6文書へ、統一した `ARCHIVED / LEGACY — Prototype 0.2` warningを先頭追加した。
+
+```text
+AI_CAPABILITY_BENCHMARK.md
+DEVELOPMENT_STATUS.md
+KNOWLEDGE_PIPELINE_EFFICIENCY_REDESIGN.md
+MODEL_COMPARISON_PLAN.md
+PROTOTYPE.md
+PROTOTYPE_UPGRADE.md
+```
+
+warningは次を明示する。
+
+- Prototype 0.2の歴史資料である。
+- current SGOKB specification / design / operationではない。
+- current authorityとして`docs/design/SGOKB_CURRENT_ARCHITECTURE.md`とroot `README.md`を参照する。
+- 本文は再現性・設計経緯のため当時のまま保持する。
+
+O-02完了commitとの比較で、この6ファイルはいずれも**7行追加 / 0行削除**であり、Prototype本文に意味変更を加えていないことを確認した。既存12文書のArchive表示とarchive-level `README.md`は歴史資料としてそのまま保持した。
+
 ## Accepted status carried forward
 
 ```text
@@ -97,8 +125,9 @@ Phase N closure audit = Complete / PASS
 Phase O = Active
 O-01 = Complete
 O-02 = Complete
+O-03 = Complete
 O-04 = Complete
-Next = O-03
+Next = O-05
 ```
 
 Phase N authority:
@@ -116,6 +145,6 @@ Current design authority entrypoints:
 
 ## Next
 
-`O-03 [P1] Prototype文書へArchived/Legacy表示を追加する`。
+`O-05 [P1] 不要branchを削除する`。
 
-O-03では旧Prototype資料がcurrent SGOKB specificationと誤認されないよう、archive入口・代表文書・必要なreference linkにArchived / Legacy stateを明示する。Historical evidence自体は削除・改変しない。
+O-04はユーザー指示により先行完了済みのため、O-03後はO-05へ進む。
