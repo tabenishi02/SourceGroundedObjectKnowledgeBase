@@ -1,6 +1,6 @@
 # N07-R01 — Composite canonical / Raw / Provenance backup and restore
 
-Status: **Implementation candidate / formal re-acceptance pending**  
+Status: **Formal PASS candidate / ChatGPT review pending**
 Parent: **N-07 — Failure / Recovery**  
 Authoritative source: GitHub `main` for accepted project state; this remediation is developed on `n07-r01-composite-backup-restore` until formal re-acceptance.
 
@@ -172,3 +172,19 @@ N07-R01 is **not Complete** when code merely exists or unit tests pass. It becom
 - publishes committed result evidence for review.
 
 No automatic merge to `main` is permitted before that review.
+
+
+## 13. Reference Workstation formal candidate result (2026-10-24)
+
+Run `20261024T222300+0900`, measured source
+`ffb16e9f7e0e24c8c2648a04430fca57bfb71dfb`: deterministic **PASS**.
+Complete-canonical RPO age 0.000104199722 h <=24 h; full canonical RTO
+0.129272400 s <=14400 s; same restored DB derived rebuild 9.155151900 s separately.
+Raw reprocessing, original Result reopen, integrity/FK, read/Lexical and eight
+negative drills PASS. Formal Composite tests 45, combined focused 83, full 772 PASS;
+Ruff/format/compile/diff PASS. Original/reference/N-03/R1 and local main unchanged.
+
+Result: `docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md`.
+Aggregate: `benchmark/results/n07-r01-composite-backup-restore.json`.
+N07-R01 is **Complete / PASS candidate**, pending ChatGPT review. Accepted N-07
+and Phase N states are unchanged; no main merge or closure audit was performed.

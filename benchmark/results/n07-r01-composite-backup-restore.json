@@ -1,0 +1,231 @@
+{
+  "schema": "sgokb.n07-r01-composite-backup-restore-result.v1",
+  "run_id": "20261024T222300+0900",
+  "candidate_head": "a81ef8a5d53eef48d8bb6a0e52d548aef7647336",
+  "measured_commit": "ffb16e9f7e0e24c8c2648a04430fca57bfb71dfb",
+  "baseline_main": "fc7609db60a310cd153aa256a5fe183e44ab8fcb",
+  "branch": "n07-r01-composite-backup-restore",
+  "overall": "PASS",
+  "evaluation": {
+    "overall": "PASS",
+    "failures": [],
+    "blocked": []
+  },
+  "runtime": {
+    "python": "3.10.6",
+    "os": "Windows 11",
+    "gpu": "RTX 4090",
+    "gpu_driver": "581.80",
+    "gpu_vram_mib": 24564,
+    "packages": {
+      "pytest": "9.1.1",
+      "ruff": "0.17.0",
+      "torch": "2.6.0+cu124",
+      "transformers": "5.20.1",
+      "sentence-transformers": "6.1.0",
+      "qdrant-client": "1.19.1",
+      "mcp": "2.3.0"
+    }
+  },
+  "preflight": {
+    "status": "PASS",
+    "candidate_head": "a81ef8a5d53eef48d8bb6a0e52d548aef7647336",
+    "main_head": "fc7609db60a310cd153aa256a5fe183e44ab8fcb",
+    "tested_tree": "994f2cf65981ee95e93d4934fa5c2abcad55fec9",
+    "return_codes": {
+      "focused": 0,
+      "full": 0,
+      "ruff": 0,
+      "format": 0,
+      "compile": 0,
+      "diff": 0,
+      "staged_diff": 0
+    }
+  },
+  "formal_tests": {
+    "status": "PASS",
+    "return_code": 0,
+    "passed": 45,
+    "failed": 0,
+    "setup_errors": 0,
+    "skipped": 0
+  },
+  "proof": {
+    "backup_generation_id": "70317490-3c1f-4c22-98b7-759f00beac0c",
+    "creation_started_utc": "2026-10-24T13:26:32.119000+00:00",
+    "created_at": "2026-10-24T13:26:32.158621+00:00",
+    "restore_started_utc": "2026-10-24T13:26:32.365103+00:00",
+    "backup_seconds": 0.10732200008351356,
+    "restore_copy_seconds": 0.07272609998472035,
+    "canonical_rto_seconds": 0.12927240005228668,
+    "complete_canonical_rpo_hours": 0.00010419972222222222,
+    "rpo_daily_equivalent_generations": 2,
+    "rpo_basis": "age since conservative backup start; two independently verified generations",
+    "verification": {
+      "ok": true,
+      "schema": "sgokb.composite-backup.v1",
+      "generation_id": "70317490-3c1f-4c22-98b7-759f00beac0c",
+      "created_at": "2026-10-24T13:26:32.158621+00:00",
+      "canonical_sha256": "37e146babf4df531af010d9ff41931ed681a2c1e493d300ef3ae65706f3ed5dc",
+      "raw_bundles": 1,
+      "original_results": 1,
+      "sqlite": {
+        "integrity_check": [
+          "ok"
+        ],
+        "foreign_key_violations": []
+      }
+    },
+    "canonical_sqlite": {
+      "bytes": 1060864,
+      "path": "canonical/canonical.sqlite",
+      "sha256": "37e146babf4df531af010d9ff41931ed681a2c1e493d300ef3ae65706f3ed5dc"
+    },
+    "raw_bundles": 1,
+    "original_results": 1,
+    "manifest_sha256": "7535099cfe4a4ce43cb06ccbb74b765ae774ff9edaa3aa4d5997db461a44f08c",
+    "recovery_metadata": {
+      "bytes": 450,
+      "path": "metadata/recovery.json",
+      "sha256": "2bfe4bdb6fedcdacaba18c42ae2eb8cb7b04ace8c23e2bc920119a7f1f8a0b09"
+    },
+    "source_stores_quarantined": true,
+    "backup_unchanged": true,
+    "raw_basename_preserved": true,
+    "only_raw_storage_ref_relocated": true,
+    "accepted_result_audit_unchanged": true,
+    "negative_drills": {
+      "missing_raw": {
+        "status": "PASS",
+        "exception_type": "ValueError"
+      },
+      "missing_result": {
+        "status": "PASS",
+        "exception_type": "ValueError"
+      },
+      "raw_hash": {
+        "status": "PASS",
+        "exception_type": "ValueError"
+      },
+      "result_hash": {
+        "status": "PASS",
+        "exception_type": "ValueError"
+      },
+      "manifest_traversal": {
+        "status": "PASS",
+        "exception_type": "ValueError"
+      },
+      "incomplete": {
+        "status": "PASS",
+        "exception_type": "ValueError"
+      },
+      "overlapping_targets": {
+        "status": "PASS",
+        "exception_type": "ValueError"
+      },
+      "overwrite_without_ack": {
+        "status": "PASS",
+        "exception_type": "PermissionError"
+      }
+    },
+    "product_proofs": {
+      "restored_canonical_read": true,
+      "restored_raw_reprocessing": true,
+      "restored_original_result_open": true,
+      "sqlite_integrity": true,
+      "sqlite_foreign_key_integrity": true,
+      "provenance_identity_equal": true,
+      "content_hashes_equal": true
+    },
+    "minimum_lexical_retrieval": true,
+    "recovery_metadata_verified": true
+  },
+  "derived_rebuild": {
+    "status": "PASS",
+    "seconds_including_provider_load": 9.155151899904013,
+    "generation_id": "search-generation:r2:f45e9260-6363-4600-aef1-e405763aaacc",
+    "membership_count": 2,
+    "point_count": 2,
+    "family": [
+      "object_overview",
+      "statement"
+    ],
+    "object_overall_leakage": 0,
+    "canonical_unchanged": true,
+    "semantic_read": true,
+    "render": true,
+    "model": "microsoft/harrier-oss-v1-0.6b",
+    "revision": "f9b9dc8d367d443f2479d27aa5d8d2850c0774ee",
+    "device": "cuda",
+    "dimension": 1024,
+    "vector_backend": "real Qdrant in-memory, run-owned only"
+  },
+  "post_regression": {
+    "status": "PASS",
+    "return_codes": {
+      "focused": 0,
+      "full": 0,
+      "ruff": 0,
+      "diff": 0
+    }
+  },
+  "regression_counts": {
+    "composite_focused_passed": 45,
+    "combined_focused_passed": 83,
+    "full_passed": 772,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 2
+  },
+  "safety": {
+    "status": "PASS",
+    "checks": {
+      "no_run_owned_processes": true,
+      "local_main_unchanged": true,
+      "original_assets": true,
+      "reference_vectors": true,
+      "reference_inventory": true,
+      "head_unchanged": true,
+      "tracked_unchanged": true
+    }
+  },
+  "r1_sha256_before": {
+    "benchmark/tools/n05_resource_preflight.py": "996c057354ff032235940775995c46054e0cfd92cb2aa44dd511271acde91cff",
+    "benchmark/tools/n05d04r1_sdpa_vram_diagnosis.py": "e11efff44264c5a152aaa284e2534c4cb85f058b7b03aab5290eec60eb2bcb40",
+    "tests/test_n05d04r1_sdpa_vram_diagnosis.py": "9ecfe8e767944c541a1481f0d16454caacfa0d4e576de9afe5e7ccef9cb16ee0"
+  },
+  "r1_sha256_after": {
+    "benchmark/tools/n05_resource_preflight.py": "996c057354ff032235940775995c46054e0cfd92cb2aa44dd511271acde91cff",
+    "benchmark/tools/n05d04r1_sdpa_vram_diagnosis.py": "e11efff44264c5a152aaa284e2534c4cb85f058b7b03aab5290eec60eb2bcb40",
+    "tests/test_n05d04r1_sdpa_vram_diagnosis.py": "9ecfe8e767944c541a1481f0d16454caacfa0d4e576de9afe5e7ccef9cb16ee0"
+  },
+  "independent_review": {
+    "evaluator_replay": "PASS",
+    "packaged_closure": "PASS",
+    "restored_raw_importer": "PASS",
+    "restored_result_hash_bytes": "PASS",
+    "old_canonical_rows_retained": "PASS",
+    "intentional_reprocessing_history": "append-only normalization/evidence records",
+    "initial_implementation_before_to_post_formal_original_assets": "unchanged"
+  },
+  "canonical_recovery_inventory": [
+    "canonical SQLite",
+    "one physical Raw capture bundle (nine logical Raw rows)",
+    "one accepted original Result with receipt/import provenance",
+    "secret-free recovery metadata"
+  ],
+  "limitations": [
+    "Small complete fixture, not a production-scale RTO extrapolation.",
+    "RPO capability is a reproducible daily-equivalent procedure with two verified generations; no 24-hour wait or scheduler claim.",
+    "Real Qdrant in-memory validates adapter/lifecycle identity; reference Qdrant service was not changed.",
+    "Derived total includes provider load and is outside canonical RTO."
+  ],
+  "raw_evidence_root": ".local/n07-r01/20261024T222300+0900/",
+  "state": {
+    "N07-R01": "Complete / PASS candidate — formal PASS, review pending",
+    "N-07": "Complete / FAIL (accepted state unchanged)",
+    "Phase N": "Active / Not Complete",
+    "main_merge": "Not performed",
+    "closure_audit": "Not Started"
+  }
+}

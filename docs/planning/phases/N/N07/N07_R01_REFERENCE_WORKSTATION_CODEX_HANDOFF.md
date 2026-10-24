@@ -1,6 +1,6 @@
 # N07-R01 — Reference Workstation Codex handoff
 
-Status: **Ready for local implementation validation / formal re-acceptance**  
+Status: **Formal PASS candidate / result review pending**
 Branch: `n07-r01-composite-backup-restore`  
 Do not merge to `main` automatically.
 
@@ -251,3 +251,14 @@ When local validation is complete:
 7. leave `main` unchanged and do not auto-merge.
 
 If formal acceptance passes, report `N07-R01 = formal PASS candidate` for ChatGPT review. Do not independently rewrite `N-07 = Complete / PASS` or Phase N completion state before review.
+
+
+## 11. Executed Reference Workstation result
+
+Run `20261024T222300+0900`, measured source
+`ffb16e9f7e0e24c8c2648a04430fca57bfb71dfb`, formal evaluator PASS.
+All requested product/CLI/negative/recovery/safety proofs and pre/post regression
+completed. Review `docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md`
+and `benchmark/results/n07-r01-composite-backup-restore.json`.
+Disposition remains **formal PASS candidate for ChatGPT review**; N-07/Phase N
+accepted state and main are unchanged. Do not infer an automatic merge/closure.
