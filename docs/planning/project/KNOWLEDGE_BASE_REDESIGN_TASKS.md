@@ -1,6 +1,6 @@
 # Source Grounded Object Knowledge Base — Knowledge Base 再設計タスク
 
-## Current authoritative closure state (2026-10-24)
+## Current authoritative closure state (2026-10-25)
 
 <!-- phase-n-current:start -->
 ```text
@@ -12,16 +12,21 @@ N-05 = Complete / PASS
 N-06 = Complete / PASS
 N-07 = Complete / PASS
 N07-R01 = Complete / PASS
-Phase N closure audit = Complete / PASS candidate — ChatGPT review pending
-Phase N = Active / Not Complete
+Phase N closure audit = Complete / PASS
+Phase N = Complete / PASS
+Phase O = Not Started
+Next = Phase O — Documentation / Release / Git cleanup
 ```
 <!-- phase-n-current:end -->
 
 N07-R01 formal run `20261024T222300+0900`, measured source
 `ffb16e9f7e0e24c8c2648a04430fca57bfb71dfb`, result commit
 `9cda43e9303488d2b0905f61fa3dbbed4f03a4fb`, was accepted by ChatGPT review.
-This update supersedes historical next-task/current-state notes below. Original N-07
-47 PASS / 3 FAIL evidence remains unchanged. Phase O is downstream / Not Started.
+Phase N closure run `20261025T014024+0900`, measured source
+`e5415503a62d12c3e39fd68e1107c4a8c1f3bbf5`, returned C01-C07 PASS; independent
+ChatGPT review accepted the PASS candidate on 2026-10-25. This update supersedes
+historical next-task/current-state notes below. Original N-07 47 PASS / 3 FAIL
+evidence remains unchanged. Phase O is downstream / Not Started.
 
 ---
 
@@ -1014,6 +1019,8 @@ N-04本体の正式開始前にN-04P-01〜P-06を必須Gateとする。正本: `
   - backup generation /別path restore / integrity validation / RPO・RTO確認。
   - external exportの`blocked` itemとcredential / log redaction。
 
+**Phase N closure (2026-10-25):** formal closure run `20261025T014024+0900` passed C01-C07 at measured source `e5415503a62d12c3e39fd68e1107c4a8c1f3bbf5`. Independent ChatGPT review accepted the PASS candidate. **Phase N = Complete / PASS**. Authority: `docs/evaluation/PHASE_N_CLOSURE_AUDIT.md`.
+
 **完了条件:** 新しい目的に対する受入条件を満たし、Prototype時代の「Schema適合=品質合格」という評価誤認を避けられる。
 
 ---
@@ -1103,12 +1110,11 @@ O  Documentation / Release / Cleanup
 
 # 4. 最初に実施すべきタスク
 
-Phase A〜MはComplete。Phase LではL-01〜L-04のDecisionをL-05で実装し、旧runtime・001/002・互換surfaceをactive treeから削除した。現行canonical workflowとSample Rawは保持している。受入結果・既知制約は`docs/planning/PHASE_L_CLOSURE_AUDIT.md`を正本とする。
+Phase A〜NはComplete。Phase Nはclosure audit C01-C07 PASSと独立ChatGPT review acceptanceにより **Complete / PASS**。旧N-07 47 PASS / 3 FAILはhistorical evidenceとして保持し、N07-R01の後続remediation PASSでclosureした。
 
-Current next task: **Phase N closure audit — Complete / PASS candidate / ChatGPT review pending**.
-N-01..N-07 are Complete; N07-R01 Complete/PASS is review accepted. Phase O
-O-01..O-06 remain downstream / Not Started. No main integration or branch cleanup
-is performed by closure audit.
+Current next task: **Phase O — Documentation / Release / Git cleanup**.
+O-01..O-06 are Not Started. Main integration remains O-04; no branch cleanup or
+Release/Tag work is performed before the corresponding Phase O task.
 
 ### Historical next-task claim after original N-04 failure (superseded)
 
@@ -1120,4 +1126,4 @@ N-04 [P0] 3つの代表AI利用ケースを受入試験する
 
 Phase MではObject中心CLI、旧CLI atomic cutover、標準操作フローの実受入を完了した。「日常運用で内部DB操作を必要としない」を確認済み。詳細は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を参照する。Phase NではN-01〜N-03のReference Workstation検証・dataset構築を完了し、N-04P-01〜P-06もCompleteとなり、N-04本体を実施したがgrounding条件でFailedとなり、同Taskを未完了として維持する。N-03の派生表現pending制約はP-06で解消した。未採用のKnowledge coverageと順位品質はN-06へ引き渡す。
 
-Closure formal result: `docs/evaluation/PHASE_N_CLOSURE_AUDIT.md`, run `20261025T014024+0900`, measured source `e5415503a62d12c3e39fd68e1107c4a8c1f3bbf5`. Phase N remains Active / Not Complete until independent review.
+Closure formal result: `docs/evaluation/PHASE_N_CLOSURE_AUDIT.md`, run `20261025T014024+0900`, measured source `e5415503a62d12c3e39fd68e1107c4a8c1f3bbf5`. Independent review accepted the PASS candidate; Phase N is Complete / PASS. Next: Phase O.

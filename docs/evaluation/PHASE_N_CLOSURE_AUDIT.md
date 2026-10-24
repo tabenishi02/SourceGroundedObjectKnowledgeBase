@@ -1,6 +1,6 @@
 # Phase N closure audit — Reference Workstation formal result
 
-Status: **Complete / PASS candidate — ChatGPT review pending**
+Status: **Complete / PASS — ChatGPT review accepted**
 Date: 2026-10-25
 
 Branch: `phase-n-closure-audit`; initial closure HEAD `45977e09f17fa40128cb7f030c4d66e4c3710095`.
@@ -9,9 +9,10 @@ Run: `20261025T014024+0900`. Accepted N07-R01 result: `9cda43e9303488d2b0905f61f
 Local main / origin/main baseline: `fc7609db60a310cd153aa256a5fe183e44ab8fcb` (unchanged).
 
 The committed deterministic evaluator returned **PASS** for C01-C07 after
-reviewing the existing-format baseline evidence. This is a closure review
-candidate; Phase N remains **Active / Not Complete** pending independent ChatGPT
-review. Phase O O-01..O-06 remain unchecked / Not Started.
+reviewing the existing-format baseline evidence. Independent ChatGPT review on
+2026-10-25 accepted the PASS candidate without requiring any benchmark rerun or
+Gate relaxation. Phase N is therefore **Complete / PASS**. Phase O O-01..O-06
+remain unchecked / Not Started and are the next downstream work.
 
 ## Gate results
 
@@ -97,6 +98,27 @@ N-04 ends at Knowledge Access/public read boundary. N-05/N-06 retain
 `f9b9dc8d367d443f2479d27aa5d8d2850c0774ee`.
 N07-R01 restored R2 rebuild remains outside canonical RTO.
 
+## Independent ChatGPT review disposition (2026-10-25)
+
+The independent closure review compared the published branch/result identities,
+confirmed that final HEAD `fb9b0d6a6f670d1b0f053148769ce8cd448ea217` directly follows the measured source
+and only publishes result/state documentation, and confirmed that `main` remains
+the unchanged merge-base/baseline `fc7609db60a310cd153aa256a5fe183e44ab8fcb`.
+
+The review explicitly accepted the repository-wide format exception because all
+22 reported offenders are pre-existing files unchanged from the accepted N07-R01
+result, while the changed Python files pass scoped formatting. The initial
+collection FAIL was classified as evidence-parser failure caused by Ruff 0.17
+output syntax, not a product/Gate/measurement failure; the original FAIL evidence
+remains preserved and the unchanged evaluator was rerun with corrected runtime
+evidence.
+
+No new Phase N blocker, unresolved required Gate, safety mutation, or measured
+source contamination was identified. No N-05 performance, N-06 100k ANN, or
+N07-R01 recovery drill rerun is required for closure.
+
+Final review verdict: **ACCEPTED / PASS**.
+
 ## Limits and publication
 
 The small ecological N-03 fixture, recorded lexical wording coverage misses,
@@ -112,10 +134,11 @@ Aggregate: `benchmark/results/phase-n-closure-audit.json`.
 ```text
 N-01..N-07 = Complete
 N07-R01 = Complete / PASS
-Phase N closure audit = Complete / PASS candidate — ChatGPT review pending
-Phase N = Active / Not Complete
+Phase N closure audit = Complete / PASS
+Phase N = Complete / PASS
 Phase O = Not Started
+Next = Phase O — Documentation / Release / Git cleanup
 ```
 
-Publication is to `phase-n-closure-audit` only. Main integration, branch cleanup,
-final Phase N acceptance and Phase O execution are reserved for subsequent review.
+Publication remains on `phase-n-closure-audit` until Phase O performs the planned
+main integration. Branch cleanup and Release/Tag work remain Phase O responsibilities.

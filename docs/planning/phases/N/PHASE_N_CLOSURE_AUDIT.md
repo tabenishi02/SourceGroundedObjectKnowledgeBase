@@ -1,13 +1,16 @@
 # Phase N — Closure Audit
 
-Updated: 2026-10-24
+Updated: 2026-10-25
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `Phase N closure audit`
 - Branch: `phase-n-closure-audit`
 - Base accepted candidate: `9cda43e9303488d2b0905f61fa3dbbed4f03a4fb` (`n07-r01-composite-backup-restore`)
-- Status: **Complete / PASS candidate — ChatGPT review pending**
-- Phase N status until formal closure PASS: **Active / Not Complete**
+- Formal measured source: `e5415503a62d12c3e39fd68e1107c4a8c1f3bbf5`
+- Formal result publication: `fb9b0d6a6f670d1b0f053148769ce8cd448ea217`
+- Status: **Complete / PASS — ChatGPT review accepted**
+- Phase N status: **Complete / PASS**
+- Next: **Phase O — Documentation / Release / Git cleanup**
 
 ## 1. Purpose
 
@@ -29,7 +32,7 @@ This is a closure audit, not a new quality benchmark. It MUST NOT rerun expensiv
 | N-07 original run | `docs/evaluation/N07_FAILURE_RECOVERY.md` + `benchmark/results/n07-failure-recovery.json` | Historical Complete / FAIL that opened N07-R01; MUST remain historical evidence |
 | N07-R01 | `docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md` + `benchmark/results/n07-r01-composite-backup-restore.json` | Formal PASS accepted by ChatGPT review; remediation closes the three original recovery failures |
 
-Historical desk-audit conclusion before formal closure execution (superseded by the formal result below):
+Historical desk-audit conclusion before formal closure execution:
 
 ```text
 N-01 = Complete
@@ -193,7 +196,7 @@ Raw logs/fingerprints remain under `.local/phase-n-closure/<run_id>/` and are no
 
 ## 8. Final state transition
 
-Only after formal PASS and ChatGPT review:
+The formal PASS and independent ChatGPT review are both complete. The accepted final state is:
 
 ```text
 N-01 ... N-07 = Complete
@@ -203,13 +206,12 @@ Phase N = Complete / PASS
 Next = Phase O — Documentation / Release / Git cleanup
 ```
 
-Before that review, the correct state is:
+The following was the pre-review candidate state and is retained only as historical context:
 
 ```text
-Phase N closure audit = Active / formal execution pending
+Phase N closure audit = Complete / PASS candidate — ChatGPT review pending
 Phase N = Active / Not Complete
 ```
-
 
 ## Reference Workstation formal result (2026-10-25)
 
@@ -225,11 +227,25 @@ corrected supplemental evidence was evaluated by the unchanged committed evaluat
 Authority: `docs/evaluation/PHASE_N_CLOSURE_AUDIT.md` and
 `benchmark/results/phase-n-closure-audit.json`.
 
+## Independent review acceptance (2026-10-25)
+
+Independent ChatGPT review verified the published branch/result identity,
+measured-source ancestry, preservation of the original N-07 FAIL evidence,
+C01-C07 evidence, the accepted pre-existing format baseline exception, and the
+C06 safety invariants. No new blocker or evidence contradiction was identified.
+
+The review accepted the formal PASS candidate without rerunning N-05 performance,
+N-06 100k ANN, or N07-R01 recovery drills. The initial collector FAIL remains
+historical evidence of a Ruff-output parser mismatch and does not override the
+reviewed deterministic PASS because neither measured source nor Gate semantics
+were changed to obtain the final evaluation.
+
 ```text
-Phase N closure audit = Complete / PASS candidate — ChatGPT review pending
-Phase N = Active / Not Complete
+Phase N closure audit = Complete / PASS
+Phase N = Complete / PASS
 Phase O = Not Started
+Next = Phase O — Documentation / Release / Git cleanup
 ```
 
-No main merge, branch deletion, expensive benchmark repetition, or Phase O work
-was performed. Independent ChatGPT review is required for final Phase N acceptance.
+No main merge, branch deletion, or Phase O execution has been performed by the
+closure audit. Those actions remain downstream Phase O work.
