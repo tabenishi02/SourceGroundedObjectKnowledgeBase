@@ -1,3 +1,10 @@
+> [!WARNING]
+> **ARCHIVED / LEGACY — Prototype 0.2**
+>
+> この文書は旧Prototype 0.2の歴史資料です。**現行SGOKBの仕様・設計・運用手順ではありません。**
+> 現行仕様は [Current Architecture](../../design/SGOKB_CURRENT_ARCHITECTURE.md) と [root README](../../../README.md) を参照してください。
+> 以下の本文は再現性・設計経緯のため当時の内容を保持しています。
+
 # Prototype Upgrade v0.2
 
 知識の取得では高Recall、消費・生成では高Precisionを優先する。初回版の上位Evidence選択と短いFinalを既定動作から外した。Raw ZIPとChrome拡張機能は変更しない。
