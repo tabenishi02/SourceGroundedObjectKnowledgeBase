@@ -1,0 +1,149 @@
+{
+  "schema": "sgokb.phase-n-closure-audit-contract.v1",
+  "phase": "N",
+  "task": "Phase N closure audit",
+  "status": "formal_execution_pending",
+  "base_candidate": "9cda43e9303488d2b0905f61fa3dbbed4f03a4fb",
+  "authorities": [
+    {
+      "task": "N-01",
+      "path": "docs/planning/phases/N/N01_UNIT_TEST_COVERAGE.md",
+      "required_status": "Complete"
+    },
+    {
+      "task": "N-02",
+      "path": "docs/planning/phases/N/N02_INTEGRATION_TESTS.md",
+      "required_status": "Complete"
+    },
+    {
+      "task": "N-03",
+      "path": "docs/evaluation/N03_REAL_DATA_VERTICAL_SLICE.md",
+      "aggregate": "benchmark/n03-real-data-vertical-slice-v1.json",
+      "required_status": "Complete"
+    },
+    {
+      "task": "N-04",
+      "path": "docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md",
+      "required_status": "Complete / PASS"
+    },
+    {
+      "task": "N-04R-05",
+      "path": "docs/decisions/N04R05_GROUNDED_GENERATION_ASSET_DISPOSITION.md",
+      "required_status": "Complete / Disposition Accepted"
+    },
+    {
+      "task": "N-05",
+      "path": "docs/evaluation/N05D04R2_R2_10_CLOSURE_AUDIT.md",
+      "required_status": "Complete / PASS"
+    },
+    {
+      "task": "N-06",
+      "path": "docs/evaluation/N06_RETRIEVAL_VECTOR_QUALITY.md",
+      "aggregate": "benchmark/results/n06-retrieval-vector-quality.json",
+      "required_status": "Complete / PASS"
+    },
+    {
+      "task": "N-07-historical",
+      "path": "docs/evaluation/N07_FAILURE_RECOVERY.md",
+      "aggregate": "benchmark/results/n07-failure-recovery.json",
+      "required_historical_status": "Complete / FAIL"
+    },
+    {
+      "task": "N07-R01",
+      "path": "docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md",
+      "aggregate": "benchmark/results/n07-r01-composite-backup-restore.json",
+      "required_formal_result": "PASS",
+      "review_disposition": "accepted"
+    }
+  ],
+  "gates": {
+    "C01_authority_closure": {
+      "required": true,
+      "all_phase_n_tasks_complete": true,
+      "n07_r01_present": true,
+      "current_unresolved_required_subtasks": 0
+    },
+    "C02_evidence_identity": {
+      "required": true,
+      "all_authority_paths_exist": true,
+      "all_required_aggregates_exist": true,
+      "run_source_identity_consistent": true,
+      "historical_failures_preserved": true
+    },
+    "C03_cross_task_compatibility": {
+      "required": true,
+      "n05_n06_r2_compatible": true,
+      "n07r01_semantics_preserved": true,
+      "r2_rebuild_after_restore": true,
+      "active_object_overall_leakage": 0
+    },
+    "C04_documentation_state": {
+      "required": true,
+      "reconcile_paths": [
+        "docs/planning/phases/N/PHASE_N_PREPARATION.md",
+        "docs/planning/phases/N/N07/N07_FAILURE_RECOVERY_ACCEPTANCE.md",
+        "docs/planning/phases/N/N07/N07_R01_COMPOSITE_BACKUP_RESTORE.md",
+        "docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md",
+        "docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md"
+      ],
+      "historical_sections_may_remain": true,
+      "stale_current_authority_forbidden": true
+    },
+    "C05_repository_regression": {
+      "required": true,
+      "pytest_full": true,
+      "ruff": true,
+      "compileall": true,
+      "format_check": true,
+      "diff_check": true,
+      "failed_tests_max": 0
+    },
+    "C06_safety": {
+      "required": true,
+      "original_n03_reference_mutation": 0,
+      "reference_qdrant_mutation": 0,
+      "r1_preserved_asset_mutation": 0,
+      "tracked_source_mutation_during_measurement": 0,
+      "run_owned_process_residue": 0
+    },
+    "C07_phase_o_handoff": {
+      "required": true,
+      "next_phase": "O",
+      "tasks": ["O-01", "O-02", "O-03", "O-04", "O-05", "O-06"],
+      "phase_o_execution_in_scope": false
+    }
+  },
+  "accepted_compatibility": {
+    "retrieval_contract": "n05d04r2-hierarchical-v2",
+    "representation_families": ["object_overview", "facet", "statement"],
+    "embedding_model": "microsoft/harrier-oss-v1-0.6b",
+    "embedding_revision": "f9b9dc8d367d443f2479d27aa5d8d2850c0774ee",
+    "n06_active_object_overall_leakage": 0,
+    "n07_derived_rebuild_separate_from_canonical_rto": true
+  },
+  "non_blocking_known_limitations": [
+    "N-03 is a small ecological real-data dataset",
+    "recorded lexical wording-coverage misses do not authorize canonical supplementation",
+    "N-06 rerankers remain optional",
+    "N07-R01 RPO capability proof is daily-equivalent and does not claim scheduler execution",
+    "N07-R01 RTO is a small complete fixture measurement, not production-scale extrapolation",
+    "retention scheduler/rotation remains downstream operational/documentation work"
+  ],
+  "formal_commands": [
+    "python -m pytest -q",
+    "python -m ruff check .",
+    "python -m compileall -q src benchmark/tools tests",
+    "python -m ruff format --check .",
+    "git diff --check"
+  ],
+  "verdicts": ["PASS", "FAIL", "BLOCKED"],
+  "pass_transition": {
+    "N-01..N-07": "Complete",
+    "N07-R01": "Complete / PASS",
+    "Phase N closure audit": "Complete / PASS",
+    "Phase N": "Complete / PASS",
+    "next": "Phase O — Documentation / Release / Git cleanup"
+  },
+  "automatic_main_merge_forbidden": true,
+  "gate_relaxation_forbidden": true
+}
