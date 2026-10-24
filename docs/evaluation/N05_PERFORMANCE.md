@@ -1,5 +1,29 @@
 # N-05 — Performance Evaluation
 
+## R2-10 closure update (2026-10-24)
+
+This is the current authoritative state for this document and supersedes all older current-state / next-task notes retained below.
+
+```text
+R2-08     = Complete / PASS
+R2-09     = Complete / PASS
+R2-10     = Complete
+N05D-04R2 = Complete
+N05D-04   = Complete
+N-05      = Complete / PASS
+Phase N   = Active / Not Complete
+Next      = N-06 Retrieval / Vector quality
+```
+
+Formal acceptance remains run `20261024T044506+0900` at measured HEAD `2711d4c389c4d1c722e864e17a7b6afb05af4c62`: 46/46 samples PASS, Standard warm p95 `12.2832216 s <= 600 s`, Large warm p95 `53.7066947 s <= 1200 s`, with zero FAIL / ABORTED / retry. R2-only serving, `object_overall` leakage 0, canonical/tracked/HEAD invariance and post-run regression/static gates all passed.
+
+Closure authority: `docs/evaluation/N05D04R2_R2_10_CLOSURE_AUDIT.md`.
+Formal evidence: `docs/evaluation/N05D04R2_R2_09_PERFORMANCE_ACCEPTANCE_RESULT.md`.
+
+---
+
+## Historical planning/evidence record retained below
+
 ## Current acceptance update (2026-10-24)
 
 This update supersedes historical BLOCKED/next-task notes below.
