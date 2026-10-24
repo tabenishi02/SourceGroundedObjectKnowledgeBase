@@ -1,8 +1,18 @@
 # N07-R01 — Composite canonical / Raw / Provenance backup and restore
 
-Status: **Formal PASS candidate / ChatGPT review pending**
+Status: **Complete / PASS — ChatGPT review accepted 2026-10-24**
 Parent: **N-07 — Failure / Recovery**  
 Authoritative source: GitHub `main` for accepted project state; this remediation is developed on `n07-r01-composite-backup-restore` until formal re-acceptance.
+
+<!-- phase-n-current:start -->
+N07-R01 = Complete / PASS — ChatGPT review accepted 2026-10-24
+N-07 = Complete / PASS after accepted remediation
+Phase N closure audit = Active / formal execution pending
+Phase N = Active / Not Complete
+<!-- phase-n-current:end -->
+
+The formal candidate narrative below is retained as measurement history. Review
+disposition: `docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md`.
 
 ## 1. Purpose
 
@@ -10,7 +20,7 @@ N-07 formal acceptance established that the existing SQLite-only backup can rest
 
 N07-R01 closes that specific recovery gap without changing canonical knowledge semantics, search ranking, generation behavior, or the legacy SQLite-only backup commands.
 
-Until Reference Workstation re-acceptance passes, the authoritative status remains:
+Historical pre-acceptance state (superseded by the current disposition above):
 
 - N-07: `Complete / FAIL`
 - N07-R01: `Implementation candidate / formal re-acceptance pending`
@@ -174,7 +184,7 @@ N07-R01 is **not Complete** when code merely exists or unit tests pass. It becom
 No automatic merge to `main` is permitted before that review.
 
 
-## 13. Reference Workstation formal candidate result (2026-10-24)
+## 13. Historical Reference Workstation formal candidate result (2026-10-24)
 
 Run `20261024T222300+0900`, measured source
 `ffb16e9f7e0e24c8c2648a04430fca57bfb71dfb`: deterministic **PASS**.

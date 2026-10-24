@@ -177,3 +177,19 @@ Complete / FAIL, Phase N Active / Not Complete. No main merge or closure audit.
 Raw evidence is under `.local/n07-r01/20261024T222300+0900/`; control/preflight logs
 under `.local/n07-r01-control/20261024T220438+0900/`. No raw DB/store/log/cache is
 committed. Source corrections and result publication use separate commits.
+
+
+## Review disposition accepted (2026-10-24)
+
+<!-- phase-n-current:start -->
+N07-R01 = Complete / PASS — ChatGPT review accepted 2026-10-24
+N-07 = Complete / PASS after accepted remediation
+<!-- phase-n-current:end -->
+
+ChatGPT independently compared the GitHub branch/result, reviewed the supported
+product Composite implementation and explicit CLI, and accepted the formal PASS as
+N07-R01 Complete/PASS. Accepted result commit:
+`9cda43e9303488d2b0905f61fa3dbbed4f03a4fb`.
+This disposition supersedes review-pending state in the original measurement narrative
+above; its run/source, limits, timings and historical N-07 FAIL are not rewritten.
+Phase N closure remains a separate formal audit; no Phase O task is started here.

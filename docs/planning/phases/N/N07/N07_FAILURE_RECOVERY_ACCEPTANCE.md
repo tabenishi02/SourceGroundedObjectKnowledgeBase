@@ -4,10 +4,27 @@ Updated: 2026-10-24
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-07 [P1] — Failure / Recovery`
-- Status: **Complete / FAIL — required composite recovery coverage missing**
+- Status: **Complete / PASS — N07-R01 remediation formally PASS and review accepted**
 - Parent state: N-06 `Complete / PASS`; Phase N `Active / Not Complete`
 - Primary requirements: `docs/requirements/NON_FUNCTIONAL_REQUIREMENTS.md`
 - Previous acceptance: `docs/evaluation/N06_RETRIEVAL_VECTOR_QUALITY.md`
+
+## Current remediation disposition (2026-10-24)
+
+<!-- phase-n-current:start -->
+N-07 = Complete / PASS — N07-R01 remediation formally PASS and review accepted
+N07-R01 = Complete / PASS — ChatGPT review accepted 2026-10-24
+<!-- phase-n-current:end -->
+
+The original run `20261024T201856+0900` remains historical Complete / FAIL:
+47 PASS / 3 FAIL, with I08/I11/I12 exposing incomplete SQLite-only recovery.
+Accepted product Composite recovery closes these failures without weakening their
+Gates. Other N-07 Gates were PASS and regression remained PASS.
+Authority: `docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md` and
+`benchmark/results/n07-r01-composite-backup-restore.json`, run
+`20261024T222300+0900`, source `ffb16e9f7e0e24c8c2648a04430fca57bfb71dfb`,
+result `9cda43e9303488d2b0905f61fa3dbbed4f03a4fb`, ChatGPT review accepted.
+Phase N closure is separate; no Phase O work has started.
 
 ## 1. Goal
 
@@ -383,7 +400,7 @@ N-07 = BLOCKED / Not Complete
 Phase N = Active / Not Complete
 ```
 
-## 8. Formal result and next task
+## 8. Historical original formal result and remediation task (superseded)
 
 Run `20261024T201856+0900`, measured clean HEAD
 `e78cf81a1c7d1daddfed729146579b4aacff8434`, completed A-J.

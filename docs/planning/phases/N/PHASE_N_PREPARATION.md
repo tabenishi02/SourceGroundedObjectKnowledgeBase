@@ -1,8 +1,34 @@
 # Source Grounded Object Knowledge Base — Phase N Preparation
 
-## N-07 formal failure/recovery update (2026-10-24)
+## Current authoritative closure state (2026-10-24)
 
-This is the current authoritative state; earlier updates below are historical.
+<!-- phase-n-current:start -->
+```text
+N-01 = Complete
+N-02 = Complete
+N-03 = Complete
+N-04 = Complete / PASS
+N-05 = Complete / PASS
+N-06 = Complete / PASS
+N-07 = Complete / PASS
+N07-R01 = Complete / PASS
+Phase N closure audit = Active / formal execution pending
+Phase N = Active / Not Complete
+```
+<!-- phase-n-current:end -->
+
+N07-R01 formal run `20261024T222300+0900`, measured source
+`ffb16e9f7e0e24c8c2648a04430fca57bfb71dfb`, result commit
+`9cda43e9303488d2b0905f61fa3dbbed4f03a4fb`, was accepted by ChatGPT review.
+This update supersedes historical next-task/current-state notes below. Original N-07
+47 PASS / 3 FAIL evidence remains unchanged. Phase O is downstream / Not Started.
+
+---
+
+
+## Historical N-07 formal failure/recovery update (2026-10-24)
+
+This records the historical pre-remediation state; the closure state above supersedes it.
 
 ```text
 N-01 ... N-06 = Complete
@@ -25,9 +51,9 @@ Aggregate: `benchmark/results/n07-failure-recovery.json`.
 ---
 
 
-## N-06 formal acceptance update (2026-10-24)
+## Historical N-06 formal acceptance update (2026-10-24)
 
-This is the current authoritative state; older next-task notes below are historical.
+This records N-06 completion; the closure state above supersedes its next-task notes.
 
 ```text
 N-01 ... N-05 = Complete
@@ -83,7 +109,7 @@ Closure authority: `docs/evaluation/N05D04R2_R2_10_CLOSURE_AUDIT.md`.
 
 ## Historical planning/evidence record retained below
 
-## Current acceptance update (2026-10-24)
+## Historical acceptance update (2026-10-24)
 
 This update supersedes historical BLOCKED/next-task notes below.
 **R2-08 = Complete / PASS; R2-09 = Complete / PASS;
@@ -108,7 +134,7 @@ Aggregate: `benchmark/results/n05d04r2-r2-09-performance-acceptance.json`.
 
 更新日: 2026-10-23
 
-- Status: **Active — N-01〜N-04 Complete / N-05 Active (R2-09 PASS; R2-10 closure not started) / N-06 Ready**
+- Historical status (superseded): **N-05 Active / N-06 Ready at the pre-R2-10 checkpoint**
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Previous phase: `Phase M — CLI / 操作フロー` — Complete
 - N-04 decision: `docs/decisions/N04_RESPONSIBILITY_BOUNDARY_RECONSTRUCTION.md`
@@ -146,9 +172,9 @@ Phase Nでは、Phase A〜Mで成立したSGOKBが、新しい目的に対して
 | N-02 | P0 | **Complete (2026-10-16)** | cross-domain Integrationを確認 |
 | N-03 | P0 | **Complete (2026-10-16)** | Character / Work / Conceptの実データVertical Slice |
 | N-04 | P0 | **Complete / PASS (2026-10-22)** | Knowledge Access Boundaryを代表3用途で受入 |
-| N-05 | P0 | **Active / R2-09 PASS; Not Complete until R2-10** | 1 Object local automatic processing性能を評価 |
-| N-06 | P0 | **Ready; R2 quality acceptanceで連携** | Retrieval / Vector Backend品質評価 |
-| N-07 | P1 | Pending | Failure / Recovery試験 |
+| N-05 | P0 | **Complete / PASS** | 1 Object local automatic processing性能を評価 |
+| N-06 | P0 | **Complete / PASS** | Retrieval / Vector Backend品質評価 |
+| N-07 | P1 | **Complete / PASS after N07-R01** | Failure / Recovery試験 |
 
 ## 3. Phase dependency
 
@@ -159,14 +185,14 @@ N-02 Integration Test                 Complete
   ↓
 N-03 Real-data Vertical Slice         Complete
   ├─→ N-04 Knowledge Access Acceptance   Complete / PASS
-  ├─→ N-05 Performance                  Active / BLOCKED
+  ├─→ N-05 Performance                  Complete / PASS
   │       ↓
   │     N05D-04R2 hierarchical Derived Search redesign
   │       ↓
   │     Search-quality acceptance (N-06 assets/resultsと整合確認)
   │       ↓
   │     New formal N-05 rerun
-  └─→ N-06 Retrieval / Vector quality   Ready
+  └─→ N-06 Retrieval / Vector quality   Complete / PASS
          ↓
        N-07 Failure / Recovery
          ↓
@@ -352,7 +378,7 @@ Tasks:
 
 `docs/planning/phases/N/N05/N05D04R2_HIERARCHICAL_MULTI_VECTOR_TASKS.md`
 
-### Current N-05 state
+### Historical pre-R2 N-05 state
 
 ```text
 N05D-01 = Complete
@@ -370,7 +396,7 @@ Do not start another 46-sample formal run before R2-08 Search-quality acceptance
 
 ## 10. N-06 — Retrieval / Vector quality
 
-Status: **Ready; redesign interaction required**
+Status: **Complete / PASS** — `docs/evaluation/N06_RETRIEVAL_VECTOR_QUALITY.md`
 
 評価channel:
 
@@ -394,11 +420,11 @@ Relation / filter / current-historical isolation
 - RAM / VRAM / disk
 - index build / incremental update / rebuild
 
-N05D-04R2 changes active Object-level semantic representation and overall Object Similarity, so R2-08 must re-run/extend the relevant N-06/search-quality assets before formal N-05 timing is authorized.
+Historical prerequisite (fulfilled): N05D-04R2 changes active Object-level semantic representation and overall Object Similarity, so R2-08 must re-run/extend the relevant N-06/search-quality assets before formal N-05 timing is authorized.
 
 ## 11. N-07 — Failure / Recovery
 
-Status: **Pending**
+Status: **Complete / PASS after accepted N07-R01** — `docs/evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md`
 
 主な対象:
 
@@ -411,6 +437,11 @@ Status: **Pending**
 - backup / restore / integrity / RPO / RTO
 
 ## 12. Current next work
+
+Phase N closure audit is Active / formal execution pending. Phase O O-01..O-06
+remain downstream / Not Started. Do not restart accepted historical benchmarks.
+
+### Historical pre-R2 next-work plan (superseded)
 
 N-05 current next task:
 

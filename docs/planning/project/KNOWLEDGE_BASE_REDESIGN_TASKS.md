@@ -1,5 +1,31 @@
 # Source Grounded Object Knowledge Base — Knowledge Base 再設計タスク
 
+## Current authoritative closure state (2026-10-24)
+
+<!-- phase-n-current:start -->
+```text
+N-01 = Complete
+N-02 = Complete
+N-03 = Complete
+N-04 = Complete / PASS
+N-05 = Complete / PASS
+N-06 = Complete / PASS
+N-07 = Complete / PASS
+N07-R01 = Complete / PASS
+Phase N closure audit = Active / formal execution pending
+Phase N = Active / Not Complete
+```
+<!-- phase-n-current:end -->
+
+N07-R01 formal run `20261024T222300+0900`, measured source
+`ffb16e9f7e0e24c8c2648a04430fca57bfb71dfb`, result commit
+`9cda43e9303488d2b0905f61fa3dbbed4f03a4fb`, was accepted by ChatGPT review.
+This update supersedes historical next-task/current-state notes below. Original N-07
+47 PASS / 3 FAIL evidence remains unchanged. Phase O is downstream / Not Started.
+
+---
+
+
 更新日: 2026-10-15
 
 ## 1. 目的
@@ -937,20 +963,28 @@ N-04本体の正式開始前にN-04P-01〜P-06を必須Gateとする。正本: `
 | N-04P-05 | Complete | Public CLI / Status。成果物: `docs/planning/N04P05_PUBLIC_CLI_STATUS.md` |
 | N-04P-06 | Complete | 実モデル / 実Qdrant受入。成果物: `docs/planning/N04P06_REAL_DATA_DERIVED_SEARCH_ACCEPTANCE.md` |
 
-- [ ] **N-04 [P0] 3つの代表AI利用ケースを受入試験する** — **Failed (2026-10-18) / 再受入が必要**
+- [x] **N-04 [P0] Knowledge Access Boundaryを代表3用途で受入する** — **Complete / PASS**
+  - SGOKB Retrieval/Similarity -> Context Builder -> MCP/public read boundaryまでを受入。
+  - 正本: `docs/evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`。
+  - Consumer生成品質はcore Gateから分離し、N-04R-05 dispositionを完了。
+
+### Historical original N-04 consumer-generation acceptance (superseded)
+
+> - [ ] **N-04 [P0] 3つの代表AI利用ケースを受入試験する** — **Failed (2026-10-18) / 再受入が必要**
   1. Character DataをローカルLLMへ渡しRoleplayできる。
   2. Work Dataから意味的に類似する別Workを検索し、AIが比較説明できる。
   3. Concept A/Bを取得し、ローカルLLMが両概念を組み合わせたCharacter創作に利用できる。
   - 実MCP/local LLM受入ではCase 1/2のcriticalなContext外claimとCase 3の創作範囲明示不足によりFailed。canonical/integrity/regressionはPASS。成果物: `docs/evaluation/N04_AI_USE_CASE_ACCEPTANCE.md`。N-05へ進めない。
 
-- [ ] **N-05 [P0] 1 Object自動処理時間を測定する**
+
+- [x] **N-05 [P0] 1 Object自動処理時間を測定する** — **Complete / PASS**
   - B-06で定義したpre-analysis local segment + post-analysis local segmentを計測対象とする。
   - Source探索 / Capture network、Package human review、Drive sync、ChatGPT操作 /生成待ち、Result返却、review-required判断等のhuman / external時間を分離記録する。
   - Package生成、Validation、Import、Object / Facet / Statement Embedding増分更新、Vector Index更新が目標時間内か確認する。
   - B-07 Reference WorkstationでStandard Objectをp95 10分以内、Large profileを別集計でp95 20分targetとして評価する。
   - cold / warm、model load、storage、retry、Git commit、Embedding Space / backend等のbenchmark metadataを記録する。
 
-- [ ] **N-06 [P0] Retrieval / Vector Backend品質を評価する**
+- [x] **N-06 [P0] Retrieval / Vector Backend品質を評価する** — **Complete / PASS**
   - Lexical / Semantic / Hybrid / Similarity / Evidence Searchを別々に評価する。
   - Statement Embeddingあり / なしのfine-grained Recall差を確認する。
   - Exact baselineとANN backendのStatement / Object Recall@Kを比較する。
@@ -960,7 +994,7 @@ N-04本体の正式開始前にN-04P-01〜P-06を必須Gateとする。正本: `
   - 類似検索は人間評価も併用する。
   - backend別にlatency / RAM / disk / index build / incremental update / rebuildを比較する。
 
-- [ ] **N-07 [P1] Failure / Recovery試験を行う**
+- [x] **N-07 [P1] Failure / Recovery試験を行う** — **Complete / PASS**
   - 不正JSON。
   - 存在しないEvidence ID。
   - schema version不一致。
@@ -1070,6 +1104,13 @@ O  Documentation / Release / Cleanup
 # 4. 最初に実施すべきタスク
 
 Phase A〜MはComplete。Phase LではL-01〜L-04のDecisionをL-05で実装し、旧runtime・001/002・互換surfaceをactive treeから削除した。現行canonical workflowとSample Rawは保持している。受入結果・既知制約は`docs/planning/PHASE_L_CLOSURE_AUDIT.md`を正本とする。
+
+Current next task: **Phase N closure audit — Active / formal execution pending**.
+N-01..N-07 are Complete; N07-R01 Complete/PASS is review accepted. Phase O
+O-01..O-06 remain downstream / Not Started. No main integration or branch cleanup
+is performed by closure audit.
+
+### Historical next-task claim after original N-04 failure (superseded)
 
 次の最優先Task（N-04はFailed / 再受入が必要）:
 
