@@ -1,5 +1,36 @@
 # N05D-04R2 — Hierarchical Multi-Vector Derived Search Redesign
 
+## R2-10 closure update (2026-10-24)
+
+Status: **Complete / Accepted**.
+
+```text
+R2-01 ... R2-10 = Complete
+N05D-04R2 = Complete
+N05D-04   = Complete
+N-05      = Complete / PASS
+```
+
+The redesign defined below is no longer a pending target. It is the accepted active Derived Search architecture. R2-08 quality acceptance and R2-09 formal performance/resource acceptance both passed. The accepted formal run used Harrier OSS v1 0.6B unchanged and required no truncation, CPU fallback, model downgrade, attention-backend substitution or performance-gate relaxation.
+
+Accepted active structure:
+
+```text
+object_overview + facet + statement
+→ bounded Hybrid Object aggregation
+→ hierarchical Object Similarity
+→ generation-scoped Qdrant serving
+→ 1 Object = 1 result
+```
+
+Legacy `object_overall` remains historical/readable for compatibility and retained evidence but is excluded from active R2 serving.
+
+Closure authority: `docs/evaluation/N05D04R2_R2_10_CLOSURE_AUDIT.md`.
+
+---
+
+## Historical design record retained below
+
 Updated: 2026-10-23
 
 - Parent: `N-05 [P0] — Performance`
