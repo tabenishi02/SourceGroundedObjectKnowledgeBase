@@ -13,6 +13,7 @@ import json
 import os
 import shutil
 import sqlite3
+import stat
 import uuid
 from collections import defaultdict
 from collections.abc import Mapping
@@ -47,12 +48,43 @@ def _file_identity(path: Path) -> dict[str, object]:
 def _safe_posix_relative(value: str) -> PurePosixPath:
     if not isinstance(value, str) or not value or "\\" in value:
         raise ValueError("Composite path must be a non-empty POSIX relative path")
+    if any(part in {"", ".", ".."} for part in value.split("/")):
+        raise ValueError("Composite path contains empty, dot or parent segment")
     path = PurePosixPath(value)
     if path.is_absolute() or any(part in {"", ".", ".."} for part in path.parts):
         raise ValueError("Composite path must not be absolute or contain traversal")
     if any(":" in part for part in path.parts):
         raise ValueError("Composite path contains an unsafe path segment")
+    for part in path.parts:
+        base = part.split(".")[0].upper()
+        if (
+            "\x00" in part
+            or part.endswith((".", " "))
+            or base
+            in {
+                "CON",
+                "PRN",
+                "AUX",
+                "NUL",
+                *[f"COM{i}" for i in range(1, 10)],
+                *[f"LPT{i}" for i in range(1, 10)],
+            }
+        ):
+            raise ValueError("Composite path contains an unsafe Windows segment")
     return path
+
+
+def _no_links(path: Path) -> Path:
+    """Check lexical path components before resolve can hide links/junctions."""
+    path = path.absolute()
+    for component in (path, *path.parents):
+        if component.is_symlink():
+            raise ValueError("Composite paths must not traverse symlinks")
+        if component.exists() and getattr(component.lstat(), "st_file_attributes", 0) & getattr(
+            stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0
+        ):
+            raise ValueError("Composite paths must not traverse reparse points")
+    return path.resolve()
 
 
 def _safe_segment(value: str, label: str) -> str:
@@ -70,8 +102,8 @@ def _safe_segment(value: str, label: str) -> str:
 
 def _package_path(root: Path, relative: str) -> Path:
     rel = _safe_posix_relative(relative)
-    root = root.resolve()
-    target = (root / Path(*rel.parts)).resolve()
+    root = _no_links(root)
+    target = _no_links(root / Path(*rel.parts))
     try:
         target.relative_to(root)
     except ValueError as exc:
@@ -85,15 +117,19 @@ def _regular_file(path: Path, label: str) -> Path:
     return path
 
 
-def _sqlite_connection(path: Path) -> sqlite3.Connection:
-    connection = sqlite3.connect(path)
+def _sqlite_connection(path: Path, *, readonly: bool = False) -> sqlite3.Connection:
+    connection = (
+        sqlite3.connect(path.resolve().as_uri() + "?mode=ro&immutable=1", uri=True)
+        if readonly
+        else sqlite3.connect(path)
+    )
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys=ON")
     return connection
 
 
 def _sqlite_integrity(path: Path) -> dict[str, object]:
-    connection = _sqlite_connection(path)
+    connection = _sqlite_connection(path, readonly=True)
     try:
         integrity_rows = [row[0] for row in connection.execute("PRAGMA integrity_check")]
         foreign_keys = [list(row) for row in connection.execute("PRAGMA foreign_key_check")]
@@ -109,6 +145,7 @@ def _create_sqlite_snapshot(repository, destination: Path) -> None:
     target = sqlite3.connect(destination)
     try:
         repository.db.backup(target)
+        target.execute("PRAGMA journal_mode=DELETE")
     finally:
         target.close()
     _sqlite_integrity(destination)
@@ -132,7 +169,7 @@ def _snapshot_raw_inventory(connection: sqlite3.Connection) -> list[dict[str, ob
         refs = {str(row["storage_ref"]) for row in members}
         if len(refs) != 1:
             raise ValueError(f"Raw Snapshot {snapshot_id} has multiple physical storage refs")
-        source = _regular_file(Path(next(iter(refs))).resolve(), "Raw Web Capture bundle")
+        source = _regular_file(_no_links(Path(next(iter(refs)))), "Raw Web Capture bundle")
         bundle = importer.read(source)
         if str(bundle.manifest.get("capture_id")) != snapshot_id:
             raise ValueError("Raw Web Capture capture_id does not match canonical Snapshot")
@@ -166,8 +203,8 @@ def _safe_result_source(incoming_root: Path, storage_ref: str) -> Path:
     rel = _safe_posix_relative(storage_ref)
     if rel.name != "result.json":
         raise ValueError("Accepted Result storage reference must end in result.json")
-    root = incoming_root.resolve()
-    source = (root / Path(*rel.parts)).resolve()
+    root = _no_links(incoming_root)
+    source = _no_links(root / Path(*rel.parts))
     try:
         source.relative_to(root)
     except ValueError as exc:
@@ -260,7 +297,7 @@ def create_composite_backup(
     """Create one complete-canonical backup generation from a SQLite consistency point."""
 
     output_path = Path(output) if output is not None else _default_generation(Path(root))
-    output_path = output_path.resolve()
+    output_path = _no_links(output_path)
     if output_path.exists():
         raise FileExistsError(f"Composite backup target already exists: {output_path}")
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -273,7 +310,7 @@ def create_composite_backup(
         canonical = stage / Path(*PurePosixPath(CANONICAL_REL).parts)
         _create_sqlite_snapshot(repository, canonical)
 
-        snapshot = _sqlite_connection(canonical)
+        snapshot = _sqlite_connection(canonical, readonly=True)
         try:
             raw_inventory = _snapshot_raw_inventory(snapshot)
             result_inventory = _snapshot_result_inventory(snapshot, Path(incoming_root))
@@ -350,7 +387,7 @@ def create_composite_backup(
             },
         }
         _write_json(stage / MANIFEST_NAME, manifest)
-        verify_composite_backup(stage)
+        _verify_composite_backup(stage)
         os.replace(stage, output_path)
         verified = verify_composite_backup(output_path)
         return {
@@ -375,6 +412,27 @@ def _load_manifest(root: Path) -> dict[str, object]:
         raise ValueError("Composite manifest is not valid UTF-8 JSON") from exc
     if not isinstance(manifest, dict) or manifest.get("schema") != COMPOSITE_BACKUP_SCHEMA:
         raise ValueError("Unsupported composite backup schema")
+    expected = {
+        "schema",
+        "generation_id",
+        "created_at",
+        "consistency_model",
+        "canonical",
+        "raw",
+        "provenance",
+        "recovery_metadata",
+    }
+    if set(manifest) != expected:
+        raise ValueError("Composite manifest has missing or unexpected fields")
+    try:
+        uuid.UUID(manifest["generation_id"])
+        created = datetime.fromisoformat(manifest["created_at"])
+        if created.utcoffset() is None:
+            raise ValueError("Composite creation timestamp must have timezone")
+    except (ValueError, TypeError, AttributeError) as exc:
+        raise ValueError("Composite manifest generation/time identity is invalid") from exc
+    if manifest["consistency_model"] != "sqlite_online_backup_then_inventory_from_snapshot":
+        raise ValueError("Unsupported composite consistency model")
     return manifest
 
 
@@ -392,10 +450,11 @@ def _verify_snapshot_closure(
     root: Path,
     manifest: Mapping[str, object],
 ) -> dict[str, int]:
-    connection = _sqlite_connection(canonical)
+    connection = _sqlite_connection(canonical, readonly=True)
     try:
         raw_rows = connection.execute(
-            """SELECT a.id,a.snapshot_id,a.logical_path,a.sha256,a.bytes,s.metadata_json
+            """SELECT a.id,a.snapshot_id,a.logical_path,a.sha256,a.bytes,
+                      a.storage_ref,s.metadata_json
                FROM raw_artifacts a JOIN source_snapshots s ON s.id=a.snapshot_id
                ORDER BY a.snapshot_id,a.id"""
         ).fetchall()
@@ -403,6 +462,8 @@ def _verify_snapshot_closure(
             """SELECT id,receipt_id,result_storage_ref,result_sha256,result_byte_count
                FROM object_result_imports ORDER BY id"""
         ).fetchall()
+        # Re-check receipt/import identity using packaged bytes, never original roots.
+        _snapshot_result_inventory(connection, root / "provenance")
     finally:
         connection.close()
 
@@ -429,10 +490,20 @@ def _verify_snapshot_closure(
     importer = WebCaptureImporter()
     for snapshot_id, members in grouped.items():
         entry = raw_by_snapshot[snapshot_id]
+        relative = _safe_posix_relative(str(entry.get("path", "")))
+        if len(relative.parts) != 3 or relative.parts[:2] != ("raw", snapshot_id):
+            raise ValueError("Composite Raw path must preserve Snapshot/basename layout")
+        if len({row["storage_ref"] for row in members}) != 1:
+            raise ValueError("Canonical Snapshot has multiple Raw storage refs")
+        if entry.get("logical_artifact_count") != len(members):
+            raise ValueError("Composite logical artifact count differs from canonical Snapshot")
         packaged = _verify_declared_file(root, entry, "Composite Raw bundle")
         bundle = importer.read(packaged)
         metadata = json.loads(str(members[0]["metadata_json"]))
-        if bundle.sha256 != metadata.get("bundle_sha256") or bundle.manifest.get("capture_id") != snapshot_id:
+        if (
+            bundle.sha256 != metadata.get("bundle_sha256")
+            or bundle.manifest.get("capture_id") != snapshot_id
+        ):
             raise ValueError("Composite Raw bundle identity does not match SQLite Snapshot")
         for row in members:
             logical = str(row["logical_path"])
@@ -452,14 +523,21 @@ def _verify_snapshot_closure(
         result_by_import[import_id] = entry
     expected_imports = {str(row["id"]) for row in result_rows}
     if set(result_by_import) != expected_imports:
-        raise ValueError("Composite provenance manifest does not close accepted Result dependencies")
+        raise ValueError("Composite provenance does not close accepted Result dependencies")
     for row in result_rows:
         entry = result_by_import[str(row["id"])]
         storage_ref = _safe_posix_relative(str(row["result_storage_ref"])).as_posix()
+        if entry.get("path") != "provenance/" + storage_ref:
+            raise ValueError("Composite Result path must preserve incoming relative ref")
         if entry.get("receipt_id") != row["receipt_id"] or entry.get("storage_ref") != storage_ref:
             raise ValueError("Composite provenance identity does not match SQLite import audit")
-        if entry.get("sha256") != row["result_sha256"] or entry.get("bytes") != row["result_byte_count"]:
-            raise ValueError("Composite provenance content identity does not match SQLite import audit")
+        if (
+            entry.get("sha256") != row["result_sha256"]
+            or entry.get("bytes") != row["result_byte_count"]
+        ):
+            raise ValueError(
+                "Composite provenance content identity does not match SQLite import audit"
+            )
         packaged = _verify_declared_file(root, entry, "Composite accepted Result")
         if packaged.name != "result.json":
             raise ValueError("Composite accepted Result filename is invalid")
@@ -474,9 +552,15 @@ def _verify_snapshot_closure(
 
 
 def verify_composite_backup(backup: str | Path) -> dict[str, object]:
-    """Verify one generation without mutating it or any live recovery target."""
+    """Verify a finalized generation without mutating it or recovery targets."""
+    root = _no_links(Path(backup))
+    if root.name.startswith(".") and ".staging-" in root.name:
+        raise ValueError("Staging directories are not accepted composite generations")
+    return _verify_composite_backup(root)
 
-    root = Path(backup).resolve()
+
+def _verify_composite_backup(backup: str | Path) -> dict[str, object]:
+    root = _no_links(Path(backup))
     if root.is_symlink() or not root.is_dir():
         raise ValueError("Composite backup must be a regular directory")
     manifest = _load_manifest(root)
@@ -494,13 +578,18 @@ def verify_composite_backup(backup: str | Path) -> dict[str, object]:
         recovery_data = json.loads(recovery.read_text(encoding="utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ValueError("Composite recovery metadata is not valid UTF-8 JSON") from exc
-    if not isinstance(recovery_data, dict) or recovery_data.get("schema") != RECOVERY_METADATA_SCHEMA:
+    if (
+        not isinstance(recovery_data, dict)
+        or recovery_data.get("schema") != RECOVERY_METADATA_SCHEMA
+    ):
         raise ValueError("Composite recovery metadata schema is invalid")
     if recovery_data.get("plaintext_secrets_included") is not False:
         raise ValueError("Composite recovery metadata cannot claim plaintext-secret inclusion")
     if recovery_data.get("original_absolute_roots_included") is not False:
         raise ValueError("Composite recovery metadata cannot include original absolute roots")
 
+    if recovery_data != _recovery_metadata():
+        raise ValueError("Composite recovery metadata contains unexpected fields or semantics")
     closure = _verify_snapshot_closure(canonical, root, manifest)
 
     declared = {MANIFEST_NAME, str(canonical_entry["path"]), str(recovery_entry["path"])}
@@ -550,10 +639,10 @@ def _restore_targets(
     raw_root: str | Path,
     incoming_root: str | Path,
 ) -> tuple[Path, Path, Path, Path]:
-    db = Path(db_target).resolve()
-    raw = Path(raw_root).resolve()
-    incoming = Path(incoming_root).resolve()
-    metadata = db.with_name(db.name + ".recovery.json")
+    db = _no_links(Path(db_target))
+    raw = _no_links(Path(raw_root))
+    incoming = _no_links(Path(incoming_root))
+    metadata = _no_links(db.with_name(db.name + ".recovery.json"))
     paths = [db, raw, incoming, metadata]
     for index, first in enumerate(paths):
         for second in paths[index + 1 :]:
@@ -571,7 +660,7 @@ def composite_restore_plan(
 ) -> dict[str, object]:
     """Return a read-only, verified restore plan."""
 
-    root = Path(backup).resolve()
+    root = _no_links(Path(backup))
     verification = verify_composite_backup(root)
     db, raw, incoming, metadata = _restore_targets(db_target, raw_root, incoming_root)
     for target in (db, raw, incoming, metadata):
@@ -611,6 +700,14 @@ def _prepare_external_target(path: Path, acknowledge_overwrite: bool) -> None:
         )
 
 
+def _restore_stage_paths(db_target, raw_root, incoming_root, metadata_target):
+    token = uuid.uuid4().hex
+    return tuple(
+        path.parent / f".{path.name}.restore-{token}.tmp"
+        for path in (db_target, raw_root, incoming_root, metadata_target)
+    )
+
+
 def _stage_restore(
     backup: Path,
     manifest: Mapping[str, object],
@@ -618,12 +715,9 @@ def _stage_restore(
     raw_root: Path,
     incoming_root: Path,
     metadata_target: Path,
+    stages: tuple[Path, Path, Path, Path],
 ) -> tuple[Path, Path, Path, Path]:
-    token = uuid.uuid4().hex
-    db_stage = db_target.parent / f".{db_target.name}.restore-{token}.tmp"
-    raw_stage = raw_root.parent / f".{raw_root.name}.restore-{token}.tmp"
-    incoming_stage = incoming_root.parent / f".{incoming_root.name}.restore-{token}.tmp"
-    metadata_stage = metadata_target.parent / f".{metadata_target.name}.restore-{token}.tmp"
+    db_stage, raw_stage, incoming_stage, metadata_stage = stages
     for stage in (db_stage, raw_stage, incoming_stage, metadata_stage):
         if stage.exists():
             raise FileExistsError(f"Restore staging target already exists: {stage}")
@@ -690,6 +784,7 @@ def _stage_restore(
             if cursor.rowcount <= 0:
                 raise ValueError("Composite Raw relocation refers to unknown Snapshot")
         connection.commit()
+        connection.execute("PRAGMA journal_mode=DELETE")
     except Exception:
         connection.rollback()
         raise
@@ -718,7 +813,10 @@ def _stage_restore(
             ref = _safe_posix_relative(str(row["result_storage_ref"]))
             path = _regular_file(incoming_stage / Path(*ref.parts), "Staged restored Result")
             identity = _file_identity(path)
-            if identity["sha256"] != row["result_sha256"] or identity["bytes"] != row["result_byte_count"]:
+            if (
+                identity["sha256"] != row["result_sha256"]
+                or identity["bytes"] != row["result_byte_count"]
+            ):
                 raise ValueError("Staged restored Result does not match accepted import audit")
     finally:
         check.close()
@@ -755,29 +853,30 @@ def composite_restore_apply(
     _prepare_external_target(raw, acknowledge_overwrite)
     _prepare_external_target(incoming, acknowledge_overwrite)
 
+    if any(Path(str(db) + suffix).exists() for suffix in ("-wal", "-shm", "-journal")):
+        raise RuntimeError("Composite restore requires an offline target without SQLite sidecars")
     manifest = _load_manifest(root)
-    stages: tuple[Path, Path, Path, Path] | None = None
-    published_external: list[Path] = []
+    stages = _restore_stage_paths(db, raw, incoming, metadata)
+    published_external = []
+    existing_empty = [path for path in (raw, incoming) if path.exists()]
+    metadata_rollback = metadata.with_name(f".{metadata.name}.rollback-{uuid.uuid4().hex}.tmp")
+    database_published = False
     try:
-        stages = _stage_restore(root, manifest, db, raw, incoming, metadata)
+        _stage_restore(root, manifest, db, raw, incoming, metadata, stages)
         db_stage, raw_stage, incoming_stage, metadata_stage = stages
-        if raw.exists():
-            raw.rmdir()
-        if incoming.exists():
-            incoming.rmdir()
+        if metadata.exists():
+            shutil.copy2(metadata, metadata_rollback)
+        for path in existing_empty:
+            path.rmdir()
         os.replace(raw_stage, raw)
         published_external.append(raw)
         os.replace(incoming_stage, incoming)
         published_external.append(incoming)
         os.replace(metadata_stage, metadata)
         published_external.append(metadata)
-        # Database is the completion marker and is deliberately published last.
+        # All validations precede this final atomic completion marker.
         os.replace(db_stage, db)
-        for suffix in ("-wal", "-shm"):
-            sidecar = Path(str(db) + suffix)
-            if sidecar.exists():
-                sidecar.unlink()
-        final_sqlite = _sqlite_integrity(db)
+        database_published = True
         return {
             "restored": True,
             "backup": str(root),
@@ -786,22 +885,23 @@ def composite_restore_apply(
             "incoming_root": str(incoming),
             "recovery_metadata": str(metadata),
             "database_published_last": True,
-            "sqlite": final_sqlite,
+            "sqlite": {"integrity_check": ["ok"], "foreign_key_violations": []},
             "verification": plan["verification"],
         }
-    except Exception:
-        if stages is not None:
-            for stage in stages:
-                if stage.is_dir():
-                    shutil.rmtree(stage, ignore_errors=True)
-                else:
-                    stage.unlink(missing_ok=True)
-        # If publication failed before the DB completion marker, new external roots are
-        # orphaned rather than an accepted restore. Remove only paths created by this run.
-        if not db.exists():
+    finally:
+        if not database_published:
             for target in reversed(published_external):
                 if target.is_dir():
-                    shutil.rmtree(target, ignore_errors=True)
-                elif target.exists():
+                    shutil.rmtree(target)
+                else:
                     target.unlink(missing_ok=True)
-        raise
+            if metadata_rollback.exists() and metadata in published_external:
+                os.replace(metadata_rollback, metadata)
+            for path in existing_empty:
+                path.mkdir(exist_ok=True)
+        for stage in stages:
+            if stage.is_dir():
+                shutil.rmtree(stage)
+            else:
+                stage.unlink(missing_ok=True)
+        metadata_rollback.unlink(missing_ok=True)

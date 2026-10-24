@@ -24,6 +24,12 @@ from sgokb.application_read import (
     KnowledgeRequestError,
     RetrievalRuntimeUnavailableError,
 )
+from sgokb.composite_recovery import (
+    composite_restore_apply,
+    composite_restore_plan,
+    create_composite_backup,
+    verify_composite_backup,
+)
 from sgokb.domain import ObjectSearchFilters
 from sgokb.exchange.package_builder import DEFAULT_BUILD_ROOT, ObjectEvidencePackageBuilder
 from sgokb.exchange.package_transfer import PackageTransferService
@@ -343,6 +349,16 @@ def parser() -> argparse.ArgumentParser:
     backup_create = backup_actions.add_parser("create")
     backup_create.add_argument("--output", type=Path)
     backup_create.add_argument("--root", type=Path, default=Path("backups"))
+    composite_backup = backup_actions.add_parser("composite")
+    composite_backup_actions = composite_backup.add_subparsers(
+        dest="composite_action", required=True
+    )
+    composite_create = composite_backup_actions.add_parser("create")
+    composite_create.add_argument("--incoming-root", type=Path, required=True)
+    composite_create.add_argument("--output", type=Path)
+    composite_create.add_argument("--root", type=Path, default=Path("backups"))
+    composite_verify = composite_backup_actions.add_parser("verify")
+    composite_verify.add_argument("backup", type=Path)
     restore = system_actions.add_parser("restore")
     restore_actions = restore.add_subparsers(dest="subaction", required=True)
     restore_plan_parser = restore_actions.add_parser("plan")
@@ -350,12 +366,24 @@ def parser() -> argparse.ArgumentParser:
     restore_apply_parser = restore_actions.add_parser("apply")
     restore_apply_parser.add_argument("backup", type=Path)
     restore_apply_parser.add_argument("--acknowledge-overwrite", action="store_true")
+    composite_restore = restore_actions.add_parser("composite")
+    composite_restore_actions = composite_restore.add_subparsers(
+        dest="composite_action", required=True
+    )
+    for action in ("plan", "apply"):
+        operation = composite_restore_actions.add_parser(action)
+        operation.add_argument("backup", type=Path)
+        operation.add_argument("--db-target", type=Path, required=True)
+        operation.add_argument("--raw-root", type=Path, required=True)
+        operation.add_argument("--incoming-root", type=Path, required=True)
+        if action == "apply":
+            operation.add_argument("--acknowledge-overwrite", action="store_true")
     return root
 
 
 def _command(args) -> str:
     parts = [args.domain]
-    for name in ("registry_domain", "action", "subaction"):
+    for name in ("registry_domain", "action", "subaction", "composite_action"):
         value = getattr(args, name, None)
         if value:
             parts.append(value)
@@ -749,6 +777,10 @@ def _system_dispatch(repository, db_path: Path, args):
         ).rebuild(provider.space)
         return metadata
     if args.action == "backup":
+        if args.subaction == "composite":
+            return create_composite_backup(
+                repository, incoming_root=args.incoming_root, output=args.output, root=args.root
+            )
         if args.subaction == "status":
             return backup_status(args.root)
         return create_backup(repository, args.output, args.root)
@@ -798,8 +830,29 @@ def main(argv=None) -> int:
     repository = None
 
     try:
+        if (
+            args.domain == "system"
+            and args.action == "backup"
+            and args.subaction == "composite"
+            and args.composite_action == "verify"
+        ):
+            return emit_success(
+                command, verify_composite_backup(args.backup), output_format=args.format
+            )
         if args.domain == "system" and args.action == "restore":
-            if args.subaction == "plan":
+            if args.subaction == "composite":
+                options = {
+                    "db_target": args.db_target,
+                    "raw_root": args.raw_root,
+                    "incoming_root": args.incoming_root,
+                }
+                if args.composite_action == "plan":
+                    data = composite_restore_plan(args.backup, **options)
+                else:
+                    data = composite_restore_apply(
+                        args.backup, **options, acknowledge_overwrite=args.acknowledge_overwrite
+                    )
+            elif args.subaction == "plan":
                 data = restore_plan(args.backup, db_path)
             else:
                 data = restore_apply(
