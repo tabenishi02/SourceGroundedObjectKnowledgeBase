@@ -1,3 +1,9 @@
+> [!WARNING]
+> **ARCHIVED / LEGACY — Prototype 0.2**
+>
+> このディレクトリ全体は旧Prototype 0.2の歴史資料です。**現行SGOKBの仕様・設計・運用手順ではありません。**
+> 現行仕様は [Current Architecture](../../design/SGOKB_CURRENT_ARCHITECTURE.md)、[Documentation Index](../../README.md)、[root README](../../../README.md) を参照してください。
+
 # Prototype 0.2 Archive
 
 このディレクトリは、SGOKB再設計前のCharacterPageCollector / SGOKB Prototype 0.2に関する歴史資料を保存する。
