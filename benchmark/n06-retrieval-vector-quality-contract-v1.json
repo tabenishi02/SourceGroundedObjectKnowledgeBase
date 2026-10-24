@@ -1,0 +1,133 @@
+{
+  "schema_version": "sgokb.n06-retrieval-vector-quality-contract/1.0",
+  "status": "frozen",
+  "task": "N-06",
+  "active_generation_contract": "n05d04r2-hierarchical-v2",
+  "embedding": {
+    "model": "microsoft/harrier-oss-v1-0.6b",
+    "revision": "f9b9dc8d367d443f2479d27aa5d8d2850c0774ee",
+    "dimension": 1024,
+    "dtype": "bfloat16",
+    "device": "cuda",
+    "normalize_embeddings": true,
+    "truncation": false,
+    "cpu_fallback": false
+  },
+  "active_representation_kinds": [
+    "object_overview",
+    "facet",
+    "statement"
+  ],
+  "forbidden_active_representation_kinds": [
+    "object_overall"
+  ],
+  "synthetic_search": {
+    "fixtures": [
+      "benchmark/search-quality-gold-v1.json",
+      "benchmark/n05d04r2-search-quality-acceptance-v1.json",
+      "benchmark/n05d04r2-object-similarity-gold-v1.json"
+    ],
+    "gates": {
+      "exact_identity_accuracy": 1.0,
+      "semantic_recall_at_10": 1.0,
+      "hybrid_recall_at_10": 1.0,
+      "hybrid_mrr": 1.0,
+      "statement_recall_at_10": 1.0,
+      "r2_similarity_cases_passed": 6,
+      "r2_similarity_cases_total": 6,
+      "unexplained_negative_comparable_deltas": 0,
+      "active_object_overall_leakage": 0
+    }
+  },
+  "real_data": {
+    "fixture": "benchmark/n03-real-data-vertical-slice-v1.json",
+    "source_of_judgement": "frozen manifest and human ground-truth notes only",
+    "gates": {
+      "identity_rank1_required": true,
+      "semantic_supported_target_recall_at_10": 1.0,
+      "hybrid_supported_target_recall_at_10": 1.0,
+      "historical_or_generation_leakage": 0
+    }
+  },
+  "statement_ablation": {
+    "full_channels": [
+      "object_overview",
+      "facet",
+      "statement"
+    ],
+    "ablated_object_channels": [
+      "object_overview",
+      "facet"
+    ],
+    "direct_statement_search_remains_enabled": true,
+    "decision": "report marginal Object-level quality; do not remove Statement representation inside N-06"
+  },
+  "reranker": {
+    "candidate_path": "Harrier Statement top-50 -> reranker -> Statement-to-Object grouping",
+    "candidate_depth": 50,
+    "models": {
+      "bge": {
+        "model": "BAAI/bge-reranker-v2-m3",
+        "revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e"
+      },
+      "zerank2": {
+        "model": "zeroentropy/zerank-2-reranker",
+        "revision": "5eae30d5ee3c6b2df2ef6d723bde45172d761c4c"
+      }
+    },
+    "production_adoption_in_scope": false
+  },
+  "ann_100k": {
+    "points": 100000,
+    "dimension": 1024,
+    "queries": 24,
+    "hard_filter_partitions": 8,
+    "exact_reference": "NumPy Float32 cosine",
+    "fixture_generation": "3-way weighted mixture of frozen active-R2 gold vectors + Gaussian noise",
+    "noise_sigma": 0.005,
+    "qdrant": {
+      "server": "1.19.2",
+      "m": 16,
+      "ef_construct": 128,
+      "hnsw_ef": 768,
+      "full_scan_threshold": 10
+    },
+    "gates": {
+      "indexed_points": 100000,
+      "unfiltered_mean_recall_at_10_min": 0.99,
+      "filtered_mean_recall_at_10_min": 0.99,
+      "unfiltered_min_query_recall_at_10_min": 0.9,
+      "filtered_min_query_recall_at_10_min": 0.9,
+      "payload_or_generation_identity_violations": 0,
+      "formal_parameter_tuning_after_result": false
+    }
+  },
+  "required_metrics": [
+    "MRR",
+    "Recall@1",
+    "Recall@5",
+    "Recall@10",
+    "nDCG@10",
+    "p50 latency",
+    "p95 latency",
+    "CUDA max allocated",
+    "CUDA max reserved",
+    "Qdrant index disk bytes",
+    "Qdrant process memory when available",
+    "initial build time",
+    "full rebuild time",
+    "incremental update 100 points"
+  ],
+  "safety": {
+    "production_canonical_mutation": false,
+    "preserved_n03_db_mutation": false,
+    "production_active_pointer_mutation": false,
+    "benchmark_namespace_isolation": true,
+    "tracked_state_unchanged_during_measurement": true
+  },
+  "verdicts": [
+    "PASS",
+    "FAIL",
+    "BLOCKED"
+  ]
+}
