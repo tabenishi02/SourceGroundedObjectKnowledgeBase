@@ -616,3 +616,18 @@ def test_supporting_kill_blocked_does_not_hide_mandatory_failure():
     assert evaluate(evidence)["overall"] == "PASS"
     evidence["cases"]["failure_after_knowledge_written"]["status"] = "FAIL"
     assert evaluate(evidence)["overall"] == "FAIL"
+
+
+def test_formal_case_creates_nested_pytest_parent(tmp_path):
+    from benchmark.tools.n07_failure_recovery import pytest_case
+
+    run = tmp_path / ".local" / "n07" / "owned"
+    run.mkdir(parents=True)
+    result = pytest_case(
+        run,
+        "nested-case",
+        ["tests/test_n07_failure_recovery.py::test_owned_target_and_digest_determinism"],
+    )
+    assert result["status"] == "PASS", result
+    assert result["setup_errors"] == 0
+    assert (run / "nested-case" / "fixtures").is_dir()

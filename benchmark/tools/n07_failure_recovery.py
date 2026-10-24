@@ -78,7 +78,7 @@ def originals(workspace):
 
 
 def pytest_case(run, label, selectors, *, real_provider=False):
-    owned_path(run, run / label)
+    owned_path(run, run / label).mkdir(parents=True, exist_ok=False)
     env = dict(os.environ)
     if real_provider:
         env["N07_REAL_PROVIDER"] = "1"
@@ -103,17 +103,19 @@ def pytest_case(run, label, selectors, *, real_provider=False):
     xml = run / (label + ".xml")
     cases = list(ET.parse(xml).iter("testcase")) if xml.is_file() else []
     skipped = sum(c.find("skipped") is not None for c in cases)
+    setup_errors = sum(c.find("error") is not None for c in cases)
     failed = sum(c.find("failure") is not None or c.find("error") is not None for c in cases)
     return {
         "status": "PASS"
         if rc == 0 and cases and not skipped and not failed
         else "BLOCKED"
-        if not cases or skipped
+        if not cases or skipped or setup_errors
         else "FAIL",
         "return_code": rc,
         "passed": len(cases) - failed - skipped,
         "failed": failed,
         "skipped": skipped,
+        "setup_errors": setup_errors,
         "seconds": time.perf_counter() - start,
         "selectors": selectors,
         "junit": xml.name,
@@ -447,10 +449,14 @@ def main():
         import psutil
 
         leftover = []
+        ancestors = {process.pid for process in psutil.Process().parents()}
         for process in psutil.process_iter(["pid", "cmdline"]):
             try:
                 command_line = " ".join(process.info["cmdline"] or [])
-                if process.pid != os.getpid() and str(run).lower() in command_line.lower():
+                if (
+                    process.pid not in ancestors | {os.getpid()}
+                    and str(run).lower() in command_line.lower()
+                ):
                     leftover.append(process.pid)
             except (psutil.AccessDenied, psutil.NoSuchProcess):
                 continue
