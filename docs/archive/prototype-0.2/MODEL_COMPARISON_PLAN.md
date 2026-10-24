@@ -1,3 +1,10 @@
+> [!WARNING]
+> **ARCHIVED / LEGACY — Prototype 0.2**
+>
+> この文書は旧Prototype 0.2の歴史資料です。**現行SGOKBの仕様・設計・運用手順ではありません。**
+> 現行仕様は [Current Architecture](../../design/SGOKB_CURRENT_ARCHITECTURE.md) と [root README](../../../README.md) を参照してください。
+> 以下の本文は再現性・設計経緯のため当時の内容を保持しています。
+
 # モデル比較の実行計画
 
 作成日: 2026-10-06。計画段階であり、本書の試験は未実行。
@@ -28,7 +35,7 @@
 
 - `benchmark/sample-v1.json`の代表8Captureを同一入力の比較用データとして使用する。元manifestを変更せず、今回用のversion付きmanifestを別途作る。
 - この8Captureは既にPrompt修正・失敗調査に使った。既存の`test`表示を未知データの証明にせず、今回用manifestでは開発用データとして明示する。
-- 未使用Captureを4〜8件選び、公式紹介、百科事典、掲示板、長い表・一覧を含む保留セットを別に作る。転載や同じSourceの別Captureは開発セットと分離し、独立性の不明点を記録する。
+- 未使用Captureを4〜8件選び、公式紹介、百科事事典、掲示板、長い表・一覧を含む保留セットを別に作る。転載や同じSourceの別Captureは開発セットと分離し、独立性の不明点を記録する。
 - Raw SHA256、Normalized/EvidenceのID・内容hash、Page Context revision、Entity、Prompt/Schema hash、Core commitを固定する。
 - 正規化済みの同じ基準DBからモデルごとのDBを作る。他モデルのFragmentを同じ試験入力へ混入させず、旧結果を上書きしない。
 - 実ページ本文、gold、DB、Vector、生成結果は`.local/`と`sample/`へ保存し、Git管理外とする。
