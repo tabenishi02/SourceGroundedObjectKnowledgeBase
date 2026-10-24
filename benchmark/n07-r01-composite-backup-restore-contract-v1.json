@@ -22,7 +22,8 @@
   },
   "layout": {
     "canonical_database": "canonical/canonical.sqlite",
-    "raw_bundle_pattern": "raw/<snapshot-id>/capture.webcapture.zip",
+    "raw_bundle_pattern": "raw/<snapshot-id>/<original-webcapture-basename>.webcapture.zip",
+    "raw_bundle_basename_preserved": true,
     "provenance_prefix": "provenance/",
     "recovery_metadata": "metadata/recovery.json",
     "manifest": "manifest.json"
@@ -33,6 +34,7 @@
     "byte_count_required": true,
     "sqlite_integrity_check": true,
     "sqlite_foreign_key_check": true,
+    "webcapture_importer_validation": true,
     "reject_absolute_packaged_paths": true,
     "reject_parent_traversal": true,
     "reject_duplicate_packaged_paths": true,
@@ -45,6 +47,7 @@
     "physical_identity": "one_webcapture_bundle_per_snapshot",
     "all_rows_for_snapshot_must_share_storage_ref": true,
     "physical_hash_source": "source_snapshots.metadata_json.bundle_sha256",
+    "bundle_filename_identity_must_be_preserved": true,
     "restore_relocation": "rewrite_raw_artifacts.storage_ref_only",
     "immutable_fields_must_not_change": [
       "snapshot_id",
@@ -105,6 +108,7 @@
     "unsafe_result_storage_ref_rejected",
     "alternate_root_restore_relocates_raw_storage_ref",
     "alternate_root_restore_preserves_result_relative_ref",
+    "raw_bundle_basename_identity_preserved",
     "restore_plan_is_read_only",
     "target_overlap_and_overwrite_protection",
     "incomplete_staging_generation_rejected",
