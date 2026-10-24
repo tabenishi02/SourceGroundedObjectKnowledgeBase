@@ -1,8 +1,32 @@
 # Source Grounded Object Knowledge Base — Phase N Preparation
 
-## R2-10 closure update (2026-10-24)
+## N-06 formal acceptance update (2026-10-24)
 
-This is the current authoritative Phase N state and supersedes older current-state / next-task notes retained below.
+This is the current authoritative state; older next-task notes below are historical.
+
+```text
+N-01 ... N-05 = Complete
+N-06 = Complete / PASS
+N-07 = Next / Pending
+Phase N = Active / Not Complete
+```
+
+Run `20261024T155932+0900` completed the full A-H Reference Workstation protocol
+at source `3956de51ab00b3970595e5d359ca05b681523890`. Deterministic evaluation PASS;
+R2 synthetic contracts 5/5 and R2SIM 6/6; supported N-03 Semantic/Hybrid R@10 1.0;
+100k ANN mean/min Recall@10 1.0/1.0 in both modes with zero identity violations.
+Canonical/reference/R1 safety and post-run focused 20 / full 689 tests, Ruff and
+diff passed. Rerankers remain optional. N-07 has not been started.
+
+Result: `docs/evaluation/N06_RETRIEVAL_VECTOR_QUALITY.md`.
+Aggregate: `benchmark/results/n06-retrieval-vector-quality.json`.
+
+---
+
+
+## Historical R2-10 closure update (2026-10-24)
+
+The following records the state at R2-10 closure; the N-06 update above supersedes its next-task notes.
 
 ```text
 N-01 = Complete

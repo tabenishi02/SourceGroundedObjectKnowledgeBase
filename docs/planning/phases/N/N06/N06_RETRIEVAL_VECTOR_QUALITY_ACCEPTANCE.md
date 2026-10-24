@@ -4,7 +4,7 @@ Updated: 2026-10-24
 
 - Phase: `Phase N — Test / Evaluation / Acceptance`
 - Task: `N-06 [P0] — Retrieval / Vector quality`
-- Status: **Active / formal Reference Workstation execution pending**
+- Status: **Complete / PASS**
 - Parent state: N-05 `Complete / PASS`; Phase N `Active / Not Complete`
 - Active search generation: `n05d04r2-hierarchical-v2`
 - Embedding baseline: `microsoft/harrier-oss-v1-0.6b`
@@ -411,18 +411,26 @@ N-06 = BLOCKED / Not Complete
 
 isolate the blocker and stop.
 
-## 10. Current next action
+## 10. Formal completion / next action
 
-Implement the N-06 harness against the accepted R2 generation contract, run focused/static preflight, then execute the Reference Workstation evaluation in the stage order:
+Formal run `20261024T155932+0900`, source HEAD
+`3956de51ab00b3970595e5d359ca05b681523890`, completed stages A-H.
+Deterministic evaluator: PASS. Synthetic contracts 5/5, R2SIM 6/6,
+Statement R@10 1.0, supported N-03 Semantic/Hybrid R@10 1.0.
+100k indexed points: unfiltered and filtered mean/min Recall@10 1.0/1.0,
+payload identity violations 0. Canonical, preserved N-03, reference Qdrant,
+measurement HEAD/tracked state and all three R1 assets unchanged.
+Post-run focused 20 / full 689 passed; Ruff and diff PASS.
+Rerankers remain optional; no production tuning or integration was performed.
+
+Result: `docs/evaluation/N06_RETRIEVAL_VECTOR_QUALITY.md`.
+Aggregate: `benchmark/results/n06-retrieval-vector-quality.json`.
+Historical BLOCKED attempt and all raw evidence remain under `.local/n06/`.
 
 ```text
-A preflight
-B synthetic R2 gold
-C N-03 real-data retrieval
-D Statement ablation
-E reranker study
-F 100k ANN
-post-run regression / safety
+N-06 = Complete / PASS
+N-07 = Next / Pending
+Phase N = Active / Not Complete
 ```
 
-Do not start N-07 in this task.
+N-07 was not started in this task.
