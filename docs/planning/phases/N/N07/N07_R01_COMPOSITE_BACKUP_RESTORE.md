@@ -58,13 +58,15 @@ A live-database mutation after step 1 MUST NOT change the dependency closure of 
 │  └─ canonical.sqlite
 ├─ raw/
 │  └─ <snapshot-id>/
-│     └─ capture.webcapture.zip
+│     └─ <original-webcapture-basename>.webcapture.zip
 ├─ provenance/
 │  └─ <original incoming-root-relative result path>
 ├─ metadata/
 │  └─ recovery.json
 └─ manifest.json
 ```
+
+The Raw bundle basename is part of the recoverability contract. `WebCaptureImporter` validates the filename against the capture timestamp and capture UUID, so the backup MUST preserve the original basename rather than normalizing it to a generic filename.
 
 `manifest.json` is the completion marker. A staging directory or a directory without a valid manifest is not a usable backup generation.
 
@@ -76,7 +78,7 @@ The composite manifest uses schema `sgokb.composite-backup.v1` and records:
 - UTC creation time;
 - consistency model;
 - canonical SQLite packaged path, SHA-256, and byte count;
-- one Raw physical-bundle entry per canonical Snapshot that owns Raw artifacts;
+- one Raw physical-bundle entry per canonical Snapshot that owns Raw artifacts, preserving the original bundle basename;
 - accepted Result entries with import/receipt identity, original safe relative `storage_ref`, SHA-256, and byte count;
 - recovery metadata packaged path, SHA-256, and byte count.
 
@@ -90,10 +92,11 @@ For each Snapshot, N07-R01 therefore:
 
 - requires all Raw rows to resolve to one physical bundle;
 - validates that physical bundle against the Snapshot's canonical `metadata_json.bundle_sha256`;
-- copies the physical bundle once to `raw/<snapshot-id>/capture.webcapture.zip`;
+- validates the bundle through the existing `WebCaptureImporter`, including member checksums and filename identity;
+- copies the physical bundle once to `raw/<snapshot-id>/<original-webcapture-basename>.webcapture.zip`;
 - records the Snapshot-to-packaged-bundle mapping in the manifest.
 
-On restore to another Raw root, the restored SQLite database rewrites only `raw_artifacts.storage_ref` for the corresponding Snapshot to the final restored physical file path.
+On restore to another Raw root, the restored SQLite database rewrites only `raw_artifacts.storage_ref` for the corresponding Snapshot to the final restored physical file path. The original basename is retained so the existing importer can reopen the restored bundle without a special recovery-only bypass.
 
 This relocation is compatible with the existing schema: `raw_artifacts` content identity fields are immutable, but `storage_ref` is intentionally not part of the immutable content-identity trigger. `snapshot_id`, artifact kind, logical path, media type, SHA-256, and byte count MUST NOT be changed.
 
