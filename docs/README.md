@@ -11,8 +11,9 @@ Phase N closure audit = Complete / PASS
 Phase O = Active
 O-01 README update = Complete
 O-02 Current design documentation = Complete
+O-03 Prototype Archived / Legacy labels = Complete
 O-04 main integration = Complete
-Next = O-03 Prototype Archived / Legacy labels
+Next = O-05 Branch cleanup
 ```
 
 Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSとなり、独立ChatGPT reviewで受理済みです。旧N-07 `47 PASS / 3 FAIL`はhistorical evidenceとして保持され、N07-R01 Composite backup / restore remediationの後続PASSでclosureしています。
@@ -129,7 +130,7 @@ Phase Oの実行中は`planning/phases/O/PHASE_O_STATUS.md`をcurrent Phase O st
 
 Archiveはcurrent specificationの正本として使用しません。
 
-- [`archive/prototype-0.2/`](archive/prototype-0.2/)
+- [`archive/prototype-0.2/`](archive/prototype-0.2/) — O-03でArchived / Legacy stateを明示済み
 - [`archive/rename-2026-10/`](archive/rename-2026-10/)
 
 ## Current architecture boundary
