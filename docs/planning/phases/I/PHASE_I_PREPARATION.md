@@ -1,5 +1,36 @@
 # Source Grounded Object Knowledge Base — Phase I Preparation
 
+## 2026-10-24 R2 closure superseding note
+
+Phase I remains **Complete / historical**. N05D-04R2 is now also **Complete / Accepted**; its quality and performance acceptance are no longer pending.
+
+Current active Derived Search semantics superseding the Phase-I v1 broad Object path are:
+
+```text
+object_overview + facet + statement
+Hybrid semantic Object aggregation with bounded contribution
+Overall Similarity = hierarchical_similarity
+Candidate E detail aggregation = ordinary median across eligible canonical Facet clusters
+Facet-specific Similarity = same-Facet cosine / no fallback
+active generation = n05d04r2-hierarchical-v2
+legacy object_overall = historical/readable, not active R2 serving
+```
+
+Acceptance evidence:
+
+- R2-08 Search-quality acceptance: Complete / PASS;
+- R2-09 formal performance/resource acceptance: Complete / PASS;
+- R2-10 closure: Complete;
+- N05D-04R2 / N05D-04 / N-05: Complete / PASS where applicable.
+
+The frozen Harrier OSS v1 0.6B / 1024-dim baseline was retained through acceptance. No model downgrade, truncation, CPU fallback or attention-backend substitution was required.
+
+Closure authority: `docs/evaluation/N05D04R2_R2_10_CLOSURE_AUDIT.md`.
+
+The historical Phase-I record below is retained and must not be rewritten retroactively.
+
+---
+
 更新日: 2026-10-23
 
 - Status: **Complete (I-01〜I-07 Complete) / historical Phase-I record**
