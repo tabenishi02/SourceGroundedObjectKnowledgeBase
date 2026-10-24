@@ -1,5 +1,26 @@
 # N05D-04 — Resource preflight and Harrier VRAM-reduction research
 
+## R2-10 closure update (2026-10-24)
+
+This is the current authoritative state for this document and supersedes older current-state / next-task notes retained below.
+
+```text
+R2-10     = Complete
+N05D-04R2 = Complete
+N05D-04   = Complete
+N-05      = Complete / PASS
+```
+
+The selected structural remediation is accepted as the N05D-04 root solution. The accepted R2 Large diagnostic reduced the active Object-level representation from 18,847 legacy `object_overall` tokens to 103 `object_overview` tokens, with Torch peak allocated/reserved `6.889365 / 7.072266 GiB` and Windows Dedicated/Shared `7.525581 / 0.074219 GiB`. The subsequent formal run `20261024T044506+0900` passed all 46 samples and both unchanged warm-p95 gates. No model downgrade, truncation, CPU fallback, attention-backend substitution, or gate relaxation was required.
+
+The 32 GiB resource preflight remains a retained operational safeguard for future comparable benchmark work; it is no longer an active N-05 blocker.
+
+Closure authority: `docs/evaluation/N05D04R2_R2_10_CLOSURE_AUDIT.md`.
+
+---
+
+## Historical research / remediation record retained below
+
 ## Current acceptance update (2026-10-24)
 
 This update supersedes historical BLOCKED/next-task notes below.
