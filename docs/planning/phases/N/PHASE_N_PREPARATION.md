@@ -1,5 +1,39 @@
 # Source Grounded Object Knowledge Base — Phase N Preparation
 
+## R2-10 closure update (2026-10-24)
+
+This is the current authoritative Phase N state and supersedes older current-state / next-task notes retained below.
+
+```text
+N-01 = Complete
+N-02 = Complete
+N-03 = Complete
+N-04 = Complete / PASS
+N-05 = Complete / PASS
+N-06 = Next / Ready
+N-07 = Pending
+Phase N = Active / Not Complete
+```
+
+R2 closure:
+
+```text
+R2-01 ... R2-10 = Complete
+N05D-04R2 = Complete
+N05D-04   = Complete
+N-05      = Complete / PASS
+```
+
+N-05 formal acceptance is run `20261024T044506+0900`: 46/46 PASS, Standard warm p95 `12.2832216 s <= 600 s`, Large warm p95 `53.7066947 s <= 1200 s`, zero FAIL/ABORTED/retry, R2-only serving with `object_overall` leakage 0, and canonical/tracked/HEAD plus regression/static safety gates PASS.
+
+Phase N itself is not closed by R2-10. **N-06 — Retrieval / Vector quality** is the next P0 task. R2-08 exercised R2-sensitive quality assets but does not silently complete the broader N-06 task.
+
+Closure authority: `docs/evaluation/N05D04R2_R2_10_CLOSURE_AUDIT.md`.
+
+---
+
+## Historical planning/evidence record retained below
+
 ## Current acceptance update (2026-10-24)
 
 This update supersedes historical BLOCKED/next-task notes below.
