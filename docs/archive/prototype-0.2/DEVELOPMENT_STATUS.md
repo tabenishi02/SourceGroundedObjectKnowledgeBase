@@ -1,3 +1,10 @@
+> [!WARNING]
+> **ARCHIVED / LEGACY — Prototype 0.2**
+>
+> この文書は旧Prototype 0.2の歴史資料です。**現行SGOKBの仕様・設計・運用手順ではありません。**
+> 現行仕様は [Current Architecture](../../design/SGOKB_CURRENT_ARCHITECTURE.md) と [root README](../../../README.md) を参照してください。
+> 以下の本文は再現性・設計経緯のため当時の内容を保持しています。
+
 # 開発状況まとめ
 
 更新日: 2026-10-06。現在はPrototype 0.2の実装と初回実データ評価が済み、モデル選定・運用負荷の評価へ進んだ段階。最終製品の品質保証や日常運用の完成を意味しない。
