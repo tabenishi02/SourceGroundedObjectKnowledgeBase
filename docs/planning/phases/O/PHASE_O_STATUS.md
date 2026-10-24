@@ -15,8 +15,8 @@ Updated: 2026-10-25
 | O-02 | **Complete** | Current Architecture / Data Model / Retrieval / Exchange / MCP / UPDS Boundaryとoperations safety/recoveryを統合文書化 |
 | O-03 | **Complete** | Prototype 0.2文書をArchived / Legacyとして明示しcurrent specificationとの誤認を防止 |
 | O-04 | **Complete** | 全remote branch historyを`main`へ統合。統合commit `77d79ccac1017f167736c742ac199858a3a010a7` |
-| O-05 | **BLOCKED** | 35 branchの削除安全性は確認済み。current GitHub action setにremote branch/ref削除mutationがなく削除自体は未実行 |
-| O-06 | Not Started | Release / Tag policyとBreaking Change記録 |
+| O-05 | **Complete** | 不要remote branch 35本を削除し、remote branchを`main` 1本へ整理 |
+| O-06 | **Next / Not Started** | Release / Tag policyとBreaking Change記録 |
 
 Phase Oのcurrent statusは本書を正本とする。project-wide task masterに古いPhase O checklist/statusが残る場合、本書の状態が優先する。
 
@@ -116,7 +116,7 @@ warningは次を明示する。
 
 O-02完了commitとの比較で、この6ファイルはいずれも**7行追加 / 0行削除**であり、Prototype本文に意味変更を加えていないことを確認した。既存12文書のArchive表示とarchive-level `README.md`は歴史資料としてそのまま保持した。
 
-## O-05 audit / blocker
+## O-05 result
 
 O-05開始時にlive GitHub branch inventoryを再取得した。
 
@@ -126,22 +126,20 @@ O-05開始時にlive GitHub branch inventoryを再取得した。
 - protected cleanup candidate: **0本**
 - open pull request: **0件**
 
-O-04時点の全branch integration後に新規branchは増えていない。独立系列の代表tipについてcurrent `main`へのcompareを再実施し、すべて`behind_by=0`かつmerge baseがbranch HEAD自身であることを確認した。
-
-- `docs/planning-structure-reorganization`
-- `phase-n-closure-audit`
-- `n07-r01-composite-backup-restore`
-- `n06-retrieval-vector-quality`
-- `r2-09-runner-wiring-remediation`
-- `phase-n/n04g25a-development-classifier-benchmark`
-
-これらはplanning再編、Phase N closure、N07、N06、R2、N04の各独立系列を代表する。O-04の全branch統合確認と合わせ、35本すべてについて削除後に失われる未統合historyはないと判定した。
+O-04時点の全branch integration後に新規branchは増えていなかった。独立系列の代表tipについてcurrent `main`へのcompareを再実施し、すべて`behind_by=0`かつmerge baseがbranch HEAD自身であることを確認した。
 
 詳細なbranch inventory・HEAD・compare結果・削除policyは [`O05_BRANCH_CLEANUP.md`](O05_BRANCH_CLEANUP.md) を正本とする。
 
-ただし、現在このChatGPT sessionで利用可能なGitHub action setにはremote branch / Git ref削除mutationが提供されていない。branchを`main`へforce-moveする等の代替操作を削除済みとは扱わない。
+このChatGPT sessionにはremote branch / Git ref削除mutationが提供されていなかったため、ユーザーがGit clientから35本を削除した。削除後にlive GitHubを再確認し、次を確認した。
 
-したがってO-05は**安全性監査まで完了、remote branch削除は未実行、Status = BLOCKED**とする。削除mutationが利用可能なGitHub API / Git client環境で35本を削除し、remote branchが`main`のみになったことを再確認した時点でCompleteへ進める。
+```text
+remote branches = 1
+remaining branch = main
+open PR = 0
+main HEAD before cleanup status update = 4f16835aef54206c248240c40d3870f1d0e35cfd
+```
+
+branch削除前後で`main` HEADは不変だったため、cleanupによる`main` historyの変更はない。35本の不要branch削除が完了し、O-05を**Complete**とする。
 
 ## Accepted status carried forward
 
@@ -154,8 +152,8 @@ O-01 = Complete
 O-02 = Complete
 O-03 = Complete
 O-04 = Complete
-O-05 = BLOCKED
-Next = O-05 remote branch deletion
+O-05 = Complete
+Next = O-06
 ```
 
 Phase N authority:
@@ -173,6 +171,10 @@ Current design authority entrypoints:
 
 ## Next
 
-`O-05 [P1] 不要branchを削除する` のremote deletionを完了する。
+次Taskは:
 
-削除後はbranch inventoryを再取得し、`main`のみが残ることを確認したうえでO-05をCompleteにする。O-06へはその後進む。
+```text
+O-06 [P1] Release / Tag policy、Prototypeと新KBの境界、Breaking Change記録
+```
+
+O-01〜O-05はComplete。O-06完了後にPhase O全体のclosureを判定する。
