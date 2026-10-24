@@ -1,0 +1,125 @@
+{
+  "schema": "sgokb.n07-r01-composite-backup-restore-contract.v1",
+  "task": "N07-R01",
+  "title": "Composite canonical / Raw / Provenance backup and restore",
+  "status": "implementation_candidate",
+  "source_n07_contract": "benchmark/n07-failure-recovery-contract-v1.json",
+  "source_failure_evidence": "docs/evaluation/N07_FAILURE_RECOVERY.md",
+  "required_dependencies": [
+    "canonical_database",
+    "raw_artifacts",
+    "original_result_inputs",
+    "provenance_identity",
+    "recovery_metadata_without_plaintext_secrets"
+  ],
+  "consistency": {
+    "model": "sqlite_online_backup_then_inventory_from_snapshot",
+    "database_snapshot_first": true,
+    "dependency_inventory_source": "packaged_sqlite_snapshot",
+    "manifest_written_last": true,
+    "staging_generation_not_accepted": true,
+    "atomic_finalization_required": true
+  },
+  "layout": {
+    "canonical_database": "canonical/canonical.sqlite",
+    "raw_bundle_pattern": "raw/<snapshot-id>/capture.webcapture.zip",
+    "provenance_prefix": "provenance/",
+    "recovery_metadata": "metadata/recovery.json",
+    "manifest": "manifest.json"
+  },
+  "integrity": {
+    "manifest_schema": "sgokb.composite-backup.v1",
+    "hash": "sha256",
+    "byte_count_required": true,
+    "sqlite_integrity_check": true,
+    "sqlite_foreign_key_check": true,
+    "reject_absolute_packaged_paths": true,
+    "reject_parent_traversal": true,
+    "reject_duplicate_packaged_paths": true,
+    "reject_symlink_artifacts": true,
+    "reject_missing_dependency": true,
+    "reject_hash_drift": true,
+    "reject_byte_count_drift": true
+  },
+  "raw": {
+    "physical_identity": "one_webcapture_bundle_per_snapshot",
+    "all_rows_for_snapshot_must_share_storage_ref": true,
+    "physical_hash_source": "source_snapshots.metadata_json.bundle_sha256",
+    "restore_relocation": "rewrite_raw_artifacts.storage_ref_only",
+    "immutable_fields_must_not_change": [
+      "snapshot_id",
+      "artifact_kind",
+      "logical_path",
+      "media_type",
+      "sha256",
+      "bytes"
+    ]
+  },
+  "original_results": {
+    "inventory_source": "object_result_imports",
+    "storage_ref_semantics": "incoming_root_relative",
+    "preserve_storage_ref": true,
+    "restore_strategy": "recreate_relative_tree_below_new_incoming_root",
+    "require_regular_file": true,
+    "require_result_json": true
+  },
+  "recovery_metadata": {
+    "plaintext_secrets_forbidden": true,
+    "original_absolute_raw_root_forbidden": true,
+    "original_absolute_incoming_root_forbidden": true,
+    "required_items": [
+      "raw_relocation_strategy",
+      "result_relative_root_strategy",
+      "rebuildable_derived_classification"
+    ]
+  },
+  "restore_safety": {
+    "verify_before_target_mutation": true,
+    "backup_cannot_be_restore_target": true,
+    "db_raw_incoming_targets_must_not_overlap": true,
+    "existing_target_requires_acknowledgement": true,
+    "publish_only_after_staged_validation": true,
+    "formal_drill_uses_isolated_alternate_roots": true
+  },
+  "acceptance": {
+    "complete_canonical_rpo_max_hours": 24,
+    "canonical_restore_rto_max_seconds": 14400,
+    "derived_rebuild_separate": true,
+    "legacy_sqlite_backup_semantics_unchanged": true,
+    "required_product_proofs": [
+      "restored_canonical_read",
+      "restored_raw_reprocessing",
+      "restored_original_result_open",
+      "sqlite_integrity",
+      "sqlite_foreign_key_integrity",
+      "provenance_identity_equal",
+      "content_hashes_equal"
+    ]
+  },
+  "focused_tests": [
+    "complete_generation_contains_all_dependency_classes",
+    "inventory_is_bound_to_sqlite_snapshot",
+    "missing_raw_fails_closed",
+    "missing_original_result_fails_closed",
+    "tampered_generation_rejected",
+    "unsafe_result_storage_ref_rejected",
+    "alternate_root_restore_relocates_raw_storage_ref",
+    "alternate_root_restore_preserves_result_relative_ref",
+    "restore_plan_is_read_only",
+    "target_overlap_and_overwrite_protection",
+    "incomplete_staging_generation_rejected",
+    "legacy_sqlite_backup_restore_unchanged",
+    "recovery_metadata_contains_no_plaintext_secret_or_original_absolute_root"
+  ],
+  "formal_reacceptance": {
+    "reference_workstation_required": true,
+    "measured_commit_required": true,
+    "focused_tests_required": true,
+    "full_pytest_required": true,
+    "ruff_required": true,
+    "git_diff_check_required": true,
+    "local_r1_user_aborted_assets_must_remain_byte_identical": true,
+    "automatic_main_merge_forbidden": true,
+    "gate_relaxation_forbidden": true
+  }
+}
