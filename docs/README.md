@@ -1,6 +1,6 @@
 # SGOKB Documentation
 
-`docs/` はSource Grounded Object Knowledge Base（SGOKB）の要件・Decision・設計・評価・運用・計画・歴史資料を用途別に管理します。
+`docs/` はSource Grounded Object Knowledge Base（SGOKB）の要件・Decision・設計・評価・運用・計画・Release・歴史資料を用途別に管理します。
 
 ## Current status
 
@@ -13,10 +13,15 @@ O-01 README update = Complete
 O-02 Current design documentation = Complete
 O-03 Prototype Archived / Legacy labels = Complete
 O-04 main integration = Complete
-Next = O-05 Branch cleanup
+O-05 Branch cleanup = Complete
+O-06 Release / Tag policy = Release candidate ready / tag publication pending
+Release target = v1.0.0
+Next = publish and verify v1.0.0 tag
 ```
 
 Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSとなり、独立ChatGPT reviewで受理済みです。旧N-07 `47 PASS / 3 FAIL`はhistorical evidenceとして保持され、N07-R01 Composite backup / restore remediationの後続PASSでclosureしています。
+
+O-06ではPrototype 0.2から新SGOKBへの正式境界を`v1.0.0`と決定し、repository-side Release NoteとBreaking Change記録、package version `1.0.0`を整備しました。`v1.0.0` tag publication / live verificationが完了するまでO-06はCompleteにしません。
 
 現在のPhase O状態は [`planning/phases/O/PHASE_O_STATUS.md`](planning/phases/O/PHASE_O_STATUS.md) を参照してください。
 
@@ -29,7 +34,8 @@ Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSとなり、�
 3. [`operations/OPERATIONAL_SAFETY_RECOVERY.md`](operations/OPERATIONAL_SAFETY_RECOVERY.md) — Offline / Backup / Restore / Retention / Security / External Egress / Failure Recovery / Benchmark条件
 4. [`design/README.md`](design/README.md) — current detailed design map
 5. [`operations/OBJECT_STANDARD_WORKFLOW.md`](operations/OBJECT_STANDARD_WORKFLOW.md) — 1 Object標準運用
-6. [`planning/README.md`](planning/README.md) — current planning / task state
+6. [`releases/v1.0.0.md`](releases/v1.0.0.md) — first formal SGOKB release boundary / Breaking Changes / migration guidance
+7. [`planning/README.md`](planning/README.md) — current planning / task state
 
 要件から確認する場合:
 
@@ -65,6 +71,7 @@ Architecture Decision、Design Freeze、public contract、運用上の固定方�
 - [`M01_OBJECT_CENTERED_CLI_CONTRACT.md`](decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md)
 - [`J02_MCP_READ_TOOL_CONTRACT.md`](decisions/J02_MCP_READ_TOOL_CONTRACT.md)
 - [`J04_CONTEXT_BUILDER_CONTRACT.md`](decisions/J04_CONTEXT_BUILDER_CONTRACT.md)
+- [`O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md`](decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md)
 
 ### [`design/`](design/)
 
@@ -106,6 +113,15 @@ Phase N最終authority:
 - [`N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`](evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md)
 
 Historical FAIL / BLOCKED evidenceは削除せず、current authorityと区別して保持します。
+
+### [`releases/`](releases/)
+
+正式Release境界、Breaking Change、migration guidanceをrepository-sideで保持する領域。
+
+- [`releases/README.md`](releases/README.md) — Release index / policy summary
+- [`releases/v1.0.0.md`](releases/v1.0.0.md) — Prototype 0.2から新SGOKBへの初回正式Release Note
+
+Prototype 0.2へretroactive tag / Releaseは作成しません。最初のformal current lineは`v1.0.0`です。
 
 ### [`planning/`](planning/)
 
@@ -170,6 +186,7 @@ architecture ADR -> docs/decisions/
 design            -> docs/design/
 test / research   -> docs/evaluation/
 operation         -> docs/operations/
+release note      -> docs/releases/
 plan / handoff    -> docs/planning/
 reference         -> docs/reference/
 historical        -> docs/archive/
