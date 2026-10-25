@@ -8,22 +8,22 @@
 Phase A ... Phase M = Complete
 Phase N = Complete / PASS
 Phase N closure audit = Complete / PASS
-Phase O = Active
+Phase O = Complete
 O-01 README update = Complete
 O-02 Current design documentation = Complete
 O-03 Prototype Archived / Legacy labels = Complete
 O-04 main integration = Complete
 O-05 Branch cleanup = Complete
-O-06 Release / Tag policy = Release candidate ready / tag publication pending
-Release target = v1.0.0
-Next = publish and verify v1.0.0 tag
+O-06 Release / Tag policy = Complete
+Current formal release = v1.0.0
+Release commit = 0e1a8464e9db98b4e99169cae6292821f3fd410c
 ```
 
 Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSとなり、独立ChatGPT reviewで受理済みです。旧N-07 `47 PASS / 3 FAIL`はhistorical evidenceとして保持され、N07-R01 Composite backup / restore remediationの後続PASSでclosureしています。
 
-O-06ではPrototype 0.2から新SGOKBへの正式境界を`v1.0.0`と決定し、repository-side Release NoteとBreaking Change記録、package version `1.0.0`を整備しました。`v1.0.0` tag publication / live verificationが完了するまでO-06はCompleteにしません。
+O-06ではPrototype 0.2から新SGOKBへの正式境界を`v1.0.0`と決定し、repository-side Release NoteとBreaking Change記録、package version `1.0.0`を整備しました。annotated tag `v1.0.0`はrelease commit `0e1a8464e9db98b4e99169cae6292821f3fd410c`を指すことをlive GitHubで確認済みです。これによりPhase OはCompleteです。
 
-現在のPhase O状態は [`planning/phases/O/PHASE_O_STATUS.md`](planning/phases/O/PHASE_O_STATUS.md) を参照してください。
+Phase O closure stateは [`planning/phases/O/PHASE_O_STATUS.md`](planning/phases/O/PHASE_O_STATUS.md) を参照してください。
 
 ## Start here
 
@@ -134,7 +134,7 @@ Project / Phase / Taskの現在状態、handoff、実行計画。
 - [`planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md`](planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md)
 - [`planning/phases/N/PHASE_N_CLOSURE_AUDIT.md`](planning/phases/N/PHASE_N_CLOSURE_AUDIT.md)
 
-Phase Oの実行中は`planning/phases/O/PHASE_O_STATUS.md`をcurrent Phase O status authorityとする。project-wide task masterの古いPhase O checklist記述と状態が異なる場合、このstatus文書のcurrent stateを優先する。
+Phase Oについては`planning/phases/O/PHASE_O_STATUS.md`のclosure stateをcurrent authorityとする。project-wide task masterの古いPhase O checklist記述と状態が異なる場合、このstatus文書を優先する。
 
 ### [`reference/`](reference/)
 
