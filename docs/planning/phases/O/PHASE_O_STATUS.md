@@ -16,7 +16,7 @@ Updated: 2026-10-25
 | O-03 | **Complete** | Prototype 0.2文書をArchived / Legacyとして明示しcurrent specificationとの誤認を防止 |
 | O-04 | **Complete** | 全remote branch historyを`main`へ統合。統合commit `77d79ccac1017f167736c742ac199858a3a010a7` |
 | O-05 | **Complete** | 不要remote branch 35本を削除し、remote branchを`main` 1本へ整理 |
-| O-06 | **Next / Not Started** | Release / Tag policyとBreaking Change記録 |
+| O-06 | **In Progress — tag publication pending** | `v1.0.0` release boundary / policy / Breaking Change / metadataは確定。final tag作成・live verification待ち |
 
 Phase Oのcurrent statusは本書を正本とする。project-wide task masterに古いPhase O checklist/statusが残る場合、本書の状態が優先する。
 
@@ -141,6 +141,45 @@ main HEAD before cleanup status update = 4f16835aef54206c248240c40d3870f1d0e35cf
 
 branch削除前後で`main` HEADは不変だったため、cleanupによる`main` historyの変更はない。35本の不要branch削除が完了し、O-05を**Complete**とする。
 
+## O-06 release candidate result
+
+O-06ではRelease / Tag / Breaking Change境界を次のように確定した。
+
+```text
+Legacy line      = Prototype 0.2.x (untagged historical line)
+Current line     = SGOKB 1.x
+First release    = 1.0.0
+Git tag          = v1.0.0
+Package version  = 1.0.0
+```
+
+実施済み:
+
+- `docs/decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md`
+  - Semantic Versioning
+  - immutable `vMAJOR.MINOR.PATCH` tag
+  - Prototype 0.2へretroactive tagを作らない方針
+  - formal Release gate
+  - Breaking Change記録要件
+- `docs/releases/v1.0.0.md`
+  - Prototype 0.2 → v1.0.0のBreaking Changes
+  - DB / CLI / Search / AI workflow / MCP / UPDS boundary
+  - migration guidance
+  - acceptance basis / known limitations
+- `docs/releases/README.md`
+  - Release index
+- `pyproject.toml`
+  - `version = "1.0.0"`
+  - Prototype説明をcurrent SGOKB descriptionへ更新
+- root `README.md` / `docs/README.md`
+  - `v1.0.0` release boundaryとRelease documentationへの入口を追加
+
+O-06開始時点でlive GitHubを確認し、既存Git tag = **0件**、GitHub Release = **0件**だった。過去に存在しなかったPrototype release boundaryを後付けしない。
+
+現在のChatGPT GitHub action setにはtag/ref作成mutationとGitHub Release作成mutationがないため、repository-side release candidate作業までを完了し、`v1.0.0` tag publicationだけが残る。
+
+`v1.0.0` tagが存在し、意図したrelease candidate commitを指すことをlive GitHubで確認するまでO-06は**Completeにしない**。
+
 ## Accepted status carried forward
 
 ```text
@@ -153,7 +192,8 @@ O-02 = Complete
 O-03 = Complete
 O-04 = Complete
 O-05 = Complete
-Next = O-06
+O-06 = In Progress — tag publication pending
+Release target = v1.0.0
 ```
 
 Phase N authority:
@@ -162,19 +202,17 @@ Phase N authority:
 - `docs/planning/phases/N/PHASE_N_CLOSURE_AUDIT.md`
 - `benchmark/results/phase-n-closure-audit.json`
 
-Current design authority entrypoints:
+Current design / release authority entrypoints:
 
 - `docs/design/SGOKB_CURRENT_ARCHITECTURE.md`
 - `docs/design/README.md`
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - `docs/operations/OBJECT_STANDARD_WORKFLOW.md`
+- `docs/decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md`
+- `docs/releases/v1.0.0.md`
 
 ## Next
 
-次Taskは:
+`v1.0.0` tagをO-06 release candidate commitへ作成・pushし、live GitHubでtag targetを確認する。
 
-```text
-O-06 [P1] Release / Tag policy、Prototypeと新KBの境界、Breaking Change記録
-```
-
-O-01〜O-05はComplete。O-06完了後にPhase O全体のclosureを判定する。
+確認後にO-06をComplete、Phase OをCompleteへclosureする。
