@@ -140,13 +140,19 @@ $CaptureC1   = Join-Path $CaptureRoot "<SRC-C1の実ファイル名>.webcapture.
 $CaptureR1   = Join-Path $CaptureRoot "<SRC-R1の実ファイル名>.webcapture.zip"
 ```
 
-識別しやすい試験用Object名を使用する。実際のSourceを使う場合は、実在するObject名を使用してもよい。
+今回の受入試験では次の実Objectを使用する。
 
 ```powershell
-$ObjectAName = "Acceptance Character A"
-$ObjectBName = "Acceptance Work B"
-$ObjectCName = "Acceptance Concept C"
+$ObjectAName = "孫悟空"
+$ObjectBName = "ドラゴンボール"
+$ObjectCName = "ツンデレ"
 ```
+
+- OBJ-A: 孫悟空 / `character`
+- OBJ-B: ドラゴンボール / `work`
+- OBJ-C: ツンデレ / `concept`
+
+SRC-R1は、孫悟空とドラゴンボールの関係を本文で明示的に支持するEvidenceを含むこと。
 
 試験の進行に合わせて、次の変数へ値を保持する。
 
@@ -159,6 +165,7 @@ $PackageId / $BuildPath / $StagedPath / $ExportedPath
 $ReceiptId
 $Version1Id / $Version2Id
 $ProposalRef
+$RelationTypeRef
 ```
 
 ---
@@ -219,7 +226,7 @@ $Classes = sgokb --db $Db registry class list | ConvertFrom-Json
 $Classes.data
 ```
 
-**PASS**: 登録済みClassが返り、acceptance datasetで使用するClassを含む。
+**PASS**: 登録済みClassが返り、acceptance datasetで使用する`character`, `work`, `concept`を含む。
 
 ## A-06 Class registry show
 
@@ -238,15 +245,26 @@ sgokb --db $Db registry class show concept
 ```powershell
 $RelationTypes = sgokb --db $Db registry relation-type list | ConvertFrom-Json
 $RelationTypes.data
+$RelationTypes.data.Count
 ```
 
-OBJ-A <-> OBJ-Bに適した既存Relation Typeを1つ選択し、確認する。
+fresh acceptance DBでは、Relation Type Registryが空でも正常である。`data = []` / `Count = 0`はCLI failureやDB破損として扱わない。
+
+Relation Typeが1件以上存在する場合だけ、OBJ-A -> OBJ-Bに適した既存typeを選び個別definitionを確認する。
 
 ```powershell
 sgokb --db $Db registry relation-type show <relation-type-ref>
 ```
 
-**PASS**: relation-type listと選択したdefinitionを読み取れる。
+適切な既存typeが存在する場合は、そのrefを`$RelationTypeRef`として記録する。
+
+**PASS**:
+
+- `registry relation-type list`が`ok = true`で正常に読める。
+- fresh DBで空配列が返る場合も正常として記録できる。
+- 非空の場合は選択したdefinitionを`show`で読み取れる。
+
+Relation Typeが空の場合は、G/Iで`new_relation_type` Registry Proposalを正常系として作成・承認・適用する。SQLiteへ直接Relation Typeを追加してはならない。
 
 ## A-08 JSON contract
 
@@ -337,7 +355,7 @@ $ByName.data
 ## B-07 aliasを追加
 
 ```powershell
-$ObjectAAlias = "Acceptance Alias A"
+$ObjectAAlias = "Son Goku"
 sgokb --db $Db object alias add --object $ObjectAId $ObjectAAlias
 ```
 
@@ -360,24 +378,27 @@ $AliasRead.data
 
 ## B-10 OBJ-Aをrename
 
-後の比較用に旧nameを保持する。
+後の比較用に旧nameを保持する。受入試験で実在Objectのcanonical nameを不要に崩さないため、rename試験後に元へ戻す。
 
 ```powershell
 $ObjectAOriginalName = $ObjectAName
-$ObjectAName = "$ObjectAName Renamed"
-sgokb --db $Db object rename --object $ObjectAId --to $ObjectAName
+$ObjectATemporaryName = "$ObjectAName Acceptance Rename"
+sgokb --db $Db object rename --object $ObjectAId --to $ObjectATemporaryName
+sgokb --db $Db object show --object $ObjectAId
+sgokb --db $Db object rename --object $ObjectAId --to $ObjectAOriginalName
+$ObjectAName = $ObjectAOriginalName
 $RenameRead = sgokb --db $Db object show --object $ObjectAId | ConvertFrom-Json
 $RenameRead.data
 ```
 
-**PASS**: canonical nameが変更され、Object IDは`$ObjectAId`のままである。
+**PASS**: rename中も復元後もObject IDが`$ObjectAId`のままで、最終canonical nameが`孫悟空`である。
 
 ## B-11 additional classを追加
 
-A-05から、現在のprimary classではない互換性のある既存Classを選ぶ。
+A-05から、現在のprimary classではない互換性のある既存Classを選ぶ。Characterでは`fictional_entity`が候補となる。
 
 ```powershell
-sgokb --db $Db object class add --object $ObjectAId <additional-class-ref>
+sgokb --db $Db object class add --object $ObjectAId fictional_entity
 sgokb --db $Db object show --object $ObjectAId
 ```
 
@@ -385,10 +406,10 @@ sgokb --db $Db object show --object $ObjectAId
 
 ## B-12 primary classを変更して復元
 
-一時変更用に有効な既存Classを選ぶ。
+一時変更用に有効な`primary_eligible` Classを選ぶ。
 
 ```powershell
-sgokb --db $Db object class set-primary --object $ObjectAId <temporary-class-ref>
+sgokb --db $Db object class set-primary --object $ObjectAId person
 sgokb --db $Db object show --object $ObjectAId
 sgokb --db $Db object class set-primary --object $ObjectAId character
 sgokb --db $Db object show --object $ObjectAId
@@ -771,11 +792,22 @@ generated Facets配下の代表的Statementsを確認する。
 
 **PASS**: Statementsがstructuredで意味があり、有効なpackaged Evidenceを参照する。
 
-## G-07 Relationを確認
+## G-07 Relation Type Registryが空の場合のproposalを確認
 
-SRC-R1で裏付けられたtest relationについて、Resultが選択Relation Typeと有効なEvidence groundingを使って意図するOBJ-A <-> OBJ-B relationを表していることを確認する。
+A-07でOBJ-A -> OBJ-Bに適した既存Relation Typeが存在しなかった場合、初回Resultでは存在しない`relation_type_id`を使用したRelationを生成してはならない。
 
-**PASS**: relation targetが意図したstable Object identityへ解決され、適切なEvidence supportを持つ。
+代わりに、SRC-R1 Evidenceに基づき、孫悟空とドラゴンボールの関係を表現できる`new_relation_type` Registry Proposalを含める。
+
+確認事項:
+
+- `proposal_kind`が`new_relation_type`である。
+- rationale/payloadが意図するRelation semanticsを明確に表す。
+- proposal自身がPackage内の有効なEvidenceを参照する。
+- V1の`knowledge.relations`には、まだ未適用のRelation Typeを使ったRelationを入れない。
+
+**PASS**: unknown Relation Typeを捏造せず、Proposal境界を使って新規typeを提案している。
+
+A-07ですでに適切なRelation Typeが存在した場合は、その既存typeを使用してRelationを生成してよい。その場合Iでは別のbenign proposalを使用できる。
 
 ## G-08 Resultをincoming dropへ配置
 
@@ -848,6 +880,8 @@ sgokb --db $Db result review `
 
 続行前にObject identity、base Version、Facets、Statements、Relations、Evidence IDs、Registry proposalsをreviewする。
 
+Relation Type Registryが空だった場合は、初回Resultに未適用typeを使用したRelationがなく、`new_relation_type` proposalとして分離されていることも確認する。
+
 **PASS**: proposed Knowledgeが理解可能で意図したresultと一致する。
 
 ## H-07 Explicit Import
@@ -874,27 +908,27 @@ $CurrentA.data
 
 ## H-09 Evidence linkを確認
 
-Knowledge readと代表的Evidence lookupを使用する。
+Knowledge readを使用する。
 
 ```powershell
 sgokb --db $Db object show --object $ObjectAId --knowledge
 sgokb --db $Db object relations --object $ObjectAId
 ```
 
-代表的Statement/Relation Evidence IDについて:
+代表的Statement Evidence IDについて:
 
 ```powershell
 sgokb --db $Db evidence show <evidence-id>
 sgokb --db $Db evidence provenance <evidence-id>
 ```
 
-**PASS**: accepted Knowledge linkが既存の正しいEvidenceへ解決される。
+**PASS**: V1のaccepted Knowledge linkが既存の正しいEvidenceへ解決される。A-07が空だった場合、V1にまだRelationが存在しないこと自体は正常である。
 
 ---
 
 # I. Registry Proposal
 
-試験dataで支持される有効かつ無害なproposalを1つ含むResultを使用する。適切な場合、supported alias proposalが実用的である。
+A-07でRelation Type Registryが空だった場合、本SectionではG-07で生成した`new_relation_type` proposalを必ず使用する。
 
 ## I-01 proposal intakeを確認
 
@@ -904,7 +938,7 @@ proposalを含むResultをimportした後:
 sgokb --db $Db registry proposal list --decision pending
 ```
 
-proposal referenceを`$ProposalRef`として記録する。
+`new_relation_type` proposal referenceを`$ProposalRef`として記録する。
 
 **PASS**: proposalがpendingで、silent applyされていない。
 
@@ -922,7 +956,12 @@ sgokb --db $Db registry proposal list --decision pending
 sgokb --db $Db registry proposal show $ProposalRef
 ```
 
-**確認**: kind、target/payload、review contextが意図した無害な変更と一致する。
+**確認**:
+
+- `proposal_kind = new_relation_type`
+- payload/rationaleが孫悟空 -> ドラゴンボールの関係を表現できる意味を持つ
+- Evidence groundingがSRC-R1由来の有効Evidenceに解決される
+- まだRelation Type Registryへ適用されていない
 
 ## I-04 proposalをAccept
 
@@ -931,7 +970,13 @@ sgokb --db $Db registry proposal accept `
   $ProposalRef --note "happy-path acceptance reviewed"
 ```
 
-**PASS**: decisionがacceptedになるが、acceptanceだけを理由にRegistry mutationはまだ発生していない。
+**PASS**: decisionがacceptedになるが、acceptanceだけを理由にRelation Type Registry mutationはまだ発生していない。
+
+確認として、必要なら再度listを読む。
+
+```powershell
+sgokb --db $Db registry relation-type list
+```
 
 ## I-05 proposalをApply
 
@@ -941,15 +986,36 @@ sgokb --db $Db registry proposal apply $ProposalRef
 
 **PASS**: applyが成功する。
 
-## I-06 影響を受けたRegistry/Object stateを確認
-
-proposal kindに対応するread commandを選ぶ。alias proposalの場合:
+## I-06 Relation Type Registryを確認
 
 ```powershell
-sgokb --db $Db object alias list --object $ObjectAId
+$RelationTypesAfterApply = sgokb --db $Db registry relation-type list | ConvertFrom-Json
+$RelationTypesAfterApply.data
 ```
 
-**PASS**: 期待するRegistry mutationが表示される。
+新しく適用されたRelation Typeを特定し、そのrefを`$RelationTypeRef`として記録して個別に読む。
+
+```powershell
+$RelationTypeRef = "<applied relation-type ref>"
+sgokb --db $Db registry relation-type show $RelationTypeRef
+```
+
+**PASS**:
+
+- A-07で空だったRegistryに、explicit apply後だけ新規Relation Typeが存在する。
+- `show`でdefinitionを読み取れる。
+- V1自体は書き換えられていない。
+
+Critical invariant:
+
+```text
+Result Import
+  -> pending new_relation_type proposal
+  -> explicit human accept
+  -> explicit apply
+  -> Relation Type becomes usable
+  -> later Result creates a new immutable Knowledge Version containing the Relation
+```
 
 ---
 
@@ -981,6 +1047,8 @@ sgokb --db $Db evidence select --object $ObjectAId
 
 ## J-03 update PackageをBuild
 
+I-05/I-06でRelation Typeを適用した後に実行する。
+
 ```powershell
 $Build2 = sgokb --db $Db package build `
   --object $ObjectAId --build-root $BuildRoot | ConvertFrom-Json
@@ -992,7 +1060,17 @@ $BuildPath2 = $Build2.data.path
 
 ## J-04 Result 2を生成
 
-newly available Evidenceを使用してF-05〜G-08を`$PackageId2`について繰り返し、有効なupdated `result.json`を生成する。
+newly available Evidenceと、I-06で確認した`$RelationTypeRef`を使用してF-05〜G-08相当を`$PackageId2`について繰り返し、有効なupdated `result.json`を生成する。
+
+このResult 2では、SRC-R1 Evidenceによって支持されるOBJ-A（孫悟空） -> OBJ-B（ドラゴンボール）のRelationを、すでに適用済みのRelation Typeで表現する。
+
+確認事項:
+
+- `relation_type_id`がI-06で実在確認したRelation Typeを参照する。
+- `subject_object_id = $ObjectAId`。
+- `object_object_id = $ObjectBId`。
+- relation EvidenceがSRC-R1由来の有効Evidence IDを参照する。
+- 未適用・架空のRelation Type IDを使用しない。
 
 2つ目のResult pathを`$ResultPath2`として記録する。
 
@@ -1039,7 +1117,7 @@ sgokb --db $Db version show $Version2Id
 sgokb --db $Db version diff $Version1Id $Version2Id --diff-format markdown
 ```
 
-**PASS**: 期待するaddition/changeが表現され、無関係なdestructive rewriteが観測されない。
+**PASS**: 期待するaddition/changeが表現され、Relation Type適用後にV2で新規Relationが追加されたことを確認でき、無関係なdestructive rewriteが観測されない。
 
 ## J-10 Historical Object read
 
@@ -1051,7 +1129,7 @@ sgokb --db $Db object show --object $ObjectAId --knowledge --version $Version1Id
 
 ## J-11 Version-specific grounding
 
-代表的なV1/V2 Statements/Relationsについて、Evidence IDを`evidence show`と`evidence provenance`で解決する。
+代表的なV1/V2 StatementsとV2 Relationについて、Evidence IDを`evidence show`と`evidence provenance`で解決する。
 
 **PASS**: 両immutable Versionがそれぞれ正しいgroundingを保持する。
 
@@ -1059,13 +1137,15 @@ sgokb --db $Db object show --object $ObjectAId --knowledge --version $Version1Id
 
 # K. Relation
 
+KではIでRelation Typeが適用され、Jでそのtypeを使用したRelationを含むV2がimport済みであることを前提とする。
+
 ## K-01 imported Relationを確認
 
 ```powershell
 sgokb --db $Db object relations --object $ObjectAId
 ```
 
-**PASS**: Result-imported relation to OBJ-Bがaccepted Knowledgeに存在する。
+**PASS**: V2でResult-importされたOBJ-A -> OBJ-B Relationがcurrent accepted Knowledgeに存在する。
 
 ## K-02 OBJ-Aから読む
 
@@ -1074,7 +1154,11 @@ $RelationsA = sgokb --db $Db object relations --object $ObjectAId | ConvertFrom-
 $RelationsA.data
 ```
 
-**PASS**: targetが期待通り`$ObjectBId`へ解決される。
+**PASS**:
+
+- subjectが`$ObjectAId`。
+- targetが`$ObjectBId`。
+- Relation Typeが`$RelationTypeRef`と一致する。
 
 ## K-03 OBJ-Bからrelated stateを読む
 
@@ -1082,7 +1166,7 @@ $RelationsA.data
 sgokb --db $Db object relations --object $ObjectBId
 ```
 
-**PASS**: relation visibility/directionが選択したrelation-type contractに一致する。Relation Typeがinverse relationを定義しない場合はinverseを要求しない。
+**PASS**: relation visibility/directionが選択したRelation Type contractに一致する。Relation Typeがinverse relationを定義しない場合はinverseを要求しない。
 
 ## K-04 Relation Evidenceを確認
 
@@ -1093,7 +1177,7 @@ sgokb --db $Db evidence show <relation-evidence-id>
 sgokb --db $Db evidence provenance <relation-evidence-id>
 ```
 
-**PASS**: Evidenceがrelationを支持する。
+**PASS**: Evidenceが孫悟空とドラゴンボールのRelationを明示的に支持し、SRC-R1 lineageへ追跡できる。
 
 ## K-05 Version-specific Relation read
 
@@ -1102,7 +1186,11 @@ sgokb --db $Db object relations --object $ObjectAId --version $Version1Id
 sgokb --db $Db object relations --object $ObjectAId --version $Version2Id
 ```
 
-**PASS**: 各Versionが自身のrelation stateを返し、current/historical scopeが混在しない。
+**PASS**:
+
+- V1はRelation Type適用前のhistorical stateを保持するため、当該Relationが存在しなくても正常。
+- V2には当該Relationが存在する。
+- current/historical scopeが混在しない。
 
 ---
 
@@ -1146,7 +1234,7 @@ rendered relation contentを次と比較する。
 sgokb --db $Db object relations --object $ObjectAId
 ```
 
-**PASS**: relationship informationがconsistentである。
+**PASS**: V2 relationship informationがconsistentである。
 
 ## L-05 grounding/provenance referenceを確認
 
@@ -1169,7 +1257,7 @@ Compare-Object `
   (Get-Content "<V2-render-path>")
 ```
 
-**PASS**: 期待するVersion差分が反映される。
+**PASS**: 期待するVersion差分が反映され、V2側だけに新規Relationが現れる場合はその差も確認できる。
 
 ---
 
@@ -1517,7 +1605,7 @@ find_similar_objects({"object_id":"<OBJ-A-ID>","limit":10})
 get_object_relations({"object_id":"<OBJ-A-ID>"})
 ```
 
-**PASS**: 期待するOBJ-A -> OBJ-B relationがCLIと同じaccepted Version semanticsで返る。
+**PASS**: V2でacceptedされたOBJ-A -> OBJ-B RelationがCLIと同じcurrent Version semanticsで返る。
 
 ## Q-06 `get_object_evidence`
 
@@ -1778,18 +1866,19 @@ A-Sを個別に理解した後、SQLiteを手動編集したりboundaryをbypass
 16. result validate
 17. result review
 18. result import
-19. object show --knowledge
-20. object relations
-21. render
-22. lexical search
-23. semantic search with full runtime
-24. hybrid search with full runtime
-25. similar
-26. MCP get_object
-27. MCP search_objects
-28. MCP build_context
-29. system backup create
-30. final system integrity
+19. registry proposal review/accept/apply when the Result legitimately contains one
+20. object show --knowledge
+21. object relations when a valid applied Relation Type and supported Relation exist
+22. render
+23. lexical search
+24. semantic search with full runtime
+25. hybrid search with full runtime
+26. similar
+27. MCP get_object
+28. MCP search_objects
+29. MCP build_context
+30. system backup create
+31. final system integrity
 ```
 
 各stepで返されたstable IDを記録し、identity chainが内部でconsistentなままであることを確認する。
@@ -1801,9 +1890,11 @@ A-Sを個別に理解した後、SQLiteを手動編集したりboundaryをbypass
 - external exportがexplicitである。
 - external AIがfabricated provenanceではなくPackage Evidenceを使用する。
 - Resultがexplicit Import前にvalidateおよびreviewされる。
+- Registry Proposalがsilent applyされず、必要な場合はexplicit accept/applyを経る。
 - accepted Knowledgeがhistorical accepted stateのoverwriteではなくVersionである。
 - 代表的KnowledgeがEvidenceおよびRaw Source lineageまでtraceableである。
 - lexical、semantic、hybrid、similarity、render、MCP read surfaceが同じcanonical Object/Version semanticsへ解決される。
+- Relationを使用する場合、実在・適用済みのRelation Typeだけを参照する。
 - completed workflow後にbackup creationが成功する。
 - 最終`system integrity`が成功する。
 
