@@ -6,30 +6,30 @@ Planning文書はPhase / Task単位で整理し、`docs/planning/`直下には�
 
 ## Current phase
 
-現在の開発Phaseは **Phase O — Documentation / Release / Git cleanup** です。
+Phase O — Documentation / Release / Git cleanup は **Complete** です。
 
 ```text
 Phase A ... Phase M = Complete
 Phase N = Complete / PASS
 Phase N closure audit = Complete / PASS
-Phase O = Active
+Phase O = Complete
 O-01 README update = Complete
 O-02 Current design documentation = Complete
 O-03 Prototype Archived / Legacy labels = Complete
 O-04 main integration = Complete
 O-05 Branch cleanup = Complete
-O-06 Release / Tag policy = In Progress — tag publication pending
-Release target = v1.0.0
-Next = publish and verify v1.0.0 tag
+O-06 Release / Tag policy = Complete
+Current formal release = v1.0.0
+Release commit = 0e1a8464e9db98b4e99169cae6292821f3fd410c
 ```
 
 Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSで、独立ChatGPT reviewにより受理済みです。旧N-07 `47 PASS / 3 FAIL`等のhistorical evidenceは保持し、後続remediation / re-acceptanceと区別します。
 
-Phase Oのcurrent task stateは [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_STATUS.md) を参照してください。
+Phase Oのclosure stateは [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_STATUS.md) を参照してください。
 
 ## Current authority
 
-- Phase O current status: [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_STATUS.md)
+- Phase O closure status: [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_STATUS.md)
 - O-05 branch cleanup result: [`phases/O/O05_BRANCH_CLEANUP.md`](phases/O/O05_BRANCH_CLEANUP.md)
 - O-06 Release / Tag / Breaking Change policy: [`../decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md`](../decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md)
 - v1.0.0 Release Note: [`../releases/v1.0.0.md`](../releases/v1.0.0.md)
@@ -43,7 +43,7 @@ Phase Oのcurrent task stateは [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_
 - Phase N closure planning authority: [`phases/N/PHASE_N_CLOSURE_AUDIT.md`](phases/N/PHASE_N_CLOSURE_AUDIT.md)
 - Phase N formal result: [`../evaluation/PHASE_N_CLOSURE_AUDIT.md`](../evaluation/PHASE_N_CLOSURE_AUDIT.md)
 
-Phase O実行中のcurrent task statusは`PHASE_O_STATUS.md`を優先する。project-wide task masterのPhase O checklistがまだhistorical planning stateを示す場合でも、current Phase O statusを上書きしない。
+project-wide task masterにhistorical planning stateが残る場合、Phase Oについては`PHASE_O_STATUS.md`のclosure stateを優先する。
 
 ## Phase O task state
 
@@ -54,7 +54,7 @@ Phase O実行中のcurrent task statusは`PHASE_O_STATUS.md`を優先する。pr
 | O-03 | **Complete** | Prototype文書へArchived / Legacy表示 |
 | O-04 | **Complete** | branch historyを`main`へ統合 |
 | O-05 | **Complete** | 不要remote branch 35本を削除し`main`のみへ整理 |
-| O-06 | **In Progress — tag publication pending** | `v1.0.0` boundary / policy / Breaking Change / metadata確定。tag作成・live verification待ち |
+| O-06 | **Complete** | `v1.0.0` Release / Tag policy、Prototype境界、Breaking Change記録、tag publication / verification |
 
 O-04はPhase Oの通常順序より先にユーザー指示で実施済みです。全remote branch historyの最終統合commitは`77d79ccac1017f167736c742ac199858a3a010a7`です。
 
@@ -113,7 +113,7 @@ main HEAD before status updates = 4f16835aef54206c248240c40d3870f1d0e35cfd
 
 branch cleanup前後で`main` HEADは不変であり、history変更はない。O-05はComplete。詳細は [`phases/O/O05_BRANCH_CLEANUP.md`](phases/O/O05_BRANCH_CLEANUP.md) を参照する。
 
-## O-06 release candidate result
+## O-06 result
 
 Release / Tag policyを次のように固定した。
 
@@ -139,7 +139,21 @@ v1.0.0 Release Noteでは次をBreaking Changeとして記録した。
 
 `pyproject.toml`は`version = "1.0.0"`へ更新し、Prototype descriptionもcurrent SGOKBへ更新した。
 
-現時点で残るO-06作業は`v1.0.0` tag publicationとlive target verificationのみ。tagが存在するまでO-06をCompleteにしない。
+frozen release commit:
+
+```text
+0e1a8464e9db98b4e99169cae6292821f3fd410c
+```
+
+live GitHub verification:
+
+```text
+tag ref    = refs/tags/v1.0.0
+tag object = a418096b5139027cd9ccaaf47fb99a4309cb4b1e
+tag target = 0e1a8464e9db98b4e99169cae6292821f3fd410c
+```
+
+意図したrelease commitとtag targetが一致したため、O-06はComplete。Phase OもCompleteへclosureした。
 
 ## Directory layout
 
@@ -221,11 +235,6 @@ Phase NではN-04〜N-07の検証過程で多数のremediation / benchmark文書
 
 ## Next
 
-次の残作業は:
+Phase Oに残タスクはない。
 
-```text
-publish v1.0.0 tag
-verify live tag target
-```
-
-tag確認後にO-06をComplete、Phase OをCompleteへclosureする。
+次の開発Phaseまたはmaintenance taskは別途定義する。以後のReleaseはO-06で確定したSemVer / immutable tag / Breaking Change policyに従う。
