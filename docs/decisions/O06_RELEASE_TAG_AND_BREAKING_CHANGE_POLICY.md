@@ -21,8 +21,10 @@ Current line     = SGOKB 1.x
 First release    = 1.0.0
 Git tag          = v1.0.0
 Package version  = 1.0.0
-Tag target       = O-06 closure完了後のmain HEAD
+Tag target       = frozen v1.0.0 release commit on main
 ```
+
+`v1.0.0` release commitは、少なくともRelease policy、repository-side Release Note、package version、current README / documentation boundaryを含む`main`上のcommitとする。tag確認後にPhase O statusをCompleteへ更新するbookkeeping commitは`v1.0.0`の一部ではなく、tagを移動する理由にもならない。
 
 Prototype 0.2は正式tag / GitHub Releaseを作らず、既存のarchive文書とGit historyをhistorical authorityとして保持する。
 
@@ -96,6 +98,7 @@ v1.1.1
 6. acceptance途中のcommitには正式tagを付与しない。
 7. package metadata versionはtagから先頭`v`を除いた値と一致させる。
 8. tag作成前にRelease Noteとversion metadataを`main`へ含める。
+9. tag verification後のstatus / planning bookkeeping commitのために既存tagを移動しない。
 
 ## 4. Prototype 0.2 boundary
 
@@ -294,15 +297,18 @@ GitHub UI側だけに重要なBreaking Change / migration情報を置かない�
 ```text
 1. Release policy / Release Noteをmainへcommit
 2. package versionをrelease versionへ更新
-3. O-06 / Phase O closure statusをmainへcommit
-4. final main HEADを確認
-5. annotated tag v1.0.0をfinal main HEADへ作成
+3. README / current documentation boundaryをrelease内容と整合させる
+4. release commitをmain上でfreezeしSHAを記録
+5. annotated tag v1.0.0をrelease commitへ作成
 6. tagをoriginへpush
 7. tag targetをGitHub上で再確認
-8. 必要ならGitHub Releaseをv1.0.0 tagから公開
+8. O-06 / Phase O statusをCompleteへ更新するbookkeeping commitをmainへ追加
+9. 必要ならGitHub Releaseをv1.0.0 tagから公開
 ```
 
-Tag作成後にO-06内容を追加修正した場合、その修正を含む新しい正式Releaseが必要かを判断し、既存tagをsilent moveしない。
+Step 8のstatus更新は`v1.0.0` release payloadを変更しない。tagはStep 4のrelease commitに固定し、bookkeeping commitへ移動しない。
+
+Tag作成後にrelease payload自体へ修正が必要になった場合は、既存`v1.0.0`をsilent moveせず、変更の性質に応じて新しいPatch / Minor / Major versionを作成する。
 
 ## 12. Future release checklist
 
@@ -314,12 +320,14 @@ Tag作成後にO-06内容を追加修正した場合、その修正を含む新�
 - [ ] repository Release Note作成
 - [ ] README / current docs確認
 - [ ] `main`へ統合
-- [ ] tag target SHA確認
+- [ ] release commit SHAをfreeze
 - [ ] immutable tag作成・push
+- [ ] tag target SHA確認
+- [ ] Release status bookkeeping更新
 - [ ] GitHub Release本文とrepository Release Noteの整合確認
 
 ## 13. O-06 completion boundary
 
 Policy / Release Note / metadataのrepository作業が完了しても、`v1.0.0` tagが存在しない限り「Prototypeと新SGOKBの境界をtagで明示した」というO-06要件は未完了と扱う。
 
-したがって、final O-06 commit作成後に`v1.0.0` tagをそのcommitへ付与し、live GitHubでtag targetを確認した時点でO-06をCompleteとする。
+`v1.0.0` tagをfrozen release commitへ付与し、live GitHubでtargetを確認した時点でrelease boundaryは成立する。その後のO-06 / Phase O Complete記録はbookkeepingとして`main`へ追加し、既存tagを移動しない。
