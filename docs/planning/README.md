@@ -18,7 +18,9 @@ O-02 Current design documentation = Complete
 O-03 Prototype Archived / Legacy labels = Complete
 O-04 main integration = Complete
 O-05 Branch cleanup = Complete
-Next = O-06 Release / Tag policy
+O-06 Release / Tag policy = In Progress — tag publication pending
+Release target = v1.0.0
+Next = publish and verify v1.0.0 tag
 ```
 
 Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSで、独立ChatGPT reviewにより受理済みです。旧N-07 `47 PASS / 3 FAIL`等のhistorical evidenceは保持し、後続remediation / re-acceptanceと区別します。
@@ -29,6 +31,9 @@ Phase Oのcurrent task stateは [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_
 
 - Phase O current status: [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_STATUS.md)
 - O-05 branch cleanup result: [`phases/O/O05_BRANCH_CLEANUP.md`](phases/O/O05_BRANCH_CLEANUP.md)
+- O-06 Release / Tag / Breaking Change policy: [`../decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md`](../decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md)
+- v1.0.0 Release Note: [`../releases/v1.0.0.md`](../releases/v1.0.0.md)
+- Release index: [`../releases/README.md`](../releases/README.md)
 - Current integrated architecture: [`../design/SGOKB_CURRENT_ARCHITECTURE.md`](../design/SGOKB_CURRENT_ARCHITECTURE.md)
 - Current design index: [`../design/README.md`](../design/README.md)
 - Operational safety / recovery: [`../operations/OPERATIONAL_SAFETY_RECOVERY.md`](../operations/OPERATIONAL_SAFETY_RECOVERY.md)
@@ -49,7 +54,7 @@ Phase O実行中のcurrent task statusは`PHASE_O_STATUS.md`を優先する。pr
 | O-03 | **Complete** | Prototype文書へArchived / Legacy表示 |
 | O-04 | **Complete** | branch historyを`main`へ統合 |
 | O-05 | **Complete** | 不要remote branch 35本を削除し`main`のみへ整理 |
-| O-06 | **Next / Not Started** | Release / Tag policy |
+| O-06 | **In Progress — tag publication pending** | `v1.0.0` boundary / policy / Breaking Change / metadata確定。tag作成・live verification待ち |
 
 O-04はPhase Oの通常順序より先にユーザー指示で実施済みです。全remote branch historyの最終統合commitは`77d79ccac1017f167736c742ac199858a3a010a7`です。
 
@@ -107,6 +112,34 @@ main HEAD before status updates = 4f16835aef54206c248240c40d3870f1d0e35cfd
 ```
 
 branch cleanup前後で`main` HEADは不変であり、history変更はない。O-05はComplete。詳細は [`phases/O/O05_BRANCH_CLEANUP.md`](phases/O/O05_BRANCH_CLEANUP.md) を参照する。
+
+## O-06 release candidate result
+
+Release / Tag policyを次のように固定した。
+
+```text
+Legacy line      = Prototype 0.2.x (untagged historical line)
+Current line     = SGOKB 1.x
+First release    = 1.0.0
+Git tag          = v1.0.0
+Package version  = 1.0.0
+```
+
+Prototype 0.2にはretroactive tag / GitHub Releaseを作らない。historical authorityは`docs/archive/prototype-0.2/`とGit historyに残す。
+
+v1.0.0 Release Noteでは次をBreaking Changeとして記録した。
+
+- Fragment / Final Document canonical modelの廃止
+- Prototype DBのin-place migration非対応
+- Object-centered `sgokb` CLIへの変更
+- hierarchical multi-vector R2 Searchへの変更
+- explicit Evidence Package / Structured Result boundary
+- read-only MCP contract
+- SGOKB World/Object Knowledge ↔ UPDS Personal Inference boundary
+
+`pyproject.toml`は`version = "1.0.0"`へ更新し、Prototype descriptionもcurrent SGOKBへ更新した。
+
+現時点で残るO-06作業は`v1.0.0` tag publicationとlive target verificationのみ。tagが存在するまでO-06をCompleteにしない。
 
 ## Directory layout
 
@@ -184,13 +217,15 @@ Phase NではN-04〜N-07の検証過程で多数のremediation / benchmark文書
 6. 設計Decision → `docs/decisions/`
 7. 実装設計 → `docs/design/`
 8. operator手順 / operational safety → `docs/operations/`
+9. Release Note / compatibility boundary → `docs/releases/`
 
 ## Next
 
-次Taskは:
+次の残作業は:
 
 ```text
-O-06 [P1] Release / Tag policy、Prototypeと新KBの境界、Breaking Change記録
+publish v1.0.0 tag
+verify live tag target
 ```
 
-O-01〜O-05はComplete。O-06完了後にPhase O全体のclosureを判定する。
+tag確認後にO-06をComplete、Phase OをCompleteへclosureする。
