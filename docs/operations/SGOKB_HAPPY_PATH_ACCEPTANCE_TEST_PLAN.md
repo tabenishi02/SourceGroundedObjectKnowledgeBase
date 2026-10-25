@@ -33,6 +33,7 @@ Environment / CLI
   -> Structured Object Result
   -> Detect / Receive / Validate / Review / Import
   -> accepted Knowledge Version
+  -> Registry Proposal / explicit accept / apply
   -> Versioning / Relation / Render
   -> Lexical / Semantic / Hybrid / Similarity
   -> read-only MCP
@@ -120,6 +121,8 @@ Recommended Sources:
 
 Five to eight real capture files are sufficient for this acceptance run. The content should be easy for the operator to understand manually so semantic quality and grounding can be inspected without ambiguity.
 
+For a fresh acceptance DB, the Relation Type Registry may legitimately start empty. The test must not add a Relation Type by direct SQLite manipulation or an ad-hoc write. If no suitable Relation Type already exists, the first Result must propose a `new_relation_type`; the operator then accepts and applies that proposal before a later Result imports the actual Relation.
+
 ---
 
 ## 5. Result recording convention
@@ -147,7 +150,7 @@ A test is PASS only when both the command operation and the semantic expectation
 | A-04 | Integrity | `sgokb --db $Db system integrity` | SQLite integrity, FK integrity, and migration state are valid |
 | A-05 | Class registry list | `registry class list` | Current registered classes are returned |
 | A-06 | Class registry show | `registry class show <class>` | Selected class definition is returned |
-| A-07 | Relation type registry | `registry relation-type list/show` | Current relation types can be read |
+| A-07 | Relation type registry | `registry relation-type list`; if non-empty, `show` one suitable type | Registry is readable. An empty list is valid for a fresh DB; existing definitions, when present, can be read individually |
 | A-08 | JSON contract | Run a normal READ command | Output follows `sgokb.cli/1.0`, `ok=true` |
 | A-09 | Human-readable output | Use `--format text` where supported | A readable representation is displayed |
 
@@ -155,7 +158,8 @@ Acceptance focus:
 
 - the public entrypoint is `sgokb`;
 - no legacy `sgokb-package` workflow is needed;
-- normal reads are possible before semantic runtime is involved.
+- normal reads are possible before semantic runtime is involved;
+- an empty fresh Relation Type Registry is not treated as corruption or CLI failure.
 
 ---
 
@@ -280,10 +284,12 @@ This section is outside the SGOKB runtime but is part of the standard human-in-t
 | G-04 | Structured Result | Produce `result.json` | Result conforms to current SGOKB Result schema |
 | G-05 | Facet generation | Review OBJ-A knowledge | Appropriate facets are represented |
 | G-06 | Statement generation | Review facet statements | Statements are evidence-grounded and structured |
-| G-07 | Relation generation | Include supported OBJ-A <-> OBJ-B relation | Relation includes appropriate Evidence grounding |
+| G-07 | Relation-type proposal on fresh registry | If A-07 found no suitable Relation Type, include an Evidence-grounded `new_relation_type` Registry Proposal instead of inventing/using a nonexistent Relation Type | Proposal is structured and Evidence-grounded; no actual Relation using the not-yet-applied type is emitted in V1 |
 | G-08 | Place Result | `<IncomingRoot>/drop/<PackageId>/result.json` | SGOKB intake can discover the artifact |
 
 Do not add external facts as fabricated SGOKB Evidence IDs. External AI is a semantic integration consumer/producer, not an authority that can invent provenance.
+
+If A-07 found an already-existing suitable Relation Type, G-07 may use that existing type and the proposal-specific I path can use another benign proposal. For a fresh unseeded Relation Type Registry, prefer the deterministic `new_relation_type` path described above.
 
 ---
 
@@ -299,7 +305,7 @@ Do not add external facts as fabricated SGOKB Evidence IDs. External AI is a sem
 | H-06 | Human review | `result review ... --review-format markdown` | Operator can inspect proposed Knowledge |
 | H-07 | Explicit Import | `result import <receipt-id>` | New accepted Knowledge Version is created |
 | H-08 | Current pointer | `object show --object OBJ-A --knowledge` | Imported Version is current |
-| H-09 | Evidence links | Inspect imported Knowledge | Statements/Relations remain grounded to valid Evidence IDs |
+| H-09 | Evidence links | Inspect imported Knowledge | Statements and any Relations already valid for this Version remain grounded to valid Evidence IDs |
 
 Critical boundary:
 
@@ -313,25 +319,28 @@ Validation, review, and explicit import must remain distinct normal steps.
 
 # I. Registry Proposal
 
-Include one benign, valid Registry Proposal in a test Result if practical.
+For a fresh DB whose Relation Type Registry is empty, this section must exercise a `new_relation_type` proposal that will later permit the supported OBJ-A -> OBJ-B Relation. A representative semantic meaning is "character appears in work"; use the exact key/name/payload produced under the current Result/Registry contract rather than inventing a direct DB row.
 
 | ID | Test | Operation | Expected result |
 |---|---|---|---|
-| I-01 | Proposal intake | Import Result containing proposal | Proposal becomes pending; it is not silently applied |
+| I-01 | Proposal intake | Import Result containing `new_relation_type` proposal | Proposal becomes pending; it is not silently applied |
 | I-02 | List proposals | `registry proposal list --decision pending` | Proposal is visible |
-| I-03 | Inspect proposal | `registry proposal show <proposal-ref>` | Kind/payload/review context are readable |
-| I-04 | Accept proposal | `registry proposal accept ...` | Human decision is recorded |
-| I-05 | Apply proposal | `registry proposal apply ...` | Registry mutation occurs only now |
-| I-06 | Verify Registry/Object | Re-read affected state | Expected change is visible |
+| I-03 | Inspect proposal | `registry proposal show <proposal-ref>` | `proposal_kind = new_relation_type`, payload, rationale, Evidence, and review context are readable |
+| I-04 | Accept proposal | `registry proposal accept ...` | Human decision is recorded; Relation Type is not created merely by acceptance |
+| I-05 | Apply proposal | `registry proposal apply ...` | Relation Type Registry mutation occurs only now |
+| I-06 | Verify Relation Type Registry | Re-run `registry relation-type list/show` | Applied Relation Type now exists and can be read individually |
 
 Critical invariant:
 
 ```text
 Result Import
-  -> pending proposal
+  -> pending new_relation_type proposal
   -> explicit human accept
   -> explicit apply
+  -> Relation Type becomes usable by a later Knowledge Version
 ```
+
+Do not rewrite V1 in place after applying the proposal. The actual Relation is introduced by a later Result and therefore belongs to a later immutable Knowledge Version.
 
 ---
 
@@ -343,13 +352,13 @@ Create at least two accepted Versions for OBJ-A.
 |---|---|---|---|
 | J-01 | Capture Version 1 identity | Record first `knowledge_version_id` | V1 is readable |
 | J-02 | Add new Evidence | Import/process later OBJ-A source/snapshot | New Evidence exists |
-| J-03 | Build update Package | Rebuild OBJ-A Package | Current/base Version binding is correct |
-| J-04 | Produce Result 2 | External semantic integration | Updated structured Result is valid |
+| J-03 | Build update Package | Rebuild OBJ-A Package after I-05/I-06 | Current/base Version binding is correct and the applied Relation Type is now available |
+| J-04 | Produce Result 2 | External semantic integration using the applied Relation Type and SRC-R1 Evidence | Updated structured Result is valid and contains the supported OBJ-A -> OBJ-B Relation |
 | J-05 | Import Result 2 | Validate/review/import | V2 is created |
 | J-06 | Current Version | Read OBJ-A | V2 is current |
 | J-07 | Historical preservation | Read V1 | V1 remains intact |
 | J-08 | Version show | `version show V1`, `version show V2` | Both are individually readable |
-| J-09 | Version diff | `version diff V1 V2` | Expected Knowledge changes are displayed |
+| J-09 | Version diff | `version diff V1 V2` | Expected Knowledge changes, including the newly valid Relation where applicable, are displayed |
 | J-10 | Historical Object read | `object show --version V1` | Historical state is reconstructed/read correctly |
 | J-11 | Version-specific grounding | Inspect V1/V2 Evidence links | Each Version retains appropriate grounding |
 
@@ -364,15 +373,15 @@ not destructive overwrite of prior accepted Version
 
 # K. Relation
 
-Use the supported relation between OBJ-A and OBJ-B from the imported structured Result.
+Use the supported OBJ-A -> OBJ-B Relation introduced in V2 after the required Relation Type has been explicitly accepted and applied.
 
 | ID | Test | Operation | Expected result |
 |---|---|---|---|
-| K-01 | Relation import | Import Result containing supported Relation | Relation is stored in accepted Version |
-| K-02 | Read from OBJ-A | `object relations --object OBJ-A` | OBJ-B relation is visible |
-| K-03 | Read related side | Inspect OBJ-B relation view as defined by relation semantics | Expected relation view is available |
-| K-04 | Relation Evidence | Inspect relation with Evidence | Grounding is retained |
-| K-05 | Version-specific Relation | Read current and historical Version relations | Version scope is respected |
+| K-01 | Relation import | Confirm the V2 Result containing the applied Relation Type was imported | Relation is stored in accepted V2, not retroactively inserted into V1 |
+| K-02 | Read from OBJ-A | `object relations --object OBJ-A` | OBJ-B relation is visible in current accepted Version |
+| K-03 | Read related side | Inspect OBJ-B relation view as defined by relation semantics | Expected relation view is available; do not require an inverse that the Relation Type does not define |
+| K-04 | Relation Evidence | Inspect relation with Evidence | SRC-R1-derived grounding is retained |
+| K-05 | Version-specific Relation | Read V1 and V2 relations explicitly | Version scope is respected; V1 and V2 may legitimately differ because the type was applied between them |
 
 Do not use a direct ad-hoc relation write path. Accepted Relations must remain inside the Result -> validate/review -> import boundary.
 
@@ -474,7 +483,7 @@ Invoke every active read capability at least once from an actual MCP client.
 | Q-02 | `get_objects` | Multiple requested Objects are returned |
 | Q-03 | `search_objects` | Lexical or hybrid search returns expected Objects |
 | Q-04 | `find_similar_objects` | Similarity results are returned |
-| Q-05 | `get_object_relations` | OBJ-A/OBJ-B accepted Relation is returned |
+| Q-05 | `get_object_relations` | OBJ-A/OBJ-B accepted Relation from current V2 is returned |
 | Q-06 | `get_object_evidence` | Grounding Evidence is returned |
 | Q-07 | `search_evidence` | Matching Evidence can be searched |
 | Q-08 | `build_context` | Purpose-specific deterministic context subset is returned |
@@ -553,13 +562,14 @@ Web page / local capture
   -> result review
   -> result import
   -> accepted Knowledge Version
+  -> registry proposal review/accept/apply when the Result legitimately contains one
   -> object show --knowledge
   -> render
   -> lexical search
   -> semantic search
   -> hybrid search
   -> similarity
-  -> relation/evidence read
+  -> relation/evidence read when a valid applied Relation Type and supported Relation exist
   -> MCP get_object
   -> MCP search_objects
   -> MCP build_context
@@ -575,6 +585,7 @@ Web page / local capture
 - External AI uses Package Evidence as grounding.
 - Result validation and review are completed before Import.
 - Accepted Knowledge is created only through explicit Import.
+- Registry proposals are not silently applied; required Relation Types become usable only after explicit accept/apply.
 - Stable Object identity is preserved.
 - Evidence remains traceable to Source/Snapshot/Raw Artifact.
 - CLI and MCP resolve the same current accepted Version.
@@ -616,6 +627,7 @@ Record FAIL if any normal-path operation completes but violates a canonical inva
 - current/historical Version scope is mixed incorrectly;
 - imported Knowledge cannot trace to intended Evidence;
 - Evidence cannot trace to Source/Snapshot/Raw Artifact;
+- a Registry Proposal is silently applied or a Relation uses a nonexistent/unapplied Relation Type;
 - MCP resolves different canonical current Knowledge than CLI;
 - derived Vector/Embedding state becomes the only copy of knowledge;
 - explicit export/import/review boundaries are bypassed.
