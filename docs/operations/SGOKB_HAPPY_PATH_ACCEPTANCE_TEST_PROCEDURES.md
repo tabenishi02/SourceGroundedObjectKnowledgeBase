@@ -128,15 +128,16 @@ New-Item -ItemType Directory -Force `
   $StagingRoot, $RenderRoot, $BackupRoot, (Split-Path $RestoreDb) | Out-Null
 ```
 
-Section Cの実施前に、有効なWeb Capture bundleを準備する。次のplaceholderを実際のpathへ置き換える。
+WebPageCaptureの標準保存先は`extensions/web-page-capture/local-captures/`である。Section Cの実施前に、有効なWeb Capture bundleを準備し、次のplaceholderを実際のpathへ置き換える。
 
 ```powershell
-$CaptureA1   = "C:\path\to\SRC-A1.webcapture.zip"
-$CaptureA2   = "C:\path\to\SRC-A2.webcapture.zip"
-$CaptureA1V2 = "C:\path\to\SRC-A1-V2.webcapture.zip"
-$CaptureB1   = "C:\path\to\SRC-B1.webcapture.zip"
-$CaptureC1   = "C:\path\to\SRC-C1.webcapture.zip"
-$CaptureR1   = "C:\path\to\SRC-R1.webcapture.zip"
+$CaptureRoot = ".\extensions\web-page-capture\local-captures"
+$CaptureA1   = Join-Path $CaptureRoot "<SRC-A1の実ファイル名>.webcapture.zip"
+$CaptureA2   = Join-Path $CaptureRoot "<SRC-A2の実ファイル名>.webcapture.zip"
+$CaptureA1V2 = Join-Path $CaptureRoot "<SRC-A1-V2の実ファイル名>.webcapture.zip"
+$CaptureB1   = Join-Path $CaptureRoot "<SRC-B1の実ファイル名>.webcapture.zip"
+$CaptureC1   = Join-Path $CaptureRoot "<SRC-C1の実ファイル名>.webcapture.zip"
+$CaptureR1   = Join-Path $CaptureRoot "<SRC-R1の実ファイル名>.webcapture.zip"
 ```
 
 識別しやすい試験用Object名を使用する。実際のSourceを使う場合は、実在するObject名を使用してもよい。
