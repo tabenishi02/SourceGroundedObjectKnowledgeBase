@@ -3,7 +3,7 @@
 Updated: 2026-10-25
 
 - Phase: `Phase O — Documentation / Release / Git cleanup`
-- Status: **Active**
+- Status: **Complete**
 - Previous phase: `Phase N — Test / Evaluation / Acceptance` — **Complete / PASS**
 - Current Phase O status authority: this document
 
@@ -16,7 +16,7 @@ Updated: 2026-10-25
 | O-03 | **Complete** | Prototype 0.2文書をArchived / Legacyとして明示しcurrent specificationとの誤認を防止 |
 | O-04 | **Complete** | 全remote branch historyを`main`へ統合。統合commit `77d79ccac1017f167736c742ac199858a3a010a7` |
 | O-05 | **Complete** | 不要remote branch 35本を削除し、remote branchを`main` 1本へ整理 |
-| O-06 | **In Progress — tag publication pending** | `v1.0.0` release boundary / policy / Breaking Change / metadataは確定。final tag作成・live verification待ち |
+| O-06 | **Complete** | `v1.0.0` release boundary / policy / Breaking Change / metadataを確定し、annotated tagをrelease commitへ作成・live verification |
 
 Phase Oのcurrent statusは本書を正本とする。project-wide task masterに古いPhase O checklist/statusが残る場合、本書の状態が優先する。
 
@@ -141,7 +141,7 @@ main HEAD before cleanup status update = 4f16835aef54206c248240c40d3870f1d0e35cf
 
 branch削除前後で`main` HEADは不変だったため、cleanupによる`main` historyの変更はない。35本の不要branch削除が完了し、O-05を**Complete**とする。
 
-## O-06 release candidate result
+## O-06 result
 
 O-06ではRelease / Tag / Breaking Change境界を次のように確定した。
 
@@ -153,7 +153,7 @@ Git tag          = v1.0.0
 Package version  = 1.0.0
 ```
 
-実施済み:
+実施内容:
 
 - `docs/decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md`
   - Semantic Versioning
@@ -176,9 +176,43 @@ Package version  = 1.0.0
 
 O-06開始時点でlive GitHubを確認し、既存Git tag = **0件**、GitHub Release = **0件**だった。過去に存在しなかったPrototype release boundaryを後付けしない。
 
-現在のChatGPT GitHub action setにはtag/ref作成mutationとGitHub Release作成mutationがないため、repository-side release candidate作業までを完了し、`v1.0.0` tag publicationだけが残る。
+release payloadを含むfrozen release commitは次である。
 
-`v1.0.0` tagが存在し、意図したrelease candidate commitを指すことをlive GitHubで確認するまでO-06は**Completeにしない**。
+```text
+0e1a8464e9db98b4e99169cae6292821f3fd410c
+```
+
+ユーザーがGit clientからannotated tag `v1.0.0`を作成・pushした後、live GitHubで次を確認した。
+
+```text
+tag ref       = refs/tags/v1.0.0
+tag object    = a418096b5139027cd9ccaaf47fb99a4309cb4b1e
+tag type      = annotated tag
+tag target    = 0e1a8464e9db98b4e99169cae6292821f3fd410c
+tag message   = SGOKB v1.0.0
+```
+
+意図したrelease commitとtag targetは完全一致した。tagは以後immutable history markerとして扱い、silent move / reuseしない。
+
+GitHub Release UI objectの作成はO-06の必須条件ではない。repository-side Release Noteと正式tagがcurrent release boundaryの正本であり、将来GitHub Releaseを公開する場合も`docs/releases/v1.0.0.md`と意味内容を一致させる。
+
+**O-06 = Complete**。
+
+## Phase O closure
+
+Phase Oの完了条件「`main`が新設計を正本として示し、旧Prototypeと混同されない」を満たした。
+
+- current README / design / operations documentationを整備済み。
+- Prototype 0.2 documentationはArchived / Legacyとして明示済み。
+- 全remote branch historyを`main`へ統合済み。
+- 不要remote branchを削除し`main`のみへ整理済み。
+- Release / Tag policyを確定済み。
+- Prototype 0.2 ↔ current SGOKB境界を`v1.0.0`で明示済み。
+- Breaking Changes / migration guidanceをrepository-side Release Noteへ記録済み。
+- package metadataは`1.0.0`へ更新済み。
+- `v1.0.0` annotated tag targetをlive GitHubで検証済み。
+
+**Phase O = Complete**。
 
 ## Accepted status carried forward
 
@@ -186,14 +220,15 @@ O-06開始時点でlive GitHubを確認し、既存Git tag = **0件**、GitHub R
 Phase A ... Phase M = Complete
 Phase N = Complete / PASS
 Phase N closure audit = Complete / PASS
-Phase O = Active
+Phase O = Complete
 O-01 = Complete
 O-02 = Complete
 O-03 = Complete
 O-04 = Complete
 O-05 = Complete
-O-06 = In Progress — tag publication pending
-Release target = v1.0.0
+O-06 = Complete
+Current formal release = v1.0.0
+Release commit = 0e1a8464e9db98b4e99169cae6292821f3fd410c
 ```
 
 Phase N authority:
@@ -213,6 +248,6 @@ Current design / release authority entrypoints:
 
 ## Next
 
-`v1.0.0` tagをO-06 release candidate commitへ作成・pushし、live GitHubでtag targetを確認する。
+Phase Oに残タスクはない。
 
-確認後にO-06をComplete、Phase OをCompleteへclosureする。
+次の開発Phase / maintenance taskは別途定義する。既存`v1.0.0` tagは移動・再利用せず、以後の正式ReleaseはO-06で確定したSemVer / Release policyに従う。
