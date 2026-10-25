@@ -31,7 +31,83 @@ Notes:
 
 ---
 
-## 2. 試験用workspaceと変数
+## 2. 事前環境構築
+
+A-01を開始する前に、repository rootでSGOKBを実行できるPython環境を準備する。
+
+### 2.1 必須要件
+
+Core正常系試験（A〜M）では次を満たすこと。
+
+- Python 3.10以上
+- repository rootから実行すること
+- SGOKB packageがeditable installされていること
+
+確認例:
+
+```powershell
+python --version
+```
+
+### 2.2 Core試験用の最小環境
+
+未構築の場合は、repository rootで次を実行する。
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -e '.[dev]'
+```
+
+`sgokb` CLIの起動確認:
+
+```powershell
+.\.venv\Scripts\sgokb.exe --help
+```
+
+この確認が成功したらA-01へ進む。
+
+### 2.3 仮想環境を有効化して実行する場合
+
+本書のコマンドは原則として`sgokb`表記を使用する。PowerShellでそのまま実行する場合は、先に仮想環境を有効化する。
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+以降は次のように実行できる。
+
+```powershell
+sgokb --help
+```
+
+仮想環境を有効化しない場合は、各`sgokb`を次の形式へ読み替えてもよい。
+
+```powershell
+.\.venv\Scripts\sgokb.exe
+```
+
+### 2.4 Semantic / MCP試験まで実施する場合
+
+N〜RおよびQのMCP試験まで連続して実施する場合は、追加依存関係を導入してよい。
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e '.[dev,mcp,local-embedding,vector-qdrant]'
+```
+
+追加依存関係の用途:
+
+- `mcp`: QのMCP read boundary試験
+- `local-embedding`: N/O/P/RのSemantic / Hybrid / Similarity系試験
+- `vector-qdrant`: Qdrant vector backendを使用するSemantic系試験
+
+Qdrant server本体はpip installだけでは起動しない。N以降へ進む前に、accepted local Embedding runtimeとQdrant runtimeが別途起動・構成済みであることを確認する。
+
+Core試験A〜Mを開始する段階では、Semantic runtimeやQdrantは必須ではない。
+
+---
+
+## 3. 試験用workspaceと変数
 
 repository rootからPowerShellで実行する。
 
@@ -123,7 +199,7 @@ $SystemStatus = sgokb --db $Db system status | ConvertFrom-Json
 $SystemStatus
 ```
 
-**PASS**: `ok = true`であり、production stateを使用せずstatus dataが返る。
+**PASS**: `ok = true`; production stateを使用せずstatus dataが返る。
 
 ## A-04 Integrity
 
@@ -133,20 +209,20 @@ $Integrity
 if ($LASTEXITCODE -ne 0) { throw "A-04 failed" }
 ```
 
-**確認**: SQLite integrity、foreign-key integrity、migration stateが正常である。
+**確認**: SQLite integrity、foreign-key integrity、migration stateがvalidである。
 
-## A-05 Class Registry一覧
+## A-05 Class registry list
 
 ```powershell
 $Classes = sgokb --db $Db registry class list | ConvertFrom-Json
 $Classes.data
 ```
 
-**PASS**: 登録済みClassが返り、acceptance datasetで使用するClassが含まれる。
+**PASS**: 登録済みClassが返り、acceptance datasetで使用するClassを含む。
 
-## A-06 Class Registry詳細
+## A-06 Class registry show
 
-すべての試験対象Classについて実行する。
+試験対象Classすべてについて実行する。
 
 ```powershell
 sgokb --db $Db registry class show character
@@ -154,22 +230,22 @@ sgokb --db $Db registry class show work
 sgokb --db $Db registry class show concept
 ```
 
-**PASS**: 選択したすべてのClass定義を読み取れる。
+**PASS**: 選択したClass definitionをすべて読み取れる。
 
-## A-07 Relation type Registry
+## A-07 Relation type registry
 
 ```powershell
 $RelationTypes = sgokb --db $Db registry relation-type list | ConvertFrom-Json
 $RelationTypes.data
 ```
 
-OBJ-A <-> OBJ-Bに適切な既存Relation typeを1件選択し、内容を確認する。
+OBJ-A <-> OBJ-Bに適した既存Relation Typeを1つ選択し、確認する。
 
 ```powershell
 sgokb --db $Db registry relation-type show <relation-type-ref>
 ```
 
-**PASS**: Relation type一覧と選択した定義を読み取れる。
+**PASS**: relation-type listと選択したdefinitionを読み取れる。
 
 ## A-08 JSON contract
 
@@ -181,7 +257,7 @@ $JsonProbe.command
 $JsonProbe.warnings
 ```
 
-**PASS**: `schema_version`が`sgokb.cli/1.0`、`ok`がtrueであり、responseが有効なJSONである。
+**PASS**: `schema_version`が`sgokb.cli/1.0`、`ok`がtrueで、responseがvalid JSONである。
 
 ## A-09 Human-readable output
 
@@ -189,7 +265,7 @@ $JsonProbe.warnings
 sgokb --db $Db --format text system status
 ```
 
-**PASS**: 人間可読なtextが表示され、commandが成功する。
+**PASS**: human-readable textが表示され、commandが成功する。
 
 ---
 
@@ -228,7 +304,7 @@ $ObjectCId = $C.data.object_id
 $ObjectCId
 ```
 
-**PASS B-01..B-03**: 空でなく、相互に異なる3つのstable Object IDが返る。
+**PASS B-01..B-03**: 空でなく相互に異なる3つのstable Object IDが返る。
 
 ## B-04 Object一覧
 
@@ -257,14 +333,14 @@ $ByName.data
 
 **PASS**: 解決されたObject IDが`$ObjectAId`である。
 
-## B-07 Alias追加
+## B-07 aliasを追加
 
 ```powershell
 $ObjectAAlias = "Acceptance Alias A"
 sgokb --db $Db object alias add --object $ObjectAId $ObjectAAlias
 ```
 
-## B-08 Alias一覧
+## B-08 alias一覧
 
 ```powershell
 sgokb --db $Db object alias list --object $ObjectAId
@@ -272,7 +348,7 @@ sgokb --db $Db object alias list --object $ObjectAId
 
 **PASS**: `$ObjectAAlias`が存在する。
 
-## B-09 Aliasで解決
+## B-09 aliasで解決
 
 ```powershell
 $AliasRead = sgokb --db $Db object show --name $ObjectAAlias | ConvertFrom-Json
@@ -281,9 +357,9 @@ $AliasRead.data
 
 **PASS**: aliasが`$ObjectAId`へ解決される。
 
-## B-10 OBJ-AをRename
+## B-10 OBJ-Aをrename
 
-後で比較できるよう、旧nameを保持する。
+後の比較用に旧nameを保持する。
 
 ```powershell
 $ObjectAOriginalName = $ObjectAName
@@ -295,20 +371,20 @@ $RenameRead.data
 
 **PASS**: canonical nameが変更され、Object IDは`$ObjectAId`のままである。
 
-## B-11 Additional Classを追加
+## B-11 additional classを追加
 
-A-05で確認した既存Classのうち、現在のPrimary Classではない互換Classを1つ選ぶ。
+A-05から、現在のprimary classではない互換性のある既存Classを選ぶ。
 
 ```powershell
 sgokb --db $Db object class add --object $ObjectAId <additional-class-ref>
 sgokb --db $Db object show --object $ObjectAId
 ```
 
-**PASS**: Additional Classが表示され、Object IDは変わらない。
+**PASS**: additional classが表示され、Object IDは変わらない。
 
-## B-12 Primary Classを変更して元へ戻す
+## B-12 primary classを変更して復元
 
-一時変更用として有効な既存Classを選ぶ。
+一時変更用に有効な既存Classを選ぶ。
 
 ```powershell
 sgokb --db $Db object class set-primary --object $ObjectAId <temporary-class-ref>
@@ -317,17 +393,17 @@ sgokb --db $Db object class set-primary --object $ObjectAId character
 sgokb --db $Db object show --object $ObjectAId
 ```
 
-**PASS**: 両方のmutationが成功し、最終Primary Classは`character`、Object IDは変更されない。
+**PASS**: 両方のmutationが成功し、最終primary classが`character`で、Object IDは変わらない。
 
-## B-13 Object eventを確認
+## B-13 Object eventsを確認
 
 ```powershell
 sgokb --db $Db object events --object $ObjectAId
 ```
 
-**確認**: ここまでに作成されたcreation、alias / name / class / status関連のRegistry eventをevent contractに従って確認できる。
+**確認**: ここまでに作られたcreation、alias/name/class/status関連Registry eventsをevent contractに従って確認できる。
 
-## B-14 Archiveして再Activate
+## B-14 archiveしてreactivate
 
 ```powershell
 sgokb --db $Db object status --object $ObjectAId --set archived
@@ -336,13 +412,13 @@ sgokb --db $Db object status --object $ObjectAId --set active
 sgokb --db $Db object show --object $ObjectAId
 ```
 
-**PASS**: 最終状態がactiveで、Object IDは`$ObjectAId`のままである。
+**PASS**: 最終stateがactiveで、Object IDは`$ObjectAId`のままである。
 
 ---
 
 # C. Source / Snapshot / Raw Artifact
 
-各importで返されるSource IDとSnapshot IDをparseして記録する。
+各importで、返されたSource IDとSnapshot IDを解析して記録する。
 
 ## C-01 SRC-A1をImport
 
@@ -364,7 +440,7 @@ sgokb --db $Db source process --snapshot $SnapshotA1Id
 if ($LASTEXITCODE -ne 0) { throw "C-02 failed" }
 ```
 
-**PASS**: normalization / evidence processingが成功する。
+**PASS**: normalization/evidence processingが成功する。
 
 ## C-03 Source status
 
@@ -372,9 +448,9 @@ if ($LASTEXITCODE -ne 0) { throw "C-02 failed" }
 sgokb --db $Db source status
 ```
 
-**確認**: imported / processed source stateにSRC-A1が含まれる。
+**確認**: imported/processed source stateにSRC-A1が含まれる。
 
-## C-04 Snapshot一覧
+## C-04 Snapshot list
 
 ```powershell
 sgokb --db $Db source snapshots
@@ -382,7 +458,7 @@ sgokb --db $Db source snapshots
 
 **確認**: `$SnapshotA1Id`が存在する。
 
-## C-05 SRC-A2をImport / Process
+## C-05 SRC-A2をImport/process
 
 ```powershell
 $ImportA2 = sgokb --db $Db source import $CaptureA2 | ConvertFrom-Json
@@ -391,9 +467,9 @@ $SnapshotA2Id = $ImportA2.data[0].snapshot
 sgokb --db $Db source process --snapshot $SnapshotA2Id
 ```
 
-**PASS**: 独立したlogical sourceである場合、`$SourceA2Id`は`$SourceA1Id`と異なる。
+**PASS**: 独立したlogical sourceについて`$SourceA2Id`が`$SourceA1Id`と異なる。
 
-## C-06 SRC-B1をImport / Process
+## C-06 SRC-B1をImport/process
 
 ```powershell
 $ImportB1 = sgokb --db $Db source import $CaptureB1 | ConvertFrom-Json
@@ -402,7 +478,7 @@ $SnapshotB1Id = $ImportB1.data[0].snapshot
 sgokb --db $Db source process --snapshot $SnapshotB1Id
 ```
 
-## C-07 SRC-C1をImport / Process
+## C-07 SRC-C1をImport/process
 
 ```powershell
 $ImportC1 = sgokb --db $Db source import $CaptureC1 | ConvertFrom-Json
@@ -411,9 +487,9 @@ $SnapshotC1Id = $ImportC1.data[0].snapshot
 sgokb --db $Db source process --snapshot $SnapshotC1Id
 ```
 
-## C-08 同一logical Sourceの後続Snapshot
+## C-08 同じlogical Sourceの後続Snapshot
 
-`$CaptureA1V2`は、SRC-A1と同じsource identity / URLを持つ有効な後続captureでなければならない。
+`$CaptureA1V2`は、SRC-A1と同じsource identity/URLを別時点に取得した有効な後続Captureでなければならない。
 
 ```powershell
 $ImportA1V2 = sgokb --db $Db source import $CaptureA1V2 | ConvertFrom-Json
@@ -425,8 +501,8 @@ sgokb --db $Db source process --snapshot $SnapshotA1V2Id
 **確認**
 
 - Source identityがcurrent ingestion identity contractに従う。
-- 後続captureに対して新しいSnapshot IDが作成される。
-- 以前のSnapshotが一覧に残る。
+- 後続Captureについて新しいSnapshot IDが作成される。
+- 以前のSnapshotがlistに残る。
 
 ## C-09 Raw Artifact保持
 
@@ -434,15 +510,15 @@ sgokb --db $Db source process --snapshot $SnapshotA1V2Id
 sgokb --db $Db source snapshots
 ```
 
-command outputから公開されるSource / Snapshot詳細を確認し、capture pathが表示される場合は、保持されたraw artifactが試験専用storage内に存在することを確認する。
+その後、command outputで公開されるSource/Snapshot detailを確認し、Capture pathが報告される場合は、保持されたRaw Artifactが試験専用storage下に存在することを確認する。
 
-**PASS**: 以前のRaw / Snapshot履歴がprocessingまたは後続captureによって置換されていない。
+**PASS**: 過去のRaw/Snapshot履歴がprocessingや後続Captureによって置換されていない。
 
 ---
 
 # D. Source <-> Object Association
 
-D-06の前にSRC-R1をimport / processする。
+D-06の前にSRC-R1をimport/processする。
 
 ```powershell
 $ImportR1 = sgokb --db $Db source import $CaptureR1 | ConvertFrom-Json
@@ -451,7 +527,7 @@ $SnapshotR1Id = $ImportR1.data[0].snapshot
 sgokb --db $Db source process --snapshot $SnapshotR1Id
 ```
 
-## D-01 OBJ-AのAssociationを確認
+## D-01 OBJ-A associationを確認
 
 ```powershell
 sgokb --db $Db association list --object $ObjectAId
@@ -485,7 +561,7 @@ sgokb --db $Db association set `
   --object $ObjectCId --source $SourceC1Id --status confirmed
 ```
 
-## D-06 SRC-R1を多対多でAssociation
+## D-06 many-to-many SRC-R1 association
 
 ```powershell
 sgokb --db $Db association set `
@@ -494,7 +570,7 @@ sgokb --db $Db association set `
   --object $ObjectBId --source $SourceR1Id --status confirmed
 ```
 
-## D-07 Associationを再確認
+## D-07 associationを再読込
 
 ```powershell
 sgokb --db $Db association list --object $ObjectAId
@@ -502,13 +578,13 @@ sgokb --db $Db association list --object $ObjectBId
 sgokb --db $Db association list --object $ObjectCId
 ```
 
-**PASS D-01..D-07**: 各Objectが意図したconfirmed Source集合を持ち、SRC-R1がOBJ-AとOBJ-Bの両方に表示される。
+**PASS D-01..D-07**: 各Objectが意図したconfirmed Source setを持ち、SRC-R1がOBJ-AとOBJ-Bの両方で見える。
 
 ---
 
 # E. Evidence / Provenance
 
-## E-01 OBJ-AのEvidence candidate
+## E-01 OBJ-AのEvidence candidates
 
 ```powershell
 $CandidatesA = sgokb --db $Db evidence candidates --object $ObjectAId | ConvertFrom-Json
@@ -517,22 +593,22 @@ $CandidatesA.data
 
 **確認**: confirmed Sourceからcandidate Evidenceが存在する。
 
-## E-02 Evidence選択
+## E-02 Evidence selection
 
 ```powershell
 $SelectedA = sgokb --db $Db evidence select --object $ObjectAId | ConvertFrom-Json
 $SelectedA.data
 ```
 
-返されたEvidence IDを最低1つ`$EvidenceId`として記録する。
+返されたEvidence IDを少なくとも1つ`$EvidenceId`として記録する。
 
-## E-03 Evidence詳細
+## E-03 Evidence detail
 
 ```powershell
 sgokb --db $Db evidence show $EvidenceId
 ```
 
-**PASS**: contentとmetadataを読み取れ、想定したcaptureに対応している。
+**PASS**: contentとmetadataを読み取れ、期待するCaptureに対応する。
 
 ## E-04 Provenance
 
@@ -540,35 +616,35 @@ sgokb --db $Db evidence show $EvidenceId
 sgokb --db $Db evidence provenance $EvidenceId
 ```
 
-**手動確認**: Evidenceがnormalization / snapshot / source identityを経由して想定したRaw captureまで追跡できる。
+**手動確認**: Evidenceがnormalization/snapshot/source identityを通じて期待するRaw captureまで追跡できる。
 
-## E-05 複数Sourceによるgrounding
+## E-05 Multi-source grounding
 
-candidate / selectionを実行し、Source IDを確認する。
+candidates/selectionを実行してSource IDを確認する。
 
 ```powershell
 sgokb --db $Db evidence candidates --object $ObjectAId
 sgokb --db $Db evidence select --object $ObjectAId
 ```
 
-**PASS**: SRC-A1とSRC-A2由来のEvidenceをprovenanceによって区別できる。
+**PASS**: SRC-A1とSRC-A2のEvidenceをProvenanceから区別できる。
 
-## E-06 Evidence検索
+## E-06 Evidence search
 
-capture内に実際に存在する特徴的なphraseを選ぶ。
+Captureの1つに存在する特徴的なphraseを選ぶ。
 
 ```powershell
 $EvidenceQuery = "<distinctive phrase from a test capture>"
 sgokb --db $Db evidence search $EvidenceQuery --mode lexical --object $ObjectAId
 ```
 
-**PASS**: 想定したEvidenceが返る。
+**PASS**: 期待するEvidenceが返る。
 
 ---
 
 # F. Evidence Package
 
-## F-01 Package Build
+## F-01 PackageをBuild
 
 ```powershell
 $Build = sgokb --db $Db package build `
@@ -581,16 +657,16 @@ $PackageId
 $BuildPath
 ```
 
-## F-02 manifest確認
+## F-02 manifestを確認
 
 ```powershell
 Get-ChildItem -Recurse $BuildPath
 Get-Content (Join-Path $BuildPath "manifest.json") -Raw
 ```
 
-**確認**: target Object ID、package identity、存在する場合はbase Version state、選択されたEvidence membershipが今回の試験runと一致する。
+**確認**: target Object ID、package identity、base Version state（存在する場合）、selected Evidence membershipが今回のtest runと一致する。
 
-## F-03 instructions確認
+## F-03 instructionsを確認
 
 ```powershell
 Get-Content (Join-Path $BuildPath "instructions.md") -Raw
@@ -598,17 +674,17 @@ Get-Content (Join-Path $BuildPath "instructions.md") -Raw
 
 **PASS**: instructionsが存在し、読み取れる。
 
-## F-04 Package内Evidenceを確認
+## F-04 packaged Evidenceを確認
 
 ```powershell
 Get-ChildItem -Recurse $BuildPath
 ```
 
-代表的なEvidence payload fileを開き、そのID / contentをE-02 / E-04と比較する。
+代表的なEvidence payload fileを開き、ID/contentをE-02/E-04と比較する。
 
-**PASS**: Package内Evidenceが選択済みのgrounded Evidenceであり、無関係なmaterialではない。
+**PASS**: packaged Evidenceが選択されたgrounded Evidenceであり、無関係なmaterialではない。
 
-## F-05 Package Stage
+## F-05 PackageをStage
 
 ```powershell
 $Stage = sgokb --db $Db package stage `
@@ -625,11 +701,11 @@ $Preflight = sgokb --db $Db package preflight `
 $Preflight.data
 ```
 
-**PASS**: このhappy-path datasetで想定する通常のexport可能dispositionが返る。選択したdatasetが正当な理由で`review_required`となる場合、その状態を記録し、人間review後にのみ標準の明示acknowledgement経路を使用する。実際のblocked状態をPASSとして扱ってはならない。
+**PASS**: このhappy-path datasetで期待する通常のexportable dispositionが返る。選択datasetが正当に`review_required`となる場合は、その条件を記録し、人間がreviewした後にだけ標準のexplicit acknowledgement pathを使う。真のblocked conditionをPASSとして扱ってはならない。
 
-## F-07 明示Export
+## F-07 Explicit export
 
-通常のexport可能経路:
+通常のexportable path:
 
 ```powershell
 $Export = sgokb --db $Db package export `
@@ -638,7 +714,7 @@ $ExportedPath = $Export.data.path
 $ExportedPath
 ```
 
-F-06で正当なhuman acknowledgementが必要となり、operatorが承認した場合のみ`--acknowledge-review`を使用する。
+F-06で正当にhuman acknowledgementが必要でoperatorが承認した場合は`--acknowledge-review`を使用する。
 
 ## F-08 Export integrity
 
@@ -654,51 +730,51 @@ Get-ChildItem -Recurse $ExportedPath
 
 ## G-01 PackageをChatGPTへ渡す
 
-1. このacceptance Object専用の新しいChatGPT conversationを開く。
-2. `$ExportedPath`のexport済みPackageを渡す。
-3. この試験では、無関係なWeb上の事実や追加Evidenceを与えない。
+1. このacceptance object専用の新しいChatGPT conversationを開く。
+2. `$ExportedPath`のexported Packageを渡す。
+3. この試験では無関係なWeb factやsupplementary evidenceを追加しない。
 
 **PASS**: ChatGPTがPackage内容を読み取れる。
 
 ## G-02 instruction authorityを確立
 
-Package内の`instructions.md`を分析指示の正本として扱い、返却artifactがcurrent SGOKB Structured Object Result contractに従うようChatGPTへ指示する。
+Package内の`instructions.md`がauthoritative analysis instructionであり、返却artifactはcurrent SGOKB Structured Object Result contractに従う必要があることをChatGPTへ伝える。
 
-**PASS**: 生成結果がfree-form proseだけではなく、Packageのinstruction / schema要件に従う。
+**PASS**: generated resultがfree-form proseだけではなくPackage instruction/schema requirementに従う。
 
-## G-03 Grounding確認
+## G-03 groundingを確認
 
-何もImportする前に、生成結果を手動確認し、代表的なclaimをPackage内Evidence IDと比較する。
+Importする前にresultを手動確認し、代表的claimをPackage Evidence IDと比較する。
 
-**PASS**: accepted Knowledge候補のclaimがPackage内に実在するEvidenceへgroundingされ、架空のEvidence IDが使用されていない。
+**PASS**: accepted Knowledge向けclaimがPackage内に実際に存在するEvidenceでgroundされ、fabricated Evidence IDを使用していない。
 
-## G-04 `result.json`生成
+## G-04 `result.json`を生成
 
-ChatGPTに最終Structured Object Resultを生成させ、正確に次のfilenameで保存する。
+ChatGPTにfinal Structured Object Resultを生成させ、exact filenameで保存する。
 
 ```text
 result.json
 ```
 
-**PASS**: artifactが構文上有効なJSONで、current Result schemaに従う。
+**PASS**: artifactがsyntactically JSONでcurrent Result schemaに従う。
 
-## G-05 Facet確認
+## G-05 Facetsを確認
 
-`result.json`を開き、OBJ-Aに対して生成されたFacetを確認する。
+`result.json`を開き、OBJ-A用に生成されたFacetsを確認する。
 
-**PASS**: Facetが選択したObject / Classとgrounded materialに適切である。
+**PASS**: Facetsが選択Object/classとgrounded materialに適している。
 
-## G-06 Statement確認
+## G-06 Statementsを確認
 
-生成されたFacet配下の代表的なStatementを確認する。
+generated Facets配下の代表的Statementsを確認する。
 
-**PASS**: Statementが構造化され、意味を持ち、有効なPackage Evidenceを参照している。
+**PASS**: Statementsがstructuredで意味があり、有効なpackaged Evidenceを参照する。
 
-## G-07 Relation確認
+## G-07 Relationを確認
 
-SRC-R1が裏付ける試験用Relationについて、Resultが意図したOBJ-A <-> OBJ-B Relationを、選択したRelation typeと有効なEvidence groundingを用いて表現していることを確認する。
+SRC-R1で裏付けられたtest relationについて、Resultが選択Relation Typeと有効なEvidence groundingを使って意図するOBJ-A <-> OBJ-B relationを表していることを確認する。
 
-**PASS**: Relation targetが意図したstable Object identityへ解決され、適切なEvidence supportを持つ。
+**PASS**: relation targetが意図したstable Object identityへ解決され、適切なEvidence supportを持つ。
 
 ## G-08 Resultをincoming dropへ配置
 
@@ -710,13 +786,13 @@ $ResultPath = Join-Path $DropDir "result.json"
 Test-Path $ResultPath
 ```
 
-**PASS**: `Test-Path`がtrueを返し、filenameが正確に`result.json`である。
+**PASS**: `Test-Path`がtrueを返し、filenameがexactly `result.json`である。
 
 ---
 
 # H. Result Intake / Validation / Import
 
-## H-01 Result検出
+## H-01 ResultをDetect
 
 ```powershell
 sgokb --db $Db result detect --incoming-root $IncomingRoot
@@ -724,7 +800,7 @@ sgokb --db $Db result detect --incoming-root $IncomingRoot
 
 **PASS**: `result.json`を含むPackage dropが検出される。
 
-## H-02 Result受信
+## H-02 ResultをReceive
 
 ```powershell
 $Receipt = sgokb --db $Db result receive `
@@ -743,15 +819,15 @@ $ReceiptId
 sgokb --db $Db result list --package-id $PackageId
 ```
 
-**PASS**: `$ReceiptId`が表示される。
+**PASS**: `$ReceiptId`が見える。
 
-## H-04 Pending Result
+## H-04 Pending Results
 
 ```powershell
 sgokb --db $Db result pending
 ```
 
-**PASS**: 受信済みResultが想定するpre-import stateで表示される。
+**PASS**: received Resultが期待するpre-import stateで見える。
 
 ## H-05 Validate
 
@@ -760,7 +836,7 @@ sgokb --db $Db result validate $ReceiptId --incoming-root $IncomingRoot
 if ($LASTEXITCODE -ne 0) { throw "H-05 failed" }
 ```
 
-**PASS**: 正常系artifactによりResultがvalid stateへ到達する。
+**PASS**: normal happy-path artifactでResultがvalid stateへ到達する。
 
 ## H-06 Human review
 
@@ -769,11 +845,11 @@ sgokb --db $Db result review `
   $ReceiptId --incoming-root $IncomingRoot --review-format markdown
 ```
 
-続行前にObject identity、base Version、Facet、Statement、Relation、Evidence ID、Registry proposalを確認する。
+続行前にObject identity、base Version、Facets、Statements、Relations、Evidence IDs、Registry proposalsをreviewする。
 
-**PASS**: 提案されたKnowledgeが理解可能で、意図した結果と一致する。
+**PASS**: proposed Knowledgeが理解可能で意図したresultと一致する。
 
-## H-07 明示Import
+## H-07 Explicit Import
 
 ```powershell
 $Imported = sgokb --db $Db result import `
@@ -782,46 +858,46 @@ if ($LASTEXITCODE -ne 0) { throw "H-07 failed" }
 $Imported.data
 ```
 
-accepted normal flowとして正当なreview acknowledgementが必要な場合、先にhuman reviewを実施し、`--acknowledge-review`を明示的に使用する。
+accepted normal flowで正当にreview acknowledgementが必要な場合は、先にhuman reviewを行い、`--acknowledge-review`を明示使用する。
 
-import responseまたはH-08のreadから、新しく作成されたKnowledge Version IDを`$Version1Id`として記録する。
+import responseまたはH-08 readから新規作成されたKnowledge Version IDを`$Version1Id`として記録する。
 
-## H-08 Current pointer確認
+## H-08 current pointerを確認
 
 ```powershell
 $CurrentA = sgokb --db $Db object show --object $ObjectAId --knowledge | ConvertFrom-Json
 $CurrentA.data
 ```
 
-**PASS**: current accepted KnowledgeがImportしたResultに対応し、`$Version1Id`がcurrentである。
+**PASS**: current accepted Knowledgeがimported Resultに対応し、`$Version1Id`がcurrentである。
 
-## H-09 Evidence link確認
+## H-09 Evidence linkを確認
 
-Knowledge readと代表的なEvidence lookupを使用する。
+Knowledge readと代表的Evidence lookupを使用する。
 
 ```powershell
 sgokb --db $Db object show --object $ObjectAId --knowledge
 sgokb --db $Db object relations --object $ObjectAId
 ```
 
-代表的なStatement / Relation Evidence IDについて実行する。
+代表的Statement/Relation Evidence IDについて:
 
 ```powershell
 sgokb --db $Db evidence show <evidence-id>
 sgokb --db $Db evidence provenance <evidence-id>
 ```
 
-**PASS**: accepted Knowledgeのlinkが、存在する正しいEvidenceへ解決される。
+**PASS**: accepted Knowledge linkが既存の正しいEvidenceへ解決される。
 
 ---
 
 # I. Registry Proposal
 
-試験データで裏付けられた、有効かつ安全なproposalを1件含むResultを使用する。適切であればalias proposalが実用的である。
+試験dataで支持される有効かつ無害なproposalを1つ含むResultを使用する。適切な場合、supported alias proposalが実用的である。
 
-## I-01 Proposal intake確認
+## I-01 proposal intakeを確認
 
-proposalを含むResultをImportした後に実行する。
+proposalを含むResultをimportした後:
 
 ```powershell
 sgokb --db $Db registry proposal list --decision pending
@@ -829,9 +905,9 @@ sgokb --db $Db registry proposal list --decision pending
 
 proposal referenceを`$ProposalRef`として記録する。
 
-**PASS**: proposalがpendingであり、silent applyされていない。
+**PASS**: proposalがpendingで、silent applyされていない。
 
-## I-02 Pending proposal一覧
+## I-02 pending proposal一覧
 
 ```powershell
 sgokb --db $Db registry proposal list --decision pending
@@ -839,24 +915,24 @@ sgokb --db $Db registry proposal list --decision pending
 
 **PASS**: `$ProposalRef`が存在する。
 
-## I-03 Proposal詳細
+## I-03 proposalを確認
 
 ```powershell
 sgokb --db $Db registry proposal show $ProposalRef
 ```
 
-**確認**: kind、target / payload、review contextが意図した安全な変更と一致する。
+**確認**: kind、target/payload、review contextが意図した無害な変更と一致する。
 
-## I-04 Proposal Accept
+## I-04 proposalをAccept
 
 ```powershell
 sgokb --db $Db registry proposal accept `
   $ProposalRef --note "happy-path acceptance reviewed"
 ```
 
-**PASS**: decisionがacceptedになるが、acceptしただけではRegistry mutationは発生していない。
+**PASS**: decisionがacceptedになるが、acceptanceだけを理由にRegistry mutationはまだ発生していない。
 
-## I-05 Proposal Apply
+## I-05 proposalをApply
 
 ```powershell
 sgokb --db $Db registry proposal apply $ProposalRef
@@ -864,15 +940,15 @@ sgokb --db $Db registry proposal apply $ProposalRef
 
 **PASS**: applyが成功する。
 
-## I-06 影響を受けたRegistry / Object stateを確認
+## I-06 影響を受けたRegistry/Object stateを確認
 
-proposal kindに対応するread commandを使用する。alias proposalの場合:
+proposal kindに対応するread commandを選ぶ。alias proposalの場合:
 
 ```powershell
 sgokb --db $Db object alias list --object $ObjectAId
 ```
 
-**PASS**: 期待するRegistry mutationがこの時点で表示される。
+**PASS**: 期待するRegistry mutationが表示される。
 
 ---
 
@@ -880,7 +956,7 @@ sgokb --db $Db object alias list --object $ObjectAId
 
 ## J-01 Version 1 identityを記録
 
-H-07 / H-08の結果から設定・記録する。
+H-07/H-08から設定・記録する。
 
 ```powershell
 $Version1Id = "<accepted V1 knowledge_version_id>"
@@ -891,7 +967,7 @@ sgokb --db $Db version show $Version1Id
 
 ## J-02 後続Evidenceを追加
 
-C-08で作成した後続SRC-A1 Snapshotを使用し、まだ関連付けられていない場合はOBJ-Aへconfirmedする。
+C-08の後続SRC-A1 Snapshotを使用し、まだassociationされていなければOBJ-Aへconfirmedであることを確認する。
 
 ```powershell
 sgokb --db $Db association set `
@@ -900,9 +976,9 @@ sgokb --db $Db evidence candidates --object $ObjectAId
 sgokb --db $Db evidence select --object $ObjectAId
 ```
 
-**PASS**: 2回目のanalysis cycleに利用できる新しいEvidenceが存在する。
+**PASS**: 2回目のanalysis cycle向けにnew Evidenceが利用可能である。
 
-## J-03 Update PackageをBuild
+## J-03 update PackageをBuild
 
 ```powershell
 $Build2 = sgokb --db $Db package build `
@@ -911,15 +987,15 @@ $PackageId2 = $Build2.data.package_id
 $BuildPath2 = $Build2.data.path
 ```
 
-`manifest.json`を確認し、current contractの要件どおりPackageがOBJ-Aとcurrent / base V1へbindingされていることを確認する。
+`manifest.json`を確認し、current contractが要求する通りPackageがOBJ-Aとcurrent/base V1へbindされていることを確認する。
 
-## J-04 Result 2生成
+## J-04 Result 2を生成
 
-`$PackageId2`についてF-05からG-08を繰り返し、新しく利用可能になったEvidenceを使用して有効な更新版`result.json`を生成する。
+newly available Evidenceを使用してF-05〜G-08を`$PackageId2`について繰り返し、有効なupdated `result.json`を生成する。
 
-2件目のResult pathを`$ResultPath2`として記録する。
+2つ目のResult pathを`$ResultPath2`として記録する。
 
-## J-05 Result 2をValidate / Review / Import
+## J-05 Result 2をValidate/review/import
 
 ```powershell
 $Receipt2 = sgokb --db $Db result receive `
@@ -931,7 +1007,7 @@ sgokb --db $Db result review $ReceiptId2 --incoming-root $IncomingRoot --review-
 $Imported2 = sgokb --db $Db result import $ReceiptId2 --incoming-root $IncomingRoot | ConvertFrom-Json
 ```
 
-import / current readから`$Version2Id`を記録する。
+import/current readから`$Version2Id`を記録する。
 
 ## J-06 V2がcurrentであることを確認
 
@@ -947,7 +1023,7 @@ sgokb --db $Db object show --object $ObjectAId --knowledge
 sgokb --db $Db version show $Version1Id
 ```
 
-**PASS**: V1が存在し続け、読み取れる。
+**PASS**: V1が依然存在し、読み取れる。
 
 ## J-08 両Versionを直接読む
 
@@ -956,13 +1032,13 @@ sgokb --db $Db version show $Version1Id
 sgokb --db $Db version show $Version2Id
 ```
 
-## J-09 V1 -> V2 Diff
+## J-09 V1 -> V2のDiff
 
 ```powershell
 sgokb --db $Db version diff $Version1Id $Version2Id --diff-format markdown
 ```
 
-**PASS**: 想定した追加 / 変更が表現され、無関係な破壊的rewriteが発生していない。
+**PASS**: 期待するaddition/changeが表現され、無関係なdestructive rewriteが観測されない。
 
 ## J-10 Historical Object read
 
@@ -972,66 +1048,66 @@ sgokb --db $Db object show --object $ObjectAId --knowledge --version $Version1Id
 
 **PASS**: V2ではなくhistorical V1 stateが返る。
 
-## J-11 Version固有grounding
+## J-11 Version-specific grounding
 
-代表的なV1 / V2のStatement / Relationについて、`evidence show`と`evidence provenance`でEvidence IDを解決する。
+代表的なV1/V2 Statements/Relationsについて、Evidence IDを`evidence show`と`evidence provenance`で解決する。
 
-**PASS**: 両immutable Versionが、それぞれ正しいgroundingを保持する。
+**PASS**: 両immutable Versionがそれぞれ正しいgroundingを保持する。
 
 ---
 
 # K. Relation
 
-## K-01 Import済みRelation確認
+## K-01 imported Relationを確認
 
 ```powershell
 sgokb --db $Db object relations --object $ObjectAId
 ```
 
-**PASS**: Result Importによって作成されたOBJ-BへのRelationがaccepted Knowledgeに存在する。
+**PASS**: Result-imported relation to OBJ-Bがaccepted Knowledgeに存在する。
 
-## K-02 OBJ-A側から読む
+## K-02 OBJ-Aから読む
 
 ```powershell
 $RelationsA = sgokb --db $Db object relations --object $ObjectAId | ConvertFrom-Json
 $RelationsA.data
 ```
 
-**PASS**: targetが想定どおり`$ObjectBId`へ解決される。
+**PASS**: targetが期待通り`$ObjectBId`へ解決される。
 
-## K-03 OBJ-B側の関連stateを読む
+## K-03 OBJ-Bからrelated stateを読む
 
 ```powershell
 sgokb --db $Db object relations --object $ObjectBId
 ```
 
-**PASS**: Relationの可視性 / directionが選択したRelation type contractと一致する。Relation typeがinverse relationを定義していない場合、inverse relationの存在を要求しない。
+**PASS**: relation visibility/directionが選択したrelation-type contractに一致する。Relation Typeがinverse relationを定義しない場合はinverseを要求しない。
 
-## K-04 Relation Evidence確認
+## K-04 Relation Evidenceを確認
 
-Evidenceを有効にした通常のrelation outputから引用Evidence IDを1件選択し、次を実行する。
+Evidence有効（default）のrelation outputからcited Evidence IDを1つ選び、次を実行する。
 
 ```powershell
 sgokb --db $Db evidence show <relation-evidence-id>
 sgokb --db $Db evidence provenance <relation-evidence-id>
 ```
 
-**PASS**: EvidenceがRelationを裏付けている。
+**PASS**: Evidenceがrelationを支持する。
 
-## K-05 Version指定Relation read
+## K-05 Version-specific Relation read
 
 ```powershell
 sgokb --db $Db object relations --object $ObjectAId --version $Version1Id
 sgokb --db $Db object relations --object $ObjectAId --version $Version2Id
 ```
 
-**PASS**: 各Versionが自身のRelation stateを返し、current / historical scopeが混在しない。
+**PASS**: 各Versionが自身のrelation stateを返し、current/historical scopeが混在しない。
 
 ---
 
 # L. Render
 
-## L-01 Current OBJ-AをRender
+## L-01 current OBJ-AをRender
 
 ```powershell
 $RenderCurrent = sgokb --db $Db render `
@@ -1039,66 +1115,66 @@ $RenderCurrent = sgokb --db $Db render `
 $RenderCurrent.data
 ```
 
-生成されたMarkdown fileを開く。
+generated Markdown fileを開く。
 
-**PASS**: current accepted Knowledgeが人間可読な形で表示される。
+**PASS**: current accepted Knowledgeがhuman-readableである。
 
-## L-02 指定VersionをRender
+## L-02 特定VersionをRender
 
 ```powershell
 sgokb --db $Db render --version $Version1Id --output-root $RenderRoot
 ```
 
-**PASS**: historical Versionを独立してRenderできる。
+**PASS**: historical Versionを独立してrenderできる。
 
-## L-03 Facet確認
+## L-03 Facetsを確認
 
-current renderを開き、次の結果とFacetを比較する。
+current renderを開き、次とFacetsを比較する。
 
 ```powershell
 sgokb --db $Db object show --object $ObjectAId --knowledge
 ```
 
-**PASS**: RenderされたFacetが同じaccepted Knowledgeを表現している。
+**PASS**: rendered Facetsが同じaccepted Knowledgeを表す。
 
-## L-04 Relation確認
+## L-04 Relationsを確認
 
-RenderされたRelation内容を次と比較する。
+rendered relation contentを次と比較する。
 
 ```powershell
 sgokb --db $Db object relations --object $ObjectAId
 ```
 
-**PASS**: Relation情報が一致する。
+**PASS**: relationship informationがconsistentである。
 
-## L-05 Grounding / Provenance reference確認
+## L-05 grounding/provenance referenceを確認
 
-read / render surfaceに表示された代表的なEvidence identifierについて次を実行する。
+read/render surfaceに表示される代表的Evidence identifierについて:
 
 ```powershell
 sgokb --db $Db evidence provenance <evidence-id>
 ```
 
-**PASS**: Render / readされたKnowledgeが引き続きtrace可能である。
+**PASS**: rendered/read Knowledgeがtraceableである。
 
-## L-06 V1 / V2 Render比較
+## L-06 V1/V2 renderを比較
 
-両VersionをRenderし、手動またはPowerShellで比較する。
+両Versionをrenderし、手動またはPowerShellで比較する。
 
 ```powershell
-# Substitute the actual output paths returned by render.
+# renderが返した実際のoutput pathへ置き換える。
 Compare-Object `
   (Get-Content "<V1-render-path>") `
   (Get-Content "<V2-render-path>")
 ```
 
-**PASS**: 想定するVersion差分が反映されている。
+**PASS**: 期待するVersion差分が反映される。
 
 ---
 
 # M. Lexical Search
 
-## M-01 Canonical name検索
+## M-01 canonical nameをSearch
 
 ```powershell
 sgokb --db $Db search $ObjectAName --mode lexical
@@ -1106,15 +1182,15 @@ sgokb --db $Db search $ObjectAName --mode lexical
 
 **PASS**: OBJ-Aが返る。
 
-## M-02 Alias検索
+## M-02 aliasをSearch
 
 ```powershell
 sgokb --db $Db search $ObjectAAlias --mode lexical
 ```
 
-**PASS**: current lexical identity / search contractに従いOBJ-Aを発見できる。
+**PASS**: current lexical identity/search contractに従ってOBJ-Aを発見できる。
 
-## M-03 特徴的なKnowledge term検索
+## M-03 distinctive Knowledge termをSearch
 
 accepted V2 Knowledgeに存在するtermを選ぶ。
 
@@ -1123,17 +1199,17 @@ $KnowledgeTerm = "<distinctive accepted-knowledge term>"
 sgokb --db $Db search $KnowledgeTerm --mode lexical
 ```
 
-**PASS**: 想定したObjectが返る。
+**PASS**: 期待するObjectが返る。
 
 ## M-04 Multi-object query
 
-最低2つの試験Objectで共通するtermを選ぶ。
+少なくとも2つのtest Objectで共有されるtermを選ぶ。
 
 ```powershell
 sgokb --db $Db search "<shared term>" --mode lexical --limit 10
 ```
 
-**PASS**: 複数の関連Objectを返せる。同一Object identity由来の重複rowを別Objectとして扱わない。
+**PASS**: duplicate Object identity rowを別Objectとして解釈せず、複数のrelevant Objectを返せる。
 
 ## M-05 Current scope
 
@@ -1144,11 +1220,11 @@ sgokb --db $Db search "<current-specific term>" --mode lexical
 sgokb --db $Db search "<historical-specific term>" --mode lexical --version $Version1Id
 ```
 
-**PASS**: 通常検索がcurrent accepted scopeを使用し、明示Version filterでhistorical scopeを指定できる。
+**PASS**: normal searchはcurrent accepted scopeを使用し、explicit Version filterでhistorical scopeを指定できる。
 
 ## M-06 Cross-class lexical retrieval
 
-OBJ-A / B / Cに対応するqueryを実行し、必要に応じてClass filterを使用する。
+OBJ-A/B/CについてClassに関連するqueryを実行し、必要ならClass filterを使用する。
 
 ```powershell
 sgokb --db $Db search "<character term>" --mode lexical --primary-class character
@@ -1162,22 +1238,22 @@ sgokb --db $Db search "<concept term>" --mode lexical --primary-class concept
 
 # N. Semantic Search
 
-Nを実施する前に、accepted local Embedding runtimeとQdrant runtimeが起動・構成されていることを確認する。本手順ではfrozen local semantic compositionを使用し、cloud fallbackを有効にしてはならない。
+Nの前に、accepted local Embedding runtimeとQdrant runtimeが起動・構成済みであることを確認する。この手順ではfrozen local semantic compositionを使用し、cloud fallbackを有効化しない。
 
-## N-01 Semantic runtime起動 / 確認
+## N-01 Semantic runtimeを開始/確認
 
 ```powershell
 sgokb --db $Db system index status
 ```
 
-続いて簡単なfull-runtime semantic queryを実行する。
+その後、simple full-runtime semantic queryを実行する。
 
 ```powershell
 sgokb --db $Db search "<semantic query for OBJ-A>" `
   --mode semantic --semantic-runtime --require-full-runtime
 ```
 
-**PASS**: runtime-unavailable exitを出さずにcommandが成功する。
+**PASS**: runtime-unavailable exitなしでcommandが成功する。
 
 ## N-02 Index status
 
@@ -1185,26 +1261,26 @@ sgokb --db $Db search "<semantic query for OBJ-A>" `
 sgokb --db $Db system index status
 ```
 
-**PASS**: current index / Embedding Space stateが、この試験構成で利用可能として報告される。
+**PASS**: current index/Embedding Space stateがこのtest compositionでusableと報告される。
 
-## N-03 Index rebuild
+## N-03 IndexをRebuild
 
 ```powershell
 sgokb --db $Db system index rebuild
 if ($LASTEXITCODE -ne 0) { throw "N-03 failed" }
 ```
 
-current environmentでindex rebuild前後にsemantic derived synchronizationが必要な場合、次を実行する。
+current environmentでindex rebuild前後にsemantic derived synchronizationが必要な場合は次を実行する。
 
 ```powershell
 sgokb --db $Db system derived sync --semantic-runtime
 ```
 
-**PASS**: canonical Versionを変更せず、canonical Knowledgeからderived semantic stateを再構築できる。
+**PASS**: canonical Versionを変更せず、canonical Knowledgeからderived semantic stateをrebuildできる。
 
 ## N-04 Semantic paraphrase query
 
-Source / Knowledgeの文言をそのままコピーせず、OBJ-Aを説明するqueryを使用する。
+exact source/Knowledge wordingをコピーせず、OBJ-Aを説明するqueryを使う。
 
 ```powershell
 sgokb --db $Db search `
@@ -1212,22 +1288,22 @@ sgokb --db $Db search `
   --mode semantic --semantic-runtime --require-full-runtime --limit 10
 ```
 
-**PASS**: 小規模acceptance dataset内でOBJ-Aが妥当な順位でretrievalされる。
+**PASS**: small acceptance datasetでOBJ-Aがreasonable rankでretrievedされる。
 
 ## N-05 Overview-level semantic retrieval
 
-1つのStatementと完全一致するqueryではなく、Object overviewに対応する広いqueryを使用する。
+1つのexact StatementではなくObject overviewに対応するbroad queryを使う。
 
 ```powershell
 sgokb --db $Db search "<broad OBJ-A description>" `
   --mode semantic --semantic-runtime --require-full-runtime
 ```
 
-**PASS**: current R2 representation familyを通じてOBJ-Aをretrievalできる。
+**PASS**: current R2 representation family経由でOBJ-Aをretrievalできる。
 
 ## N-06 Facet semantic retrieval
 
-OBJ-Aに実在するFacetを選択し、その意味をqueryする。
+OBJ-Aの実際のFacetを選び、その意味をqueryする。
 
 ```powershell
 sgokb --db $Db search "<facet semantic query>" `
@@ -1235,22 +1311,22 @@ sgokb --db $Db search "<facet semantic query>" `
   --facet <facet-ref>
 ```
 
-**PASS**: 意図したFacet contextでOBJ-Aが返る。
+**PASS**: intended Facet contextでOBJ-Aが返る。
 
 ## N-07 Statement semantic retrieval
 
-特徴的なStatementをparaphraseしてqueryする。
+特徴的なStatement 1つのparaphraseを使う。
 
 ```powershell
 sgokb --db $Db search "<statement paraphrase>" `
   --mode semantic --semantic-runtime --require-full-runtime
 ```
 
-**PASS**: 文言が異なっていてもOBJ-Aが返る。
+**PASS**: wordingが異なってもOBJ-Aが返る。
 
 ## N-08 Current Version scope
 
-V2固有のsemantic conceptを使用し、必要に応じてV1も明示的にqueryする。
+V2固有のsemantic conceptを使用し、適切な場合はV1をexplicit queryする。
 
 ```powershell
 sgokb --db $Db search "<V2-specific semantic concept>" `
@@ -1261,13 +1337,13 @@ sgokb --db $Db search "<V1-specific semantic concept>" `
   --version $Version1Id
 ```
 
-**PASS**: current scopeとhistorical scopeが分離されている。
+**PASS**: current scopeとhistorical scopeが区別されたままである。
 
 ## N-09 Cross-class semantic retrieval
 
-OBJ-A、OBJ-B、OBJ-Cをそれぞれ識別できる意味的なqueryを実行する。
+OBJ-A、OBJ-B、OBJ-Cをそれぞれ識別すべき意味のあるsemantic queryを実行する。
 
-**PASS**: semantic retrievalが1つの試験Classに限定されない。
+**PASS**: semantic retrievalが1つのtest classだけに限定されない。
 
 ---
 
@@ -1283,16 +1359,16 @@ sgokb --db $Db search `
   --mode hybrid --semantic-runtime --require-full-runtime
 ```
 
-**PASS**: OBJ-Aが返り、semantic channel不足を示すdegradation warningがない。
+**PASS**: OBJ-Aが返り、semantic channel欠如を示すdegradation warningがない。
 
-## O-02 Exact identityの優先性
+## O-02 Exact identity prominence
 
 ```powershell
 sgokb --db $Db search $ObjectAName `
   --mode hybrid --semantic-runtime --require-full-runtime
 ```
 
-**PASS**: exact identityが容易に発見でき、意味的に類似するObject群の中へ埋没しない。
+**PASS**: exact identityが容易に見つかり、semantically similar Objectの中に埋没しない。
 
 ## O-03 Lexically distinctive Knowledge query
 
@@ -1301,7 +1377,7 @@ sgokb --db $Db search "<distinctive literal knowledge phrase>" `
   --mode hybrid --semantic-runtime --require-full-runtime
 ```
 
-**PASS**: 関連Objectがretrievalされる。
+**PASS**: relevant Objectがretrievedされる。
 
 ## O-04 Semantically descriptive query
 
@@ -1310,11 +1386,11 @@ sgokb --db $Db search "<paraphrased meaning>" `
   --mode hybrid --semantic-runtime --require-full-runtime
 ```
 
-**PASS**: semantic contributionによって意図したObjectをretrievalできる。
+**PASS**: semantic contributionによってintended Objectをretrievalできる。
 
 ## O-05 Object aggregation
 
-OBJ-Aの複数Facet / Statementにmatchするqueryを実行する。
+OBJ-Aの複数Facets/Statementsにmatchするqueryを実行する。
 
 ```powershell
 $Hybrid = sgokb --db $Db search "<multi-aspect OBJ-A query>" `
@@ -1322,109 +1398,109 @@ $Hybrid = sgokb --db $Db search "<multi-aspect OBJ-A query>" `
 $Hybrid.data
 ```
 
-**PASS**: OBJ-Aが1件のObject resultとして表現され、overview / facet / statementごとの別rowとして重複しない。
+**PASS**: OBJ-Aがseparate overview/facet/statement result rowとして繰り返されず、1つのObject resultとして表現される。
 
 ---
 
 # P. Similarity
 
-Similarityにはsemantic runtime / index stateが構成済みである必要がある。
+Similarityにはconfigured semantic runtime/index stateが必要である。
 
-## P-01 Object Similarity
+## P-01 Object similarity
 
 ```powershell
 sgokb --db $Db similar --object $ObjectAId --limit 10
 ```
 
-**PASS**: 類似Objectが返り、source Object identityがsimilarity contractどおり扱われる。
+**PASS**: similar Objectが返り、source Object identityがsimilarity contractに従って扱われる。
 
-## P-02 Facet-specific Similarity
+## P-02 Facet-specific similarity
 
-OBJ-Aに実在するFacetを選択する。
+OBJ-Aに実在するFacetを選ぶ。
 
 ```powershell
 sgokb --db $Db similar `
   --object $ObjectAId --facet <facet-ref> --limit 10
 ```
 
-**PASS**: facet-specific比較が成功し、指定したFacetを使用する。
+**PASS**: facet-specific comparisonが成功し、requested Facetを使用する。
 
-## P-03 Rankingの人間によるsanity check
+## P-03 rankingのHuman sanity check
 
-top resultを、既知のOBJ-B / OBJ-C内容および小規模datasetと比較する。
+上位resultをOBJ-B/OBJ-Cの既知contentとselected small datasetに照らして比較する。
 
-**PASS**: 運用利用のsanity checkとして意味的に概ね妥当なorderingである。これはPhase Nのformal ANN-quality benchmarkではない。
+**PASS**: orderingがoperational useとしてsemantically plausibleである。これはsanity checkでありPhase N formal ANN-quality benchmarkではない。
 
-## P-04 Current Version Similarity
+## P-04 Current Version similarity
 
 ```powershell
 sgokb --db $Db similar --object $ObjectAId --limit 10
 ```
 
-続いて、対応している場合はhistorical Versionを明示して比較する。
+その後、supportedな場合はhistorical Versionをexplicit compareする。
 
 ```powershell
 sgokb --db $Db similar --object $ObjectAId --version $Version1Id --limit 10
 ```
 
-**PASS**: default / current scopeと明示historical scopeを区別できる。
+**PASS**: default/current scopeとexplicit historical scopeを区別できる。
 
-## P-05 Cross-class Similarity
+## P-05 Cross-class similarity
 
 ```powershell
 sgokb --db $Db similar `
   --object $ObjectAId --cross-class --limit 10
 ```
 
-**PASS**: current similarity semanticsに従ってcross-class candidateを返せる。
+**PASS**: current similarity semanticsに従いcross-class candidateを返せる。
 
 ---
 
 # Q. MCP Read Boundary
 
-MCP clientはproduction DBではなくacceptance DBを起動するよう構成する。
+MCP clientはproduction DBではなくacceptance DBをlaunchするよう構成する。
 
-Core / lexical server command:
+Core/lexical server command:
 
 ```text
 sgokb --db <ABSOLUTE_ACCEPTANCE_DB_PATH> mcp serve
 ```
 
-semantic MCP testの場合:
+Semantic MCP test:
 
 ```text
 sgokb --db <ABSOLUTE_ACCEPTANCE_DB_PATH> mcp serve --semantic-runtime
 ```
 
-Q-01..Q-12は接続済みMCP clientのUI / tool inspectorから実行する。
+Q-01..Q-12はconnected MCP client UI/tool inspectorを使用する。
 
 ## Q-01 `get_object`
 
-呼出し:
+Call:
 
 ```text
 get_object({"object_id":"<OBJ-A-ID>"})
 ```
 
-**PASS**: Object IDとcurrent accepted VersionがCLIの`object show --knowledge`と一致する。
+**PASS**: Object IDとcurrent accepted VersionがCLI `object show --knowledge`と一致する。
 
 ## Q-02 `get_objects`
 
-公開されているschemaに従ってOBJ-A / B / CのIDを指定して呼び出す。
+exposed schemaに従ってOBJ-A/B/C IDを指定してCallする。
 
-**PASS**: 要求したすべてのObjectが正しいstable identityで返る。
+**PASS**: requested Objectがすべて正しいstable identityで返る。
 
 ## Q-03 `search_objects`
 
-まずlexical queryを呼び出す。
+まずlexical queryをCallする。
 
 ```text
 search_objects({"query":"<known term>","mode":"lexical","limit":10})
 ```
 
-次にsemantic-enabled serverでhybrid queryを呼び出す。
+次にsemantic-enabled serverでhybrid queryをCallする。
 
-**PASS**: 想定ObjectがCLI retrieval semanticsと一致する。
+**PASS**: 期待するObjectがCLI retrieval semanticsと一致する。
 
 ## Q-04 `find_similar_objects`
 
@@ -1432,7 +1508,7 @@ search_objects({"query":"<known term>","mode":"lexical","limit":10})
 find_similar_objects({"object_id":"<OBJ-A-ID>","limit":10})
 ```
 
-**PASS**: MCP経由でSimilarity readが成功する。
+**PASS**: MCP経由のsimilarity readが成功する。
 
 ## Q-05 `get_object_relations`
 
@@ -1440,7 +1516,7 @@ find_similar_objects({"object_id":"<OBJ-A-ID>","limit":10})
 get_object_relations({"object_id":"<OBJ-A-ID>"})
 ```
 
-**PASS**: 想定するOBJ-A -> OBJ-B Relationが、CLIと同じaccepted Version semanticsで返る。
+**PASS**: 期待するOBJ-A -> OBJ-B relationがCLIと同じaccepted Version semanticsで返る。
 
 ## Q-06 `get_object_evidence`
 
@@ -1452,9 +1528,9 @@ get_object_evidence({"object_id":"<OBJ-A-ID>"})
 
 ## Q-07 `search_evidence`
 
-tool schemaに従い、E-06で使用した特徴的なqueryを指定する。
+Tool schemaに従いE-06のdistinctive queryでCallする。
 
-**PASS**: 想定したEvidenceが見つかる。
+**PASS**: 期待するEvidenceが見つかる。
 
 ## Q-08 `build_context`
 
@@ -1466,11 +1542,11 @@ build_context({
 })
 ```
 
-**PASS**: deterministicなKnowledge subsetが返り、Context Builderによって新しいLLM-authored factが挿入されない。
+**PASS**: deterministic Knowledge subsetが返り、Context Builderが新しいLLM-authored factを挿入しない。
 
-## Q-09 CLI / MCP整合性
+## Q-09 CLI/MCP consistency
 
-Q-01と次を比較する。
+Q-01を次と比較する。
 
 ```powershell
 sgokb --db $Db object show --object $ObjectAId --knowledge
@@ -1482,19 +1558,19 @@ sgokb --db $Db object show --object $ObjectAId --knowledge
 
 OBJ-AとOBJ-Bを`purpose = comparison`で使用する。
 
-**PASS**: 返されたsubsetに両Objectの関連する保存済みKnowledgeが含まれる。
+**PASS**: returned subsetに両Objectのrelevant stored Knowledgeが含まれる。
 
 ## Q-11 Character budget
 
-`max_characters = 6000`など、意図的に小さめだが有効なbudgetで`build_context`を呼び出す。
+`build_context`を`max_characters = 6000`など意図的に控えめだが有効なbudgetでCallする。
 
-**PASS**: 返されたcontextが指定budget contract内に収まる。
+**PASS**: returned contextがrequested budget contract内に収まる。
 
 ## Q-12 Determinism
 
-DB stateを変更せず、同一inputでQ-08を再実行する。
+DB stateを変更せず、identical inputでQ-08を繰り返す。
 
-**PASS**: deterministic Context Builder contractに従い、選択内容 / 順序が同一である。
+**PASS**: deterministic Context Builder contractに従ってselected content/orderが同一である。
 
 ---
 
@@ -1509,36 +1585,36 @@ sgokb --db $Db system derived status --semantic-runtime
 
 current derived stateを記録する。
 
-## R-02 Derived / Index state再構築
+## R-02 derived/index stateをRebuild
 
 ```powershell
 sgokb --db $Db system derived sync --semantic-runtime
 sgokb --db $Db system index rebuild
 ```
 
-**PASS**: canonical accepted Knowledgeを使用してrebuild / syncが成功する。
+**PASS**: canonical accepted Knowledgeを使ってrebuild/syncが成功する。
 
-## R-03 Rebuild後のLexical read
+## R-03 rebuild後のLexical read
 
-M-01 / M-03を再実行する。
+M-01/M-03を繰り返す。
 
-**PASS**: derived maintenance後もcanonical / lexical readが正しい。
+**PASS**: derived maintenance後もcanonical/lexical readが正しい。
 
-## R-04 Rebuild後のSemantic read
+## R-04 rebuild後のSemantic read
 
-N-04を再実行する。
+N-04を繰り返す。
 
-**PASS**: 想定したObjectが返る。
+**PASS**: 期待するObjectが返る。
 
-## R-05 Rebuild後のSimilarity
+## R-05 rebuild後のSimilarity
 
-P-01 / P-02を再実行する。
+P-01/P-02を繰り返す。
 
-**PASS**: Similarityが引き続き機能する。
+**PASS**: similarityが引き続き機能する。
 
-## R-06 Representation / Embedding reuse sanity check
+## R-06 Representation/Embedding reuse sanity check
 
-canonical Knowledgeを変更せず、derived syncを2回目として実行する。
+canonical Knowledgeを変更せずderived syncを2回目実行する。
 
 ```powershell
 $Before = sgokb --db $Db system derived status --semantic-runtime | ConvertFrom-Json
@@ -1548,13 +1624,13 @@ $Before.data
 $After.data
 ```
 
-**PASS**: 未変更のcanonical Knowledgeから意味的に重複したcurrent stateが生成されず、status surfaceが報告するID / countがreuse / idempotent maintenance semanticsと整合する。これは運用上のsanity checkであり、N-02のinternal deterministic fixture assertionではない。
+**PASS**: unchanged canonical Knowledgeからsemantically duplicated current stateが生成されず、status surfaceが報告するID/countがreuse/idempotent maintenance semanticsと整合する。これはoperational sanity checkであり、internal N-02 deterministic fixture assertionではない。
 
 ---
 
-# S. Backup / Restore 正常系
+# S. Backup / Restore Happy Path
 
-acceptance DBと試験専用backup / restore pathのみを使用する。
+acceptance DBとtest-owned backup/restore pathだけを使用する。
 
 ## S-01 Backup status
 
@@ -1562,9 +1638,9 @@ acceptance DBと試験専用backup / restore pathのみを使用する。
 sgokb --db $Db system backup status --root $BackupRoot
 ```
 
-**PASS**: backup subsystemのstatusを読み取れる。
+**PASS**: backup subsystem statusを読み取れる。
 
-## S-02 Backup作成
+## S-02 Backupを作成
 
 ```powershell
 $Backup = sgokb --db $Db system backup create --root $BackupRoot | ConvertFrom-Json
@@ -1573,39 +1649,39 @@ $Backup.data
 
 返されたbackup pathを`$BackupPath`として記録する。
 
-## S-03 Backup integrity確認
+## S-03 Backup integrityを確認
 
-backup commandがintegrity / verification metadataを返す場合は内容を確認する。加えて次を実行する。
+backup commandがintegrity/verification metadataを返す場合は確認する。また、次を実行する。
 
 ```powershell
 Test-Path $BackupPath
 ```
 
-**PASS**: backupが存在し、通常のintegrity verificationを伴って作成が正常完了している。
+**PASS**: backupが存在し、通常のintegrity verificationを伴ってcreationが成功している。
 
 ## S-04 Restore plan
 
-command output / contractに従い、隔離restore targetへのrestoreをplanする。
+command output/contractに従い、隔離restore targetへのrestoreをplanする。
 
 ```powershell
 sgokb --db $RestoreDb system restore plan $BackupPath
 ```
 
-**PASS**: planが意図した試験専用backupとrestore targetを示す。production stateへ解決される場合は続行してはならない。
+**PASS**: planが意図したtest-owned backupとrestore targetを示す。production stateへ解決される場合は続行しない。
 
-## S-05 Restore適用
+## S-05 RestoreをApply
 
-新規restore targetに対し、通常のrestore apply経路を実行する。
+fresh restore targetについてnormal restore apply pathを実行する。
 
 ```powershell
 sgokb --db $RestoreDb system restore apply $BackupPath
 ```
 
-current CLIがtarget fileの既存状態によってexplicit overwrite acknowledgementを要求する場合は、試験専用targetを必要に応じて削除 / 再作成するか、targetが破棄可能なacceptance restore DBであることを確認したうえで`--acknowledge-overwrite`を使用する。
+current CLIがtarget fileの既存時にexplicit overwrite acknowledgementを要求する場合は、test-owned targetを適切に削除/再作成するか、targetがdisposable acceptance restore DBであることを確認した後にだけ`--acknowledge-overwrite`を使用する。
 
 **PASS**: restoreが正常完了する。
 
-## S-06 Restore後Integrity
+## S-06 Restored integrity
 
 ```powershell
 sgokb --db $RestoreDb system integrity
@@ -1613,7 +1689,7 @@ sgokb --db $RestoreDb system integrity
 
 **PASS**: integrityが成功する。
 
-## S-07 Restore後Object
+## S-07 Restored Objects
 
 ```powershell
 sgokb --db $RestoreDb object show --object $ObjectAId --knowledge
@@ -1621,38 +1697,38 @@ sgokb --db $RestoreDb object show --object $ObjectBId --knowledge
 sgokb --db $RestoreDb object show --object $ObjectCId --knowledge
 ```
 
-**PASS**: Object stable identityが保持されている。
+**PASS**: Object stable identityが保持される。
 
-## S-08 Restore後Version
+## S-08 Restored Versions
 
 ```powershell
 sgokb --db $RestoreDb version show $Version1Id
 sgokb --db $RestoreDb version show $Version2Id
 ```
 
-**PASS**: accepted Version履歴が保持されている。
+**PASS**: accepted Version historyが保持される。
 
-## S-09 Restore後Evidence / Provenance
+## S-09 Restored Evidence / Provenance
 
 ```powershell
 sgokb --db $RestoreDb evidence show $EvidenceId
 sgokb --db $RestoreDb evidence provenance $EvidenceId
 ```
 
-**PASS**: grounded provenanceを引き続き解決できる。
+**PASS**: grounded provenanceを解決できる。
 
-## S-10 Restore後Derived state再構築
+## S-10 restore後にderived stateをRebuild
 
-restore済み試験環境が試験専用semantic / vector targetを使用するよう構成し、次を実行する。
+restored test environmentをtest-owned semantic/vector targetへ構成し、次を実行する。
 
 ```powershell
 sgokb --db $RestoreDb system derived sync --semantic-runtime
 sgokb --db $RestoreDb system index rebuild
 ```
 
-**PASS**: restoreされたcanonical stateからderived stateを再生成できる。
+**PASS**: restored canonical stateからderived stateを再生成できる。
 
-## S-11 Restore後Knowledge検索
+## S-11 restored KnowledgeをSearch
 
 ```powershell
 sgokb --db $RestoreDb search $ObjectAName --mode lexical
@@ -1660,25 +1736,25 @@ sgokb --db $RestoreDb search "<semantic OBJ-A query>" `
   --mode semantic --semantic-runtime --require-full-runtime
 ```
 
-**PASS**: restore後もlocal lexical readと構成済みsemantic readの両方が機能する。
+**PASS**: restore後にlocal lexicalとconfigured semantic read pathの両方が機能する。
 
-## S-12 Restore後Knowledge Render
+## S-12 restored KnowledgeをRender
 
 ```powershell
 sgokb --db $RestoreDb render --object $ObjectAId --output-root "$RenderRoot/restored"
 ```
 
-**PASS**: restoreされたcurrent Knowledgeを正常にRenderできる。
+**PASS**: current restored Knowledgeが正常にrenderされる。
 
 ---
 
-# T. 最終無中断End-to-End実行
+# T. Final uninterrupted end-to-end run
 
-A-Sを個別に理解した後、新しいObjectを1件、SQLiteを手動編集したり境界を迂回したりせず、通常workflow全体へ通す。
+A-Sを個別に理解した後、SQLiteを手動編集したりboundaryをbypassしたりせず、fresh Objectをnormal workflow全体へ通す。
 
 ## T-01 Full normal operational chain
 
-新しい有効な試験Objectと、1件以上の新しい有効なcapture bundleを使用する。
+新しい有効なtest Objectと1つ以上の新しい有効なcapture bundleを使用する。
 
 次の順序で実行する。
 
@@ -1715,28 +1791,28 @@ A-Sを個別に理解した後、新しいObjectを1件、SQLiteを手動編集�
 30. final system integrity
 ```
 
-各stepで返されたstable IDを記録し、identity chainが一貫していることを確認する。
+各stepで返されたstable IDを記録し、identity chainが内部でconsistentなままであることを確認する。
 
 **T-01 PASSには次のすべてが必要**:
 
-- 必須stepがskipされていない。
-- 成功が期待されるすべてのcommandが正常終了する。
-- external exportが明示操作である。
-- external AIが架空provenanceではなくPackage Evidenceを使用する。
-- Resultが明示Importの前にvalidate / reviewされている。
-- accepted Knowledgeがhistorical accepted stateの上書きではなくVersionとして作成される。
-- 代表的なKnowledgeをEvidenceおよびRaw Source lineageまで追跡できる。
-- lexical、semantic、hybrid、similarity、render、MCP read surfaceが同じcanonical Object / Version semanticsへ解決される。
-- workflow完了後にbackup作成が成功する。
-- 最後の`system integrity`が成功する。
+- 必須stepをskipしていない。
+- 成功が期待されるすべてのcommandが正常exitする。
+- external exportがexplicitである。
+- external AIがfabricated provenanceではなくPackage Evidenceを使用する。
+- Resultがexplicit Import前にvalidateおよびreviewされる。
+- accepted Knowledgeがhistorical accepted stateのoverwriteではなくVersionである。
+- 代表的KnowledgeがEvidenceおよびRaw Source lineageまでtraceableである。
+- lexical、semantic、hybrid、similarity、render、MCP read surfaceが同じcanonical Object/Version semanticsへ解決される。
+- completed workflow後にbackup creationが成功する。
+- 最終`system integrity`が成功する。
 
 ---
 
-# 3. 完了判定
+# 4. 完了判定
 
 ## Core PASS
 
-local canonical / read workflowまでの該当試験がすべてPASSした場合のみ、**Core PASS**とする。対象は次を含む。
+local canonical/read workflowを通る適用可能な試験がすべてPASSした場合のみ**Core PASS**とする。最低限、次を含む。
 
 ```text
 A Environment / CLI
@@ -1757,7 +1833,7 @@ T end-to-end core chain
 
 ## Full SGOKB PASS
 
-Core PASSに加え、optional-runtime / full-system acceptance sectionがすべて完了した場合のみ、**Full SGOKB PASS**とする。
+Core PASSに加え、optional-runtime/full-system acceptance sectionがすべて完了した場合のみ**Full SGOKB PASS**とする。
 
 ```text
 N Semantic Search
@@ -1769,4 +1845,4 @@ S Backup / Restore
 T full uninterrupted run including semantic/MCP/backup steps
 ```
 
-最終acceptance recordには、正確なDB path、試験日、repository commit / release identity、使用した場合はsemantic runtime identity、Object / Version ID、overall verdictを記録する。
+final acceptance recordには、exact DB path、test date、repository commit/release identity、使用したsemantic runtime identity、Object/Version ID、overall verdictを含める。
