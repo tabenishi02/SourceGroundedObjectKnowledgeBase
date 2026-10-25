@@ -15,12 +15,15 @@ O-01 README update = Complete
 O-02 Current design documentation = Complete
 O-03 Prototype Archived / Legacy labels = Complete
 O-04 main integration = Complete
-Next = O-05 Branch cleanup
+O-05 Branch cleanup = Complete
+O-06 Release / Tag policy = Release candidate ready / tag publication pending
+Release target = v1.0.0
+Next = publish and verify v1.0.0 tag
 ```
 
-Phase NはReference Workstationでのclosure audit C01-C07 PASSと独立レビューを完了しています。Phase OではDocumentation / Release / Git cleanupを進めます。Release / TagはO-06まで未確定です。
+Phase NはReference Workstationでのclosure audit C01-C07 PASSと独立レビューを完了しています。O-06ではPrototype 0.2から新SGOKBへの正式境界を`v1.0.0`と決定し、Breaking Change / migration guidanceを含むrepository-side Release Noteとpackage version `1.0.0`を整備しました。`v1.0.0` tag publicationとlive verificationが完了するまでPhase OはActiveです。
 
-現在のPhase O状態は [Phase O Status](docs/planning/phases/O/PHASE_O_STATUS.md)、現行全体設計は [Current System Architecture](docs/design/SGOKB_CURRENT_ARCHITECTURE.md)、運用安全・復旧設計は [Operational Safety / Backup / Recovery](docs/operations/OPERATIONAL_SAFETY_RECOVERY.md) を参照してください。
+現在のPhase O状態は [Phase O Status](docs/planning/phases/O/PHASE_O_STATUS.md)、Release定義は [v1.0.0 Release Note](docs/releases/v1.0.0.md)、現行全体設計は [Current System Architecture](docs/design/SGOKB_CURRENT_ARCHITECTURE.md)、運用安全・復旧設計は [Operational Safety / Backup / Recovery](docs/operations/OPERATIONAL_SAFETY_RECOVERY.md) を参照してください。
 
 ---
 
@@ -367,6 +370,7 @@ docs/
   design/                    # implementation-level current design
   evaluation/                # benchmark / acceptance / failure analysis
   operations/                # operator workflow / recovery
+  releases/                  # release notes / compatibility boundary
   planning/                  # project / phase / task status and handoff
   reference/                 # survey / inventory / gold/reference material
   archive/                   # historical Prototype / rename material
@@ -388,6 +392,9 @@ Web取得部分の詳細は [Web Page Capture README](extensions/web-page-captur
 - [Current Design Index](docs/design/README.md)
 - [Current System Architecture](docs/design/SGOKB_CURRENT_ARCHITECTURE.md)
 - [Operational Safety / Backup / Recovery](docs/operations/OPERATIONAL_SAFETY_RECOVERY.md)
+- [Release Index](docs/releases/README.md)
+- [v1.0.0 Release Note](docs/releases/v1.0.0.md)
+- [Release / Tag / Breaking Change Policy](docs/decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md)
 - [Planning Index](docs/planning/README.md)
 - [Phase O Status](docs/planning/phases/O/PHASE_O_STATUS.md)
 - [Project Task Master](docs/planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md)
@@ -405,7 +412,7 @@ Web取得部分の詳細は [Web Page Capture README](extensions/web-page-captur
 - [MCP Read Tool Contract](docs/decisions/J02_MCP_READ_TOOL_CONTRACT.md)
 - [Phase N Closure Result](docs/evaluation/PHASE_N_CLOSURE_AUDIT.md)
 
-旧Prototypeの要件・設計・評価・モデル比較等は [`docs/archive/prototype-0.2/`](docs/archive/prototype-0.2/) に保存しています。O-03でArchived / Legacy stateを明示済みであり、Archiveはcurrent specificationではありません。
+旧Prototypeの要件・設計・評価・モデル比較等は [`docs/archive/prototype-0.2/`](docs/archive/prototype-0.2/) に保存しています。O-03でArchived / Legacy stateを明示済みであり、Archiveはcurrent specificationではありません。Prototype 0.2へretroactive tag / Releaseは作成せず、新設計のformal release lineは`v1.0.0`から開始します。
 
 ---
 
@@ -430,4 +437,4 @@ Repository-wide `ruff format --check .`にはaccepted baseline由来の既存22�
 
 旧PrototypeはFragment生成と巨大Final Document生成を中心としていました。現在のSGOKBではそのpipelineを標準runtimeから撤去し、Source / Evidence / Object Knowledge / Version / Retrieval / MCPをcurrent architectureとしています。
 
-旧挙動を調査する場合はGit historyと [Prototype 0.2 Archive](docs/archive/prototype-0.2/) を参照し、current SGOKB contractと混同しないでください。
+旧挙動を調査する場合はGit historyと [Prototype 0.2 Archive](docs/archive/prototype-0.2/) を参照し、current SGOKB contractと混同しないでください。Prototype 0.2はuntagged historical lineとして保持し、最初のformal current release boundaryは`v1.0.0`です。
