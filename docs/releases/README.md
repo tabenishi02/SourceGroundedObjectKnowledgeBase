@@ -15,7 +15,9 @@ Prototype 0.2 does not receive a retroactive Git tag or GitHub Release. Its hist
 
 | Version | Tag | Status | Notes |
 |---|---|---|---|
-| `1.0.0` | `v1.0.0` | Tag publication pending | [Release Note](v1.0.0.md) |
+| `1.0.0` | `v1.0.0` | Published tag verified | [Release Note](v1.0.0.md) |
+
+`v1.0.0` is an annotated tag whose tag object is `a418096b5139027cd9ccaaf47fb99a4309cb4b1e` and whose target commit is `0e1a8464e9db98b4e99169cae6292821f3fd410c`.
 
 ## Policy
 
