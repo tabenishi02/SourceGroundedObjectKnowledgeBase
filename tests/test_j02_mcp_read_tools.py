@@ -58,11 +58,17 @@ class FakeReadApplication:
 
     def get_object_relations(self, object_id, **kwargs):
         self.calls.append(("get_object_relations", object_id, kwargs))
+        version_id = kwargs.get("version_id")
         return {
             "contract_version": self.contract_version,
             "object_id": object_id,
-            "resolved_version_id": "ver-current",
-            "is_current": True,
+            "scope": "pinned_object_version" if version_id else "current_relation_graph",
+            "requested_version_id": version_id,
+            "object_current_version_id": None if object_id == "obj-unversioned" else "ver-current",
+            "resolved_version_id": version_id or (
+                None if object_id == "obj-unversioned" else "ver-current"
+            ),
+            "is_current": version_id is None,
             "relations": [],
             "warnings": [],
         }
@@ -166,6 +172,16 @@ def test_facet_similarity_is_parameterized_not_a_second_tool():
     )
     assert response["data"]["facet"] == "personality"
     assert app.calls[-1][2]["facet"] == "personality"
+
+
+def test_relation_tool_allows_current_graph_for_object_without_knowledge_version():
+    adapter = MCPReadAdapter(FakeReadApplication())
+    response = adapter.call_tool("get_object_relations", {"object_id": "obj-unversioned"})
+
+    assert response["data"]["scope"] == "current_relation_graph"
+    assert response["data"]["object_current_version_id"] is None
+    assert response["data"]["resolved_version_id"] is None
+    assert response["data"]["is_current"] is True
 
 
 def test_tool_input_schema_rejects_unknown_fields_and_large_result_limit():
