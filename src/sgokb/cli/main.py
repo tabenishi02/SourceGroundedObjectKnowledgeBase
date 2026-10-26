@@ -98,6 +98,14 @@ def parser() -> argparse.ArgumentParser:
     process.add_argument("--include-auxiliary", action="store_true")
     source_actions.add_parser("status")
     source_actions.add_parser("snapshots")
+    select_snapshot = source_actions.add_parser("select-snapshot")
+    select_snapshot.add_argument("--source", required=True)
+    select_snapshot.add_argument("--snapshot", required=True)
+    select_snapshot.add_argument("--reason", required=True)
+    select_run = source_actions.add_parser("select-run")
+    select_run.add_argument("--snapshot", required=True)
+    select_run.add_argument("--run", required=True)
+    select_run.add_argument("--reason", required=True)
 
     obj = domains.add_parser("object", help="Object Registry and accepted Knowledge reads")
     object_actions = obj.add_subparsers(dest="action", required=True)
@@ -424,6 +432,34 @@ def _source_dispatch(repository, args):
             for s in repository.source_store.snapshots()
         ]
         return result, False
+    if args.action == "select-snapshot":
+        selection_id = repository.source_store.select_effective_snapshot(
+            args.source,
+            args.snapshot,
+            reason=args.reason,
+        )
+        effective = repository.source_store.effective_snapshot(args.source)
+        return {
+            "selection_id": selection_id,
+            "source_id": args.source,
+            "snapshot_id": args.snapshot,
+            "effective": bool(effective and effective.snapshot_id == args.snapshot),
+        }, False
+    if args.action == "select-run":
+        snapshot = repository.source_store.snapshot_by_id(args.snapshot)
+        selection_id = repository.source_store.select_effective_run(
+            args.snapshot,
+            args.run,
+            reason=args.reason,
+        )
+        effective = repository.source_store.effective_run(args.snapshot)
+        return {
+            "selection_id": selection_id,
+            "source_id": snapshot.source_id,
+            "snapshot_id": args.snapshot,
+            "run_id": args.run,
+            "effective": bool(effective and effective["id"] == args.run),
+        }, False
 
     if args.action == "import":
         targets = (

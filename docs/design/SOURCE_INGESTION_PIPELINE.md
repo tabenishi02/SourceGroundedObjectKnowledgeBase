@@ -149,6 +149,15 @@ Evidence -> Normalization Run -> Raw Artifact -> Snapshot -> Source
 - `failed` Runはeffectiveへ選択できない。
 - manual selection eventで切替可能とする。
 
+operator-facing public CLIでは、確認済み世代の切替を次で行う。
+
+```text
+sgokb source select-snapshot --source <source-id> --snapshot <snapshot-id> --reason <text>
+sgokb source select-run --snapshot <snapshot-id> --run <run-id> --reason <text>
+```
+
+これらはRepositoryのmanual selection contractを利用し、SQLite直接操作を要求しない。`latest == effective`へ戻す自動昇格ではなく、operatorの明示判断をselection eventとして記録する。
+
 Selection eventには`origin_kind / reason / created_at`を保持し、旧Snapshot / Run / Evidenceは削除しない。
 
 ## 9. Failure behavior

@@ -517,7 +517,8 @@ sgokb --db $Db source process --snapshot $SnapshotC1Id
 $ImportA1V2 = sgokb --db $Db source import $CaptureA1V2 | ConvertFrom-Json
 $SourceA1V2Id   = $ImportA1V2.data[0].source
 $SnapshotA1V2Id = $ImportA1V2.data[0].snapshot
-sgokb --db $Db source process --snapshot $SnapshotA1V2Id
+$ProcessA1V2 = sgokb --db $Db source process --snapshot $SnapshotA1V2Id | ConvertFrom-Json
+$RunA1V2Id = $ProcessA1V2.data[0].run
 ```
 
 **確認**
@@ -1039,11 +1040,21 @@ C-08の後続SRC-A1 Snapshotを使用し、まだassociationされていなけ�
 ```powershell
 sgokb --db $Db association set `
   --object $ObjectAId --source $SourceA1V2Id --status confirmed
+
+sgokb --db $Db source select-snapshot `
+  --source $SourceA1V2Id --snapshot $SnapshotA1V2Id `
+  --reason "happy-path follow-up snapshot reviewed"
+sgokb --db $Db source select-run `
+  --snapshot $SnapshotA1V2Id --run $RunA1V2Id `
+  --reason "happy-path follow-up normalization reviewed"
+
 sgokb --db $Db evidence candidates --object $ObjectAId
 sgokb --db $Db evidence select --object $ObjectAId
 ```
 
-**PASS**: 2回目のanalysis cycle向けにnew Evidenceが利用可能である。
+後続Snapshot / Runは新しさだけでは自動effective化しないため、上記のexplicit operator selectionを正常系の必須工程とする。
+
+**PASS**: effective generationがC-08の後続Snapshot / Runへ切り替わり、そのEvidenceが2回目のanalysis cycleで利用可能である。
 
 ## J-03 update PackageをBuild
 
