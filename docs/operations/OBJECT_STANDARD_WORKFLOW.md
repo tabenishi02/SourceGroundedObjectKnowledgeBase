@@ -1,6 +1,6 @@
 # 1 Object Standard Workflow
 
-更新日: 2026-10-16
+更新日: 2026-10-27
 
 - Phase: `Phase M — CLI / 操作フロー`
 - Task: `M-03 [P1] 1 Object標準手順を1ページで実行可能にする`
@@ -178,6 +178,8 @@ $Imported = sgokb --db $Db result import $ReceiptId --incoming-root $IncomingRoo
 if ($LASTEXITCODE -ne 0) { throw "result import failed" }
 ```
 
+Result Importでaccepted Versionが作成・promoteされると、Search Representationなどのderived stateは新しいcurrent Versionをtargetとして`pending`へqueueされる。Import transaction内ではderived artifact自体を生成しないため、Knowledge本文をLexical Searchする前に明示的なderived syncが必要である。
+
 Registry proposalはResult Importの副作用として適用しない。pendingがある場合だけ個別にreviewする。
 
 ```powershell
@@ -201,19 +203,49 @@ sgokb --db $Db object relations --object $ObjectId
 sgokb --db $Db render --object $ObjectId
 ```
 
+### Derived Search Representation sync — Lexical Search前の必須工程
+
+accepted/current VersionのKnowledge本文をLexical Searchする前に、Search Representation derived stateを同期する。
+
+```powershell
+$DerivedBefore = sgokb --db $Db system derived status --object $ObjectId | ConvertFrom-Json
+$DerivedBefore.data
+
+sgokb --db $Db system derived sync --object $ObjectId
+if ($LASTEXITCODE -ne 0) { throw "derived search representation sync failed" }
+
+$DerivedAfter = sgokb --db $Db system derived status --object $ObjectId | ConvertFrom-Json
+$DerivedAfter.data
+```
+
+**確認**:
+
+- `search_representation.target_version_id`がcurrent accepted Versionと一致する。
+- `search_representation.status = ready`である。
+- `search_representations.membership_count > 0`である。
+- Lexical-only確認では`--semantic-runtime`を付けない。Embedding / Vector Indexが`pending`のままでもLexical Searchの失敗とは扱わない。
+
+このsyncはcanonical Knowledgeを書き換えず、accepted canonical stateからrebuild可能なderived Search Representationを生成する。
+
 ### Lexical Search — 必須確認
+
+canonical nameだけでなく、accepted Knowledge本文に存在する特徴的なtermでも確認する。
 
 ```powershell
 sgokb --db $Db search $ObjectName --mode lexical
+sgokb --db $Db search "<distinctive accepted-knowledge term>" --mode lexical
 ```
 
-Objectがaccepted current Knowledgeとして検索できれば、Semantic runtimeなしでも標準workflowのlocal read pathは成立している。
+**PASS**: canonical identity queryとKnowledge本文queryの両方でcurrent Objectを取得できる。Knowledge本文queryは`knowledge_lexical` channelから返ることを確認する。
 
 ### Similarity / Semantic Search — runtime構成済み環境で追加確認
 
-Similarityはlocal Embedding provider + Vector runtimeを必要とする。構成済みなら次を確認する。
+Similarity / Semantic Searchはlocal Embedding provider + Vector runtimeを必要とする。構成済みなら、先にsemantic derived stateを同期してから確認する。
 
 ```powershell
+sgokb --db $Db system derived sync --object $ObjectId --semantic-runtime
+if ($LASTEXITCODE -ne 0) { throw "semantic derived sync failed" }
+
 sgokb --db $Db search $ObjectName --mode semantic --semantic-runtime --require-full-runtime
 sgokb --db $Db similar --object $ObjectId
 ```
@@ -241,7 +273,9 @@ clientから`$ObjectId`を指定してObject readを1回実行し、CLIの`objec
 - Package ExportとResult ImportのHuman decision boundaryを迂回しない。
 - Result Validation / Reviewを経由してaccepted Versionを作成する。
 - pending Registry proposalを自動applyしない。
-- RenderとLexical Searchでcurrent Knowledgeを確認する。
+- accepted Version作成後、Lexical Search前に`system derived sync --object <ObjectId>`を実行し、Search Representationをcurrent Versionへ同期する。
+- `search_representation` derived stateが`ready`で、current Versionのmembershipが存在する。
+- Renderとcanonical identity / Knowledge本文のLexical Searchでcurrent Knowledgeを確認する。
 - read-only MCP clientから同じObject Knowledgeを取得できる。
 - focused end-to-end integration testまたはReference Workstationでの同等受入が成功する。
 
