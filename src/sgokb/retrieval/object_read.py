@@ -165,7 +165,9 @@ class ObjectKnowledgeReader:
             owner_version_id = row["version_id"]
             if include_evidence_refs:
                 if owner_version_id not in evidence_by_version:
-                    evidence_by_version[owner_version_id] = self._evidence_by_target(owner_version_id)
+                    evidence_by_version[owner_version_id] = self._evidence_by_target(
+                        owner_version_id
+                    )
                 evidence = evidence_by_version[owner_version_id]
             else:
                 evidence = {}

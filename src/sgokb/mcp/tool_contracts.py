@@ -343,8 +343,8 @@ GET_OBJECT_RELATIONS = MCPToolContract(
     description=(
         "Get deterministic one-hop Relations for a known Object. Omit version_id to traverse the "
         "current accepted Relation graph from either endpoint, even when the queried Object has no "
-        "Knowledge Version of its own. Provide version_id to pin the read to that Object's accepted "
-        "Version. Canonical Relation direction is never inverted."
+        "Knowledge Version of its own. Provide version_id to pin the read to that Object's "
+        "accepted Version. Canonical Relation direction is never inverted."
     ),
     input_schema=_object_schema(
         {
