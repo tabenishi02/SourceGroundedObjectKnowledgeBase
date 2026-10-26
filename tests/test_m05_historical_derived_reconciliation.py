@@ -10,8 +10,9 @@ from test_n04p04_vector_index_sync import (
 
 from sgokb.application_maintenance import DerivedSearchMaintenanceApplication
 from sgokb.application_read import KnowledgeReadApplication
-from sgokb.domain import ObjectSearchFilters
+from sgokb.domain import DerivedState, ObjectSearchFilters
 from sgokb.repository import Repository
+from sgokb.retrieval import SearchRepresentationBuilder
 
 
 @pytest.fixture
@@ -26,6 +27,10 @@ def _membership_ids(repo, version_id):
         row["id"]
         for row in repo.semantic_store.knowledge_search_memberships(version_id=version_id)
     )
+
+
+def _derived_state(repo, object_id, kind):
+    return next(item for item in repo.version_store.derived_states(object_id) if item.kind == kind)
 
 
 def test_ready_current_sync_backfills_unsynced_accepted_history_and_is_idempotent(repo):
@@ -47,8 +52,24 @@ def test_ready_current_sync_backfills_unsynced_accepted_history_and_is_idempoten
         base_version_id=version1_id,
         statement_text="Current birch marker for the second accepted version.",
     )
-    service = DerivedSearchMaintenanceApplication(repo)
 
+    # Reproduce the pre-fix current-only sync: V2 is materialized and the mutable
+    # current derived states may already say ready while V1 is still absent.
+    SearchRepresentationBuilder(repo).materialize_version(version2_id)
+    for kind in ("search_representation", "embedding", "vector_index"):
+        state = _derived_state(repo, object_id, kind)
+        assert repo.version_store.mark_derived_state(
+            object_id,
+            kind,
+            state.revision,
+            DerivedState.READY,
+        )
+
+    assert _membership_ids(repo, version1_id) == ()
+    assert _membership_ids(repo, version2_id)
+    assert _derived_state(repo, object_id, "search_representation").status is DerivedState.READY
+
+    service = DerivedSearchMaintenanceApplication(repo)
     first = service.sync_search_representation(object_id)
 
     v1_memberships = _membership_ids(repo, version1_id)
@@ -57,6 +78,9 @@ def test_ready_current_sync_backfills_unsynced_accepted_history_and_is_idempoten
     assert first.changed is True
     assert v1_memberships
     assert v2_memberships
+    assert _derived_state(repo, object_id, "search_representation").status is DerivedState.READY
+    assert _derived_state(repo, object_id, "embedding").status is DerivedState.PENDING
+    assert _derived_state(repo, object_id, "vector_index").status is DerivedState.PENDING
 
     # Explicit historical search must address V1 rather than leaking current V2.
     reader = KnowledgeReadApplication(repo)
@@ -79,7 +103,7 @@ def test_ready_current_sync_backfills_unsynced_accepted_history_and_is_idempoten
     )
     assert not historical_current_term.results
 
-    # Candidate Versions are outside the accepted-history reconciliation set.
+    # Candidate and abandoned Versions are outside the accepted-history set.
     candidate_id = repo.version_store.begin_candidate(
         object_id,
         version2_id,
@@ -87,6 +111,11 @@ def test_ready_current_sync_backfills_unsynced_accepted_history_and_is_idempoten
     )
     second = service.sync_search_representation(object_id)
     assert second.changed is False
+    assert _membership_ids(repo, candidate_id) == ()
+
+    repo.version_store.abandon_candidate(candidate_id, reason="M-05 regression fixture")
+    third = service.sync_search_representation(object_id)
+    assert third.changed is False
     assert _membership_ids(repo, candidate_id) == ()
     assert _membership_ids(repo, version1_id) == v1_memberships
     assert _membership_ids(repo, version2_id) == v2_memberships
@@ -137,6 +166,7 @@ def test_semantic_sync_embeds_and_indexes_all_backfilled_accepted_memberships(re
     }
     assert embedding.representation_count == len(representation_ids)
     assert embedded_ids == set(representation_ids)
+    assert _derived_state(repo, object_id, "vector_index").status is DerivedState.PENDING
 
     vector_result = service.sync_vector_index(object_id)
     assert vector_result.point_count == len(accepted_memberships)
@@ -146,6 +176,6 @@ def test_semantic_sync_embeds_and_indexes_all_backfilled_accepted_memberships(re
         version2_id,
     }
     assert all(
-        point.metadata["is_current"] is (point.metadata["version_id"] == version2_id)
+        point.metadata["is_current"] == (point.metadata["version_id"] == version2_id)
         for point in vector.points.values()
     )
