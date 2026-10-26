@@ -78,7 +78,7 @@ class ObjectKnowledgeReader:
         ]
         relations = (
             [
-                self._relation_payload(row, evidence)
+                self._relation_payload(row, evidence, perspective_object_id=object_id)
                 for row in self._relation_rows(resolved_version_id)
             ]
             if include_relations
@@ -130,19 +130,58 @@ class ObjectKnowledgeReader:
         version_id: str | None = None,
         include_evidence_refs: bool = True,
     ) -> dict:
-        payload = self.get_object(
-            object_id,
-            version_id=version_id,
-            facets=(),
-            include_relations=True,
-            include_evidence_refs=include_evidence_refs,
-        )
+        """Read one-hop Relations for an Object.
+
+        Without ``version_id`` this is a current Relation-graph traversal: a Registry
+        Object may be queried even when it has no Knowledge Version of its own, and
+        Relations owned by any endpoint's current accepted Version are returned.
+        With ``version_id`` the read remains pinned to that Object's accepted Version.
+        """
+
+        object_record = self.repository.object_store.get_object(object_id)
+        if version_id is not None:
+            payload = self.get_object(
+                object_id,
+                version_id=version_id,
+                facets=(),
+                include_relations=True,
+                include_evidence_refs=include_evidence_refs,
+            )
+            return {
+                "object_id": payload["object_id"],
+                "scope": "pinned_object_version",
+                "requested_version_id": version_id,
+                "object_current_version_id": object_record.current_version_id,
+                "resolved_version_id": payload["resolved_version_id"],
+                "is_current": payload["is_current"],
+                "relations": payload["knowledge"]["relations"],
+                "warnings": payload["warnings"],
+            }
+
+        rows = self._current_relation_rows(object_id)
+        evidence_by_version: dict[str, dict[tuple[str, str], list[dict]]] = {}
+        relations = []
+        for row in rows:
+            owner_version_id = row["version_id"]
+            if include_evidence_refs:
+                if owner_version_id not in evidence_by_version:
+                    evidence_by_version[owner_version_id] = self._evidence_by_target(owner_version_id)
+                evidence = evidence_by_version[owner_version_id]
+            else:
+                evidence = {}
+            relations.append(
+                self._relation_payload(row, evidence, perspective_object_id=object_id)
+            )
+
         return {
-            "object_id": payload["object_id"],
-            "resolved_version_id": payload["resolved_version_id"],
-            "is_current": payload["is_current"],
-            "relations": payload["knowledge"]["relations"],
-            "warnings": payload["warnings"],
+            "object_id": object_record.object_id,
+            "scope": "current_relation_graph",
+            "requested_version_id": None,
+            "object_current_version_id": object_record.current_version_id,
+            "resolved_version_id": object_record.current_version_id,
+            "is_current": True,
+            "relations": relations,
+            "warnings": [],
         }
 
     @staticmethod
@@ -231,18 +270,48 @@ class ObjectKnowledgeReader:
 
     def _relation_rows(self, version_id: str) -> list[dict]:
         rows = self.db.execute(
-            """SELECT r.id,r.subject_object_id,r.object_object_id,r.relation_type_id,
+            """SELECT r.id,r.version_id,r.subject_object_id,r.object_object_id,r.relation_type_id,
                       t.key AS relation_key,t.name AS relation_name,
-                      target.name AS object_name,rs.temporal_scope_id,
+                      subject.name AS subject_name,target.name AS object_name,
+                      v.object_id AS owner_object_id,owner.name AS owner_name,
+                      rs.temporal_scope_id,
                       ts.as_of,ts.valid_from,ts.valid_to,ts.context_object_id,ts.label
                FROM object_relations r
                JOIN relation_types t ON t.id=r.relation_type_id
+               JOIN objects subject ON subject.id=r.subject_object_id
                JOIN objects target ON target.id=r.object_object_id
+               JOIN object_versions v ON v.id=r.version_id
+               JOIN objects owner ON owner.id=v.object_id
                LEFT JOIN relation_temporal_scopes rs ON rs.relation_id=r.id
                LEFT JOIN temporal_scopes ts ON ts.id=rs.temporal_scope_id
                WHERE r.version_id=?
-               ORDER BY t.key,target.name,r.id""",
+               ORDER BY t.key,subject.name,target.name,r.id""",
             (version_id,),
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+    def _current_relation_rows(self, object_id: str) -> list[dict]:
+        rows = self.db.execute(
+            """SELECT r.id,r.version_id,r.subject_object_id,r.object_object_id,r.relation_type_id,
+                      t.key AS relation_key,t.name AS relation_name,
+                      subject.name AS subject_name,target.name AS object_name,
+                      v.object_id AS owner_object_id,owner.name AS owner_name,
+                      rs.temporal_scope_id,
+                      ts.as_of,ts.valid_from,ts.valid_to,ts.context_object_id,ts.label
+               FROM object_relations r
+               JOIN relation_types t ON t.id=r.relation_type_id
+               JOIN objects subject ON subject.id=r.subject_object_id
+               JOIN objects target ON target.id=r.object_object_id
+               JOIN object_versions v ON v.id=r.version_id
+               JOIN object_version_lifecycle lifecycle
+                 ON lifecycle.version_id=v.id AND lifecycle.state='accepted'
+               JOIN objects owner
+                 ON owner.id=v.object_id AND owner.current_version_id=v.id
+               LEFT JOIN relation_temporal_scopes rs ON rs.relation_id=r.id
+               LEFT JOIN temporal_scopes ts ON ts.id=rs.temporal_scope_id
+               WHERE r.subject_object_id=? OR r.object_object_id=?
+               ORDER BY t.key,subject.name,target.name,r.id""",
+            (object_id, object_id),
         ).fetchall()
         return [dict(row) for row in rows]
 
@@ -328,15 +397,38 @@ class ObjectKnowledgeReader:
             "evidence": evidence.get(("attribute", row["id"]), []),
         }
 
-    def _relation_payload(self, row: dict, evidence: dict) -> dict:
+    def _relation_payload(
+        self,
+        row: dict,
+        evidence: dict,
+        *,
+        perspective_object_id: str | None = None,
+    ) -> dict:
+        perspective = None
+        if perspective_object_id is not None:
+            if (
+                row["subject_object_id"] == perspective_object_id
+                and row["object_object_id"] == perspective_object_id
+            ):
+                perspective = "self"
+            elif row["subject_object_id"] == perspective_object_id:
+                perspective = "outgoing"
+            elif row["object_object_id"] == perspective_object_id:
+                perspective = "incoming"
+
         return {
             "relation_id": row["id"],
             "relation_type_id": row["relation_type_id"],
             "relation_key": row["relation_key"],
             "relation_name": row["relation_name"],
             "subject_object_id": row["subject_object_id"],
+            "subject_name": row["subject_name"],
             "object_object_id": row["object_object_id"],
             "object_name": row["object_name"],
+            "perspective": perspective,
+            "owner_object_id": row["owner_object_id"],
+            "owner_name": row["owner_name"],
+            "owner_version_id": row["version_id"],
             "temporal_scope": self._temporal_payload(row),
             "evidence": evidence.get(("relation", row["id"]), []),
         }
