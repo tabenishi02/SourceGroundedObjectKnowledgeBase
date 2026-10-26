@@ -43,9 +43,13 @@ sgokb source import <path>
 sgokb source process [--snapshot <id>]
 sgokb source status
 sgokb source snapshots
+sgokb source select-snapshot --source <source-id> --snapshot <snapshot-id> --reason <text>
+sgokb source select-run --snapshot <snapshot-id> --run <run-id> --reason <text>
 ```
 
 旧`extract` aliasは廃止する。
+
+後続Snapshot / Normalization Runは新しいという理由だけで自動effective化しない。operatorが内容を確認した後、`select-snapshot` / `select-run`を明示実行してappend-only selection eventを記録する。両commandはcanonical stateを変更する`WRITE`操作であり、`--reason`を必須とする。
 
 ### Object
 

@@ -55,9 +55,23 @@ if ($LASTEXITCODE -ne 0) { throw "source import failed" }
 $SourceId = $ImportResult.data[0].source
 $SnapshotId = $ImportResult.data[0].snapshot
 
-sgokb --db $Db source process --snapshot $SnapshotId
+$ProcessResult = sgokb --db $Db source process --snapshot $SnapshotId | ConvertFrom-Json
 if ($LASTEXITCODE -ne 0) { throw "source process failed" }
+$RunId = $ProcessResult.data[0].run
 ```
+
+最初のusable Snapshot / successful Runは`automatic_initial`としてeffectiveになる。既にeffective世代が存在するSourceへ後続Captureを追加した場合は、自動で置換しない。operatorが後続CaptureとNormalization結果を確認し、採用する場合だけ次を明示実行する。
+
+```powershell
+sgokb --db $Db source select-snapshot `
+  --source $SourceId --snapshot $SnapshotId `
+  --reason "operator reviewed follow-up capture"
+sgokb --db $Db source select-run `
+  --snapshot $SnapshotId --run $RunId `
+  --reason "operator reviewed normalization"
+```
+
+この選択はappend-only selection eventであり、旧Snapshot / Run / Evidenceを削除しない。
 
 ### Source↔Object association
 

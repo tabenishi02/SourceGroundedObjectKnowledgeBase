@@ -351,7 +351,7 @@ Create at least two accepted Versions for OBJ-A.
 | ID | Test | Operation | Expected result |
 |---|---|---|---|
 | J-01 | Capture Version 1 identity | Record first `knowledge_version_id` | V1 is readable |
-| J-02 | Add new Evidence | Import/process later OBJ-A source/snapshot | New Evidence exists |
+| J-02 | Add new Evidence | Import/process later OBJ-A snapshot, explicitly select the reviewed Snapshot/Run as effective, then retrieve Evidence | New Evidence from the selected follow-up generation exists |
 | J-03 | Build update Package | Rebuild OBJ-A Package after I-05/I-06 | Current/base Version binding is correct and the applied Relation Type is now available |
 | J-04 | Produce Result 2 | External semantic integration using the applied Relation Type and SRC-R1 Evidence | Updated structured Result is valid and contains the supported OBJ-A -> OBJ-B Relation |
 | J-05 | Import Result 2 | Validate/review/import | V2 is created |
