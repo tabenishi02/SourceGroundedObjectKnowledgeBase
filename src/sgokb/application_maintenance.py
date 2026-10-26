@@ -188,6 +188,39 @@ class DerivedSearchMaintenanceApplication:
             raise DerivedMaintenanceError("Object has no accepted current Version")
         return current_version_id
 
+    def _invalidate_downstream(
+        self,
+        object_id: str,
+        current_version_id: str,
+        kinds: tuple[str, ...],
+    ) -> None:
+        """Mark stale downstream artifacts pending without changing canonical revision.
+
+        Historical backfill can change the complete membership dependency set while the
+        mutable Object revision remains the same. Any downstream stage that was already
+        ready/failed for the smaller set must therefore be retried. A concurrent Version
+        promotion is treated as supersession rather than mutating the new revision.
+        """
+
+        for kind in kinds:
+            state = self._derived_state(object_id, kind)
+            if state.target_version_id != current_version_id:
+                raise DerivedMaintenanceSupersededError(
+                    f"{kind} target Version changed during derived reconciliation"
+                )
+            if state.status is DerivedState.PENDING:
+                continue
+            marked = self._repository.version_store.mark_derived_state(
+                object_id,
+                kind,
+                state.revision,
+                DerivedState.PENDING,
+            )
+            if not marked:
+                raise DerivedMaintenanceSupersededError(
+                    f"{kind} derived revision changed during dependency invalidation"
+                )
+
     def _vector_runtime(self):
         if self._vector_index is None:
             raise DerivedMaintenanceRuntimeUnavailableError(
@@ -277,6 +310,17 @@ class DerivedSearchMaintenanceApplication:
 
         after_memberships = self._accepted_memberships(object_id)
         after_membership_ids = {row["id"] for row in after_memberships}
+        changed = (
+            state.status is not DerivedState.READY
+            or after_membership_ids != before_membership_ids
+        )
+        if changed:
+            self._invalidate_downstream(
+                object_id,
+                current_version_id,
+                (self.EMBEDDING_KIND, self.VECTOR_INDEX_KIND),
+            )
+
         count, unique_count = self._membership_counts(object_id, version_id)
         return SearchRepresentationSyncResult(
             object_id=object_id,
@@ -284,10 +328,7 @@ class DerivedSearchMaintenanceApplication:
             revision=revision,
             representation_count=count,
             unique_representation_count=unique_count,
-            changed=(
-                state.status is not DerivedState.READY
-                or after_membership_ids != before_membership_ids
-            ),
+            changed=changed,
             state=DerivedState.READY.value,
         )
 
@@ -430,6 +471,13 @@ class DerivedSearchMaintenanceApplication:
         created_count = len(missing_ids)
         reused_count = len(representation_ids) - created_count
         changed = embedding_state.status is not DerivedState.READY or created_count > 0
+        if changed:
+            self._invalidate_downstream(
+                object_id,
+                current_version_id,
+                (self.VECTOR_INDEX_KIND,),
+            )
+
         return EmbeddingSyncResult(
             object_id=object_id,
             version_id=version_id,
