@@ -341,8 +341,10 @@ GET_OBJECT_RELATIONS = MCPToolContract(
     name="get_object_relations",
     title="Get SGOKB Object Relations",
     description=(
-        "Get deterministic one-hop Relations for a known Object and current or pinned accepted "
-        "Knowledge Version. This is Relation traversal, not free-text Object search."
+        "Get deterministic one-hop Relations for a known Object. Omit version_id to traverse the "
+        "current accepted Relation graph from either endpoint, even when the queried Object has no "
+        "Knowledge Version of its own. Provide version_id to pin the read to that Object's "
+        "accepted Version. Canonical Relation direction is never inverted."
     ),
     input_schema=_object_schema(
         {
@@ -358,12 +360,27 @@ GET_OBJECT_RELATIONS = MCPToolContract(
             "properties": {
                 "contract_version": {"type": "string"},
                 "object_id": _string(),
-                "resolved_version_id": _string(),
+                "scope": {
+                    "type": "string",
+                    "enum": ["current_relation_graph", "pinned_object_version"],
+                },
+                "requested_version_id": _nullable_string(),
+                "object_current_version_id": _nullable_string(),
+                "resolved_version_id": _nullable_string(),
                 "is_current": {"type": "boolean"},
                 "relations": {"type": "array", "items": {"type": "object"}},
                 "warnings": {"type": "array", "items": {"type": "string"}},
             },
-            "required": ["object_id", "resolved_version_id", "is_current", "relations"],
+            "required": [
+                "object_id",
+                "scope",
+                "requested_version_id",
+                "object_current_version_id",
+                "resolved_version_id",
+                "is_current",
+                "relations",
+                "warnings",
+            ],
             "additionalProperties": True,
         }
     ),
