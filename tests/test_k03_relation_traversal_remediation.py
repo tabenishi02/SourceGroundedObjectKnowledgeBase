@@ -1,49 +1,43 @@
+from test_result_validation import _build_and_stage, _receive, _valid_result
+
 from sgokb.application_read import KnowledgeReadApplication
+from sgokb.exchange import ObjectVersionImportService
 from sgokb.repository import Repository
 
 
-def _class_id(repo, key):
-    return repo.object_store.class_by_key(key).class_id
+def _import_grounded_relation(repo, tmp_path):
+    repo.object_store.register_relation_type(
+        "protagonist_of_work",
+        "作品の主人公",
+        relation_type_id="relation:protagonist_of_work",
+    )
+    target = repo.object_store.create_object("Target Work", "class:work")
+    audit, manifest, subject, _, evidence_id, _ = _build_and_stage(repo, tmp_path)
+    result = _valid_result(repo, manifest)
+    result["knowledge"]["relations"] = [
+        {
+            "local_key": "relation.protagonist_of_work",
+            "subject_object_id": subject,
+            "relation_type_id": "relation:protagonist_of_work",
+            "object_object_id": target,
+            "evidence": [{"evidence_id": evidence_id, "role": "supports"}],
+        }
+    ]
 
-
-def _accepted_version_with_relation(repo, subject, target, relation_type_id, version_id):
-    candidate = repo.version_store.begin_candidate(subject, None, version_id=version_id)
-    with repo.db:
-        repo.db.execute(
-            "INSERT INTO object_relations VALUES(?,?,?,?,?,?)",
-            (
-                "relation:k03:1",
-                candidate,
-                subject,
-                relation_type_id,
-                target,
-                "2026-10-26T00:00:00Z",
-            ),
-        )
-    repo.version_store.accept_candidate(candidate)
-    return candidate
+    service, receipt, incoming = _receive(repo, audit, manifest, tmp_path, result)
+    report = service.validate_receipt(receipt.receipt_id, incoming_root=incoming)
+    assert report.validation_state == "valid"
+    imported = ObjectVersionImportService(repo, audit).import_receipt(
+        receipt.receipt_id,
+        incoming_root=incoming,
+    )
+    return subject, target, evidence_id, imported.version_id
 
 
 def test_current_relation_graph_is_visible_from_both_endpoints_without_target_version(tmp_path):
     repo = Repository(tmp_path / "k03-relation-traversal.sqlite")
     try:
-        subject = repo.object_store.create_object(
-            "Subject Character", _class_id(repo, "character")
-        )
-        target = repo.object_store.create_object("Target Work", _class_id(repo, "work"))
-        relation_type = repo.object_store.register_relation_type(
-            "protagonist_of_work",
-            "作品の主人公",
-            relation_type_id="relation:protagonist_of_work",
-        )
-        version_1 = _accepted_version_with_relation(
-            repo,
-            subject,
-            target,
-            relation_type,
-            "version:k03:subject:v1",
-        )
-
+        subject, target, evidence_id, version_1 = _import_grounded_relation(repo, tmp_path)
         app = KnowledgeReadApplication(repo)
 
         outgoing = app.get_object_relations(subject)
@@ -66,9 +60,10 @@ def test_current_relation_graph_is_visible_from_both_endpoints_without_target_ve
         assert relation["perspective"] == "incoming"
         assert relation["subject_object_id"] == subject
         assert relation["object_object_id"] == target
-        assert relation["relation_type_id"] == relation_type
+        assert relation["relation_type_id"] == "relation:protagonist_of_work"
         assert relation["owner_object_id"] == subject
         assert relation["owner_version_id"] == version_1
+        assert relation["evidence"] == [{"evidence_id": evidence_id, "role": "supports"}]
     finally:
         repo.close()
 
@@ -76,22 +71,7 @@ def test_current_relation_graph_is_visible_from_both_endpoints_without_target_ve
 def test_current_relation_graph_excludes_relation_from_noncurrent_historical_version(tmp_path):
     repo = Repository(tmp_path / "k03-relation-history.sqlite")
     try:
-        subject = repo.object_store.create_object(
-            "Subject Character", _class_id(repo, "character")
-        )
-        target = repo.object_store.create_object("Target Work", _class_id(repo, "work"))
-        relation_type = repo.object_store.register_relation_type(
-            "protagonist_of_work",
-            "作品の主人公",
-            relation_type_id="relation:protagonist_of_work",
-        )
-        version_1 = _accepted_version_with_relation(
-            repo,
-            subject,
-            target,
-            relation_type,
-            "version:k03:subject:v1",
-        )
+        subject, target, _, version_1 = _import_grounded_relation(repo, tmp_path)
 
         version_2 = repo.version_store.begin_candidate(
             subject,
@@ -101,7 +81,6 @@ def test_current_relation_graph_excludes_relation_from_noncurrent_historical_ver
         repo.version_store.accept_candidate(version_2)
 
         app = KnowledgeReadApplication(repo)
-
         current_from_target = app.get_object_relations(target)
         pinned_from_subject = app.get_object_relations(subject, version_id=version_1)
 
