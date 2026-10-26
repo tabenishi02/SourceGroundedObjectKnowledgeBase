@@ -1,6 +1,6 @@
 # SGOKB 正常系運用受入試験 操作手順
 
-更新日: 2026-10-25
+更新日: 2026-10-27
 
 - 対象: SGOKB v1.0.0 current accepted architecture
 - 試験種別: 手動 / 運用受入試験手順
@@ -1274,6 +1274,30 @@ Compare-Object `
 
 # M. Lexical Search
 
+## M-00 Search Representation derived sync
+
+accepted VersionのpromotionはSearch Representationなどのderived stateをcurrent Versionへ`pending`としてqueueするが、Import transaction内ではderived artifact自体を生成しない。Knowledge本文をLexical Searchする前に、current VersionのSearch Representationを明示同期する。
+
+```powershell
+$DerivedBeforeM = sgokb --db $Db system derived status --object $ObjectAId | ConvertFrom-Json
+$DerivedBeforeM.data
+
+sgokb --db $Db system derived sync --object $ObjectAId
+if ($LASTEXITCODE -ne 0) { throw "M-00 failed" }
+
+$DerivedAfterM = sgokb --db $Db system derived status --object $ObjectAId | ConvertFrom-Json
+$DerivedAfterM.data
+```
+
+**確認**:
+
+- `search_representation.target_version_id = $Version2Id`。
+- `search_representation.status = ready`。
+- `search_representations.membership_count > 0`。
+- Core Lexical試験では`--semantic-runtime`を付けない。`embedding` / `vector_index`が`pending`のままでもM-00 failureとは扱わない。
+
+**PASS**: canonical accepted V2を変更せず、V2用Search Representationが生成され、Lexical Knowledge retrievalに使用可能になる。
+
 ## M-01 canonical nameをSearch
 
 ```powershell
@@ -1292,18 +1316,18 @@ sgokb --db $Db search $ObjectAAlias --mode lexical
 
 ## M-03 distinctive Knowledge termをSearch
 
-accepted V2 Knowledgeに存在するtermを選ぶ。
+M-00完了後、accepted V2 Knowledgeに存在するtermを選ぶ。
 
 ```powershell
 $KnowledgeTerm = "<distinctive accepted-knowledge term>"
 sgokb --db $Db search $KnowledgeTerm --mode lexical
 ```
 
-**PASS**: 期待するObjectが返る。
+**PASS**: 期待するObjectが`knowledge_lexical` channelから返り、current V2のKnowledge本文に由来するmatchを確認できる。
 
 ## M-04 Multi-object query
 
-少なくとも2つのtest Objectで共有されるtermを選ぶ。
+少なくとも2つのtest Objectで共有されるtermを選ぶ。対象Objectにaccepted Knowledgeがある場合は、必要なSearch Representation derived syncが完了していることを先に確認する。
 
 ```powershell
 sgokb --db $Db search "<shared term>" --mode lexical --limit 10
@@ -1324,7 +1348,7 @@ sgokb --db $Db search "<historical-specific term>" --mode lexical --version $Ver
 
 ## M-06 Cross-class lexical retrieval
 
-OBJ-A/B/CについてClassに関連するqueryを実行し、必要ならClass filterを使用する。
+OBJ-A/B/CについてClassに関連するqueryを実行し、必要ならClass filterを使用する。Knowledge本文をqueryするObjectについてはSearch Representation derived sync済みであることを確認する。
 
 ```powershell
 sgokb --db $Db search "<character term>" --mode lexical --primary-class character
@@ -1339,6 +1363,13 @@ sgokb --db $Db search "<concept term>" --mode lexical --primary-class concept
 # N. Semantic Search
 
 Nの前に、accepted local Embedding runtimeとQdrant runtimeが起動・構成済みであることを確認する。この手順ではfrozen local semantic compositionを使用し、cloud fallbackを有効化しない。
+
+Semantic readを開始する前に、対象current ObjectのSearch Representation / Embedding / Vector Index derived stateを同期する。
+
+```powershell
+sgokb --db $Db system derived sync --object $ObjectAId --semantic-runtime
+if ($LASTEXITCODE -ne 0) { throw "N preflight derived sync failed" }
+```
 
 ## N-01 Semantic runtimeを開始/確認
 
@@ -1881,15 +1912,17 @@ A-Sを個別に理解した後、SQLiteを手動編集したりboundaryをbypass
 20. object show --knowledge
 21. object relations when a valid applied Relation Type and supported Relation exist
 22. render
-23. lexical search
-24. semantic search with full runtime
-25. hybrid search with full runtime
-26. similar
-27. MCP get_object
-28. MCP search_objects
-29. MCP build_context
-30. system backup create
-31. final system integrity
+23. system derived sync --object <ObjectId>
+24. lexical search including one accepted-Knowledge term
+25. system derived sync --object <ObjectId> --semantic-runtime
+26. semantic search with full runtime
+27. hybrid search with full runtime
+28. similar
+29. MCP get_object
+30. MCP search_objects
+31. MCP build_context
+32. system backup create
+33. final system integrity
 ```
 
 各stepで返されたstable IDを記録し、identity chainが内部でconsistentなままであることを確認する。
@@ -1903,6 +1936,8 @@ A-Sを個別に理解した後、SQLiteを手動編集したりboundaryをbypass
 - Resultがexplicit Import前にvalidateおよびreviewされる。
 - Registry Proposalがsilent applyされず、必要な場合はexplicit accept/applyを経る。
 - accepted Knowledgeがhistorical accepted stateのoverwriteではなくVersionである。
+- accepted Version promotion後、Knowledge lexical readの前にcurrent VersionのSearch Representation derived syncを完了している。
+- semantic/hybrid/similarity readの前にconfigured semantic derived syncを完了している。
 - 代表的KnowledgeがEvidenceおよびRaw Source lineageまでtraceableである。
 - lexical、semantic、hybrid、similarity、render、MCP read surfaceが同じcanonical Object/Version semanticsへ解決される。
 - Relationを使用する場合、実在・適用済みのRelation Typeだけを参照する。
