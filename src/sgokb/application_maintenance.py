@@ -119,12 +119,39 @@ class DerivedSearchMaintenanceApplication:
     def _search_representation_state(self, object_id: str):
         return self._derived_state(object_id, self.SEARCH_REPRESENTATION_KIND)
 
-    def _current_memberships(self, object_id, version_id):
-        rows = self._repository.semantic_store.knowledge_search_memberships(
-            object_id=object_id, version_id=version_id
+    def _accepted_version_ids(self, object_id: str) -> tuple[str, ...]:
+        """Return the immutable accepted history owned by one Object.
+
+        Derived lifecycle state is anchored to the current Version revision, but the
+        search catalog is historical: an explicit ``--version`` read must remain able
+        to address every accepted Version. Candidate and abandoned Versions are never
+        part of this reconciliation set.
+        """
+
+        return tuple(
+            row["id"]
+            for row in self._repository.rows(
+                """SELECT v.id
+                   FROM object_versions v
+                   JOIN object_version_lifecycle l ON l.version_id=v.id
+                   WHERE v.object_id=? AND l.state='accepted'
+                   ORDER BY l.accepted_at,v.id""",
+                (object_id,),
+            )
         )
+
+    def _active_memberships(self, object_id: str, version_id: str | None = None):
+        rows = self._repository.semantic_store.knowledge_search_memberships(
+            object_id=object_id,
+            version_id=version_id,
+        )
+        accepted_version_ids = set(self._accepted_version_ids(object_id))
+        rows = tuple(row for row in rows if row["version_id"] in accepted_version_ids)
+
         active = self._repository.one(
-            "SELECT active_generation_id FROM knowledge_search_active_generation"
+            """SELECT active_generation_id
+               FROM knowledge_search_active_generation
+               WHERE scope='knowledge'"""
         )
         if active is None:
             return rows
@@ -137,6 +164,16 @@ class DerivedSearchMaintenanceApplication:
             )
         }
         return tuple(row for row in rows if row["id"] in ids)
+
+    def _current_memberships(self, object_id: str, version_id: str):
+        """Compatibility helper for the current target Version only."""
+
+        return self._active_memberships(object_id, version_id)
+
+    def _accepted_memberships(self, object_id: str):
+        """Return active-generation memberships across the Object's accepted history."""
+
+        return self._active_memberships(object_id)
 
     def _membership_counts(self, object_id: str, version_id: str) -> tuple[int, int]:
         memberships = self._current_memberships(object_id, version_id)
@@ -180,11 +217,13 @@ class DerivedSearchMaintenanceApplication:
         )
 
     def sync_search_representation(self, object_id: str) -> SearchRepresentationSyncResult:
-        """Synchronize Search Representations for one current accepted Object Version.
+        """Reconcile Search Representations for the Object's accepted Version history.
 
-        The operation is local and deterministic. It never initializes an embedding
-        provider or Vector backend. Completion is revision-guarded so an older attempt
-        cannot mark a newly promoted Version as ready.
+        Mutable derived lifecycle state remains anchored to the current Version and its
+        revision, while the materialized search catalog covers every accepted immutable
+        Version. This lets a later sync backfill a historical Version that was accepted
+        but never synchronized before a newer Version was promoted. The operation is
+        idempotent and completion remains revision-guarded.
         """
 
         state = self._search_representation_state(object_id)
@@ -194,22 +233,21 @@ class DerivedSearchMaintenanceApplication:
                 "search_representation target Version does not match the Object current Version"
             )
 
-        version_id = state.target_version_id
-        revision = state.revision
-        if state.status is DerivedState.READY:
-            count, unique_count = self._membership_counts(object_id, version_id)
-            return SearchRepresentationSyncResult(
-                object_id=object_id,
-                version_id=version_id,
-                revision=revision,
-                representation_count=count,
-                unique_representation_count=unique_count,
-                changed=False,
-                state=DerivedState.READY.value,
+        accepted_version_ids = self._accepted_version_ids(object_id)
+        if current_version_id not in accepted_version_ids:
+            raise DerivedMaintenanceError(
+                "Object current Version is not present in its accepted Version history"
             )
 
+        version_id = state.target_version_id
+        revision = state.revision
+        before_membership_ids = {
+            row["id"] for row in self._accepted_memberships(object_id)
+        }
+
         try:
-            self._builder.materialize_version(version_id)
+            for accepted_version_id in accepted_version_ids:
+                self._builder.materialize_version(accepted_version_id)
         except Exception as exc:
             marked = self._repository.version_store.mark_derived_state(
                 object_id,
@@ -237,6 +275,8 @@ class DerivedSearchMaintenanceApplication:
                 "Search Representation sync completed after its derived revision was superseded"
             )
 
+        after_memberships = self._accepted_memberships(object_id)
+        after_membership_ids = {row["id"] for row in after_memberships}
         count, unique_count = self._membership_counts(object_id, version_id)
         return SearchRepresentationSyncResult(
             object_id=object_id,
@@ -244,16 +284,21 @@ class DerivedSearchMaintenanceApplication:
             revision=revision,
             representation_count=count,
             unique_representation_count=unique_count,
-            changed=True,
+            changed=(
+                state.status is not DerivedState.READY
+                or after_membership_ids != before_membership_ids
+            ),
             state=DerivedState.READY.value,
         )
 
     def sync_embedding(self, object_id: str) -> EmbeddingSyncResult:
-        """Incrementally synchronize current Search Representations into one Embedding Space.
+        """Synchronize accepted-history Search Representations into one Embedding Space.
 
         The injected provider defines the active/frozen Embedding Space for this
-        maintenance attempt. Existing embeddings in that space are reused by
-        representation identity; only missing representations are sent to the local
+        maintenance attempt. Active-generation memberships across every accepted
+        Version are reconciled so historical lexical backfill cannot leave the Vector
+        catalog with missing Embeddings. Existing embeddings in that space are reused
+        by representation identity; only missing representations are sent to the local
         provider. A missing provider is an unattempted runtime condition and therefore
         leaves the derived state unchanged rather than marking it failed.
         """
@@ -284,11 +329,11 @@ class DerivedSearchMaintenanceApplication:
         revision = embedding_state.revision
         search_revision = search_state.revision
 
-        memberships = self._current_memberships(object_id, version_id)
+        memberships = self._accepted_memberships(object_id)
         representation_ids = tuple(dict.fromkeys(row["representation_id"] for row in memberships))
         if not representation_ids:
             raise DerivedMaintenanceError(
-                "Embedding sync found no Search Representation memberships for the current Version"
+                "Embedding sync found no Search Representation memberships for accepted history"
             )
 
         try:
@@ -350,7 +395,7 @@ class DerivedSearchMaintenanceApplication:
             ]
             if incomplete:
                 raise ValueError(
-                    "Embedding sync did not persist every current Search Representation; "
+                    "Embedding sync did not persist every accepted-history Search Representation; "
                     f"missing={len(incomplete)}"
                 )
         except DerivedMaintenanceSupersededError:
