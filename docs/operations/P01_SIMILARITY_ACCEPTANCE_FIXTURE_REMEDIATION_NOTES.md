@@ -2,11 +2,94 @@
 
 ## Purpose
 
-This note records operational findings discovered while remediating the P-01 same-class similarity acceptance fixture.
+This note records the P-01 same-class similarity acceptance-fixture remediation and the separate Object Evidence Package selection-quality finding discovered while preparing that fixture.
 
-The immediate P-01 blocker was the absence of another accepted `class:character` Object. During creation of OBJ-D, a separate weakness was observed in Object Evidence Package candidate selection. This finding is **not** itself a P-01 similarity-engine defect and should be tracked independently from the similarity acceptance remediation.
+The original P-01 blocker was the absence of another accepted `class:character` Object. P-01 default similarity is intentionally same-primary-class (`cross_class = false`), so the original acceptance dataset containing only OBJ-A / `character`, OBJ-B / `work`, and OBJ-C / `concept` could not satisfy the P-01 PASS condition without weakening the test to cross-class similarity.
+
+The remediation preserved the production similarity contract: a second accepted Character Object was created through the normal production workflow and synchronized into the configured semantic runtime/index.
+
+## P-01 fixture remediation
+
+The added same-class fixture is:
+
+- OBJ-D: `ベジータ(ドラゴンボール)`
+- Object ID: `8655f9ac-af89-48d7-afc1-56ed4f9cffb9`
+- Primary Class: `class:character`
+- Accepted Knowledge V1: `eee8745b-c2a0-4dbb-9e44-9e082917676e`
+
+OBJ-D was not inserted by direct SQLite mutation. It went through the normal workflow:
+
+1. Object Registry creation.
+2. Source import / process.
+3. confirmed Source/Object association.
+4. Evidence retrieval and selection.
+5. Object Evidence Package build / stage / preflight / export.
+6. external structured analysis under the Package `instructions.md` and schema.
+7. Result detect / receive / validate / human review.
+8. explicit Result Import with required review acknowledgement.
+9. current accepted Knowledge verification.
+10. semantic derived synchronization through the frozen local Embedding runtime and Qdrant.
+
+The accepted OBJ-D V1 derived sync completed with:
+
+- 37 Search Representations,
+- 37 newly created embeddings,
+- 37 Qdrant vector points,
+- all stages `ready`,
+- no SGOKB warnings.
+
+The unauthenticated Hugging Face Hub message observed during local model loading is a rate-limit / download-speed warning and was not an acceptance failure.
+
+## P-01 rerun result
+
+After OBJ-D became current accepted Knowledge and its semantic derived state was synchronized, the original P-01 command was rerun without `--cross-class`:
+
+```powershell
+sgokb --db $Db similar --object $ObjectAId --limit 10
+```
+
+Observed result:
+
+- source: OBJ-A `孫悟空(ドラゴンボール)` / `character`
+- `cross_class = false`
+- rank 1: OBJ-D `ベジータ(ドラゴンボール)` / `character`
+- cosine similarity: `0.7640100717544556`
+- warnings: none
+
+Therefore the original P-01 fixture blocker is resolved without weakening same-class similarity semantics.
+
+Formal classification:
+
+```text
+P01-R01 Remediation : COMPLETE / PASS
+P-01 Object similarity : PASS after remediation
+```
+
+## Section P follow-on results
+
+The same remediated fixture also supported the remaining Similarity acceptance checks:
+
+- P-02 Facet-specific similarity: PASS using Facet key `relationships`; OBJ-D returned rank 1 with `matched_facet = relationships`, score `0.79454505443573`.
+- P-04 Current / historical similarity: PASS; default scope resolved OBJ-A V2 `ca4741fd-1a50-4ffb-b318-bf097b2dc5be`, while explicit `--version` resolved historical OBJ-A V1 `b21556b2-ffb6-4baa-82e4-dc9a34d4bceb`.
+- P-05 Cross-class similarity: PASS; cross-class ranking returned OBJ-B `ドラゴンボール` / `work` rank 1 (`0.796532392501831`), OBJ-D / `character` rank 2 (`0.7640100717544556`), and OBJ-C `ツンデレ` / `concept` rank 3 (`0.5426591634750366`).
+- Human sanity review: PASS; the observed ordering was operationally plausible for this intentionally small acceptance dataset.
+
+The acceptance procedure is updated separately so that:
+
+- P-01 explicitly requires a same-primary-class current accepted comparison Object and must not be satisfied by adding `--cross-class`;
+- P-02 names the CLI argument as a Facet **key**, not a generic Facet ref;
+- P-03 evaluates the same-class P-01/P-02 ranking against the known same-class fixture;
+- P-05 owns cross-class ranking and its OBJ-B/OBJ-C sanity check.
+
+Section P can therefore be recorded as:
+
+```text
+Section P Similarity : COMPLETE / PASS after remediation
+```
 
 ## Observed Package selection weakness
+
+During creation of OBJ-D, a separate weakness was observed in Object Evidence Package candidate selection. This finding is **not** itself a P-01 similarity-engine defect and remains a follow-up item independent of the completed similarity acceptance remediation.
 
 When an Object has one or more `confirmed` Source/Object associations, Object Evidence retrieval assigns the `explicit_association` reason to Evidence from those Sources. In the observed OBJ-D run, confirmed-association Evidence received the same effective score contribution (`50`), leaving a large set of otherwise very different Evidence chunks tied at the same score.
 
@@ -46,7 +129,7 @@ One retrieved Evidence item from the existing Son Goku Pixiv Encyclopedia Source
 
 ## Current operational workaround used for OBJ-D
 
-For the P-01 fixture remediation, the following workaround is used without changing production selection semantics:
+For the completed P-01 fixture remediation, the following workaround was used without changing production selection semantics:
 
 1. Keep normal high-recall Evidence retrieval.
 2. Audit clearly suspicious retrieved Evidence manually.
@@ -56,7 +139,7 @@ For the P-01 fixture remediation, the following workaround is used without chang
 6. Pass those Evidence IDs to `package build` through repeated `--include-evidence` arguments so they are protected/manual-included in the Package build.
 7. Keep normal Package budget checks and normal validation/review/import workflow.
 
-This workaround is acceptance-fixture preparation only. It must not be interpreted as a change to the frozen production Package-selection contract.
+This workaround was acceptance-fixture preparation only. It must not be interpreted as a change to the frozen production Package-selection contract.
 
 ## Important runtime distinction discovered
 
@@ -66,11 +149,11 @@ This workaround is acceptance-fixture preparation only. It must not be interpret
 - Search / Similarity acceptance uses the frozen local semantic runtime built from the configured SGOKB embedding profile.
 - `package build` currently invokes Object Evidence retrieval with semantic selection disabled.
 
-For acceptance work, a separate embedding profile should not be introduced merely to improve Package selection. The OBJ-D remediation therefore uses the existing frozen runtime only for read-side Evidence ranking, then freezes the selected Evidence through the supported manual-include Package path.
+For acceptance work, a separate embedding profile should not be introduced merely to improve Package selection. The OBJ-D remediation therefore used the existing frozen runtime only for read-side Evidence ranking, then froze the selected Evidence through the supported manual-include Package path.
 
 ## Follow-up improvement task
 
-After P-01 acceptance is complete, evaluate a dedicated remediation for Object Evidence Package selection quality. The investigation should at minimum consider:
+Evaluate a dedicated remediation for Object Evidence Package selection quality. The investigation should at minimum consider:
 
 - whether `explicit_association` should remain a dominant binary boost or be combined with stronger within-Source quality/ranking signals;
 - whether source diversity should require a minimum content-quality threshold before forcing a Source representative;
@@ -82,10 +165,11 @@ After P-01 acceptance is complete, evaluate a dedicated remediation for Object E
 
 The remediation must preserve the existing high-recall retrieval principle: useful cross-Source Evidence must not be removed merely because it lacks an explicit Source/Object association.
 
-## Acceptance classification
+## Final acceptance classification
 
-This finding does **not** change the current P-01 blocker classification.
-
-- P-01 blocker: missing same-class accepted comparison Object / acceptance fixture deficiency.
-- Package selection weakness: separate follow-up improvement discovered while preparing OBJ-D.
-- Similarity engine: no failure established by this finding.
+- P-01 blocker: **resolved** by adding a same-class accepted comparison Object through the normal workflow.
+- P01-R01 remediation: **COMPLETE / PASS**.
+- P-01 Object similarity: **PASS after remediation**.
+- Section P Similarity: **COMPLETE / PASS after remediation**.
+- Package selection weakness: **separate follow-up improvement; unresolved by design in this remediation**.
+- Similarity engine: **no failure established**.
