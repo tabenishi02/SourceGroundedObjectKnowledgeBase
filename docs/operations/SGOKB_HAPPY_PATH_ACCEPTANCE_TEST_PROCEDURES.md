@@ -1,6 +1,6 @@
 # SGOKB 正常系運用受入試験 操作手順
 
-更新日: 2026-10-27
+更新日: 2026-10-28
 
 - 対象: SGOKB v1.0.0 current accepted architecture
 - 試験種別: 手動 / 運用受入試験手順
@@ -1537,30 +1537,63 @@ $Hybrid.data
 
 Similarityにはconfigured semantic runtime/index stateが必要である。
 
+Default Object similarityはsame-primary-class comparisonであり、`--cross-class`を指定しない限り異なるPrimary ClassのObjectはcandidateにならない。したがってP-01/P-02を開始する前に、OBJ-A以外のactiveなsame-primary-class Objectが少なくとも1件あり、そのObjectにcurrent accepted Knowledgeとsemantic derived stateが存在することを確認する。
+
+現在のacceptance fixtureでは、P01-R01 remediationで追加した次のObjectをsame-class comparison fixtureとして使用できる。
+
+```text
+OBJ-D: ベジータ(ドラゴンボール)
+Primary Class: character
+Object ID: 8655f9ac-af89-48d7-afc1-56ed4f9cffb9
+Accepted V1: eee8745b-c2a0-4dbb-9e44-9e082917676e
+```
+
+fresh acceptance DBから再実行する場合は、OBJ-Dまたは同等のsame-class fixtureを、Object作成 -> Source import/process -> association -> Evidence Package -> external Result -> validation/review/import -> semantic derived syncという通常production workflowで準備する。canonical SQLiteへの直接追加や、P-01を通す目的で`--cross-class`へ置き換えることは禁止する。
+
+詳細なremediation履歴は`docs/operations/P01_SIMILARITY_ACCEPTANCE_FIXTURE_REMEDIATION_NOTES.md`を参照する。
+
 ## P-01 Object similarity
 
 ```powershell
 sgokb --db $Db similar --object $ObjectAId --limit 10
 ```
 
-**PASS**: similar Objectが返り、source Object identityがsimilarity contractに従って扱われる。
+**PASS**:
+
+- similar Objectが1件以上返る。
+- source Object自身はcandidateとして返らない。
+- `cross_class = false`のまま、OBJ-Aと同じPrimary Classのcurrent accepted Objectが返る。
+- source Object identityがsimilarity contractに従って扱われる。
 
 ## P-02 Facet-specific similarity
 
-OBJ-Aに実在するFacetを選ぶ。
+OBJ-Aとsame-class comparison fixtureの両方にcontentが存在するFacetを選び、**Facet ID/refではなくFacet key**を`--facet`へ渡す。現在のacceptance fixtureでは`relationships`を使用できる。
 
 ```powershell
 sgokb --db $Db similar `
-  --object $ObjectAId --facet <facet-ref> --limit 10
+  --object $ObjectAId --facet <facet-key> --limit 10
 ```
 
-**PASS**: facet-specific comparisonが成功し、requested Facetを使用する。
+例:
+
+```powershell
+sgokb --db $Db similar `
+  --object $ObjectAId --facet relationships --limit 10
+```
+
+**PASS**:
+
+- facet-specific comparisonが成功する。
+- responseの`facet`とresultの`matched_facet`がrequested Facet keyと一致する。
+- overall similarityへfallbackせず、requested Facet同士のcomparisonとしてsame-class candidateが返る。
 
 ## P-03 rankingのHuman sanity check
 
-上位resultをOBJ-B/OBJ-Cの既知contentとselected small datasetに照らして比較する。
+P-01/P-02で返されたsame-class resultを、comparison fixtureの既知contentとselected small datasetに照らして確認する。
 
-**PASS**: orderingがoperational useとしてsemantically plausibleである。これはsanity checkでありPhase N formal ANN-quality benchmarkではない。
+現在のacceptance fixtureでは、孫悟空に対してベジータがCharacter同士のsimilar resultとして返ることがsemantically plausibleかを確認する。OBJ-B / OBJ-CはPrimary Classが異なるため、default same-classのP-03判定材料として要求しない。OBJ-B / OBJ-Cを含むcross-class rankingのsanity checkはP-05で行う。
+
+**PASS**: same-class orderingがoperational useとしてsemantically plausibleである。これはsanity checkでありPhase N formal ANN-quality benchmarkではない。
 
 ## P-04 Current Version similarity
 
@@ -1583,7 +1616,14 @@ sgokb --db $Db similar `
   --object $ObjectAId --cross-class --limit 10
 ```
 
-**PASS**: current similarity semanticsに従いcross-class candidateを返せる。
+**PASS**:
+
+- `cross_class = true`としてcurrent similarity semanticsに従いcross-class candidateを返せる。
+- current acceptance datasetでは、異なるPrimary Classを持つOBJ-B / OBJ-Cがcandidateとして評価可能である。
+- same-class fixtureを含めた上位orderingを既知contentと照らし、operational sanity checkとしてsemantically plausibleである。
+- exact scoreや固定rank値そのものはacceptance contractにしない。
+
+2026-10-28のacceptance runでは、original datasetにOBJ-A以外の`character`が存在しなかったためP-01が`BLOCKED / NOT RUN TO PASS CONDITION`となった。その後、OBJ-Dをnormal production workflowで追加してP01-R01を実施し、P-01〜P-05はすべてPASSした。正式classificationは`Section P Similarity = COMPLETE / PASS after remediation`である。
 
 ---
 
