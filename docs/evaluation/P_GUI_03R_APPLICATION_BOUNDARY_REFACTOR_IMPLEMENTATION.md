@@ -1,40 +1,40 @@
 # P-GUI-03R — Transport-neutral Application Boundary Refactor Implementation Result
 
-Updated: 2026-10-28
+Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-03R [P0] Transport-neutral Application boundary refactor implementation`
-- Status: **Implemented / Dynamic Verification Pending**
+- Status: **Complete / Accepted**
 - Design authority: `docs/design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md`
 - Decision authority: `docs/decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md`
+- Final R9 acceptance: `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
 
 ## 1. Result summary
 
-R1-R8 implementation slices are complete in `main`.
+All implementation and verification slices are complete in `main`.
 
 ```text
-R1 Shared operation/error contracts       Implemented
-R2 Shared runtime factory                 Implemented
-R3 Source/Object/Registry boundaries      Implemented
-R4 Evidence/Version/Render boundaries     Implemented
-R5 Package/Result boundaries              Implemented
-R6 System/Recovery boundary               Implemented
-R7 Operator dispatcher/session            Implemented
-R8 CLI cutover                            Implemented
-R9 Regression / semantic equivalence      Test assets + static review complete;
-                                          dynamic execution pending
+R1 Shared operation/error contracts       Complete
+R2 Shared runtime factory                 Complete
+R3 Source/Object/Registry boundaries      Complete
+R4 Evidence/Version/Render boundaries     Complete
+R5 Package/Result boundaries              Complete
+R6 System/Recovery boundary               Complete
+R7 Operator dispatcher/session            Complete
+R8 CLI cutover                            Complete
+R9 Regression / semantic equivalence      Complete / PASS
 ```
 
 No PySide6 widget, P-RAW schema, Qdrant auto-start, MCP write capability or canonical schema redesign was introduced.
 
 ## 2. Implemented shared boundary
 
-The operator path is now:
+The accepted operator path is:
 
 ```text
 CLI parser / renderer ─┐
                        │
-future GUI worker ─────┼─> OperationRequest
+GUI worker ────────────┼─> OperationRequest
                        │       ↓
                        │   OperatorSession
                        │       ↓
@@ -47,9 +47,9 @@ MCP read transport ────┘  (read boundary remains separate)
 
 `mcp.serve` remains a transport lifecycle operation and is intentionally excluded from synchronous `OperatorSession.execute()`.
 
-## 3. New shared modules
+## 3. Shared modules
 
-Added:
+Implemented modules include:
 
 ```text
 src/sgokb/operation_contracts.py
@@ -64,33 +64,13 @@ src/sgokb/application_system.py
 src/sgokb/application_operator.py
 ```
 
-### Operation contract
+`operation_contracts.py` defines transport-neutral `OperationRequest`, `OperationOutcome`, `OperationFailure`, shared failure categories and exception normalization. CLI exit-code constants remain outside the Application layer.
 
-`operation_contracts.py` defines:
-
-- `OperationRequest`
-- `OperationOutcome`
-- `OperationFailure`
-- transport-neutral error categories
-- shared exception normalization
-
-CLI exit-code constants are not imported into the Application layer.
-
-### Runtime factory
-
-`runtime.py` defines:
-
-- `RuntimeConfig`
-- `RuntimeFactory`
-- local-only Embedding + Qdrant construction
-- repository-aware generation routing
-- lazy noncanonical runtime caching
-
-No cloud fallback was added.
+`runtime.py` defines `RuntimeConfig` and `RuntimeFactory`, keeps local-only semantic runtime construction, supports repository-aware generation routing and does not introduce a cloud fallback.
 
 ## 4. Public operation inventory
 
-`application_operator.py` contains the complete public inventory.
+`application_operator.py` contains the complete public inventory:
 
 ```text
 PUBLIC_OPERATION_IDS    = 67
@@ -100,53 +80,33 @@ SHARED_OPERATION_IDS    = 66
 
 All 66 synchronous public operations have an `OperatorSession` execution path that does not require importing `sgokb.cli` presentation code.
 
-## 5. Domain extraction
+## 5. Domain extraction and compatibility
 
-### Source
+The refactor moved CLI-owned orchestration into shared Applications while retaining established semantics:
 
-`SourceOperatorApplication` owns:
+- Source status/snapshots/effective selection/batch import/batch process;
+- Object combined detail and exact selector behavior;
+- Registry reads and Proposal lifecycle;
+- Evidence show/provenance/search reads;
+- Version target resolution and diff;
+- Render target resolution;
+- Package build/transfer and audit sequencing;
+- Result receipt/validation/review/import sequencing;
+- System derived/index/backup operations;
+- path-only recovery verify/restore behavior.
 
-- status / snapshots
-- effective Snapshot / Run selection
-- batch import
-- batch process
-- item-level partial failure result
+Compatibility review and dynamic regression confirmed preservation of:
 
-Single-item canonical behavior still delegates to the established `Application` methods.
-
-### Object / Registry
-
-`ObjectAdminApplication.show()` now owns registry + accepted Knowledge combined detail semantics.
-
-Relation Type SQL was moved into `ObjectRepository`; `RegistryOperatorApplication` exposes registry reads and Proposal lifecycle. Public Relation Type payload continues to use the historical `id` field rather than leaking the internal dataclass field name `relation_type_id`.
-
-Proposal accept/reject remains separate from apply.
-
-### Evidence / Version / Render
-
-Dedicated facades now own:
-
-- Evidence show/provenance/search operator reads
-- Version ID -> Object resolution and Version diff
-- Object -> current Version render target resolution
-
-CLI presentation code no longer performs those SQL/target-resolution steps.
-
-### Package / Result
-
-`PackageExchangeApplication` owns Package Builder / Transfer sequencing plus stage/export audit writes.
-
-`ResultExchangeApplication` owns receipt, validation, review and import service composition.
-
-Existing Package / Result v1 semantics are unchanged; P-RAW remains a later task.
-
-### System / Recovery
-
-`SystemOperatorApplication` owns repository-bound status, integrity, derived/index and backup operations.
-
-`RecoveryOperatorApplication` owns path-only verify/restore operations that must run without first opening the target workspace database.
-
-Overwrite acknowledgement and composite restore safety behavior remain delegated to the existing recovery implementation.
+- `sgokb.cli/1.0` envelope;
+- exit-code categories 1-8;
+- Source batch partial semantics;
+- Package/Result blocked behavior;
+- hybrid degradation warnings and `--require-full-runtime` fail-closed behavior;
+- no semantic cloud fallback;
+- Registry Proposal separation;
+- Relation Type public `id` field;
+- restore acknowledgement and composite recovery safety;
+- historical derived-runtime unavailable normalization.
 
 ## 6. CLI cutover
 
@@ -160,51 +120,13 @@ argparse
   -> existing sgokb.cli/1.0 renderer / exit code
 ```
 
-Presentation-only Markdown formatting for Result review and Version diff remains in the CLI adapter.
+Presentation-only Markdown formatting remains in the CLI adapter. `src/sgokb/cli/runtime.py` remains a compatibility shim over the shared `RuntimeFactory`, preserving historical test patch points without owning runtime policy.
 
-`mcp.serve` remains in the CLI transport adapter because its stdio lifecycle is not a synchronous canonical operation.
+## 7. Regression asset
 
-`src/sgokb/cli/runtime.py` remains as a compatibility shim over the shared `RuntimeFactory`, preserving patch points used by existing CLI tests while removing ownership of the runtime policy from the CLI namespace.
+`tests/test_p_gui_03r_operator_boundary.py` covers the explicit inventory, shared-operation count, transport-only `mcp.serve`, direct operator execution, failure normalization and CLI envelope preservation.
 
-## 7. Compatibility preservation reviewed
-
-Static review checked the following existing contracts:
-
-- `sgokb.cli/1.0` success/error envelope remains owned by `cli/contracts.py`.
-- exit categories remain mapped to existing exit codes 1-8.
-- Source import/process partial batches map to exit 8 through `OperationOutcome.state=partial`.
-- Package preflight blocked maps to exit 4 and preserves the existing warning.
-- Result validation that does not reach `valid` maps to exit 4 and preserves the existing warning.
-- Hybrid degraded channels remain warnings.
-- `--require-full-runtime` remains fail-closed.
-- no semantic runtime cloud fallback was introduced.
-- Object exact selector/ambiguity semantics remain in `ObjectAdminApplication`.
-- Package stage/export audit sequencing moved intact to the Package Application facade.
-- Result validation/review/import sequencing moved intact to the Result Application facade.
-- restore plan/apply and overwrite acknowledgement remain unchanged.
-- Registry Proposal accept/reject/apply lifecycle remains separate.
-- Relation Type public payload retains the prior `id` key.
-- shared GUI-facing defaults use the same canonical constants as CLI for Package build, Result incoming and Render output.
-
-## 8. Regression test asset
-
-Added:
-
-```text
-tests/test_p_gui_03r_operator_boundary.py
-```
-
-It covers at minimum:
-
-- exact public inventory count: 67
-- exact shared synchronous count: 66
-- `mcp.serve` transport-only classification
-- direct Object write/read through `OperatorSession` without CLI import
-- selector failure normalization
-- CLI `sgokb.cli/1.0` envelope after cutover
-- synchronous rejection of `mcp.serve`
-
-Existing high-value regression suites reviewed for compatibility include:
+High-value existing suites retained as compatibility authority include:
 
 ```text
 tests/test_m01_cli.py
@@ -214,35 +136,40 @@ tests/test_j01_application_semantics.py
 tests/test_m05_historical_derived_reconciliation.py
 ```
 
-`test_m03_standard_workflow.py` remains the important public CLI vertical slice covering Source -> Evidence -> Package -> Result -> Import -> Render -> Search and MCP read.
+## 8. Dynamic acceptance evidence
 
-## 9. Dynamic verification status
-
-The current ChatGPT execution environment used for this repository edit provides GitHub file operations but not an authorized Python/pytest execution environment for this local repository. No GitHub Actions workflow existed in the repository at this task boundary, and this task did not add unrelated CI infrastructure solely to manufacture a PASS result.
-
-Therefore **no dynamic pytest/ruff PASS is claimed**.
-
-Required verification commands on the project environment are:
+Final accepted execution evidence on Windows / Python 3.10.6:
 
 ```text
-python -m pytest tests/test_p_gui_03r_operator_boundary.py tests/test_m01_cli.py
-python -m pytest tests/test_m03_standard_workflow.py
-python -m pytest
-python -m ruff check src tests
+operator-boundary + M01 CLI = 18 / 18 PASS
+M03 standard workflow       = 2 / 2 PASS
+Phase N closure audit       = 11 / 11 PASS
+full pytest                 = 795 / 795 PASS
+ruff                        = All checks passed!
 ```
 
-The M03 MCP test may require the existing optional MCP dependency as before.
+The full regression emitted two local-Qdrant capability warnings only; there were no failures or errors.
 
-## 10. Completion disposition
+R9 historical attempts are retained in:
 
-Implementation completion criteria are satisfied for R1-R8:
+- `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
+- `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_02.md`
+- `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_03.md`
+- `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
+
+Attempt 04 is the final acceptance authority.
+
+## 9. Completion disposition
+
+All P-GUI-03R completion criteria are satisfied:
 
 - 67 public operation IDs inventoried;
 - 66 synchronous operations have a shared non-CLI execution path;
 - MCP stdio remains transport-specific;
 - CLI business orchestration identified by P-GUI-03 has been moved to shared Applications/session;
-- GUI can target `OperatorSession` without importing CLI presentation modules.
+- GUI can target `OperatorSession` without importing CLI presentation modules;
+- full dynamic regression and Ruff gates pass.
 
-Formal task closure remains **Verification Pending** until the regression commands above pass on an executable project environment.
+P-GUI-03R is formally **Complete / Accepted**.
 
-P-GUI-04 canonical backend wiring must remain gated on that verification result. Presentation-only planning is not blocked.
+P-GUI-04 canonical backend wiring is unblocked and is the next GUI task.
