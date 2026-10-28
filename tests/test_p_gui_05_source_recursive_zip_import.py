@@ -79,10 +79,18 @@ def test_source_folder_dialog_imports_all_zip_files_recursively(
         timestamp="2026-01-02T00:00:00.000Z",
     )
 
-    first_target = import_root / "first.zip"
-    second_target = nested / "SECOND.ZIP"
+    # WebCaptureImporter intentionally requires the canonical bundle filename
+    # encoded by manifest captured_at + capture_id. Preserve that validation
+    # while placing valid bundles at different recursive depths.
+    first_target = import_root / first_bundle.name
+    second_target = nested / second_bundle.name
     shutil.copy2(first_bundle, first_target)
     shutil.copy2(second_bundle, second_target)
+
+    # The folder scan targets every ZIP. Invalid ZIPs are attempted and reported
+    # as partial failures without preventing valid bundles from importing.
+    invalid_zip = import_root / "not-a-webcapture.zip"
+    invalid_zip.write_text("not a capture bundle", encoding="utf-8")
     (import_root / "ignore.txt").write_text("not a capture bundle", encoding="utf-8")
 
     monkeypatch.setattr(
@@ -106,6 +114,7 @@ def test_source_folder_dialog_imports_all_zip_files_recursively(
             for row in range(page.snapshot_model.rowCount())
         }
         assert len(snapshot_ids) == 2
+        assert str(invalid_zip) in page.operation_status.toolTip()
 
         repository = Repository(database)
         try:
