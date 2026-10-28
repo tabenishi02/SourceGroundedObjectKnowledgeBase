@@ -48,8 +48,8 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-01 | **Complete / Accepted** | GUI requirements / compatibility contract |
 | GUI | P-GUI-02 | **Complete / Accepted** | PySide6 architecture / packaging / license |
 | GUI | P-GUI-03 | **Complete / Accepted** | Transport-neutral Application boundary audit / refactor plan |
-| GUI | P-GUI-03R | **Next / Not Started** | Shared Application/operator boundary refactor implementation |
-| GUI | P-GUI-04 | **Blocked by P-GUI-03R for backend wiring** | GUI shell / Workspace / navigation |
+| GUI | P-GUI-03R | **Implemented / Dynamic Verification Pending** | Shared Application/operator boundary refactor |
+| GUI | P-GUI-04 | **Blocked by P-GUI-03R regression gate for backend wiring** | GUI shell / Workspace / navigation |
 | GUI | P-GUI-05 | Not Started | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | Not Started | Search / Similarity / Registry / Version GUI |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
@@ -81,15 +81,15 @@ Authority:
 P-GUI-02 fixed the Desktop technical baseline:
 
 ```text
-Framework            = PySide6
-UI                    = Qt Widgets
-Backend              = QObject worker on dedicated QThread
-DB                    = Repository per operation in worker thread
-Operation concurrency = serialized per Workspace initially
-Packaging             = pyside6-deploy / Nuitka
-Mode                  = standalone directory / portable ZIP
-Onefile               = not baseline
-Static Qt linking     = prohibited
+Framework             = PySide6
+UI                     = Qt Widgets
+Backend                = QObject worker on dedicated QThread
+DB                     = Repository per operation in worker thread
+Operation concurrency  = serialized per Workspace initially
+Packaging              = pyside6-deploy / Nuitka
+Mode                   = standalone directory / portable ZIP
+Onefile                = not baseline
+Static Qt linking      = prohibited
 ```
 
 Authority:
@@ -105,8 +105,6 @@ Public OSS publication remains blocked until SGOKB itself receives an explicit p
 
 P-GUI-03 audited the implementation boundary for all 67 public operations.
 
-Result:
-
 ```text
 A READY                    25
 B ORCHESTRATION EXTRACTION 26
@@ -115,13 +113,6 @@ D TRANSPORT-SPECIFIC        1
 --------------------------------
 Total                      67
 ```
-
-Interpretation:
-
-- 25 operations already have a suitable Application boundary.
-- 26 have reusable lower-level services but CLI-owned orchestration/audit/target/batch behavior must be extracted.
-- 15 still depend on CLI/direct Repository logic that needs a transport-neutral Application facade.
-- `mcp serve` is the sole transport-specific public operation and remains outside normal synchronous OperatorSession dispatch.
 
 Accepted target:
 
@@ -135,34 +126,82 @@ GUI BackendWorker ───┼─> OperatorSession
 MCP read adapter ────┘
 ```
 
-P-GUI-03 authority:
+Authority:
 
 - `docs/evaluation/P_GUI_03_APPLICATION_BOUNDARY_AUDIT.md`
 - `docs/reference/GUI_APPLICATION_BOUNDARY_MATRIX.md`
 - `docs/decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md`
 - `docs/design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md`
 
-The audit found that proceeding directly to broad P-GUI-04 backend wiring would require duplication or CLI coupling. Therefore `P-GUI-03R` is inserted as a required P0 implementation remediation.
+## P-GUI-03R implementation state
 
-## P-GUI-03R gate
-
-`P-GUI-03R` implements the accepted design without intended public CLI semantic change.
-
-Required slices:
+P-GUI-03R has implemented the accepted boundary through R1-R8.
 
 ```text
-R1 shared operation/error contracts
-R2 shared runtime factory
-R3 Source/Object/Registry boundaries
-R4 Evidence/Version/Render boundaries
-R5 Package/Result boundaries
-R6 System/Recovery boundary
-R7 Operator dispatcher/session
-R8 CLI cutover
-R9 regression / semantic-equivalence acceptance
+R1 shared operation/error contracts       Implemented
+R2 shared runtime factory                 Implemented
+R3 Source/Object/Registry boundaries      Implemented
+R4 Evidence/Version/Render boundaries     Implemented
+R5 Package/Result boundaries              Implemented
+R6 System/Recovery boundary               Implemented
+R7 Operator dispatcher/session            Implemented
+R8 CLI cutover                            Implemented
+R9 regression / semantic-equivalence      Test asset + static review complete;
+                                          dynamic execution pending
 ```
 
-P-GUI-04 may perform presentation-only preparation in isolation, but canonical operation wiring is blocked until P-GUI-03R passes.
+Current public boundary:
+
+```text
+PUBLIC_OPERATION_IDS    = 67
+SHARED_OPERATION_IDS    = 66
+TRANSPORT_OPERATION_IDS = 1 (mcp.serve)
+```
+
+The CLI synchronous path is now:
+
+```text
+argparse
+  -> OperationRequest
+  -> OperatorSession
+  -> OperationOutcome / OperationFailure
+  -> existing sgokb.cli/1.0 rendering / exit codes
+```
+
+Major implementation artifacts:
+
+```text
+src/sgokb/operation_contracts.py
+src/sgokb/runtime.py
+src/sgokb/application_source.py
+src/sgokb/application_registry.py
+src/sgokb/application_evidence.py
+src/sgokb/application_version.py
+src/sgokb/application_render.py
+src/sgokb/application_exchange.py
+src/sgokb/application_system.py
+src/sgokb/application_operator.py
+src/sgokb/cli/main.py
+src/sgokb/cli/runtime.py
+tests/test_p_gui_03r_operator_boundary.py
+```
+
+Implementation result / verification authority:
+
+- `docs/evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`
+
+Dynamic pytest/ruff execution has not been performed from the current repository-edit environment, so no PASS is claimed yet.
+
+Required gate:
+
+```text
+python -m pytest tests/test_p_gui_03r_operator_boundary.py tests/test_m01_cli.py
+python -m pytest tests/test_m03_standard_workflow.py
+python -m pytest
+python -m ruff check src tests
+```
+
+P-GUI-04 canonical backend wiring remains blocked until those regressions pass. No unrelated CI workflow was introduced solely to manufacture a verification result.
 
 ## Sequencing
 
@@ -173,7 +212,9 @@ P-GUI-02 Complete
         ↓
 P-GUI-03 Complete
         ↓
-P-GUI-03R Next
+P-GUI-03R Implemented / Verification Pending
+        ↓ dynamic regression PASS
+P-GUI-03R Complete / Accepted
         ↓
 P-GUI-04 GUI shell / Workspace / navigation
         ↓
@@ -190,7 +231,7 @@ P-GUI-10 / P-CLOSE-01
 
 ## Current authority boundary
 
-Phase P is still in development. Current implemented system semantics remain governed by:
+Phase P is still in development. Current released system semantics remain governed by:
 
 - `docs/design/SGOKB_CURRENT_ARCHITECTURE.md`
 - `docs/decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md`
@@ -198,10 +239,10 @@ Phase P is still in development. Current implemented system semantics remain gov
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-01..03 documents are accepted future GUI/refactor contracts and must not be represented as already implemented runtime capability.
+P-GUI-03R code is now implemented on `main`, but it is not accepted as a completed compatibility refactor until its dynamic regression gate passes.
 
 ## Next
 
 ```text
-P-GUI-03R [P0] Transport-neutral Application boundary refactor implementation
+P-GUI-03R dynamic regression / semantic-equivalence verification
 ```
