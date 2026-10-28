@@ -8,7 +8,12 @@ from .application_read import KnowledgeReadApplication
 
 
 class EvidenceReadApplication:
-    def __init__(self, repository, *, read_application: KnowledgeReadApplication | None = None) -> None:
+    def __init__(
+        self,
+        repository,
+        *,
+        read_application: KnowledgeReadApplication | None = None,
+    ) -> None:
         self.repository = repository
         self.read = read_application or KnowledgeReadApplication(repository)
 
