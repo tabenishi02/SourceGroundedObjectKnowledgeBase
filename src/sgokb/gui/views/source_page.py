@@ -21,7 +21,6 @@ from PySide6.QtWidgets import (
     QTableView,
     QTextEdit,
     QVBoxLayout,
-    QWidget,
 )
 
 from sgokb.gui.models import DictTableModel
