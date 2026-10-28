@@ -26,7 +26,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-02 | **Complete / Accepted** | PySide6 architecture / packaging / license |
 | GUI | P-GUI-03 | **Complete / Accepted** | Transport-neutral Application boundary audit / refactor plan |
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
-| GUI | P-GUI-04 | **Implemented / Dynamic Verification Pending** | GUI shell / Workspace / navigation foundation |
+| GUI | P-GUI-04 | **Automated Verification PASS / Interactive Smoke Pending** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Blocked by P-GUI-04 acceptance** | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | Not Started | Search / Similarity / Registry / Version GUI |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
@@ -137,7 +137,7 @@ Final acceptance authority:
 
 - `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
 
-## P-GUI-04 implementation state
+## P-GUI-04 implementation and automated verification
 
 The GUI foundation is implemented on `main`.
 
@@ -173,18 +173,22 @@ Settings
 
 Workspace open/create is validated by executing `system.status` through `OperatorSession` on the backend QThread. Candidate failures do not replace the active Workspace. No GUI direct SQL or CLI-subprocess business path was introduced.
 
-Automated acceptance assets:
+Automated acceptance result:
 
 ```text
-tests/test_p_gui_04_optional_boundary.py
-tests/test_p_gui_04_shell.py
+sgokb-gui entrypoint = resolved
+focused pytest       = 5 / 5 PASS
+full pytest          = 800 / 800 PASS
+ruff                 = All checks passed!
 ```
 
-Implementation authority:
+The full regression emitted only the existing two local-Qdrant capability warnings and no failures/errors.
+
+Implementation / acceptance authority:
 
 - `docs/evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md`
 
-Dynamic verification is still required with the `gui` extra installed. P-GUI-04 is not yet `Complete / Accepted`.
+The only remaining P-GUI-04 acceptance gate is interactive GUI smoke. P-GUI-04 is therefore not yet `Complete / Accepted`.
 
 ## Sequencing
 
@@ -197,8 +201,8 @@ P-GUI-03 Complete
         ↓
 P-GUI-03R Complete / Accepted
         ↓
-P-GUI-04 Implemented / Dynamic Verification Pending   <- CURRENT
-        ↓ acceptance PASS
+P-GUI-04 Automated Verification PASS / Interactive Smoke Pending   <- CURRENT
+        ↓ interactive smoke PASS
 P-GUI-04 Complete / Accepted
         ↓
 P-GUI-05 / 06 / 07 core GUI
@@ -222,10 +226,10 @@ Phase P remains in development. Current released system semantics continue to be
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-03R is an accepted development baseline. P-GUI-04 GUI code is implemented but remains unaccepted until its dynamic and interactive gates pass.
+P-GUI-03R is an accepted development baseline. P-GUI-04 GUI code has passed automated verification but remains unaccepted until the interactive smoke gate passes.
 
 ## Next
 
 ```text
-P-GUI-04 — dynamic pytest / Ruff / interactive GUI smoke acceptance
+P-GUI-04 — interactive GUI smoke acceptance
 ```
