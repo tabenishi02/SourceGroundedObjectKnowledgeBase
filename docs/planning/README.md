@@ -24,7 +24,8 @@ P-GUI-01 = Complete / Accepted
 P-GUI-02 = Complete / Accepted
 P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
-Next = P-GUI-04 — GUI shell / Workspace / navigation
+P-GUI-04 = Implemented / Dynamic Verification Pending
+Next = P-GUI-04 dynamic pytest / Ruff / interactive GUI smoke acceptance
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -84,6 +85,14 @@ full pytest                 = 795 / 795 PASS
 ruff                        = All checks passed!
 ```
 
+### P-GUI-04 implementation authority
+
+- Implementation result / acceptance procedure: [`../evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md`](../evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md)
+
+Current implementation includes the optional `.[gui]` dependency, `sgokb-gui` launcher, QMainWindow shell, the accepted 11-item navigation, presentation-only QSettings, serialized QThread backend lane, and Workspace validation through `OperatorSession(system.status)`.
+
+P-GUI-04 is not accepted until the PySide6 pytest/Ruff and interactive GUI smoke gates pass.
+
 ### Current released system
 
 Phase P is still in development. Released v1.1.0 semantics remain governed by:
@@ -95,7 +104,7 @@ Phase P is still in development. Released v1.1.0 semantics remain governed by:
 - 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
 - Current release note: [`../releases/v1.1.0.md`](../releases/v1.1.0.md)
 
-P-GUI-03R is now an accepted development baseline for subsequent Phase P GUI implementation. It does not itself advance the formal release version.
+P-GUI-03R is an accepted development baseline. P-GUI-04 is implemented development code pending acceptance and does not advance the formal release version.
 
 ## Phase P GUI decisions so far
 
@@ -126,11 +135,11 @@ Qt linking            = dynamic / separate shared libraries
 One-file              = not initial baseline
 ```
 
-GUI dependencyはbase CLI installから分離し、planned package surfaceは `.[gui]` + `sgokb-gui` です。
+GUI dependencyはbase CLI installから分離され、package surfaceは `.[gui]` + `sgokb-gui` として実装済みです。
 
 現repositoryにはroot `LICENSE`がないため、private developmentは継続できますがpublic OSS publicationはproject-level license Decisionまでblockとします。
 
-### Application boundary — P-GUI-03 / P-GUI-03R
+### Application boundary — P-GUI-03 / P-GUI-03R / P-GUI-04
 
 P-GUI-03 audit result:
 
@@ -155,15 +164,7 @@ Application facades
 Repository / Retrieval / Exchange
 ```
 
-Current inventory:
-
-```text
-PUBLIC_OPERATION_IDS    = 67
-SHARED_OPERATION_IDS    = 66
-TRANSPORT_OPERATION_IDS = 1 (mcp.serve)
-```
-
-P-GUI-04 may now wire the GUI backend directly to this accepted shared boundary without relying on CLI presentation modules.
+P-GUI-04 now wires the desktop foundation to this boundary through a queued `BackendWorker` on a dedicated QThread. Workspace DB probing uses `system.status`; Views/Controllers do not open SQLite directly.
 
 ## Workstream B — RAW Grounding
 
@@ -219,5 +220,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-GUI-04 — GUI shell / Workspace / navigation
+P-GUI-04 — dynamic pytest / Ruff / interactive GUI smoke acceptance
 ```
