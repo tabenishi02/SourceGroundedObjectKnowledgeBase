@@ -26,7 +26,8 @@ P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
 P-GUI-05 = Complete / Accepted
-Next = P-GUI-06 Search / Similarity / Registry / Version GUI
+P-GUI-06 = Implemented / Dynamic Verification Pending
+Next = P-GUI-06 focused/full/Ruff verification, then interactive GUI smoke acceptance
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -139,6 +140,53 @@ P-GUI-05 = Complete / Accepted
 
 The accepted Source surface includes recursive folder ZIP discovery/import while retaining existing WebCaptureImporter validation. The accepted Object surface includes registry-backed Class selectors using stable `class_id` values.
 
+### P-GUI-06 implementation authority
+
+- Implementation / verification procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
+
+P-GUI-06 replaces the `Search` and `Registry` placeholders with real operator-backed pages.
+Version / Diff / Render are grouped under Registry; Similarity is grouped under Search.
+
+Operation wiring:
+
+```text
+Search       1 / 1
+Similarity   1 / 1
+Registry     9 / 9
+Version      2 / 2
+Render       1 / 1
+------------------
+Total       14 / 14
+```
+
+Implemented Search / Similarity surface:
+
+- Lexical / Semantic / Hybrid Search;
+- left-side hard-filter panel;
+- explicit semantic-runtime / strict full-runtime controls;
+- degraded-channel display;
+- overall and Facet-specific Similarity;
+- source Version, cross-Class and archived scope controls;
+- no silent local-runtime or cloud fallback.
+
+Implemented Registry / Version / Render surface:
+
+- Class list/detail;
+- Relation Type list/detail;
+- Registry Proposal list/detail / decision filter;
+- Accept / Reject decisions separate from Apply;
+- explicit Apply confirmation;
+- Version Show;
+- structured Version Diff;
+- Markdown Diff through the existing H-04 renderer;
+- Object/Version render/export and generated Markdown preview.
+
+Current status:
+
+```text
+P-GUI-06 = Implemented / Dynamic Verification Pending
+```
+
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by:
@@ -150,7 +198,7 @@ Phase P remains in development. Released `v1.1.0` semantics remain governed by:
 - 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
 - Current release note: [`../releases/v1.1.0.md`](../releases/v1.1.0.md)
 
-P-GUI-01 through P-GUI-05 are accepted development baselines and do not by themselves advance the formal release version.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 is implemented development code pending dynamic verification and interactive acceptance. These tasks do not by themselves advance the formal release version.
 
 ## Phase P GUI decisions so far
 
@@ -187,7 +235,7 @@ Application facades
 Repository / Retrieval / Exchange
 ```
 
-P-GUI-04 established the queued QThread foundation. P-GUI-05 uses it for daily collection surfaces without GUI direct SQL or a CLI-subprocess business path.
+P-GUI-04 established the queued QThread foundation. P-GUI-05 and P-GUI-06 reuse it without GUI direct SQL or a CLI-subprocess business path.
 
 ## Workstream B — RAW Grounding
 
@@ -237,5 +285,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-GUI-06 [P0] Search / Similarity / Registry / Version GUI
+P-GUI-06 — focused pytest / Ruff / full regression, then interactive GUI smoke acceptance
 ```
