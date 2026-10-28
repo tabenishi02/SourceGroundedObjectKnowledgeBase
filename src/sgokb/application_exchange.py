@@ -62,7 +62,8 @@ class PackageExchangeApplication:
         return staged
 
     def preflight(self, package: str | Path, *, destination: str | Path | None = None):
-        return self.transfer.preflight(Path(package), None if destination is None else Path(destination))
+        resolved_destination = None if destination is None else Path(destination)
+        return self.transfer.preflight(Path(package), resolved_destination)
 
     def export(
         self,
@@ -77,7 +78,6 @@ class PackageExchangeApplication:
             Path(destination),
             acknowledge_review=acknowledge_review,
         )
-        manifest = _manifest(package_path.resolve())
         event_id = self.audit.record_export(
             exported.package_id,
             exported.manifest_sha256,
@@ -107,9 +107,7 @@ class ResultExchangeApplication:
         package_id: str,
         incoming_root: str | Path = DEFAULT_INCOMING_ROOT,
     ):
-        return self.receipts.receive(
-            Path(result), package_id, Path(incoming_root)
-        )
+        return self.receipts.receive(Path(result), package_id, Path(incoming_root))
 
     def list(self, *, package_id: str | None = None):
         return tuple(self.audit.result_receipts(package_id))
