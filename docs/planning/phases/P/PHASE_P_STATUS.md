@@ -8,6 +8,7 @@ Updated: 2026-10-28
 - Current released baseline: `v1.1.0`
 - Planning authority: [`PHASE_P_MODERNIZATION_PLAN.md`](PHASE_P_MODERNIZATION_PLAN.md)
 - Task authority: [`PHASE_P_TASKS.md`](PHASE_P_TASKS.md)
+- P-GUI-03R amendment: [`P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
 
 ## Accepted modernization direction
 
@@ -17,32 +18,28 @@ Priority 2: RAW Grounding
 Priority 3: Runtime / Qdrant auto-start
 ```
 
-### GUI
+### GUI baseline
 
-- PySide6 / Qt for Pythonを採用する。
-- primary UI technologyはQt Widgetsとする。
-- public `sgokb` CLIと意味的に互換なDesktop GUIを追加する。
-- GUIはCLI subprocess wrapperを主実装にせず、Application / Service層をCLIと共有する。
-- CLIはPhase P後もfirst-class interfaceとして維持する。
-- GUI main threadではblocking backend operationを行わない。
-- backendは専用QThread上のQObject workerで実行する。
-- Repositoryはoperationごとにworker thread内で生成・破棄する。
-- Windows distribution baselineは`pyside6-deploy` / Nuitkaのstandalone directoryとする。
-- OSS配布時のPySide6 / Qt LGPLv3等のlicense complianceをRelease gateへ含める。
+- PySide6 / Qt for Python + Qt Widgets
+- public `sgokb` CLIとsemantic parityを持つDesktop GUI
+- CLI / GUIはApplication / Service層を共有
+- GUIはCLI subprocess wrapperをprimary business boundaryにしない
+- backendは専用QThread上のQObject worker
+- Repositoryはoperationごとにworker thread内で生成・破棄
+- Windows distribution baselineは`pyside6-deploy` / Nuitka standalone directory
+- PySide6 / Qt LGPL complianceをRelease gateへ含める
 
 ### RAW Grounding
 
-- Evidence retrieval / selectionは維持する。
-- External AIへ送るsemantic materialは、Evidence本文再構成物ではなくEvidence provenanceから遡ったRaw Artifactへ変更する。
-- Package / Result / Validation / Review / Import / Provenance contractをRaw-grounded modelへ再設計する。
-- Package ExportのExternal Egress safety boundaryは維持する。
+- Evidence retrieval / selectionは維持する
+- external AIへ送るsemantic materialはEvidence再構成MarkdownからRaw Artifactへ変更する
+- Package / Result / Validation / Review / Import / ProvenanceをRaw-grounded modelへ再設計する
 
 ### Runtime
 
-- Windowsログイン後にQdrantを自動利用可能にする。
-- QdrantはGUI processの子process / lifecycle-owned serviceとせず、CLI / GUI / MCPから共有可能な独立runtimeとして扱う。
-- Docker / Compose + pinned Qdrant + named volume + localhost binding + restart policyを初期baseline候補とする。
-- GUIにはRuntime Dashboardを追加する。
+- Windowsログイン後にQdrantを自動利用可能にする
+- QdrantはGUI processのlifecycle ownerにせずCLI / GUI / MCPから共有する
+- Docker / Compose + pinned Qdrant + named volume + localhost binding + restart policyをinitial baseline候補とする
 
 ## Current task state
 
@@ -50,8 +47,9 @@ Priority 3: Runtime / Qdrant auto-start
 |---|---|---|---|
 | GUI | P-GUI-01 | **Complete / Accepted** | GUI requirements / compatibility contract |
 | GUI | P-GUI-02 | **Complete / Accepted** | PySide6 architecture / packaging / license |
-| GUI | P-GUI-03 | **Next / Not Started** | Application boundary audit / refactor plan |
-| GUI | P-GUI-04 | Not Started | GUI shell / Workspace / navigation |
+| GUI | P-GUI-03 | **Complete / Accepted** | Transport-neutral Application boundary audit / refactor plan |
+| GUI | P-GUI-03R | **Next / Not Started** | Shared Application/operator boundary refactor implementation |
+| GUI | P-GUI-04 | **Blocked by P-GUI-03R for backend wiring** | GUI shell / Workspace / navigation |
 | GUI | P-GUI-05 | Not Started | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | Not Started | Search / Similarity / Registry / Version GUI |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
@@ -64,68 +62,29 @@ Priority 3: Runtime / Qdrant auto-start
 
 ## P-GUI-01 completion
 
-P-GUI-01でCLI互換GUIの要件とcompatibility / safety boundaryを正式化した。
+P-GUI-01 fixed GUI semantic compatibility and mapped current public CLI capability:
 
-主要成果物:
+```text
+public CLI operations = 67
+assigned GUI capability = 67 / 67
+unassigned = 0
+```
+
+Authority:
 
 - `docs/requirements/GUI_REQUIREMENTS.md`
 - `docs/decisions/P_GUI_COMPATIBILITY_AND_SAFETY_CONTRACT.md`
 - `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
 
-current public `sgokb` 67 operationsをGUI capabilityへ全件mappingし、assigned 67 / 67、unassigned 0を確認した。
-
-GUI compatibility:
-
-```text
-same use case
-+ same target identity
-+ same canonical effect
-+ same validation / precondition
-+ same safety boundary
-+ same degradation / warning semantics
-+ equivalent failure meaning
-```
-
 ## P-GUI-02 completion
 
-P-GUI-02でDesktop GUIの技術基盤を正式化した。
-
-成果物:
-
-- `docs/evaluation/P_GUI_02_PYSIDE6_ARCHITECTURE_PACKAGING_LICENSE_REVIEW.md`
-  - Qt Widgets / Qt Quick比較
-  - Repository / SQLite thread-affinity review
-  - CLI subprocess / direct SQL / shared Application architecture比較
-  - Windows deployment方式比較
-  - PySide6 / Qt LGPL distribution review
-- `docs/decisions/P_GUI_PYSIDE6_APPLICATION_PACKAGING_LICENSE_DECISION.md`
-  - PySide6 + Qt Widgets正式採用
-  - QObject worker on dedicated QThread
-  - per-operation Repository ownership
-  - serialized backend lane
-  - `pyside6-deploy` / Nuitka standalone distribution
-  - dynamic Qt libraries / no baseline onefile
-  - CLI remains Qt-free optional installation
-- `docs/design/P_GUI_APPLICATION_ARCHITECTURE.md`
-  - target module layout
-  - main-thread / worker-thread ownership
-  - BackendSession / operation lifecycle
-  - settings / shutdown / cancellation boundaries
-  - P-GUI-03 handoff
-- `docs/operations/P_GUI_DISTRIBUTION_AND_LICENSE_CHECKLIST.md`
-  - Windows build / smoke / thread safety gates
-  - LGPL / notices / source availability gates
-  - build manifest / dependency inventory requirements
-
-Accepted technical baseline:
+P-GUI-02 fixed the Desktop technical baseline:
 
 ```text
 Framework            = PySide6
 UI                    = Qt Widgets
-GUI execution        = Qt main thread
 Backend              = QObject worker on dedicated QThread
 DB                    = Repository per operation in worker thread
-Runtime cache         = expensive noncanonical providers may be lazy-cached in BackendSession
 Operation concurrency = serialized per Workspace initially
 Packaging             = pyside6-deploy / Nuitka
 Mode                  = standalone directory / portable ZIP
@@ -133,40 +92,105 @@ Onefile               = not baseline
 Static Qt linking     = prohibited
 ```
 
-Current repository has no root `LICENSE` file. This does not block private Phase P development, but public OSS publication is blocked until a project-level license Decision is made and the root license is added.
+Authority:
 
-Planned Python package surface is:
+- `docs/evaluation/P_GUI_02_PYSIDE6_ARCHITECTURE_PACKAGING_LICENSE_REVIEW.md`
+- `docs/decisions/P_GUI_PYSIDE6_APPLICATION_PACKAGING_LICENSE_DECISION.md`
+- `docs/design/P_GUI_APPLICATION_ARCHITECTURE.md`
+- `docs/operations/P_GUI_DISTRIBUTION_AND_LICENSE_CHECKLIST.md`
+
+Public OSS publication remains blocked until SGOKB itself receives an explicit project-level license Decision/root `LICENSE`; private development is unaffected.
+
+## P-GUI-03 completion
+
+P-GUI-03 audited the implementation boundary for all 67 public operations.
+
+Result:
 
 ```text
-base install        -> CLI, no PySide6 required
-.[gui]              -> PySide6 GUI dependency
-sgokb               -> CLI
-sgokb-gui           -> GUI launcher
+A READY                    25
+B ORCHESTRATION EXTRACTION 26
+C APPLICATION GAP          15
+D TRANSPORT-SPECIFIC        1
+--------------------------------
+Total                      67
 ```
 
-Exact implementation of dependency/entrypoint is deferred until the GUI implementation task; P-GUI-02 is design-only.
+Interpretation:
 
-## Sequencing note
+- 25 operations already have a suitable Application boundary.
+- 26 have reusable lower-level services but CLI-owned orchestration/audit/target/batch behavior must be extracted.
+- 15 still depend on CLI/direct Repository logic that needs a transport-neutral Application facade.
+- `mcp serve` is the sole transport-specific public operation and remains outside normal synchronous OperatorSession dispatch.
 
-GUIが最優先である。ただしPackage / Result UIはP-RAWのPackage / Result schemaを直接表示するため、次の順を採用する。
+Accepted target:
 
 ```text
-P-GUI-03 Application boundary audit / refactor plan
+CLI parser/renderer ─┐
+GUI BackendWorker ───┼─> OperatorSession
+                     │      ├─ shared OperationRequest
+                     │      ├─ OperationOutcome / OperationFailure
+                     │      ├─ RuntimeFactory
+                     │      └─ domain Application facades
+MCP read adapter ────┘
+```
+
+P-GUI-03 authority:
+
+- `docs/evaluation/P_GUI_03_APPLICATION_BOUNDARY_AUDIT.md`
+- `docs/reference/GUI_APPLICATION_BOUNDARY_MATRIX.md`
+- `docs/decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md`
+- `docs/design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md`
+
+The audit found that proceeding directly to broad P-GUI-04 backend wiring would require duplication or CLI coupling. Therefore `P-GUI-03R` is inserted as a required P0 implementation remediation.
+
+## P-GUI-03R gate
+
+`P-GUI-03R` implements the accepted design without intended public CLI semantic change.
+
+Required slices:
+
+```text
+R1 shared operation/error contracts
+R2 shared runtime factory
+R3 Source/Object/Registry boundaries
+R4 Evidence/Version/Render boundaries
+R5 Package/Result boundaries
+R6 System/Recovery boundary
+R7 Operator dispatcher/session
+R8 CLI cutover
+R9 regression / semantic-equivalence acceptance
+```
+
+P-GUI-04 may perform presentation-only preparation in isolation, but canonical operation wiring is blocked until P-GUI-03R passes.
+
+## Sequencing
+
+```text
+P-GUI-01 Complete
         ↓
-GUI foundation / core screens
+P-GUI-02 Complete
         ↓
-RAW Grounding
+P-GUI-03 Complete
         ↓
-Package / Result GUI
+P-GUI-03R Next
         ↓
-Runtime integration
+P-GUI-04 GUI shell / Workspace / navigation
         ↓
-Full Phase P acceptance
+P-GUI-05 / 06 / 07 core GUI
+        ↓
+P-RAW
+        ↓
+P-GUI-08 Package / Result GUI
+        ↓
+P-RUNTIME / P-GUI-09
+        ↓
+P-GUI-10 / P-CLOSE-01
 ```
 
 ## Current authority boundary
 
-Phase Pは実装途中であるため、現時点の実システム仕様は引き続き以下を正本とする。
+Phase P is still in development. Current implemented system semantics remain governed by:
 
 - `docs/design/SGOKB_CURRENT_ARCHITECTURE.md`
 - `docs/decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md`
@@ -174,12 +198,10 @@ Phase Pは実装途中であるため、現時点の実システム仕様は引�
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-01/P-GUI-02で追加したGUI documentsはPhase P GUIのaccepted future contract/designであり、未実装GUIをcurrent runtime capabilityとして扱わない。
+P-GUI-01..03 documents are accepted future GUI/refactor contracts and must not be represented as already implemented runtime capability.
 
 ## Next
 
-次に実施するTaskは次である。
-
 ```text
-P-GUI-03 [P0] Transport-neutral Application boundary audit / refactor plan
+P-GUI-03R [P0] Transport-neutral Application boundary refactor implementation
 ```
