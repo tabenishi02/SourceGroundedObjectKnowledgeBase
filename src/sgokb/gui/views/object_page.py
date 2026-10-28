@@ -13,8 +13,8 @@ from PySide6.QtWidgets import (
     QLabel,
     QPushButton,
     QSplitter,
-    QTabWidget,
     QTableView,
+    QTabWidget,
     QTextEdit,
     QVBoxLayout,
 )
