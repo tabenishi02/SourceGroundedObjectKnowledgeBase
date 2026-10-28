@@ -23,7 +23,8 @@ Phase P = In Progress
 P-GUI-01 = Complete / Accepted
 P-GUI-02 = Complete / Accepted
 P-GUI-03 = Complete / Accepted
-Next = P-GUI-03R — Transport-neutral Application boundary refactor implementation
+P-GUI-03R = Implemented / Dynamic Verification Pending
+Next = P-GUI-03R dynamic regression / semantic-equivalence verification
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -64,9 +65,14 @@ Priority 3: Runtime / Qdrant auto-start
 - Transport-neutral Application Decision: [`../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md`](../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md)
 - Refactor design / execution slices: [`../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md`](../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md)
 
-### Current implemented system
+### P-GUI-03R implementation authority
 
-Phase P GUI/refactorは未実装のため、実システムのcurrent specificationは引き続き次を正本とします。
+- Implementation task/status: [`phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
+- Implementation / verification result: [`../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
+
+### Current released system
+
+Phase P is still in development. Released v1.1.0 semantics remain governed by:
 
 - Current integrated architecture: [`../design/SGOKB_CURRENT_ARCHITECTURE.md`](../design/SGOKB_CURRENT_ARCHITECTURE.md)
 - Current design index: [`../design/README.md`](../design/README.md)
@@ -75,7 +81,7 @@ Phase P GUI/refactorは未実装のため、実システムのcurrent specificat
 - 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
 - Current release note: [`../releases/v1.1.0.md`](../releases/v1.1.0.md)
 
-Phase P accepted documentsはfuture contract/designであり、implementation task完了までは未実装機能をcurrent capabilityとして扱いません。
+P-GUI-03R code is implemented on `main`, but it must not be treated as an accepted compatibility refactor until its dynamic regression gate passes.
 
 ## Phase P GUI decisions so far
 
@@ -110,9 +116,9 @@ GUI dependencyはbase CLI installから分離し、planned package surfaceは `.
 
 現repositoryにはroot `LICENSE`がないため、private developmentは継続できますがpublic OSS publicationはproject-level license Decisionまでblockとします。
 
-### Application boundary — P-GUI-03
+### Application boundary — P-GUI-03 / P-GUI-03R
 
-67 public operationsを実装境界で監査しました。
+P-GUI-03 audit result:
 
 ```text
 A READY                    25
@@ -121,23 +127,31 @@ C APPLICATION GAP          15
 D TRANSPORT-SPECIFIC        1
 ```
 
-25操作は既存Application境界をそのまま利用できますが、42操作はCLI orchestration/direct repository依存を共有Application境界へ移す必要があります。
-
-採用したtarget:
+P-GUI-03R has now implemented the target boundary:
 
 ```text
-CLI parser/renderer ─┐
-GUI BackendWorker ───┼─> OperatorSession
-                     │      ├─ OperationRequest
-                     │      ├─ OperationOutcome / OperationFailure
-                     │      ├─ RuntimeFactory
-                     │      └─ domain Application facades
-MCP read adapter ────┘
+CLI parser / future GUI worker
+        ↓
+OperationRequest
+        ↓
+OperatorSession
+        ↓
+Application facades
+        ↓
+Repository / Retrieval / Exchange
 ```
 
-`mcp serve`のみtransport lifecycleとして通常のsynchronous OperatorSessionから分離します。
+Current inventory:
 
-P-GUI-03はaudit/refactor-plan taskであるため実装変更は行いません。GUIがCLI logicを複製しないよう、implementation remediation `P-GUI-03R`をP-GUI-04の前に追加しました。
+```text
+PUBLIC_OPERATION_IDS    = 67
+SHARED_OPERATION_IDS    = 66
+TRANSPORT_OPERATION_IDS = 1 (mcp.serve)
+```
+
+Implemented slices R1-R8 include shared operation/error contracts, RuntimeFactory, Source/Object/Registry, Evidence/Version/Render, Package/Result, System/Recovery, OperatorSession and CLI cutover.
+
+R9 test asset `tests/test_p_gui_03r_operator_boundary.py` has been added and existing high-value CLI/application suites have been statically reviewed. Dynamic pytest/ruff execution remains pending; no PASS is claimed without it.
 
 ## Workstream B — RAW Grounding
 
@@ -178,8 +192,6 @@ P-RUNTIME-01 .. P-RUNTIME-06
 P-CLOSE-01
 ```
 
-P-GUI-03RはP-GUI-03監査で発見したimplementation gapを解消する追加P0 taskです。詳細は [`phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md) を参照してください。
-
 ## Document placement rules
 
 1. 全Phase共通の進捗 / project-wide handoff → `project/`
@@ -195,7 +207,7 @@ P-GUI-03RはP-GUI-03監査で発見したimplementation gapを解消する追加
 ## Next
 
 ```text
-P-GUI-03R [P0] Transport-neutral Application boundary refactor implementation
+P-GUI-03R dynamic regression / semantic-equivalence verification
 ```
 
-P-GUI-03Rは既存CLI semanticsを変更せず、shared operation/error contracts、RuntimeFactory、domain Application facades、OperatorSession、CLI cutover、semantic-equivalence regressionを実装します。完了後にP-GUI-04のbackend wiringへ進みます。
+Required gate commands are recorded in the P-GUI-03R implementation result. P-GUI-04 canonical backend wiring remains blocked until this verification passes.
