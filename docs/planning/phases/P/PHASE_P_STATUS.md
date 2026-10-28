@@ -27,7 +27,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03 | **Complete / Accepted** | Transport-neutral Application boundary audit / refactor plan |
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
-| GUI | P-GUI-05 | **Automated Verification PASS / Interactive Smoke Pending** | Object / Source / Evidence / Association GUI |
+| GUI | P-GUI-05 | **Automated Verification Refresh Pending / Functional Smoke Pending** | Object / Source / Evidence / Association GUI; Object Class selector amendment added after Attempt 03 |
 | GUI | P-GUI-06 | Not Started | Search / Similarity / Registry / Version GUI |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
@@ -164,9 +164,9 @@ Acceptance authority:
 
 ## P-GUI-05 implementation state
 
-P-GUI-05 implementation is complete and the automated verification gate has passed. Interactive GUI smoke remains before formal closure.
+P-GUI-05 implementation is complete, but its automated verification must be refreshed because the Object Class mutation controls were amended after the last measured PASS. Visual rendering smoke has passed; representative functional smoke remains before formal closure.
 
-The four P-GUI-04 placeholders are now real operator pages:
+The four P-GUI-04 placeholders are real operator pages:
 
 ```text
 Objects
@@ -175,7 +175,7 @@ Evidence
 Associations
 ```
 
-The P-GUI-05 operation inventory is fully wired:
+The P-GUI-05 operation inventory remains fully wired:
 
 ```text
 Object       12 / 12
@@ -189,7 +189,12 @@ Total        27 / 27
 Implemented behavior includes:
 
 - stable `object_id` targeting for Object writes;
-- Object registry/current Knowledge detail, aliases, events, read-only relations and Class operations;
+- Object registry/current Knowledge detail, aliases, events and read-only relations;
+- Add Object Primary Class selection from active registry Classes through a non-editable selector;
+- `Set Primary Class` selection from every existing registry Class;
+- `Add Class` selection from every registry Class except the selected Object's current Primary Class;
+- `Remove Class` enabled only when Additional Classes exist and restricted to those assigned Additional Classes;
+- all Class mutations pass stable `class_id` values rather than free-text display labels;
 - Source import by file dialog and drag/drop;
 - Source processing and effective Snapshot/Run selection with interactive reason;
 - Raw Artifact / normalization metadata inspection;
@@ -202,31 +207,46 @@ Implemented behavior includes:
 
 `source.snapshots` was extended backward-compatibly with Raw/Run inspection metadata rather than adding a GUI-only direct-storage path. The Application/operator DTO normalizes canonical `raw_artifacts.bytes` to presentation-neutral `byte_count`. Public operation count remains unchanged.
 
-Automated acceptance coverage was added in:
+Automated acceptance coverage now includes:
 
 ```text
 tests/test_p_gui_05_domain_pages.py
+tests/test_p_gui_05_object_class_selector.py
+tests/test_p_gui_05_object_class_controls.py
 ```
 
-Automated verification evidence:
+Historical automated verification immediately before the latest Class-control amendment:
 
 ```text
-focused GUI regression = 9 / 9 PASS
+focused GUI regression = 10 / 10 PASS
 Ruff                   = All checks passed!
-full regression         = 804 / 804 PASS
+full regression         = 805 / 805 PASS
 known warnings          = 2 local-Qdrant warnings
 ```
 
-Verification authority:
+That PASS remains valid historical evidence but does not certify the amended code until the refresh gate is executed.
+
+Interactive state:
+
+```text
+visual rendering smoke = PASS
+functional smoke       = Pending
+```
+
+Verification / amendment authority:
 
 - `docs/evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md`
 - `docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
 - `docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_02.md`
+- `docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_03.md`
+- `docs/evaluation/P_GUI_05_ADD_OBJECT_CLASS_SELECTOR_IMPROVEMENT.md`
+- `docs/evaluation/P_GUI_05_OBJECT_CLASS_MUTATION_SELECTOR_IMPROVEMENT.md`
+- `docs/evaluation/P_GUI_05_INTERACTIVE_SMOKE_ATTEMPT_01.md`
 
 Current verdict:
 
 ```text
-P-GUI-05 = Automated Verification PASS / Interactive Smoke Pending
+P-GUI-05 = Automated Verification Refresh Pending / Visual Smoke PASS / Functional Smoke Pending
 ```
 
 ## Sequencing
@@ -242,8 +262,8 @@ P-GUI-03R Complete / Accepted
         ↓
 P-GUI-04 Complete / Accepted
         ↓
-P-GUI-05 Automated Verification PASS / Interactive Smoke Pending   <- CURRENT
-        ↓ interactive smoke PASS
+P-GUI-05 Automated Verification Refresh Pending / Functional Smoke Pending   <- CURRENT
+        ↓ refreshed automated PASS + functional smoke PASS
 P-GUI-05 Complete / Accepted
         ↓
 P-GUI-06 / 07 core GUI
@@ -267,10 +287,10 @@ Phase P remains in development. Current released system semantics continue to be
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-03R and P-GUI-04 are accepted development baselines. P-GUI-05 is implemented and automated-verified development code pending interactive acceptance. None of these tasks alone advance the formal released version.
+P-GUI-03R and P-GUI-04 are accepted development baselines. P-GUI-05 is implemented development code with visual smoke PASS, pending refreshed automated verification and functional interactive acceptance. None of these tasks alone advance the formal released version.
 
 ## Next
 
 ```text
-P-GUI-05 — interactive GUI smoke acceptance
+P-GUI-05 — refresh focused pytest / Ruff / full regression, then functional GUI smoke acceptance
 ```
