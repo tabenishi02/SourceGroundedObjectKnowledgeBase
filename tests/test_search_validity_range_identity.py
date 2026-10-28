@@ -1,3 +1,5 @@
+# ruff: noqa: I001 - sibling test helpers are imported as fixtures/support utilities.
+
 from __future__ import annotations
 
 import pytest
