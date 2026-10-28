@@ -1,4 +1,4 @@
-"""P-GUI-04 QMainWindow shell, Workspace controls, and navigation."""
+"""P-GUI QMainWindow shell, Workspace controls, and domain navigation."""
 
 from __future__ import annotations
 
@@ -22,6 +22,11 @@ from PySide6.QtWidgets import (
 )
 
 from sgokb.gui.controllers import WorkspaceController
+from sgokb.gui.views.association_page import AssociationPage
+from sgokb.gui.views.evidence_page import EvidencePage
+from sgokb.gui.views.object_page import ObjectPage
+from sgokb.gui.views.operation_page import OperationPage
+from sgokb.gui.views.source_page import SourcePage
 from sgokb.gui.worker import BackendCoordinator
 from sgokb.gui.workspace import WorkspaceSettings, WorkspaceState
 from sgokb.operation_contracts import OperationFailure
@@ -41,10 +46,6 @@ NAVIGATION_ITEMS = (
 )
 
 _PAGE_DESCRIPTIONS = {
-    "objects": "Object management is implemented in P-GUI-05.",
-    "sources": "Source ingestion and processing are implemented in P-GUI-05.",
-    "evidence": "Evidence browsing and selection are implemented in P-GUI-05.",
-    "associations": "Object / Source association tools are implemented in P-GUI-05.",
     "search": "Search and similarity views are implemented in P-GUI-06.",
     "packages": "Package workflow is implemented after P-RAW in P-GUI-08.",
     "results": "Result workflow is implemented after P-RAW in P-GUI-08.",
@@ -55,7 +56,7 @@ _PAGE_DESCRIPTIONS = {
 
 
 class MainWindow(QMainWindow):
-    """Minimal SGOKB desktop shell with safe Workspace activation."""
+    """SGOKB desktop shell with safe Workspace activation and domain pages."""
 
     def __init__(
         self,
@@ -70,6 +71,7 @@ class MainWindow(QMainWindow):
         self.show_error_dialogs = show_error_dialogs
         self.workspace_controller = WorkspaceController(backend, settings, self)
         self._page_index: dict[str, int] = {}
+        self.domain_pages: dict[str, OperationPage] = {}
         self._workspace = WorkspaceState.closed()
 
         self.setWindowTitle("SGOKB")
@@ -135,7 +137,7 @@ class MainWindow(QMainWindow):
         self.pages = QStackedWidget(body)
         for index, (key, label) in enumerate(NAVIGATION_ITEMS):
             self._page_index[key] = index
-            page = self._build_home_page() if key == "home" else self._build_placeholder(label, key)
+            page = self._build_page(key, label)
             self.pages.addWidget(page)
         body_layout.addWidget(self.pages, 1)
         root_layout.addWidget(body, 1)
@@ -143,6 +145,23 @@ class MainWindow(QMainWindow):
 
         self.workspace_status = QLabel("No workspace")
         self.statusBar().addPermanentWidget(self.workspace_status)
+
+    def _build_page(self, key: str, label: str) -> QWidget:
+        if key == "home":
+            return self._build_home_page()
+        page: OperationPage | None = None
+        if key == "objects":
+            page = ObjectPage(self.backend, self)
+        elif key == "sources":
+            page = SourcePage(self.backend, self)
+        elif key == "evidence":
+            page = EvidencePage(self.backend, self)
+        elif key == "associations":
+            page = AssociationPage(self.backend, self)
+        if page is not None:
+            self.domain_pages[key] = page
+            return page
+        return self._build_placeholder(label, key)
 
     def _build_home_page(self) -> QWidget:
         page = QWidget(self)
@@ -257,6 +276,8 @@ class MainWindow(QMainWindow):
     def _apply_workspace_state(self, state: WorkspaceState) -> None:
         self._workspace = state
         self._clear_warning()
+        for page in self.domain_pages.values():
+            page.set_workspace(state)
         if not state.is_open or state.db_path is None:
             self.workspace_status.setText("No workspace")
             self.home_workspace.setText("Workspace: not open")
