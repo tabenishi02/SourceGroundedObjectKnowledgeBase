@@ -84,7 +84,11 @@ def _seed_workspace(database: Path):
         repository.close()
 
 
-def test_search_page_runs_lexical_search_and_exposes_similarity_scope(qt_app, tmp_path, monkeypatch):
+def test_search_page_runs_lexical_search_and_exposes_similarity_scope(
+    qt_app,
+    tmp_path,
+    monkeypatch,
+):
     from sgokb.gui.views import SearchPage
     from sgokb.gui.worker import BackendCoordinator
 
@@ -227,14 +231,14 @@ def test_main_window_hosts_real_p_gui_06_pages(qt_app, tmp_path):
     from sgokb.gui.workspace import WorkspaceSettings
 
     backend = BackendCoordinator()
-    settings = WorkspaceSettings(QSettings(str(tmp_path / "gui.ini"), QSettings.Format.IniFormat))
+    qsettings = QSettings(str(tmp_path / "gui.ini"), QSettings.Format.IniFormat)
+    settings = WorkspaceSettings(qsettings)
     window = MainWindow(backend, settings, show_error_dialogs=False)
     try:
         assert isinstance(window.domain_pages["search"], SearchPage)
         assert isinstance(window.domain_pages["registry"], RegistryPage)
-        assert {"objects", "sources", "evidence", "associations", "search", "registry"} <= set(
-            window.domain_pages
-        )
+        expected = {"objects", "sources", "evidence", "associations", "search", "registry"}
+        assert expected <= set(window.domain_pages)
     finally:
         window.close()
         qt_app.processEvents()
