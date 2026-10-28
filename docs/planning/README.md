@@ -116,9 +116,13 @@ P-GUI-05                = Complete / Accepted
 ### P-GUI-06 current authority
 
 - Main implementation / interactive procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
-- Current automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md)
+- Current automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md)
+- Historical Attempt 03 fixture/lint failure: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_03.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_03.md)
+- Historical selector/range verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md)
 - Historical pre-amendment verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
 - Search selector / validity-range amendment: [`../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`](../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md)
+- Validity-range false-negative remediation: [`../evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`](../evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md)
+- Derivation Kind selector improvement: [`../evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md)
 
 P-GUI-06 keeps the 14 assigned operations wired:
 
@@ -138,20 +142,18 @@ Current Search / Similarity surface includes:
 - Registry-backed Primary / Additional / Ancestor Class dropdowns;
 - Facet / Version / Temporal Scope selectors with editable historical fallback;
 - `Knowledge valid From` / `Knowledge valid To` temporal-overlap range;
+- fixed-value Derivation Kind selector;
 - explicit semantic-runtime / strict full-runtime controls;
 - degraded-channel display;
 - Object-scoped Similarity Facet / Version selectors;
 - cross-Class and archived scope controls;
 - no silent local-runtime or cloud fallback.
 
-Selector lookup stays above Repository storage:
+The validity-range remediation fixes stale active-generation false negatives while preserving the boundary:
 
 ```text
-registry.class.list
-object.list
-    -> current_version_id
-    -> version.show
-    -> current Facet / Temporal Scope / Version choices
+Registry identity eligibility under From/To -> canonical accepted Knowledge
+Knowledge lexical / semantic channels       -> active R2 Search generation
 ```
 
 Current Registry / Version / Render surface remains:
@@ -165,16 +167,16 @@ Current Registry / Version / Render surface remains:
 - structured / Markdown Version Diff;
 - Object/Version render/export and generated Markdown preview.
 
-The user request that introduced the selector amendment contained an unfinished `Registryタブの` bullet; no unspecified Registry change was inferred.
-
-Current automated evidence after the selector/range amendment:
+Current automated evidence from Attempt 04:
 
 ```text
-focused P-GUI-04 / 05 / 06 regression = 18 / 18 PASS
+focused P-GUI-04 / 05 / 06 regression = 24 / 24 PASS
 Ruff                                  = All checks passed!
-full regression                        = 813 / 813 PASS
+full regression                        = 819 / 819 PASS
 known local-Qdrant warnings            = 2
 ```
+
+Attempt 03 remains historical failure evidence: its five pytest failures occurred in fixture setup before product assertions, and its Ruff errors were subsequently remediated.
 
 Current status:
 
@@ -186,7 +188,7 @@ P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed the amended automated gate and remains pending interactive acceptance. These tasks do not by themselves advance the formal release version.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed the current automated gate and remains pending interactive acceptance. These tasks do not by themselves advance the formal release version.
 
 ## Phase P GUI decisions so far
 
