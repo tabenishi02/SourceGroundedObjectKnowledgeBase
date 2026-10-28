@@ -3,12 +3,13 @@
 Updated: 2026-10-28
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
-- Status: **Implemented / Dynamic Verification Pending**
+- Status: **Implemented / Dynamic Verification In Progress**
 - Priority: **P0**
 - Introduced by: `P-GUI-03`
 - Design authority: `docs/design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md`
 - Decision authority: `docs/decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md`
 - Implementation result: `docs/evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`
+- R9 Attempt 01: `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
 
 ## 1. Reason for insertion
 
@@ -58,8 +59,7 @@ R5 Package/Result boundaries              Implemented
 R6 System/Recovery boundary               Implemented
 R7 Operator dispatcher/session            Implemented
 R8 CLI cutover                            Implemented
-R9 Regression / semantic-equivalence      Test asset + static review complete;
-                                          dynamic execution pending
+R9 Regression / semantic-equivalence      In Progress
 ```
 
 ## 4. Implemented boundary
@@ -101,7 +101,7 @@ Repository / Retrieval / Exchange
 - Package/Result audit lifecycle remains explicit
 - Restore acknowledgement/safety remains delegated to the existing recovery contract
 
-## 6. Regression asset / verification
+## 6. Regression asset / R9 Attempt 01
 
 Added:
 
@@ -109,30 +109,71 @@ Added:
 tests/test_p_gui_03r_operator_boundary.py
 ```
 
-Static compatibility review also covered the existing high-value suites:
+Operator execution on Windows/Python 3.10.6 produced:
 
 ```text
-tests/test_m01_cli.py
-tests/test_m03_standard_workflow.py
-tests/test_m01_registry_proposals.py
-tests/test_j01_application_semantics.py
-tests/test_m05_historical_derived_reconciliation.py
+python -m pytest tests/test_p_gui_03r_operator_boundary.py tests/test_m01_cli.py
+→ 17 passed / PASS
+
+python -m pytest tests/test_m03_standard_workflow.py
+→ NOT RUN / environment blocked
+   installed `sgokb` console script not found
+
+python -m pytest
+→ NOT RUN / collection environment blocked
+   `qdrant_client` optional dependency missing
+
+python -m ruff check src tests
+→ findings found; remediation applied after Attempt 01
 ```
 
-The current ChatGPT repository-edit environment does not provide an authorized Python/pytest execution surface for this local repository, and the repository had no existing GitHub Actions workflow at the task boundary. No synthetic CI workflow was added solely to claim a PASS.
+The targeted 17-test PASS validates the new shared boundary regression asset together with the existing M01 CLI contract tests.
 
-Required dynamic verification:
+The M03 errors occurred before workflow execution because `WorkflowCLI` intentionally requires the installed public `sgokb` entry point. The full-suite errors occurred during collection because the Qdrant Python client was not installed. Neither result is classified as a semantic regression.
 
-```text
+Ruff findings were classified and remediated after Attempt 01:
+
+- new P-GUI-03R E501/F841 findings in small Application facades were corrected;
+- the explicit operator dispatch table received narrow E501/I001 per-file handling;
+- two existing pytest fixture re-export modules received narrow F811 per-file handling.
+
+A clean Ruff PASS is not asserted until rerun.
+
+Detailed evidence:
+
+`docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
+
+## 7. Attempt 02 environment preflight
+
+From the repository root after updating to current `main`:
+
+```powershell
+git pull --ff-only
+python -m pip install -e ".[dev,mcp,vector-qdrant]"
+python -m pip check
+Get-Command sgokb
+python -c "import qdrant_client; print(qdrant_client.__file__)"
+```
+
+This provides:
+
+- the public `sgokb` console script required by M03;
+- pytest / Ruff;
+- MCP SDK so the M03 MCP-read path executes;
+- Qdrant Python client required by the existing full-suite collection.
+
+## 8. Attempt 02 verification commands
+
+```powershell
 python -m pytest tests/test_p_gui_03r_operator_boundary.py tests/test_m01_cli.py
 python -m pytest tests/test_m03_standard_workflow.py
 python -m pytest
 python -m ruff check src tests
 ```
 
-No dynamic PASS is claimed until these complete successfully.
+If a later full-suite test requires an external service rather than only an installed Python package, record that separately as a runtime-environment gate.
 
-## 7. Completion gate state
+## 9. Completion gate state
 
 | Gate | State |
 |---|---|
@@ -140,23 +181,25 @@ No dynamic PASS is claimed until these complete successfully.
 | 66 synchronous operations callable without CLI presentation import | Satisfied |
 | `mcp serve` transport lifecycle separated | Satisfied |
 | CLI moved to shared operator boundary | Satisfied |
-| Package/Result lifecycle preserved by design/static review | Satisfied pending regression execution |
-| Restore safety preserved by design/static review | Satisfied pending regression execution |
 | New operator-boundary regression test exists | Satisfied |
-| Existing CLI test suite passes | **Pending dynamic execution** |
-| Full pytest/ruff regression passes | **Pending dynamic execution** |
+| New boundary + M01 CLI targeted regression | **PASS — 17/17** |
+| M03 public CLI vertical slice | **Pending rerun after editable install** |
+| Full pytest regression | **Pending rerun after Qdrant client install** |
+| Full Ruff regression | **Remediation applied / rerun pending** |
+| Package/Result lifecycle preserved | Pending M03/full regression confirmation |
+| Restore safety preserved | Pending full regression confirmation |
 
-Therefore the task state is **Implemented / Dynamic Verification Pending**, not Complete/PASS.
+Therefore the task state remains **Implemented / Dynamic Verification In Progress**, not Complete/PASS.
 
-## 8. Dependency update
+## 10. Dependency update
 
 Effective dependency chain:
 
 ```text
 P-GUI-03 Complete / Accepted
         ↓
-P-GUI-03R Implemented / Verification Pending
-        ↓ verification PASS
+P-GUI-03R Implemented / Verification In Progress
+        ↓ Attempt 02 PASS
 P-GUI-03R Complete / Accepted
         ↓
 P-GUI-04 GUI shell / Workspace / navigation + backend wiring
