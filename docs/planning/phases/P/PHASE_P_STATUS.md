@@ -48,7 +48,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-01 | **Complete / Accepted** | GUI requirements / compatibility contract |
 | GUI | P-GUI-02 | **Complete / Accepted** | PySide6 architecture / packaging / license |
 | GUI | P-GUI-03 | **Complete / Accepted** | Transport-neutral Application boundary audit / refactor plan |
-| GUI | P-GUI-03R | **Implemented / Dynamic Verification Pending** | Shared Application/operator boundary refactor |
+| GUI | P-GUI-03R | **Implemented / Dynamic Verification In Progress** | Shared Application/operator boundary refactor |
 | GUI | P-GUI-04 | **Blocked by P-GUI-03R regression gate for backend wiring** | GUI shell / Workspace / navigation |
 | GUI | P-GUI-05 | Not Started | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | Not Started | Search / Similarity / Registry / Version GUI |
@@ -135,7 +135,7 @@ Authority:
 
 ## P-GUI-03R implementation state
 
-P-GUI-03R has implemented the accepted boundary through R1-R8.
+R1-R8 are implemented.
 
 ```text
 R1 shared operation/error contracts       Implemented
@@ -146,8 +146,7 @@ R5 Package/Result boundaries              Implemented
 R6 System/Recovery boundary               Implemented
 R7 Operator dispatcher/session            Implemented
 R8 CLI cutover                            Implemented
-R9 regression / semantic-equivalence      Test asset + static review complete;
-                                          dynamic execution pending
+R9 regression / semantic-equivalence      In Progress
 ```
 
 Current public boundary:
@@ -186,22 +185,61 @@ src/sgokb/cli/runtime.py
 tests/test_p_gui_03r_operator_boundary.py
 ```
 
-Implementation result / verification authority:
+Implementation authority:
 
 - `docs/evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`
 
-Dynamic pytest/ruff execution has not been performed from the current repository-edit environment, so no PASS is claimed yet.
+## P-GUI-03R R9 Attempt 01
 
-Required gate:
+Operator execution on Windows/Python 3.10.6 produced:
 
 ```text
+tests/test_p_gui_03r_operator_boundary.py + tests/test_m01_cli.py
+→ PASS: 17 / 17
+
+tests/test_m03_standard_workflow.py
+→ NOT RUN: installed `sgokb` console script unavailable
+
+full `python -m pytest`
+→ NOT RUN: collection stopped because `qdrant_client` was unavailable
+
+`python -m ruff check src tests`
+→ findings detected; remediation applied after Attempt 01
+```
+
+Interpretation:
+
+- the new shared boundary tests and existing M01 CLI contract tests passed together;
+- M03 did not reach workflow execution and therefore did not demonstrate a semantic failure;
+- full pytest did not reach execution because an existing optional test dependency was absent;
+- Ruff findings introduced by P-GUI-03R were corrected or narrowly handled, and the existing pytest fixture-reexport false positives were narrowly configured; rerun is required before claiming Ruff PASS.
+
+Detailed authority:
+
+- `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
+
+## Attempt 02 preflight and gate
+
+After updating the local checkout to current `main`:
+
+```powershell
+git pull --ff-only
+python -m pip install -e ".[dev,mcp,vector-qdrant]"
+python -m pip check
+Get-Command sgokb
+python -c "import qdrant_client; print(qdrant_client.__file__)"
+```
+
+Then run:
+
+```powershell
 python -m pytest tests/test_p_gui_03r_operator_boundary.py tests/test_m01_cli.py
 python -m pytest tests/test_m03_standard_workflow.py
 python -m pytest
 python -m ruff check src tests
 ```
 
-P-GUI-04 canonical backend wiring remains blocked until those regressions pass. No unrelated CI workflow was introduced solely to manufacture a verification result.
+P-GUI-04 canonical backend wiring remains blocked until these regressions complete successfully or any newly exposed runtime-only prerequisite is separately classified and resolved.
 
 ## Sequencing
 
@@ -212,8 +250,8 @@ P-GUI-02 Complete
         ↓
 P-GUI-03 Complete
         ↓
-P-GUI-03R Implemented / Verification Pending
-        ↓ dynamic regression PASS
+P-GUI-03R Implemented / Verification In Progress
+        ↓ Attempt 02 regression PASS
 P-GUI-03R Complete / Accepted
         ↓
 P-GUI-04 GUI shell / Workspace / navigation
@@ -239,10 +277,10 @@ Phase P is still in development. Current released system semantics remain govern
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-03R code is now implemented on `main`, but it is not accepted as a completed compatibility refactor until its dynamic regression gate passes.
+P-GUI-03R code is implemented on `main`, but it is not accepted as a completed compatibility refactor until its dynamic regression gate passes.
 
 ## Next
 
 ```text
-P-GUI-03R dynamic regression / semantic-equivalence verification
+P-GUI-03R R9 Attempt 02 — fully provisioned dynamic regression / semantic-equivalence verification
 ```
