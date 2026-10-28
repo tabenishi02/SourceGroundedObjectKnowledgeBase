@@ -4,11 +4,12 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
-- Status: **Automated Verification PASS / Interactive Smoke Pending**
+- Status: **Automated Verification Refresh Pending / Interactive Smoke Pending**
 - Baseline: P-GUI-05 **Complete / Accepted**
 - Task authority: `docs/planning/phases/P/PHASE_P_TASKS.md`
 - Compatibility authority: `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
-- Automated verification: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
+- Pre-amendment automated verification: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
+- Current amendment: `docs/evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`
 
 ## 1. Result summary
 
@@ -55,25 +56,45 @@ The `Search` tab exposes:
 - `require_full_runtime` strict-mode control;
 - result limit and candidate limit;
 - left-side hard-filter panel;
-- Primary Class filter;
-- Additional Class filter;
-- Ancestor Class filter;
-- Facet filter;
-- Version filter;
-- Temporal Scope filter;
-- Knowledge-valid-at filter;
+- Registry-backed dropdowns for Primary / Additional / Ancestor Class;
+- Facet selector with editable historical fallback;
+- Version selector with editable historical fallback;
+- Temporal Scope selector with editable historical fallback;
+- Knowledge validity `From` / `To` range;
 - Derivation Kind filter;
 - archived Object opt-in;
 - ranked result table;
 - selected result detail, including match evidence carried by the existing search contract;
 - explicit degraded-channel display.
 
-Search does not silently change retrieval semantics. The GUI submits the same `search`
-operation arguments as the CLI and keeps the existing runtime/degradation behavior.
+Class choices are loaded through `registry.class.list`. Current accepted Version IDs are loaded
+from `object.list`, and `version.show` supplies current accepted Facet and Temporal Scope choices.
+The GUI does not query SQLite directly for selector data.
 
-If semantic channels are unavailable and the Application returns degradation, the GUI exposes
-that state. If strict full-runtime behavior is requested, the existing Application/operator
-error remains authoritative.
+Facet / Version / Temporal Scope selectors are editable because the current public operation
+inventory does not expose full historical list operations for these entities. Operators can
+therefore type a known historical value that is not present in the automatically loaded current
+candidate set.
+
+### Knowledge validity range
+
+The old single-date `valid_at` contract remains backward compatible. GUI `From` / `To` values are
+encoded in that slot using `..` and interpreted as temporal overlap. Bounded and one-sided ranges
+are supported. Invalid dates and `From > To` are rejected. Timeless Statements remain eligible,
+consistent with the previous point-in-time behavior.
+
+Range retrieval is implemented in:
+
+```text
+src/sgokb/retrieval/search_range.py
+```
+
+The range-aware adapter preserves R2 generation routing and applies consistent overlap intent to
+lexical SQL and semantic Vector candidate filtering.
+
+Search does not silently change runtime/degradation semantics. If semantic channels are
+unavailable and the Application returns degradation, the GUI exposes it. If strict full-runtime
+behavior is requested, the existing Application/operator error remains authoritative.
 
 ## 3. Similarity GUI
 
@@ -81,12 +102,16 @@ The `Similarity` tab exposes:
 
 - stable Object selection loaded through `object.list`;
 - overall Similarity;
-- optional Facet-specific Similarity;
-- optional source Version pinning;
+- Object-scoped Facet dropdown with editable historical fallback;
+- Object-scoped source Version dropdown with editable historical fallback;
 - result limit;
 - cross-Class opt-in;
 - archived Object opt-in;
 - ranked result and contribution/evidence detail.
+
+Similarity itself keeps the existing operation contract: Object / optional Facet / optional source
+Version / cross-Class / archived scope. Search-only Class and Temporal-Scope filter semantics were
+not added to Similarity.
 
 The GUI states that Similarity requires the configured local Embedding Space and Vector Index.
 There is no silent lexical fallback and no cloud fallback.
@@ -123,6 +148,9 @@ Render
 
 Both are read-only browse surfaces in P-GUI-06.
 
+The latest user request contained an unfinished bullet beginning `Registryタブの`. No Registry
+change was inferred from that incomplete fragment.
+
 ## 5. Registry Proposal review / mutation boundary
 
 Proposal UI supports:
@@ -157,9 +185,6 @@ The `Versions / Diff` tab supports:
 The Markdown view is a derived read-only comparison and does not mutate immutable accepted
 Versions.
 
-No new Version-list storage query was added because the current public operation contract for
-P-GUI-06 exposes Version Show and Version Diff, not a separate Version List operation.
-
 ## 7. Render preview / export
 
 The `Render` tab supports:
@@ -176,7 +201,7 @@ write path.
 
 ## 8. Main-window integration
 
-`MainWindow` now hosts real pages for:
+`MainWindow` hosts real pages for:
 
 ```text
 Objects
@@ -187,41 +212,31 @@ Search
 Registry
 ```
 
-The navigation inventory remains the accepted 11 destinations. P-GUI-06 does not add a new
-sidebar destination; Version / Diff / Render are grouped under Registry, while Object Search /
-Similarity are grouped under Search.
-
-Existing P-GUI-05 shell acceptance was made forward-compatible by checking that its four owned
-pages remain present rather than requiring `domain_pages` to contain exactly four entries.
+The navigation inventory remains the accepted 11 destinations. Version / Diff / Render are
+grouped under Registry, while Object Search / Similarity are grouped under Search.
 
 ## 9. Automated acceptance coverage
 
-Added:
+P-GUI-06 base coverage:
 
 ```text
 tests/test_p_gui_06_search_registry_version.py
 ```
 
-Focused coverage verifies:
+Selector / validity-range amendment coverage:
 
-1. real Lexical Object Search through the GUI/operator path;
-2. Similarity request scope/arguments for Facet, Version, cross-Class, archive and limit;
-3. Registry Class and Relation Type browsing;
-4. accepted Version Show;
-5. accepted Version Diff with structured and Markdown representations;
-6. Render / export and generated Markdown preview;
-7. separate Registry Proposal accept/reject/apply operation mapping;
-8. MainWindow replacement of Search / Registry placeholders.
+```text
+tests/test_p_gui_06_search_filter_selectors.py
+tests/test_search_validity_range.py
+```
 
-P-GUI-04 and P-GUI-05 GUI regressions are included because P-GUI-06 extends the shared
-MainWindow and `domain_pages` inventory.
+The new coverage verifies selector population, Object-scoped Similarity choices, GUI From/To
+request construction, invalid-range rejection, bounded/open temporal overlap, and timeless
+Statement eligibility.
 
-## 10. Dynamic verification result
+## 10. Automated verification history and current gate
 
-Automated verification was executed by the operator on Windows after updating to the P-GUI-06
-implementation baseline.
-
-Measured result:
+The operator measured the following PASS before the selector/range amendment:
 
 ```text
 focused P-GUI-04 / 05 / 06 regression = 16 / 16 PASS
@@ -230,33 +245,25 @@ full pytest                            = 811 / 811 PASS
 known local-Qdrant warnings            = 2
 ```
 
-The two warnings are the existing local-Qdrant limitations for payload indexes and brute-force
-search parameters. They are not test failures and are not new P-GUI-06 regressions.
-
-Automated authority:
+Authority:
 
 - `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
 
-Automated disposition:
-
-```text
-P-GUI-06 automated verification = PASS
-```
+Those results remain valid historical evidence for the pre-amendment P-GUI-06 implementation,
+but they do not certify the code changed by `P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`.
+A focused / Ruff / full-regression refresh is required.
 
 ## 11. Interactive smoke acceptance
 
-The remaining acceptance gate is interactive GUI smoke. Run:
-
-```powershell
-sgokb-gui
-```
-
-Confirm at minimum:
+Interactive smoke remains pending. After the refreshed automated gates pass, confirm at minimum:
 
 ### Search
 
+- Class selectors expose Registry choices;
+- Facet / Version / Temporal Scope selectors expose expected current accepted choices;
+- known historical values can still be typed in editable selectors;
+- `Knowledge valid From` / `To` work for bounded and one-sided ranges;
 - Lexical Search returns expected accepted Objects;
-- Class / Facet / Version and other hard filters constrain results as expected;
 - Semantic / Hybrid requests expose runtime failure or degradation explicitly;
 - `Require full runtime` does not silently degrade;
 - selected result details render.
@@ -264,48 +271,36 @@ Confirm at minimum:
 ### Similarity
 
 - a current accepted Object can be selected;
-- overall Similarity executes when semantic runtime is available;
-- Facet-specific Similarity preserves the selected Facet scope;
-- cross-Class and archived options are explicit;
-- runtime-unavailable state remains an explicit failure rather than fallback.
+- Facet and Version selectors update for that Object;
+- leaving Version unspecified means current accepted Version;
+- overall / Facet-specific Similarity preserves requested scope;
+- runtime-unavailable state remains explicit rather than falling back.
 
-### Registry
+### Registry / Version / Render
 
 - Classes and Relation Types browse/detail work;
-- Proposal list/detail works when proposals exist;
-- Accept / Reject does not automatically Apply;
-- Apply is only offered for accepted, unapplied proposals;
-- Apply requires explicit confirmation.
-
-### Version / Diff
-
-- Version Show renders immutable accepted Version content;
-- Version Diff renders structured output;
-- Markdown Diff renders the same derived comparison in human-readable form.
-
-### Render
-
-- Object or Version render writes to the selected/default derived root;
-- generated Markdown preview loads;
-- render result path / digest / byte count are visible.
+- Proposal Accept / Reject remains separate from Apply;
+- Version Show / Diff render correctly;
+- Object/Version Render writes and previews derived Markdown.
 
 The GUI must remain responsive while backend operations execute.
 
 ## 12. Current disposition
 
 ```text
-implementation       = Complete
-desk audit           = Complete
-operation wiring     = 14 / 14
-automated acceptance = PASS
-interactive smoke    = Pending
+implementation                 = Complete
+desk audit                     = Complete
+operation wiring               = 14 / 14
+pre-amendment automated gate   = PASS
+automated verification refresh = Pending
+interactive smoke              = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
 ```
 
-P-GUI-06 becomes `Complete / Accepted` only after interactive acceptance evidence is measured
-PASS.
+P-GUI-06 becomes `Complete / Accepted` only after the refreshed automated gate and interactive
+acceptance are measured PASS.
