@@ -8,7 +8,6 @@ from pathlib import Path
 
 import pytest
 
-
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 
@@ -124,7 +123,7 @@ def test_workspace_controller_preserves_current_workspace_when_candidate_fails(q
 
 
 def test_main_window_exposes_accepted_navigation(qt_app, tmp_path):
-    from sgokb.gui.views import MainWindow, NAVIGATION_ITEMS
+    from sgokb.gui.views import NAVIGATION_ITEMS, MainWindow
     from sgokb.gui.worker import BackendCoordinator
     from sgokb.gui.workspace import WorkspaceSettings
 
