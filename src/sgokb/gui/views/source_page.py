@@ -351,7 +351,7 @@ class SourcePage(OperationPage):
         reason, ok = QInputDialog.getText(
             self,
             "Set Effective Snapshot",
-            "Reason (required):",
+            "Reason for choosing this Snapshot as effective (required):",
         )
         if ok and reason.strip():
             self.select_snapshot(identities[0], identities[1], reason.strip())
@@ -378,7 +378,7 @@ class SourcePage(OperationPage):
         reason, ok = QInputDialog.getText(
             self,
             "Set Effective Run",
-            "Reason (required):",
+            "Reason for choosing this normalization run as effective (required):",
         )
         if ok and reason.strip():
             self.select_run(identities[1], run_id, reason.strip())
