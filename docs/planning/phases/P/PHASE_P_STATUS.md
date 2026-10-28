@@ -27,7 +27,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03 | **Complete / Accepted** | Transport-neutral Application boundary audit / refactor plan |
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
-| GUI | P-GUI-05 | **Automated Verification Refresh Pending / Functional Smoke Pending** | Object / Source / Evidence / Association GUI; Object Class selector amendment added after Attempt 03 |
+| GUI | P-GUI-05 | **Automated Verification PASS / Visual Smoke PASS / Functional Smoke Pending** | Object / Source / Evidence / Association GUI; Class selector amendments verified |
 | GUI | P-GUI-06 | Not Started | Search / Similarity / Registry / Version GUI |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
@@ -164,7 +164,7 @@ Acceptance authority:
 
 ## P-GUI-05 implementation state
 
-P-GUI-05 implementation is complete, but its automated verification must be refreshed because the Object Class mutation controls were amended after the last measured PASS. Visual rendering smoke has passed; representative functional smoke remains before formal closure.
+P-GUI-05 implementation is complete and the automated verification gate has passed after the Object Class selector amendments. Visual rendering smoke has passed; representative functional smoke remains before formal closure.
 
 The four P-GUI-04 placeholders are real operator pages:
 
@@ -215,16 +215,14 @@ tests/test_p_gui_05_object_class_selector.py
 tests/test_p_gui_05_object_class_controls.py
 ```
 
-Historical automated verification immediately before the latest Class-control amendment:
+Latest automated verification evidence:
 
 ```text
-focused GUI regression = 10 / 10 PASS
+focused GUI regression = 11 / 11 PASS
 Ruff                   = All checks passed!
-full regression         = 805 / 805 PASS
+full regression         = 806 / 806 PASS
 known warnings          = 2 local-Qdrant warnings
 ```
-
-That PASS remains valid historical evidence but does not certify the amended code until the refresh gate is executed.
 
 Interactive state:
 
@@ -239,6 +237,7 @@ Verification / amendment authority:
 - `docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
 - `docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_02.md`
 - `docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_03.md`
+- `docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
 - `docs/evaluation/P_GUI_05_ADD_OBJECT_CLASS_SELECTOR_IMPROVEMENT.md`
 - `docs/evaluation/P_GUI_05_OBJECT_CLASS_MUTATION_SELECTOR_IMPROVEMENT.md`
 - `docs/evaluation/P_GUI_05_INTERACTIVE_SMOKE_ATTEMPT_01.md`
@@ -246,7 +245,7 @@ Verification / amendment authority:
 Current verdict:
 
 ```text
-P-GUI-05 = Automated Verification Refresh Pending / Visual Smoke PASS / Functional Smoke Pending
+P-GUI-05 = Automated Verification PASS / Visual Smoke PASS / Functional Smoke Pending
 ```
 
 ## Sequencing
@@ -262,8 +261,8 @@ P-GUI-03R Complete / Accepted
         ↓
 P-GUI-04 Complete / Accepted
         ↓
-P-GUI-05 Automated Verification Refresh Pending / Functional Smoke Pending   <- CURRENT
-        ↓ refreshed automated PASS + functional smoke PASS
+P-GUI-05 Automated Verification PASS / Visual Smoke PASS / Functional Smoke Pending   <- CURRENT
+        ↓ functional smoke PASS
 P-GUI-05 Complete / Accepted
         ↓
 P-GUI-06 / 07 core GUI
@@ -287,10 +286,10 @@ Phase P remains in development. Current released system semantics continue to be
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-03R and P-GUI-04 are accepted development baselines. P-GUI-05 is implemented development code with visual smoke PASS, pending refreshed automated verification and functional interactive acceptance. None of these tasks alone advance the formal released version.
+P-GUI-03R and P-GUI-04 are accepted development baselines. P-GUI-05 is implemented and automated-verified development code with visual smoke PASS, pending functional interactive acceptance. None of these tasks alone advance the formal released version.
 
 ## Next
 
 ```text
-P-GUI-05 — refresh focused pytest / Ruff / full regression, then functional GUI smoke acceptance
+P-GUI-05 — representative functional GUI smoke acceptance
 ```
