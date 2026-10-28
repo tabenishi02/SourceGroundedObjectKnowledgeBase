@@ -8,6 +8,7 @@ from PySide6.QtCore import QObject, Signal, Slot
 
 from sgokb.operation_contracts import OperationFailure, OperationOutcome
 
+from ..operations import GuiOperationRequest
 from ..worker import BackendCoordinator
 from ..workspace import WorkspaceSettings, WorkspaceState
 
@@ -47,9 +48,10 @@ class WorkspaceController(QObject):
             )
             self.open_failed.emit(str(candidate), failure)
             return None
-        request_id = self.backend.submit(candidate, "system.status")
-        self._pending[request_id] = candidate
-        return request_id
+        request = GuiOperationRequest.create(candidate, "system.status")
+        self._pending[request.request_id] = candidate
+        self.backend.submit_request(request)
+        return request.request_id
 
     def refresh(self) -> str | None:
         if not self._state.is_open or self._state.db_path is None:
