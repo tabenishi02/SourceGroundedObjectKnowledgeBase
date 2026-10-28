@@ -20,11 +20,11 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
 from sgokb.gui.controllers import WorkspaceController
 from sgokb.gui.worker import BackendCoordinator
 from sgokb.gui.workspace import WorkspaceSettings, WorkspaceState
 from sgokb.operation_contracts import OperationFailure
-
 
 NAVIGATION_ITEMS = (
     ("home", "Home / Dashboard"),
