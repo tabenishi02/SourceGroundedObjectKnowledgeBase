@@ -68,12 +68,15 @@ def test_knowledge_validity_range_uses_temporal_overlap_and_keeps_timeless(repo,
     dated_2026, dated_2028, timeless = records
     engine, _ = _engine(repo, space)
 
-    overlap = engine.search(
-        "期間対象",
-        mode="semantic",
-        filters=ObjectSearchFilters(knowledge_valid_at="2026-06-01..2027-06-01"),
-    )
+    overlap_filter = ObjectSearchFilters(knowledge_valid_at="2026-06-01..2027-06-01")
+    overlap = engine.search("期間対象", mode="semantic", filters=overlap_filter)
     ids = _statement_ids(overlap)
+    assert dated_2026["statement_id"] in ids
+    assert dated_2028["statement_id"] not in ids
+    assert timeless["statement_id"] in ids
+
+    lexical_overlap = engine.search("期間対象", mode="lexical", filters=overlap_filter)
+    ids = _statement_ids(lexical_overlap)
     assert dated_2026["statement_id"] in ids
     assert dated_2028["statement_id"] not in ids
     assert timeless["statement_id"] in ids
