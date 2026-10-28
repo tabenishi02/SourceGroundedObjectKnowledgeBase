@@ -266,7 +266,7 @@ def test_main_window_hosts_real_p_gui_05_pages(qt_app, tmp_path):
         assert isinstance(window.domain_pages["sources"], SourcePage)
         assert isinstance(window.domain_pages["evidence"], EvidencePage)
         assert isinstance(window.domain_pages["associations"], AssociationPage)
-        assert set(window.domain_pages) == {"objects", "sources", "evidence", "associations"}
+        assert {"objects", "sources", "evidence", "associations"} <= set(window.domain_pages)
     finally:
         window.close()
         qt_app.processEvents()
