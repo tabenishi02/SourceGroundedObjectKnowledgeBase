@@ -28,7 +28,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI; automated + visual + functional acceptance PASS |
-| GUI | P-GUI-06 | **Implemented / Dynamic Verification Pending** | Search / Similarity / Registry / Version / Render GUI; 14 operations wired |
+| GUI | P-GUI-06 | **Automated Verification PASS / Interactive Smoke Pending** | Search / Similarity / Registry / Version / Render GUI; 14 operations wired; 16/16 focused + 811/811 full PASS |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
@@ -160,9 +160,10 @@ Final verdict:
 P-GUI-05 = Complete / Accepted
 ```
 
-## P-GUI-06 implementation state
+## P-GUI-06 implementation and automated verification state
 
-P-GUI-06 implementation is complete and is awaiting dynamic verification.
+P-GUI-06 implementation is complete and its automated verification gate is **PASS**. Interactive
+GUI smoke remains pending.
 
 The accepted shell placeholders are replaced by real pages for:
 
@@ -226,9 +227,21 @@ No GUI direct SQL or CLI-subprocess business path was introduced. Proposal Accep
 separate canonical operations. Search/runtime failure and degradation semantics remain owned by
 the existing Application/operator boundary.
 
+Automated evidence:
+
+```text
+focused P-GUI-04 / 05 / 06 regression = 16 / 16 PASS
+Ruff                                  = All checks passed!
+full pytest                            = 811 / 811 PASS
+known local-Qdrant warnings            = 2
+```
+
+The two warnings are the existing local-Qdrant limitations and do not represent test failures.
+
 Implementation / verification authority:
 
 - `docs/evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
 
 Current P-GUI-06 disposition:
 
@@ -236,14 +249,14 @@ Current P-GUI-06 disposition:
 implementation       = Complete
 desk audit           = Complete
 operation wiring     = 14 / 14
-automated acceptance = Pending
+automated acceptance = PASS
 interactive smoke    = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Implemented / Dynamic Verification Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
 
 ## Sequencing
@@ -261,8 +274,8 @@ P-GUI-04 Complete / Accepted
         ↓
 P-GUI-05 Complete / Accepted
         ↓
-P-GUI-06 Implemented / Dynamic Verification Pending   <- CURRENT
-        ↓ automated PASS + interactive smoke PASS
+P-GUI-06 Automated Verification PASS / Interactive Smoke Pending   <- CURRENT
+        ↓ interactive smoke PASS
 P-GUI-06 Complete / Accepted
         ↓
 P-GUI-07 Progress / error / safety / audit UX
@@ -286,12 +299,12 @@ Phase P remains in development. Released system semantics continue to be governe
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 is implemented
-development code pending measured automated and interactive acceptance. None of these tasks alone
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed measured
+automated verification but still requires interactive smoke acceptance. None of these tasks alone
 advance the formal released version.
 
 ## Next
 
 ```text
-P-GUI-06 — focused pytest / Ruff / full regression, then interactive GUI smoke acceptance
+P-GUI-06 — interactive GUI smoke acceptance
 ```
