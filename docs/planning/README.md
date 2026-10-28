@@ -26,8 +26,8 @@ P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
 P-GUI-05 = Complete / Accepted
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
-Next = P-GUI-06 refreshed focused/full/Ruff verification, then interactive GUI smoke acceptance
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+Next = P-GUI-06 interactive GUI smoke acceptance
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -116,7 +116,8 @@ P-GUI-05                = Complete / Accepted
 ### P-GUI-06 current authority
 
 - Main implementation / interactive procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
-- Pre-amendment automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
+- Current automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md)
+- Historical pre-amendment verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
 - Search selector / validity-range amendment: [`../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`](../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md)
 
 P-GUI-06 keeps the 14 assigned operations wired:
@@ -158,53 +159,40 @@ Current Registry / Version / Render surface remains:
 - Class list/detail;
 - Relation Type list/detail;
 - Registry Proposal list/detail / decision filter;
-- Accept / Reject decisions separate from Apply;
+- Accept / Reject separate from Apply;
 - explicit Apply confirmation;
 - Version Show;
 - structured / Markdown Version Diff;
 - Object/Version render/export and generated Markdown preview.
 
-The latest user message contained an unfinished `Registryタブの` bullet; no unspecified Registry
-change was inferred.
+The user request that introduced the selector amendment contained an unfinished `Registryタブの` bullet; no unspecified Registry change was inferred.
 
-Pre-amendment automated evidence was:
+Current automated evidence after the selector/range amendment:
 
 ```text
-focused P-GUI-04 / 05 / 06 regression = 16 / 16 PASS
+focused P-GUI-04 / 05 / 06 regression = 18 / 18 PASS
 Ruff                                  = All checks passed!
-full regression                        = 811 / 811 PASS
+full regression                        = 813 / 813 PASS
 known local-Qdrant warnings            = 2
 ```
 
-The selector / range amendment changed production code after that measurement, so the current
-status is intentionally reset to:
+Current status:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
 
 ### Current released system
 
-Phase P remains in development. Released `v1.1.0` semantics remain governed by:
+Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-- Current integrated architecture: [`../design/SGOKB_CURRENT_ARCHITECTURE.md`](../design/SGOKB_CURRENT_ARCHITECTURE.md)
-- Current design index: [`../design/README.md`](../design/README.md)
-- Object-centered CLI contract: [`../decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md`](../decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md)
-- Operational safety / recovery: [`../operations/OPERATIONAL_SAFETY_RECOVERY.md`](../operations/OPERATIONAL_SAFETY_RECOVERY.md)
-- 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
-- Current release note: [`../releases/v1.1.0.md`](../releases/v1.1.0.md)
-
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 remains pending refreshed
-automated verification and interactive acceptance. These tasks do not by themselves advance the
-formal release version.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed the amended automated gate and remains pending interactive acceptance. These tasks do not by themselves advance the formal release version.
 
 ## Phase P GUI decisions so far
 
 ### Compatibility
 
-All 67 public CLI operations are mapped to GUI capability inventory. GUI compatibility means same
-use case / target identity / canonical effect / validation / safety / degradation / failure
-semantics, not replaying CLI strings.
+All 67 public CLI operations are mapped to GUI capability inventory. GUI compatibility means same use case / target identity / canonical effect / validation / safety / degradation / failure semantics, not replaying CLI strings.
 
 ### Technical architecture
 
@@ -235,18 +223,15 @@ Application facades
 Repository / Retrieval / Exchange
 ```
 
-P-GUI-04 established the queued QThread foundation. P-GUI-05 and P-GUI-06 reuse it without GUI
-direct SQL or a CLI-subprocess business path.
+P-GUI-04 established the queued QThread foundation. P-GUI-05 and P-GUI-06 reuse it without GUI direct SQL or a CLI-subprocess business path.
 
 ## Workstream B — RAW Grounding
 
-Evidence remains the retrieval / selection unit, while External AI semantic material will move
-from reconstructed Evidence Markdown to Raw Artifacts traced through provenance.
+Evidence remains the retrieval / selection unit, while External AI semantic material will move from reconstructed Evidence Markdown to Raw Artifacts traced through provenance.
 
 ## Workstream C — Runtime
 
-Windows login should make Qdrant automatically available. Qdrant remains an independent shared
-runtime rather than a GUI-owned process.
+Windows login should make Qdrant automatically available. Qdrant remains an independent shared runtime rather than a GUI-owned process.
 
 ## Phase P task families
 
@@ -272,5 +257,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-GUI-06 — refreshed focused pytest / Ruff / full regression, then interactive GUI smoke
+P-GUI-06 — interactive GUI smoke acceptance
 ```
