@@ -26,8 +26,8 @@ P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
 P-GUI-05 = Complete / Accepted
-P-GUI-06 = Implemented / Dynamic Verification Pending
-Next = P-GUI-06 focused/full/Ruff verification, then interactive GUI smoke acceptance
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+Next = P-GUI-06 interactive GUI smoke acceptance
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -140,9 +140,10 @@ P-GUI-05 = Complete / Accepted
 
 The accepted Source surface includes recursive folder ZIP discovery/import while retaining existing WebCaptureImporter validation. The accepted Object surface includes registry-backed Class selectors using stable `class_id` values.
 
-### P-GUI-06 implementation authority
+### P-GUI-06 implementation / automated verification authority
 
-- Implementation / verification procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
+- Implementation / interactive procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
+- Automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
 
 P-GUI-06 replaces the `Search` and `Registry` placeholders with real operator-backed pages.
 Version / Diff / Render are grouped under Registry; Similarity is grouped under Search.
@@ -181,10 +182,19 @@ Implemented Registry / Version / Render surface:
 - Markdown Diff through the existing H-04 renderer;
 - Object/Version render/export and generated Markdown preview.
 
+Automated evidence:
+
+```text
+focused P-GUI-04 / 05 / 06 regression = 16 / 16 PASS
+Ruff                                  = All checks passed!
+full regression                        = 811 / 811 PASS
+known local-Qdrant warnings            = 2
+```
+
 Current status:
 
 ```text
-P-GUI-06 = Implemented / Dynamic Verification Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
 
 ### Current released system
@@ -198,7 +208,7 @@ Phase P remains in development. Released `v1.1.0` semantics remain governed by:
 - 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
 - Current release note: [`../releases/v1.1.0.md`](../releases/v1.1.0.md)
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 is implemented development code pending dynamic verification and interactive acceptance. These tasks do not by themselves advance the formal release version.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed automated verification and remains pending interactive acceptance. These tasks do not by themselves advance the formal release version.
 
 ## Phase P GUI decisions so far
 
@@ -285,5 +295,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-GUI-06 — focused pytest / Ruff / full regression, then interactive GUI smoke acceptance
+P-GUI-06 — interactive GUI smoke acceptance
 ```
