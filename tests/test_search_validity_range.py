@@ -2,6 +2,11 @@ from __future__ import annotations
 
 import pytest
 from test_hybrid_search import _accepted, _class, _engine
+from test_hybrid_search_r2 import (
+    _accepted_r2,
+    _activate_r2_generation,
+    _engine as _r2_engine,
+)
 
 from sgokb.domain import EmbeddingSpaceSpec, ObjectSearchFilters
 from sgokb.repository import Repository
@@ -107,3 +112,50 @@ def test_knowledge_validity_range_uses_temporal_overlap_and_keeps_timeless(repo,
             mode="semantic",
             filters=ObjectSearchFilters(knowledge_valid_at="2028-01-01..2026-01-01"),
         )
+
+
+@pytest.mark.parametrize(
+    "valid_at",
+    (
+        "1900-01-01..1901-01-01",
+        "2100-01-01..2200-01-01",
+        "..1950-12-31",
+        "2050-01-01..",
+    ),
+)
+def test_range_registry_identity_uses_current_canonical_version_when_generation_lags(
+    repo,
+    space,
+    valid_at,
+):
+    object_id = repo.object_store.create_object(
+        "Lagged Range Hero",
+        _class(repo, "character"),
+    )
+    _accepted_r2(
+        repo,
+        object_id,
+        "lagged-range-v1",
+        [{"facet": "personality", "text": "old active generation knowledge"}],
+    )
+    generation_id = _activate_r2_generation(repo)
+
+    current_version_id = _accepted_r2(
+        repo,
+        object_id,
+        "lagged-range-v2",
+        [{"facet": "personality", "text": "new current canonical knowledge"}],
+    )
+    engine, _ = _r2_engine(repo, space, generation_id)
+    filters = ObjectSearchFilters(knowledge_valid_at=valid_at)
+
+    identity = engine.search("Lagged Range Hero", mode="lexical", filters=filters)
+    matching = [result for result in identity.results if result.object_id == object_id]
+    assert matching
+    assert matching[0].version_id == current_version_id
+
+    # Preserve the R2 isolation contract for derived Knowledge channels: the new
+    # Version is canonical/current but is not silently injected into the older
+    # active generation's lexical Knowledge membership.
+    content = engine.search("new current canonical knowledge", mode="lexical", filters=filters)
+    assert all(result.object_id != object_id for result in content.results)
