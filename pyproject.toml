@@ -40,3 +40,12 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+# The operator module is a deliberately explicit 67-operation routing table. Keep
+# R9 focused on semantic parity rather than reflowing the dispatch matrix.
+"src/sgokb/application_operator.py" = ["E501", "I001"]
+# These test modules intentionally re-export pytest fixtures from sibling modules;
+# function parameters then consume those fixture names, which Ruff reports as F811.
+"tests/test_hybrid_search_r2_semantic_fusion.py" = ["F811"]
+"tests/test_object_similarity_facet_median.py" = ["F811"]
