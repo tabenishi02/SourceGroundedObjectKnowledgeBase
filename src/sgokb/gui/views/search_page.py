@@ -130,7 +130,9 @@ class SearchPage(OperationPage):
         query_row.addWidget(run)
         layout.addLayout(query_row)
 
-        filters = QGroupBox("Hard filters", page)
+        body = QSplitter(page)
+        filters = QGroupBox("Hard filters", body)
+        filters.setMaximumWidth(360)
         form = QFormLayout(filters)
         self.primary_class = QLineEdit(filters)
         self.additional_class = QLineEdit(filters)
@@ -151,27 +153,33 @@ class SearchPage(OperationPage):
         form.addRow("Knowledge valid at:", self.valid_at)
         form.addRow("Derivation kind:", self.derivation_kind)
         form.addRow("", self.include_archived)
-        layout.addWidget(filters)
+        body.addWidget(filters)
 
-        self.search_runtime_state = QLabel("No search has run.", page)
+        results_panel = QWidget(body)
+        results_layout = QVBoxLayout(results_panel)
+        results_layout.setContentsMargins(0, 0, 0, 0)
+        self.search_runtime_state = QLabel("No search has run.", results_panel)
         self.search_runtime_state.setWordWrap(True)
-        layout.addWidget(self.search_runtime_state)
+        results_layout.addWidget(self.search_runtime_state)
 
-        splitter = QSplitter(page)
-        self.search_table = QTableView(splitter)
+        result_splitter = QSplitter(results_panel)
+        self.search_table = QTableView(result_splitter)
         self.search_table.setModel(self.search_model)
         self.search_table.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         self.search_table.setSelectionMode(QTableView.SelectionMode.SingleSelection)
         self.search_table.setAlternatingRowColors(True)
         self.search_table.horizontalHeader().setStretchLastSection(True)
         self.search_table.selectionModel().currentRowChanged.connect(self._search_row_changed)
-        splitter.addWidget(self.search_table)
-        self.search_detail = QTextEdit(splitter)
+        result_splitter.addWidget(self.search_table)
+        self.search_detail = QTextEdit(result_splitter)
         self.search_detail.setReadOnly(True)
         self.search_detail.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
-        splitter.addWidget(self.search_detail)
-        splitter.setSizes([700, 480])
-        layout.addWidget(splitter, 1)
+        result_splitter.addWidget(self.search_detail)
+        result_splitter.setSizes([650, 430])
+        results_layout.addWidget(result_splitter, 1)
+        body.addWidget(results_panel)
+        body.setSizes([300, 900])
+        layout.addWidget(body, 1)
         return page
 
     def _build_similarity_tab(self) -> QWidget:
@@ -368,7 +376,11 @@ class SearchPage(OperationPage):
             self.similar_detail.setPlainText(_json(payload))
             return
         results = payload.get("results", [])
-        rows = [dict(item) for item in results if isinstance(item, dict)] if isinstance(results, list) else []
+        rows = (
+            [dict(item) for item in results if isinstance(item, dict)]
+            if isinstance(results, list)
+            else []
+        )
         self.similar_model.set_rows(rows)
         self.similar_source.setText(
             "Source: "
