@@ -3,8 +3,8 @@
 import json
 import subprocess
 
-import pytest
 from benchmark.tools import phase_n_closure_audit as audit
+import pytest
 
 
 HISTORICAL_CLOSURE_REF = "fb9b0d6a6f670d1b0f053148769ce8cd448ea217"
