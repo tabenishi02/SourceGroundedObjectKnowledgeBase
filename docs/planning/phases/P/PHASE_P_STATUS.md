@@ -26,8 +26,8 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-02 | **Complete / Accepted** | PySide6 architecture / packaging / license |
 | GUI | P-GUI-03 | **Complete / Accepted** | Transport-neutral Application boundary audit / refactor plan |
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
-| GUI | P-GUI-04 | **Automated Verification PASS / Interactive Smoke Pending** | GUI shell / Workspace / navigation foundation |
-| GUI | P-GUI-05 | **Blocked by P-GUI-04 acceptance** | Object / Source / Evidence / Association GUI |
+| GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
+| GUI | P-GUI-05 | **Unblocked / Next** | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | Not Started | Search / Similarity / Registry / Version GUI |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
@@ -137,9 +137,9 @@ Final acceptance authority:
 
 - `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
 
-## P-GUI-04 implementation and automated verification
+## P-GUI-04 accepted implementation
 
-The GUI foundation is implemented on `main`.
+The GUI shell / Workspace / navigation foundation is now **Complete / Accepted**.
 
 Implemented package surface:
 
@@ -173,22 +173,28 @@ Settings
 
 Workspace open/create is validated by executing `system.status` through `OperatorSession` on the backend QThread. Candidate failures do not replace the active Workspace. No GUI direct SQL or CLI-subprocess business path was introduced.
 
-Automated acceptance result:
+Final acceptance evidence:
 
 ```text
-sgokb-gui entrypoint = resolved
-focused pytest       = 5 / 5 PASS
-full pytest          = 800 / 800 PASS
-ruff                 = All checks passed!
+sgokb-gui entrypoint                     PASS
+focused pytest                           5 / 5 PASS
+full pytest                              800 / 800 PASS
+ruff                                     All checks passed!
+GUI normal startup                       PASS
+11 navigation destinations               PASS
+Create Workspace                         PASS
+Dashboard Workspace/status display       PASS
+Open Workspace                           PASS
+Recent Workspaces persisted after restart PASS
+GUI close / DB release                    PASS
+same DB readable from CLI                 PASS
 ```
 
-The full regression emitted only the existing two local-Qdrant capability warnings and no failures/errors.
+The fresh GUI-created Workspace was successfully read after GUI close using `sgokb --db ... system status`, returning `ok: true`, migrations 3 through 18, and no warnings.
 
-Implementation / acceptance authority:
+Acceptance authority:
 
 - `docs/evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md`
-
-The only remaining P-GUI-04 acceptance gate is interactive GUI smoke. P-GUI-04 is therefore not yet `Complete / Accepted`.
 
 ## Sequencing
 
@@ -201,11 +207,11 @@ P-GUI-03 Complete
         ↓
 P-GUI-03R Complete / Accepted
         ↓
-P-GUI-04 Automated Verification PASS / Interactive Smoke Pending   <- CURRENT
-        ↓ interactive smoke PASS
 P-GUI-04 Complete / Accepted
         ↓
-P-GUI-05 / 06 / 07 core GUI
+P-GUI-05 Object / Source / Evidence / Association GUI   <- NEXT
+        ↓
+P-GUI-06 / 07 core GUI
         ↓
 P-RAW
         ↓
@@ -226,10 +232,10 @@ Phase P remains in development. Current released system semantics continue to be
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-03R is an accepted development baseline. P-GUI-04 GUI code has passed automated verification but remains unaccepted until the interactive smoke gate passes.
+P-GUI-03R and P-GUI-04 are accepted development baselines for subsequent GUI work. They do not themselves advance the formal released version.
 
 ## Next
 
 ```text
-P-GUI-04 — interactive GUI smoke acceptance
+P-GUI-05 — Object / Source / Evidence / Association GUI
 ```
