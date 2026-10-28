@@ -4,14 +4,14 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-04 [P0] GUI shell / Workspace / navigation foundation`
-- Status: **Automated Verification PASS / Interactive Smoke Pending**
+- Status: **Complete / Accepted**
 - Baseline: P-GUI-03R **Complete / Accepted**
 - GUI architecture: `docs/design/P_GUI_APPLICATION_ARCHITECTURE.md`
 - GUI requirements: `docs/requirements/GUI_REQUIREMENTS.md`
 
 ## 1. Result summary
 
-P-GUI-04 now has an executable PySide6 / Qt Widgets foundation on `main`.
+P-GUI-04 has an accepted executable PySide6 / Qt Widgets foundation on `main`.
 
 Implemented scope:
 
@@ -34,7 +34,7 @@ status bar / global warning surface
 P-GUI-04 automated test assets
 ```
 
-P-GUI-05+ domain pages are intentionally placeholders in this task.
+P-GUI-05+ domain pages remain intentionally placeholders in this task.
 
 ## 2. Package / entrypoint
 
@@ -248,47 +248,50 @@ ruff           = PASS
 
 ## 10. Interactive smoke acceptance
 
-Automated verification is complete. The remaining acceptance is interactive GUI smoke.
+Interactive GUI smoke was executed successfully.
 
-Run:
-
-```powershell
-sgokb-gui
-```
-
-Confirm at minimum:
-
-1. the window opens without blocking the event loop;
-2. all 11 navigation destinations switch correctly;
-3. Create Workspace creates a fresh DB and Dashboard reports it;
-4. Open Workspace opens an existing accepted DB;
-5. invalid/prototype DB open presents an error and preserves the previous Workspace;
-6. recent Workspace entries persist after restart;
-7. closing the GUI releases the DB;
-8. the same DB remains readable from CLI, for example:
-
-```powershell
-sgokb --db <workspace.sqlite> system status
-```
-
-## 11. Completion disposition
-
-Implementation and automated verification are satisfied:
+Confirmed PASS:
 
 ```text
-implementation   = Complete
-focused pytest   = PASS (5 / 5)
-full pytest      = PASS (800 / 800)
-ruff             = PASS
-interactive smoke = Pending
+GUI normal startup                         PASS
+11 navigation destinations                PASS
+Create Workspace                          PASS
+Dashboard Workspace/status display        PASS
+Open Workspace                            PASS
+Recent Workspaces persisted after restart PASS
+GUI close / DB release                    PASS
+same DB readable from CLI                 PASS
 ```
 
-P-GUI-04 remains:
+The accepted smoke Workspace was subsequently read from the CLI with:
+
+```powershell
+sgokb --db "C:\codex\SourceGroundedObjectKnowledgeBase\.local\202610290130_sql\sgokb.sqlite" system status
+```
+
+The command returned `ok: true`, migrations 3 through 18, zero Source/Object content for the fresh DB, and no warnings.
+
+This confirms the P-GUI-04 completion criterion that the same canonical SQLite Workspace remains usable from the CLI after GUI use.
+
+## 11. Final acceptance disposition
+
+All implementation and acceptance gates are satisfied:
 
 ```text
-Automated Verification PASS / Interactive Smoke Pending
+implementation         = Complete
+sgokb-gui entrypoint   = PASS
+focused pytest         = PASS (5 / 5)
+full pytest            = PASS (800 / 800)
+ruff                   = PASS
+interactive GUI smoke = PASS
+GUI -> CLI DB reuse    = PASS
 ```
 
-It becomes `Complete / Accepted` only after the interactive smoke acceptance above is measured PASS.
+Formal disposition:
 
-P-GUI-05 remains blocked until that final acceptance.
+```text
+P-GUI-04 = Complete / Accepted
+P-GUI-05 = Unblocked / Next
+```
+
+P-GUI-05 may now implement the Object / Source / Evidence / Association GUI on top of this accepted shell and backend foundation.
