@@ -15,9 +15,14 @@ O-03 Prototype Archived / Legacy labels = Complete
 O-04 main integration = Complete
 O-05 Branch cleanup = Complete
 O-06 Release / Tag policy = Complete
+Happy-path operational acceptance = Complete / FULL SGOKB PASS
+Acceptance date = 2026-10-28
+Acceptance execution HEAD = 5eba4629b12cc071dab33d04faa7521a361d6977
 Current formal release = v1.0.0
 Release commit = 0e1a8464e9db98b4e99169cae6292821f3fd410c
 ```
+
+2026-10-28のSGOKB Happy-Path Operational AcceptanceはA-Tの全適用sectionを完了し、`Core SGOKB Acceptance = PASS`、`Full SGOKB Acceptance = PASS`、overall verdict **FULL SGOKB PASS** と判定しました。T-01ではfresh Object「フリーザ」をnormal workflowでSource / Evidence / Package / external ChatGPT / Result validation-review-import / Render / Lexical-Semantic-Hybrid-Similarity / MCP / Backup / final Integrityまで通し、同一canonical Object/current Version semanticsへ解決されることを確認しています。正式記録は [`evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md`](evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md) を参照してください。
 
 Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSとなり、独立ChatGPT reviewで受理済みです。旧N-07 `47 PASS / 3 FAIL`はhistorical evidenceとして保持され、N07-R01 Composite backup / restore remediationの後続PASSでclosureしています。
 
@@ -34,8 +39,9 @@ Phase O closure stateは [`planning/phases/O/PHASE_O_STATUS.md`](planning/phases
 3. [`operations/OPERATIONAL_SAFETY_RECOVERY.md`](operations/OPERATIONAL_SAFETY_RECOVERY.md) — Offline / Backup / Restore / Retention / Security / External Egress / Failure Recovery / Benchmark条件
 4. [`design/README.md`](design/README.md) — current detailed design map
 5. [`operations/OBJECT_STANDARD_WORKFLOW.md`](operations/OBJECT_STANDARD_WORKFLOW.md) — 1 Object標準運用
-6. [`releases/v1.0.0.md`](releases/v1.0.0.md) — first formal SGOKB release boundary / Breaking Changes / migration guidance
-7. [`planning/README.md`](planning/README.md) — current planning / task state
+6. [`evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md`](evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md) — current happy-path operational acceptance result / FULL SGOKB PASS
+7. [`releases/v1.0.0.md`](releases/v1.0.0.md) — first formal SGOKB release boundary / Breaking Changes / migration guidance
+8. [`planning/README.md`](planning/README.md) — current planning / task state
 
 要件から確認する場合:
 
@@ -99,10 +105,16 @@ Post-R2 current Object semantic representationは`object_overview / facet / stat
 
 - [`operations/OBJECT_STANDARD_WORKFLOW.md`](operations/OBJECT_STANDARD_WORKFLOW.md) — Object登録 → Evidence → Package → ChatGPT → Result → Import → Search / MCP
 - [`operations/OPERATIONAL_SAFETY_RECOVERY.md`](operations/OPERATIONAL_SAFETY_RECOVERY.md) — Offline / Backup / Restore / Retention / Security / External Egress / Failure Recovery / Benchmark
+- [`operations/SGOKB_HAPPY_PATH_ACCEPTANCE_TEST_PLAN.md`](operations/SGOKB_HAPPY_PATH_ACCEPTANCE_TEST_PLAN.md) — happy-path operational acceptance plan
+- [`operations/SGOKB_HAPPY_PATH_ACCEPTANCE_TEST_PROCEDURES.md`](operations/SGOKB_HAPPY_PATH_ACCEPTANCE_TEST_PROCEDURES.md) — operator execution procedure
 
 ### [`evaluation/`](evaluation/)
 
 試験結果、benchmark、formal acceptance、failure analysis。
+
+Current happy-path operational acceptance authority:
+
+- [`SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md`](evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md) — **FULL SGOKB PASS**
 
 Phase N最終authority:
 
