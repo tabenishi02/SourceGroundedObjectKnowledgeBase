@@ -102,6 +102,16 @@ class BackendCoordinator(QObject):
     def is_busy(self) -> bool:
         return bool(self._pending)
 
+    def submit_request(self, request: GuiOperationRequest) -> str:
+        """Queue a pre-correlated request after its caller records local intent."""
+
+        was_busy = self.is_busy
+        self._pending.add(request.request_id)
+        if not was_busy:
+            self.busy_changed.emit(True)
+        self._submit_requested.emit(request)
+        return request.request_id
+
     def submit(
         self,
         workspace_path: str | Path,
@@ -109,12 +119,7 @@ class BackendCoordinator(QObject):
         arguments: dict[str, object] | None = None,
     ) -> str:
         request = GuiOperationRequest.create(workspace_path, operation_id, arguments)
-        was_busy = self.is_busy
-        self._pending.add(request.request_id)
-        if not was_busy:
-            self.busy_changed.emit(True)
-        self._submit_requested.emit(request)
-        return request.request_id
+        return self.submit_request(request)
 
     def _complete(self, request_id: str) -> None:
         was_busy = self.is_busy
