@@ -7,6 +7,7 @@ from collections.abc import Callable, Mapping
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QLabel, QWidget
 
+from sgokb.gui.operations import GuiOperationRequest
 from sgokb.gui.worker import BackendCoordinator
 from sgokb.gui.workspace import WorkspaceState
 from sgokb.operation_contracts import OperationFailure, OperationOutcome
@@ -50,11 +51,15 @@ class OperationPage(QWidget):
         if not self.workspace.is_open or self.workspace.db_path is None:
             self.operation_status.setText("No active Workspace.")
             return None
-        request_id = self.backend.reserve(self.workspace.db_path, operation_id, dict(arguments or {}))
-        self._pending[request_id] = (operation_id, callback)
+        request = GuiOperationRequest.create(
+            self.workspace.db_path,
+            operation_id,
+            dict(arguments or {}),
+        )
+        self._pending[request.request_id] = (operation_id, callback)
         self.operation_status.setText(summary or f"Running {operation_id}...")
-        self.backend.dispatch_reserved(request_id)
-        return request_id
+        self.backend.submit_request(request)
+        return request.request_id
 
     @Slot(str, object)
     def _on_operation_finished(self, request_id: str, outcome: object) -> None:
