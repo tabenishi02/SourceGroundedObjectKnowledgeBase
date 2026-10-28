@@ -1,56 +1,30 @@
-"""Phase M Object-centered SGOKB CLI."""
+"""Object-centered SGOKB CLI presentation adapter."""
 
 from __future__ import annotations
 
 import argparse
-import json
 import os
-import sqlite3
 import sys
-from dataclasses import asdict
 from pathlib import Path
 
-import httpx
-
-from sgokb.application import Application
-from sgokb.application_admin import ObjectAdminApplication, ObjectSelectorError
-from sgokb.application_derived import DerivedSearchOperatorApplication
-from sgokb.application_maintenance import (
-    DerivedMaintenanceError,
-    DerivedMaintenanceRuntimeUnavailableError,
+from sgokb.application_operator import OperatorSession
+from sgokb.exchange.package_builder import DEFAULT_BUILD_ROOT
+from sgokb.exchange.result_receipt import DEFAULT_INCOMING_ROOT
+from sgokb.operation_contracts import (
+    CATEGORY_BLOCKED,
+    CATEGORY_INPUT,
+    CATEGORY_INTEGRITY,
+    CATEGORY_IO,
+    CATEGORY_NOT_FOUND,
+    CATEGORY_RUNTIME,
+    OUTCOME_BLOCKED,
+    OUTCOME_PARTIAL,
+    OperationFailure,
+    OperationRequest,
 )
-from sgokb.application_read import (
-    KnowledgeReadApplication,
-    KnowledgeRequestError,
-    RetrievalRuntimeUnavailableError,
-)
-from sgokb.composite_recovery import (
-    composite_restore_apply,
-    composite_restore_plan,
-    create_composite_backup,
-    verify_composite_backup,
-)
-from sgokb.domain import ObjectSearchFilters
-from sgokb.exchange.package_builder import DEFAULT_BUILD_ROOT, ObjectEvidencePackageBuilder
-from sgokb.exchange.package_transfer import PackageTransferService
-from sgokb.exchange.result_import import ObjectVersionImportService
-from sgokb.exchange.result_receipt import DEFAULT_INCOMING_ROOT, ResultReceiptService
-from sgokb.exchange.result_validation import ResultValidationService
-from sgokb.providers import embedder_from_env
-from sgokb.rendering import DEFAULT_RENDER_ROOT, MarkdownRenderService
+from sgokb.rendering import DEFAULT_RENDER_ROOT
 from sgokb.repository import Repository
-from sgokb.retrieval import KnowledgeVectorIndexBuilder, route_generation_vector_index
-from sgokb.review import DiffReviewMarkdownRenderer, DiffReviewService
-from sgokb.storage import PackageExchangeAuditRepository
-from sgokb.system_ops import (
-    backup_status,
-    create_backup,
-    index_status,
-    integrity,
-    restore_apply,
-    restore_plan,
-    system_status,
-)
+from sgokb.review import DiffReviewMarkdownRenderer
 
 from .contracts import (
     EXIT_BLOCKED,
@@ -63,7 +37,7 @@ from .contracts import (
     emit_error,
     emit_success,
 )
-from .runtime import build_read_application, semantic_runtime
+from .runtime import runtime_factory
 
 
 def _selector(parser: argparse.ArgumentParser) -> None:
@@ -398,463 +372,54 @@ def _command(args) -> str:
     return ".".join(parts)
 
 
-def _manifest(path: Path) -> dict:
-    return json.loads((path / "manifest.json").read_text(encoding="utf-8"))
-
-
-def _resolve(admin: ObjectAdminApplication, args) -> str:
-    return admin.resolve_object_id(
-        object_id=getattr(args, "object_id", None),
-        name=getattr(args, "name", None),
-    )
-
-
-def _source_dispatch(repository, args):
-    app = Application(
-        repository,
-        embedder=(embedder_from_env() if getattr(args, "semantic", False) else None),
-    )
-    if args.action == "status":
-        return repository.source_store.status(), False
-    if args.action == "snapshots":
-        result = [
-            {
-                "id": s.snapshot_id,
-                "source_id": s.source_id,
-                "title": s.title,
-                "captured_at": s.captured_at,
-                "completeness": s.completeness.value,
-                "effective": bool(
-                    (effective := repository.source_store.effective_snapshot(s.source_id))
-                    and effective.snapshot_id == s.snapshot_id
-                ),
-            }
-            for s in repository.source_store.snapshots()
-        ]
-        return result, False
-    if args.action == "select-snapshot":
-        selection_id = repository.source_store.select_effective_snapshot(
-            args.source,
-            args.snapshot,
-            reason=args.reason,
-        )
-        effective = repository.source_store.effective_snapshot(args.source)
-        return {
-            "selection_id": selection_id,
-            "source_id": args.source,
-            "snapshot_id": args.snapshot,
-            "effective": bool(effective and effective.snapshot_id == args.snapshot),
-        }, False
-    if args.action == "select-run":
-        snapshot = repository.source_store.snapshot_by_id(args.snapshot)
-        selection_id = repository.source_store.select_effective_run(
-            args.snapshot,
-            args.run,
-            reason=args.reason,
-        )
-        effective = repository.source_store.effective_run(args.snapshot)
-        return {
-            "selection_id": selection_id,
-            "source_id": snapshot.source_id,
-            "snapshot_id": args.snapshot,
-            "run_id": args.run,
-            "effective": bool(effective and effective["id"] == args.run),
-        }, False
-
-    if args.action == "import":
-        targets = (
-            [args.path] if args.path.is_file() else sorted(args.path.rglob("*.webcapture.zip"))
-        )
-    else:
-        targets = (
-            [args.snapshot]
-            if args.snapshot
-            else [s.snapshot_id for s in repository.source_store.snapshots()]
-        )
-    if not targets:
-        raise ValueError("No input bundles or snapshots found")
-    output = []
-    failed = False
-    for target in targets:
-        try:
-            if args.action == "import":
-                value = app.import_source_path(target)
-            else:
-                value = app.process_source_snapshot(
-                    target, args.size, args.overlap, args.include_auxiliary
-                )
-            output.append(value)
-        except Exception as exc:
-            failed = True
-            output.append({"input": str(target), "error": type(exc).__name__, "reason": str(exc)})
-    return output, failed
-
-
-def _object_dispatch(repository, args, admin: ObjectAdminApplication):
-    read = KnowledgeReadApplication(repository)
-    if args.action == "add":
-        return admin.add_object(args.name, args.primary_class, args.alias)
-    if args.action == "list":
-        return admin.list_objects()
-    object_id = _resolve(admin, args)
-    if args.action == "show":
-        registry = admin.show_object(object_id)
-        if not args.knowledge:
-            return registry
-        if registry["current_version_id"] is None and args.version is None:
-            return {"registry": registry, "knowledge": None}
-        return {
-            "registry": registry,
-            "knowledge": read.get_object(object_id, version_id=args.version),
-        }
-    if args.action == "rename":
-        return admin.rename_object(object_id, args.to)
-    if args.action == "status":
-        return admin.set_status(object_id, args.set)
-    if args.action == "alias":
-        if args.subaction == "list":
-            return admin.aliases(object_id)
-        return admin.add_alias(object_id, args.value, language=args.language, kind=args.kind)
-    if args.action == "class":
-        if args.subaction == "set-primary":
-            return admin.set_primary_class(object_id, args.class_ref)
-        if args.subaction == "add":
-            return admin.add_class(object_id, args.class_ref)
-        return admin.remove_class(object_id, args.class_ref)
-    if args.action == "events":
-        return admin.events(object_id)
-    return read.get_object_relations(
-        object_id,
-        version_id=args.version,
-        include_evidence_refs=not args.no_evidence,
-    )
-
-
-def _association_dispatch(repository, args):
-    embedder = embedder_from_env() if args.action == "suggest" and args.semantic else None
-    app = Application(repository, embedder=embedder)
-    if args.action == "list":
-        return app.list_source_object_associations(args.object)
-    if args.action == "suggest":
-        return app.suggest_source_associations(
-            args.object,
-            max_candidates=args.max_candidates,
-            semantic=args.semantic,
-            semantic_batch_size=args.semantic_batch_size,
-        )
-    if args.action == "set":
-        return app.set_source_object_association(
-            args.object,
-            args.source,
-            args.status,
-            subject_relationship=args.subject_relationship,
-            note=args.note,
-        )
-    return app.clear_source_object_association(args.object, args.source)
-
-
-def _evidence_dispatch(repository, args):
-    if args.action in {"show", "search"}:
-        read = build_read_application(
-            repository,
-            with_semantic=bool(getattr(args, "semantic_runtime", False)),
-        )
-        if args.action == "show":
-            return read.get_evidence(args.evidence_id)
-        return read.search_evidence(
-            args.query,
-            mode=args.mode,
-            limit=args.limit,
-            source_ids=args.source,
-            object_id=args.object,
-            association_status=args.association_status,
-            language=args.language,
-            include_historical=args.include_historical,
-            semantic_batch_size=args.semantic_batch_size,
-        )
-    if args.action == "provenance":
-        return asdict(repository.source_store.evidence_provenance(args.evidence_id))
-
-    embedder = embedder_from_env() if args.semantic else None
-    app = Application(repository, embedder=embedder)
-    common = {
-        "max_candidates": args.max_candidates,
-        "semantic": args.semantic,
-        "semantic_batch_size": args.semantic_batch_size,
-        "manual_include": args.include_evidence,
-        "manual_exclude": args.exclude_evidence,
+def _operation_arguments(args) -> dict:
+    excluded = {
+        "db",
+        "format",
+        "domain",
+        "registry_domain",
+        "action",
+        "subaction",
+        "composite_action",
+        "review_format",
+        "diff_format",
     }
-    if args.action == "candidates":
-        return app.retrieve_object_evidence(args.object, **common)
-    return app.select_object_evidence(
-        args.object,
-        max_estimated_tokens=args.max_estimated_tokens,
-        max_bytes=args.max_bytes,
-        max_items=args.max_items,
-        **common,
-    )
-
-
-def _registry_dispatch(repository, args, admin: ObjectAdminApplication):
-    if args.registry_domain == "class":
-        return admin.classes() if args.action == "list" else admin.class_show(args.class_ref)
-    if args.registry_domain == "relation-type":
-        return (
-            admin.relation_types()
-            if args.action == "list"
-            else admin.relation_type_show(args.relation_ref)
-        )
-    store = repository.registry_proposals
-    if args.action == "list":
-        return store.list_proposals(decision=args.decision)
-    if args.action == "show":
-        return store.proposal(args.proposal_ref)
-    if args.action in {"accept", "reject"}:
-        decision = "accepted" if args.action == "accept" else "rejected"
-        return store.decide(args.proposal_ref, decision, note=args.note)
-    return store.apply(args.proposal_ref)
-
-
-def _package_dispatch(repository, args):
-    transfer = PackageTransferService()
-    if args.action == "preflight":
-        return transfer.preflight(args.package, args.destination).to_dict()
-    audit = PackageExchangeAuditRepository(repository.db)
-    if args.action == "build":
-        return (
-            ObjectEvidencePackageBuilder(repository)
-            .build(
-                args.object,
-                build_root=args.build_root,
-                max_estimated_tokens=args.max_estimated_tokens,
-                max_bytes=args.max_bytes,
-                max_items=args.max_items,
-                max_candidates=args.max_candidates,
-                semantic=False,
-                manual_include=args.include_evidence,
-                manual_exclude=args.exclude_evidence,
-                knowledge_language=args.knowledge_language,
-            )
-            .to_dict()
-        )
-    if args.action == "stage":
-        staged = transfer.stage_from_directory(args.source, args.staging_root)
-        manifest = _manifest(Path(staged.path))
-        audit.record_staged(manifest, staged.path, staged.preflight.to_dict())
-        return staged.to_dict()
-    exported = transfer.export(
-        args.package,
-        args.destination,
-        acknowledge_review=args.acknowledge_review,
-    )
-    manifest = _manifest(Path(args.package).resolve())
-    event_id = audit.record_export(
-        exported.package_id,
-        exported.manifest_sha256,
-        exported.destination_root,
-        exported.path,
-        acknowledged_review=exported.acknowledged_review,
-        already_present=exported.already_present,
-    )
-    result = exported.to_dict()
-    result["audit_event_id"] = event_id
-    return result
-
-
-def _result_dispatch(repository, args):
-    audit = PackageExchangeAuditRepository(repository.db)
-    receipts = ResultReceiptService(audit)
-    if args.action == "detect":
-        return [item.to_dict() for item in receipts.detect(args.incoming_root)]
-    if args.action == "receive":
-        return receipts.receive(args.result, args.package_id, args.incoming_root).to_dict()
-    if args.action == "list":
-        return list(audit.result_receipts(args.package_id))
-    if args.action == "pending":
-        return list(audit.pending_result_receipts())
-    if args.action == "validate":
-        return (
-            ResultValidationService(repository, audit)
-            .validate_receipt(
-                args.receipt_id,
-                incoming_root=args.incoming_root,
-                force=args.force,
-            )
-            .to_dict()
-        )
-    if args.action == "review":
-        report = DiffReviewService(repository, audit).review_result(
-            args.receipt_id,
-            incoming_root=args.incoming_root,
-        )
-        return (
-            DiffReviewMarkdownRenderer().render_review(report)
-            if args.review_format == "markdown"
-            else report.to_dict()
-        )
-    return (
-        ObjectVersionImportService(repository, audit)
-        .import_receipt(
-            args.receipt_id,
-            incoming_root=args.incoming_root,
-            acknowledge_review=args.acknowledge_review,
-        )
-        .to_dict()
-    )
-
-
-def _version_dispatch(repository, args):
-    if args.action == "show":
-        row = repository.db.execute(
-            "SELECT object_id FROM object_versions WHERE id=?", (args.version_id,)
-        ).fetchone()
-        if not row:
-            raise ValueError("Object Version was not found")
-        return KnowledgeReadApplication(repository).get_object(
-            row["object_id"], version_id=args.version_id
-        )
-    report = DiffReviewService(
-        repository, PackageExchangeAuditRepository(repository.db)
-    ).diff_versions(args.before_version_id, args.after_version_id)
-    return (
-        DiffReviewMarkdownRenderer().render_diff(report)
-        if args.diff_format == "markdown"
-        else report.to_dict()
-    )
-
-
-def _search_dispatch(repository, args):
-    if args.require_full_runtime and not args.semantic_runtime:
-        raise RetrievalRuntimeUnavailableError("--require-full-runtime requires --semantic-runtime")
-    read = build_read_application(repository, with_semantic=args.semantic_runtime)
-    filters = ObjectSearchFilters(
-        primary_class=args.primary_class,
-        additional_class=args.additional_class,
-        ancestor_class=args.ancestor_class,
-        facet=args.facet,
-        version_id=args.version,
-        temporal_scope_id=args.temporal_scope,
-        knowledge_valid_at=args.valid_at,
-        derivation_kind=args.derivation_kind,
-        include_archived=args.include_archived,
-    )
-    response = read.search_objects(
-        args.query,
-        filters=filters,
-        limit=args.limit,
-        mode=args.mode,
-        candidate_limit=args.candidate_limit,
-    )
-    if args.require_full_runtime and response.degraded_channels:
-        raise RetrievalRuntimeUnavailableError(
-            "Hybrid Search degraded: " + ", ".join(response.degraded_channels)
-        )
-    return response, response.degraded_channels
-
-
-def _similar_dispatch(repository, args, admin):
-    object_id = _resolve(admin, args)
-    read = build_read_application(repository, with_semantic=True)
-    return read.find_similar_objects(
-        object_id,
-        facet=args.facet,
-        limit=args.limit,
-        cross_class=args.cross_class,
-        source_version_id=args.version,
-        include_archived=args.include_archived,
-    )
-
-
-def _render_dispatch(repository, args):
-    version_id = args.version
-    if version_id is None:
-        version_id = repository.version_store.current_version_id(args.object)
-        if version_id is None:
-            raise ValueError("Object has no current accepted Version to render")
-    return (
-        MarkdownRenderService(repository)
-        .render_version(version_id, output_root=args.output_root)
-        .to_dict()
-    )
+    return {key: value for key, value in vars(args).items() if key not in excluded}
 
 
 def _mcp_dispatch(repository, args):
     from sgokb.mcp import MCPReadAdapter
     from sgokb.mcp.server import run_stdio
 
-    read = build_read_application(repository, with_semantic=args.semantic_runtime)
+    read = runtime_factory().build_read_application(
+        repository, with_semantic=args.semantic_runtime
+    )
     run_stdio(MCPReadAdapter(read))
     return {"transport": "stdio", "stopped": True}
 
 
-def _system_dispatch(repository, db_path: Path, args):
-    if args.action == "status":
-        return system_status(repository, db_path)
-    if args.action == "integrity":
-        return integrity(repository)
-    if args.action == "derived":
-        runtime = {}
-        if args.semantic_runtime:
-            try:
-                provider, vector = semantic_runtime()
-            except Exception as exc:
-                raise DerivedMaintenanceRuntimeUnavailableError(str(exc)) from exc
-            runtime = {"embedding_provider": provider, "vector_index": vector}
-        application = DerivedSearchOperatorApplication(repository, **runtime)
-        if args.subaction == "status":
-            return application.status(args.object_id)
-        return application.sync(args.object_id, semantic=args.semantic_runtime)
-    if args.action == "index":
-        if args.subaction == "status":
-            return index_status(repository)
-        provider, vector = semantic_runtime()
-        metadata = KnowledgeVectorIndexBuilder(
-            repository, route_generation_vector_index(repository, vector)
-        ).rebuild(provider.space)
-        return metadata
-    if args.action == "backup":
-        if args.subaction == "composite":
-            return create_composite_backup(
-                repository, incoming_root=args.incoming_root, output=args.output, root=args.root
-            )
-        if args.subaction == "status":
-            return backup_status(args.root)
-        return create_backup(repository, args.output, args.root)
-    raise AssertionError("restore is handled before Repository is opened")
+def _failure_exit(category: str) -> int:
+    return {
+        CATEGORY_INPUT: EXIT_INPUT,
+        CATEGORY_NOT_FOUND: EXIT_NOT_FOUND,
+        CATEGORY_BLOCKED: EXIT_BLOCKED,
+        CATEGORY_RUNTIME: EXIT_RUNTIME,
+        CATEGORY_IO: EXIT_IO,
+        CATEGORY_INTEGRITY: EXIT_INTEGRITY,
+    }.get(category, 1)
 
 
-def _error_exit(exc: Exception) -> tuple[str, int]:
-    if isinstance(exc, DerivedMaintenanceRuntimeUnavailableError):
-        return "derived_runtime_unavailable", EXIT_RUNTIME
-    if isinstance(exc, DerivedMaintenanceError):
-        message = str(exc).lower()
-        if "unknown" in message or "not found" in message:
-            return "not_found", EXIT_NOT_FOUND
-        return "precondition_failed", EXIT_BLOCKED
-    if isinstance(exc, ObjectSelectorError):
-        return getattr(exc, "code", "object_selector_error"), EXIT_NOT_FOUND
-    if isinstance(exc, RetrievalRuntimeUnavailableError):
-        return getattr(exc, "code", "retrieval_runtime_unavailable"), EXIT_RUNTIME
-    if isinstance(exc, KnowledgeRequestError):
-        message = str(exc).lower()
-        code = EXIT_NOT_FOUND if "not found" in message or "unknown" in message else EXIT_INPUT
-        return getattr(exc, "code", "invalid_knowledge_request"), code
-    if isinstance(exc, PermissionError):
-        return "operation_blocked", EXIT_BLOCKED
-    if isinstance(exc, FileNotFoundError):
-        return "file_not_found", EXIT_IO
-    if isinstance(exc, (OSError, httpx.HTTPError)):
-        return "io_or_provider_error", EXIT_IO
-    if isinstance(exc, sqlite3.IntegrityError):
-        return "integrity_error", EXIT_INTEGRITY
-    if isinstance(exc, (ValueError, KeyError, json.JSONDecodeError)):
-        text = str(exc).lower()
-        if any(word in text for word in ("not found", "unknown ", "ambiguous")):
-            return "not_found", EXIT_NOT_FOUND
-        if any(word in text for word in ("requires explicit", "blocked", "review acknowledgement")):
-            return "precondition_failed", EXIT_BLOCKED
-        return "invalid_input", EXIT_INPUT
-    return "internal_error", 1
+def _presentation_data(command: str, args, data):
+    renderer = DiffReviewMarkdownRenderer()
+    if command == "result.review":
+        if args.review_format == "markdown":
+            return renderer.render_review(data)
+        return data.to_dict()
+    if command == "version.diff":
+        if args.diff_format == "markdown":
+            return renderer.render_diff(data)
+        return data.to_dict()
+    return data
 
 
 def main(argv=None) -> int:
@@ -863,108 +428,40 @@ def main(argv=None) -> int:
     args = parser().parse_args(argv)
     command = _command(args)
     db_path = Path(args.db)
-    repository = None
 
-    try:
-        if (
-            args.domain == "system"
-            and args.action == "backup"
-            and args.subaction == "composite"
-            and args.composite_action == "verify"
-        ):
-            return emit_success(
-                command, verify_composite_backup(args.backup), output_format=args.format
-            )
-        if args.domain == "system" and args.action == "restore":
-            if args.subaction == "composite":
-                options = {
-                    "db_target": args.db_target,
-                    "raw_root": args.raw_root,
-                    "incoming_root": args.incoming_root,
-                }
-                if args.composite_action == "plan":
-                    data = composite_restore_plan(args.backup, **options)
-                else:
-                    data = composite_restore_apply(
-                        args.backup, **options, acknowledge_overwrite=args.acknowledge_overwrite
-                    )
-            elif args.subaction == "plan":
-                data = restore_plan(args.backup, db_path)
-            else:
-                data = restore_apply(
-                    args.backup,
-                    db_path,
-                    acknowledge_overwrite=args.acknowledge_overwrite,
-                )
-            return emit_success(command, data, output_format=args.format)
-
+    if command == "mcp.serve":
         repository = Repository(db_path)
-        admin = ObjectAdminApplication(repository)
-        warnings = ()
-        partial = False
-
-        if args.domain == "source":
-            data, partial = _source_dispatch(repository, args)
-        elif args.domain == "object":
-            data = _object_dispatch(repository, args, admin)
-        elif args.domain == "association":
-            data = _association_dispatch(repository, args)
-        elif args.domain == "evidence":
-            data = _evidence_dispatch(repository, args)
-        elif args.domain == "registry":
-            data = _registry_dispatch(repository, args, admin)
-        elif args.domain == "package":
-            data = _package_dispatch(repository, args)
-            if args.action == "preflight" and data.get("disposition") == "blocked":
-                return emit_success(
-                    command,
-                    data,
-                    warnings=("Package preflight is blocked",),
-                    output_format=args.format,
-                    exit_code=EXIT_BLOCKED,
-                )
-        elif args.domain == "result":
-            data = _result_dispatch(repository, args)
-            if args.action == "validate" and data.get("validation_state") != "valid":
-                return emit_success(
-                    command,
-                    data,
-                    warnings=("Result validation did not reach valid state",),
-                    output_format=args.format,
-                    exit_code=EXIT_BLOCKED,
-                )
-        elif args.domain == "version":
-            data = _version_dispatch(repository, args)
-        elif args.domain == "search":
-            data, warnings = _search_dispatch(repository, args)
-        elif args.domain == "similar":
-            data = _similar_dispatch(repository, args, admin)
-        elif args.domain == "render":
-            data = _render_dispatch(repository, args)
-        elif args.domain == "mcp":
+        try:
             _mcp_dispatch(repository, args)
             return 0
-        else:
-            data = _system_dispatch(repository, db_path, args)
-            if args.action == "derived" and args.subaction == "sync":
-                partial = data.partial
+        finally:
+            repository.close()
 
+    request = OperationRequest(command, _operation_arguments(args))
+    session = OperatorSession(db_path, runtime_factory=runtime_factory())
+    try:
+        outcome = session.execute(request)
+        data = _presentation_data(command, args, outcome.data)
+        exit_code = (
+            EXIT_PARTIAL
+            if outcome.state == OUTCOME_PARTIAL
+            else EXIT_BLOCKED
+            if outcome.state == OUTCOME_BLOCKED
+            else 0
+        )
         return emit_success(
             command,
             data,
-            warnings=warnings,
+            warnings=outcome.warnings,
             output_format=args.format,
-            exit_code=EXIT_PARTIAL if partial else 0,
+            exit_code=exit_code,
         )
-    except Exception as exc:
-        code, exit_code = _error_exit(exc)
+    except OperationFailure as failure:
         return emit_error(
             command,
-            code,
-            str(exc),
-            exit_code=exit_code,
+            failure.code,
+            failure.message,
+            details=failure.details,
+            exit_code=_failure_exit(failure.category),
             output_format=args.format,
         )
-    finally:
-        if repository is not None:
-            repository.close()
