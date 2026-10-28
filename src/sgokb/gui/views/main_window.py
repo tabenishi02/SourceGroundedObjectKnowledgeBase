@@ -26,6 +26,8 @@ from sgokb.gui.views.association_page import AssociationPage
 from sgokb.gui.views.evidence_page import EvidencePage
 from sgokb.gui.views.object_page import ObjectPage
 from sgokb.gui.views.operation_page import OperationPage
+from sgokb.gui.views.registry_page import RegistryPage
+from sgokb.gui.views.search_page import SearchPage
 from sgokb.gui.views.source_page import SourcePage
 from sgokb.gui.worker import BackendCoordinator
 from sgokb.gui.workspace import WorkspaceSettings, WorkspaceState
@@ -46,10 +48,8 @@ NAVIGATION_ITEMS = (
 )
 
 _PAGE_DESCRIPTIONS = {
-    "search": "Search and similarity views are implemented in P-GUI-06.",
     "packages": "Package workflow is implemented after P-RAW in P-GUI-08.",
     "results": "Result workflow is implemented after P-RAW in P-GUI-08.",
-    "registry": "Registry and Version management are implemented in P-GUI-06.",
     "system": "System / Maintenance controls are implemented in P-GUI-09.",
     "settings": "Presentation settings will expand as later GUI tasks land.",
 }
@@ -158,6 +158,10 @@ class MainWindow(QMainWindow):
             page = EvidencePage(self.backend, self)
         elif key == "associations":
             page = AssociationPage(self.backend, self)
+        elif key == "search":
+            page = SearchPage(self.backend, self)
+        elif key == "registry":
+            page = RegistryPage(self.backend, self)
         if page is not None:
             self.domain_pages[key] = page
             return page
