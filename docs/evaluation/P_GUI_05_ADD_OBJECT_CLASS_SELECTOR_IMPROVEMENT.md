@@ -5,7 +5,7 @@ Updated: 2026-10-29
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-05 [P0] Object / Source / Evidence / Association GUI`
 - Improvement: Add Object Primary Class selector
-- Status: **Implemented / Verification Refresh Pending**
+- Status: **Implemented / Automated Verification PASS / Functional Smoke Pending**
 
 ## Request
 
@@ -54,25 +54,31 @@ The test verifies that:
 4. selecting it creates the Object with canonical `primary_class_id = class:character`;
 5. optional aliases are preserved.
 
-## Verification disposition
+## Verification result
 
-The previous P-GUI-05 automated PASS was measured before this code change. Therefore it is retained as historical evidence but is not sufficient to close the amended implementation.
+After the improvement, the automated gate was rerun from the repository root.
 
-Required refresh:
-
-```powershell
-python -m pytest `
-  tests/test_p_gui_04_optional_boundary.py `
-  tests/test_p_gui_04_shell.py `
-  tests/test_p_gui_05_domain_pages.py `
-  tests/test_p_gui_05_object_class_selector.py
-
-python -m ruff check src tests
-python -m pytest
-```
-
-Until those gates pass again:
+Measured result:
 
 ```text
-P-GUI-05 = Automated Verification Refresh Pending / Functional Smoke Pending
+focused P-GUI-04 + P-GUI-05 + Class selector = 10 / 10 PASS
+ruff                                             = All checks passed!
+full pytest                                      = 805 / 805 PASS
+known warnings                                   = 2 local-Qdrant warnings
 ```
+
+The new selector test is included in both the focused run and the 805-test full regression. No new warning or regression was introduced.
+
+Verification authority:
+
+```text
+docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_03.md
+```
+
+Current disposition:
+
+```text
+P-GUI-05 = Automated Verification PASS / Visual Smoke PASS / Functional Smoke Pending
+```
+
+The improvement is therefore accepted at the automated level. P-GUI-05 remains open only because the interactive functional smoke has not yet been completed.
