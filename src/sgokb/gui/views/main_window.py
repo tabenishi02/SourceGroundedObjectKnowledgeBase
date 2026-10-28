@@ -20,7 +20,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
 from sgokb.gui.controllers import WorkspaceController
 from sgokb.gui.worker import BackendCoordinator
 from sgokb.gui.workspace import WorkspaceSettings, WorkspaceState
