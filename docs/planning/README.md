@@ -21,7 +21,8 @@ Happy-path operational acceptance = Complete / FULL SGOKB PASS
 Current formal release = v1.1.0
 Phase P = In Progress
 P-GUI-01 = Complete / Accepted
-Next = P-GUI-02 — PySide6 application architecture / packaging / license design
+P-GUI-02 = Complete / Accepted
+Next = P-GUI-03 — Transport-neutral Application boundary audit / refactor plan
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -47,6 +48,13 @@ Priority 3: Runtime / Qdrant auto-start
 - GUI compatibility / safety decision: [`../decisions/P_GUI_COMPATIBILITY_AND_SAFETY_CONTRACT.md`](../decisions/P_GUI_COMPATIBILITY_AND_SAFETY_CONTRACT.md)
 - CLI <-> GUI capability matrix: [`../reference/GUI_CLI_CAPABILITY_MATRIX.md`](../reference/GUI_CLI_CAPABILITY_MATRIX.md)
 
+### P-GUI-02 accepted authority
+
+- PySide6 architecture / packaging / license review: [`../evaluation/P_GUI_02_PYSIDE6_ARCHITECTURE_PACKAGING_LICENSE_REVIEW.md`](../evaluation/P_GUI_02_PYSIDE6_ARCHITECTURE_PACKAGING_LICENSE_REVIEW.md)
+- PySide6 application / packaging / license Decision: [`../decisions/P_GUI_PYSIDE6_APPLICATION_PACKAGING_LICENSE_DECISION.md`](../decisions/P_GUI_PYSIDE6_APPLICATION_PACKAGING_LICENSE_DECISION.md)
+- GUI application architecture: [`../design/P_GUI_APPLICATION_ARCHITECTURE.md`](../design/P_GUI_APPLICATION_ARCHITECTURE.md)
+- Distribution / license checklist: [`../operations/P_GUI_DISTRIBUTION_AND_LICENSE_CHECKLIST.md`](../operations/P_GUI_DISTRIBUTION_AND_LICENSE_CHECKLIST.md)
+
 ### Current implemented system
 
 Phase P GUIは未実装のため、実システムのcurrent specificationは引き続き次を正本とします。
@@ -58,48 +66,44 @@ Phase P GUIは未実装のため、実システムのcurrent specificationは引
 - 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
 - Current release note: [`../releases/v1.1.0.md`](../releases/v1.1.0.md)
 
-### Historical closure authority
+Phase P accepted documentsはfuture contract/designであり、implementation task完了までは未実装機能をcurrent capabilityとして扱いません。
 
-- Phase O closure: [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_STATUS.md)
-- Phase N closure planning authority: [`phases/N/PHASE_N_CLOSURE_AUDIT.md`](phases/N/PHASE_N_CLOSURE_AUDIT.md)
-- Phase N formal result: [`../evaluation/PHASE_N_CLOSURE_AUDIT.md`](../evaluation/PHASE_N_CLOSURE_AUDIT.md)
-- Happy-path operational acceptance: [`../evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md`](../evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md)
+## Phase P GUI decisions so far
 
-Project-wide task masterにはhistorical next-task記述が残るため、Phase Pのcurrent stateについては`KNOWLEDGE_BASE_REDESIGN_TASKS_PHASE_P_AMENDMENT.md`と`phases/P/`配下を優先します。
+### Compatibility
 
-## Phase P summary
-
-### Workstream A — GUI
-
-PySide6 / Qt for Pythonを採用し、public `sgokb` CLIと意味的に互換なDesktop GUIを追加します。
-
-基本境界:
+P-GUI-01でcurrent public `sgokb` 67 operationsをGUI capabilityへ全件mappingしました。
 
 ```text
-CLI ─┐
-     ├─> Application / Service ─> Repository / Retrieval / Exchange
-GUI ─┤
-     └─ MCP read boundary
+assigned = 67 / 67
+unassigned = 0
 ```
 
-GUIはCLI subprocess wrapperを主実装とせず、既存Application / Service layerを共有します。CLIはPhase P後もfirst-class interfaceとして維持します。
+GUI compatibilityはCLI文字列の再生ではなく、same use case / target identity / canonical effect / validation / safety / degradation / failure semanticsを維持するsemantic parityです。
 
-P-GUI-01でcurrent public `sgokb` 67 operationsをGUI capabilityへ全件mappingし、assigned 67 / 67、unassigned 0を確認しました。GUI互換は同じCLI文字列を再生することではなく、same use case / target identity / canonical effect / validation / safety / degradation / failure semanticsを維持するsemantic parityとして定義しました。
+### Technical architecture
 
-主な追加GUI capability:
+P-GUI-02で次を固定しました。
 
-- Workspace / DB selector
-- Object / Source / Evidence / Association management
-- Search / Similarity / Registry / Version
-- Package / Result workflow
-- System / Maintenance
-- progress / warning / error / diff / preview
-- Equivalent CLI表示
-- Runtime Dashboard
+```text
+Framework            = PySide6
+UI                    = Qt Widgets
+CLI/GUI boundary      = shared Application / Service layer
+GUI backend           = QObject worker on dedicated QThread
+SQLite                = Repository per operation, created in worker thread
+Backend concurrency   = serialized per Workspace initially
+Semantic runtime      = expensive noncanonical runtime may be lazy-cached
+Windows deployment    = pyside6-deploy / Nuitka
+Deployment mode       = standalone directory / portable ZIP
+Qt linking            = dynamic / separate shared libraries
+One-file              = not initial baseline
+```
 
-OSS配布時のPySide6 / Qt license complianceをRelease gateへ含めます。
+GUI dependencyはbase CLI installから分離し、planned package surfaceは `.[gui]` + `sgokb-gui` です。
 
-### Workstream B — RAW Grounding
+現repositoryにはroot `LICENSE`がないため、private developmentは継続できますがpublic OSS publicationはproject-level license Decisionまでblockとします。
+
+## Workstream B — RAW Grounding
 
 Evidenceはretrieval / selection単位として維持しますが、External AIへ送るsemantic materialはEvidence本文の再構成Markdownではなく、Evidence provenanceから遡ったRaw Artifactへ変更します。
 
@@ -121,7 +125,7 @@ Structured Object Result
 
 Package Manifest、instructions、Object Result schema、Validation、Review、Import、ProvenanceをRaw-grounded contractへ更新します。
 
-### Workstream C — Runtime
+## Workstream C — Runtime
 
 Windowsログイン後にQdrantが自動利用可能になる運用を標準化します。
 
@@ -137,44 +141,6 @@ P-CLOSE-01
 ```
 
 詳細なscope / dependency / completion criteriaは [`phases/P/PHASE_P_TASKS.md`](phases/P/PHASE_P_TASKS.md) を参照してください。
-
-GUIが最優先ですが、Package / Result UIはRAW Grounding contractに依存するため、GUI foundationと主要画面を先行し、Package / Result UIはP-RAW完了後に完成させます。
-
-## Directory layout
-
-```text
-docs/planning/
-├─ README.md
-├─ project/
-│  ├─ KNOWLEDGE_BASE_REDESIGN_TASKS.md
-│  ├─ KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
-│  ├─ KNOWLEDGE_BASE_REDESIGN_TASKS_PHASE_P_AMENDMENT.md
-│  └─ historical amendments ...
-└─ phases/
-   ├─ B/ ... O/
-   └─ P/
-      ├─ PHASE_P_MODERNIZATION_PLAN.md
-      ├─ PHASE_P_TASKS.md
-      └─ PHASE_P_STATUS.md
-```
-
-## Classification rules
-
-### `project/`
-
-Phaseをまたぐ全体task、project-wide handoff、amendmentを置きます。
-
-### `phases/<Phase>/`
-
-各Phase固有のPreparation、Status、Closure Audit、Phase-level task authorityを置きます。
-
-### `phases/<Phase>/<Task>/`
-
-1 Taskで複数の設計・実行文書が必要な場合に使用します。
-
-### `execution/`
-
-Reference Workstation / Codex等へ渡す一時的な実行handoffを対象Task配下へ置きます。完了後も再現性のため保持できますが、current authorityとは区別します。
 
 ## Document placement rules
 
@@ -193,7 +159,7 @@ Reference Workstation / Codex等へ渡す一時的な実行handoffを対象Task�
 次のTaskは次です。
 
 ```text
-P-GUI-02 [P0] PySide6 application architecture / packaging / license design
+P-GUI-03 [P0] Transport-neutral Application boundary audit / refactor plan
 ```
 
-P-GUI-02ではPySide6 application architecture、Qt Model/View / QMainWindow / Dock / Settings境界、thread / worker ownership、packaging方式、OSS配布license complianceを設計します。
+P-GUI-03では`sgokb.cli.main` / `sgokb.cli.runtime`内のcomposition・business logicを全routeで監査し、CLIとGUIが共有するtransport-neutral Application/API boundary、operation DTO、error normalization、runtime factory、progress/cancellation hookのrefactor planを確定します。
