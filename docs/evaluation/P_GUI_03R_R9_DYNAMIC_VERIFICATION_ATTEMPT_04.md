@@ -4,12 +4,12 @@ Updated: 2026-10-29
 
 - Task: `P-GUI-03R [P0] Transport-neutral Application boundary refactor implementation`
 - Slice: `R9 Regression / semantic-equivalence acceptance`
-- Status: **Functional regression PASS / Ruff-only reverification required**
+- Status: **Complete / PASS**
 - Execution environment: Windows / Python 3.10.6 / pytest 9.1.1
 
-## 1. Attempt 04 results
+## 1. Final acceptance result
 
-The local checkout updated through the Phase N runtime-fixture remediation and then executed the final regression commands.
+Attempt 04 completed the remaining P-GUI-03R regression and style gates.
 
 Phase N historical closure fixture:
 
@@ -30,45 +30,75 @@ Full repository regression:
 
 The two warnings are local-Qdrant capability warnings already emitted by the vector-index smoke path and are not failures.
 
-Therefore the P-GUI-03R functional / semantic-equivalence regression gate is PASS.
-
-## 2. Remaining Ruff finding
-
-The same run reported one Ruff I001 finding in:
+Final Ruff regression on the accepted current import normalization:
 
 ```text
-tests/test_phase_n_closure_audit.py
-```
-
-The finding is import ordering only. No product code or test semantics failed.
-
-The import block was corrected after the run to:
-
-```python
-import json
-import subprocess
-
-import pytest
-from benchmark.tools import phase_n_closure_audit as audit
-```
-
-The correction is style-only and does not change the already measured 795/795 pytest result.
-
-## 3. Closure condition
-
-R9 is not marked Complete / Accepted until Ruff is measured PASS on the corrected current HEAD.
-
-Required final check:
-
-```powershell
-git pull --ff-only
 python -m ruff check src tests
+All checks passed!
 ```
 
-Optionally rerun the touched test file as an additional sanity check:
+Therefore:
 
-```powershell
-python -m pytest tests/test_phase_n_closure_audit.py
+```text
+P-GUI-03R R9 = Complete / PASS
+P-GUI-03R    = Complete / Accepted
+P-GUI-04     = Unblocked / Next
 ```
 
-Once Ruff reports `All checks passed!`, P-GUI-03R can be closed as `Complete / Accepted` and P-GUI-04 backend wiring becomes unblocked.
+## 2. Final remediation chain
+
+Attempt 04 first confirmed that all functional and semantic-equivalence regressions were resolved:
+
+- historical derived-runtime unavailable semantics preserved;
+- Phase N historical closure fixture decoupled from current HEAD while preserving its historical authority;
+- operator boundary + CLI compatibility preserved;
+- public M03 vertical workflow preserved;
+- full repository regression reached 795/795 PASS.
+
+The only remaining finding was Ruff `I001` in `tests/test_phase_n_closure_audit.py`.
+
+Ruff's own `--fix --diff` output showed that the required normalization was a single blank-line removal after the first-party import block. That exact normalization was applied, after which the full Ruff command returned `All checks passed!`.
+
+The project also declares repository-owned `benchmark` support code as first-party for Ruff/isort classification:
+
+```toml
+[tool.ruff.lint.isort]
+known-first-party = ["benchmark"]
+```
+
+No production semantic behavior was changed by the final style-only remediation.
+
+## 3. Acceptance evidence across R9
+
+The final accepted state incorporates the earlier targeted gates as well:
+
+```text
+operator-boundary + M01 CLI = 18 / 18 PASS
+M03 standard workflow       = 2 / 2 PASS
+Phase N closure audit       = 11 / 11 PASS
+full pytest                 = 795 / 795 PASS
+ruff                        = All checks passed!
+```
+
+R9 therefore demonstrates that the transport-neutral `OperatorSession` boundary preserves the existing public CLI behavior while providing the shared backend seam required by the GUI.
+
+## 4. Closure disposition
+
+All P-GUI-03R completion gates are satisfied:
+
+- all 67 public operations inventoried;
+- 66 synchronous operations available through the shared non-CLI operator boundary;
+- `mcp.serve` remains transport-specific;
+- CLI cut over to the shared Application/operator path;
+- public workflow compatibility preserved;
+- historical failure/closure semantics preserved;
+- full repository pytest regression PASS;
+- full Ruff regression PASS.
+
+P-GUI-03R is formally closed as **Complete / Accepted**.
+
+The next Phase P task is:
+
+```text
+P-GUI-04 — GUI shell / Workspace / navigation
+```
