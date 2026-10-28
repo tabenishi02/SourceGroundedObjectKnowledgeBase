@@ -12,7 +12,7 @@ class ObjectSelectorError(ValueError):
 
 
 class ObjectAdminApplication:
-    """Thin Object Registry application boundary used by the CLI."""
+    """Thin Object Registry application boundary shared by operator clients."""
 
     def __init__(self, repository):
         self.repository = repository
@@ -55,6 +55,29 @@ class ObjectAdminApplication:
 
     def show_object(self, object_id: str) -> dict:
         return asdict(self.objects.get_object(object_id))
+
+    def show(
+        self,
+        object_id: str,
+        *,
+        include_knowledge: bool = False,
+        version_id: str | None = None,
+    ) -> dict:
+        """Return registry-only or combined registry + accepted Knowledge detail."""
+
+        registry = self.show_object(object_id)
+        if not include_knowledge:
+            return registry
+        if registry["current_version_id"] is None and version_id is None:
+            return {"registry": registry, "knowledge": None}
+        from .application_read import KnowledgeReadApplication
+
+        return {
+            "registry": registry,
+            "knowledge": KnowledgeReadApplication(self.repository).get_object(
+                object_id, version_id=version_id
+            ),
+        }
 
     def rename_object(self, object_id: str, name: str) -> dict:
         self.objects.rename_object(object_id, name)
@@ -101,13 +124,10 @@ class ObjectAdminApplication:
         return asdict(record)
 
     def relation_types(self) -> list[dict]:
-        rows = self.repository.db.execute("SELECT * FROM relation_types ORDER BY key").fetchall()
-        return [dict(row) for row in rows]
+        return [asdict(item) for item in self.objects.relation_types()]
 
     def relation_type_show(self, value: str) -> dict:
-        row = self.repository.db.execute(
-            "SELECT * FROM relation_types WHERE id=? OR key=?", (value, value)
-        ).fetchone()
-        if not row:
+        record = self.objects.relation_type_by_id(value) or self.objects.relation_type_by_key(value)
+        if record is None:
             raise ValueError("Relation Type was not found")
-        return dict(row)
+        return asdict(record)
