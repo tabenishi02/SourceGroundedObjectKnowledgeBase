@@ -1,16 +1,26 @@
 """Closure evaluator tests retain historical failures and fail closed on contradictions."""
 
 import json
-import shutil
+import subprocess
 
 import pytest
 
 from benchmark.tools import phase_n_closure_audit as audit
 
 
+HISTORICAL_CLOSURE_REF = "fb9b0d6a6f670d1b0f053148769ce8cd448ea217"
+
+
+def _git_show(relative: str) -> bytes:
+    return subprocess.check_output(
+        ["git", "show", f"{HISTORICAL_CLOSURE_REF}:{relative}"],
+        cwd=audit.ROOT,
+    )
+
+
 @pytest.fixture
-def subject(tmp_path):
-    contract = json.loads((audit.ROOT / audit.CONTRACT_PATH).read_text(encoding="utf-8"))
+def subject(tmp_path, monkeypatch):
+    contract = json.loads(_git_show(audit.CONTRACT_PATH).decode("utf-8"))
     paths = {audit.CONTRACT_PATH, audit.PREP, audit.TASKS, audit.N05_RESULT, audit.N05_DOC}
     for authority in contract["authorities"]:
         paths.add(authority["path"])
@@ -20,7 +30,18 @@ def subject(tmp_path):
     for relative in paths:
         destination = tmp_path / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(audit.ROOT / relative, destination)
+        destination.write_bytes(_git_show(relative))
+
+    original_git = audit.git
+
+    def historical_git(*parts):
+        mapped = tuple(
+            f"{HISTORICAL_CLOSURE_REF}:src" if part == "HEAD:src" else part
+            for part in parts
+        )
+        return original_git(*mapped)
+
+    monkeypatch.setattr(audit, "git", historical_git)
     return tmp_path
 
 
