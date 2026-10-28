@@ -41,6 +41,11 @@ line-length = 100
 [tool.ruff.lint]
 select = ["E", "F", "I"]
 
+[tool.ruff.lint.isort]
+# benchmark/ is repository-owned support code outside the setuptools src package.
+# Declare it explicitly so Ruff classifies benchmark.tools imports as first-party.
+known-first-party = ["benchmark"]
+
 [tool.ruff.lint.per-file-ignores]
 # The operator module is a deliberately explicit 67-operation routing table. Keep
 # R9 focused on semantic parity rather than reflowing the dispatch matrix.
