@@ -8,152 +8,129 @@ Planning文書はPhase / Task単位で整理し、`docs/planning/`直下には�
 
 Phase O — Documentation / Release / Git cleanup は **Complete** です。
 
+2026-10-28のHappy-Path Operational Acceptanceで **FULL SGOKB PASS** を確認し、current formal releaseは `v1.1.0` です。
+
+次の開発Phaseとして **Phase P — GUI / RAW Grounding / Runtime Modernization** を開始します。
+
 ```text
 Phase A ... Phase M = Complete
 Phase N = Complete / PASS
 Phase N closure audit = Complete / PASS
 Phase O = Complete
-O-01 README update = Complete
-O-02 Current design documentation = Complete
-O-03 Prototype Archived / Legacy labels = Complete
-O-04 main integration = Complete
-O-05 Branch cleanup = Complete
-O-06 Release / Tag policy = Complete
-Current formal release = v1.0.0
-Release commit = 0e1a8464e9db98b4e99169cae6292821f3fd410c
+Happy-path operational acceptance = Complete / FULL SGOKB PASS
+Current formal release = v1.1.0
+Phase P = Planned / Ready to Start
+Next = P-GUI-01 — GUI requirements / compatibility contract
 ```
 
-Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSで、独立ChatGPT reviewにより受理済みです。旧N-07 `47 PASS / 3 FAIL`等のhistorical evidenceは保持し、後続remediation / re-acceptanceと区別します。
+Phase PのWorkstream優先順位は次で固定します。
 
-Phase Oのclosure stateは [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_STATUS.md) を参照してください。
+```text
+Priority 1: GUI
+Priority 2: RAW Grounding
+Priority 3: Runtime / Qdrant auto-start
+```
 
 ## Current authority
 
-- Phase O closure status: [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_STATUS.md)
-- O-05 branch cleanup result: [`phases/O/O05_BRANCH_CLEANUP.md`](phases/O/O05_BRANCH_CLEANUP.md)
-- O-06 Release / Tag / Breaking Change policy: [`../decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md`](../decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md)
-- v1.0.0 Release Note: [`../releases/v1.0.0.md`](../releases/v1.0.0.md)
-- Release index: [`../releases/README.md`](../releases/README.md)
+### Phase P planning
+
+- Phase P plan: [`phases/P/PHASE_P_MODERNIZATION_PLAN.md`](phases/P/PHASE_P_MODERNIZATION_PLAN.md)
+- Phase P tasks: [`phases/P/PHASE_P_TASKS.md`](phases/P/PHASE_P_TASKS.md)
+- Phase P current status: [`phases/P/PHASE_P_STATUS.md`](phases/P/PHASE_P_STATUS.md)
+- Project task amendment: [`project/KNOWLEDGE_BASE_REDESIGN_TASKS_PHASE_P_AMENDMENT.md`](project/KNOWLEDGE_BASE_REDESIGN_TASKS_PHASE_P_AMENDMENT.md)
+
+### Current implemented system
+
+Phase Pは未実装のため、実システムのcurrent specificationは引き続き次を正本とします。
+
 - Current integrated architecture: [`../design/SGOKB_CURRENT_ARCHITECTURE.md`](../design/SGOKB_CURRENT_ARCHITECTURE.md)
 - Current design index: [`../design/README.md`](../design/README.md)
+- Object-centered CLI contract: [`../decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md`](../decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md)
 - Operational safety / recovery: [`../operations/OPERATIONAL_SAFETY_RECOVERY.md`](../operations/OPERATIONAL_SAFETY_RECOVERY.md)
 - 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
-- 全体task master: [`project/KNOWLEDGE_BASE_REDESIGN_TASKS.md`](project/KNOWLEDGE_BASE_REDESIGN_TASKS.md)
-- 全体handoff: [`project/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md`](project/KNOWLEDGE_BASE_REDESIGN_HANDOFF.md)
+- Current release note: [`../releases/v1.1.0.md`](../releases/v1.1.0.md)
+
+### Historical closure authority
+
+- Phase O closure: [`phases/O/PHASE_O_STATUS.md`](phases/O/PHASE_O_STATUS.md)
 - Phase N closure planning authority: [`phases/N/PHASE_N_CLOSURE_AUDIT.md`](phases/N/PHASE_N_CLOSURE_AUDIT.md)
 - Phase N formal result: [`../evaluation/PHASE_N_CLOSURE_AUDIT.md`](../evaluation/PHASE_N_CLOSURE_AUDIT.md)
+- Happy-path operational acceptance: [`../evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md`](../evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md)
 
-project-wide task masterにhistorical planning stateが残る場合、Phase Oについては`PHASE_O_STATUS.md`のclosure stateを優先する。
+Project-wide task masterにはhistorical next-task記述が残るため、Phase Pのcurrent stateについては`KNOWLEDGE_BASE_REDESIGN_TASKS_PHASE_P_AMENDMENT.md`と`phases/P/`配下を優先します。
 
-## Phase O task state
+## Phase P summary
 
-| Task | Status | Purpose |
-|---|---|---|
-| O-01 | **Complete** | READMEを新SGOKBへ全面更新 |
-| O-02 | **Complete** | current architecture / operations designを整理・更新 |
-| O-03 | **Complete** | Prototype文書へArchived / Legacy表示 |
-| O-04 | **Complete** | branch historyを`main`へ統合 |
-| O-05 | **Complete** | 不要remote branch 35本を削除し`main`のみへ整理 |
-| O-06 | **Complete** | `v1.0.0` Release / Tag policy、Prototype境界、Breaking Change記録、tag publication / verification |
+### Workstream A — GUI
 
-O-04はPhase Oの通常順序より先にユーザー指示で実施済みです。全remote branch historyの最終統合commitは`77d79ccac1017f167736c742ac199858a3a010a7`です。
+PySide6 / Qt for Pythonを採用し、public `sgokb` CLIと意味的に互換なDesktop GUIを追加します。
 
-## O-02 result
-
-O-02では次をcurrent design authority surfaceとして追加・整理した。
-
-- `docs/design/SGOKB_CURRENT_ARCHITECTURE.md`
-  - Architecture / Data Model / Evidence Exchange / Retrieval / CLI / MCP / UPDS Boundary
-  - canonical / derived / transient boundary
-  - current R2 representation family / Harrier / Qdrant baseline
-  - responsibility / failure isolation / authority map
-- `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
-  - Offline / graceful degradation
-  - Security / External Egress
-  - Composite Backup / Verify / Restore
-  - RPO / RTO
-  - Retention / Hard delete
-  - Failure Recovery
-  - Benchmark / Reference Workstation conditions
-- `docs/design/README.md`
-  - current detailed design index
-  - historical / research design warning
-
-既存のObject / Source / Evidence / Version / Retrieval / MCP個別contract自体の意味は変更していない。O-02はそれらを現在形のsystem-wide designへ統合したTaskである。
-
-## O-03 result
-
-`docs/archive/prototype-0.2/`の18 Markdown文書を棚卸しした。12文書は既にArchive / Historical表示を持っていたため保持し、direct viewで表示がなかった次の6文書へ統一 `ARCHIVED / LEGACY — Prototype 0.2` warningを追加した。
+基本境界:
 
 ```text
-AI_CAPABILITY_BENCHMARK.md
-DEVELOPMENT_STATUS.md
-KNOWLEDGE_PIPELINE_EFFICIENCY_REDESIGN.md
-MODEL_COMPARISON_PLAN.md
-PROTOTYPE.md
-PROTOTYPE_UPGRADE.md
+                    ┌─ CLI
+                    │
+Application / Service ─┼─ GUI (PySide6)
+                    │
+                    └─ MCP read boundary
 ```
 
-O-02完了commitとの差分では6文書すべてが7行追加・0行削除で、歴史本文の意味内容は変更していない。
+GUIはCLI subprocess wrapperを主実装とせず、既存Application / Service layerを共有します。CLIはPhase P後もfirst-class interfaceとして維持します。
 
-## O-05 result
+主な追加GUI capability:
 
-O-05開始時のlive GitHub inventoryではremote branchは36本で、`main`以外の35本をcleanup candidateとした。open PRは0件、cleanup candidateのprotected branchも0本。
+- Workspace / DB selector
+- Object / Source / Evidence / Association management
+- Search / Similarity / Registry / Version
+- Package / Result workflow
+- System / Maintenance
+- progress / warning / error / diff / preview
+- Equivalent CLI表示
+- Runtime Dashboard
 
-O-04の全branch integration確認に加え、O-05ではplanning再編 / Phase N closure / N07 / N06 / R2 / N04の代表tipをcurrent `main`と再比較し、すべて`behind_by=0`かつbranch HEAD自身がmerge baseであることを確認した。削除後に失われる未統合historyはないと判定した。
+OSS配布時のPySide6 / Qt license complianceをRelease gateへ含めます。
 
-ユーザーがGit clientから35本を削除した後、live GitHubを再確認した結果:
+### Workstream B — RAW Grounding
+
+Evidenceはretrieval / selection単位として維持しますが、External AIへ送るsemantic materialはEvidence本文の再構成Markdownではなく、Evidence provenanceから遡ったRaw Artifactへ変更します。
 
 ```text
-remote branches = 1
-remaining branch = main
-open PR = 0
-main HEAD before status updates = 4f16835aef54206c248240c40d3870f1d0e35cfd
+Evidence Retrieval / Selection
+        ↓
+selected Evidence
+        ↓ provenance traversal
+Normalization Run
+        ↓
+Raw Artifact
+        ↓
+RAW-bearing Package
+        ↓
+External AI
+        ↓
+Structured Object Result
 ```
 
-branch cleanup前後で`main` HEADは不変であり、history変更はない。O-05はComplete。詳細は [`phases/O/O05_BRANCH_CLEANUP.md`](phases/O/O05_BRANCH_CLEANUP.md) を参照する。
+Package Manifest、instructions、Object Result schema、Validation、Review、Import、ProvenanceをRaw-grounded contractへ更新します。
 
-## O-06 result
+### Workstream C — Runtime
 
-Release / Tag policyを次のように固定した。
+Windowsログイン後にQdrantが自動利用可能になる運用を標準化します。
+
+QdrantはGUI processに所有させず、CLI / GUI / MCPから共有可能な独立runtimeとします。初期baseline候補はDocker / Compose、pinned Qdrant、named volume、localhost binding、restart policyです。
+
+## Phase P task families
 
 ```text
-Legacy line      = Prototype 0.2.x (untagged historical line)
-Current line     = SGOKB 1.x
-First release    = 1.0.0
-Git tag          = v1.0.0
-Package version  = 1.0.0
+P-GUI-01 .. P-GUI-10
+P-RAW-01 .. P-RAW-06
+P-RUNTIME-01 .. P-RUNTIME-06
+P-CLOSE-01
 ```
 
-Prototype 0.2にはretroactive tag / GitHub Releaseを作らない。historical authorityは`docs/archive/prototype-0.2/`とGit historyに残す。
+詳細なscope / dependency / completion criteriaは [`phases/P/PHASE_P_TASKS.md`](phases/P/PHASE_P_TASKS.md) を参照してください。
 
-v1.0.0 Release Noteでは次をBreaking Changeとして記録した。
-
-- Fragment / Final Document canonical modelの廃止
-- Prototype DBのin-place migration非対応
-- Object-centered `sgokb` CLIへの変更
-- hierarchical multi-vector R2 Searchへの変更
-- explicit Evidence Package / Structured Result boundary
-- read-only MCP contract
-- SGOKB World/Object Knowledge ↔ UPDS Personal Inference boundary
-
-`pyproject.toml`は`version = "1.0.0"`へ更新し、Prototype descriptionもcurrent SGOKBへ更新した。
-
-frozen release commit:
-
-```text
-0e1a8464e9db98b4e99169cae6292821f3fd410c
-```
-
-live GitHub verification:
-
-```text
-tag ref    = refs/tags/v1.0.0
-tag object = a418096b5139027cd9ccaaf47fb99a4309cb4b1e
-tag target = 0e1a8464e9db98b4e99169cae6292821f3fd410c
-```
-
-意図したrelease commitとtag targetが一致したため、O-06はComplete。Phase OもCompleteへclosureした。
+GUIが最優先ですが、Package / Result UIはRAW Grounding contractに依存するため、GUI foundationと主要画面を先行し、Package / Result UIはP-RAW完了後に完成させます。
 
 ## Directory layout
 
@@ -163,32 +140,14 @@ docs/planning/
 ├─ project/
 │  ├─ KNOWLEDGE_BASE_REDESIGN_TASKS.md
 │  ├─ KNOWLEDGE_BASE_REDESIGN_HANDOFF.md
-│  ├─ KNOWLEDGE_BASE_REDESIGN_TASKS_N04_AMENDMENT.md
-│  └─ KNOWLEDGE_BASE_REDESIGN_HANDOFF_N04_AMENDMENT.md
+│  ├─ KNOWLEDGE_BASE_REDESIGN_TASKS_PHASE_P_AMENDMENT.md
+│  └─ historical amendments ...
 └─ phases/
-   ├─ B/
-   ├─ D/
-   ├─ E/
-   ├─ F/
-   ├─ G/
-   ├─ H/
-   ├─ I/
-   ├─ J/
-   ├─ K/
-   ├─ L/
-   ├─ M/
-   ├─ N/
-   │  ├─ N01_UNIT_TEST_COVERAGE.md
-   │  ├─ N02_INTEGRATION_TESTS.md
-   │  ├─ PHASE_N_PREPARATION.md
-   │  ├─ PHASE_N_CLOSURE_AUDIT.md
-   │  ├─ N04/
-   │  ├─ N05/
-   │  ├─ N06/
-   │  └─ N07/
-   └─ O/
-      ├─ PHASE_O_STATUS.md
-      └─ O05_BRANCH_CLEANUP.md
+   ├─ B/ ... O/
+   └─ P/
+      ├─ PHASE_P_MODERNIZATION_PLAN.md
+      ├─ PHASE_P_TASKS.md
+      └─ PHASE_P_STATUS.md
 ```
 
 ## Classification rules
@@ -199,7 +158,7 @@ Phaseをまたぐ全体task、project-wide handoff、amendmentを置きます。
 
 ### `phases/<Phase>/`
 
-各Phase固有のPreparation、Status、Closure Auditを置きます。
+各Phase固有のPreparation、Status、Closure Audit、Phase-level task authorityを置きます。
 
 ### `phases/<Phase>/<Task>/`
 
@@ -209,22 +168,10 @@ Phaseをまたぐ全体task、project-wide handoff、amendmentを置きます。
 
 Reference Workstation / Codex等へ渡す一時的な実行handoffを対象Task配下へ置きます。完了後も再現性のため保持できますが、current authorityとは区別します。
 
-## Phase N historical structure
-
-Phase NではN-04〜N-07の検証過程で多数のremediation / benchmark文書が生成されました。
-
-- `phases/N/N04/post-g12/` — Grounded Generation系のhistorical remediation / research
-- `phases/N/N04/execution/` — N-04実行handoff
-- `phases/N/N05/execution/` — N-05 / R2実行handoff
-- `phases/N/N06/` — Retrieval / Vector quality
-- `phases/N/N07/` — Failure / Recovery / N07-R01
-
-これらの途中FAIL / BLOCKEDを削除せず、最終Phase N closure authorityと併存させます。
-
 ## Document placement rules
 
 1. 全Phase共通の進捗 / project-wide handoff → `project/`
-2. Phase単位のstatus / preparation / closure → `phases/<Phase>/`
+2. Phase単位のstatus / preparation / closure / task authority → `phases/<Phase>/`
 3. 特定Taskに複数文書が増える場合 → `phases/<Phase>/<Task>/`
 4. 一時的な実行handoff → 対象Task配下の`execution/`
 5. 結果・調査報告 → `docs/evaluation/`
@@ -235,6 +182,10 @@ Phase NではN-04〜N-07の検証過程で多数のremediation / benchmark文書
 
 ## Next
 
-Phase Oに残タスクはない。
+次のTaskは次です。
 
-次の開発Phaseまたはmaintenance taskは別途定義する。以後のReleaseはO-06で確定したSemVer / immutable tag / Breaking Change policyに従う。
+```text
+P-GUI-01 [P0] GUI requirements / compatibility contract
+```
+
+P-GUI-01でGUI capability inventory、CLI互換定義、side-effect / error semantics、GUI-only convenience boundaryを確定した後、PySide6 application architectureへ進みます。
