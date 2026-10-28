@@ -5,6 +5,20 @@ from __future__ import annotations
 from dataclasses import asdict
 
 
+def _relation_type_payload(record) -> dict:
+    """Preserve the public Phase M row-shaped payload (``id`` key)."""
+
+    return {
+        "id": record.relation_type_id,
+        "key": record.key,
+        "name": record.name,
+        "description": record.description,
+        "status": record.status.value,
+        "created_at": record.created_at,
+        "updated_at": record.updated_at,
+    }
+
+
 class RegistryOperatorApplication:
     def __init__(self, repository) -> None:
         self.repository = repository
@@ -21,13 +35,13 @@ class RegistryOperatorApplication:
         return asdict(record)
 
     def relation_types(self) -> list[dict]:
-        return [asdict(item) for item in self.objects.relation_types()]
+        return [_relation_type_payload(item) for item in self.objects.relation_types()]
 
     def relation_type_show(self, value: str) -> dict:
         record = self.objects.relation_type_by_id(value) or self.objects.relation_type_by_key(value)
         if record is None:
             raise ValueError("Relation Type was not found")
-        return asdict(record)
+        return _relation_type_payload(record)
 
     def proposals(self, *, decision: str | None = None):
         return self.proposals_store.list_proposals(decision=decision)
