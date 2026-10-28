@@ -49,6 +49,18 @@ class ObjectRepository:
             updated_at=row["updated_at"],
         )
 
+    @staticmethod
+    def _relation_type_record(row: sqlite3.Row | dict) -> RelationTypeRecord:
+        return RelationTypeRecord(
+            relation_type_id=row["id"],
+            key=row["key"],
+            name=row["name"],
+            description=row["description"],
+            status=LifecycleStatus(row["status"]),
+            created_at=row["created_at"],
+            updated_at=row["updated_at"],
+        )
+
     def class_by_id(self, class_id: str) -> ObjectClassRecord | None:
         row = self.db.execute("SELECT * FROM object_classes WHERE id=?", (class_id,)).fetchone()
         return self._class_record(row) if row else None
@@ -337,16 +349,16 @@ class ObjectRepository:
             (new_persistent_id(), object_id, event_type, _json(payload), timestamp),
         )
 
+    def relation_types(self) -> list[RelationTypeRecord]:
+        rows = self.db.execute("SELECT * FROM relation_types ORDER BY key").fetchall()
+        return [self._relation_type_record(row) for row in rows]
+
+    def relation_type_by_id(self, relation_type_id: str) -> RelationTypeRecord | None:
+        row = self.db.execute(
+            "SELECT * FROM relation_types WHERE id=?", (relation_type_id,)
+        ).fetchone()
+        return self._relation_type_record(row) if row else None
+
     def relation_type_by_key(self, key: str) -> RelationTypeRecord | None:
         row = self.db.execute("SELECT * FROM relation_types WHERE key=?", (key,)).fetchone()
-        if not row:
-            return None
-        return RelationTypeRecord(
-            relation_type_id=row["id"],
-            key=row["key"],
-            name=row["name"],
-            description=row["description"],
-            status=LifecycleStatus(row["status"]),
-            created_at=row["created_at"],
-            updated_at=row["updated_at"],
-        )
+        return self._relation_type_record(row) if row else None
