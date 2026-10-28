@@ -86,9 +86,12 @@ class SourcePage(OperationPage):
         title_row.addStretch(1)
         import_button = QPushButton("Import Capture...", self)
         import_button.clicked.connect(self._import_dialog)
+        import_folder_button = QPushButton("Import Folder...", self)
+        import_folder_button.clicked.connect(self._import_folder_dialog)
         refresh_button = QPushButton("Refresh", self)
         refresh_button.clicked.connect(self.refresh_sources)
         title_row.addWidget(import_button)
+        title_row.addWidget(import_folder_button)
         title_row.addWidget(refresh_button)
         layout.addLayout(title_row)
 
@@ -309,6 +312,15 @@ class SourcePage(OperationPage):
             "Import Web Capture Bundle",
             "",
             "Web Capture Bundle (*.webcapture.zip *.zip);;All files (*)",
+        )
+        if path:
+            self.import_path(path)
+
+    def _import_folder_dialog(self) -> None:
+        path = QFileDialog.getExistingDirectory(
+            self,
+            "Import ZIP Bundles from Folder",
+            "",
         )
         if path:
             self.import_path(path)
