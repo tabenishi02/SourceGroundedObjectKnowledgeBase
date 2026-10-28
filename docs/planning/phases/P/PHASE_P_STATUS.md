@@ -27,8 +27,8 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03 | **Complete / Accepted** | Transport-neutral Application boundary audit / refactor plan |
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
-| GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI; automated + visual + functional acceptance PASS |
-| GUI | P-GUI-06 | **Automated Verification PASS / Interactive Smoke Pending** | Search / Similarity / Registry / Version / Render GUI; 14 operations wired; 16/16 focused + 811/811 full PASS |
+| GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
+| GUI | P-GUI-06 | **Automated Verification Refresh Pending / Interactive Smoke Pending** | Search selector + validity-range amendment after prior automated PASS |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
@@ -51,7 +51,7 @@ Qt linking            = dynamic / separate shared libraries
 
 GUI is not a CLI subprocess wrapper. Qdrant remains an independent shared runtime.
 
-## P-GUI-01..04 accepted baseline
+## P-GUI-01..05 accepted baseline
 
 P-GUI-01 fixed semantic parity for all 67 current public CLI operations:
 
@@ -59,8 +59,6 @@ P-GUI-01 fixed semantic parity for all 67 current public CLI operations:
 assigned = 67 / 67
 unassigned = 0
 ```
-
-P-GUI-02 fixed PySide6 / threading / packaging / license design.
 
 P-GUI-03 / P-GUI-03R established the shared transport-neutral boundary:
 
@@ -76,69 +74,17 @@ Application facades
 Repository / Retrieval / Exchange
 ```
 
-P-GUI-03R final evidence:
-
-```text
-operator-boundary + M01 CLI = 18 / 18 PASS
-M03 standard workflow       = 2 / 2 PASS
-Phase N closure audit       = 11 / 11 PASS
-full pytest                 = 795 / 795 PASS
-ruff                        = All checks passed!
-```
-
 P-GUI-04 accepted shell evidence:
 
 ```text
-sgokb-gui entrypoint                      PASS
-focused pytest                            5 / 5 PASS
-full pytest                               800 / 800 PASS
-ruff                                      PASS
-GUI normal startup                        PASS
-11 navigation destinations                PASS
-Create / Open Workspace                   PASS
-recent Workspace persistence              PASS
-GUI close / DB release                    PASS
-same DB readable from CLI                 PASS
+focused pytest = 5 / 5 PASS
+full pytest    = 800 / 800 PASS
+ruff           = PASS
+interactive GUI shell / Workspace acceptance = PASS
 ```
 
-## P-GUI-05 accepted implementation
-
-P-GUI-05 is **Complete / Accepted**.
-
-The four daily-collection pages are real operator surfaces:
-
-```text
-Objects
-Sources
-Evidence
-Associations
-```
-
-Operation wiring:
-
-```text
-Object       12 / 12
-Source        6 / 6
-Evidence      5 / 5
-Association   4 / 4
-------------------
-Total        27 / 27
-```
-
-Accepted Object behavior includes stable `object_id` targeting, registry-backed Class selectors,
-alias/status mutation, event inspection and read-only relations.
-
-Accepted Source behavior includes single and recursive folder ZIP import, per-target partial
-failure handling, Raw / normalization inspection, processing, and effective Snapshot / Run
-selection with explicit audit reasons.
-
-Accepted Evidence behavior includes candidate retrieval, bounded selection, manual
-include/exclude/automatic state, budget display, detail/provenance and Evidence Search.
-
-Accepted Association behavior includes list / suggest / set / clear with status, subject
-relationship and note.
-
-Final P-GUI-05 evidence:
+P-GUI-05 is **Complete / Accepted**. Its accepted pages are Objects, Sources, Evidence and
+Associations. Final evidence:
 
 ```text
 focused GUI regression = 12 / 12 PASS
@@ -154,28 +100,13 @@ Acceptance authority:
 - `docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md`
 - `docs/evaluation/P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md`
 
-Final verdict:
+## P-GUI-06 current implementation
 
-```text
-P-GUI-05 = Complete / Accepted
-```
+P-GUI-06 replaces the Search and Registry placeholders with real operator-backed pages.
+Similarity is grouped with Search; Version / Diff / Render are grouped under Registry. The
+accepted 11-destination navigation inventory remains unchanged.
 
-## P-GUI-06 implementation and automated verification state
-
-P-GUI-06 implementation is complete and its automated verification gate is **PASS**. Interactive
-GUI smoke remains pending.
-
-The accepted shell placeholders are replaced by real pages for:
-
-```text
-Search
-Registry
-```
-
-Version / Diff / Render are grouped as Registry tabs; Similarity is grouped with Search. The
-accepted 11-destination navigation inventory therefore remains unchanged.
-
-Operation wiring:
+Operation wiring remains:
 
 ```text
 Search       1 / 1
@@ -187,47 +118,74 @@ Render       1 / 1
 Total       14 / 14
 ```
 
-Implemented Search behavior includes:
+### Search / Similarity amendment
 
-- Lexical / Semantic / Hybrid modes;
-- semantic-runtime opt-in and strict `require_full_runtime` control;
-- result / candidate limits;
-- left-side hard-filter panel for Primary / Additional / Ancestor Class, Facet, Version,
-  Temporal Scope, Knowledge-valid-at, Derivation Kind and archive scope;
-- ranked result detail;
-- explicit degraded-channel display.
+The latest amendment improves filter input without adding GUI direct SQL or changing the public
+67-operation inventory.
 
-Implemented Similarity behavior includes:
+Search Hard Filters now provide:
 
-- stable Object selection through `object.list`;
-- overall and optional Facet-specific Similarity;
-- optional source Version pinning;
-- cross-Class and archived scope controls;
-- explicit local semantic-runtime requirement with no silent fallback.
+- Registry-backed dropdowns for Primary / Additional / Ancestor Class;
+- Facet dropdown with editable historical fallback;
+- Version dropdown with editable historical fallback;
+- Temporal Scope dropdown with editable historical fallback;
+- `Knowledge valid From` / `Knowledge valid To` date-range fields;
+- existing Derivation Kind and archived-Object filters.
 
-Implemented Registry behavior includes:
+Candidate composition is:
+
+```text
+registry.class.list
+object.list
+    -> current_version_id
+    -> version.show(current accepted Version)
+    -> Facet / Temporal Scope / Version presentation choices
+```
+
+Similarity now uses Object-scoped Facet and Version selectors. Its semantic contract remains the
+existing Object / optional Facet / optional source Version / cross-Class / archived scope; Search-
+only Class and Temporal-Scope filters were not added to Similarity.
+
+Knowledge validity range uses backward-compatible `valid_at` encoding:
+
+```text
+YYYY-MM-DD..YYYY-MM-DD
+YYYY-MM-DD..
+..YYYY-MM-DD
+```
+
+Plain single-date `valid_at` retains the historical point-in-time behavior. Range filtering uses
+temporal overlap, supports one-sided ranges, treats `as_of` as a point interval, and keeps
+Statements without a Temporal Scope eligible as timeless Knowledge.
+
+Implementation authority:
+
+- `docs/evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`
+- `docs/evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`
+
+### Registry / Version / Render
+
+Registry behavior remains:
 
 - Class list/detail;
 - Relation Type list/detail;
 - Registry Proposal list/detail and decision filter;
-- separate Accept / Reject decision actions;
-- separate Apply action, enabled only for accepted unapplied proposals;
+- Accept / Reject decisions separate from Apply;
 - explicit confirmation before Apply.
 
-Implemented Version / Render behavior includes:
+Version / Render behavior remains:
 
 - accepted Version Show;
 - Before / After Version Diff;
-- structured Diff view;
-- Markdown Diff using the existing H-04 renderer;
-- Object/Version Markdown render/export;
-- generated derived Markdown preview.
+- structured and Markdown Diff;
+- Object/Version Markdown render/export and preview.
 
-No GUI direct SQL or CLI-subprocess business path was introduced. Proposal Accept and Apply remain
-separate canonical operations. Search/runtime failure and degradation semantics remain owned by
-the existing Application/operator boundary.
+The latest user message contained an unfinished bullet beginning `Registryタブの`. No additional
+Registry-page requirement was inferred from that incomplete fragment.
 
-Automated evidence:
+## P-GUI-06 verification state
+
+The pre-amendment implementation passed:
 
 ```text
 focused P-GUI-04 / 05 / 06 regression = 16 / 16 PASS
@@ -236,27 +194,33 @@ full pytest                            = 811 / 811 PASS
 known local-Qdrant warnings            = 2
 ```
 
-The two warnings are the existing local-Qdrant limitations and do not represent test failures.
+Authority:
 
-Implementation / verification authority:
-
-- `docs/evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`
 - `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
 
-Current P-GUI-06 disposition:
+Those results do **not** certify the later Search selector / validity-range amendment. New focused
+tests were added:
 
 ```text
-implementation       = Complete
-desk audit           = Complete
-operation wiring     = 14 / 14
-automated acceptance = PASS
-interactive smoke    = Pending
+tests/test_p_gui_06_search_filter_selectors.py
+tests/test_search_validity_range.py
+```
+
+Current disposition:
+
+```text
+implementation                 = Complete
+desk audit                     = Complete
+operation wiring               = 14 / 14
+pre-amendment automated gate   = PASS
+automated verification refresh = Pending
+interactive smoke              = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
 ```
 
 ## Sequencing
@@ -274,8 +238,8 @@ P-GUI-04 Complete / Accepted
         ↓
 P-GUI-05 Complete / Accepted
         ↓
-P-GUI-06 Automated Verification PASS / Interactive Smoke Pending   <- CURRENT
-        ↓ interactive smoke PASS
+P-GUI-06 Automated Verification Refresh Pending   <- CURRENT
+        ↓ refreshed automated PASS + interactive smoke PASS
 P-GUI-06 Complete / Accepted
         ↓
 P-GUI-07 Progress / error / safety / audit UX
@@ -299,12 +263,12 @@ Phase P remains in development. Released system semantics continue to be governe
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed measured
-automated verification but still requires interactive smoke acceptance. None of these tasks alone
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 remains development code
+until the amended automated gate and interactive smoke acceptance pass. None of these tasks alone
 advance the formal released version.
 
 ## Next
 
 ```text
-P-GUI-06 — interactive GUI smoke acceptance
+P-GUI-06 — refreshed focused pytest / Ruff / full regression, then interactive GUI smoke
 ```
