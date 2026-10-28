@@ -22,7 +22,6 @@ from PySide6.QtWidgets import (
 )
 
 from sgokb.operation_contracts import OperationFailure
-
 from ..controllers import WorkspaceController
 from ..worker import BackendCoordinator
 from ..workspace import WorkspaceSettings, WorkspaceState
@@ -240,7 +239,10 @@ class MainWindow(QMainWindow):
         if candidate.exists():
             self._show_failure(
                 "Workspace already exists",
-                "Use Open Workspace for an existing database; Create Workspace never overwrites it.",
+                (
+                    "Use Open Workspace for an existing database; "
+                    "Create Workspace never overwrites it."
+                ),
             )
             return
         self.open_workspace(candidate)
