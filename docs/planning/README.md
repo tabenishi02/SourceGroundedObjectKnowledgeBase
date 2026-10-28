@@ -25,8 +25,8 @@ P-GUI-02 = Complete / Accepted
 P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
-P-GUI-05 = Implemented / Dynamic Verification Pending
-Next = P-GUI-05 focused pytest / full regression / Ruff / interactive smoke acceptance
+P-GUI-05 = Automated Verification Refresh Pending / Visual Smoke PASS / Functional Smoke Pending
+Next = P-GUI-05 refreshed focused/full/Ruff verification, then functional GUI smoke acceptance
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -104,8 +104,10 @@ same DB readable from CLI                 PASS
 ### P-GUI-05 implementation authority
 
 - Implementation / verification procedure: [`../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md`](../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md)
+- Add Object Class selector improvement: [`../evaluation/P_GUI_05_ADD_OBJECT_CLASS_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_05_ADD_OBJECT_CLASS_SELECTOR_IMPROVEMENT.md)
+- Object Class mutation selector improvement: [`../evaluation/P_GUI_05_OBJECT_CLASS_MUTATION_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_05_OBJECT_CLASS_MUTATION_SELECTOR_IMPROVEMENT.md)
 
-P-GUI-05 now implements real Qt pages for:
+P-GUI-05 implements real Qt pages for:
 
 ```text
 Objects
@@ -127,10 +129,19 @@ Total        27 / 27
 
 The pages use the existing `BackendCoordinator -> BackendWorker -> OperatorSession` path. Stable IDs remain authoritative for Object writes, Relations remain read-only, Source effective selection requires interactive reasons, Raw Artifact metadata is exposed through the shared Source read boundary, Evidence manual selection supports mouse and keyboard, and Association suggestion remains read-only until explicit set.
 
-P-GUI-05 dynamic verification has not yet been measured, so current status is:
+Object Class controls now use registry-backed non-editable selectors:
 
 ```text
-Implemented / Dynamic Verification Pending
+Add Object Primary Class = active registry Classes
+Set Primary Class        = every registry Class
+Add Class                = every registry Class except current Primary Class
+Remove Class             = assigned Additional Classes only; disabled when none exist
+```
+
+The previous automated PASS was measured before the latest Object Class mutation selector amendment. Current status is therefore:
+
+```text
+Automated Verification Refresh Pending / Visual Smoke PASS / Functional Smoke Pending
 ```
 
 ### Current released system
@@ -144,7 +155,7 @@ Phase P is still in development. Released v1.1.0 semantics remain governed by:
 - 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
 - Current release note: [`../releases/v1.1.0.md`](../releases/v1.1.0.md)
 
-P-GUI-03R and P-GUI-04 are accepted development baselines. P-GUI-05 is implemented development code pending acceptance and does not by itself advance the formal release version.
+P-GUI-03R and P-GUI-04 are accepted development baselines. P-GUI-05 is implemented development code pending refreshed automated verification and functional acceptance and does not by itself advance the formal release version.
 
 ## Phase P GUI decisions so far
 
@@ -249,5 +260,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-GUI-05 — focused pytest / full regression / Ruff / interactive GUI smoke acceptance
+P-GUI-05 — refreshed focused pytest / Ruff / full regression, then functional GUI smoke acceptance
 ```
