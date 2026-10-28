@@ -25,7 +25,8 @@ P-GUI-02 = Complete / Accepted
 P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
-Next = P-GUI-05 — Object / Source / Evidence / Association GUI
+P-GUI-05 = Implemented / Dynamic Verification Pending
+Next = P-GUI-05 focused pytest / full regression / Ruff / interactive smoke acceptance
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -59,21 +60,15 @@ Priority 3: Runtime / Qdrant auto-start
 - GUI application architecture: [`../design/P_GUI_APPLICATION_ARCHITECTURE.md`](../design/P_GUI_APPLICATION_ARCHITECTURE.md)
 - Distribution / license checklist: [`../operations/P_GUI_DISTRIBUTION_AND_LICENSE_CHECKLIST.md`](../operations/P_GUI_DISTRIBUTION_AND_LICENSE_CHECKLIST.md)
 
-### P-GUI-03 accepted authority
+### P-GUI-03 / 03R accepted authority
 
 - Application boundary audit: [`../evaluation/P_GUI_03_APPLICATION_BOUNDARY_AUDIT.md`](../evaluation/P_GUI_03_APPLICATION_BOUNDARY_AUDIT.md)
 - 67-operation boundary matrix: [`../reference/GUI_APPLICATION_BOUNDARY_MATRIX.md`](../reference/GUI_APPLICATION_BOUNDARY_MATRIX.md)
 - Transport-neutral Application Decision: [`../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md`](../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md)
 - Refactor design / execution slices: [`../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md`](../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md)
-
-### P-GUI-03R accepted authority
-
-- Implementation task/status: [`phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
-- Implementation result: [`../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
-- R9 Attempt 01: [`../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
-- R9 Attempt 02: [`../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_02.md`](../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_02.md)
-- R9 Attempt 03: [`../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_03.md`](../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_03.md)
-- R9 Attempt 04 / final acceptance: [`../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md`](../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md)
+- P-GUI-03R implementation task/status: [`phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
+- P-GUI-03R implementation result: [`../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
+- R9 final acceptance: [`../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md`](../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md)
 
 Final accepted R9 evidence:
 
@@ -106,7 +101,37 @@ GUI close / DB release                    PASS
 same DB readable from CLI                 PASS
 ```
 
-The accepted foundation includes the optional `.[gui]` dependency, `sgokb-gui` launcher, QMainWindow shell, accepted 11-item navigation, presentation-only QSettings, serialized QThread backend lane, and Workspace validation through `OperatorSession(system.status)`.
+### P-GUI-05 implementation authority
+
+- Implementation / verification procedure: [`../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md`](../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md)
+
+P-GUI-05 now implements real Qt pages for:
+
+```text
+Objects
+Sources
+Evidence
+Associations
+```
+
+Current operation wiring:
+
+```text
+Object       12 / 12
+Source        6 / 6
+Evidence      5 / 5
+Association   4 / 4
+------------------
+Total        27 / 27
+```
+
+The pages use the existing `BackendCoordinator -> BackendWorker -> OperatorSession` path. Stable IDs remain authoritative for Object writes, Relations remain read-only, Source effective selection requires interactive reasons, Raw Artifact metadata is exposed through the shared Source read boundary, Evidence manual selection supports mouse and keyboard, and Association suggestion remains read-only until explicit set.
+
+P-GUI-05 dynamic verification has not yet been measured, so current status is:
+
+```text
+Implemented / Dynamic Verification Pending
+```
 
 ### Current released system
 
@@ -119,7 +144,7 @@ Phase P is still in development. Released v1.1.0 semantics remain governed by:
 - 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
 - Current release note: [`../releases/v1.1.0.md`](../releases/v1.1.0.md)
 
-P-GUI-03R and P-GUI-04 are accepted development baselines for subsequent Phase P GUI implementation. They do not by themselves advance the formal release version.
+P-GUI-03R and P-GUI-04 are accepted development baselines. P-GUI-05 is implemented development code pending acceptance and does not by itself advance the formal release version.
 
 ## Phase P GUI decisions so far
 
@@ -154,18 +179,7 @@ GUI dependencyはbase CLI installから分離され、package surfaceは `.[gui]
 
 現repositoryにはroot `LICENSE`がないため、private developmentは継続できますがpublic OSS publicationはproject-level license Decisionまでblockとします。
 
-### Application boundary — P-GUI-03 / P-GUI-03R / P-GUI-04
-
-P-GUI-03 audit result:
-
-```text
-A READY                    25
-B ORCHESTRATION EXTRACTION 26
-C APPLICATION GAP          15
-D TRANSPORT-SPECIFIC        1
-```
-
-P-GUI-03R implemented and accepted the target boundary:
+### Application boundary — P-GUI-03 / P-GUI-03R / P-GUI-04 / P-GUI-05
 
 ```text
 CLI parser / GUI worker
@@ -179,7 +193,7 @@ Application facades
 Repository / Retrieval / Exchange
 ```
 
-P-GUI-04 wires the accepted desktop foundation to this boundary through a queued `BackendWorker` on a dedicated QThread. Workspace DB probing uses `system.status`; Views/Controllers do not open SQLite directly.
+P-GUI-04 established the queued QThread backend foundation. P-GUI-05 reuses it for all four daily-collection page families and does not add GUI direct SQL or a CLI-subprocess business path.
 
 ## Workstream B — RAW Grounding
 
@@ -235,5 +249,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-GUI-05 — Object / Source / Evidence / Association GUI
+P-GUI-05 — focused pytest / full regression / Ruff / interactive GUI smoke acceptance
 ```
