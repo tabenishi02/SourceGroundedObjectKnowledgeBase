@@ -238,7 +238,10 @@ def test_evidence_and_association_pages_round_trip(qt_app, tmp_path, make_bundle
         _wait_idle(qt_app, backend)
         repository = Repository(database)
         try:
-            assert repository.source_store.association_for_object_source(object_id, source_id) is None
+            assert (
+                repository.source_store.association_for_object_source(object_id, source_id)
+                is None
+            )
         finally:
             repository.close()
     finally:
