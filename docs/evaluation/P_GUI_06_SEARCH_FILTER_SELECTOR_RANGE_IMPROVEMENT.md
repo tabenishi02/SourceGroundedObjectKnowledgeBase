@@ -5,8 +5,8 @@ Updated: 2026-10-29
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
 - Status: **Implemented / Automated Verification PASS / Interactive Smoke Pending**
-- Current automated authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md`
-- Historical pre-amendment authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
+- Current automated authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
+- Historical authorities: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`, `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md`, `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_03.md`
 
 ## Request
 
@@ -18,8 +18,9 @@ Implemented changes:
 - Similarity `Facet` and `Version` use selector controls scoped to the selected Object.
 - `Knowledge valid at` is replaced in the GUI by `Knowledge valid From` and `Knowledge valid To`.
 - The validity range supports bounded and one-sided ranges.
+- `Derivation kind` uses a fixed-value non-editable selector through the follow-up amendment.
 
-The user message also contained an unfinished bullet beginning `Registryタブの`. No requirement was inferred from that incomplete fragment, so this amendment makes no Registry-page change from it.
+The user message also contained an unfinished bullet beginning `Registryタブの`. No requirement was inferred from that incomplete fragment, so no Registry-page change was made from it.
 
 ## Selector sources
 
@@ -96,7 +97,17 @@ src/sgokb/retrieval/search_range.py
 
 `sgokb.retrieval.HybridObjectSearch` routes through the range-aware R2 adapter. The adapter delegates unchanged for ordinary point-in-time requests and adds range handling only when `knowledge_valid_at` contains the range separator.
 
-Both lexical SQL filtering and semantic Vector filtering use the same overlap intent. Generation-aware R2 filtering remains in force, and the pre-cutover compatibility semantic path applies the same range semantics.
+A later false-negative remediation corrected Registry identity eligibility when the active derived R2 generation lags a newer accepted current Version:
+
+```text
+Registry identity range eligibility
+    -> canonical accepted Knowledge
+
+Knowledge lexical / semantic channels
+    -> active R2 generation
+```
+
+This preserves canonical Object discoverability without bypassing generation isolation for derived Knowledge channels. See `P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`.
 
 ## GUI implementation
 
@@ -104,6 +115,7 @@ Updated:
 
 ```text
 src/sgokb/gui/views/search_page.py
+src/sgokb/gui/views/search_page_derivation.py
 ```
 
 Search Hard Filters now use:
@@ -116,49 +128,52 @@ Facet               dropdown + editable historical fallback
 Version ID          dropdown + editable historical fallback
 Temporal Scope ID   dropdown + editable historical fallback
 Knowledge valid     From / To date fields
+Derivation kind     non-editable fixed-value dropdown
 ```
 
 Similarity uses Object-scoped dropdowns for the existing `Facet` and `Version` inputs. The Similarity operation itself is not expanded with new Class or Temporal-Scope semantics; its existing contract remains Object / Facet / source Version / cross-Class / archived scope.
 
 ## Regression coverage
 
-Added:
+Coverage includes:
 
 ```text
 tests/test_p_gui_06_search_filter_selectors.py
+tests/test_p_gui_06_derivation_kind_selector.py
 tests/test_search_validity_range.py
 ```
 
-Coverage includes:
+It verifies:
 
 - Registry Class candidates in all three Class selectors;
 - Facet / current Version / Temporal Scope candidates discovered from accepted Knowledge;
 - Object-scoped Similarity Facet / Version candidates;
+- fixed Derivation Kind candidates and submission behavior;
 - GUI construction of a bounded `From..To` request;
 - invalid reversed range blocked before submit;
 - lexical and semantic temporal-overlap retrieval;
 - bounded, open-From, and open-To range semantics;
-- pre-cutover semantic filtering;
-- timeless Statement eligibility under range filtering.
+- timeless Statement eligibility;
+- stale-active-generation false-negative remediation;
+- GUI end-to-end Search through BackendCoordinator / OperatorSession;
+- preservation of active-generation isolation for derived Knowledge channels.
 
 ## Automated verification
 
-Attempt 02 was executed after the amendment on Windows using Python 3.10.6 / pytest 9.1.1.
-
-Measured result:
+Current post-remediation result from Attempt 04:
 
 ```text
-focused regression = 18 / 18 PASS
+focused regression = 24 / 24 PASS
 Ruff               = All checks passed!
-full pytest         = 813 / 813 PASS
+full pytest         = 819 / 819 PASS
 known warnings      = 2 local-Qdrant warnings
 ```
 
 Authority:
 
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md`
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
 
-The two warnings are the existing local-Qdrant limitations for payload indexes and brute-force search parameters. They are not failures.
+The two warnings are the existing local-Qdrant limitations and are not failures.
 
 ## Current disposition
 
