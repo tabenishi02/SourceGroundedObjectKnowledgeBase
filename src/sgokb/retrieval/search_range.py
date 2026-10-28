@@ -64,6 +64,46 @@ def encode_validity_range(valid_from: str | None, valid_to: str | None) -> str |
     return f"{left}{_RANGE_SEPARATOR}{right}"
 
 
+def _temporal_overlap_sql(
+    validity: tuple[str | None, str | None],
+) -> tuple[str, list[object]]:
+    """Return canonical Statement temporal-overlap SQL and bound parameters."""
+
+    valid_from, valid_to = validity
+    interval_terms: list[str] = []
+    point_terms: list[str] = []
+    interval_params: list[object] = []
+    point_params: list[object] = []
+    if valid_from is not None:
+        interval_terms.append("(ts.valid_to IS NULL OR date(ts.valid_to)>=date(?))")
+        interval_params.append(valid_from)
+        point_terms.append("date(ts.as_of)>=date(?)")
+        point_params.append(valid_from)
+    if valid_to is not None:
+        interval_terms.append("(ts.valid_from IS NULL OR date(ts.valid_from)<=date(?))")
+        interval_params.append(valid_to)
+        point_terms.append("date(ts.as_of)<=date(?)")
+        point_params.append(valid_to)
+
+    interval_sql = " AND ".join(interval_terms) or "1=1"
+    point_sql = " AND ".join(point_terms) or "1=1"
+    sql = (
+        "(s.temporal_scope_id IS NULL OR EXISTS ("
+        " SELECT 1 FROM temporal_scopes ts"
+        " WHERE ts.id=s.temporal_scope_id AND ("
+        "   ((ts.valid_from IS NOT NULL OR ts.valid_to IS NOT NULL) AND "
+        + interval_sql
+        + ") OR "
+        "   (ts.valid_from IS NULL AND ts.valid_to IS NULL"
+        "     AND (ts.as_of IS NULL OR ("
+        + point_sql
+        + ")))"
+        " )"
+        "))"
+    )
+    return sql, [*interval_params, *point_params]
+
+
 class RangeAwareHybridObjectSearch(_R2HybridObjectSearch):
     """R2 Hybrid Search with an optional temporal-overlap range filter."""
 
@@ -98,41 +138,9 @@ class RangeAwareHybridObjectSearch(_R2HybridObjectSearch):
             self._without_range(filters),
             kinds=kinds,
         )
-        valid_from, valid_to = validity
-        interval_terms: list[str] = []
-        point_terms: list[str] = []
-        interval_params: list[object] = []
-        point_params: list[object] = []
-        if valid_from is not None:
-            interval_terms.append("(ts.valid_to IS NULL OR date(ts.valid_to)>=date(?))")
-            interval_params.append(valid_from)
-            point_terms.append("date(ts.as_of)>=date(?)")
-            point_params.append(valid_from)
-        if valid_to is not None:
-            interval_terms.append("(ts.valid_from IS NULL OR date(ts.valid_from)<=date(?))")
-            interval_params.append(valid_to)
-            point_terms.append("date(ts.as_of)<=date(?)")
-            point_params.append(valid_to)
-
-        interval_sql = " AND ".join(interval_terms) or "1=1"
-        point_sql = " AND ".join(point_terms) or "1=1"
-        clauses.append(
-            """(s.temporal_scope_id IS NULL OR EXISTS (
-                 SELECT 1 FROM temporal_scopes ts
-                 WHERE ts.id=s.temporal_scope_id AND (
-                   ((ts.valid_from IS NOT NULL OR ts.valid_to IS NOT NULL)
-                     AND """
-            + interval_sql
-            + """ )
-                   OR
-                   (ts.valid_from IS NULL AND ts.valid_to IS NULL
-                     AND (ts.as_of IS NULL OR ("""
-            + point_sql
-            + """)))
-                 )
-               ))"""
-        )
-        params.extend([*interval_params, *point_params])
+        temporal_sql, temporal_params = _temporal_overlap_sql(validity)
+        clauses.append(temporal_sql)
+        params.extend(temporal_params)
         return clauses, params
 
     @staticmethod
@@ -159,40 +167,74 @@ class RangeAwareHybridObjectSearch(_R2HybridObjectSearch):
             ranges=tuple(ranges),
         )
 
+    def _canonical_range_pairs(
+        self,
+        rows: list[dict],
+        filters: ObjectSearchFilters,
+        validity: tuple[str | None, str | None],
+    ) -> set[tuple[str, str]]:
+        """Resolve range-eligible Registry candidates from canonical accepted Knowledge.
+
+        Registry name/alias identity is canonical data and must not disappear merely
+        because the active derived Search generation lags a newly accepted current
+        Version. Knowledge lexical/semantic channels remain generation-scoped elsewhere.
+        """
+
+        version_ids = tuple(
+            dict.fromkeys(
+                str(row["version_id"])
+                for row in rows
+                if isinstance(row.get("version_id"), str) and row["version_id"]
+            )
+        )
+        if not version_ids:
+            return set()
+
+        marks = ",".join("?" for _ in version_ids)
+        clauses = [f"s.version_id IN ({marks})", "l.state='accepted'"]
+        params: list[object] = list(version_ids)
+        if filters.facet is not None:
+            clauses.append("f.key=?")
+            params.append(filters.facet)
+        if filters.derivation_kind is not None:
+            clauses.append("s.derivation_kind=?")
+            params.append(filters.derivation_kind)
+        if filters.temporal_scope_id is not None:
+            clauses.append("s.temporal_scope_id=?")
+            params.append(filters.temporal_scope_id)
+        temporal_sql, temporal_params = _temporal_overlap_sql(validity)
+        clauses.append(temporal_sql)
+        params.extend(temporal_params)
+
+        sql = (
+            "SELECT DISTINCT v.object_id,s.version_id "
+            "FROM knowledge_statements s "
+            "JOIN object_versions v ON v.id=s.version_id "
+            "JOIN object_version_lifecycle l ON l.version_id=s.version_id "
+            "LEFT JOIN facet_definitions f ON f.id=s.facet_id "
+            "WHERE "
+            + " AND ".join(clauses)
+        )
+        return {
+            (str(row["object_id"]), str(row["version_id"]))
+            for row in self.db.execute(sql, params)
+        }
+
     def _registry_rows(self, filters: ObjectSearchFilters) -> list[dict]:
         validity = _validity_range(filters.knowledge_valid_at)
         if validity is None:
             return super()._registry_rows(filters)
 
         rows = super()._registry_rows(self._without_range(filters))
-        kinds = self._representation_kinds(filters)
-        clauses, params = self._scope_conditions(filters, kinds=kinds)
-        generation = self._current_generation()
-        generation_join = ""
-        if generation.generation_id is not None:
-            generation_join = (
-                " JOIN knowledge_search_generation_memberships gm ON gm.membership_id=m.id"
-            )
-            clauses.append("gm.generation_id=?")
-            params.append(generation.generation_id)
-        sql = (
-            "SELECT DISTINCT m.object_id,m.version_id "
-            "FROM knowledge_search_representation_memberships m"
-            + generation_join
-            + " JOIN object_version_lifecycle l ON l.version_id=m.version_id"
-            + " JOIN objects o ON o.id=m.object_id"
-            + " JOIN object_version_classification_snapshots cs ON cs.version_id=m.version_id"
-            + " JOIN object_classes pc ON pc.id=cs.primary_class_id"
-            + " LEFT JOIN facet_definitions f ON f.id=m.facet_id"
-            + " LEFT JOIN knowledge_statements s ON s.id=m.statement_id"
-            + " WHERE "
-            + " AND ".join(clauses)
-        )
-        allowed = {
-            (row["object_id"], row["version_id"])
-            for row in self.db.execute(sql, params)
-        }
-        return [row for row in rows if (row["object_id"], row["version_id"]) in allowed]
+        if not rows:
+            return rows
+        allowed = self._canonical_range_pairs(rows, filters, validity)
+        return [
+            row
+            for row in rows
+            if isinstance(row.get("version_id"), str)
+            and (str(row["object_id"]), str(row["version_id"])) in allowed
+        ]
 
     def _knowledge_lexical_hits(
         self,
