@@ -1,47 +1,44 @@
-"""Composition roots for local Search/Similarity/MCP runtime."""
+"""CLI compatibility shims for shared local runtime composition.
+
+The canonical composition policy lives in :mod:`sgokb.runtime`.  These symbols
+remain patchable for existing CLI tests and downstream callers during the
+transport-neutral cutover.
+"""
 
 from __future__ import annotations
 
-import os
+from sgokb.application_read import RetrievalRuntimeUnavailableError
+from sgokb.retrieval import QdrantVectorIndexAdapter, default_sentence_transformer_provider
+from sgokb.runtime import RuntimeConfig, RuntimeFactory
 
-from sgokb.application_read import KnowledgeReadApplication, RetrievalRuntimeUnavailableError
-from sgokb.retrieval import (
-    QdrantVectorIndexAdapter,
-    default_sentence_transformer_provider,
-    route_generation_vector_index,
-)
+
+def runtime_factory() -> RuntimeFactory:
+    """Build a shared RuntimeFactory using CLI-module patchable factories."""
+
+    return RuntimeFactory(
+        RuntimeConfig.from_environment(),
+        provider_factory=default_sentence_transformer_provider,
+        vector_factory=QdrantVectorIndexAdapter,
+    )
 
 
 def semantic_runtime():
     """Build the frozen local semantic runtime; never fall back to cloud."""
 
-    try:
-        provider = default_sentence_transformer_provider(
-            cache_folder=os.environ.get("SGOKB_MODEL_CACHE", ".local/models"),
-            local_files_only=os.environ.get("SGOKB_MODEL_LOCAL_ONLY", "0") == "1",
-        )
-        vector = QdrantVectorIndexAdapter(
-            url=os.environ.get("SGOKB_QDRANT_URL", "http://localhost:6333"),
-            grpc_port=int(os.environ.get("SGOKB_QDRANT_GRPC_PORT", "6334")),
-            prefer_grpc=os.environ.get("SGOKB_QDRANT_PREFER_GRPC", "1") != "0",
-            collection_prefix=os.environ.get("SGOKB_QDRANT_COLLECTION_PREFIX", "sgokb_vector"),
-        )
-    except (ImportError, RuntimeError) as exc:
-        if isinstance(exc, ImportError) or isinstance(exc.__cause__, ImportError):
-            raise RetrievalRuntimeUnavailableError(str(exc)) from exc
-        raise
-    return provider, vector
+    return runtime_factory().semantic_runtime()
 
 
 def build_read_application(repository, *, with_semantic: bool = False):
-    if not with_semantic:
-        return KnowledgeReadApplication(repository)
-    provider, vector = semantic_runtime()
-    vector = route_generation_vector_index(repository, vector)
-    return KnowledgeReadApplication(
-        repository,
-        embedding_provider=provider,
-        vector_index=vector,
-        embedding_space=provider.space,
-        evidence_embedder=provider,
-    )
+    return runtime_factory().build_read_application(repository, with_semantic=with_semantic)
+
+
+__all__ = [
+    "QdrantVectorIndexAdapter",
+    "RetrievalRuntimeUnavailableError",
+    "RuntimeConfig",
+    "RuntimeFactory",
+    "build_read_application",
+    "default_sentence_transformer_provider",
+    "runtime_factory",
+    "semantic_runtime",
+]
