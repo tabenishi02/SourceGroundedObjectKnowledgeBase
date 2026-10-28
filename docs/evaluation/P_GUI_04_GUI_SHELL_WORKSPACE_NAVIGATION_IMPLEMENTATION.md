@@ -4,7 +4,7 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-04 [P0] GUI shell / Workspace / navigation foundation`
-- Status: **Implemented / Dynamic Verification Pending**
+- Status: **Automated Verification PASS / Interactive Smoke Pending**
 - Baseline: P-GUI-03R **Complete / Accepted**
 - GUI architecture: `docs/design/P_GUI_APPLICATION_ARCHITECTURE.md`
 - GUI requirements: `docs/requirements/GUI_REQUIREMENTS.md`
@@ -197,30 +197,60 @@ When the `gui` extra is installed, the Qt test file runs with the offscreen plat
 5. the exact 11-item accepted navigation inventory;
 6. clean backend shutdown from the shell.
 
-## 9. Dynamic verification gate
+## 9. Dynamic verification result
 
-No dynamic PASS is claimed in this implementation record. The connected remote execution environment has no remaining remote command quota, so verification must run in the project environment.
+Verification was executed on Windows / Python 3.10.6 with PySide6 6.12.0 installed through the `gui` extra.
 
-From repository root:
+Entrypoint installation:
 
-```powershell
-git pull --ff-only
-python -m pip install -e ".[gui]"
+```text
 Get-Command sgokb-gui
-
-python -m pytest `
-  tests/test_p_gui_04_optional_boundary.py `
-  tests/test_p_gui_04_shell.py
-
-python -m pytest
-python -m ruff check src tests
+→ sgokb-gui.exe resolved successfully
 ```
 
-The existing development environment must still contain the optional dependencies required by the wider full suite.
+Focused P-GUI-04 acceptance:
+
+```text
+python -m pytest \
+  tests/test_p_gui_04_optional_boundary.py \
+  tests/test_p_gui_04_shell.py
+
+5 collected
+5 passed
+```
+
+Full repository regression after P-GUI-04 implementation:
+
+```text
+800 collected
+800 passed
+2 warnings
+0 failed
+0 errors
+```
+
+The two warnings are the existing local-Qdrant capability warnings and are non-failing.
+
+Final Ruff regression after applying Ruff's exact import normalization:
+
+```text
+python -m ruff check src tests
+All checks passed!
+```
+
+Therefore the automated P-GUI-04 gate is:
+
+```text
+focused pytest = PASS (5 / 5)
+full pytest    = PASS (800 / 800)
+ruff           = PASS
+```
 
 ## 10. Interactive smoke acceptance
 
-After automated gates pass:
+Automated verification is complete. The remaining acceptance is interactive GUI smoke.
+
+Run:
 
 ```powershell
 sgokb-gui
@@ -243,12 +273,22 @@ sgokb --db <workspace.sqlite> system status
 
 ## 11. Completion disposition
 
-Implementation criteria are satisfied by code and desk review, but P-GUI-04 remains:
+Implementation and automated verification are satisfied:
 
 ```text
-Implemented / Dynamic Verification Pending
+implementation   = Complete
+focused pytest   = PASS (5 / 5)
+full pytest      = PASS (800 / 800)
+ruff             = PASS
+interactive smoke = Pending
 ```
 
-until the PySide6 test/lint gate and interactive smoke acceptance are measured PASS.
+P-GUI-04 remains:
 
-P-GUI-05 backend/UI work should not be marked started until this P-GUI-04 foundation is accepted.
+```text
+Automated Verification PASS / Interactive Smoke Pending
+```
+
+It becomes `Complete / Accepted` only after the interactive smoke acceptance above is measured PASS.
+
+P-GUI-05 remains blocked until that final acceptance.
