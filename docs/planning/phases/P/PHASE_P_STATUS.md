@@ -18,29 +18,6 @@ Priority 2: RAW Grounding
 Priority 3: Runtime / Qdrant auto-start
 ```
 
-### GUI baseline
-
-- PySide6 / Qt for Python + Qt Widgets
-- public `sgokb` CLIとsemantic parityを持つDesktop GUI
-- CLI / GUIはApplication / Service層を共有
-- GUIはCLI subprocess wrapperをprimary business boundaryにしない
-- backendは専用QThread上のQObject worker
-- Repositoryはoperationごとにworker thread内で生成・破棄
-- Windows distribution baselineは`pyside6-deploy` / Nuitka standalone directory
-- PySide6 / Qt LGPL complianceをRelease gateへ含める
-
-### RAW Grounding
-
-- Evidence retrieval / selectionは維持する
-- external AIへ送るsemantic materialはEvidence再構成MarkdownからRaw Artifactへ変更する
-- Package / Result / Validation / Review / Import / ProvenanceをRaw-grounded modelへ再設計する
-
-### Runtime
-
-- Windowsログイン後にQdrantを自動利用可能にする
-- QdrantはGUI processのlifecycle ownerにせずCLI / GUI / MCPから共有する
-- Docker / Compose + pinned Qdrant + named volume + localhost binding + restart policyをinitial baseline候補とする
-
 ## Current task state
 
 | Workstream | Task | Status | Summary |
@@ -48,7 +25,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-01 | **Complete / Accepted** | GUI requirements / compatibility contract |
 | GUI | P-GUI-02 | **Complete / Accepted** | PySide6 architecture / packaging / license |
 | GUI | P-GUI-03 | **Complete / Accepted** | Transport-neutral Application boundary audit / refactor plan |
-| GUI | P-GUI-03R | **Implemented / Dynamic Verification In Progress** | Shared Application/operator boundary refactor |
+| GUI | P-GUI-03R | **Implemented / Dynamic Verification In Progress** | Shared Application/operator boundary refactor; Attempt 02 remediation applied |
 | GUI | P-GUI-04 | **Blocked by P-GUI-03R regression gate for backend wiring** | GUI shell / Workspace / navigation |
 | GUI | P-GUI-05 | Not Started | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | Not Started | Search / Similarity / Registry / Version GUI |
@@ -60,13 +37,26 @@ Priority 3: Runtime / Qdrant auto-start
 | Runtime | P-RUNTIME-01..06 | Not Started | Windows Qdrant auto-start / health / GUI integration |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
-## P-GUI-01 completion
-
-P-GUI-01 fixed GUI semantic compatibility and mapped current public CLI capability:
+## GUI baseline
 
 ```text
-public CLI operations = 67
-assigned GUI capability = 67 / 67
+Framework             = PySide6 / Qt Widgets
+CLI/GUI boundary      = shared Application / Service layer
+GUI backend           = QObject worker on dedicated QThread
+SQLite                = Repository per operation in worker thread
+Backend concurrency   = serialized per Workspace initially
+Windows deployment    = pyside6-deploy / Nuitka standalone directory
+Qt linking            = dynamic / separate shared libraries
+```
+
+GUI is not a CLI subprocess wrapper. Qdrant remains an independent shared runtime.
+
+## P-GUI-01..03 accepted authority
+
+P-GUI-01 fixed semantic parity for all 67 current public CLI operations:
+
+```text
+assigned = 67 / 67
 unassigned = 0
 ```
 
@@ -76,50 +66,26 @@ Authority:
 - `docs/decisions/P_GUI_COMPATIBILITY_AND_SAFETY_CONTRACT.md`
 - `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
 
-## P-GUI-02 completion
-
-P-GUI-02 fixed the Desktop technical baseline:
-
-```text
-Framework             = PySide6
-UI                     = Qt Widgets
-Backend                = QObject worker on dedicated QThread
-DB                     = Repository per operation in worker thread
-Operation concurrency  = serialized per Workspace initially
-Packaging              = pyside6-deploy / Nuitka
-Mode                   = standalone directory / portable ZIP
-Onefile                = not baseline
-Static Qt linking      = prohibited
-```
-
-Authority:
+P-GUI-02 fixed the PySide6/threading/packaging/license baseline:
 
 - `docs/evaluation/P_GUI_02_PYSIDE6_ARCHITECTURE_PACKAGING_LICENSE_REVIEW.md`
 - `docs/decisions/P_GUI_PYSIDE6_APPLICATION_PACKAGING_LICENSE_DECISION.md`
 - `docs/design/P_GUI_APPLICATION_ARCHITECTURE.md`
 - `docs/operations/P_GUI_DISTRIBUTION_AND_LICENSE_CHECKLIST.md`
 
-Public OSS publication remains blocked until SGOKB itself receives an explicit project-level license Decision/root `LICENSE`; private development is unaffected.
-
-## P-GUI-03 completion
-
-P-GUI-03 audited the implementation boundary for all 67 public operations.
+P-GUI-03 audited all 67 operations and accepted the target boundary:
 
 ```text
 A READY                    25
 B ORCHESTRATION EXTRACTION 26
 C APPLICATION GAP          15
 D TRANSPORT-SPECIFIC        1
---------------------------------
-Total                      67
 ```
-
-Accepted target:
 
 ```text
 CLI parser/renderer ─┐
 GUI BackendWorker ───┼─> OperatorSession
-                     │      ├─ shared OperationRequest
+                     │      ├─ OperationRequest
                      │      ├─ OperationOutcome / OperationFailure
                      │      ├─ RuntimeFactory
                      │      └─ domain Application facades
@@ -135,7 +101,7 @@ Authority:
 
 ## P-GUI-03R implementation state
 
-R1-R8 are implemented.
+R1-R8 are implemented:
 
 ```text
 R1 shared operation/error contracts       Implemented
@@ -157,7 +123,7 @@ SHARED_OPERATION_IDS    = 66
 TRANSPORT_OPERATION_IDS = 1 (mcp.serve)
 ```
 
-The CLI synchronous path is now:
+The CLI synchronous path is:
 
 ```text
 argparse
@@ -167,79 +133,74 @@ argparse
   -> existing sgokb.cli/1.0 rendering / exit codes
 ```
 
-Major implementation artifacts:
-
-```text
-src/sgokb/operation_contracts.py
-src/sgokb/runtime.py
-src/sgokb/application_source.py
-src/sgokb/application_registry.py
-src/sgokb/application_evidence.py
-src/sgokb/application_version.py
-src/sgokb/application_render.py
-src/sgokb/application_exchange.py
-src/sgokb/application_system.py
-src/sgokb/application_operator.py
-src/sgokb/cli/main.py
-src/sgokb/cli/runtime.py
-tests/test_p_gui_03r_operator_boundary.py
-```
-
 Implementation authority:
 
 - `docs/evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`
 
-## P-GUI-03R R9 Attempt 01
-
-Operator execution on Windows/Python 3.10.6 produced:
+## R9 Attempt 01
 
 ```text
-tests/test_p_gui_03r_operator_boundary.py + tests/test_m01_cli.py
-→ PASS: 17 / 17
-
-tests/test_m03_standard_workflow.py
-→ NOT RUN: installed `sgokb` console script unavailable
-
-full `python -m pytest`
-→ NOT RUN: collection stopped because `qdrant_client` was unavailable
-
-`python -m ruff check src tests`
-→ findings detected; remediation applied after Attempt 01
+operator-boundary + M01 CLI = 17 / 17 PASS
+M03                         = blocked before execution: sgokb console script absent
+full pytest                 = blocked at collection: qdrant-client absent
+ruff                        = findings; remediation applied
 ```
 
-Interpretation:
-
-- the new shared boundary tests and existing M01 CLI contract tests passed together;
-- M03 did not reach workflow execution and therefore did not demonstrate a semantic failure;
-- full pytest did not reach execution because an existing optional test dependency was absent;
-- Ruff findings introduced by P-GUI-03R were corrected or narrowly handled, and the existing pytest fixture-reexport false positives were narrowly configured; rerun is required before claiming Ruff PASS.
-
-Detailed authority:
+Authority:
 
 - `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
 
-## Attempt 02 preflight and gate
+## R9 Attempt 02
 
-After updating the local checkout to current `main`:
+Environment preflight installed the public CLI and Qdrant dependency. Results:
 
-```powershell
-git pull --ff-only
-python -m pip install -e ".[dev,mcp,vector-qdrant]"
-python -m pip check
-Get-Command sgokb
-python -c "import qdrant_client; print(qdrant_client.__file__)"
+```text
+operator-boundary + M01 CLI = 17 / 17 PASS
+M03 standard workflow       = 2 / 2 PASS
+full pytest                 = 770 passed / 9 failed / 15 errors (794 collected)
+ruff                        = PASS / All checks passed
 ```
 
-Then run:
+The 24 non-passing full-suite cases were classified as:
+
+```text
+19 = P-GUI-03R CLI compatibility-hook regression
+ 3 = verification environment missing sentence-transformers distribution
+ 2 = historical Phase N closure test coupled to current HEAD
+```
+
+Remediation applied after Attempt 02:
+
+1. `sgokb.cli.runtime` now supplies a compatibility RuntimeFactory adapter while preserving the shared transport-neutral Application boundary.
+2. historical `sgokb.cli.main.semantic_runtime` and `build_read_application` monkeypatch seams are re-exposed through the CLI adapter.
+3. `tests/test_phase_n_closure_audit.py` now uses the formal historical closure candidate `fb9b0d6a6f670d1b0f053148769ce8cd448ea217` rather than assuming current HEAD is still Phase N.
+4. Attempt 03 environment provisioning includes the existing `local-embedding` extra.
+
+Authority:
+
+- `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_02.md`
+
+## Attempt 03 gate
+
+Use a clean project virtual environment when practical. The global Python used in Attempt 02 contains an unrelated FastAPI/Starlette dependency conflict.
+
+Required install:
 
 ```powershell
+python -m pip install -e ".[dev,mcp,vector-qdrant,local-embedding]"
+```
+
+Then run the focused remediation regression followed by the formal gate:
+
+```powershell
+python -m pytest tests/test_n04p05_derived_cli.py tests/test_generation_lifecycle_r2.py tests/test_n04p04_vector_index_sync.py tests/test_object_similarity_r2.py tests/test_phase_n_closure_audit.py tests/test_n05_r2_runner_wiring.py tests/test_n07_r01_composite_recovery.py
 python -m pytest tests/test_p_gui_03r_operator_boundary.py tests/test_m01_cli.py
 python -m pytest tests/test_m03_standard_workflow.py
 python -m pytest
 python -m ruff check src tests
 ```
 
-P-GUI-04 canonical backend wiring remains blocked until these regressions complete successfully or any newly exposed runtime-only prerequisite is separately classified and resolved.
+P-GUI-03R becomes `Complete / Accepted` only after the dynamic gate passes without P-GUI-03R regression.
 
 ## Sequencing
 
@@ -251,7 +212,7 @@ P-GUI-02 Complete
 P-GUI-03 Complete
         ↓
 P-GUI-03R Implemented / Verification In Progress
-        ↓ Attempt 02 regression PASS
+        ↓ Attempt 03 regression PASS
 P-GUI-03R Complete / Accepted
         ↓
 P-GUI-04 GUI shell / Workspace / navigation
@@ -277,10 +238,10 @@ Phase P is still in development. Current released system semantics remain govern
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-03R code is implemented on `main`, but it is not accepted as a completed compatibility refactor until its dynamic regression gate passes.
+P-GUI-03R code is implemented on `main`, but it is not accepted as a completed compatibility refactor until R9 passes.
 
 ## Next
 
 ```text
-P-GUI-03R R9 Attempt 02 — fully provisioned dynamic regression / semantic-equivalence verification
+P-GUI-03R R9 Attempt 03 — remediation reverification / full semantic-equivalence regression
 ```
