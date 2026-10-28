@@ -26,8 +26,8 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-02 | **Complete / Accepted** | PySide6 architecture / packaging / license |
 | GUI | P-GUI-03 | **Complete / Accepted** | Transport-neutral Application boundary audit / refactor plan |
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
-| GUI | P-GUI-04 | **Unblocked / Next** | GUI shell / Workspace / navigation |
-| GUI | P-GUI-05 | Not Started | Object / Source / Evidence / Association GUI |
+| GUI | P-GUI-04 | **Implemented / Dynamic Verification Pending** | GUI shell / Workspace / navigation foundation |
+| GUI | P-GUI-05 | **Blocked by P-GUI-04 acceptance** | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | Not Started | Search / Similarity / Registry / Version GUI |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
@@ -123,21 +123,7 @@ SHARED_OPERATION_IDS    = 66
 TRANSPORT_OPERATION_IDS = 1 (mcp.serve)
 ```
 
-The synchronous CLI path is now:
-
-```text
-argparse
-  -> OperationRequest
-  -> OperatorSession
-  -> OperationOutcome / OperationFailure
-  -> existing sgokb.cli/1.0 rendering / exit codes
-```
-
-`mcp.serve` remains transport-specific and is not forced through synchronous operator dispatch.
-
-### R9 final acceptance evidence
-
-Final accepted dynamic evidence:
+Final R9 acceptance evidence:
 
 ```text
 operator-boundary + M01 CLI = 18 / 18 PASS
@@ -147,16 +133,58 @@ full pytest                 = 795 / 795 PASS
 ruff                        = All checks passed!
 ```
 
-The full pytest run emitted only two local-Qdrant capability warnings and no failures/errors.
+Final acceptance authority:
 
-R9 attempts 01-04 are retained as historical evidence. Attempt 04 is the final acceptance authority:
-
-- `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
-- `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_02.md`
-- `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_03.md`
 - `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
 
-The final remediation preserved historical derived-runtime unavailable semantics, stabilized the historical Phase N fixture, and normalized Ruff import grouping without changing production semantics.
+## P-GUI-04 implementation state
+
+The GUI foundation is implemented on `main`.
+
+Implemented package surface:
+
+```text
+.[gui] = PySide6 bounded dependency
+sgokb-gui entrypoint
+src/sgokb/gui/
+  bootstrap / main
+  workspace state + QSettings
+  GUI operation envelope
+  BackendCoordinator / BackendWorker / BackendSession
+  WorkspaceController
+  QMainWindow shell / navigation
+```
+
+Accepted navigation is present as the 11-page shell:
+
+```text
+Home / Dashboard
+Objects
+Sources
+Evidence
+Associations
+Search
+Packages
+Results
+Registry
+System
+Settings
+```
+
+Workspace open/create is validated by executing `system.status` through `OperatorSession` on the backend QThread. Candidate failures do not replace the active Workspace. No GUI direct SQL or CLI-subprocess business path was introduced.
+
+Automated acceptance assets:
+
+```text
+tests/test_p_gui_04_optional_boundary.py
+tests/test_p_gui_04_shell.py
+```
+
+Implementation authority:
+
+- `docs/evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md`
+
+Dynamic verification is still required with the `gui` extra installed. P-GUI-04 is not yet `Complete / Accepted`.
 
 ## Sequencing
 
@@ -169,7 +197,9 @@ P-GUI-03 Complete
         ↓
 P-GUI-03R Complete / Accepted
         ↓
-P-GUI-04 GUI shell / Workspace / navigation   <- NEXT
+P-GUI-04 Implemented / Dynamic Verification Pending   <- CURRENT
+        ↓ acceptance PASS
+P-GUI-04 Complete / Accepted
         ↓
 P-GUI-05 / 06 / 07 core GUI
         ↓
@@ -192,10 +222,10 @@ Phase P remains in development. Current released system semantics continue to be
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-03R is now an accepted development baseline for subsequent Phase P GUI work. It does not itself change the formal released version.
+P-GUI-03R is an accepted development baseline. P-GUI-04 GUI code is implemented but remains unaccepted until its dynamic and interactive gates pass.
 
 ## Next
 
 ```text
-P-GUI-04 — GUI shell / Workspace / navigation
+P-GUI-04 — dynamic pytest / Ruff / interactive GUI smoke acceptance
 ```
