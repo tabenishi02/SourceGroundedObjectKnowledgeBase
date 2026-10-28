@@ -6,6 +6,7 @@ import os
 
 import pytest
 from test_hybrid_search import _accepted, _class
+from test_hybrid_search_r2 import _accepted_r2, _activate_r2_generation
 
 from sgokb.repository import Repository
 
@@ -144,6 +145,61 @@ def test_search_filter_selectors_and_validity_range_arguments(qt_app, tmp_path, 
         assert page.run_search() is None
         assert len(captured) == before
         assert "From must not be after To" in page.operation_status.text()
+    finally:
+        page.deleteLater()
+        qt_app.processEvents()
+        assert backend.shutdown()
+
+
+def test_gui_range_search_keeps_current_object_when_active_generation_lags(qt_app, tmp_path):
+    from sgokb.gui.views import SearchPage
+    from sgokb.gui.worker import BackendCoordinator
+
+    database = tmp_path / "gui-search-range-stale-generation.sqlite"
+    repository = Repository(database)
+    try:
+        object_id = repository.object_store.create_object(
+            "GUI Lagged Range Hero",
+            _class(repository, "character"),
+        )
+        _accepted_r2(
+            repository,
+            object_id,
+            "gui-lagged-range-v1",
+            [{"facet": "personality", "text": "old generation statement"}],
+        )
+        _activate_r2_generation(repository, generation_id="gui-range-generation")
+        current_version_id = _accepted_r2(
+            repository,
+            object_id,
+            "gui-lagged-range-v2",
+            [{"facet": "personality", "text": "current timeless statement"}],
+        )
+        repository.db.commit()
+    finally:
+        repository.close()
+
+    backend = BackendCoordinator()
+    page = SearchPage(backend)
+    try:
+        page.set_workspace(_workspace(database))
+        _wait_idle(qt_app, backend)
+
+        page.search_query.setText("GUI Lagged Range Hero")
+        page.search_mode.setCurrentText("lexical")
+        page.valid_from.setText("2100-01-01")
+        page.valid_to.setText("2200-01-01")
+        page.run_search()
+        _wait_idle(qt_app, backend)
+
+        rows = [
+            page.search_model.row_data(row)
+            for row in range(page.search_model.rowCount())
+        ]
+        matching = [row for row in rows if row and row.get("object_id") == object_id]
+        assert matching
+        assert matching[0]["version_id"] == current_version_id
+        assert page.operation_status.text() == "search: success"
     finally:
         page.deleteLater()
         qt_app.processEvents()
