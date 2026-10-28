@@ -5,7 +5,7 @@ Updated: 2026-10-29
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-05 [P0] Object / Source / Evidence / Association GUI`
 - Improvement: recursive folder ZIP import from the Sources tab
-- Status: **Implemented / Verification Refresh Pending**
+- Status: **Implemented / Verification PASS**
 
 ## Request
 
@@ -70,7 +70,9 @@ The corrected regression exercises the actual folder dialog path and verifies th
 5. both valid captures become canonical Snapshots;
 6. Raw Artifact `storage_ref` values point to the recursively discovered valid ZIP files.
 
-## Verification attempt 01
+## Verification history
+
+### Attempt 05
 
 Initial focused verification produced:
 
@@ -91,6 +93,34 @@ existing importer safety rule = retained
 
 The regression fixture was corrected to preserve canonical bundle filenames while placing them at different recursive depths. An additional invalid ordinary ZIP remains in the fixture so the test still proves that all ZIP files are targeted by the folder scan.
 
+### Attempt 06
+
+The next focused run again produced 11 / 12 PASS, but the product behavior succeeded: both valid recursive bundles were imported and the invalid ZIP was reported. The remaining assertion compared an unescaped Windows path directly against JSON text in a tooltip.
+
+Disposition:
+
+```text
+product recursive import defect = not demonstrated
+Windows JSON assertion defect   = confirmed
+```
+
+The regression was corrected to parse the tooltip JSON and compare structured `input`, `error`, and `reason` fields.
+
+### Attempt 07 — final automated PASS
+
+Final verification produced:
+
+```text
+focused GUI regression = 12 / 12 PASS
+Ruff                   = All checks passed!
+full regression         = 807 / 807 PASS
+known warnings          = 2 local-Qdrant warnings
+```
+
+Authority:
+
+- `docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md`
+
 ## Effective selection prompt clarification
 
 During the same interactive review, the previous prompt:
@@ -108,32 +138,11 @@ Reason for choosing this normalization run as effective (required):
 
 The value remains free-text audit/provenance context explaining why the operator chose that Snapshot or normalization run as the effective one.
 
-## Verification refresh
-
-Run:
-
-```powershell
-git pull --ff-only
-
-python -m pytest `
-  tests/test_p_gui_04_optional_boundary.py `
-  tests/test_p_gui_04_shell.py `
-  tests/test_p_gui_05_domain_pages.py `
-  tests/test_p_gui_05_object_class_selector.py `
-  tests/test_p_gui_05_object_class_controls.py `
-  tests/test_p_gui_05_source_recursive_zip_import.py
-
-python -m ruff check src tests
-```
-
-If those pass, run:
-
-```powershell
-python -m pytest
-```
-
-Until the refreshed gates pass:
+## Final disposition
 
 ```text
-P-GUI-05 = Automated Verification Refresh Pending / Visual Smoke PASS / Functional Smoke Pending
+recursive Source folder ZIP import = Implemented / Verified PASS
+P-GUI-05 automated verification    = PASS
 ```
+
+The remaining P-GUI-05 closure gate is representative functional GUI smoke.
