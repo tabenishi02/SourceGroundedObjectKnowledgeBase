@@ -17,13 +17,15 @@ O-03 Prototype Archived / Legacy labels = Complete
 O-04 main integration = Complete
 O-05 Branch cleanup = Complete
 O-06 Release / Tag policy = Complete
-Current formal release = v1.0.0
-Release commit = 0e1a8464e9db98b4e99169cae6292821f3fd410c
+Current formal release = v1.1.0
+Release commit = 7e56080fc63e711e276d8b97d29a88aa9da0a455
 ```
+
+v1.1.0は2026-10-28のHappy-Path Operational AcceptanceでFULL SGOKB PASSを確認した後に公開した後方互換Minor releaseです。package versionは`1.1.0`、release commitは`7e56080fc63e711e276d8b97d29a88aa9da0a455`です。
 
 Phase NはReference Workstationでのclosure audit C01-C07 PASSと独立レビューを完了しています。O-06ではPrototype 0.2から新SGOKBへの正式境界を`v1.0.0`と決定し、Breaking Change / migration guidanceを含むrepository-side Release Noteとpackage version `1.0.0`を整備しました。annotated tag `v1.0.0`はrelease commit `0e1a8464e9db98b4e99169cae6292821f3fd410c`を指すことをlive GitHubで確認済みです。Phase OはCompleteです。
 
-Phase O closureは [Phase O Status](docs/planning/phases/O/PHASE_O_STATUS.md)、Release定義は [v1.0.0 Release Note](docs/releases/v1.0.0.md)、現行全体設計は [Current System Architecture](docs/design/SGOKB_CURRENT_ARCHITECTURE.md)、運用安全・復旧設計は [Operational Safety / Backup / Recovery](docs/operations/OPERATIONAL_SAFETY_RECOVERY.md) を参照してください。
+Phase O closureは [Phase O Status](docs/planning/phases/O/PHASE_O_STATUS.md)、Release定義は [v1.1.0 Release Note](docs/releases/v1.1.0.md)、現行全体設計は [Current System Architecture](docs/design/SGOKB_CURRENT_ARCHITECTURE.md)、運用安全・復旧設計は [Operational Safety / Backup / Recovery](docs/operations/OPERATIONAL_SAFETY_RECOVERY.md) を参照してください。
 
 ---
 
