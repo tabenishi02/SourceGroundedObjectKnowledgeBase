@@ -25,7 +25,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-01 | **Complete / Accepted** | GUI requirements / compatibility contract |
 | GUI | P-GUI-02 | **Complete / Accepted** | PySide6 architecture / packaging / license |
 | GUI | P-GUI-03 | **Complete / Accepted** | Transport-neutral Application boundary audit / refactor plan |
-| GUI | P-GUI-03R | **Implemented / Dynamic Verification In Progress** | Shared Application/operator boundary refactor; Attempt 02 remediation applied |
+| GUI | P-GUI-03R | **Implemented / Dynamic Verification In Progress** | Shared Application/operator boundary refactor; Attempt 03 final compatibility remediation applied |
 | GUI | P-GUI-04 | **Blocked by P-GUI-03R regression gate for backend wiring** | GUI shell / Workspace / navigation |
 | GUI | P-GUI-05 | Not Started | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | Not Started | Search / Similarity / Registry / Version GUI |
@@ -152,8 +152,6 @@ Authority:
 
 ## R9 Attempt 02
 
-Environment preflight installed the public CLI and Qdrant dependency. Results:
-
 ```text
 operator-boundary + M01 CLI = 17 / 17 PASS
 M03 standard workflow       = 2 / 2 PASS
@@ -169,38 +167,56 @@ The 24 non-passing full-suite cases were classified as:
  2 = historical Phase N closure test coupled to current HEAD
 ```
 
-Remediation applied after Attempt 02:
-
-1. `sgokb.cli.runtime` now supplies a compatibility RuntimeFactory adapter while preserving the shared transport-neutral Application boundary.
-2. historical `sgokb.cli.main.semantic_runtime` and `build_read_application` monkeypatch seams are re-exposed through the CLI adapter.
-3. `tests/test_phase_n_closure_audit.py` now uses the formal historical closure candidate `fb9b0d6a6f670d1b0f053148769ce8cd448ea217` rather than assuming current HEAD is still Phase N.
-4. Attempt 03 environment provisioning includes the existing `local-embedding` extra.
+Remediation after Attempt 02 restored the historical CLI monkeypatch seams through a compatibility RuntimeFactory adapter, stabilized the Phase N historical fixture at formal closure candidate `fb9b0d6a6f670d1b0f053148769ce8cd448ea217`, and added the `local-embedding` extra to the verification environment.
 
 Authority:
 
 - `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_02.md`
 
-## Attempt 03 gate
+## R9 Attempt 03
 
-Use a clean project virtual environment when practical. The global Python used in Attempt 02 contains an unrelated FastAPI/Starlette dependency conflict.
+Attempt 03 ran with `dev,mcp,vector-qdrant,local-embedding` installed.
 
-Required install:
-
-```powershell
-python -m pip install -e ".[dev,mcp,vector-qdrant,local-embedding]"
+```text
+focused remediation suite  = 144 passed / 2 failed (146 collected)
+operator-boundary + M01 CLI = 18 / 18 PASS
+M03 standard workflow       = 2 / 2 PASS
+full pytest                 = 793 passed / 2 failed (795 collected)
+ruff                        = 1 import-order finding
 ```
 
-Then run the focused remediation regression followed by the formal gate:
+Both remaining test failures were the same historical derived-runtime failure-semantic contract:
+
+```text
+system derived status --semantic-runtime
+system derived sync --semantic-runtime
+```
+
+A monkeypatched plain `RuntimeError("local runtime unavailable")` was reaching the generic operation mapper and becoming internal / exit 1, whereas the pre-refactor CLI contract wrapped semantic composition failures as `DerivedMaintenanceRuntimeUnavailableError` / exit 5.
+
+Final compatibility remediation after Attempt 03:
+
+1. `SystemOperatorApplication._derived()` now preserves the historical runtime-unavailable normalization for semantic composition failures.
+2. `tests/test_phase_n_closure_audit.py` import grouping is aligned with Ruff.
+3. No Search/Similarity/index-rebuild error contract was broadened by the derived-only compatibility fix.
+
+Authority:
+
+- `docs/evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_03.md`
+
+## Attempt 04 final gate
+
+After pulling current `main`, run:
 
 ```powershell
-python -m pytest tests/test_n04p05_derived_cli.py tests/test_generation_lifecycle_r2.py tests/test_n04p04_vector_index_sync.py tests/test_object_similarity_r2.py tests/test_phase_n_closure_audit.py tests/test_n05_r2_runner_wiring.py tests/test_n07_r01_composite_recovery.py
+python -m pytest tests/test_n04p05_derived_cli.py tests/test_phase_n_closure_audit.py
 python -m pytest tests/test_p_gui_03r_operator_boundary.py tests/test_m01_cli.py
 python -m pytest tests/test_m03_standard_workflow.py
 python -m pytest
 python -m ruff check src tests
 ```
 
-P-GUI-03R becomes `Complete / Accepted` only after the dynamic gate passes without P-GUI-03R regression.
+P-GUI-03R becomes `Complete / Accepted` only after all five commands pass.
 
 ## Sequencing
 
@@ -212,7 +228,7 @@ P-GUI-02 Complete
 P-GUI-03 Complete
         ↓
 P-GUI-03R Implemented / Verification In Progress
-        ↓ Attempt 03 regression PASS
+        ↓ Attempt 04 final regression PASS
 P-GUI-03R Complete / Accepted
         ↓
 P-GUI-04 GUI shell / Workspace / navigation
@@ -243,5 +259,5 @@ P-GUI-03R code is implemented on `main`, but it is not accepted as a completed c
 ## Next
 
 ```text
-P-GUI-03R R9 Attempt 03 — remediation reverification / full semantic-equivalence regression
+P-GUI-03R R9 Attempt 04 — final dynamic regression / semantic-equivalence verification
 ```
