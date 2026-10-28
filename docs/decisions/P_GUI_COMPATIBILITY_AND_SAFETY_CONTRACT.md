@@ -30,21 +30,13 @@ same use case
 GUIはCLI commandをsubprocess実行するwrapperとして実装しない。
 
 ```text
-                 CLI
-                  │
-                  ├─────────────┐
-                  │             │
-                  ▼             ▼
-            presentation   presentation
-                  │             │
-                  └──────┬──────┘
-                         ▼
-              Application / Service
-                         ▼
-        Repository / Retrieval / Exchange
+CLI ─┐
+     ├─> Application / Service ─> Repository / Retrieval / Exchange
+GUI ─┤
+     └─ MCP(read)
 ```
 
-実際にはCLIとGUIが同じApplication / Service boundaryへ依存し、CLI parser / stdout JSONはCLI transport concernとして残す。
+CLIとGUIが同じApplication / Service boundaryへ依存し、CLI parser / stdout JSONはCLI transport concernとして残す。
 
 ---
 
@@ -88,7 +80,8 @@ Total        67
 status
 bootstrap
 build
-cutoverollback
+cutover
+rollback
 recover
 ```
 
@@ -146,7 +139,7 @@ GUI baseline:
 - destination表示
 - package / artifact identity表示
 - preflight disposition表示
--送出内容summary表示
+- 送出内容summary表示
 - required acknowledgementを省略しない
 - blocked状態をforce bypassしない
 
