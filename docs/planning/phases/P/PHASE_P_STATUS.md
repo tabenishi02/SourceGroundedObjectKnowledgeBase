@@ -28,7 +28,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI; automated + visual + functional acceptance PASS |
-| GUI | P-GUI-06 | **Next / Not Started** | Search / Similarity / Registry / Version GUI |
+| GUI | P-GUI-06 | **Implemented / Dynamic Verification Pending** | Search / Similarity / Registry / Version / Render GUI; 14 operations wired |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
@@ -125,76 +125,125 @@ Association   4 / 4
 Total        27 / 27
 ```
 
-Accepted Object behavior includes:
+Accepted Object behavior includes stable `object_id` targeting, registry-backed Class selectors,
+alias/status mutation, event inspection and read-only relations.
 
-- stable `object_id` targeting;
-- add / rename / status / alias;
-- registry/current Knowledge detail;
-- events and read-only relations;
-- Add Object Primary Class selector from active registry Classes;
-- Set Primary Class selector from all registry Classes;
-- Add Class selector from all registry Classes except current Primary;
-- Remove Class selector from assigned Additional Classes only, disabled when none exist;
-- Class mutations use stable `class_id` values.
+Accepted Source behavior includes single and recursive folder ZIP import, per-target partial
+failure handling, Raw / normalization inspection, processing, and effective Snapshot / Run
+selection with explicit audit reasons.
 
-Accepted Source behavior includes:
+Accepted Evidence behavior includes candidate retrieval, bounded selection, manual
+include/exclude/automatic state, budget display, detail/provenance and Evidence Search.
 
-- single ZIP import;
-- recursive folder ZIP discovery/import via `Import Folder...` and folder drag/drop;
-- all `.zip` discovery targets, with existing WebCaptureImporter validation retained;
-- per-target partial failure handling;
-- Snapshot / Raw Artifact / normalization Run inspection;
-- Source processing;
-- effective Snapshot / Run selection with explicit free-text audit reasons.
+Accepted Association behavior includes list / suggest / set / clear with status, subject
+relationship and note.
 
-Accepted Evidence behavior includes:
-
-- candidates / bounded selection;
-- manual include / exclude / automatic state by mouse and keyboard;
-- `Ctrl+I` / `Ctrl+E` / `Ctrl+0`;
-- budget usage;
-- detail / provenance;
-- Evidence Search.
-
-Accepted Association behavior includes:
-
-- list / suggest / set / clear;
-- status / subject relationship / note;
-- Object / Source review.
-
-`source.snapshots` remains a shared Application boundary and now exposes presentation-useful Raw/Run metadata. Canonical `raw_artifacts.bytes` is normalized to DTO `byte_count`.
-
-### Final automated evidence
+Final P-GUI-05 evidence:
 
 ```text
 focused GUI regression = 12 / 12 PASS
 Ruff                   = All checks passed!
 full regression         = 807 / 807 PASS
-known warnings          = 2 local-Qdrant warnings
+visual smoke            = PASS
+functional smoke        = PASS
 ```
-
-Attempts 05 and 06 identified test defects only. Attempt 07 is the final automated PASS for the accepted code.
-
-### Final interactive evidence
-
-```text
-visual rendering smoke = PASS
-functional smoke       = PASS
-```
-
-The operator confirmed normal behavior for the targeted functional test scope.
 
 Acceptance authority:
 
 - `docs/evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md`
 - `docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md`
 - `docs/evaluation/P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md`
-- supporting amendment records under `docs/evaluation/P_GUI_05_*_IMPROVEMENT.md`
 
 Final verdict:
 
 ```text
 P-GUI-05 = Complete / Accepted
+```
+
+## P-GUI-06 implementation state
+
+P-GUI-06 implementation is complete and is awaiting dynamic verification.
+
+The accepted shell placeholders are replaced by real pages for:
+
+```text
+Search
+Registry
+```
+
+Version / Diff / Render are grouped as Registry tabs; Similarity is grouped with Search. The
+accepted 11-destination navigation inventory therefore remains unchanged.
+
+Operation wiring:
+
+```text
+Search       1 / 1
+Similarity   1 / 1
+Registry     9 / 9
+Version      2 / 2
+Render       1 / 1
+------------------
+Total       14 / 14
+```
+
+Implemented Search behavior includes:
+
+- Lexical / Semantic / Hybrid modes;
+- semantic-runtime opt-in and strict `require_full_runtime` control;
+- result / candidate limits;
+- left-side hard-filter panel for Primary / Additional / Ancestor Class, Facet, Version,
+  Temporal Scope, Knowledge-valid-at, Derivation Kind and archive scope;
+- ranked result detail;
+- explicit degraded-channel display.
+
+Implemented Similarity behavior includes:
+
+- stable Object selection through `object.list`;
+- overall and optional Facet-specific Similarity;
+- optional source Version pinning;
+- cross-Class and archived scope controls;
+- explicit local semantic-runtime requirement with no silent fallback.
+
+Implemented Registry behavior includes:
+
+- Class list/detail;
+- Relation Type list/detail;
+- Registry Proposal list/detail and decision filter;
+- separate Accept / Reject decision actions;
+- separate Apply action, enabled only for accepted unapplied proposals;
+- explicit confirmation before Apply.
+
+Implemented Version / Render behavior includes:
+
+- accepted Version Show;
+- Before / After Version Diff;
+- structured Diff view;
+- Markdown Diff using the existing H-04 renderer;
+- Object/Version Markdown render/export;
+- generated derived Markdown preview.
+
+No GUI direct SQL or CLI-subprocess business path was introduced. Proposal Accept and Apply remain
+separate canonical operations. Search/runtime failure and degradation semantics remain owned by
+the existing Application/operator boundary.
+
+Implementation / verification authority:
+
+- `docs/evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`
+
+Current P-GUI-06 disposition:
+
+```text
+implementation       = Complete
+desk audit           = Complete
+operation wiring     = 14 / 14
+automated acceptance = Pending
+interactive smoke    = Pending
+```
+
+Therefore:
+
+```text
+P-GUI-06 = Implemented / Dynamic Verification Pending
 ```
 
 ## Sequencing
@@ -212,7 +261,9 @@ P-GUI-04 Complete / Accepted
         ↓
 P-GUI-05 Complete / Accepted
         ↓
-P-GUI-06 Search / Similarity / Registry / Version GUI   <- NEXT
+P-GUI-06 Implemented / Dynamic Verification Pending   <- CURRENT
+        ↓ automated PASS + interactive smoke PASS
+P-GUI-06 Complete / Accepted
         ↓
 P-GUI-07 Progress / error / safety / audit UX
         ↓
@@ -235,10 +286,12 @@ Phase P remains in development. Released system semantics continue to be governe
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. Their acceptance does not by itself advance the formal released version.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 is implemented
+development code pending measured automated and interactive acceptance. None of these tasks alone
+advance the formal released version.
 
 ## Next
 
 ```text
-P-GUI-06 [P0] Search / Similarity / Registry / Version GUI
+P-GUI-06 — focused pytest / Ruff / full regression, then interactive GUI smoke acceptance
 ```
