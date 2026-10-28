@@ -1,3 +1,4 @@
+# ruff: noqa: I001 - sibling test fixture imports intentionally precede project imports.
 from __future__ import annotations
 
 import pytest
@@ -139,6 +140,9 @@ def test_range_registry_identity_uses_current_canonical_version_when_generation_
         [{"facet": "personality", "text": "old active generation knowledge"}],
     )
     generation_id = _activate_r2_generation(repo)
+    # The generation fixture writes through direct SQL. Commit its setup transaction
+    # before beginning the next immutable Version lifecycle operation.
+    repo.db.commit()
 
     current_version_id = _accepted_r2(
         repo,
