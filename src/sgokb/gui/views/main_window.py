@@ -21,11 +21,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from sgokb.gui.controllers import WorkspaceController
+from sgokb.gui.worker import BackendCoordinator
+from sgokb.gui.workspace import WorkspaceSettings, WorkspaceState
 from sgokb.operation_contracts import OperationFailure
-
-from ..controllers import WorkspaceController
-from ..worker import BackendCoordinator
-from ..workspace import WorkspaceSettings, WorkspaceState
 
 
 NAVIGATION_ITEMS = (
