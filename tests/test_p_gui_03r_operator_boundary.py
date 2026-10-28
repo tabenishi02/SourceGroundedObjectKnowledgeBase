@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import json
 
 import pytest
@@ -89,6 +90,29 @@ def test_cli_adapter_keeps_sgokb_cli_envelope_on_shared_operator_path(tmp_path, 
     payload = json.loads(capsys.readouterr().out)
     assert payload["command"] == "object.show"
     assert payload["data"]["name"] == "Shared Boundary"
+
+
+def test_cli_runtime_factory_honors_historical_main_module_hooks(monkeypatch):
+    cli_main = importlib.import_module("sgokb.cli.main")
+    cli_runtime = importlib.import_module("sgokb.cli.runtime")
+
+    pair = (object(), object())
+    read_app = object()
+    calls = []
+
+    monkeypatch.setattr(cli_main, "semantic_runtime", lambda: pair)
+
+    def fake_build_read_application(repository, *, with_semantic=False):
+        calls.append((repository, with_semantic))
+        return read_app
+
+    monkeypatch.setattr(cli_main, "build_read_application", fake_build_read_application)
+    factory = cli_runtime.runtime_factory()
+
+    assert factory.semantic_runtime() is pair
+    repository = object()
+    assert factory.build_read_application(repository, with_semantic=True) is read_app
+    assert calls == [(repository, True)]
 
 
 def test_mcp_serve_is_rejected_by_synchronous_operator_session(tmp_path):
