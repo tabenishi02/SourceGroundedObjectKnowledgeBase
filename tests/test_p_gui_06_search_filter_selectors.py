@@ -5,10 +5,9 @@ from __future__ import annotations
 import os
 
 import pytest
+from test_hybrid_search import _accepted, _class
 
 from sgokb.repository import Repository
-
-from test_hybrid_search import _accepted, _class
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
