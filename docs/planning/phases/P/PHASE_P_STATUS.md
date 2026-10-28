@@ -27,7 +27,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
-| GUI | P-GUI-06 | **Automated Verification PASS / Interactive Smoke Pending** | Search selector + validity-range amendment verified; 18/18 focused + 813/813 full PASS |
+| GUI | P-GUI-06 | **Automated Verification PASS / Interactive Smoke Pending** | Derivation selector + validity-range remediation verified; 24/24 focused + 819/819 full PASS |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
@@ -117,7 +117,8 @@ Search Hard Filters provide:
 - Version dropdown with editable historical fallback;
 - Temporal Scope dropdown with editable historical fallback;
 - `Knowledge valid From` / `Knowledge valid To` date-range fields;
-- Derivation Kind and archived-Object filters.
+- fixed-value Derivation Kind dropdown;
+- archived-Object filter.
 
 Candidate composition remains above Repository storage:
 
@@ -141,6 +142,18 @@ YYYY-MM-DD..
 
 Plain single-date `valid_at` keeps point-in-time behavior. Range filtering uses temporal overlap, treats `as_of` as a point interval, supports one-sided ranges, and keeps timeless Statements eligible.
 
+The false-negative remediation fixes the case where an active derived R2 Search generation lags a newer current accepted Version:
+
+```text
+Registry identity range eligibility
+    -> canonical accepted Knowledge
+
+Knowledge lexical / semantic channels
+    -> active R2 Search generation
+```
+
+This preserves current Object name/alias discoverability without bypassing generation isolation for derived Knowledge channels.
+
 ### Registry / Version / Render
 
 Registry behavior remains:
@@ -158,22 +171,31 @@ Version / Render behavior remains:
 - structured and Markdown Diff;
 - Object/Version Markdown render/export and preview.
 
-The user message that introduced the Search amendment contained an unfinished bullet beginning `Registryタブの`; no unspecified Registry-page change was inferred.
-
 ## P-GUI-06 automated verification
 
 Current automated authority:
 
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md`
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
+- `docs/evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`
+- `docs/evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md`
 - `docs/evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`
 - `docs/evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`
 
-Measured post-amendment result:
+Attempt history:
 
 ```text
-focused P-GUI-04 / 05 / 06 regression = 18 / 18 PASS
+Attempt 01 = PASS, pre-amendment
+Attempt 02 = PASS, selector/range baseline
+Attempt 03 = FAIL, verification fixture + Ruff defects; product assertion not reached
+Attempt 04 = PASS, current post-remediation authority
+```
+
+Measured current result:
+
+```text
+focused P-GUI-04 / 05 / 06 regression = 24 / 24 PASS
 Ruff                                  = All checks passed!
-full pytest                            = 813 / 813 PASS
+full pytest                            = 819 / 819 PASS
 known local-Qdrant warnings            = 2
 ```
 
@@ -229,7 +251,7 @@ P-GUI-10 / P-CLOSE-01
 
 Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed its amended automated gate and remains pending interactive smoke acceptance. None of these tasks alone advance the formal released version.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed its current automated gate and remains pending interactive smoke acceptance. None of these tasks alone advance the formal released version.
 
 ## Next
 
