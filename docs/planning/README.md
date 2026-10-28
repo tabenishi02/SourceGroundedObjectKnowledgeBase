@@ -10,7 +10,7 @@ Phase O — Documentation / Release / Git cleanup は **Complete** です。
 
 2026-10-28のHappy-Path Operational Acceptanceで **FULL SGOKB PASS** を確認し、current formal releaseは `v1.1.0` です。
 
-次の開発Phaseとして **Phase P — GUI / RAW Grounding / Runtime Modernization** を開始します。
+現在の開発Phaseは **Phase P — GUI / RAW Grounding / Runtime Modernization** です。
 
 ```text
 Phase A ... Phase M = Complete
@@ -19,8 +19,9 @@ Phase N closure audit = Complete / PASS
 Phase O = Complete
 Happy-path operational acceptance = Complete / FULL SGOKB PASS
 Current formal release = v1.1.0
-Phase P = Planned / Ready to Start
-Next = P-GUI-01 — GUI requirements / compatibility contract
+Phase P = In Progress
+P-GUI-01 = Complete / Accepted
+Next = P-GUI-02 — PySide6 application architecture / packaging / license design
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -40,9 +41,15 @@ Priority 3: Runtime / Qdrant auto-start
 - Phase P current status: [`phases/P/PHASE_P_STATUS.md`](phases/P/PHASE_P_STATUS.md)
 - Project task amendment: [`project/KNOWLEDGE_BASE_REDESIGN_TASKS_PHASE_P_AMENDMENT.md`](project/KNOWLEDGE_BASE_REDESIGN_TASKS_PHASE_P_AMENDMENT.md)
 
+### P-GUI-01 accepted authority
+
+- GUI requirements: [`../requirements/GUI_REQUIREMENTS.md`](../requirements/GUI_REQUIREMENTS.md)
+- GUI compatibility / safety decision: [`../decisions/P_GUI_COMPATIBILITY_AND_SAFETY_CONTRACT.md`](../decisions/P_GUI_COMPATIBILITY_AND_SAFETY_CONTRACT.md)
+- CLI <-> GUI capability matrix: [`../reference/GUI_CLI_CAPABILITY_MATRIX.md`](../reference/GUI_CLI_CAPABILITY_MATRIX.md)
+
 ### Current implemented system
 
-Phase Pは未実装のため、実システムのcurrent specificationは引き続き次を正本とします。
+Phase P GUIは未実装のため、実システムのcurrent specificationは引き続き次を正本とします。
 
 - Current integrated architecture: [`../design/SGOKB_CURRENT_ARCHITECTURE.md`](../design/SGOKB_CURRENT_ARCHITECTURE.md)
 - Current design index: [`../design/README.md`](../design/README.md)
@@ -69,14 +76,15 @@ PySide6 / Qt for Pythonを採用し、public `sgokb` CLIと意味的に互換な
 基本境界:
 
 ```text
-                    ┌─ CLI
-                    │
-Application / Service ─┼─ GUI (PySide6)
-                    │
-                    └─ MCP read boundary
+CLI ─┐
+     ├─> Application / Service ─> Repository / Retrieval / Exchange
+GUI ─┤
+     └─ MCP read boundary
 ```
 
 GUIはCLI subprocess wrapperを主実装とせず、既存Application / Service layerを共有します。CLIはPhase P後もfirst-class interfaceとして維持します。
+
+P-GUI-01でcurrent public `sgokb` 67 operationsをGUI capabilityへ全件mappingし、assigned 67 / 67、unassigned 0を確認しました。GUI互換は同じCLI文字列を再生することではなく、same use case / target identity / canonical effect / validation / safety / degradation / failure semanticsを維持するsemantic parityとして定義しました。
 
 主な追加GUI capability:
 
@@ -185,7 +193,7 @@ Reference Workstation / Codex等へ渡す一時的な実行handoffを対象Task�
 次のTaskは次です。
 
 ```text
-P-GUI-01 [P0] GUI requirements / compatibility contract
+P-GUI-02 [P0] PySide6 application architecture / packaging / license design
 ```
 
-P-GUI-01でGUI capability inventory、CLI互換定義、side-effect / error semantics、GUI-only convenience boundaryを確定した後、PySide6 application architectureへ進みます。
+P-GUI-02ではPySide6 application architecture、Qt Model/View / QMainWindow / Dock / Settings境界、thread / worker ownership、packaging方式、OSS配布license complianceを設計します。
