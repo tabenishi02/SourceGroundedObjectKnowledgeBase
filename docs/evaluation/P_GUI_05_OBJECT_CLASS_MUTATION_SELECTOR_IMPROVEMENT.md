@@ -5,7 +5,7 @@ Updated: 2026-10-29
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-05 [P0] Object / Source / Evidence / Association GUI`
 - Improvement: Object Class mutation selectors
-- Status: **Implemented / Verification Refresh Pending**
+- Status: **Implemented / Verification Refresh PASS**
 
 ## Request
 
@@ -81,26 +81,27 @@ The regression verifies:
 
 ## Verification refresh
 
-This implementation was added after the previous P-GUI-05 automated PASS. Therefore the previous PASS remains historical evidence but does not certify this amended code.
+The amended implementation was verified after the change.
 
-Run:
-
-```powershell
-git pull --ff-only
-
-python -m pytest `
-  tests/test_p_gui_04_optional_boundary.py `
-  tests/test_p_gui_04_shell.py `
-  tests/test_p_gui_05_domain_pages.py `
-  tests/test_p_gui_05_object_class_selector.py `
-  tests/test_p_gui_05_object_class_controls.py
-
-python -m ruff check src tests
-python -m pytest
-```
-
-Until the refreshed gates pass:
+Measured result:
 
 ```text
-P-GUI-05 = Automated Verification Refresh Pending / Functional Smoke Pending
+focused GUI regression = 11 / 11 PASS
+Ruff                   = All checks passed!
+full regression         = 806 / 806 PASS
+known warnings          = 2 local-Qdrant warnings
+```
+
+Verification authority:
+
+```text
+docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_04.md
+```
+
+Therefore this amendment is accepted for the P-GUI-05 automated gate.
+
+Current P-GUI-05 state remains:
+
+```text
+P-GUI-05 = Automated Verification PASS / Visual Smoke PASS / Functional Smoke Pending
 ```
