@@ -114,7 +114,8 @@ def test_runtime_evaluator_requires_real_success_and_safety():
     evidence = {"gates": {f"C{i:02}": {"status": "PASS"} for i in range(1, 8)}}
     assert audit.evaluate_runtime(evidence)["overall"] == "BLOCKED"
     evidence["regression"] = {
-        key: {"return_code": 0} for key in ["pytest", "ruff", "compile", "diff"]
+        key: {"return_code": 0}
+        for key in ["pytest", "ruff", "compile", "diff", "format"]
     }
     evidence["regression"]["pytest"].update(passed=1, failed=0)
     evidence["safety"] = {
