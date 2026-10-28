@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 from pathlib import Path
@@ -114,7 +115,13 @@ def test_source_folder_dialog_imports_all_zip_files_recursively(
             for row in range(page.snapshot_model.rowCount())
         }
         assert len(snapshot_ids) == 2
-        assert str(invalid_zip) in page.operation_status.toolTip()
+
+        batch_result = json.loads(page.operation_status.toolTip())
+        invalid_result = next(
+            item for item in batch_result if item.get("input") == str(invalid_zip)
+        )
+        assert invalid_result["error"] == "BadZipFile"
+        assert invalid_result["reason"] == "File is not a zip file"
 
         repository = Repository(database)
         try:
