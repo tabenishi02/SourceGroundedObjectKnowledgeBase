@@ -15,6 +15,8 @@ from .application_source import SourceOperatorApplication
 from .application_system import RecoveryOperatorApplication, SystemOperatorApplication
 from .application_version import VersionReadApplication
 from .domain import ObjectSearchFilters
+from .exchange.package_builder import DEFAULT_BUILD_ROOT
+from .exchange.result_receipt import DEFAULT_INCOMING_ROOT
 from .operation_contracts import (
     OUTCOME_BLOCKED,
     OUTCOME_PARTIAL,
@@ -23,6 +25,7 @@ from .operation_contracts import (
     normalize_operation_error,
 )
 from .providers import embedder_from_env
+from .rendering import DEFAULT_RENDER_ROOT
 from .repository import Repository
 from .runtime import RuntimeFactory
 
@@ -365,7 +368,7 @@ class OperatorSession:
             if op == "package.build":
                 data = package.build(
                     a["object"],
-                    build_root=a.get("build_root", ".local/package-build"),
+                    build_root=a.get("build_root", DEFAULT_BUILD_ROOT),
                     include_evidence=a.get("include_evidence", ()),
                     exclude_evidence=a.get("exclude_evidence", ()),
                     max_estimated_tokens=int(a.get("max_estimated_tokens", 12000)),
@@ -399,13 +402,14 @@ class OperatorSession:
 
         if op.startswith("result."):
             result = ResultExchangeApplication(repository)
+            incoming_root = a.get("incoming_root", DEFAULT_INCOMING_ROOT)
             if op == "result.detect":
-                data = list(result.detect(incoming_root=a.get("incoming_root", "exchange/incoming")))
+                data = list(result.detect(incoming_root=incoming_root))
             elif op == "result.receive":
                 data = result.receive(
                     a["result"],
                     package_id=a["package_id"],
-                    incoming_root=a.get("incoming_root", "exchange/incoming"),
+                    incoming_root=incoming_root,
                 ).to_dict()
             elif op == "result.list":
                 data = list(result.list(package_id=a.get("package_id")))
@@ -414,7 +418,7 @@ class OperatorSession:
             elif op == "result.validate":
                 validation = result.validate(
                     a["receipt_id"],
-                    incoming_root=a.get("incoming_root", "exchange/incoming"),
+                    incoming_root=incoming_root,
                     force=bool(a.get("force", False)),
                 )
                 data = validation.to_dict()
@@ -429,14 +433,11 @@ class OperatorSession:
                     else "success",
                 )
             elif op == "result.review":
-                data = result.review(
-                    a["receipt_id"],
-                    incoming_root=a.get("incoming_root", "exchange/incoming"),
-                )
+                data = result.review(a["receipt_id"], incoming_root=incoming_root)
             else:
                 data = result.import_result(
                     a["receipt_id"],
-                    incoming_root=a.get("incoming_root", "exchange/incoming"),
+                    incoming_root=incoming_root,
                     acknowledge_review=bool(a.get("acknowledge_review", False)),
                 ).to_dict()
             return OperationOutcome(op, data)
@@ -505,7 +506,7 @@ class OperatorSession:
             rendered = RenderApplication(repository).render(
                 object_id=a.get("object"),
                 version_id=a.get("version"),
-                output_root=a.get("output_root", "rendered"),
+                output_root=a.get("output_root", DEFAULT_RENDER_ROOT),
             )
             return OperationOutcome(op, rendered.to_dict())
 
