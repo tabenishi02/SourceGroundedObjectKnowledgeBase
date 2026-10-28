@@ -1,11 +1,12 @@
 # SGOKB Happy-Path Operational Acceptance Test Plan
 
-Updated: 2026-10-25
+Updated: 2026-10-28
 
 - Scope: SGOKB v1.0.0 current accepted architecture
 - Test type: manual / operational acceptance
 - Path: **normal / happy path only**
-- Status: **Test plan ready / execution pending**
+- Status: **Complete / FULL SGOKB PASS**
+- Final result: `docs/evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md`
 - Related workflow: `docs/operations/OBJECT_STANDARD_WORKFLOW.md`
 - Related architecture: `docs/design/SGOKB_CURRENT_ARCHITECTURE.md`
 - Related safety/recovery: `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
@@ -636,49 +637,56 @@ A FAIL discovered here should become a separate defect/remediation task. Do not 
 
 ---
 
-## 7. Execution summary template
+## 7. Execution summary
 
-Fill this section when the manual run is performed.
+Completed manual run:
 
 ```text
-Run ID:
-Date:
-Tester:
-Git commit / release:
-Python version:
-OS:
-DB path:
-Semantic runtime:
-Embedding provider/model/revision:
-Qdrant target/collection:
-MCP client:
+Run ID:                              SGOKB-HAPPY-PATH-20261028
+Date:                                2026-10-28
+Git commit / release:                5eba4629b12cc071dab33d04faa7521a361d6977 / v1.0.0-22-g5eba462
+Worktree:                            clean
+DB path:                             C:\codex\SourceGroundedObjectKnowledgeBase\.local\acceptance\sgokb-happy-path.sqlite
+Semantic runtime:                    local sentence-transformers + Qdrant 1.19.2
+Embedding provider/model/revision:   sentence-transformers / microsoft/harrier-oss-v1-0.6b / f9b9dc8d367d443f2479d27aa5d8d2850c0774ee
+Embedding dimension:                 1024
+Embedding Space ID:                  832920052e1d1a6d3bbe2a5ef9d3b0d09785b0e0f26bf3081b8728de2897d591
+Qdrant target:                       127.0.0.1:6333 HTTP / 127.0.0.1:6334 gRPC
+MCP target:                          sgokb-acceptance acceptance DB
 
-A Environment / CLI:               NOT RUN
-B Object Registry:                  NOT RUN
-C Source / Snapshot / Raw:          NOT RUN
-D Association:                      NOT RUN
-E Evidence / Provenance:            NOT RUN
-F Evidence Package:                 NOT RUN
-G External ChatGPT / Result:        NOT RUN
-H Result Validate / Import:         NOT RUN
-I Registry Proposal:                NOT RUN
-J Knowledge Versioning:             NOT RUN
-K Relation:                         NOT RUN
-L Render:                           NOT RUN
-M Lexical Search:                   NOT RUN
-N Semantic Search:                  NOT RUN
-O Hybrid Search:                    NOT RUN
-P Similarity:                       NOT RUN
-Q MCP Read Boundary:                NOT RUN
-R Derived Index:                    NOT RUN
-S Backup / Restore:                 NOT RUN
-T Final uninterrupted E2E:          NOT RUN
+A Environment / CLI:               PASS
+B Object Registry:                  PASS
+C Source / Snapshot / Raw:          PASS
+D Association:                      PASS
+E Evidence / Provenance:            PASS
+F Evidence Package:                 PASS
+G External ChatGPT / Result:        PASS
+H Result Validate / Import:         PASS
+I Registry Proposal:                PASS
+J Knowledge Versioning:             PASS
+K Relation:                         PASS
+L Render:                           PASS
+M Lexical Search:                   PASS
+N Semantic Search:                  PASS
+O Hybrid Search:                    PASS
+P Similarity:                       PASS after remediation
+Q MCP Read Boundary:                PASS
+R Derived Index:                    PASS
+S Backup / Restore:                 PASS
+T Final uninterrupted E2E:          PASS
 
-Core verdict:                       NOT RUN
-Full SGOKB verdict:                 NOT RUN
+Core verdict:                       PASS
+Full SGOKB verdict:                 PASS
+Overall verdict:                    FULL SGOKB PASS
+
+T-01 Object:                        フリーザ
+T-01 Object ID:                     ca96ae90-3ff6-4c62-83ea-7d1d7c41439a
+T-01 current Version ID:            7d7b594b-aea7-45e6-95c5-5f388503568c
 
 Defects / follow-up:
-- none recorded yet
+- no blocking defect remains in the happy-path acceptance result
+- Section P is retained as PASS after remediation; the original fixture deficiency remains historical evidence
+- detailed execution identities and observations are recorded in docs/evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md
 ```
 
 ---
