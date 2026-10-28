@@ -129,13 +129,16 @@ class BackendCoordinator(QObject):
 
     @Slot(str, object)
     def _on_finished(self, request_id: str, outcome: object) -> None:
-        self._complete(request_id)
+        # Notify consumers before clearing the completed request. A page callback may
+        # enqueue follow-up reads; keeping the completed request pending until after
+        # that callback prevents a false busy=False/True flicker between chained work.
         self.operation_finished.emit(request_id, outcome)
+        self._complete(request_id)
 
     @Slot(str, object)
     def _on_failed(self, request_id: str, failure: object) -> None:
-        self._complete(request_id)
         self.operation_failed.emit(request_id, failure)
+        self._complete(request_id)
 
     def shutdown(self, timeout_ms: int = 5000) -> bool:
         """Stop the worker event loop without force-terminating an active operation."""
