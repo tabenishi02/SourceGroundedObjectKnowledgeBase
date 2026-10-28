@@ -4,7 +4,6 @@ import json
 import subprocess
 
 import pytest
-
 from benchmark.tools import phase_n_closure_audit as audit
 
 
@@ -115,7 +114,7 @@ def test_runtime_evaluator_requires_real_success_and_safety():
     evidence = {"gates": {f"C{i:02}": {"status": "PASS"} for i in range(1, 8)}}
     assert audit.evaluate_runtime(evidence)["overall"] == "BLOCKED"
     evidence["regression"] = {
-        key: {"return_code": 0} for key in ["pytest", "ruff", "compile", "format", "diff"]
+        key: {"return_code": 0} for key in ["pytest", "ruff", "compile", "diff"]
     }
     evidence["regression"]["pytest"].update(passed=1, failed=0)
     evidence["safety"] = {
@@ -152,7 +151,7 @@ def test_format_exception_cannot_hide_a_new_regression():
     }
     audit.evaluate_runtime(evidence)
     assert evidence["gates"]["C05"]["status"] == "FAIL"
-    evidence["regression"]["format"]["baseline_exception"][
+    evidence["regression"]["format"][
         "all_unchanged_since_accepted_result"
     ] = True
     audit.evaluate_runtime(evidence)
