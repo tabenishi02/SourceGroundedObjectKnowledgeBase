@@ -21,7 +21,6 @@ from PySide6.QtWidgets import (
     QTableView,
     QTextEdit,
     QVBoxLayout,
-    QWidget,
 )
 
 from sgokb.gui.models import DictTableModel
@@ -340,7 +339,10 @@ class EvidencePage(OperationPage):
 
         usage = data.get("usage", {})
         usage = usage if isinstance(usage, dict) else {}
-        selected_count = data.get("selected_count", len(selected) if isinstance(selected, list) else 0)
+        selected_count = data.get(
+            "selected_count",
+            len(selected) if isinstance(selected, list) else 0,
+        )
         token_count = usage.get("estimated_tokens", usage.get("tokens", 0))
         byte_count = usage.get("bytes", 0)
         omitted_count = len(omitted) if isinstance(omitted, list) else 0
