@@ -88,11 +88,21 @@ class SourceOperatorApplication:
             "effective": bool(effective and effective["id"] == run_id),
         }
 
+    @staticmethod
+    def _import_targets(source: Path) -> list[Path]:
+        if source.is_file():
+            return [source]
+        return sorted(
+            path
+            for path in source.rglob("*")
+            if path.is_file() and path.suffix.casefold() == ".zip"
+        )
+
     def import_path(self, path: str | Path) -> SourceBatchResult:
         source = Path(path)
-        targets = [source] if source.is_file() else sorted(source.rglob("*.webcapture.zip"))
+        targets = self._import_targets(source)
         if not targets:
-            raise ValueError("No input bundles or snapshots found")
+            raise ValueError("No ZIP input bundles found")
         items: list[object] = []
         failed = False
         for target in targets:
