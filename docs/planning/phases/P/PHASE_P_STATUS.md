@@ -8,7 +8,6 @@ Updated: 2026-10-29
 - Current released baseline: `v1.1.0`
 - Planning authority: [`PHASE_P_MODERNIZATION_PLAN.md`](PHASE_P_MODERNIZATION_PLAN.md)
 - Task authority: [`PHASE_P_TASKS.md`](PHASE_P_TASKS.md)
-- P-GUI-03R amendment: [`P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
 
 ## Accepted modernization direction
 
@@ -28,7 +27,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
-| GUI | P-GUI-06 | **Automated Verification Refresh Pending / Interactive Smoke Pending** | Search selector + validity-range amendment after prior automated PASS |
+| GUI | P-GUI-06 | **Automated Verification PASS / Interactive Smoke Pending** | Search selector + validity-range amendment verified; 18/18 focused + 813/813 full PASS |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
@@ -83,8 +82,7 @@ ruff           = PASS
 interactive GUI shell / Workspace acceptance = PASS
 ```
 
-P-GUI-05 is **Complete / Accepted**. Its accepted pages are Objects, Sources, Evidence and
-Associations. Final evidence:
+P-GUI-05 is **Complete / Accepted**. Final evidence:
 
 ```text
 focused GUI regression = 12 / 12 PASS
@@ -94,19 +92,11 @@ visual smoke            = PASS
 functional smoke        = PASS
 ```
 
-Acceptance authority:
-
-- `docs/evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md`
-- `docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md`
-- `docs/evaluation/P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md`
-
 ## P-GUI-06 current implementation
 
-P-GUI-06 replaces the Search and Registry placeholders with real operator-backed pages.
-Similarity is grouped with Search; Version / Diff / Render are grouped under Registry. The
-accepted 11-destination navigation inventory remains unchanged.
+P-GUI-06 replaces the Search and Registry placeholders with real operator-backed pages. Similarity is grouped with Search; Version / Diff / Render are grouped under Registry. The accepted 11-destination navigation inventory remains unchanged.
 
-Operation wiring remains:
+Operation wiring:
 
 ```text
 Search       1 / 1
@@ -118,21 +108,18 @@ Render       1 / 1
 Total       14 / 14
 ```
 
-### Search / Similarity amendment
+### Search / Similarity
 
-The latest amendment improves filter input without adding GUI direct SQL or changing the public
-67-operation inventory.
-
-Search Hard Filters now provide:
+Search Hard Filters provide:
 
 - Registry-backed dropdowns for Primary / Additional / Ancestor Class;
 - Facet dropdown with editable historical fallback;
 - Version dropdown with editable historical fallback;
 - Temporal Scope dropdown with editable historical fallback;
 - `Knowledge valid From` / `Knowledge valid To` date-range fields;
-- existing Derivation Kind and archived-Object filters.
+- Derivation Kind and archived-Object filters.
 
-Candidate composition is:
+Candidate composition remains above Repository storage:
 
 ```text
 registry.class.list
@@ -142,11 +129,9 @@ object.list
     -> Facet / Temporal Scope / Version presentation choices
 ```
 
-Similarity now uses Object-scoped Facet and Version selectors. Its semantic contract remains the
-existing Object / optional Facet / optional source Version / cross-Class / archived scope; Search-
-only Class and Temporal-Scope filters were not added to Similarity.
+Similarity uses Object-scoped Facet and Version selectors while retaining its existing semantic contract: Object / optional Facet / optional source Version / cross-Class / archived scope.
 
-Knowledge validity range uses backward-compatible `valid_at` encoding:
+Knowledge validity range keeps the historical `valid_at` transport slot and accepts:
 
 ```text
 YYYY-MM-DD..YYYY-MM-DD
@@ -154,14 +139,7 @@ YYYY-MM-DD..
 ..YYYY-MM-DD
 ```
 
-Plain single-date `valid_at` retains the historical point-in-time behavior. Range filtering uses
-temporal overlap, supports one-sided ranges, treats `as_of` as a point interval, and keeps
-Statements without a Temporal Scope eligible as timeless Knowledge.
-
-Implementation authority:
-
-- `docs/evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`
-- `docs/evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`
+Plain single-date `valid_at` keeps point-in-time behavior. Range filtering uses temporal overlap, treats `as_of` as a point interval, supports one-sided ranges, and keeps timeless Statements eligible.
 
 ### Registry / Version / Render
 
@@ -170,7 +148,7 @@ Registry behavior remains:
 - Class list/detail;
 - Relation Type list/detail;
 - Registry Proposal list/detail and decision filter;
-- Accept / Reject decisions separate from Apply;
+- Accept / Reject separate from Apply;
 - explicit confirmation before Apply.
 
 Version / Render behavior remains:
@@ -180,47 +158,41 @@ Version / Render behavior remains:
 - structured and Markdown Diff;
 - Object/Version Markdown render/export and preview.
 
-The latest user message contained an unfinished bullet beginning `Registryタブの`. No additional
-Registry-page requirement was inferred from that incomplete fragment.
+The user message that introduced the Search amendment contained an unfinished bullet beginning `Registryタブの`; no unspecified Registry-page change was inferred.
 
-## P-GUI-06 verification state
+## P-GUI-06 automated verification
 
-The pre-amendment implementation passed:
+Current automated authority:
+
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md`
+- `docs/evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`
+- `docs/evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`
+
+Measured post-amendment result:
 
 ```text
-focused P-GUI-04 / 05 / 06 regression = 16 / 16 PASS
+focused P-GUI-04 / 05 / 06 regression = 18 / 18 PASS
 Ruff                                  = All checks passed!
-full pytest                            = 811 / 811 PASS
+full pytest                            = 813 / 813 PASS
 known local-Qdrant warnings            = 2
 ```
 
-Authority:
-
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
-
-Those results do **not** certify the later Search selector / validity-range amendment. New focused
-tests were added:
-
-```text
-tests/test_p_gui_06_search_filter_selectors.py
-tests/test_search_validity_range.py
-```
+The two warnings are existing local-Qdrant limitations and are not failures.
 
 Current disposition:
 
 ```text
-implementation                 = Complete
-desk audit                     = Complete
-operation wiring               = 14 / 14
-pre-amendment automated gate   = PASS
-automated verification refresh = Pending
-interactive smoke              = Pending
+implementation         = Complete
+desk audit             = Complete
+operation wiring       = 14 / 14
+automated verification = PASS
+interactive smoke      = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
 
 ## Sequencing
@@ -238,8 +210,8 @@ P-GUI-04 Complete / Accepted
         ↓
 P-GUI-05 Complete / Accepted
         ↓
-P-GUI-06 Automated Verification Refresh Pending   <- CURRENT
-        ↓ refreshed automated PASS + interactive smoke PASS
+P-GUI-06 Automated Verification PASS / Interactive Smoke Pending   <- CURRENT
+        ↓ interactive smoke PASS
 P-GUI-06 Complete / Accepted
         ↓
 P-GUI-07 Progress / error / safety / audit UX
@@ -255,20 +227,12 @@ P-GUI-10 / P-CLOSE-01
 
 ## Current authority boundary
 
-Phase P remains in development. Released system semantics continue to be governed by:
+Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-- `docs/design/SGOKB_CURRENT_ARCHITECTURE.md`
-- `docs/decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md`
-- current Package / Object Result design documents
-- `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
-- release `v1.1.0`
-
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 remains development code
-until the amended automated gate and interactive smoke acceptance pass. None of these tasks alone
-advance the formal released version.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed its amended automated gate and remains pending interactive smoke acceptance. None of these tasks alone advance the formal released version.
 
 ## Next
 
 ```text
-P-GUI-06 — refreshed focused pytest / Ruff / full regression, then interactive GUI smoke
+P-GUI-06 — interactive GUI smoke acceptance
 ```
