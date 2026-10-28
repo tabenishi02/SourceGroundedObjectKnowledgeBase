@@ -38,6 +38,11 @@ class SourceOperatorApplication:
                 item = dict(row)
                 item["effective"] = bool(effective_run and effective_run["id"] == item["id"])
                 runs.append(item)
+            raw_artifacts = []
+            for row in store.raw_artifacts(snapshot.snapshot_id):
+                item = dict(row)
+                item["byte_count"] = item.pop("bytes")
+                raw_artifacts.append(item)
             source = store.source_by_id(snapshot.source_id)
             result.append(
                 {
@@ -53,7 +58,7 @@ class SourceOperatorApplication:
                     "effective_run_id": effective_run["id"] if effective_run else None,
                     "locators": [asdict(item) for item in store.locators(snapshot.source_id)],
                     "metadata": store.snapshot_metadata(snapshot.snapshot_id),
-                    "raw_artifacts": list(store.raw_artifacts(snapshot.snapshot_id)),
+                    "raw_artifacts": raw_artifacts,
                     "normalization_runs": runs,
                 }
             )
