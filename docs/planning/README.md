@@ -24,8 +24,8 @@ P-GUI-01 = Complete / Accepted
 P-GUI-02 = Complete / Accepted
 P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
-P-GUI-04 = Automated Verification PASS / Interactive Smoke Pending
-Next = P-GUI-04 interactive GUI smoke acceptance
+P-GUI-04 = Complete / Accepted
+Next = P-GUI-05 — Object / Source / Evidence / Association GUI
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -85,22 +85,28 @@ full pytest                 = 795 / 795 PASS
 ruff                        = All checks passed!
 ```
 
-### P-GUI-04 implementation authority
+### P-GUI-04 accepted authority
 
-- Implementation result / acceptance procedure: [`../evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md`](../evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md)
+- Implementation / final acceptance: [`../evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md`](../evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md)
 
-Current implementation includes the optional `.[gui]` dependency, `sgokb-gui` launcher, QMainWindow shell, the accepted 11-item navigation, presentation-only QSettings, serialized QThread backend lane, and Workspace validation through `OperatorSession(system.status)`.
-
-Automated P-GUI-04 acceptance is complete:
+P-GUI-04 acceptance evidence:
 
 ```text
-sgokb-gui entrypoint = resolved
-focused pytest       = 5 / 5 PASS
-full pytest          = 800 / 800 PASS
-ruff                 = All checks passed!
+sgokb-gui entrypoint                     PASS
+focused pytest                           5 / 5 PASS
+full pytest                              800 / 800 PASS
+ruff                                     All checks passed!
+GUI normal startup                       PASS
+11 navigation destinations               PASS
+Create Workspace                         PASS
+Dashboard Workspace/status display       PASS
+Open Workspace                           PASS
+Recent Workspaces persisted after restart PASS
+GUI close / DB release                    PASS
+same DB readable from CLI                 PASS
 ```
 
-P-GUI-04 is not accepted until the remaining interactive GUI smoke gate passes.
+The accepted foundation includes the optional `.[gui]` dependency, `sgokb-gui` launcher, QMainWindow shell, accepted 11-item navigation, presentation-only QSettings, serialized QThread backend lane, and Workspace validation through `OperatorSession(system.status)`.
 
 ### Current released system
 
@@ -113,7 +119,7 @@ Phase P is still in development. Released v1.1.0 semantics remain governed by:
 - 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
 - Current release note: [`../releases/v1.1.0.md`](../releases/v1.1.0.md)
 
-P-GUI-03R is an accepted development baseline. P-GUI-04 is implemented development code with automated verification PASS, pending interactive acceptance; it does not advance the formal release version.
+P-GUI-03R and P-GUI-04 are accepted development baselines for subsequent Phase P GUI implementation. They do not by themselves advance the formal release version.
 
 ## Phase P GUI decisions so far
 
@@ -173,7 +179,7 @@ Application facades
 Repository / Retrieval / Exchange
 ```
 
-P-GUI-04 wires the desktop foundation to this boundary through a queued `BackendWorker` on a dedicated QThread. Workspace DB probing uses `system.status`; Views/Controllers do not open SQLite directly.
+P-GUI-04 wires the accepted desktop foundation to this boundary through a queued `BackendWorker` on a dedicated QThread. Workspace DB probing uses `system.status`; Views/Controllers do not open SQLite directly.
 
 ## Workstream B — RAW Grounding
 
@@ -229,5 +235,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-GUI-04 — interactive GUI smoke acceptance
+P-GUI-05 — Object / Source / Evidence / Association GUI
 ```
