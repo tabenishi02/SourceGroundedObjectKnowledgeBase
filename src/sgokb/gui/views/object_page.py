@@ -269,8 +269,55 @@ class ObjectPage(OperationPage):
         name, ok = QInputDialog.getText(self, "Add Object", "Canonical name:")
         if not ok or not name.strip():
             return
-        class_ref, ok = QInputDialog.getText(self, "Add Object", "Primary Class ID or key:")
-        if not ok or not class_ref.strip():
+        canonical_name = name.strip()
+        self.submit(
+            "registry.class.list",
+            callback=lambda outcome: self._continue_add_dialog(canonical_name, outcome),
+            summary="Loading Object Classes...",
+        )
+
+    @staticmethod
+    def _class_choices(value: object) -> list[tuple[str, str]]:
+        rows = value if isinstance(value, list) else []
+        choices: list[tuple[str, str]] = []
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            status = row.get("status")
+            if hasattr(status, "value"):
+                status = status.value
+            if status not in {None, "active"}:
+                continue
+            class_id = row.get("class_id")
+            key = row.get("key")
+            name = row.get("name")
+            if not isinstance(class_id, str) or not class_id:
+                continue
+            label_name = name if isinstance(name, str) and name else class_id
+            label_key = key if isinstance(key, str) and key else class_id
+            choices.append((f"{label_name} [{label_key}]", class_id))
+        return sorted(choices, key=lambda item: item[0].casefold())
+
+    def _continue_add_dialog(self, name: str, outcome: OperationOutcome) -> None:
+        choices = self._class_choices(outcome.data)
+        if not choices:
+            self.operation_status.setText("No active Object Classes are available.")
+            return
+        labels = [label for label, _class_id in choices]
+        selected, ok = QInputDialog.getItem(
+            self,
+            "Add Object",
+            "Primary Class:",
+            labels,
+            0,
+            editable=False,
+        )
+        if not ok:
+            return
+        class_by_label = dict(choices)
+        primary_class = class_by_label.get(selected)
+        if primary_class is None:
+            self.operation_status.setText("Selected Object Class is no longer available.")
             return
         aliases_text, ok = QInputDialog.getText(
             self,
@@ -280,7 +327,7 @@ class ObjectPage(OperationPage):
         if not ok:
             return
         aliases = tuple(value.strip() for value in aliases_text.split(",") if value.strip())
-        self.add_object(name.strip(), class_ref.strip(), aliases)
+        self.add_object(name, primary_class, aliases)
 
     def _rename_dialog(self) -> None:
         object_id = self._require_selected()
