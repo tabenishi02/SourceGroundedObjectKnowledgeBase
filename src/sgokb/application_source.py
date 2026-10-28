@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from .application import Application
@@ -27,16 +27,34 @@ class SourceOperatorApplication:
         result = []
         for snapshot in store.snapshots():
             effective = store.effective_snapshot(snapshot.source_id)
+            effective_run = store.effective_run(snapshot.snapshot_id)
+            run_rows = self.repository.db.execute(
+                """SELECT * FROM normalization_runs
+                   WHERE snapshot_id=? ORDER BY created_at,id""",
+                (snapshot.snapshot_id,),
+            ).fetchall()
+            runs = []
+            for row in run_rows:
+                item = dict(row)
+                item["effective"] = bool(effective_run and effective_run["id"] == item["id"])
+                runs.append(item)
+            source = store.source_by_id(snapshot.source_id)
             result.append(
                 {
                     "id": snapshot.snapshot_id,
                     "source_id": snapshot.source_id,
+                    "source_label": source.label,
                     "title": snapshot.title,
                     "captured_at": snapshot.captured_at,
                     "completeness": snapshot.completeness.value,
                     "effective": bool(
                         effective and effective.snapshot_id == snapshot.snapshot_id
                     ),
+                    "effective_run_id": effective_run["id"] if effective_run else None,
+                    "locators": [asdict(item) for item in store.locators(snapshot.source_id)],
+                    "metadata": store.snapshot_metadata(snapshot.snapshot_id),
+                    "raw_artifacts": list(store.raw_artifacts(snapshot.snapshot_id)),
+                    "normalization_runs": runs,
                 }
             )
         return result
