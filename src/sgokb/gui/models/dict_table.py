@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Iterable
+from enum import Enum
 
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
 
@@ -54,6 +55,8 @@ class DictTableModel(QAbstractTableModel):
     def _display(value: object) -> str:
         if value is None:
             return ""
+        if isinstance(value, Enum):
+            return str(value.value)
         if isinstance(value, bool):
             return "yes" if value else "no"
         if isinstance(value, (dict, list, tuple)):
