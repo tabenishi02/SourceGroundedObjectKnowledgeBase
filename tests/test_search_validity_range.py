@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import pytest
+from test_hybrid_search import _accepted, _class, _engine
 
 from sgokb.domain import EmbeddingSpaceSpec, ObjectSearchFilters
 from sgokb.repository import Repository
-
-from test_hybrid_search import _accepted, _class, _engine
 
 
 @pytest.fixture
