@@ -95,7 +95,7 @@ def test_object_page_mutations_use_stable_id_and_preserve_canonical_effect(qt_ap
             assert {alias.value for alias in record.aliases} == {"Hero Alias", "Second Alias"}
             assert record.additional_class_ids == ()
             events = repository.object_store.registry_events(object_id)
-            assert any(event["event_kind"] == "alias_added" for event in events)
+            assert any(event["event_type"] == "alias_added" for event in events)
         finally:
             repository.close()
         assert "GUI Hero Renamed" in page.detail_text.toPlainText()
