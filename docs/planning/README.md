@@ -23,8 +23,8 @@ Phase P = In Progress
 P-GUI-01 = Complete / Accepted
 P-GUI-02 = Complete / Accepted
 P-GUI-03 = Complete / Accepted
-P-GUI-03R = Implemented / Dynamic Verification Pending
-Next = P-GUI-03R dynamic regression / semantic-equivalence verification
+P-GUI-03R = Implemented / Dynamic Verification In Progress
+Next = P-GUI-03R R9 Attempt 03 — remediation reverification / full regression
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -65,10 +65,12 @@ Priority 3: Runtime / Qdrant auto-start
 - Transport-neutral Application Decision: [`../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md`](../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md)
 - Refactor design / execution slices: [`../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md`](../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md)
 
-### P-GUI-03R implementation authority
+### P-GUI-03R implementation / verification authority
 
 - Implementation task/status: [`phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
-- Implementation / verification result: [`../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
+- Implementation result: [`../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
+- R9 Attempt 01: [`../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
+- R9 Attempt 02: [`../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_02.md`](../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_02.md)
 
 ### Current released system
 
@@ -127,7 +129,7 @@ C APPLICATION GAP          15
 D TRANSPORT-SPECIFIC        1
 ```
 
-P-GUI-03R has now implemented the target boundary:
+P-GUI-03R implemented the target boundary:
 
 ```text
 CLI parser / future GUI worker
@@ -149,9 +151,16 @@ SHARED_OPERATION_IDS    = 66
 TRANSPORT_OPERATION_IDS = 1 (mcp.serve)
 ```
 
-Implemented slices R1-R8 include shared operation/error contracts, RuntimeFactory, Source/Object/Registry, Evidence/Version/Render, Package/Result, System/Recovery, OperatorSession and CLI cutover.
+R9 Attempt 02 established:
 
-R9 test asset `tests/test_p_gui_03r_operator_boundary.py` has been added and existing high-value CLI/application suites have been statically reviewed. Dynamic pytest/ruff execution remains pending; no PASS is claimed without it.
+```text
+operator-boundary + M01 CLI = 17 / 17 PASS
+M03 public CLI workflow     = 2 / 2 PASS
+ruff                        = PASS
+full pytest                 = 770 PASS / 9 FAIL / 15 ERROR
+```
+
+The full-suite non-passing cases were classified as 19 CLI compatibility-hook regressions, 3 missing local-embedding dependency cases, and 2 historical Phase N fixture/current-HEAD coupling cases. Remediation for the two code/test classes is on `main`; Attempt 03 must reverify them with `local-embedding` installed.
 
 ## Workstream B — RAW Grounding
 
@@ -207,7 +216,7 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-GUI-03R dynamic regression / semantic-equivalence verification
+P-GUI-03R R9 Attempt 03 — remediation reverification / full semantic-equivalence regression
 ```
 
-Required gate commands are recorded in the P-GUI-03R implementation result. P-GUI-04 canonical backend wiring remains blocked until this verification passes.
+Install the verification environment with `.[dev,mcp,vector-qdrant,local-embedding]`, then run the focused remediation set followed by the formal full pytest/ruff gate. P-GUI-04 canonical backend wiring remains blocked until this verification passes.
