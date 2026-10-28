@@ -22,7 +22,8 @@ Current formal release = v1.1.0
 Phase P = In Progress
 P-GUI-01 = Complete / Accepted
 P-GUI-02 = Complete / Accepted
-Next = P-GUI-03 — Transport-neutral Application boundary audit / refactor plan
+P-GUI-03 = Complete / Accepted
+Next = P-GUI-03R — Transport-neutral Application boundary refactor implementation
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -40,6 +41,7 @@ Priority 3: Runtime / Qdrant auto-start
 - Phase P plan: [`phases/P/PHASE_P_MODERNIZATION_PLAN.md`](phases/P/PHASE_P_MODERNIZATION_PLAN.md)
 - Phase P tasks: [`phases/P/PHASE_P_TASKS.md`](phases/P/PHASE_P_TASKS.md)
 - Phase P current status: [`phases/P/PHASE_P_STATUS.md`](phases/P/PHASE_P_STATUS.md)
+- P-GUI-03R task amendment: [`phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
 - Project task amendment: [`project/KNOWLEDGE_BASE_REDESIGN_TASKS_PHASE_P_AMENDMENT.md`](project/KNOWLEDGE_BASE_REDESIGN_TASKS_PHASE_P_AMENDMENT.md)
 
 ### P-GUI-01 accepted authority
@@ -55,9 +57,16 @@ Priority 3: Runtime / Qdrant auto-start
 - GUI application architecture: [`../design/P_GUI_APPLICATION_ARCHITECTURE.md`](../design/P_GUI_APPLICATION_ARCHITECTURE.md)
 - Distribution / license checklist: [`../operations/P_GUI_DISTRIBUTION_AND_LICENSE_CHECKLIST.md`](../operations/P_GUI_DISTRIBUTION_AND_LICENSE_CHECKLIST.md)
 
+### P-GUI-03 accepted authority
+
+- Application boundary audit: [`../evaluation/P_GUI_03_APPLICATION_BOUNDARY_AUDIT.md`](../evaluation/P_GUI_03_APPLICATION_BOUNDARY_AUDIT.md)
+- 67-operation boundary matrix: [`../reference/GUI_APPLICATION_BOUNDARY_MATRIX.md`](../reference/GUI_APPLICATION_BOUNDARY_MATRIX.md)
+- Transport-neutral Application Decision: [`../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md`](../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md)
+- Refactor design / execution slices: [`../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md`](../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md)
+
 ### Current implemented system
 
-Phase P GUIは未実装のため、実システムのcurrent specificationは引き続き次を正本とします。
+Phase P GUI/refactorは未実装のため、実システムのcurrent specificationは引き続き次を正本とします。
 
 - Current integrated architecture: [`../design/SGOKB_CURRENT_ARCHITECTURE.md`](../design/SGOKB_CURRENT_ARCHITECTURE.md)
 - Current design index: [`../design/README.md`](../design/README.md)
@@ -70,9 +79,9 @@ Phase P accepted documentsはfuture contract/designであり、implementation ta
 
 ## Phase P GUI decisions so far
 
-### Compatibility
+### Compatibility — P-GUI-01
 
-P-GUI-01でcurrent public `sgokb` 67 operationsをGUI capabilityへ全件mappingしました。
+current public `sgokb` 67 operationsをGUI capabilityへ全件mappingしました。
 
 ```text
 assigned = 67 / 67
@@ -81,9 +90,7 @@ unassigned = 0
 
 GUI compatibilityはCLI文字列の再生ではなく、same use case / target identity / canonical effect / validation / safety / degradation / failure semanticsを維持するsemantic parityです。
 
-### Technical architecture
-
-P-GUI-02で次を固定しました。
+### Technical architecture — P-GUI-02
 
 ```text
 Framework            = PySide6
@@ -102,6 +109,35 @@ One-file              = not initial baseline
 GUI dependencyはbase CLI installから分離し、planned package surfaceは `.[gui]` + `sgokb-gui` です。
 
 現repositoryにはroot `LICENSE`がないため、private developmentは継続できますがpublic OSS publicationはproject-level license Decisionまでblockとします。
+
+### Application boundary — P-GUI-03
+
+67 public operationsを実装境界で監査しました。
+
+```text
+A READY                    25
+B ORCHESTRATION EXTRACTION 26
+C APPLICATION GAP          15
+D TRANSPORT-SPECIFIC        1
+```
+
+25操作は既存Application境界をそのまま利用できますが、42操作はCLI orchestration/direct repository依存を共有Application境界へ移す必要があります。
+
+採用したtarget:
+
+```text
+CLI parser/renderer ─┐
+GUI BackendWorker ───┼─> OperatorSession
+                     │      ├─ OperationRequest
+                     │      ├─ OperationOutcome / OperationFailure
+                     │      ├─ RuntimeFactory
+                     │      └─ domain Application facades
+MCP read adapter ────┘
+```
+
+`mcp serve`のみtransport lifecycleとして通常のsynchronous OperatorSessionから分離します。
+
+P-GUI-03はaudit/refactor-plan taskであるため実装変更は行いません。GUIがCLI logicを複製しないよう、implementation remediation `P-GUI-03R`をP-GUI-04の前に追加しました。
 
 ## Workstream B — RAW Grounding
 
@@ -134,13 +170,15 @@ QdrantはGUI processに所有させず、CLI / GUI / MCPから共有可能な独
 ## Phase P task families
 
 ```text
-P-GUI-01 .. P-GUI-10
+P-GUI-01 .. P-GUI-03
+P-GUI-03R
+P-GUI-04 .. P-GUI-10
 P-RAW-01 .. P-RAW-06
 P-RUNTIME-01 .. P-RUNTIME-06
 P-CLOSE-01
 ```
 
-詳細なscope / dependency / completion criteriaは [`phases/P/PHASE_P_TASKS.md`](phases/P/PHASE_P_TASKS.md) を参照してください。
+P-GUI-03RはP-GUI-03監査で発見したimplementation gapを解消する追加P0 taskです。詳細は [`phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md) を参照してください。
 
 ## Document placement rules
 
@@ -156,10 +194,8 @@ P-CLOSE-01
 
 ## Next
 
-次のTaskは次です。
-
 ```text
-P-GUI-03 [P0] Transport-neutral Application boundary audit / refactor plan
+P-GUI-03R [P0] Transport-neutral Application boundary refactor implementation
 ```
 
-P-GUI-03では`sgokb.cli.main` / `sgokb.cli.runtime`内のcomposition・business logicを全routeで監査し、CLIとGUIが共有するtransport-neutral Application/API boundary、operation DTO、error normalization、runtime factory、progress/cancellation hookのrefactor planを確定します。
+P-GUI-03Rは既存CLI semanticsを変更せず、shared operation/error contracts、RuntimeFactory、domain Application facades、OperatorSession、CLI cutover、semantic-equivalence regressionを実装します。完了後にP-GUI-04のbackend wiringへ進みます。
