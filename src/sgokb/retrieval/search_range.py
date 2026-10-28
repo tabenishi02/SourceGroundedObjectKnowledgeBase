@@ -77,7 +77,6 @@ class RangeAwareHybridObjectSearch(_R2HybridObjectSearch):
             super()._validate_filters(filters)
             return
         super()._validate_filters(self._without_range(filters))
-        # Parsing above validates both endpoints and their ordering.
 
     def _representation_kinds(self, filters: ObjectSearchFilters) -> tuple[str, ...]:
         if _validity_range(filters.knowledge_valid_at) is not None:
@@ -135,6 +134,30 @@ class RangeAwareHybridObjectSearch(_R2HybridObjectSearch):
         )
         params.extend([*interval_params, *point_params])
         return clauses, params
+
+    @staticmethod
+    def _vector_filters(
+        filters: ObjectSearchFilters,
+        kind: SearchRepresentationKind,
+    ) -> VectorSearchFilter:
+        validity = _validity_range(filters.knowledge_valid_at)
+        if validity is None:
+            return _PhaseIHybridObjectSearch._vector_filters(filters, kind)
+        base = _PhaseIHybridObjectSearch._vector_filters(
+            replace(filters, knowledge_valid_at=None),
+            kind,
+        )
+        valid_from, valid_to = validity
+        ranges = list(base.ranges)
+        if valid_from is not None:
+            ranges.append(VectorRange("valid_to_ordinal", gte=_date_ordinal(valid_from)))
+        if valid_to is not None:
+            ranges.append(VectorRange("valid_from_ordinal", lte=_date_ordinal(valid_to)))
+        return VectorSearchFilter(
+            matches=base.matches,
+            excludes=base.excludes,
+            ranges=tuple(ranges),
+        )
 
     def _registry_rows(self, filters: ObjectSearchFilters) -> list[dict]:
         validity = _validity_range(filters.knowledge_valid_at)
