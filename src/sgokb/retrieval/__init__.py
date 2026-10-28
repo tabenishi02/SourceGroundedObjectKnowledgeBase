@@ -42,7 +42,6 @@ from .generation import (
     GenerationRoutingVectorIndexAdapter,
     route_generation_vector_index,
 )
-from .hybrid_search_r2 import HybridObjectSearch
 from .package import (
     EvidenceBudget,
     EvidencePackageSelector,
@@ -50,6 +49,7 @@ from .package import (
     SelectedEvidence,
     estimate_tokens,
 )
+from .search_range import RangeAwareHybridObjectSearch as HybridObjectSearch
 from .search_representation import BuiltSearchRepresentation, SearchRepresentationBuilder
 from .similarity_r2 import ObjectSimilaritySearch
 from .vector_index import (
