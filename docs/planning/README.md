@@ -26,8 +26,8 @@ P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
 P-GUI-05 = Complete / Accepted
-P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
-Next = P-GUI-06 interactive GUI smoke acceptance
+P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+Next = P-GUI-06 refreshed focused/full/Ruff verification, then interactive GUI smoke acceptance
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -102,27 +102,7 @@ interactive GUI shell / Workspace acceptance = PASS
 - Object Class mutation selector improvement: [`../evaluation/P_GUI_05_OBJECT_CLASS_MUTATION_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_05_OBJECT_CLASS_MUTATION_SELECTOR_IMPROVEMENT.md)
 - Recursive Source ZIP import improvement: [`../evaluation/P_GUI_05_SOURCE_RECURSIVE_ZIP_IMPORT_IMPROVEMENT.md`](../evaluation/P_GUI_05_SOURCE_RECURSIVE_ZIP_IMPORT_IMPROVEMENT.md)
 
-P-GUI-05 accepted pages:
-
-```text
-Objects
-Sources
-Evidence
-Associations
-```
-
-Operation wiring:
-
-```text
-Object       12 / 12
-Source        6 / 6
-Evidence      5 / 5
-Association   4 / 4
-------------------
-Total        27 / 27
-```
-
-Final acceptance evidence:
+Final P-GUI-05 evidence:
 
 ```text
 focused GUI regression = 12 / 12 PASS
@@ -130,25 +110,16 @@ Ruff                   = All checks passed!
 full regression         = 807 / 807 PASS
 visual smoke            = PASS
 functional smoke        = PASS
+P-GUI-05                = Complete / Accepted
 ```
 
-Final verdict:
+### P-GUI-06 current authority
 
-```text
-P-GUI-05 = Complete / Accepted
-```
+- Main implementation / interactive procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
+- Pre-amendment automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
+- Search selector / validity-range amendment: [`../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`](../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md)
 
-The accepted Source surface includes recursive folder ZIP discovery/import while retaining existing WebCaptureImporter validation. The accepted Object surface includes registry-backed Class selectors using stable `class_id` values.
-
-### P-GUI-06 implementation / automated verification authority
-
-- Implementation / interactive procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
-- Automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
-
-P-GUI-06 replaces the `Search` and `Registry` placeholders with real operator-backed pages.
-Version / Diff / Render are grouped under Registry; Similarity is grouped under Search.
-
-Operation wiring:
+P-GUI-06 keeps the 14 assigned operations wired:
 
 ```text
 Search       1 / 1
@@ -160,17 +131,29 @@ Render       1 / 1
 Total       14 / 14
 ```
 
-Implemented Search / Similarity surface:
+Current Search / Similarity surface includes:
 
 - Lexical / Semantic / Hybrid Search;
-- left-side hard-filter panel;
+- Registry-backed Primary / Additional / Ancestor Class dropdowns;
+- Facet / Version / Temporal Scope selectors with editable historical fallback;
+- `Knowledge valid From` / `Knowledge valid To` temporal-overlap range;
 - explicit semantic-runtime / strict full-runtime controls;
 - degraded-channel display;
-- overall and Facet-specific Similarity;
-- source Version, cross-Class and archived scope controls;
+- Object-scoped Similarity Facet / Version selectors;
+- cross-Class and archived scope controls;
 - no silent local-runtime or cloud fallback.
 
-Implemented Registry / Version / Render surface:
+Selector lookup stays above Repository storage:
+
+```text
+registry.class.list
+object.list
+    -> current_version_id
+    -> version.show
+    -> current Facet / Temporal Scope / Version choices
+```
+
+Current Registry / Version / Render surface remains:
 
 - Class list/detail;
 - Relation Type list/detail;
@@ -178,11 +161,13 @@ Implemented Registry / Version / Render surface:
 - Accept / Reject decisions separate from Apply;
 - explicit Apply confirmation;
 - Version Show;
-- structured Version Diff;
-- Markdown Diff through the existing H-04 renderer;
+- structured / Markdown Version Diff;
 - Object/Version render/export and generated Markdown preview.
 
-Automated evidence:
+The latest user message contained an unfinished `Registryタブの` bullet; no unspecified Registry
+change was inferred.
+
+Pre-amendment automated evidence was:
 
 ```text
 focused P-GUI-04 / 05 / 06 regression = 16 / 16 PASS
@@ -191,10 +176,11 @@ full regression                        = 811 / 811 PASS
 known local-Qdrant warnings            = 2
 ```
 
-Current status:
+The selector / range amendment changed production code after that measurement, so the current
+status is intentionally reset to:
 
 ```text
-P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
 ```
 
 ### Current released system
@@ -208,13 +194,17 @@ Phase P remains in development. Released `v1.1.0` semantics remain governed by:
 - 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
 - Current release note: [`../releases/v1.1.0.md`](../releases/v1.1.0.md)
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed automated verification and remains pending interactive acceptance. These tasks do not by themselves advance the formal release version.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 remains pending refreshed
+automated verification and interactive acceptance. These tasks do not by themselves advance the
+formal release version.
 
 ## Phase P GUI decisions so far
 
 ### Compatibility
 
-All 67 public CLI operations were mapped to GUI capability inventory. GUI compatibility means same use case / target identity / canonical effect / validation / safety / degradation / failure semantics, not replaying CLI strings.
+All 67 public CLI operations are mapped to GUI capability inventory. GUI compatibility means same
+use case / target identity / canonical effect / validation / safety / degradation / failure
+semantics, not replaying CLI strings.
 
 ### Technical architecture
 
@@ -245,31 +235,18 @@ Application facades
 Repository / Retrieval / Exchange
 ```
 
-P-GUI-04 established the queued QThread foundation. P-GUI-05 and P-GUI-06 reuse it without GUI direct SQL or a CLI-subprocess business path.
+P-GUI-04 established the queued QThread foundation. P-GUI-05 and P-GUI-06 reuse it without GUI
+direct SQL or a CLI-subprocess business path.
 
 ## Workstream B — RAW Grounding
 
-Evidence remains the retrieval / selection unit, while External AI semantic material will move from reconstructed Evidence Markdown to Raw Artifacts traced through provenance.
-
-```text
-Evidence Retrieval / Selection
-        ↓
-selected Evidence
-        ↓ provenance traversal
-Normalization Run
-        ↓
-Raw Artifact
-        ↓
-RAW-bearing Package
-        ↓
-External AI
-        ↓
-Structured Object Result
-```
+Evidence remains the retrieval / selection unit, while External AI semantic material will move
+from reconstructed Evidence Markdown to Raw Artifacts traced through provenance.
 
 ## Workstream C — Runtime
 
-Windows login should make Qdrant automatically available. Qdrant remains an independent shared runtime rather than a GUI-owned process.
+Windows login should make Qdrant automatically available. Qdrant remains an independent shared
+runtime rather than a GUI-owned process.
 
 ## Phase P task families
 
@@ -295,5 +272,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-GUI-06 — interactive GUI smoke acceptance
+P-GUI-06 — refreshed focused pytest / Ruff / full regression, then interactive GUI smoke
 ```
