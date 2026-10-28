@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .application_derived import DerivedSearchOperatorApplication
+from .application_maintenance import DerivedMaintenanceRuntimeUnavailableError
 from .composite_recovery import (
     composite_restore_apply,
     composite_restore_plan,
@@ -38,7 +39,12 @@ class SystemOperatorApplication:
     def _derived(self, *, semantic_runtime: bool):
         runtime = {}
         if semantic_runtime:
-            provider, vector = self.runtime_factory.routed_semantic_runtime(self.repository)
+            try:
+                provider, vector = self.runtime_factory.routed_semantic_runtime(self.repository)
+            except DerivedMaintenanceRuntimeUnavailableError:
+                raise
+            except Exception as exc:
+                raise DerivedMaintenanceRuntimeUnavailableError(str(exc)) from exc
             runtime = {"embedding_provider": provider, "vector_index": vector}
         return DerivedSearchOperatorApplication(self.repository, **runtime)
 
