@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import json
+from collections import defaultdict
 from dataclasses import asdict, is_dataclass
+from datetime import date
 from enum import Enum
 
-from PySide6.QtCore import QModelIndex, Slot
+from PySide6.QtCore import QModelIndex, QSignalBlocker, Slot
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -52,6 +54,34 @@ def _optional(text: str) -> str | None:
     return value or None
 
 
+def _validity_expression(valid_from: str | None, valid_to: str | None) -> str | None:
+    if valid_from is None and valid_to is None:
+        return None
+    try:
+        start = date.fromisoformat(valid_from) if valid_from is not None else None
+        end = date.fromisoformat(valid_to) if valid_to is not None else None
+    except ValueError as exc:
+        raise ValueError("Knowledge validity dates must use YYYY-MM-DD") from exc
+    if start is not None and end is not None and start > end:
+        raise ValueError("Knowledge valid From must not be after To")
+    return f"{valid_from or ''}..{valid_to or ''}"
+
+
+class _EditableComboBox(QComboBox):
+    """Editable selector with tiny text compatibility helpers for GUI tests/callers."""
+
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.setEditable(True)
+        self.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+
+    def setText(self, value: str) -> None:  # noqa: N802 - compatibility helper
+        self.setEditText(value)
+
+    def text(self) -> str:
+        return self.currentText()
+
+
 class SearchPage(OperationPage):
     """Search accepted Knowledge and run explicit Object similarity requests."""
 
@@ -80,6 +110,14 @@ class SearchPage(OperationPage):
             ),
             self,
         )
+        self._reference_generation = 0
+        self._class_options: dict[str, dict[str, object]] = {}
+        self._facet_options: dict[str, dict[str, object]] = {}
+        self._version_options: dict[str, dict[str, object]] = {}
+        self._temporal_options: dict[str, dict[str, object]] = {}
+        self._facets_by_object: dict[str, dict[str, dict[str, object]]] = defaultdict(dict)
+        self._versions_by_object: dict[str, dict[str, dict[str, object]]] = defaultdict(dict)
+        self._loaded_version_ids: set[str] = set()
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -96,6 +134,19 @@ class SearchPage(OperationPage):
         tabs.addTab(self._build_similarity_tab(), "Similarity")
         layout.addWidget(tabs, 1)
         layout.addWidget(self.operation_status)
+
+    @staticmethod
+    def _plain_combo(parent: QWidget) -> QComboBox:
+        combo = QComboBox(parent)
+        combo.addItem("Any", None)
+        return combo
+
+    @staticmethod
+    def _editable_combo(parent: QWidget, tooltip: str) -> _EditableComboBox:
+        combo = _EditableComboBox(parent)
+        combo.addItem("Any", None)
+        combo.setToolTip(tooltip)
+        return combo
 
     def _build_search_tab(self) -> QWidget:
         page = QWidget(self)
@@ -132,17 +183,36 @@ class SearchPage(OperationPage):
 
         body = QSplitter(page)
         filters = QGroupBox("Hard filters", body)
-        filters.setMaximumWidth(360)
+        filters.setMaximumWidth(390)
         form = QFormLayout(filters)
-        self.primary_class = QLineEdit(filters)
-        self.additional_class = QLineEdit(filters)
-        self.ancestor_class = QLineEdit(filters)
-        self.facet = QLineEdit(filters)
-        self.version = QLineEdit(filters)
-        self.temporal_scope = QLineEdit(filters)
-        self.valid_at = QLineEdit(filters)
-        self.valid_at.setPlaceholderText("YYYY-MM-DD")
+        self.primary_class = self._plain_combo(filters)
+        self.additional_class = self._plain_combo(filters)
+        self.ancestor_class = self._plain_combo(filters)
+        self.facet = self._editable_combo(
+            filters,
+            "Dropdown candidates come from current accepted Knowledge. "
+            "A known historical Facet key may also be typed.",
+        )
+        self.version = self._editable_combo(
+            filters,
+            "Dropdown candidates are current accepted Version IDs. "
+            "A historical accepted Version ID may also be typed.",
+        )
+        self.temporal_scope = self._editable_combo(
+            filters,
+            "Dropdown candidates come from temporal scopes in loaded accepted Knowledge. "
+            "A known historical Temporal Scope ID may also be typed.",
+        )
+        self.valid_from = QLineEdit(filters)
+        self.valid_from.setPlaceholderText("YYYY-MM-DD")
+        self.valid_from.setClearButtonEnabled(True)
+        self.valid_to = QLineEdit(filters)
+        self.valid_to.setPlaceholderText("YYYY-MM-DD")
+        self.valid_to.setClearButtonEnabled(True)
         self.derivation_kind = QLineEdit(filters)
+        self.derivation_kind.setPlaceholderText(
+            "direct_statement / synthesis / interpretation / reported_view"
+        )
         self.include_archived = QCheckBox("Include archived Objects", filters)
         form.addRow("Primary Class:", self.primary_class)
         form.addRow("Additional Class:", self.additional_class)
@@ -150,7 +220,8 @@ class SearchPage(OperationPage):
         form.addRow("Facet:", self.facet)
         form.addRow("Version ID:", self.version)
         form.addRow("Temporal Scope ID:", self.temporal_scope)
-        form.addRow("Knowledge valid at:", self.valid_at)
+        form.addRow("Knowledge valid From:", self.valid_from)
+        form.addRow("Knowledge valid To:", self.valid_to)
         form.addRow("Derivation kind:", self.derivation_kind)
         form.addRow("", self.include_archived)
         body.addWidget(filters)
@@ -178,7 +249,7 @@ class SearchPage(OperationPage):
         result_splitter.setSizes([650, 430])
         results_layout.addWidget(result_splitter, 1)
         body.addWidget(results_panel)
-        body.setSizes([300, 900])
+        body.setSizes([330, 870])
         layout.addWidget(body, 1)
         return page
 
@@ -189,10 +260,17 @@ class SearchPage(OperationPage):
         controls = QHBoxLayout()
         self.similar_object = QComboBox(page)
         self.similar_object.setMinimumWidth(260)
-        self.similar_facet = QLineEdit(page)
-        self.similar_facet.setPlaceholderText("Optional Facet key")
-        self.similar_version = QLineEdit(page)
-        self.similar_version.setPlaceholderText("Optional source Version ID")
+        self.similar_object.currentIndexChanged.connect(self._refresh_similarity_references)
+        self.similar_facet = self._editable_combo(
+            page,
+            "Facet candidates are scoped to the selected Object's loaded current accepted Version. "
+            "A known historical Facet key may also be typed.",
+        )
+        self.similar_version = self._editable_combo(
+            page,
+            "Version candidates are scoped to the selected Object. "
+            "A historical accepted Version ID may also be typed.",
+        )
         self.similar_limit = QSpinBox(page)
         self.similar_limit.setRange(1, 100)
         self.similar_limit.setValue(10)
@@ -242,19 +320,48 @@ class SearchPage(OperationPage):
         return page
 
     def workspace_changed(self) -> None:
+        self._reference_generation += 1
+        generation = self._reference_generation
         self.search_model.set_rows([])
         self.similar_model.set_rows([])
         self.search_detail.clear()
         self.similar_detail.clear()
         self.similar_object.clear()
+        self._class_options.clear()
+        self._facet_options.clear()
+        self._version_options.clear()
+        self._temporal_options.clear()
+        self._facets_by_object.clear()
+        self._versions_by_object.clear()
+        self._loaded_version_ids.clear()
+        self._refresh_reference_combos()
+        self.submit(
+            "registry.class.list",
+            callback=lambda outcome, gen=generation: self._apply_classes(outcome, gen),
+            summary="Loading Search Class choices...",
+        )
         self.submit(
             "object.list",
-            callback=self._apply_objects,
-            summary="Loading Objects for Similarity...",
+            callback=lambda outcome, gen=generation: self._apply_objects(outcome, gen),
+            summary="Loading Search / Similarity references...",
         )
 
-    def _apply_objects(self, outcome: OperationOutcome) -> None:
+    def _apply_classes(self, outcome: OperationOutcome, generation: int) -> None:
+        if generation != self._reference_generation:
+            return
         rows = outcome.data if isinstance(outcome.data, list) else []
+        self._class_options = {
+            str(row["key"]): dict(row)
+            for row in rows
+            if isinstance(row, dict) and isinstance(row.get("key"), str)
+        }
+        self._refresh_reference_combos()
+
+    def _apply_objects(self, outcome: OperationOutcome, generation: int) -> None:
+        if generation != self._reference_generation:
+            return
+        rows = outcome.data if isinstance(outcome.data, list) else []
+        blocker = QSignalBlocker(self.similar_object)
         self.similar_object.clear()
         for raw in rows:
             if not isinstance(raw, dict):
@@ -266,6 +373,212 @@ class SearchPage(OperationPage):
             primary = str(raw.get("primary_class") or raw.get("primary_class_id") or "")
             label = f"{name} [{primary}]" if primary else name
             self.similar_object.addItem(label, object_id)
+            version_id = raw.get("current_version_id")
+            if not isinstance(version_id, str) or not version_id:
+                continue
+            option = {
+                "version_id": version_id,
+                "object_id": object_id,
+                "object_name": name,
+                "version_number": None,
+            }
+            self._version_options[version_id] = option
+            self._versions_by_object[object_id][version_id] = option
+            if version_id not in self._loaded_version_ids:
+                self._loaded_version_ids.add(version_id)
+                self.submit(
+                    "version.show",
+                    {"version_id": version_id},
+                    callback=lambda result, vid=version_id, gen=generation: (
+                        self._apply_version_reference(result, vid, gen)
+                    ),
+                    summary=f"Loading Search references from Version: {version_id}",
+                )
+        del blocker
+        self._refresh_reference_combos()
+        self._refresh_similarity_references()
+
+    def _apply_version_reference(
+        self,
+        outcome: OperationOutcome,
+        version_id: str,
+        generation: int,
+    ) -> None:
+        if generation != self._reference_generation:
+            return
+        payload = _plain(outcome.data)
+        if not isinstance(payload, dict):
+            return
+        object_id = payload.get("object_id")
+        if not isinstance(object_id, str):
+            return
+        info = self._version_options.get(version_id, {"version_id": version_id})
+        info.update(
+            {
+                "object_id": object_id,
+                "object_name": str(payload.get("name") or object_id),
+                "version_number": payload.get("version_number"),
+            }
+        )
+        self._version_options[version_id] = info
+        self._versions_by_object[object_id][version_id] = info
+
+        knowledge = payload.get("knowledge")
+        if not isinstance(knowledge, dict):
+            self._refresh_reference_combos()
+            return
+        facets = knowledge.get("facets")
+        if isinstance(facets, list):
+            for facet in facets:
+                if not isinstance(facet, dict) or not isinstance(facet.get("key"), str):
+                    continue
+                key = str(facet["key"])
+                option = {
+                    "key": key,
+                    "name": str(facet.get("name") or key),
+                }
+                self._facet_options[key] = option
+                self._facets_by_object[object_id][key] = option
+
+        statements: list[dict] = []
+        summary = knowledge.get("summary")
+        if isinstance(summary, list):
+            statements.extend(item for item in summary if isinstance(item, dict))
+        if isinstance(facets, list):
+            for facet in facets:
+                if not isinstance(facet, dict):
+                    continue
+                values = facet.get("statements")
+                if isinstance(values, list):
+                    statements.extend(item for item in values if isinstance(item, dict))
+        for statement in statements:
+            scope = statement.get("temporal_scope")
+            if not isinstance(scope, dict):
+                continue
+            scope_id = scope.get("temporal_scope_id")
+            if not isinstance(scope_id, str) or not scope_id:
+                continue
+            self._temporal_options[scope_id] = {
+                **scope,
+                "temporal_scope_id": scope_id,
+                "object_id": object_id,
+                "object_name": str(payload.get("name") or object_id),
+                "version_id": version_id,
+            }
+        self._refresh_reference_combos()
+        self._refresh_similarity_references()
+
+    @staticmethod
+    def _combo_value(combo: QComboBox) -> str | None:
+        data = combo.currentData()
+        if isinstance(data, str) and data:
+            return data
+        if combo.isEditable():
+            value = combo.currentText().strip()
+            if value and value != "Any":
+                return value
+        return None
+
+    @staticmethod
+    def _replace_combo(
+        combo: QComboBox,
+        entries: list[tuple[str, str]],
+        *,
+        blank_label: str = "Any",
+    ) -> None:
+        previous_data = combo.currentData()
+        previous_text = combo.currentText().strip()
+        blocker = QSignalBlocker(combo)
+        combo.clear()
+        combo.addItem(blank_label, None)
+        for label, value in entries:
+            combo.addItem(label, value)
+        if isinstance(previous_data, str):
+            index = combo.findData(previous_data)
+            if index >= 0:
+                combo.setCurrentIndex(index)
+            elif combo.isEditable():
+                combo.setEditText(previous_data)
+        elif combo.isEditable() and previous_text and previous_text != blank_label:
+            combo.setEditText(previous_text)
+        del blocker
+
+    def _refresh_reference_combos(self) -> None:
+        class_entries = [
+            (
+                f"{item.get('name') or key} [{key}]",
+                key,
+            )
+            for key, item in sorted(
+                self._class_options.items(), key=lambda pair: str(pair[1].get("name") or pair[0])
+            )
+        ]
+        for combo in (self.primary_class, self.additional_class, self.ancestor_class):
+            self._replace_combo(combo, class_entries)
+
+        facet_entries = [
+            (f"{item.get('name') or key} [{key}]", key)
+            for key, item in sorted(
+                self._facet_options.items(), key=lambda pair: str(pair[1].get("name") or pair[0])
+            )
+        ]
+        self._replace_combo(self.facet, facet_entries)
+
+        version_entries = []
+        for version_id, item in sorted(
+            self._version_options.items(), key=lambda pair: str(pair[1].get("object_name") or pair[0])
+        ):
+            number = item.get("version_number")
+            prefix = f"v{number}" if number is not None else "current"
+            version_entries.append(
+                (f"{item.get('object_name') or item.get('object_id')} — {prefix} [{version_id}]", version_id)
+            )
+        self._replace_combo(self.version, version_entries)
+
+        temporal_entries = [
+            (self._temporal_label(scope_id, item), scope_id)
+            for scope_id, item in sorted(self._temporal_options.items())
+        ]
+        self._replace_combo(self.temporal_scope, temporal_entries)
+
+    @staticmethod
+    def _temporal_label(scope_id: str, item: dict[str, object]) -> str:
+        if item.get("label"):
+            scope = str(item["label"])
+        elif item.get("valid_from") or item.get("valid_to"):
+            scope = f"{item.get('valid_from') or '…'} → {item.get('valid_to') or '…'}"
+        elif item.get("as_of"):
+            scope = f"as of {item['as_of']}"
+        else:
+            scope = "unbounded"
+        owner = item.get("object_name") or item.get("object_id") or "Object"
+        return f"{owner}: {scope} [{scope_id}]"
+
+    @Slot()
+    def _refresh_similarity_references(self) -> None:
+        object_id = self.similar_object.currentData()
+        if not isinstance(object_id, str):
+            self._replace_combo(self.similar_facet, [])
+            self._replace_combo(self.similar_version, [], blank_label="Current accepted Version")
+            return
+        facet_entries = [
+            (f"{item.get('name') or key} [{key}]", key)
+            for key, item in sorted(
+                self._facets_by_object.get(object_id, {}).items(),
+                key=lambda pair: str(pair[1].get("name") or pair[0]),
+            )
+        ]
+        self._replace_combo(self.similar_facet, facet_entries)
+        version_entries = []
+        for version_id, item in self._versions_by_object.get(object_id, {}).items():
+            number = item.get("version_number")
+            prefix = f"v{number}" if number is not None else "current"
+            version_entries.append((f"{prefix} [{version_id}]", version_id))
+        self._replace_combo(
+            self.similar_version,
+            version_entries,
+            blank_label="Current accepted Version",
+        )
 
     def run_search(self) -> str | None:
         query = self.search_query.text().strip()
@@ -289,12 +602,23 @@ class SearchPage(OperationPage):
             ("facet", self.facet),
             ("version", self.version),
             ("temporal_scope", self.temporal_scope),
-            ("valid_at", self.valid_at),
-            ("derivation_kind", self.derivation_kind),
         ):
-            value = _optional(widget.text())
+            value = self._combo_value(widget)
             if value is not None:
                 arguments[key] = value
+        derivation = _optional(self.derivation_kind.text())
+        if derivation is not None:
+            arguments["derivation_kind"] = derivation
+        try:
+            valid_at = _validity_expression(
+                _optional(self.valid_from.text()),
+                _optional(self.valid_to.text()),
+            )
+        except ValueError as exc:
+            self.operation_status.setText(str(exc))
+            return None
+        if valid_at is not None:
+            arguments["valid_at"] = valid_at
         return self.submit(
             "search",
             arguments,
@@ -356,8 +680,8 @@ class SearchPage(OperationPage):
             "cross_class": self.cross_class.isChecked(),
             "include_archived": self.similar_archived.isChecked(),
         }
-        facet = _optional(self.similar_facet.text())
-        version = _optional(self.similar_version.text())
+        facet = self._combo_value(self.similar_facet)
+        version = self._combo_value(self.similar_version)
         if facet is not None:
             arguments["facet"] = facet
         if version is not None:
