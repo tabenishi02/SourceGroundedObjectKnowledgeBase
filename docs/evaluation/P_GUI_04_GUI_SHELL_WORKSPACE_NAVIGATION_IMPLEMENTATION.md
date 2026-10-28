@@ -1,0 +1,254 @@
+# P-GUI-04 — GUI Shell / Workspace / Navigation Foundation Implementation
+
+Updated: 2026-10-29
+
+- Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
+- Task: `P-GUI-04 [P0] GUI shell / Workspace / navigation foundation`
+- Status: **Implemented / Dynamic Verification Pending**
+- Baseline: P-GUI-03R **Complete / Accepted**
+- GUI architecture: `docs/design/P_GUI_APPLICATION_ARCHITECTURE.md`
+- GUI requirements: `docs/requirements/GUI_REQUIREMENTS.md`
+
+## 1. Result summary
+
+P-GUI-04 now has an executable PySide6 / Qt Widgets foundation on `main`.
+
+Implemented scope:
+
+```text
+optional GUI dependency + sgokb-gui entrypoint
+QApplication bootstrap / application identity
+QMainWindow shell
+11 accepted navigation destinations
+QStackedWidget page host
+Home / Dashboard foundation
+Workspace open / create / recent handling
+QSettings presentation-state persistence
+serialized BackendWorker on dedicated QThread
+BackendSession runtime cache without long-lived Repository
+Workspace validation through OperatorSession(system.status)
+open / migration failure presentation
+busy-time Workspace switch prevention
+busy-time application close prevention
+status bar / global warning surface
+P-GUI-04 automated test assets
+```
+
+P-GUI-05+ domain pages are intentionally placeholders in this task.
+
+## 2. Package / entrypoint
+
+`pyproject.toml` adds:
+
+```toml
+[project.optional-dependencies]
+gui = ["PySide6>=6.12,<6.13"]
+
+[project.gui-scripts]
+sgokb-gui = "sgokb.gui:main"
+```
+
+The base CLI install does not import PySide6 through `sgokb.gui.__init__`; the GUI launcher is loaded lazily.
+
+New GUI modules:
+
+```text
+src/sgokb/gui/
+├─ __init__.py
+├─ main.py
+├─ bootstrap.py
+├─ operations.py
+├─ worker.py
+├─ workspace.py
+├─ controllers/
+│  ├─ __init__.py
+│  └─ workspace_controller.py
+└─ views/
+   ├─ __init__.py
+   └─ main_window.py
+```
+
+## 3. Backend execution boundary
+
+The P-GUI-02/P-GUI-03R boundary is preserved:
+
+```text
+Qt main thread
+  MainWindow / WorkspaceController
+        │ queued Signal
+        ▼
+BackendCoordinator
+        │
+        ▼
+BackendWorker(QObject) on dedicated QThread
+        │
+        ▼
+OperatorSession
+        │
+        ▼
+Repository per operation
+```
+
+Rules preserved by implementation:
+
+- no GUI -> CLI subprocess business path;
+- no GUI direct canonical SQL;
+- no Repository connection is retained across operations;
+- no SQLite connection crosses a thread boundary;
+- `RuntimeFactory` can be retained as noncanonical BackendSession state;
+- switching Workspace invalidates the prior runtime cache;
+- `QThread.terminate()` is not used.
+
+## 4. Workspace contract
+
+`WorkspaceController` treats a DB path as a candidate until the backend executes:
+
+```text
+system.status
+```
+
+successfully through `OperatorSession`.
+
+Only successful status results update `WorkspaceState` and recent-Workspace settings.
+
+Consequences:
+
+- a fresh path is created/migrated by the normal Repository path on the backend thread;
+- an existing canonical DB is opened through the same path used by CLI semantics;
+- prototype migration rejection or another open/migration failure does not replace the current active Workspace;
+- a Workspace switch is rejected while a backend operation is already in flight.
+
+A registration race found during desk review was removed by registering the candidate request in the controller before emitting the queued worker signal.
+
+## 5. Presentation-only settings
+
+`WorkspaceSettings` persists only GUI state:
+
+```text
+workspace/recent_paths
+workspace/last_path
+window/geometry
+window/state
+navigation/last_page
+```
+
+No canonical Object / Source / Evidence / Result / Registry data is written to QSettings.
+
+## 6. Shell / navigation
+
+The accepted P-GUI-01 navigation is present exactly as the initial shell inventory:
+
+```text
+Home / Dashboard
+Objects
+Sources
+Evidence
+Associations
+Search
+Packages
+Results
+Registry
+System
+Settings
+```
+
+The Dashboard currently displays:
+
+- active Workspace path;
+- Object count;
+- Object count with current Knowledge;
+- applied migration count;
+- open/create entry actions.
+
+Later task ownership remains explicit in placeholder pages so P-GUI-04 does not prematurely implement P-GUI-05..09 semantics.
+
+## 7. Safe startup / failure / close behavior
+
+Implemented failure behavior:
+
+- Workspace migration/open failure is surfaced as the shared `OperationFailure` category/code/message;
+- a global warning area retains the failure distinction;
+- an error dialog is shown in normal interactive mode;
+- the prior active Workspace is retained after candidate-open failure;
+- Open/Create actions are disabled while backend work is active;
+- close is rejected while a backend operation is active;
+- normal close asks the worker thread to quit and waits for an orderly shutdown;
+- no force termination path is provided.
+
+`Create Workspace` refuses an already-existing target and directs the operator to Open Workspace instead of treating Create as overwrite.
+
+## 8. Automated test assets
+
+Added:
+
+```text
+tests/test_p_gui_04_optional_boundary.py
+tests/test_p_gui_04_shell.py
+```
+
+The optional-boundary test runs without PySide6 and protects the lazy GUI package import.
+
+When the `gui` extra is installed, the Qt test file runs with the offscreen platform and covers:
+
+1. recent Workspace ordering / deduplication;
+2. fresh Workspace creation through backend `system.status`;
+3. prototype migration rejection;
+4. preservation of the previous active Workspace after candidate failure;
+5. the exact 11-item accepted navigation inventory;
+6. clean backend shutdown from the shell.
+
+## 9. Dynamic verification gate
+
+No dynamic PASS is claimed in this implementation record. The connected remote execution environment has no remaining remote command quota, so verification must run in the project environment.
+
+From repository root:
+
+```powershell
+git pull --ff-only
+python -m pip install -e ".[gui]"
+Get-Command sgokb-gui
+
+python -m pytest `
+  tests/test_p_gui_04_optional_boundary.py `
+  tests/test_p_gui_04_shell.py
+
+python -m pytest
+python -m ruff check src tests
+```
+
+The existing development environment must still contain the optional dependencies required by the wider full suite.
+
+## 10. Interactive smoke acceptance
+
+After automated gates pass:
+
+```powershell
+sgokb-gui
+```
+
+Confirm at minimum:
+
+1. the window opens without blocking the event loop;
+2. all 11 navigation destinations switch correctly;
+3. Create Workspace creates a fresh DB and Dashboard reports it;
+4. Open Workspace opens an existing accepted DB;
+5. invalid/prototype DB open presents an error and preserves the previous Workspace;
+6. recent Workspace entries persist after restart;
+7. closing the GUI releases the DB;
+8. the same DB remains readable from CLI, for example:
+
+```powershell
+sgokb --db <workspace.sqlite> system status
+```
+
+## 11. Completion disposition
+
+Implementation criteria are satisfied by code and desk review, but P-GUI-04 remains:
+
+```text
+Implemented / Dynamic Verification Pending
+```
+
+until the PySide6 test/lint gate and interactive smoke acceptance are measured PASS.
+
+P-GUI-05 backend/UI work should not be marked started until this P-GUI-04 foundation is accepted.
