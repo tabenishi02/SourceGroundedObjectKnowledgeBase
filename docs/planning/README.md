@@ -25,8 +25,8 @@ P-GUI-02 = Complete / Accepted
 P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
-P-GUI-05 = Automated Verification Refresh Pending / Visual Smoke PASS / Functional Smoke Pending
-Next = P-GUI-05 refreshed focused/full/Ruff verification, then representative functional GUI smoke acceptance
+P-GUI-05 = Automated Verification PASS / Visual Smoke PASS / Functional Smoke Pending
+Next = P-GUI-05 representative functional GUI smoke acceptance
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -107,7 +107,7 @@ same DB readable from CLI                 PASS
 - Add Object Class selector improvement: [`../evaluation/P_GUI_05_ADD_OBJECT_CLASS_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_05_ADD_OBJECT_CLASS_SELECTOR_IMPROVEMENT.md)
 - Object Class mutation selector improvement: [`../evaluation/P_GUI_05_OBJECT_CLASS_MUTATION_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_05_OBJECT_CLASS_MUTATION_SELECTOR_IMPROVEMENT.md)
 - Recursive Source ZIP import improvement: [`../evaluation/P_GUI_05_SOURCE_RECURSIVE_ZIP_IMPORT_IMPROVEMENT.md`](../evaluation/P_GUI_05_SOURCE_RECURSIVE_ZIP_IMPORT_IMPROVEMENT.md)
-- Latest completed automated verification before the newest amendment: [`../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_04.md`](../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_04.md)
+- Latest automated verification: [`../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md`](../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md)
 
 P-GUI-05 implements real Qt pages for:
 
@@ -129,7 +129,7 @@ Association   4 / 4
 Total        27 / 27
 ```
 
-The pages use the existing `BackendCoordinator -> BackendWorker -> OperatorSession` path. Stable IDs remain authoritative for Object writes, Relations remain read-only, Source effective selection requires interactive reasons, Raw Artifact metadata is exposed through the shared Source read boundary, Evidence manual selection supports mouse and keyboard, and Association suggestion remains read-only until explicit set.
+The pages use the existing `BackendCoordinator -> BackendWorker -> OperatorSession` path. Stable IDs remain authoritative for Object writes, Relations remain read-only, Source effective selection requires explicit free-text audit reasons, Raw Artifact metadata is exposed through the shared Source read boundary, Evidence manual selection supports mouse and keyboard, and Association suggestion remains read-only until explicit set.
 
 Object Class controls use registry-backed non-editable selectors:
 
@@ -140,7 +140,7 @@ Add Class                = every registry Class except current Primary Class
 Remove Class             = assigned Additional Classes only; disabled when none exist
 ```
 
-Sources now support both single-file and recursive folder import:
+Sources support both single-file and recursive folder import:
 
 ```text
 Import Capture... = one selected ZIP
@@ -148,21 +148,21 @@ Import Folder...  = every ZIP below the selected folder, recursively
 folder drag/drop  = same recursive ZIP behavior
 ```
 
-The recursive scan accepts `.zip` suffixes case-insensitively and preserves existing per-target partial-failure semantics.
+All ZIPs are discovery targets. Existing WebCaptureImporter bundle and canonical filename validation remains authoritative for whether a discovered ZIP can be imported. Invalid ZIPs are reported per target without stopping later targets.
 
-The previous automated PASS was measured before this newest Source import amendment:
+Latest automated verification after all current P-GUI-05 amendments:
 
 ```text
-focused GUI regression = 11 / 11 PASS
+focused GUI regression = 12 / 12 PASS
 Ruff                   = All checks passed!
-full regression         = 806 / 806 PASS
+full regression         = 807 / 807 PASS
 known warnings          = 2 local-Qdrant warnings
 ```
 
 Current status:
 
 ```text
-Automated Verification Refresh Pending / Visual Smoke PASS / Functional Smoke Pending
+Automated Verification PASS / Visual Smoke PASS / Functional Smoke Pending
 ```
 
 ### Current released system
@@ -176,7 +176,7 @@ Phase P is still in development. Released v1.1.0 semantics remain governed by:
 - 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
 - Current release note: [`../releases/v1.1.0.md`](../releases/v1.1.0.md)
 
-P-GUI-03R and P-GUI-04 are accepted development baselines. P-GUI-05 is implemented development code pending refreshed automated verification and representative functional GUI smoke and does not by itself advance the formal release version.
+P-GUI-03R and P-GUI-04 are accepted development baselines. P-GUI-05 is automated-verified development code pending representative functional GUI smoke and does not by itself advance the formal release version.
 
 ## Phase P GUI decisions so far
 
@@ -281,5 +281,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-GUI-05 — refreshed focused pytest / Ruff / full regression, then representative functional GUI smoke acceptance
+P-GUI-05 — representative functional GUI smoke acceptance
 ```
