@@ -4,10 +4,11 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
-- Status: **Implemented / Dynamic Verification Pending**
+- Status: **Automated Verification PASS / Interactive Smoke Pending**
 - Baseline: P-GUI-05 **Complete / Accepted**
 - Task authority: `docs/planning/phases/P/PHASE_P_TASKS.md`
 - Compatibility authority: `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
+- Automated verification: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
 
 ## 1. Result summary
 
@@ -212,47 +213,39 @@ Focused coverage verifies:
 7. separate Registry Proposal accept/reject/apply operation mapping;
 8. MainWindow replacement of Search / Registry placeholders.
 
-P-GUI-04 and P-GUI-05 GUI regressions must also be rerun because P-GUI-06 extends the shared
+P-GUI-04 and P-GUI-05 GUI regressions are included because P-GUI-06 extends the shared
 MainWindow and `domain_pages` inventory.
 
-## 10. Dynamic verification gate
+## 10. Dynamic verification result
 
-No dynamic PASS is claimed yet for this implementation.
+Automated verification was executed by the operator on Windows after updating to the P-GUI-06
+implementation baseline.
 
-Run from repository root with the GUI extra installed:
-
-```powershell
-git pull --ff-only
-
-python -m pytest `
-  tests/test_p_gui_04_optional_boundary.py `
-  tests/test_p_gui_04_shell.py `
-  tests/test_p_gui_05_domain_pages.py `
-  tests/test_p_gui_05_object_class_selector.py `
-  tests/test_p_gui_05_object_class_controls.py `
-  tests/test_p_gui_05_source_recursive_zip_import.py `
-  tests/test_p_gui_06_search_registry_version.py
-
-python -m ruff check src tests
-```
-
-If the focused and lint gates pass, run:
-
-```powershell
-python -m pytest
-```
-
-Required automated disposition:
+Measured result:
 
 ```text
-focused P-GUI-04 / 05 / 06 regression = PASS
-Ruff                                  = PASS
-full pytest                            = PASS
+focused P-GUI-04 / 05 / 06 regression = 16 / 16 PASS
+Ruff                                  = All checks passed!
+full pytest                            = 811 / 811 PASS
+known local-Qdrant warnings            = 2
+```
+
+The two warnings are the existing local-Qdrant limitations for payload indexes and brute-force
+search parameters. They are not test failures and are not new P-GUI-06 regressions.
+
+Automated authority:
+
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
+
+Automated disposition:
+
+```text
+P-GUI-06 automated verification = PASS
 ```
 
 ## 11. Interactive smoke acceptance
 
-After automated gates pass, run:
+The remaining acceptance gate is interactive GUI smoke. Run:
 
 ```powershell
 sgokb-gui
@@ -304,15 +297,15 @@ The GUI must remain responsive while backend operations execute.
 implementation       = Complete
 desk audit           = Complete
 operation wiring     = 14 / 14
-automated acceptance = Pending
+automated acceptance = PASS
 interactive smoke    = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Implemented / Dynamic Verification Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
 
-P-GUI-06 becomes `Complete / Accepted` only after automated and interactive acceptance evidence
-are measured PASS.
+P-GUI-06 becomes `Complete / Accepted` only after interactive acceptance evidence is measured
+PASS.
