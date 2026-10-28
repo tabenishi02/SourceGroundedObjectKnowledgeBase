@@ -9,13 +9,13 @@ Updated: 2026-10-29
 
 ## Request
 
-Add a Sources-tab import mode that accepts a folder and imports every ZIP file below that folder recursively.
+Add a Sources-tab import mode that accepts a folder and attempts every ZIP file below that folder recursively.
 
 ## Implementation
 
 ### GUI
 
-`src/sgokb/gui/views/source_page.py` now exposes:
+`src/sgokb/gui/views/source_page.py` exposes:
 
 ```text
 Import Capture...   -> existing single-file ZIP import
@@ -28,17 +28,19 @@ Directory drag/drop continues to call the same `source.import` operation and the
 
 ### Application boundary
 
-`src/sgokb/application_source.py` now resolves directory import targets as:
+`src/sgokb/application_source.py` resolves directory import targets as:
 
 ```text
 selected directory
   -> recursive traversal
   -> regular files whose suffix case-folds to `.zip`
   -> deterministic sorted target list
-  -> import each through Application.import_source_path()
+  -> attempt each through Application.import_source_path()
 ```
 
-This includes ordinary `.zip` names and uppercase/mixed-case ZIP suffixes. It is no longer restricted to `*.webcapture.zip` filenames.
+The directory scan therefore targets all ZIP files, rather than pre-filtering only names matching `*.webcapture.zip`.
+
+This does **not** weaken Web Capture validation. `WebCaptureImporter` still requires a valid Web Capture Bundle, including the canonical filename derived from `captured_at` and `capture_id`. An arbitrary ZIP, renamed capture, or otherwise invalid ZIP is attempted and reported as a per-target failure; it is not imported canonically.
 
 Single-file behavior remains unchanged: an explicitly supplied file is attempted directly.
 
@@ -59,17 +61,54 @@ Added:
 tests/test_p_gui_05_source_recursive_zip_import.py
 ```
 
-The regression exercises the actual folder dialog path and verifies that:
+The corrected regression exercises the actual folder dialog path and verifies that:
 
-1. a ZIP directly under the selected folder is imported;
-2. a `.ZIP` in a deeper subdirectory is imported;
-3. non-ZIP files are ignored;
-4. both captures become canonical Snapshots;
-5. Raw Artifact `storage_ref` values point to the discovered ZIP files.
+1. a valid canonically named Web Capture ZIP directly under the selected folder is imported;
+2. another valid canonically named Web Capture ZIP in a deeper subdirectory is imported;
+3. a non-ZIP file is ignored;
+4. an arbitrary invalid `.zip` is still discovered and reported as a partial per-target failure;
+5. both valid captures become canonical Snapshots;
+6. Raw Artifact `storage_ref` values point to the recursively discovered valid ZIP files.
+
+## Verification attempt 01
+
+Initial focused verification produced:
+
+```text
+focused = 11 / 12 PASS
+Ruff    = PASS
+```
+
+The failing test had renamed otherwise valid Web Capture Bundles to `first.zip` and `SECOND.ZIP`. That violated the pre-existing importer invariant that the bundle filename must match `captured_at + capture_id + .webcapture.zip`.
+
+Disposition:
+
+```text
+product recursive scan defect = not demonstrated
+test fixture defect           = confirmed
+existing importer safety rule = retained
+```
+
+The regression fixture was corrected to preserve canonical bundle filenames while placing them at different recursive depths. An additional invalid ordinary ZIP remains in the fixture so the test still proves that all ZIP files are targeted by the folder scan.
+
+## Effective selection prompt clarification
+
+During the same interactive review, the previous prompt:
+
+```text
+Reason (required):
+```
+
+was found ambiguous. The GUI now states the purpose explicitly:
+
+```text
+Reason for choosing this Snapshot as effective (required):
+Reason for choosing this normalization run as effective (required):
+```
+
+The value remains free-text audit/provenance context explaining why the operator chose that Snapshot or normalization run as the effective one.
 
 ## Verification refresh
-
-The previous P-GUI-05 automated PASS was measured before this amendment. Therefore a refreshed automated gate is required.
 
 Run:
 
@@ -85,10 +124,15 @@ python -m pytest `
   tests/test_p_gui_05_source_recursive_zip_import.py
 
 python -m ruff check src tests
+```
+
+If those pass, run:
+
+```powershell
 python -m pytest
 ```
 
-Until these gates pass:
+Until the refreshed gates pass:
 
 ```text
 P-GUI-05 = Automated Verification Refresh Pending / Visual Smoke PASS / Functional Smoke Pending
