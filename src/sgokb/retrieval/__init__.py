@@ -49,7 +49,7 @@ from .package import (
     SelectedEvidence,
     estimate_tokens,
 )
-from .search_range import RangeAwareHybridObjectSearch as HybridObjectSearch
+from .search_range_identity import RangeAwareHybridObjectSearch as HybridObjectSearch
 from .search_representation import BuiltSearchRepresentation, SearchRepresentationBuilder
 from .similarity_r2 import ObjectSimilaritySearch
 from .vector_index import (
