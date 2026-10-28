@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QComboBox,
     QFileDialog,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
     QMessageBox,
@@ -22,7 +23,6 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QVBoxLayout,
     QWidget,
-    QInputDialog,
 )
 
 from sgokb.gui.models import DictTableModel
@@ -106,7 +106,12 @@ class RegistryPage(OperationPage):
         layout.addWidget(self.tabs, 1)
         layout.addWidget(self.operation_status)
 
-    def _table_split(self, model: DictTableModel, detail: QTextEdit, parent: QWidget) -> QSplitter:
+    def _table_split(
+        self,
+        model: DictTableModel,
+        detail: QTextEdit,
+        parent: QWidget,
+    ) -> QSplitter:
         splitter = QSplitter(parent)
         table = QTableView(splitter)
         table.setModel(model)
@@ -256,7 +261,8 @@ class RegistryPage(OperationPage):
         controls.addWidget(render)
         layout.addLayout(controls)
         note = QLabel(
-            "Render is a derived export. Editing the generated Markdown does not mutate canonical Knowledge.",
+            "Render is a derived export. Editing the generated Markdown does not mutate "
+            "canonical Knowledge.",
             page,
         )
         note.setWordWrap(True)
@@ -446,7 +452,8 @@ class RegistryPage(OperationPage):
             self,
             "Apply Registry Proposal",
             (
-                "Apply the selected accepted Registry Proposal to canonical Registry/Object data?\n\n"
+                "Apply the selected accepted Registry Proposal to canonical Registry/Object "
+                "data?\n\n"
                 f"{proposal_ref}\n\nAccept and Apply are intentionally separate operations."
             ),
             QMessageBox.StandardButton.Apply | QMessageBox.StandardButton.Cancel,
