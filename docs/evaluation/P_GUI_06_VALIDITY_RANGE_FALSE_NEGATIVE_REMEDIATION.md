@@ -4,7 +4,8 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
-- Status: **Remediation Implemented / Automated Verification Refresh Pending / Interactive Smoke Pending**
+- Status: **Remediation Verified / Automated Verification PASS / Interactive Smoke Pending**
+- Current automated authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
 
 ## Observed symptom
 
@@ -77,16 +78,19 @@ tests/test_search_validity_range.py
 tests/test_p_gui_06_search_filter_selectors.py
 ```
 
-New coverage creates the exact lag condition:
+The regression creates the exact lag condition:
 
 ```text
 accept V1
 activate R2 generation containing V1
+commit generation setup
 accept V2 as current after generation activation
 search with From/To
 ```
 
-The core regression verifies multiple unrelated ranges, including bounded and one-sided values. Because the V2 Statement is timeless, the Object identity must remain eligible for every requested range.
+The explicit transaction boundary is required because Version lifecycle operations reject an already-active outer transaction.
+
+The core regression verifies multiple unrelated ranges, including bounded and one-sided values. Because the V2 Statement is timeless, the Object identity remains eligible for every requested range.
 
 The GUI regression runs the real path:
 
@@ -101,32 +105,43 @@ and verifies that the current V2 Object is returned with `search: success` despi
 
 A companion assertion preserves R2 isolation: searching for V2-only Knowledge text does not make that text available through the older active generation.
 
-## Verification state
+## Verification history
 
-The latest measured automated PASS before the Derivation Kind selector and this remediation was:
+Attempt 03 exposed two verification-harness defects before the product assertions ran:
 
 ```text
-focused regression = 18 / 18 PASS
-Ruff               = PASS
-full pytest         = 813 / 813 PASS
-known local-Qdrant warnings = 2
+focused = 19 passed / 5 failed
+Ruff    = 7 errors
 ```
 
-That evidence is historical and does not certify the newly changed code.
+Those failures were caused by missing fixture transaction boundaries and static import-order issues, not by the product range assertion. They were remediated and preserved as historical evidence in `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_03.md`.
 
-Current disposition:
+Attempt 04 then measured the current implementation:
 
 ```text
-root cause                     = Confirmed
-remediation                    = Implemented
-core regression                = Added
-GUI end-to-end regression      = Added
-automated verification refresh = Pending
-interactive smoke              = Pending
+focused regression = 24 / 24 PASS
+Ruff               = All checks passed!
+full pytest         = 819 / 819 PASS
+known warnings      = 2 local-Qdrant warnings
+```
+
+Authority:
+
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
+
+## Current disposition
+
+```text
+root cause                 = Confirmed
+remediation                = Implemented
+core regression            = PASS
+GUI end-to-end regression  = PASS
+automated verification     = PASS
+interactive smoke          = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
