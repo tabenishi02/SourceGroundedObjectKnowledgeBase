@@ -27,7 +27,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03 | **Complete / Accepted** | Transport-neutral Application boundary audit / refactor plan |
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
-| GUI | P-GUI-05 | **Implemented / Dynamic Verification Pending** | Object / Source / Evidence / Association GUI |
+| GUI | P-GUI-05 | **Automated Verification PASS / Interactive Smoke Pending** | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | Not Started | Search / Similarity / Registry / Version GUI |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
@@ -164,7 +164,7 @@ Acceptance authority:
 
 ## P-GUI-05 implementation state
 
-P-GUI-05 implementation is complete and awaits dynamic verification.
+P-GUI-05 implementation is complete and the automated verification gate has passed. Interactive GUI smoke remains before formal closure.
 
 The four P-GUI-04 placeholders are now real operator pages:
 
@@ -200,7 +200,7 @@ Implemented behavior includes:
 - shared request correlation and failure semantics through `OperationPage`;
 - stable backend busy state across chained mutation -> refresh operations.
 
-`source.snapshots` was extended backward-compatibly with Raw/Run inspection metadata rather than adding a GUI-only direct-storage path. Public operation count remains unchanged.
+`source.snapshots` was extended backward-compatibly with Raw/Run inspection metadata rather than adding a GUI-only direct-storage path. The Application/operator DTO normalizes canonical `raw_artifacts.bytes` to presentation-neutral `byte_count`. Public operation count remains unchanged.
 
 Automated acceptance coverage was added in:
 
@@ -208,14 +208,25 @@ Automated acceptance coverage was added in:
 tests/test_p_gui_05_domain_pages.py
 ```
 
-Implementation / verification authority:
-
-- `docs/evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md`
-
-No dynamic PASS is claimed yet. P-GUI-05 remains:
+Automated verification evidence:
 
 ```text
-Implemented / Dynamic Verification Pending
+focused GUI regression = 9 / 9 PASS
+Ruff                   = All checks passed!
+full regression         = 804 / 804 PASS
+known warnings          = 2 local-Qdrant warnings
+```
+
+Verification authority:
+
+- `docs/evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md`
+- `docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
+- `docs/evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_02.md`
+
+Current verdict:
+
+```text
+P-GUI-05 = Automated Verification PASS / Interactive Smoke Pending
 ```
 
 ## Sequencing
@@ -231,8 +242,8 @@ P-GUI-03R Complete / Accepted
         ↓
 P-GUI-04 Complete / Accepted
         ↓
-P-GUI-05 Implemented / Dynamic Verification Pending   <- CURRENT
-        ↓ acceptance PASS
+P-GUI-05 Automated Verification PASS / Interactive Smoke Pending   <- CURRENT
+        ↓ interactive smoke PASS
 P-GUI-05 Complete / Accepted
         ↓
 P-GUI-06 / 07 core GUI
@@ -256,10 +267,10 @@ Phase P remains in development. Current released system semantics continue to be
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-03R and P-GUI-04 are accepted development baselines. P-GUI-05 is implemented development code pending dynamic and interactive acceptance. None of these tasks alone advance the formal released version.
+P-GUI-03R and P-GUI-04 are accepted development baselines. P-GUI-05 is implemented and automated-verified development code pending interactive acceptance. None of these tasks alone advance the formal released version.
 
 ## Next
 
 ```text
-P-GUI-05 — focused pytest / full regression / Ruff / interactive GUI smoke acceptance
+P-GUI-05 — interactive GUI smoke acceptance
 ```
