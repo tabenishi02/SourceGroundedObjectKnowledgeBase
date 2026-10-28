@@ -124,10 +124,11 @@ class ObjectAdminApplication:
         return asdict(record)
 
     def relation_types(self) -> list[dict]:
-        return [asdict(item) for item in self.objects.relation_types()]
+        from .application_registry import RegistryOperatorApplication
+
+        return RegistryOperatorApplication(self.repository).relation_types()
 
     def relation_type_show(self, value: str) -> dict:
-        record = self.objects.relation_type_by_id(value) or self.objects.relation_type_by_key(value)
-        if record is None:
-            raise ValueError("Relation Type was not found")
-        return asdict(record)
+        from .application_registry import RegistryOperatorApplication
+
+        return RegistryOperatorApplication(self.repository).relation_type_show(value)
