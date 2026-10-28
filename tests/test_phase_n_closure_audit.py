@@ -151,7 +151,7 @@ def test_format_exception_cannot_hide_a_new_regression():
     }
     audit.evaluate_runtime(evidence)
     assert evidence["gates"]["C05"]["status"] == "FAIL"
-    evidence["regression"]["format"][
+    evidence["regression"]["format"]["baseline_exception"][
         "all_unchanged_since_accepted_result"
     ] = True
     audit.evaluate_runtime(evidence)
