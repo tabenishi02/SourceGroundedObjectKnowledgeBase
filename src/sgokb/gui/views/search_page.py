@@ -473,11 +473,13 @@ class SearchPage(OperationPage):
         data = combo.currentData()
         if isinstance(data, str) and data:
             return data
-        if combo.isEditable():
-            value = combo.currentText().strip()
-            if value and value != "Any":
-                return value
-        return None
+        if not combo.isEditable():
+            return None
+        text = combo.currentText().strip()
+        index = combo.currentIndex()
+        if index >= 0 and combo.itemData(index) is None and text == combo.itemText(index):
+            return None
+        return text or None
 
     @staticmethod
     def _replace_combo(
@@ -505,12 +507,10 @@ class SearchPage(OperationPage):
 
     def _refresh_reference_combos(self) -> None:
         class_entries = [
-            (
-                f"{item.get('name') or key} [{key}]",
-                key,
-            )
+            (f"{item.get('name') or key} [{key}]", key)
             for key, item in sorted(
-                self._class_options.items(), key=lambda pair: str(pair[1].get("name") or pair[0])
+                self._class_options.items(),
+                key=lambda pair: str(pair[1].get("name") or pair[0]),
             )
         ]
         for combo in (self.primary_class, self.additional_class, self.ancestor_class):
@@ -519,19 +519,25 @@ class SearchPage(OperationPage):
         facet_entries = [
             (f"{item.get('name') or key} [{key}]", key)
             for key, item in sorted(
-                self._facet_options.items(), key=lambda pair: str(pair[1].get("name") or pair[0])
+                self._facet_options.items(),
+                key=lambda pair: str(pair[1].get("name") or pair[0]),
             )
         ]
         self._replace_combo(self.facet, facet_entries)
 
         version_entries = []
         for version_id, item in sorted(
-            self._version_options.items(), key=lambda pair: str(pair[1].get("object_name") or pair[0])
+            self._version_options.items(),
+            key=lambda pair: str(pair[1].get("object_name") or pair[0]),
         ):
             number = item.get("version_number")
             prefix = f"v{number}" if number is not None else "current"
             version_entries.append(
-                (f"{item.get('object_name') or item.get('object_id')} — {prefix} [{version_id}]", version_id)
+                (
+                    f"{item.get('object_name') or item.get('object_id')} — "
+                    f"{prefix} [{version_id}]",
+                    version_id,
+                )
             )
         self._replace_combo(self.version, version_entries)
 
@@ -559,7 +565,11 @@ class SearchPage(OperationPage):
         object_id = self.similar_object.currentData()
         if not isinstance(object_id, str):
             self._replace_combo(self.similar_facet, [])
-            self._replace_combo(self.similar_version, [], blank_label="Current accepted Version")
+            self._replace_combo(
+                self.similar_version,
+                [],
+                blank_label="Current accepted Version",
+            )
             return
         facet_entries = [
             (f"{item.get('name') or key} [{key}]", key)
