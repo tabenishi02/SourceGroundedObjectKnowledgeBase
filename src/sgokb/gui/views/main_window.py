@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 )
 
 from sgokb.operation_contracts import OperationFailure
+
 from ..controllers import WorkspaceController
 from ..worker import BackendCoordinator
 from ..workspace import WorkspaceSettings, WorkspaceState
