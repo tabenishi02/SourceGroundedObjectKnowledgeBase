@@ -169,6 +169,9 @@ def test_gui_range_search_keeps_current_object_when_active_generation_lags(qt_ap
             [{"facet": "personality", "text": "old generation statement"}],
         )
         _activate_r2_generation(repository, generation_id="gui-range-generation")
+        # The fixture writes the active generation with direct SQL. Close that setup
+        # transaction before exercising the next Version lifecycle operation.
+        repository.db.commit()
         current_version_id = _accepted_r2(
             repository,
             object_id,
