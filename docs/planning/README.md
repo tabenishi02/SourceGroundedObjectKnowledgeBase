@@ -25,8 +25,8 @@ P-GUI-02 = Complete / Accepted
 P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
-P-GUI-05 = Automated Verification PASS / Visual Smoke PASS / Functional Smoke Pending
-Next = P-GUI-05 representative functional GUI smoke acceptance
+P-GUI-05 = Complete / Accepted
+Next = P-GUI-06 Search / Similarity / Registry / Version GUI
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -51,26 +51,25 @@ Priority 3: Runtime / Qdrant auto-start
 
 - GUI requirements: [`../requirements/GUI_REQUIREMENTS.md`](../requirements/GUI_REQUIREMENTS.md)
 - GUI compatibility / safety decision: [`../decisions/P_GUI_COMPATIBILITY_AND_SAFETY_CONTRACT.md`](../decisions/P_GUI_COMPATIBILITY_AND_SAFETY_CONTRACT.md)
-- CLI <-> GUI capability matrix: [`../reference/GUI_CLI_CAPABILITY_MATRIX.md`](../reference/GUI_CLI_CAPABILITY_MATRIX.md)
+- CLI ↔ GUI capability matrix: [`../reference/GUI_CLI_CAPABILITY_MATRIX.md`](../reference/GUI_CLI_CAPABILITY_MATRIX.md)
 
 ### P-GUI-02 accepted authority
 
-- PySide6 architecture / packaging / license review: [`../evaluation/P_GUI_02_PYSIDE6_ARCHITECTURE_PACKAGING_LICENSE_REVIEW.md`](../evaluation/P_GUI_02_PYSIDE6_ARCHITECTURE_PACKAGING_LICENSE_REVIEW.md)
-- PySide6 application / packaging / license Decision: [`../decisions/P_GUI_PYSIDE6_APPLICATION_PACKAGING_LICENSE_DECISION.md`](../decisions/P_GUI_PYSIDE6_APPLICATION_PACKAGING_LICENSE_DECISION.md)
-- GUI application architecture: [`../design/P_GUI_APPLICATION_ARCHITECTURE.md`](../design/P_GUI_APPLICATION_ARCHITECTURE.md)
+- Architecture / packaging / license review: [`../evaluation/P_GUI_02_PYSIDE6_ARCHITECTURE_PACKAGING_LICENSE_REVIEW.md`](../evaluation/P_GUI_02_PYSIDE6_ARCHITECTURE_PACKAGING_LICENSE_REVIEW.md)
+- Decision: [`../decisions/P_GUI_PYSIDE6_APPLICATION_PACKAGING_LICENSE_DECISION.md`](../decisions/P_GUI_PYSIDE6_APPLICATION_PACKAGING_LICENSE_DECISION.md)
+- Application architecture: [`../design/P_GUI_APPLICATION_ARCHITECTURE.md`](../design/P_GUI_APPLICATION_ARCHITECTURE.md)
 - Distribution / license checklist: [`../operations/P_GUI_DISTRIBUTION_AND_LICENSE_CHECKLIST.md`](../operations/P_GUI_DISTRIBUTION_AND_LICENSE_CHECKLIST.md)
 
-### P-GUI-03 / 03R accepted authority
+### P-GUI-03 / P-GUI-03R accepted authority
 
 - Application boundary audit: [`../evaluation/P_GUI_03_APPLICATION_BOUNDARY_AUDIT.md`](../evaluation/P_GUI_03_APPLICATION_BOUNDARY_AUDIT.md)
 - 67-operation boundary matrix: [`../reference/GUI_APPLICATION_BOUNDARY_MATRIX.md`](../reference/GUI_APPLICATION_BOUNDARY_MATRIX.md)
-- Transport-neutral Application Decision: [`../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md`](../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md)
-- Refactor design / execution slices: [`../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md`](../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md)
-- P-GUI-03R task/status: [`phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
+- Transport-neutral Decision: [`../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md`](../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md)
+- Refactor plan: [`../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md`](../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md)
 - P-GUI-03R implementation result: [`../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
 - R9 final acceptance: [`../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md`](../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md)
 
-Final accepted R9 evidence:
+Accepted R9 evidence:
 
 ```text
 operator-boundary + M01 CLI = 18 / 18 PASS
@@ -87,29 +86,22 @@ ruff                        = All checks passed!
 P-GUI-04 acceptance evidence:
 
 ```text
-sgokb-gui entrypoint                     PASS
-focused pytest                           5 / 5 PASS
-full pytest                              800 / 800 PASS
-ruff                                     All checks passed!
-GUI normal startup                       PASS
-11 navigation destinations               PASS
-Create Workspace                         PASS
-Dashboard Workspace/status display       PASS
-Open Workspace                           PASS
-Recent Workspaces persisted after restart PASS
-GUI close / DB release                    PASS
-same DB readable from CLI                 PASS
+focused pytest = 5 / 5 PASS
+full pytest    = 800 / 800 PASS
+ruff           = PASS
+interactive GUI shell / Workspace acceptance = PASS
 ```
 
-### P-GUI-05 implementation authority
+### P-GUI-05 accepted authority
 
-- Implementation / verification procedure: [`../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md`](../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md)
+- Final implementation record: [`../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md`](../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md)
+- Final automated verification: [`../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md`](../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md)
+- Final interactive acceptance: [`../evaluation/P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md`](../evaluation/P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md)
 - Add Object Class selector improvement: [`../evaluation/P_GUI_05_ADD_OBJECT_CLASS_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_05_ADD_OBJECT_CLASS_SELECTOR_IMPROVEMENT.md)
 - Object Class mutation selector improvement: [`../evaluation/P_GUI_05_OBJECT_CLASS_MUTATION_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_05_OBJECT_CLASS_MUTATION_SELECTOR_IMPROVEMENT.md)
 - Recursive Source ZIP import improvement: [`../evaluation/P_GUI_05_SOURCE_RECURSIVE_ZIP_IMPORT_IMPROVEMENT.md`](../evaluation/P_GUI_05_SOURCE_RECURSIVE_ZIP_IMPORT_IMPROVEMENT.md)
-- Latest automated verification: [`../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md`](../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md)
 
-P-GUI-05 implements real Qt pages for:
+P-GUI-05 accepted pages:
 
 ```text
 Objects
@@ -118,7 +110,7 @@ Evidence
 Associations
 ```
 
-Current operation wiring:
+Operation wiring:
 
 ```text
 Object       12 / 12
@@ -129,45 +121,27 @@ Association   4 / 4
 Total        27 / 27
 ```
 
-The pages use the existing `BackendCoordinator -> BackendWorker -> OperatorSession` path. Stable IDs remain authoritative for Object writes, Relations remain read-only, Source effective selection requires explicit free-text audit reasons, Raw Artifact metadata is exposed through the shared Source read boundary, Evidence manual selection supports mouse and keyboard, and Association suggestion remains read-only until explicit set.
-
-Object Class controls use registry-backed non-editable selectors:
-
-```text
-Add Object Primary Class = active registry Classes
-Set Primary Class        = every registry Class
-Add Class                = every registry Class except current Primary Class
-Remove Class             = assigned Additional Classes only; disabled when none exist
-```
-
-Sources support both single-file and recursive folder import:
-
-```text
-Import Capture... = one selected ZIP
-Import Folder...  = every ZIP below the selected folder, recursively
-folder drag/drop  = same recursive ZIP behavior
-```
-
-All ZIPs are discovery targets. Existing WebCaptureImporter bundle and canonical filename validation remains authoritative for whether a discovered ZIP can be imported. Invalid ZIPs are reported per target without stopping later targets.
-
-Latest automated verification after all current P-GUI-05 amendments:
+Final acceptance evidence:
 
 ```text
 focused GUI regression = 12 / 12 PASS
 Ruff                   = All checks passed!
 full regression         = 807 / 807 PASS
-known warnings          = 2 local-Qdrant warnings
+visual smoke            = PASS
+functional smoke        = PASS
 ```
 
-Current status:
+Final verdict:
 
 ```text
-Automated Verification PASS / Visual Smoke PASS / Functional Smoke Pending
+P-GUI-05 = Complete / Accepted
 ```
+
+The accepted Source surface includes recursive folder ZIP discovery/import while retaining existing WebCaptureImporter validation. The accepted Object surface includes registry-backed Class selectors using stable `class_id` values.
 
 ### Current released system
 
-Phase P is still in development. Released v1.1.0 semantics remain governed by:
+Phase P remains in development. Released `v1.1.0` semantics remain governed by:
 
 - Current integrated architecture: [`../design/SGOKB_CURRENT_ARCHITECTURE.md`](../design/SGOKB_CURRENT_ARCHITECTURE.md)
 - Current design index: [`../design/README.md`](../design/README.md)
@@ -176,22 +150,15 @@ Phase P is still in development. Released v1.1.0 semantics remain governed by:
 - 1 Object標準運用: [`../operations/OBJECT_STANDARD_WORKFLOW.md`](../operations/OBJECT_STANDARD_WORKFLOW.md)
 - Current release note: [`../releases/v1.1.0.md`](../releases/v1.1.0.md)
 
-P-GUI-03R and P-GUI-04 are accepted development baselines. P-GUI-05 is automated-verified development code pending representative functional GUI smoke and does not by itself advance the formal release version.
+P-GUI-01 through P-GUI-05 are accepted development baselines and do not by themselves advance the formal release version.
 
 ## Phase P GUI decisions so far
 
-### Compatibility — P-GUI-01
+### Compatibility
 
-current public `sgokb` 67 operationsをGUI capabilityへ全件mappingしました。
+All 67 public CLI operations were mapped to GUI capability inventory. GUI compatibility means same use case / target identity / canonical effect / validation / safety / degradation / failure semantics, not replaying CLI strings.
 
-```text
-assigned = 67 / 67
-unassigned = 0
-```
-
-GUI compatibilityはCLI文字列の再生ではなく、same use case / target identity / canonical effect / validation / safety / degradation / failure semanticsを維持するsemantic parityです。
-
-### Technical architecture — P-GUI-02
+### Technical architecture
 
 ```text
 Framework            = PySide6
@@ -204,14 +171,9 @@ Semantic runtime      = expensive noncanonical runtime may be lazy-cached
 Windows deployment    = pyside6-deploy / Nuitka
 Deployment mode       = standalone directory / portable ZIP
 Qt linking            = dynamic / separate shared libraries
-One-file              = not initial baseline
 ```
 
-GUI dependencyはbase CLI installから分離され、package surfaceは `.[gui]` + `sgokb-gui` として実装済みです。
-
-現repositoryにはroot `LICENSE`がないため、private developmentは継続できますがpublic OSS publicationはproject-level license Decisionまでblockとします。
-
-### Application boundary — P-GUI-03 / P-GUI-03R / P-GUI-04 / P-GUI-05
+### Application boundary
 
 ```text
 CLI parser / GUI worker
@@ -225,11 +187,11 @@ Application facades
 Repository / Retrieval / Exchange
 ```
 
-P-GUI-04 established the queued QThread backend foundation. P-GUI-05 reuses it for all four daily-collection page families and does not add GUI direct SQL or a CLI-subprocess business path.
+P-GUI-04 established the queued QThread foundation. P-GUI-05 uses it for daily collection surfaces without GUI direct SQL or a CLI-subprocess business path.
 
 ## Workstream B — RAW Grounding
 
-Evidenceはretrieval / selection単位として維持しますが、External AIへ送るsemantic materialはEvidence本文の再構成Markdownではなく、Evidence provenanceから遡ったRaw Artifactへ変更します。
+Evidence remains the retrieval / selection unit, while External AI semantic material will move from reconstructed Evidence Markdown to Raw Artifacts traced through provenance.
 
 ```text
 Evidence Retrieval / Selection
@@ -247,20 +209,14 @@ External AI
 Structured Object Result
 ```
 
-Package Manifest、instructions、Object Result schema、Validation、Review、Import、ProvenanceをRaw-grounded contractへ更新します。
-
 ## Workstream C — Runtime
 
-Windowsログイン後にQdrantが自動利用可能になる運用を標準化します。
-
-QdrantはGUI processに所有させず、CLI / GUI / MCPから共有可能な独立runtimeとします。初期baseline候補はDocker / Compose、pinned Qdrant、named volume、localhost binding、restart policyです。
+Windows login should make Qdrant automatically available. Qdrant remains an independent shared runtime rather than a GUI-owned process.
 
 ## Phase P task families
 
 ```text
-P-GUI-01 .. P-GUI-03
-P-GUI-03R
-P-GUI-04 .. P-GUI-10
+P-GUI-01 .. P-GUI-10
 P-RAW-01 .. P-RAW-06
 P-RUNTIME-01 .. P-RUNTIME-06
 P-CLOSE-01
@@ -281,5 +237,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-GUI-05 — representative functional GUI smoke acceptance
+P-GUI-06 [P0] Search / Similarity / Registry / Version GUI
 ```
