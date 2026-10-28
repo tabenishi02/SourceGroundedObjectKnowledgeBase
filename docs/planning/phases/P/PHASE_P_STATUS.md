@@ -27,7 +27,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03 | **Complete / Accepted** | Transport-neutral Application boundary audit / refactor plan |
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
-| GUI | P-GUI-05 | **Unblocked / Next** | Object / Source / Evidence / Association GUI |
+| GUI | P-GUI-05 | **Implemented / Dynamic Verification Pending** | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | Not Started | Search / Similarity / Registry / Version GUI |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
@@ -139,39 +139,7 @@ Final acceptance authority:
 
 ## P-GUI-04 accepted implementation
 
-The GUI shell / Workspace / navigation foundation is now **Complete / Accepted**.
-
-Implemented package surface:
-
-```text
-.[gui] = PySide6 bounded dependency
-sgokb-gui entrypoint
-src/sgokb/gui/
-  bootstrap / main
-  workspace state + QSettings
-  GUI operation envelope
-  BackendCoordinator / BackendWorker / BackendSession
-  WorkspaceController
-  QMainWindow shell / navigation
-```
-
-Accepted navigation is present as the 11-page shell:
-
-```text
-Home / Dashboard
-Objects
-Sources
-Evidence
-Associations
-Search
-Packages
-Results
-Registry
-System
-Settings
-```
-
-Workspace open/create is validated by executing `system.status` through `OperatorSession` on the backend QThread. Candidate failures do not replace the active Workspace. No GUI direct SQL or CLI-subprocess business path was introduced.
+P-GUI-04 is **Complete / Accepted**.
 
 Final acceptance evidence:
 
@@ -190,11 +158,65 @@ GUI close / DB release                    PASS
 same DB readable from CLI                 PASS
 ```
 
-The fresh GUI-created Workspace was successfully read after GUI close using `sgokb --db ... system status`, returning `ok: true`, migrations 3 through 18, and no warnings.
-
 Acceptance authority:
 
 - `docs/evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md`
+
+## P-GUI-05 implementation state
+
+P-GUI-05 implementation is complete and awaits dynamic verification.
+
+The four P-GUI-04 placeholders are now real operator pages:
+
+```text
+Objects
+Sources
+Evidence
+Associations
+```
+
+The P-GUI-05 operation inventory is fully wired:
+
+```text
+Object       12 / 12
+Source        6 / 6
+Evidence      5 / 5
+Association   4 / 4
+------------------
+Total        27 / 27
+```
+
+Implemented behavior includes:
+
+- stable `object_id` targeting for Object writes;
+- Object registry/current Knowledge detail, aliases, events, read-only relations and Class operations;
+- Source import by file dialog and drag/drop;
+- Source processing and effective Snapshot/Run selection with interactive reason;
+- Raw Artifact / normalization metadata inspection;
+- Evidence candidates, bounded selection, detail/provenance and Evidence Search;
+- Evidence manual include/exclude by mouse and `Ctrl+I` / `Ctrl+E` / `Ctrl+0`;
+- selected/token/byte/omitted budget usage display;
+- Association list/suggest/set/clear with status, subject relationship and note;
+- shared request correlation and failure semantics through `OperationPage`;
+- stable backend busy state across chained mutation -> refresh operations.
+
+`source.snapshots` was extended backward-compatibly with Raw/Run inspection metadata rather than adding a GUI-only direct-storage path. Public operation count remains unchanged.
+
+Automated acceptance coverage was added in:
+
+```text
+tests/test_p_gui_05_domain_pages.py
+```
+
+Implementation / verification authority:
+
+- `docs/evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md`
+
+No dynamic PASS is claimed yet. P-GUI-05 remains:
+
+```text
+Implemented / Dynamic Verification Pending
+```
 
 ## Sequencing
 
@@ -209,7 +231,9 @@ P-GUI-03R Complete / Accepted
         ↓
 P-GUI-04 Complete / Accepted
         ↓
-P-GUI-05 Object / Source / Evidence / Association GUI   <- NEXT
+P-GUI-05 Implemented / Dynamic Verification Pending   <- CURRENT
+        ↓ acceptance PASS
+P-GUI-05 Complete / Accepted
         ↓
 P-GUI-06 / 07 core GUI
         ↓
@@ -232,10 +256,10 @@ Phase P remains in development. Current released system semantics continue to be
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - release `v1.1.0`
 
-P-GUI-03R and P-GUI-04 are accepted development baselines for subsequent GUI work. They do not themselves advance the formal released version.
+P-GUI-03R and P-GUI-04 are accepted development baselines. P-GUI-05 is implemented development code pending dynamic and interactive acceptance. None of these tasks alone advance the formal released version.
 
 ## Next
 
 ```text
-P-GUI-05 — Object / Source / Evidence / Association GUI
+P-GUI-05 — focused pytest / full regression / Ruff / interactive GUI smoke acceptance
 ```
