@@ -81,6 +81,6 @@ jobs:
       - name: Ruff
         shell: pwsh
         run: python -m ruff check src tests
-      - name: Full repository regression
+      - name: Full repository regression diagnostic
         shell: pwsh
-        run: python -m pytest -q
+        run: python -m pytest -vv --maxfail=1
