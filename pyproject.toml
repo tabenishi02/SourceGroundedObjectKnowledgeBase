@@ -13,7 +13,7 @@ dependencies = ["beautifulsoup4>=4.12,<5", "httpx>=0.27,<1", "jsonschema>=4.18,<
 dev = ["pytest>=8,<10", "ruff>=0.9,<1"]
 mcp = ["mcp>=2,<3"]
 gui = ["PySide6>=6.12,<6.13"]
-local-embedding = ["sentence-transformers>=6.1,<7", "transformers>=5.2,<6"]
+local-embedding = ["torch>=2.6,<3", "sentence-transformers>=6.1,<7", "transformers>=5.2,<6"]
 fast-embedding = ["fastembed>=0.9,<1"]
 vector-qdrant = ["qdrant-client>=1.19,<2"]
 
