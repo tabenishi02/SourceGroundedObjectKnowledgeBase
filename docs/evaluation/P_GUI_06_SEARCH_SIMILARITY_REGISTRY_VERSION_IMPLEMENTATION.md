@@ -8,9 +8,10 @@ Updated: 2026-10-29
 - Baseline: P-GUI-05 **Complete / Accepted**
 - Task authority: `docs/planning/phases/P/PHASE_P_TASKS.md`
 - Compatibility authority: `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
-- Current automated verification: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
+- Current automated verification: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`
 - Search selector/range authority: `docs/evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`
-- Validity-range remediation: `docs/evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`
+- First validity-range remediation: `docs/evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`
+- Range identity / GUI runtime-state remediation: `docs/evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md`
 - Derivation selector amendment: `docs/evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md`
 
 ## 1. Result summary
@@ -65,7 +66,8 @@ The `Search` tab exposes:
 - fixed-value Derivation Kind selector (`Any`, `direct_statement`, `synthesis`, `interpretation`, `reported_view`);
 - archived Object opt-in;
 - ranked result table and selected-result detail;
-- explicit degraded-channel display.
+- explicit degraded-channel display;
+- per-request runtime-state reset so failed semantic/runtime requests cannot leave stale prior results/degradation text visible.
 
 Selector composition remains above Repository storage:
 
@@ -93,13 +95,14 @@ YYYY-MM-DD..
 
 Invalid dates and `From > To` are rejected. `as_of` is treated as a point interval and timeless Statements remain eligible.
 
-Range retrieval is implemented in:
+Range retrieval is implemented through:
 
 ```text
 src/sgokb/retrieval/search_range.py
+src/sgokb/retrieval/search_range_identity.py
 ```
 
-The range-aware adapter preserves R2 generation routing. A false-negative remediation established the final boundary:
+The range-aware adapters preserve R2 generation routing. The final accepted boundary is:
 
 ```text
 Registry name / alias identity eligibility under From/To
@@ -109,7 +112,12 @@ Knowledge lexical / semantic matches
     -> active R2 Search generation only
 ```
 
-This prevents a current accepted Object from disappearing solely because the active derived Search generation lags its current Version, while preserving generation isolation for Knowledge channels.
+Two interactive false-negative cases were remediated:
+
+1. a current accepted Version newer than the active derived generation is not removed from Registry identity merely because the generation lags;
+2. an accepted current Version with zero Knowledge Statements is not removed by From/To alone, because it has no Statement-level temporal restriction.
+
+Statement-specific filters remain strict: Facet, Derivation Kind, or Temporal Scope still require matching Statements.
 
 ## 3. Similarity GUI
 
@@ -173,10 +181,13 @@ P-GUI-06 coverage now includes:
 tests/test_p_gui_06_search_registry_version.py
 tests/test_p_gui_06_search_filter_selectors.py
 tests/test_p_gui_06_derivation_kind_selector.py
+tests/test_p_gui_06_search_runtime_state.py
 tests/test_search_validity_range.py
+tests/test_search_validity_range_identity.py
+tests/test_search_validity_range_qdrant_r2.py
 ```
 
-Coverage verifies Registry/Version/Render wiring, selector population, fixed Derivation Kind choices, Object-scoped Similarity choices, GUI From/To request construction, invalid-range rejection, lexical/semantic temporal overlap, one-sided ranges, timeless Statements, stale-active-generation range remediation, GUI end-to-end range Search, and preservation of generation isolation.
+Coverage verifies Registry/Version/Render wiring, selector population, fixed Derivation Kind choices, Object-scoped Similarity choices, GUI From/To request construction, invalid-range rejection, lexical/semantic temporal overlap, one-sided ranges, timeless Statements, stale-active-generation range remediation, Statement-less accepted Version identity behavior, GUI runtime-state reset/failure presentation, GUI end-to-end range Search, real Qdrant + R2 range-semantic execution, and preservation of generation isolation.
 
 ## 6. Automated verification history
 
@@ -205,11 +216,9 @@ focused regression = 19 passed / 5 failed
 Ruff               = 7 errors
 ```
 
-All five pytest failures occurred in stale-generation fixture setup before the product assertion, because a direct-SQL generation setup transaction was not committed before beginning a new Version lifecycle operation. Ruff errors were import-order/static-layout defects. Both were remediated; Attempt 03 remains historical evidence.
+All five pytest failures occurred in stale-generation fixture setup before the product assertion. Ruff errors were import-order/static-layout defects. Both were remediated; Attempt 03 remains historical evidence.
 
-### Attempt 04 — current authority
-
-After the Derivation Kind selector, validity-range false-negative remediation, and Attempt 03 cleanup, the operator measured:
+### Attempt 04 — post first-range-remediation PASS
 
 ```text
 focused regression = 24 / 24 PASS
@@ -218,9 +227,24 @@ full pytest         = 819 / 819 PASS
 warnings            = 2 known local-Qdrant warnings
 ```
 
+Interactive testing after Attempt 04 exposed the Statement-less range identity false negative and stale Search runtime presentation.
+
+### Attempt 05 — current authority
+
+After the range identity, GUI runtime-state, and real-Qdrant range-semantic remediation, the operator measured:
+
+```text
+focused regression = 31 / 31 PASS
+Ruff               = All checks passed!
+full pytest         = 826 / 826 PASS
+warnings            = 2 known local-Qdrant warnings
+```
+
+The focused gate includes all three newly added regression groups and the real in-memory Qdrant + R2 generation + From/To semantic test.
+
 Authority:
 
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`
 
 Automated disposition:
 
@@ -239,9 +263,9 @@ Interactive smoke remains the final gate. Confirm at minimum:
 - historical values can be typed where the selector is editable;
 - Derivation Kind exposes only the schema-defined fixed values plus `Any`;
 - `Knowledge valid From` / `To` work for bounded and one-sided ranges;
-- the previously observed From/To false-negative no longer occurs for expected Object-name searches;
+- the previously observed From/To false negatives no longer occur for expected Object-name searches;
 - Lexical Search returns expected accepted Objects;
-- Semantic / Hybrid runtime failure or degradation is explicit;
+- Semantic / Hybrid runtime failure or degradation is explicit and reflects the current request rather than stale presentation;
 - `Require full runtime` does not silently degrade;
 - result details render correctly.
 
