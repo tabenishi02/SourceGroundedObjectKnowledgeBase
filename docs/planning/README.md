@@ -83,8 +83,10 @@ Priority 3: Runtime / Qdrant auto-start
 ### P-GUI-06 current authority
 
 - Main implementation / interactive procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
-- **Current automated verification**: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md)
-- **Current range/runtime remediation**: [`../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md)
+- **Current automated verification**: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md)
+- **Current interactive remediation**: [`../evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`](../evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md)
+- Current range/runtime dependency remediation: [`../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md)
+- Historical Attempt 06: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md)
 - Historical Attempt 05: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md)
 - Prior range/runtime-state remediation: [`../evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md)
 - Search selector / validity-range amendment: [`../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`](../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md)
@@ -99,6 +101,7 @@ Current From/To contract is:
 Registry exact/lexical identity
   -> canonical name/alias identity discovery
   -> From/To alone does not remove the result
+  -> no current Version or Statement is required
 
 Knowledge lexical Statement
   -> From/To temporal-overlap filter
@@ -106,8 +109,6 @@ Knowledge lexical Statement
 Semantic Statement
   -> From/To temporal-overlap filter
 ```
-
-This restores the frozen R2 rule that `knowledge_valid_at` is Statement-scoped while Registry identity remains discoverable independently of Knowledge.
 
 Current local semantic dependency contract is:
 
@@ -117,28 +118,18 @@ sentence-transformers>=6.1,<7
 transformers>=5.2,<6
 ```
 
-The observed external `name 'nn' is not defined` failure is treated as a local semantic-runtime dependency failure rather than an internal SGOKB error.
+The operator environment is verified with PyTorch `2.6.0+cu124`, CUDA 12.4 available on RTX 4090, and `pip check` clean. After production GUI testing exposed a process-level Semantic-runtime crash, GUI startup now preloads PyTorch / Transformers / Sentence Transformers native imports on the Qt main thread before the backend QThread starts; the model remains lazy.
 
-Attempt 06 operator environment:
-
-```text
-PyTorch           = 2.6.0+cu124
-CUDA runtime      = 12.4
-CUDA available    = True
-GPU               = NVIDIA GeForce RTX 4090
-pip check         = No broken requirements found
-```
-
-Current automated evidence:
+Current automated evidence from Attempt 07:
 
 ```text
-focused P-GUI-03R / 04 / 05 / 06 regression = 40 / 40 PASS
+focused P-GUI-03R / 04 / 05 / 06 regression = 42 / 42 PASS
 Ruff                                           = All checks passed!
-full regression                                = 829 / 829 PASS
+full regression                                = 831 / 831 PASS
 known local-Qdrant warnings                    = 2
 ```
 
-Attempt 05 remains historical evidence because interactive testing afterward exposed the final Registry/Statement temporal-boundary defect and the semantic-runtime dependency problem. Attempt 06 supersedes it as current automated authority.
+Attempt 07 adds production `KnowledgeReadApplication` + active-R2 coverage for unversioned Registry identity under From/To and verifies main-thread semantic native preload ordering. Attempt 06 remains historical because interactive testing afterward exposed those two additional defects.
 
 Current status:
 
@@ -150,7 +141,7 @@ P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed the current automated gate and remains open for interactive acceptance only. These tasks do not by themselves advance the formal release version.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed the current automated gate and remains open for interactive re-smoke acceptance only. These tasks do not by themselves advance the formal release version.
 
 ## Phase P GUI decisions so far
 
@@ -167,7 +158,7 @@ CLI/GUI boundary      = shared Application / Service layer
 GUI backend           = QObject worker on dedicated QThread
 SQLite                = Repository per operation, created in worker thread
 Backend concurrency   = serialized per Workspace initially
-Semantic runtime      = expensive noncanonical runtime may be lazy-cached
+Semantic runtime      = native stack preloaded on main thread; model lazy-cached in backend
 Windows deployment    = pyside6-deploy / Nuitka
 Deployment mode       = standalone directory / portable ZIP
 Qt linking            = dynamic / separate shared libraries
