@@ -32,7 +32,9 @@ class SystemOperatorApplication:
         self.runtime_factory = runtime_factory
 
     def status(self):
-        return system_status(self.repository, self.db_path)
+        data = system_status(self.repository, self.db_path)
+        data["runtime_health"] = self.runtime_status()
+        return data
 
     def runtime_status(self):
         return RuntimeHealthApplication(
