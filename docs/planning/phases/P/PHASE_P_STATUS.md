@@ -36,8 +36,8 @@ Priority 3: Runtime / Qdrant auto-start
 | RAW | P-RAW-02 | **Complete / Accepted** | Deterministic Evidence -> Raw Artifact provenance resolution contract |
 | RAW | P-RAW-03 | **Complete / Accepted** | Versioned RAW-bearing Package v2 design |
 | RAW | P-RAW-04 | **Complete / Accepted** | Raw-grounded Object Result v2 design |
-| RAW | P-RAW-05 | **Implementation Complete / Automated Verification Pending** | Resolver -> Package v2 -> Result v2 -> Raw provenance implementation |
-| RAW | P-RAW-06 | Blocked by P-RAW-05 verification | RAW Grounding acceptance / compatibility / documentation |
+| RAW | P-RAW-05 | **Complete / Accepted** | Resolver -> Package v2 -> Result v2 -> Raw provenance implementation; final automated gate PASS |
+| RAW | P-RAW-06 | **Not Started / Unblocked / Next** | RAW Grounding acceptance / compatibility / documentation |
 | Runtime | P-RUNTIME-01..06 | Not Started | Windows Qdrant auto-start / health / GUI integration |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
@@ -317,18 +317,21 @@ Therefore:
 P-RAW-04 = Complete / Accepted
 ```
 
-## P-RAW-05 implementation state
+## P-RAW-05 accepted implementation / verification
 
 Authority:
 
 - `docs/evaluation/P_RAW_05_RAW_GROUNDING_IMPLEMENTATION.md`
+- `docs/evaluation/P_RAW_05_VERIFICATION_ATTEMPT_01.md` — historical FAIL / remediation record
+- `docs/evaluation/P_RAW_05_VERIFICATION_ATTEMPT_02.md` — final PASS / acceptance
 
-The accepted P-RAW-02..04 contracts are now implemented as an additive v2 exchange path.
+The accepted P-RAW-02..04 contracts are implemented as an additive v2 exchange path while the legacy v1 path remains supported.
 
-Implemented areas:
+Implemented and accepted areas:
 
 ```text
 migration 019 Raw grounding persistence
+migration 020 accepted-grounding compatibility gate
 Evidence -> Raw resolver with exact byte/hash verification
 Package v2 schema / builder / instructions / transfer / preflight
 Package Raw membership and Evidence -> Raw audit
@@ -344,15 +347,25 @@ CLI --package-version v1|v2
 focused P-RAW-05 regression coverage
 ```
 
-During this implementation gate the CLI default intentionally remains `v1`. P-RAW-06 acceptance decides the release/cutover disposition; no script is silently switched before the v2 boundary is verified.
+During this implementation gate the CLI default intentionally remains `v1`. P-RAW-06 acceptance owns the release/cutover disposition; no script is silently switched before the operational v2 boundary is accepted.
 
-No automated PASS is claimed yet.
+Final automated evidence on Windows reference semantics:
+
+```text
+focused P-RAW/v1 regression = 91 / 91 PASS
+migration regression        = 56 / 56 PASS
+Ruff                        = PASS
+full regression             = 827 / 827 PASS
+warnings                    = 2 known local-Qdrant warnings
+```
+
+Attempt 01 failures were remediated rather than waived. The final gate also covers the SourceRepository retrieval-contract restoration, Raw resolver provenance-field correction, Result-v2 `$defs` schema construction fix, Migration 020 acceptance-trigger compatibility, and stale migration expectations.
 
 Therefore:
 
 ```text
-P-RAW-05 = Implementation Complete / Automated Verification Pending
-P-RAW-06 = Blocked by P-RAW-05 verification
+P-RAW-05 = Complete / Accepted
+P-RAW-06 = Unblocked / Next
 ```
 
 ## Sequencing
@@ -360,13 +373,9 @@ P-RAW-06 = Blocked by P-RAW-05 verification
 ```text
 P-GUI-01..07 Complete / Accepted
         ↓
-P-RAW-01..04 Complete / Accepted
+P-RAW-01..05 Complete / Accepted
         ↓
-P-RAW-05 implementation complete
-        ↓
-P-RAW-05 focused + Ruff + full regression   <- CURRENT GATE
-        ↓
-P-RAW-06 RAW Grounding acceptance
+P-RAW-06 RAW Grounding acceptance   <- NEXT
         ↓
 P-GUI-08 Package / Result GUI
 ```
@@ -377,10 +386,10 @@ P-GUI-08 Package / Result GUI
 
 Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-04 are accepted baselines. P-RAW-05 implementation exists on `main` but is not accepted until its automated verification gate passes.
+P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-05 are accepted development baselines. P-RAW-06 is the next RAW Grounding task and owns formal operational acceptance, compatibility/cutover disposition, and documentation closure for the external Raw-grounding boundary.
 
 ## Next
 
 ```text
-P-RAW-05 automated verification — focused exchange/Raw gate + Ruff + full regression
+P-RAW-06 — RAW Grounding acceptance / compatibility / documentation
 ```
