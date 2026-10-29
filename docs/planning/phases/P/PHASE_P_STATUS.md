@@ -27,7 +27,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
-| GUI | P-GUI-06 | **Automated Verification Refresh Pending / Interactive Smoke Pending** | From/To Registry-boundary correction + semantic runtime dependency remediation implemented |
+| GUI | P-GUI-06 | **Automated Verification PASS / Interactive Smoke Pending** | Final From/To Registry boundary + semantic runtime dependency remediation verified; 40/40 focused + 829/829 full PASS |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
@@ -112,7 +112,7 @@ Total       14 / 14
 
 Search Hard Filters provide Registry-backed Class selectors, Facet / Version / Temporal Scope selectors, `Knowledge valid From` / `Knowledge valid To`, fixed-value Derivation Kind, and archived-Object scope.
 
-The frozen R2 Search contract now governs the From/To boundary explicitly:
+The frozen R2 Search contract governs the final From/To boundary:
 
 ```text
 Registry name / alias identity
@@ -120,21 +120,21 @@ Registry name / alias identity
     -> From/To alone does not remove the identity result
 
 Knowledge lexical Statement channel
-    -> From/To temporal overlap filter
+    -> From/To temporal-overlap filter
 
 Semantic Statement channel
-    -> From/To temporal overlap filter
+    -> From/To temporal-overlap filter
 ```
 
-`knowledge_valid_at`, `temporal_scope_id`, and `derivation_kind` remain Statement-scoped conditions. Facet / Derivation / Temporal Scope combinations therefore still require a matching Statement where their narrowed semantics apply.
+`knowledge_valid_at`, `temporal_scope_id`, and `derivation_kind` remain Statement-scoped conditions. Facet / Derivation / Temporal Scope combinations still require a matching Statement where their narrowed semantics apply.
 
-The previous Statement-less/stale-generation exception-based remediation is now historical. The current implementation corrects the underlying contract boundary instead of adding further identity exceptions.
+The earlier stale-generation and Statement-less exception-based remediations remain historical. The current implementation corrects the underlying contract boundary.
 
-Search presentation continues to clear prior result/degradation state for every request and displays the current normalized failure.
+Search presentation also clears previous results/degradation state for every new request and displays the current normalized failure rather than retaining stale state.
 
 ### Local semantic runtime dependency
 
-The local embedding profile uses Sentence Transformers / Transformers and now declares:
+The local embedding profile declares:
 
 ```text
 torch>=2.6,<3
@@ -142,9 +142,17 @@ sentence-transformers>=6.1,<7
 transformers>=5.2,<6
 ```
 
-This matches the current Transformers PyTorch floor. Dependency initialization failures are normalized to `RetrievalRuntimeUnavailableError`; the known `name 'nn' is not defined` failure produces actionable PyTorch-upgrade guidance rather than `internal/internal_error`.
+Dependency initialization failures are normalized to `RetrievalRuntimeUnavailableError`; the known external `name 'nn' is not defined` failure produces actionable PyTorch guidance instead of `internal/internal_error`.
 
-Existing virtual environments are not modified by Git updates and may require an explicit PyTorch upgrade.
+Attempt 06 operator environment:
+
+```text
+PyTorch           = 2.6.0+cu124
+CUDA runtime      = 12.4
+CUDA available    = True
+GPU               = NVIDIA GeForce RTX 4090
+pip check         = No broken requirements found
+```
 
 ### Registry / Version / Render
 
@@ -152,14 +160,17 @@ Registry behavior remains Class/Relation Type browse, Proposal review with Accep
 
 ## P-GUI-06 verification history
 
-Current remediation authority:
+Current automated authority:
 
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md`
 - `docs/evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`
 
-Historical automated authority before the latest interactive failures:
+Historical authority:
 
 - `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`
 - `docs/evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md`
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_03.md`
 
 Attempt history:
 
@@ -169,35 +180,35 @@ Attempt 02 = PASS, selector/range baseline
 Attempt 03 = FAIL, verification fixture + Ruff defects; product assertion not reached
 Attempt 04 = PASS, first validity-range remediation
 Attempt 05 = PASS, range identity/runtime-state/Qdrant regression set
-latest interactive smoke = FAIL, From/To still hid Registry identity; semantic runtime exposed nn dependency failure
+interactive smoke after Attempt 05 = FAIL, final contract/runtime defects exposed
+Attempt 06 = PASS, final R2 range contract + semantic dependency remediation
 ```
 
-Historical Attempt 05 evidence:
+Measured current result:
 
 ```text
-focused P-GUI-04 / 05 / 06 regression = 31 / 31 PASS
-Ruff                                  = All checks passed!
-full pytest                            = 826 / 826 PASS
-known local-Qdrant warnings            = 2
+focused P-GUI-03R / 04 / 05 / 06 regression = 40 / 40 PASS
+Ruff                                           = All checks passed!
+full pytest                                     = 829 / 829 PASS
+known local-Qdrant warnings                     = 2
 ```
 
-That result predates the current contract/runtime changes and is no longer closure authority.
+The two warnings are existing local-Qdrant limitations and are not failures.
 
 Current disposition:
 
 ```text
-implementation amendment        = Complete
-range contract correction       = Implemented
-runtime dependency correction   = Implemented
-automated verification refresh  = Pending
-operator environment torch check= Pending
-interactive smoke               = Pending
+implementation         = Complete
+desk audit             = Complete
+operation wiring       = 14 / 14
+automated verification = PASS
+interactive smoke      = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
 
 ## Sequencing
@@ -215,25 +226,29 @@ P-GUI-04 Complete / Accepted
         ↓
 P-GUI-05 Complete / Accepted
         ↓
-P-GUI-06 Automated Verification Refresh Pending   <- CURRENT
-        ↓ dependency/runtime correction + automated PASS
-P-GUI-06 Interactive Smoke Pending
-        ↓ interactive smoke PASS
+P-GUI-06 Automated Verification PASS / Interactive Smoke Pending   <- CURRENT
+        ↓ repeat production smoke for From/To + Semantic runtime
 P-GUI-06 Complete / Accepted
         ↓
 P-GUI-07 Progress / error / safety / audit UX
+        ↓
+P-RAW
+        ↓
+P-GUI-08 Package / Result GUI
+        ↓
+P-RUNTIME / P-GUI-09
+        ↓
+P-GUI-10 / P-CLOSE-01
 ```
 
 ## Current authority boundary
 
 Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 remains open until the current remediation passes automated and interactive verification.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed the current automated gate and remains open only for interactive smoke acceptance. None of these tasks alone advance the formal released version.
 
 ## Next
 
 ```text
-1. verify / correct operator PyTorch version
-2. refresh focused + full automated verification
-3. repeat From/To + semantic-runtime interactive smoke
+P-GUI-06 — repeat interactive GUI smoke for From/To and Semantic runtime, then complete remaining Search / Similarity / Registry / Version / Render smoke
 ```
