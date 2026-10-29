@@ -6,11 +6,67 @@ on:
       - p-raw-05-verification-remediation
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   focused:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: p-raw-05-verification-remediation
+      - name: Align stale migration expectations with Migration 019
+        shell: python
+        run: |
+          from pathlib import Path
+
+          replacements = {
+              "tests/test_hybrid_search.py": [
+                  (
+                      'assert repo.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 18',
+                      'assert repo.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 19',
+                  )
+              ],
+              "tests/test_m03_standard_workflow.py": [
+                  ("list(range(3, 19))", "list(range(3, 20))"),
+              ],
+              "tests/test_search_generation_migration.py": [
+                  ("list(range(3, 19))", "list(range(3, 20))"),
+              ],
+              "tests/test_versioning.py": [
+                  (
+                      'assert upgraded.one("SELECT count(*) n FROM schema_migrations")["n"] == 16',
+                      'assert upgraded.one("SELECT count(*) n FROM schema_migrations")["n"] == 17',
+                  )
+              ],
+          }
+
+          changed = []
+          for name, items in replacements.items():
+              path = Path(name)
+              text = path.read_text(encoding="utf-8")
+              original = text
+              for old, new in items:
+                  if old in text:
+                      text = text.replace(old, new)
+                  elif new not in text:
+                      raise SystemExit(f"Expected migration assertion not found in {name}: {old}")
+              if text != original:
+                  path.write_text(text, encoding="utf-8")
+                  changed.append(name)
+          print("changed:", changed)
+      - name: Commit deterministic test remediation
+        run: |
+          if git diff --quiet; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests
+          git commit -m "test: align migration expectations with 019 [skip ci]"
+          git push origin HEAD:p-raw-05-verification-remediation
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
@@ -29,5 +85,16 @@ jobs:
           tests/test_object_version_import.py
           tests/test_diff_review.py
           tests/test_phase_g_roundtrip.py
+      - name: Migration remediation regression
+        run: >-
+          python -m pytest
+          tests/test_embedding_space.py
+          tests/test_f03_object_evidence_retrieval.py
+          tests/test_hybrid_search.py
+          tests/test_l05_canonical_bootstrap.py
+          tests/test_m01_cli.py
+          tests/test_m03_standard_workflow.py
+          tests/test_search_generation_migration.py
+          tests/test_versioning.py
       - name: Ruff
         run: python -m ruff check src tests
