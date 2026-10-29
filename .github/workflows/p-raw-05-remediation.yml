@@ -74,7 +74,10 @@ jobs:
           path = Path("tests/test_p_raw_05_raw_grounding_v2.py")
           text = path.read_text(encoding="utf-8")
           old = '        assert report.validation_state == "valid"\n'
-          new = '        assert report.validation_state == "valid", report.to_dict()\n'
+          new = (
+              '        assert report.validation_state == "valid", '
+              '[(item.code, item.message) for item in report.findings]\n'
+          )
           if old not in text:
               raise SystemExit("Focused validation assertion not found")
           path.write_text(text.replace(old, new, 1), encoding="utf-8")
