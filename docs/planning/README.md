@@ -116,12 +116,14 @@ P-GUI-05                = Complete / Accepted
 ### P-GUI-06 current authority
 
 - Main implementation / interactive procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
-- Current automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md)
+- Current automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md)
+- Current range identity / GUI runtime-state remediation: [`../evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md)
+- Historical Attempt 04 verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md)
 - Historical Attempt 03 fixture/lint failure: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_03.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_03.md)
 - Historical selector/range verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md)
 - Historical pre-amendment verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
 - Search selector / validity-range amendment: [`../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`](../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md)
-- Validity-range false-negative remediation: [`../evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`](../evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md)
+- First validity-range false-negative remediation: [`../evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`](../evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md)
 - Derivation Kind selector improvement: [`../evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md)
 
 P-GUI-06 keeps the 14 assigned operations wired:
@@ -145,16 +147,19 @@ Current Search / Similarity surface includes:
 - fixed-value Derivation Kind selector;
 - explicit semantic-runtime / strict full-runtime controls;
 - degraded-channel display;
+- per-request runtime-state reset/failure presentation;
 - Object-scoped Similarity Facet / Version selectors;
 - cross-Class and archived scope controls;
 - no silent local-runtime or cloud fallback.
 
-The validity-range remediation fixes stale active-generation false negatives while preserving the boundary:
+The final validity-range boundary is:
 
 ```text
 Registry identity eligibility under From/To -> canonical accepted Knowledge
 Knowledge lexical / semantic channels       -> active R2 Search generation
 ```
+
+The remediation covers both stale derived-generation and Statement-less accepted-Version identity false negatives. Statement-specific Facet / Derivation Kind / Temporal Scope filters remain strict.
 
 Current Registry / Version / Render surface remains:
 
@@ -167,16 +172,16 @@ Current Registry / Version / Render surface remains:
 - structured / Markdown Version Diff;
 - Object/Version render/export and generated Markdown preview.
 
-Current automated evidence from Attempt 04:
+Current automated evidence from Attempt 05:
 
 ```text
-focused P-GUI-04 / 05 / 06 regression = 24 / 24 PASS
+focused P-GUI-04 / 05 / 06 regression = 31 / 31 PASS
 Ruff                                  = All checks passed!
-full regression                        = 819 / 819 PASS
+full regression                        = 826 / 826 PASS
 known local-Qdrant warnings            = 2
 ```
 
-Attempt 03 remains historical failure evidence: its five pytest failures occurred in fixture setup before product assertions, and its Ruff errors were subsequently remediated.
+The focused gate includes the Statement-less range identity regression, GUI runtime-state regression, and real in-memory Qdrant + R2 generation + From/To semantic regression. Attempt 03 remains historical fixture/lint failure evidence; Attempt 04 remains the prior successful authority before the latest interactive remediation.
 
 Current status:
 
