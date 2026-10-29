@@ -27,7 +27,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
-| GUI | P-GUI-06 | **Automated Verification PASS / Interactive Smoke Pending** | Derivation selector + validity-range remediation verified; 24/24 focused + 819/819 full PASS |
+| GUI | P-GUI-06 | **Automated Verification PASS / Interactive Smoke Pending** | Range identity/runtime-state/Qdrant remediation verified; 31/31 focused + 826/826 full PASS |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
@@ -142,7 +142,7 @@ YYYY-MM-DD..
 
 Plain single-date `valid_at` keeps point-in-time behavior. Range filtering uses temporal overlap, treats `as_of` as a point interval, supports one-sided ranges, and keeps timeless Statements eligible.
 
-The false-negative remediation fixes the case where an active derived R2 Search generation lags a newer current accepted Version:
+The final validity-range boundary is:
 
 ```text
 Registry identity range eligibility
@@ -152,7 +152,14 @@ Knowledge lexical / semantic channels
     -> active R2 Search generation
 ```
 
-This preserves current Object name/alias discoverability without bypassing generation isolation for derived Knowledge channels.
+The remediation covers both observed false-negative classes:
+
+- active derived generation lagging a newer current accepted Version;
+- From/To alone applied to a current accepted Version with zero Knowledge Statements.
+
+A Statement-less Version is treated as having no Statement-level temporal restriction for Registry identity. Facet / Derivation Kind / Temporal Scope remain strict Statement-specific filters.
+
+Search presentation also clears previous results/degradation state for every new request and displays the current normalized failure rather than retaining stale state.
 
 ### Registry / Version / Render
 
@@ -175,7 +182,8 @@ Version / Render behavior remains:
 
 Current automated authority:
 
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`
+- `docs/evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md`
 - `docs/evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`
 - `docs/evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md`
 - `docs/evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`
@@ -187,19 +195,20 @@ Attempt history:
 Attempt 01 = PASS, pre-amendment
 Attempt 02 = PASS, selector/range baseline
 Attempt 03 = FAIL, verification fixture + Ruff defects; product assertion not reached
-Attempt 04 = PASS, current post-remediation authority
+Attempt 04 = PASS, first validity-range remediation authority
+Attempt 05 = PASS, current range identity/runtime-state/Qdrant authority
 ```
 
 Measured current result:
 
 ```text
-focused P-GUI-04 / 05 / 06 regression = 24 / 24 PASS
+focused P-GUI-04 / 05 / 06 regression = 31 / 31 PASS
 Ruff                                  = All checks passed!
-full pytest                            = 819 / 819 PASS
+full pytest                            = 826 / 826 PASS
 known local-Qdrant warnings            = 2
 ```
 
-The two warnings are existing local-Qdrant limitations and are not failures.
+Focused coverage includes the new Statement-less range identity regressions, GUI runtime-state regression, and an actual in-memory Qdrant + R2 generation + From/To semantic regression. The two warnings are existing local-Qdrant limitations and are not failures.
 
 Current disposition:
 
