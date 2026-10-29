@@ -17,9 +17,9 @@ Phase P = In Progress
 
 P-GUI-01..08 = Complete / Accepted
 P-RAW-01..06 = Complete / Accepted
-P-RUNTIME-01 = Complete / Accepted
-P-RUNTIME-02 = Not Started / Next
-P-RUNTIME-03..06 = Not Started
+P-RUNTIME-01..02 = Complete / Accepted
+P-RUNTIME-03 = Not Started / Next
+P-RUNTIME-04..06 = Not Started
 P-GUI-09 = Not Started / blocked by P-RUNTIME-03
 P-GUI-10 = Not Started
 P-CLOSE-01 = Not Started
@@ -33,7 +33,7 @@ Priority 2: RAW Grounding
 Priority 3: Runtime / Qdrant auto-start
 ```
 
-GUI と RAW Grounding の優先作業は P-GUI-08 まで完了しています。Runtime reference design も P-RUNTIME-01 で確定しました。残る GUI の P-GUI-09 は P-RUNTIME-03 に依存するため、現在の次Taskは P-RUNTIME-02 です。
+GUI と RAW Grounding の優先作業は P-GUI-08 まで完了しています。Runtime reference design と repository-owned Qdrant Compose assets も P-RUNTIME-01 / 02 で確定・受入済みです。残る GUI の P-GUI-09 は P-RUNTIME-03 に依存するため、現在の次Taskは P-RUNTIME-03 です。
 
 ## Phase P planning authority
 
@@ -186,21 +186,60 @@ P-GUI-01..08 = Complete / Accepted
 Accepted reference:
 
 ```text
-Windows runtime          = Docker Desktop + WSL 2 + Docker Compose
-Qdrant initial pin       = qdrant/qdrant:v1.20.0
-startup                  = Docker Desktop at user sign-in
-restart policy           = unless-stopped
-persistent state         = Docker named volume
-HTTP                     = 127.0.0.1:6333
-preferred gRPC           = 127.0.0.1:6334
-Qdrant distributed port  = not published
-readiness                = /readyz
+Windows runtime           = Docker Desktop + WSL 2 + Docker Compose
+Qdrant initial pin        = qdrant/qdrant:v1.20.0
+startup                   = Docker Desktop at user sign-in
+restart policy            = unless-stopped
+persistent state          = Docker named volume
+HTTP                      = 127.0.0.1:6333
+preferred gRPC            = 127.0.0.1:6334
+Qdrant distributed port   = not published
+readiness                 = /readyz
 SGOKB lifecycle ownership = none; observer/client only
 ```
 
 The existing SGOKB adapter defaults to REST `localhost:6333`, gRPC `6334`, and `prefer_grpc=True`, so both local ports are part of the reference contract.
 
 Native Windows Qdrant + Task Scheduler was evaluated but is not a supported Phase P acceptance path. Docker Desktop is an external prerequisite with independent installation/license terms and is not bundled by SGOKB.
+
+### P-RUNTIME-02 — Qdrant Compose / configuration assets
+
+- Compose: [`../../runtime/qdrant/compose.yaml`](../../runtime/qdrant/compose.yaml)
+- environment template: [`../../runtime/qdrant/.env.example`](../../runtime/qdrant/.env.example)
+- runtime README: [`../../runtime/qdrant/README.md`](../../runtime/qdrant/README.md)
+- operations: [`../operations/P_RUNTIME_02_QDRANT_COMPOSE_RUNTIME.md`](../operations/P_RUNTIME_02_QDRANT_COMPOSE_RUNTIME.md)
+- final acceptance: [`../evaluation/P_RUNTIME_02_QDRANT_COMPOSE_CONFIGURATION_ACCEPTANCE.md`](../evaluation/P_RUNTIME_02_QDRANT_COMPOSE_CONFIGURATION_ACCEPTANCE.md)
+
+Final P-RUNTIME-02 gate:
+
+```text
+GitHub Actions run          = 40961873913
+verified branch source      = 1732322b7a0d40dbd4838e3b62cebea1fb458baf
+verified synthetic merge    = 56b2ee1d1c83e0f4c84c27575ed8fdbcbb7bade9
+Compose render              = PASS
+focused contract tests      = 2 / 2 PASS
+real Qdrant v1.20.0         = PASS
+/readyz                     = PASS
+named-volume persistence    = PASS
+recreate / second readiness = PASS
+Ruff src/tests              = PASS
+Windows full regression     = 839 / 839 PASS
+warnings                    = 2 known local-Qdrant warnings
+```
+
+Accepted runtime boundary:
+
+```text
+image                    = qdrant/qdrant:v1.20.0
+restart                  = unless-stopped
+ports                    = loopback 6333 + 6334 only
+persistent volume        = sgokb_qdrant_storage
+container storage        = /qdrant/storage
+readiness                = /readyz -> HTTP 200
+operator local override  = QDRANT_LOG_LEVEL only
+```
+
+P-RUNTIME-02 establishes reproducible runtime construction and persistence. Windows login auto-start remains P-RUNTIME-04 scope; shared CLI/GUI health/status remains P-RUNTIME-03 scope.
 
 ## Phase P architecture summary
 
@@ -223,7 +262,7 @@ Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 
 ### Runtime
 
-`P-RUNTIME-01` is Complete / Accepted. `P-RUNTIME-02` is now the next executable task and must materialize the accepted Compose/configuration assets. P-RUNTIME-03 then establishes the shared runtime health/status Application boundary required by P-GUI-09.
+`P-RUNTIME-01` and `P-RUNTIME-02` are Complete / Accepted. `P-RUNTIME-03` is now the next executable task and establishes the shared runtime health/status Application boundary required by P-GUI-09. P-RUNTIME-04 retains Windows login auto-start integration/acceptance ownership.
 
 ### Closure
 
@@ -232,5 +271,5 @@ Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 ## Next
 
 ```text
-P-RUNTIME-02 — Qdrant Compose / configuration assets
+P-RUNTIME-03 — Runtime health/status application boundary
 ```
