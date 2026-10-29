@@ -4,9 +4,10 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-07 [P0] Progress / error / safety / audit UX`
-- Status: **Implementation Complete / Automated Verification Pending / Interactive Smoke Pending**
+- Status: **Automated Verification PASS / Interactive Smoke Pending**
 - Dependency baseline: `P-GUI-06 = Complete / Accepted`
 - Design: `docs/design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md`
+- Automated authority: `docs/evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
 
 ## 1. Implemented scope
 
@@ -125,36 +126,24 @@ Coverage includes:
 - MainWindow progress surface;
 - form-only Undo behavior.
 
-## 10. Verification gate
+## 10. Automated verification
 
-Because `worker.py`, `OperationPage`, and `MainWindow` are shared GUI infrastructure, verification must cover previous GUI tasks as well as the new P-GUI-07 tests.
-
-Recommended focused gate:
+Current measured authority:
 
 ```text
-tests/test_p_gui_03r_operator_boundary.py
-tests/test_p_gui_04_optional_boundary.py
-tests/test_p_gui_04_shell.py
-tests/test_p_gui_05_domain_pages.py
-tests/test_p_gui_05_object_class_selector.py
-tests/test_p_gui_05_object_class_controls.py
-tests/test_p_gui_05_source_recursive_zip_import.py
-tests/test_p_gui_06_search_registry_version.py
-tests/test_p_gui_06_search_filter_selectors.py
-tests/test_p_gui_06_derivation_kind_selector.py
-tests/test_p_gui_06_search_runtime_state.py
-tests/test_p_gui_06_runtime_dependency.py
-tests/test_p_gui_07_operation_safety_audit.py
+focused GUI gate = 34 / 34 PASS
+Ruff             = PASS
+full regression  = 823 / 823 PASS
+warnings         = 2 known local-Qdrant warnings
 ```
 
-Expected inventory if no unrelated change occurred:
+Authority:
 
-```text
-focused GUI gate ~= 34 tests
-full regression   ~= 823 tests
-```
+- `docs/evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
 
-These are expectations only until measured locally.
+The two warnings are the existing local-Qdrant limitations and are not P-GUI-07 regressions.
+
+Earlier failed focused attempts were isolated to the new headless Undo test and one Ruff line-length issue; neither represented an Application/Repository behavior defect. The final passing test isolates the focused-form Undo contract from Qt offscreen focus acquisition behavior.
 
 ## 11. Interactive smoke gate
 
@@ -173,12 +162,12 @@ Confirm at minimum:
 
 ```text
 implementation          = Complete
-automated verification  = Pending
+automated verification  = PASS
 interactive smoke       = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-07 = Implementation Complete / Automated Verification Pending / Interactive Smoke Pending
+P-GUI-07 = Automated Verification PASS / Interactive Smoke Pending
 ```
