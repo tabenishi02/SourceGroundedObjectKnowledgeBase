@@ -2,15 +2,9 @@
 
 `docs/planning/` は、Source Grounded Object Knowledge Base（SGOKB）の進行計画、Phase準備/完了監査、Task一覧、実行handoffを管理する領域です。
 
-Planning文書はPhase / Task単位で整理し、`docs/planning/`直下には原則としてこのIndexだけを置きます。
+Planning文書はPhase / Task単位で整理し、`docs/planning/`直下のこのファイルは current-state / authority index として扱います。Phase P の詳細状態は [`phases/P/PHASE_P_STATUS.md`](phases/P/PHASE_P_STATUS.md) を正本とします。
 
 ## Current phase
-
-Phase O — Documentation / Release / Git cleanup は **Complete** です。
-
-2026-10-28のHappy-Path Operational Acceptanceで **FULL SGOKB PASS** を確認し、current formal releaseは `v1.1.0` です。
-
-現在の開発Phaseは **Phase P — GUI / RAW Grounding / Runtime Modernization** です。
 
 ```text
 Phase A ... Phase M = Complete
@@ -20,23 +14,15 @@ Phase O = Complete
 Happy-path operational acceptance = Complete / FULL SGOKB PASS
 Current formal release = v1.1.0
 Phase P = In Progress
-P-GUI-01 = Complete / Accepted
-P-GUI-02 = Complete / Accepted
-P-GUI-03 = Complete / Accepted
-P-GUI-03R = Complete / Accepted
-P-GUI-04 = Complete / Accepted
-P-GUI-05 = Complete / Accepted
-P-GUI-06 = Complete / Accepted
-P-GUI-07 = Complete / Accepted
-P-RAW-01 = Complete / Accepted
-P-RAW-02 = Complete / Accepted
-P-RAW-03 = Complete / Accepted
-P-RAW-04 = Complete / Accepted
-P-RAW-05 = Complete / Accepted
-Next = P-RAW-06 RAW Grounding acceptance / compatibility / documentation
+
+P-GUI-01..07 = Complete / Accepted
+P-RAW-01..06 = Complete / Accepted
+P-GUI-08 = Not Started / Unblocked / Next
+P-RUNTIME-01..06 = Not Started
+P-CLOSE-01 = Not Started
 ```
 
-Phase PのWorkstream優先順位:
+Phase P の Workstream 優先順位は次です。
 
 ```text
 Priority 1: GUI
@@ -44,9 +30,7 @@ Priority 2: RAW Grounding
 Priority 3: Runtime / Qdrant auto-start
 ```
 
-## Current authority
-
-### Phase P planning
+## Phase P planning authority
 
 - Phase P plan: [`phases/P/PHASE_P_MODERNIZATION_PLAN.md`](phases/P/PHASE_P_MODERNIZATION_PLAN.md)
 - Phase P tasks: [`phases/P/PHASE_P_TASKS.md`](phases/P/PHASE_P_TASKS.md)
@@ -54,326 +38,135 @@ Priority 3: Runtime / Qdrant auto-start
 - P-GUI-03R task amendment: [`phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](phases/P/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
 - Project task amendment: [`project/KNOWLEDGE_BASE_REDESIGN_TASKS_PHASE_P_AMENDMENT.md`](project/KNOWLEDGE_BASE_REDESIGN_TASKS_PHASE_P_AMENDMENT.md)
 
-### P-GUI-01 accepted authority
+## Accepted GUI authority
 
-- GUI requirements: [`../requirements/GUI_REQUIREMENTS.md`](../requirements/GUI_REQUIREMENTS.md)
-- GUI compatibility / safety decision: [`../decisions/P_GUI_COMPATIBILITY_AND_SAFETY_CONTRACT.md`](../decisions/P_GUI_COMPATIBILITY_AND_SAFETY_CONTRACT.md)
+### P-GUI-01
+
+- Requirements: [`../requirements/GUI_REQUIREMENTS.md`](../requirements/GUI_REQUIREMENTS.md)
+- Compatibility / safety decision: [`../decisions/P_GUI_COMPATIBILITY_AND_SAFETY_CONTRACT.md`](../decisions/P_GUI_COMPATIBILITY_AND_SAFETY_CONTRACT.md)
 - CLI ↔ GUI capability matrix: [`../reference/GUI_CLI_CAPABILITY_MATRIX.md`](../reference/GUI_CLI_CAPABILITY_MATRIX.md)
 
-### P-GUI-02 accepted authority
+### P-GUI-02
 
 - Architecture / packaging / license review: [`../evaluation/P_GUI_02_PYSIDE6_ARCHITECTURE_PACKAGING_LICENSE_REVIEW.md`](../evaluation/P_GUI_02_PYSIDE6_ARCHITECTURE_PACKAGING_LICENSE_REVIEW.md)
 - Decision: [`../decisions/P_GUI_PYSIDE6_APPLICATION_PACKAGING_LICENSE_DECISION.md`](../decisions/P_GUI_PYSIDE6_APPLICATION_PACKAGING_LICENSE_DECISION.md)
 - Application architecture: [`../design/P_GUI_APPLICATION_ARCHITECTURE.md`](../design/P_GUI_APPLICATION_ARCHITECTURE.md)
 - Distribution / license checklist: [`../operations/P_GUI_DISTRIBUTION_AND_LICENSE_CHECKLIST.md`](../operations/P_GUI_DISTRIBUTION_AND_LICENSE_CHECKLIST.md)
 
-### P-GUI-03 / P-GUI-03R accepted authority
+### P-GUI-03 / P-GUI-03R
 
 - Application boundary audit: [`../evaluation/P_GUI_03_APPLICATION_BOUNDARY_AUDIT.md`](../evaluation/P_GUI_03_APPLICATION_BOUNDARY_AUDIT.md)
-- 67-operation boundary matrix: [`../reference/GUI_APPLICATION_BOUNDARY_MATRIX.md`](../reference/GUI_APPLICATION_BOUNDARY_MATRIX.md)
-- Transport-neutral Decision: [`../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md`](../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md)
+- Boundary matrix: [`../reference/GUI_APPLICATION_BOUNDARY_MATRIX.md`](../reference/GUI_APPLICATION_BOUNDARY_MATRIX.md)
+- Transport-neutral decision: [`../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md`](../decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md)
 - Refactor plan: [`../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md`](../design/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_REFACTOR_PLAN.md)
-- P-GUI-03R implementation result: [`../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
-- R9 final acceptance: [`../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md`](../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md)
+- Implementation: [`../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
+- Final R9 acceptance: [`../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md`](../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md)
 
-### P-GUI-04 accepted authority
+### P-GUI-04..07
 
-- Implementation / final acceptance: [`../evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md`](../evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md)
+- P-GUI-04 implementation / acceptance: [`../evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md`](../evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md)
+- P-GUI-05 implementation: [`../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md`](../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md)
+- P-GUI-05 automated acceptance: [`../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md`](../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md)
+- P-GUI-05 interactive acceptance: [`../evaluation/P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md`](../evaluation/P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md)
+- P-GUI-06 implementation: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
+- P-GUI-06 automated acceptance: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md)
+- P-GUI-06 interactive acceptance: [`../evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md`](../evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md)
+- P-GUI-07 design: [`../design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md`](../design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md)
+- P-GUI-07 implementation: [`../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md`](../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md)
+- P-GUI-07 automated acceptance: [`../evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
+- P-GUI-07 interactive acceptance: [`../evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md`](../evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md)
 
-### P-GUI-05 accepted authority
+## Accepted RAW Grounding authority
 
-- Final implementation record: [`../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md`](../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md)
-- Final automated verification: [`../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md`](../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md)
-- Final interactive acceptance: [`../evaluation/P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md`](../evaluation/P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md)
+### P-RAW-01 — impact survey
 
-### P-GUI-06 accepted authority
+- [`../evaluation/P_RAW_01_CURRENT_EVIDENCE_PACKAGE_RESULT_IMPACT_SURVEY.md`](../evaluation/P_RAW_01_CURRENT_EVIDENCE_PACKAGE_RESULT_IMPACT_SURVEY.md)
 
-- Final implementation: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
-- Final automated verification — Attempt 09: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md)
-- Final interactive acceptance: [`../evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md`](../evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md)
-- Search mode / Semantic runtime coupling remediation: [`../evaluation/P_GUI_06_SEMANTIC_RUNTIME_MODE_COUPLING_REMEDIATION.md`](../evaluation/P_GUI_06_SEMANTIC_RUNTIME_MODE_COUPLING_REMEDIATION.md)
-- From/To removal: [`../evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md`](../evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md)
+### P-RAW-02 — deterministic Evidence -> Raw provenance
 
-P-GUI-06 final automated evidence:
+- [`../design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md`](../design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md)
 
-```text
-focused regression = 29 / 29 PASS
-Ruff               = PASS
-full regression    = 818 / 818 PASS
-known local-Qdrant warnings = 2
-```
+### P-RAW-03 — Package v2
 
-```text
-P-GUI-06 = Complete / Accepted
-```
+- [`../design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md`](../design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md)
 
-### P-GUI-07 accepted authority
+### P-RAW-04 — Result v2
 
-- Design: [`../design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md`](../design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md)
-- Final implementation: [`../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md`](../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md)
-- Automated verification — Attempt 01: [`../evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
-- Final interactive acceptance: [`../evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md`](../evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md)
+- [`../design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md`](../design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md)
 
-Final automated verification:
-
-```text
-focused GUI gate = 34 / 34 PASS
-Ruff             = PASS
-full regression  = 823 / 823 PASS
-warnings         = 2 known local-Qdrant warnings
-```
-
-Final interactive smoke completed with no problem reported in the exercised scope.
-
-```text
-P-GUI-07 = Complete / Accepted
-```
-
-### P-RAW-01 accepted authority
-
-- Impact survey: [`../evaluation/P_RAW_01_CURRENT_EVIDENCE_PACKAGE_RESULT_IMPACT_SURVEY.md`](../evaluation/P_RAW_01_CURRENT_EVIDENCE_PACKAGE_RESULT_IMPACT_SURVEY.md)
-
-P-RAW-01 confirms that the Raw Grounding redesign primarily affects the external exchange / grounding boundary.
-
-Breaking v1 assumptions:
-
-```text
-Evidence Markdown as authoritative external semantic payload
-included_evidence_ids as the complete grounding membership authority
-Evidence-ID-only analysis instructions
-Evidence-ID-only Result grounding
-Evidence-only Package membership validation
-```
-
-Migration-required areas:
-
-```text
-Evidence -> Raw deterministic provenance resolution
-Raw membership / Package audit trace
-budget / preflight / egress coverage
-review grounding presentation
-import grounding persistence / accepted provenance
-v1/v2 receive / validation routing
-tests / benchmark fixtures / operations documentation
-```
-
-The survey explicitly requires versioned v1/v2 semantics: legacy Evidence-grounded artifacts must not be silently interpreted as Raw-grounded artifacts.
-
-```text
-P-RAW-01 = Complete / Accepted
-```
-
-### P-RAW-02 accepted authority
-
-- Provenance resolution contract: [`../design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md`](../design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md)
-
-P-RAW-02 fixes the deterministic resolution scope to the complete Raw input set of each selected Evidence's own Normalization Run:
-
-```text
-resolution_scope = normalization_run_inputs
-Evidence -> own run -> ALL run inputs
-```
-
-Accepted rules:
-
-```text
-all run input Raw Artifacts are provenance-required
-same-Snapshot non-input Raw Artifacts are excluded by default
-Package-level identity dedup uses artifact_id
-Evidence -> Raw mapping edges are always retained
-same-hash distinct artifact IDs remain distinct provenance identities
-historical Evidence always resolves through its original run
-current effective generation is not a substitution source
-artifact kind / path / filename / media type are not provenance-selection heuristics
-missing / changed / inconsistent Raw fails closed
-byte-size and SHA-256 are reverified before egress
-Evidence Markdown fallback is prohibited
-partial covering sets cannot be reported as complete provenance
-```
-
-The current schema does not prove an exact per-Evidence Raw subset or byte range. The accepted baseline therefore uses the Normalization Run input set as the `Raw Input Covering Set` rather than inventing finer-grained provenance.
-
-Provenance resolution and Package materialization are separate responsibilities. P-RAW-03 may apply media / budget / privacy / secret / egress rules, but those rules must not silently rewrite the provenance graph.
-
-```text
-P-RAW-02 = Complete / Accepted
-```
-
-### P-RAW-03 accepted authority
-
-- RAW-bearing Package v2 design: [`../design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md`](../design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md)
-
-P-RAW-03 fixes a new versioned Package family rather than changing v1 semantics:
-
-```text
-Package schema     = sgokb.object-evidence-package/2.0
-schema ID          = urn:sgokb:schema:object-evidence-package:2.0
-instructions       = sgokb.object-analysis/2.0
-expected Result    = sgokb.object-result/2.0
-Raw grounding      = sgokb.raw-grounding/1.0
-resolver contract  = sgokb.evidence-to-raw/1.0
-```
-
-Package v2 carries exact Raw bytes at deterministic safe paths such as:
-
-```text
-raw/artifact_0001/payload
-```
-
-and does not emit reconstructed `evidence/source_*.md` as semantic material.
-
-Evidence remains the selection/provenance trace. Raw grounding membership authority becomes:
-
-```text
-manifest.raw_grounding.included_raw_artifact_ids
-```
-
-Every selected Evidence has a direct binding to its complete P-RAW-02 Raw Input Covering Set. Raw payloads are deduplicated by `artifact_id`, but mapping edges are never dropped and same-hash distinct IDs are not collapsed.
-
-The design also separates Evidence selection budget from Raw materialization budget, applies media/size/credential/integrity policy without mutating provenance, and adds `grounding_set_sha256` as a stable Raw membership/material fingerprint alongside Package-instance `manifest_sha256`.
-
-v1 and v2 require explicit version dispatch. No Raw failure may silently downgrade to Evidence Markdown or reinterpret a v1 artifact under v2 rules.
-
-P-RAW-03 reserves `sgokb.object-result/2.0` as the expected Result family. P-RAW-04 defines its exact Raw grounding-reference representation and accepted-provenance persistence design.
-
-```text
-P-RAW-03 = Complete / Accepted
-```
-
-### P-RAW-04 accepted authority
-
-- Raw-grounded Object Result v2 design: [`../design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md`](../design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md)
-
-P-RAW-04 fixes Result v2 as:
-
-```text
-Result schema      = sgokb.object-result/2.0
-schema ID          = urn:sgokb:schema:object-result:2.0
-grounding target   = Package-member raw_artifact_id
-grounding field    = grounding[]
-```
-
-Result v2 does not emit `evidence_id` as claim grounding. Evidence remains upstream selection/provenance lineage in the Package manifest.
-
-Optional Raw locator precision is deliberately narrow and mechanically verifiable:
-
-```text
-byte_range
-text_quote
-```
-
-Invalid asserted precision is a validation error; locator may be omitted.
-
-Binding adds `grounding_contract` and `grounding_set_sha256`, so membership validation is against the exact audited Package Raw set. A canonical Raw Artifact outside that Package remains illegal even if its hash matches another member.
-
-Accepted persistence model keeps the grounding families separate:
-
-```text
-v1 -> evidence_links
-v2 -> raw_grounding_links
-```
-
-No Result v2 import may synthesize `evidence_links` from Package Evidence->Raw mappings.
-
-To preserve historical carry-forward after a v2 Version becomes current, SGOKB uses the accepted Raw grounding set plus the originating Package's preserved Evidence->Raw selection bindings to recover conservative carry-forward Evidence candidates. Those Evidence IDs remain selection lineage only and are resolved through their original historical Normalization Runs under P-RAW-02.
-
-Normal migration direction is one-way at the current-Version boundary:
-
-```text
-v1 -> v2 supported
-v2 -> v1 blocked by default
-```
-
-Review/diff must separately report Knowledge-content changes and grounding changes so a grounding-model migration is not mislabeled as destructive Knowledge deletion.
-
-```text
-P-RAW-04 = Complete / Accepted
-```
-
-### P-RAW-05 accepted authority
+### P-RAW-05 — implementation / verification
 
 - Implementation: [`../evaluation/P_RAW_05_RAW_GROUNDING_IMPLEMENTATION.md`](../evaluation/P_RAW_05_RAW_GROUNDING_IMPLEMENTATION.md)
-- Verification Attempt 01: [`../evaluation/P_RAW_05_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_RAW_05_VERIFICATION_ATTEMPT_01.md) — historical FAIL / remediation record
-- Verification Attempt 02: [`../evaluation/P_RAW_05_VERIFICATION_ATTEMPT_02.md`](../evaluation/P_RAW_05_VERIFICATION_ATTEMPT_02.md) — final PASS / acceptance
+- Historical verification failure/remediation: [`../evaluation/P_RAW_05_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_RAW_05_VERIFICATION_ATTEMPT_01.md)
+- Final acceptance: [`../evaluation/P_RAW_05_VERIFICATION_ATTEMPT_02.md`](../evaluation/P_RAW_05_VERIFICATION_ATTEMPT_02.md)
 
-P-RAW-05 implements and verifies the complete additive Raw-grounding v2 path while retaining the legacy v1 exchange path.
+### P-RAW-06 — operational acceptance / compatibility / documentation
 
-Final automated evidence:
+- Requirements: [`../requirements/RAW_GROUNDING_REQUIREMENTS.md`](../requirements/RAW_GROUNDING_REQUIREMENTS.md)
+- Compatibility / cutover decision: [`../decisions/P_RAW_06_RAW_GROUNDING_CUTOVER_DECISION.md`](../decisions/P_RAW_06_RAW_GROUNDING_CUTOVER_DECISION.md)
+- Accepted external-AI boundary: [`../design/P_RAW_06_ACCEPTED_EXTERNAL_AI_BOUNDARY.md`](../design/P_RAW_06_ACCEPTED_EXTERNAL_AI_BOUNDARY.md)
+- Operator workflow: [`../operations/P_RAW_06_RAW_GROUNDING_WORKFLOW.md`](../operations/P_RAW_06_RAW_GROUNDING_WORKFLOW.md)
+- Final acceptance: [`../evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md`](../evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md)
 
-```text
-focused P-RAW/v1 regression = 91 / 91 PASS
-migration regression        = 56 / 56 PASS
-Ruff                        = PASS
-full regression             = 827 / 827 PASS
-warnings                    = 2 known local-Qdrant warnings
-```
-
-The accepted implementation includes Migration 019 Raw persistence, Migration 020 accepted-grounding compatibility, deterministic Evidence -> Raw resolution, Package v2, Result v2, version-dispatched validation/review/import, Raw-aware accepted provenance, historical carry-forward, and v1/v2 compatibility enforcement.
+Final P-RAW-06 gate:
 
 ```text
-P-RAW-05 = Complete / Accepted
+P-RAW-06 focused acceptance       = 6 / 6 PASS
+P-RAW / legacy v1 exchange gate   = 91 / 91 PASS
+Ruff src/tests                    = PASS
+full repository regression        = 833 / 833 PASS
+warnings                          = 2 known local-Qdrant warnings
+GitHub Actions run                = 40937273709
 ```
 
-### Current released system
-
-Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
-
-P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-05 are accepted development baselines.
-
-## Phase P GUI architecture
+Accepted compatibility / cutover boundary:
 
 ```text
-Framework             = PySide6 / Qt Widgets
-CLI/GUI boundary      = shared Application / Service layer
-GUI backend           = QObject worker on dedicated QThread
-SQLite                = Repository per operation, created in worker thread
-Backend concurrency   = serialized per Workspace initially
-Semantic runtime      = native stack preloaded on main thread; model lazy-cached in backend
-Operation UX          = session Operation Center + safety metadata
-Windows deployment    = pyside6-deploy / Nuitka
-Deployment mode       = standalone directory / portable ZIP
-Qt linking            = dynamic / separate shared libraries
+Package v2 / Result v2 = accepted Raw-grounded external AI boundary
+v1 current -> v2 update = supported
+v2 current -> v2 update = supported
+v2 current -> v1 update = blocked by default
+Result v2 -> fabricated Evidence claim links = forbidden
+Phase P Raw operation = explicit --package-version v2
+no-option package default = v1 until P-CLOSE-01 release/default decision
 ```
 
-Application boundary:
+Therefore:
 
 ```text
-CLI parser / GUI worker
-        ↓
-OperationRequest
-        ↓
-OperatorSession
-        ↓
-Application facades
-        ↓
-Repository / Retrieval / Exchange
+P-RAW-01..06 = Complete / Accepted
+P-RAW workstream = Complete / Accepted for Phase P
+P-GUI-08 = Unblocked
 ```
 
-## Workstream B — RAW Grounding
-
-Evidence remains the retrieval / selection unit, while External AI semantic material moves from reconstructed Evidence Markdown to exact Raw Artifacts traced through provenance.
-
-P-RAW-01 through P-RAW-05 are accepted. The next task is P-RAW-06, which performs formal RAW Grounding operational acceptance, compatibility/cutover disposition, real-Object end-to-end acceptance, and documentation closure.
-
-`P-GUI-08` remains blocked until completion of `P-RAW-01..P-RAW-06`.
-
-## Workstream C — Runtime
-
-Windows login should make Qdrant automatically available. Qdrant remains an independent shared runtime rather than a GUI-owned process.
-
-`P-GUI-09` depends on `P-RUNTIME-03`, so that GUI task remains unavailable until the runtime workstream advances.
-
-## Phase P task families
+## Phase P architecture summary
 
 ```text
-P-GUI-01 .. P-GUI-10
-P-RAW-01 .. P-RAW-06
-P-RUNTIME-01 .. P-RUNTIME-06
-P-CLOSE-01
+GUI framework          = PySide6 / Qt Widgets
+CLI/GUI boundary       = shared Application / Service layer
+GUI backend            = QObject worker on dedicated QThread
+SQLite                 = Repository per operation in worker thread
+Backend concurrency    = serialized per Workspace initially
+Qdrant                 = independent shared runtime
+Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 ```
+
+## Remaining workstreams
+
+### GUI
+
+`P-GUI-08` is now unblocked and is the next task. `P-GUI-09` additionally depends on `P-RUNTIME-03`; `P-GUI-10` is the final GUI parity / regression acceptance task.
+
+### Runtime
+
+`P-RUNTIME-01..06` remain Not Started. The target is Windows-login automatic Qdrant availability while keeping Qdrant an independent shared runtime rather than a GUI-owned child process.
+
+### Closure
+
+`P-CLOSE-01` owns full Phase P regression, documentation/release integration, and the final decision on the no-option Package version default.
 
 ## Next
 
 ```text
-P-RAW-06 — RAW Grounding acceptance / compatibility / documentation
+P-GUI-08 — Package / Result GUI
 ```
