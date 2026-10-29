@@ -117,7 +117,7 @@ class EvidenceRawResolver:
             snapshot = provenance.snapshot
             raw_rows = store.normalization_input_raw_artifacts(evidence.run_id)
             raw_ids = tuple(sorted(str(row["id"]) for row in raw_rows))
-            if raw_ids != tuple(sorted(provenance.artifact_ids)):
+            if raw_ids != tuple(sorted(provenance.raw_artifact_ids)):
                 raise ValueError(
                     f"Evidence Raw covering set differs from canonical provenance: {evidence_id}"
                 )

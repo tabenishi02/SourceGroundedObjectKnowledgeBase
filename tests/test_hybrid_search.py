@@ -258,7 +258,7 @@ def test_migration_016_fts_tracks_search_representations(repo):
         (representation_id,),
     )
     assert row["content"] == "仲間を守るため自己犠牲を選ぶ"
-    assert repo.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 18
+    assert repo.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 20
 
 
 def test_vector_builder_uses_membership_points_for_reused_representation(repo, space):

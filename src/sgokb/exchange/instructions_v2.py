@@ -1,5 +1,7 @@
 """Package-local analysis instructions for Raw-grounded Package v2."""
 
+# ruff: noqa: E501
+
 from __future__ import annotations
 
 from dataclasses import dataclass

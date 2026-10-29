@@ -43,14 +43,18 @@ def build_object_result_schema_v2(
     if contract is None:
         return schema
 
-    target = schema["properties"]["target"]["properties"]
+    # The v2 top-level target/binding/knowledge properties are $ref nodes. Apply
+    # contract specialization to their canonical $defs rather than assuming the
+    # referenced object schema is inline at the top level.
+    definitions = schema["$defs"]
+    target = definitions["target"]["properties"]
     target["object_id"] = {"type": "string", "const": contract.target_object_id}
     target["primary_class_id"] = {"type": "string", "const": contract.primary_class_id}
     target["additional_class_ids"].update(
         _exact_array_contract(tuple(dict.fromkeys(contract.additional_class_ids)))
     )
 
-    binding = schema["properties"]["binding"]["properties"]
+    binding = definitions["binding"]["properties"]
     for key, value in (
         ("package_id", contract.package_id),
         ("package_schema_version", contract.package_schema_version),
@@ -64,7 +68,7 @@ def build_object_result_schema_v2(
         binding["base_version_id"] = {"type": "null"}
 
     facet_ids = tuple(dict.fromkeys(contract.facet_ids))
-    facets = schema["properties"]["knowledge"]["properties"]["facets"]
+    facets = definitions["knowledge"]["properties"]["facets"]
     facets["minItems"] = len(facet_ids)
     facets["maxItems"] = len(facet_ids)
     if facet_ids:

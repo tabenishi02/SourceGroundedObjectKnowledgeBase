@@ -9,7 +9,7 @@ from .raw_grounding_repository import RawGroundingRepository
 from .registry_proposal_repository import RegistryProposalRepository
 from .result_import_repository import ResultImportRepository
 from .semantic_repository import SemanticRepository
-from .source_repository import SourceRepository
+from .source_retrieval_repository import SourceRepository
 from .version_repository import VersionRepository
 
 __all__ = [

@@ -240,7 +240,7 @@ def test_pre018_populated_migration_preserves_ids_content_vectors_and_fts(
         assert [
             x["version"]
             for x in migrated.rows("SELECT version FROM schema_migrations ORDER BY version")
-        ] == list(range(3, 19))
+        ] == list(range(3, 21))
         for table, rows in before.items():
             assert [
                 tuple(row) for row in migrated.db.execute(f"SELECT * FROM {table} ORDER BY 1")
