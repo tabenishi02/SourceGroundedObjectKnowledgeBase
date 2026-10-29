@@ -28,11 +28,12 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | **Complete / Accepted** | Search / Similarity / Registry / Version GUI; Attempt 09 + interactive PASS |
-| GUI | P-GUI-07 | **Automated Verification PASS / Interactive Smoke Pending** | Progress / error / safety / audit UX |
+| GUI | P-GUI-07 | **Complete / Accepted** | Progress / error / safety / audit UX; automated + interactive PASS |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
 | GUI | P-GUI-10 | Not Started | GUI parity / regression acceptance |
-| RAW | P-RAW-01..06 | Not Started | Raw-grounded exchange redesign / implementation / acceptance |
+| RAW | P-RAW-01 | **Not Started / Next** | Current Evidence Package / Result impact survey |
+| RAW | P-RAW-02..06 | Not Started | Raw-grounded exchange contract / implementation / acceptance |
 | Runtime | P-RUNTIME-01..06 | Not Started | Windows Qdrant auto-start / health / GUI integration |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
@@ -50,13 +51,14 @@ Qt linking            = dynamic / separate shared libraries
 
 GUI is not a CLI subprocess wrapper. Qdrant remains an independent shared runtime.
 
-## P-GUI-01..06 accepted baseline
+## P-GUI-01..07 accepted baseline
 
 ```text
 P-GUI-01..03R = Complete / Accepted
 P-GUI-04      = Complete / Accepted
 P-GUI-05      = Complete / Accepted
 P-GUI-06      = Complete / Accepted
+P-GUI-07      = Complete / Accepted
 ```
 
 P-GUI-06 final evidence:
@@ -74,7 +76,7 @@ Final authority:
 - `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`
 - `docs/evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md`
 
-## P-GUI-07 current implementation
+## P-GUI-07 accepted implementation
 
 P-GUI-07 adds desktop operation safety and observability without changing canonical Application semantics.
 
@@ -100,15 +102,16 @@ Operation Center history is presentation-only session state; canonical Object ev
 
 Safety behavior follows the accepted P-GUI-01 contract: an explicit commit action can be sufficient for ordinary WRITE, while high-impact WRITE, EXTERNAL and MAINTENANCE mutation receive stronger confirmation.
 
-Current authority:
+Final authority:
 
 - Design: `docs/design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md`
 - Implementation: `docs/evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md`
 - Automated verification: `docs/evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
+- Interactive acceptance: `docs/evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md`
 
-## P-GUI-07 automated verification
+## P-GUI-07 final verification
 
-Measured result:
+Measured automated result:
 
 ```text
 focused GUI gate = 34 / 34 PASS
@@ -117,12 +120,12 @@ full regression  = 823 / 823 PASS
 warnings         = 2 known local-Qdrant warnings
 ```
 
-The warning set is unchanged from prior accepted local-Qdrant runs and does not represent a P-GUI-07 regression.
+Interactive smoke completed with no problem reported in the exercised P-GUI-07 scope.
 
 Therefore:
 
 ```text
-P-GUI-07 automated verification = PASS
+P-GUI-07 = Complete / Accepted
 ```
 
 ## Sequencing
@@ -140,21 +143,21 @@ P-GUI-05 Complete / Accepted
         ↓
 P-GUI-06 Complete / Accepted
         ↓
-P-GUI-07 Automated Verification PASS   <- CURRENT
-        ↓ interactive smoke PASS
 P-GUI-07 Complete / Accepted
+        ↓
+P-RAW-01 Current Evidence Package / Result impact survey   <- NEXT
 ```
+
+`P-GUI-08` cannot begin until `P-RAW-01..P-RAW-06` complete. `P-GUI-09` also depends on `P-RUNTIME-03`. Therefore P-RAW-01 is the next executable task consistent with the Phase P priority order.
 
 ## Current authority boundary
 
 Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-P-GUI-01 through P-GUI-06 are accepted development baselines. P-GUI-07 implementation and automated verification are complete, but final acceptance still requires interactive smoke.
+P-GUI-01 through P-GUI-07 are accepted development baselines. The next active workstream is RAW Grounding.
 
 ## Next
 
 ```text
-1. run Operation Center / progress / confirmation / Undo interactive smoke
-2. verify existing Object / Source / Search / Registry workflows remain usable
-3. if PASS, close P-GUI-07 as Complete / Accepted
+P-RAW-01 — Current Evidence Package / Result impact survey
 ```
