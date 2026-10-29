@@ -67,6 +67,17 @@ jobs:
           git add tests
           git commit -m "test: align migration expectations with 019 [skip ci]"
           git push origin HEAD:p-raw-05-verification-remediation
+      - name: Expose validator findings in focused assertion output
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path("tests/test_p_raw_05_raw_grounding_v2.py")
+          text = path.read_text(encoding="utf-8")
+          old = '        assert report.validation_state == "valid"\n'
+          new = '        assert report.validation_state == "valid", report.to_dict()\n'
+          if old not in text:
+              raise SystemExit("Focused validation assertion not found")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
