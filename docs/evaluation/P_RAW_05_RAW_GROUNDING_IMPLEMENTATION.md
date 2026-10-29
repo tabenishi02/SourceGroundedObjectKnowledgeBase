@@ -4,14 +4,16 @@ Updated: 2026-10-30
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-RAW-05 [P0] RAW Grounding implementation`
-- Status: **Implementation Complete / Automated Verification Pending**
+- Status: **Complete / Accepted**
 - Released baseline: `v1.1.0`
 - Design authority:
   - `docs/design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md`
   - `docs/design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md`
   - `docs/design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md`
-- Next gate: focused regression + Ruff + full regression
-- P-RAW-06 remains blocked until this implementation is verified.
+- Verification authority:
+  - `docs/evaluation/P_RAW_05_VERIFICATION_ATTEMPT_01.md` — historical FAIL / remediation record
+  - `docs/evaluation/P_RAW_05_VERIFICATION_ATTEMPT_02.md` — final PASS / acceptance
+- Next task: `P-RAW-06 [P0] RAW Grounding acceptance / compatibility / documentation`
 
 ## 1. Implementation disposition
 
@@ -47,9 +49,10 @@ Added:
 
 ```text
 src/sgokb/migrations/019_raw_grounding_v2.sql
+src/sgokb/migrations/020_raw_grounding_acceptance_gate.sql
 ```
 
-Additive tables:
+Migration 019 adds the Raw-grounding persistence model:
 
 ```text
 package_raw_grounding_metadata
@@ -68,6 +71,8 @@ DB constraints/triggers enforce:
 - statement / attribute / relation target ownership by the same Version;
 - `result_import` origin consistency;
 - terminal accepted/abandoned Version immutability.
+
+Verification exposed one compatibility defect in the pre-existing accepted-statement trigger: it still required `evidence_links` for every accepted Version. Migration 020 replaces that Evidence-only acceptance gate with a version-compatible grounding invariant so v1 remains Evidence-grounded and v2 can be accepted with `raw_grounding_links` without weakening accepted-Version integrity.
 
 ## 3. Evidence -> Raw resolver
 
@@ -97,7 +102,7 @@ Rules implemented:
 - directly-file-backed Raw is accepted only when the file itself matches canonical size/hash;
 - no Evidence-Markdown fallback exists.
 
-`SourceRepository` now exposes canonical Raw lookup and normalization-run input lookup used by the resolver.
+`SourceRepository` exposes canonical Raw lookup and normalization-run input lookup used by the resolver. Verification also restored the previously accepted F-03/J-02 retrieval surface (`metadata_matching_sources`, `evidence_context`, and query-bound lexical FTS behavior) without removing the P-RAW Source/Raw APIs.
 
 ## 4. Package v2 implementation
 
@@ -164,7 +169,7 @@ These are implementation defaults, not a redefinition of provenance.
 
 ## 5. v1/v2 Package dispatch
 
-`PackageExchangeApplication` now dispatches build/stage/preflight/export by explicit Package version.
+`PackageExchangeApplication` dispatches build/stage/preflight/export by explicit Package version.
 
 CLI adds:
 
@@ -253,6 +258,8 @@ Validation checks:
 
 Canonical Raw outside the exact bound Package remains invalid.
 
+Verification corrected the dynamic v2 schema builder so it updates the actual `$defs` targets referenced by the top-level `target`, `binding`, and `knowledge` `$ref` nodes rather than assuming direct top-level `properties`.
+
 ## 8. Review and diff
 
 Added:
@@ -329,23 +336,41 @@ It covers:
 
 The existing full regression suite remains the compatibility authority for Package/Result v1 and all unrelated system behavior.
 
-## 12. Verification state
+## 12. Verification and acceptance
 
-No local test execution is claimed by this implementation record.
+Attempt 01 failed and is preserved as a historical remediation record. Its failures were not waived.
 
-Required gate:
-
-```text
-focused P-RAW/v1 exchange regression
-Ruff src/tests
-full pytest regression
-```
-
-Until those pass:
+Final verification used the remediation branch on Windows Server 2025 with full Git history and Windows checkout semantics. Execution source:
 
 ```text
-P-RAW-05 = Implementation Complete / Automated Verification Pending
-P-RAW-06 = Blocked
+0ce44aee35ad56640dc83f5d5be67621c23cbcd3
+GitHub Actions run 40928904677
 ```
 
-A failing gate reopens P-RAW-05; it must not be waived into P-RAW-06.
+Final gate:
+
+```text
+focused P-RAW/v1 exchange regression = 91 / 91 PASS
+migration remediation regression     = 56 / 56 PASS
+Ruff src/tests                        = PASS
+full pytest regression                = 827 / 827 PASS
+warnings                              = 2 known local-Qdrant warnings
+```
+
+The accepted remediation includes:
+
+- restoration of the SourceRepository F-03/J-02 retrieval contract while preserving Raw APIs;
+- corrected `raw_artifact_ids` provenance access in the Raw resolver;
+- correct Result-v2 `$defs` schema mutation;
+- Migration 020 accepted-grounding compatibility trigger;
+- migration expectation updates through version 020;
+- Ruff cleanup / narrow E501 policy for accepted v2 integrity/transfer expressions.
+
+Therefore:
+
+```text
+P-RAW-05 = Complete / Accepted
+P-RAW-06 = Unblocked / Next
+```
+
+P-RAW-06 owns the remaining real-Object end-to-end Raw acceptance, compatibility/cutover decision, and operator/documentation closure.
