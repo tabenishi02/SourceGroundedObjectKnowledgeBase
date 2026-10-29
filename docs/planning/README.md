@@ -26,8 +26,8 @@ P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
 P-GUI-05 = Complete / Accepted
-P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
-Next = P-GUI-06 interactive GUI smoke acceptance
+P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+Next = verify PyTorch/runtime dependency + refresh P-GUI-06 automated gate
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -70,109 +70,55 @@ Priority 3: Runtime / Qdrant auto-start
 - P-GUI-03R implementation result: [`../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md`](../evaluation/P_GUI_03R_APPLICATION_BOUNDARY_REFACTOR_IMPLEMENTATION.md)
 - R9 final acceptance: [`../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md`](../evaluation/P_GUI_03R_R9_DYNAMIC_VERIFICATION_ATTEMPT_04.md)
 
-Accepted R9 evidence:
-
-```text
-operator-boundary + M01 CLI = 18 / 18 PASS
-M03 standard workflow       = 2 / 2 PASS
-Phase N closure audit       = 11 / 11 PASS
-full pytest                 = 795 / 795 PASS
-ruff                        = All checks passed!
-```
-
 ### P-GUI-04 accepted authority
 
 - Implementation / final acceptance: [`../evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md`](../evaluation/P_GUI_04_GUI_SHELL_WORKSPACE_NAVIGATION_IMPLEMENTATION.md)
-
-P-GUI-04 acceptance evidence:
-
-```text
-focused pytest = 5 / 5 PASS
-full pytest    = 800 / 800 PASS
-ruff           = PASS
-interactive GUI shell / Workspace acceptance = PASS
-```
 
 ### P-GUI-05 accepted authority
 
 - Final implementation record: [`../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md`](../evaluation/P_GUI_05_OBJECT_SOURCE_EVIDENCE_ASSOCIATION_IMPLEMENTATION.md)
 - Final automated verification: [`../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md`](../evaluation/P_GUI_05_DYNAMIC_VERIFICATION_ATTEMPT_07.md)
 - Final interactive acceptance: [`../evaluation/P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md`](../evaluation/P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md)
-- Add Object Class selector improvement: [`../evaluation/P_GUI_05_ADD_OBJECT_CLASS_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_05_ADD_OBJECT_CLASS_SELECTOR_IMPROVEMENT.md)
-- Object Class mutation selector improvement: [`../evaluation/P_GUI_05_OBJECT_CLASS_MUTATION_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_05_OBJECT_CLASS_MUTATION_SELECTOR_IMPROVEMENT.md)
-- Recursive Source ZIP import improvement: [`../evaluation/P_GUI_05_SOURCE_RECURSIVE_ZIP_IMPORT_IMPROVEMENT.md`](../evaluation/P_GUI_05_SOURCE_RECURSIVE_ZIP_IMPORT_IMPROVEMENT.md)
-
-Final P-GUI-05 evidence:
-
-```text
-focused GUI regression = 12 / 12 PASS
-Ruff                   = All checks passed!
-full regression         = 807 / 807 PASS
-visual smoke            = PASS
-functional smoke        = PASS
-P-GUI-05                = Complete / Accepted
-```
 
 ### P-GUI-06 current authority
 
 - Main implementation / interactive procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
-- Current automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md)
-- Current range identity / GUI runtime-state remediation: [`../evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md)
-- Historical Attempt 04 verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md)
-- Historical Attempt 03 fixture/lint failure: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_03.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_03.md)
-- Historical selector/range verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_02.md)
-- Historical pre-amendment verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
+- **Current remediation authority**: [`../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md)
+- Historical automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md)
+- Prior range/runtime-state remediation: [`../evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md)
 - Search selector / validity-range amendment: [`../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`](../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md)
 - First validity-range false-negative remediation: [`../evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`](../evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md)
 - Derivation Kind selector improvement: [`../evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md)
 
-P-GUI-06 keeps the 14 assigned operations wired:
+P-GUI-06 keeps all 14 assigned Search / Similarity / Registry / Version / Render operations wired.
+
+Current From/To contract is:
 
 ```text
-Search       1 / 1
-Similarity   1 / 1
-Registry     9 / 9
-Version      2 / 2
-Render       1 / 1
-------------------
-Total       14 / 14
+Registry exact/lexical identity
+  -> canonical name/alias identity discovery
+  -> From/To alone does not remove the result
+
+Knowledge lexical Statement
+  -> From/To temporal-overlap filter
+
+Semantic Statement
+  -> From/To temporal-overlap filter
 ```
 
-Current Search / Similarity surface includes:
+This restores the frozen R2 rule that `knowledge_valid_at` is Statement-scoped while Registry identity remains discoverable independently of Knowledge.
 
-- Lexical / Semantic / Hybrid Search;
-- Registry-backed Primary / Additional / Ancestor Class dropdowns;
-- Facet / Version / Temporal Scope selectors with editable historical fallback;
-- `Knowledge valid From` / `Knowledge valid To` temporal-overlap range;
-- fixed-value Derivation Kind selector;
-- explicit semantic-runtime / strict full-runtime controls;
-- degraded-channel display;
-- per-request runtime-state reset/failure presentation;
-- Object-scoped Similarity Facet / Version selectors;
-- cross-Class and archived scope controls;
-- no silent local-runtime or cloud fallback.
-
-The final validity-range boundary is:
+Current local semantic dependency contract is:
 
 ```text
-Registry identity eligibility under From/To -> canonical accepted Knowledge
-Knowledge lexical / semantic channels       -> active R2 Search generation
+torch>=2.6,<3
+sentence-transformers>=6.1,<7
+transformers>=5.2,<6
 ```
 
-The remediation covers both stale derived-generation and Statement-less accepted-Version identity false negatives. Statement-specific Facet / Derivation Kind / Temporal Scope filters remain strict.
+The observed `name 'nn' is not defined` is treated as a local semantic-runtime dependency failure rather than an internal SGOKB error. Existing venvs may require an explicit PyTorch upgrade; a Git pull does not mutate installed packages.
 
-Current Registry / Version / Render surface remains:
-
-- Class list/detail;
-- Relation Type list/detail;
-- Registry Proposal list/detail / decision filter;
-- Accept / Reject separate from Apply;
-- explicit Apply confirmation;
-- Version Show;
-- structured / Markdown Version Diff;
-- Object/Version render/export and generated Markdown preview.
-
-Current automated evidence from Attempt 05:
+Historical Attempt 05 evidence was:
 
 ```text
 focused P-GUI-04 / 05 / 06 regression = 31 / 31 PASS
@@ -181,19 +127,19 @@ full regression                        = 826 / 826 PASS
 known local-Qdrant warnings            = 2
 ```
 
-The focused gate includes the Statement-less range identity regression, GUI runtime-state regression, and real in-memory Qdrant + R2 generation + From/To semantic regression. Attempt 03 remains historical fixture/lint failure evidence; Attempt 04 remains the prior successful authority before the latest interactive remediation.
+That result predates the latest contract/runtime changes and is not current closure authority.
 
 Current status:
 
 ```text
-P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
 ```
 
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed the current automated gate and remains pending interactive acceptance. These tasks do not by themselves advance the formal release version.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 remains open until the latest remediation passes automated verification and interactive acceptance.
 
 ## Phase P GUI decisions so far
 
@@ -249,20 +195,10 @@ P-RUNTIME-01 .. P-RUNTIME-06
 P-CLOSE-01
 ```
 
-## Document placement rules
-
-1. 全Phase共通の進捗 / project-wide handoff → `project/`
-2. Phase単位のstatus / preparation / closure / task authority → `phases/<Phase>/`
-3. 特定Taskに複数文書が増える場合 → `phases/<Phase>/<Task>/`
-4. 一時的な実行handoff → 対象Task配下の`execution/`
-5. 結果・調査報告 → `docs/evaluation/`
-6. 設計Decision → `docs/decisions/`
-7. 実装設計 → `docs/design/`
-8. operator手順 / operational safety → `docs/operations/`
-9. Release Note / compatibility boundary → `docs/releases/`
-
 ## Next
 
 ```text
-P-GUI-06 — interactive GUI smoke acceptance
+1. verify / correct operator PyTorch version
+2. refresh P-GUI-06 automated verification
+3. repeat From/To and Semantic-runtime interactive smoke
 ```
