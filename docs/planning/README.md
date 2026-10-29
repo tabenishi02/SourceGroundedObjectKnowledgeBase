@@ -26,8 +26,8 @@ P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
 P-GUI-05 = Complete / Accepted
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
-Next = verify Semantic Search mode / runtime coupling remediation
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+Next = finish P-GUI-06 interactive smoke after Semantic runtime coupling remediation
 ```
 
 Phase PのWorkstream優先順位:
@@ -83,10 +83,11 @@ Priority 3: Runtime / Qdrant auto-start
 ### P-GUI-06 current authority
 
 - Main implementation / interactive procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
-- **Current remediation — Search mode / Semantic runtime coupling**: [`../evaluation/P_GUI_06_SEMANTIC_RUNTIME_MODE_COUPLING_REMEDIATION.md`](../evaluation/P_GUI_06_SEMANTIC_RUNTIME_MODE_COUPLING_REMEDIATION.md)
+- **Current automated verification — Attempt 09**: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md)
+- Current remediation — Search mode / Semantic runtime coupling: [`../evaluation/P_GUI_06_SEMANTIC_RUNTIME_MODE_COUPLING_REMEDIATION.md`](../evaluation/P_GUI_06_SEMANTIC_RUNTIME_MODE_COUPLING_REMEDIATION.md)
 - Current amendment — From/To removal: [`../evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md`](../evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md)
-- Latest historical automated verification — Attempt 08: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_08.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_08.md)
 - Semantic GUI crash remediation: [`../evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`](../evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md)
+- Historical post-removal automated verification — Attempt 08: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_08.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_08.md)
 - Historical pre-removal automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md)
 - Historical range/runtime remediation: [`../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md)
 - Historical range selector amendment: [`../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`](../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md)
@@ -107,7 +108,7 @@ Derivation Kind
 Include archived Objects
 ```
 
-The experimental GUI From/To date range remains removed. Search mode and runtime are now coupled:
+The experimental GUI From/To date range remains removed. Search mode and runtime are coupled:
 
 ```text
 Lexical  -> semantic runtime OFF / disabled
@@ -115,7 +116,7 @@ Semantic -> semantic runtime ON / disabled
 Hybrid   -> semantic runtime ON by default; explicit opt-out remains available
 ```
 
-The previous independent controls allowed `mode=semantic` with `semantic_runtime=false`, which correctly failed with a missing EmbeddingProvider/VectorIndexAdapter error. The GUI now prevents that contradictory request and enforces the same contract again in `run_search()`.
+The previous independent controls allowed `mode=semantic` with `semantic_runtime=false`, which failed with a missing EmbeddingProvider/VectorIndexAdapter error. The GUI now prevents that contradictory request and enforces the contract again in `run_search()`.
 
 Current local semantic dependency contract remains:
 
@@ -127,28 +128,28 @@ transformers>=5.2,<6
 
 GUI startup still preloads the native ML stack on the Qt main thread before the backend QThread starts. The Harrier model remains lazy.
 
-Attempt 08 historical automated evidence:
+Attempt 09 current automated evidence:
 
 ```text
-focused regression = 28 / 28 PASS
+focused regression = 29 / 29 PASS
 Ruff               = PASS
-full regression    = 817 / 817 PASS
+full regression    = 818 / 818 PASS
 known local-Qdrant warnings = 2
 ```
 
-Attempt 08 predates the Search mode/runtime coupling correction and is no longer current closure authority.
+Attempt 09 supersedes Attempt 08 as current automated closure authority because it verifies the later Search mode/runtime coupling correction.
 
 Current status:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
 
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 remains open until refreshed automated verification and the remaining interactive smoke pass.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 automated verification is PASS; the refreshed interactive smoke is the remaining closure gate.
 
 ## Phase P GUI architecture
 
@@ -198,10 +199,9 @@ P-CLOSE-01
 ## Next
 
 ```text
-1. refresh P-GUI-06 focused + Ruff gate
-2. refresh full regression
-3. re-run Semantic Search; runtime must be requested automatically
-4. re-run Hybrid Search; semantic channel is attempted by default
-5. finish Similarity / Registry / Version / Render smoke
-6. if all PASS, close P-GUI-06 as Complete / Accepted
+1. re-run Semantic Search; runtime must be requested automatically
+2. re-run Hybrid Search; semantic channel is attempted by default
+3. confirm Lexical keeps Semantic runtime OFF
+4. finish Similarity / Registry / Version / Render smoke
+5. if all PASS, close P-GUI-06 as Complete / Accepted
 ```
