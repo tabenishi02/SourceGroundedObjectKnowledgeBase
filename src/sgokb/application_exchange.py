@@ -12,7 +12,7 @@ from .exchange.package_transfer_v2 import RawPackageTransferService
 from .exchange.raw_package_builder import ObjectRawPackageBuilder
 from .exchange.result_import import ObjectVersionImportService
 from .exchange.result_receipt import DEFAULT_INCOMING_ROOT, ResultReceiptService
-from .exchange.result_validation import ResultValidationService
+from .exchange.result_validation_router import VersionedResultValidationService
 from .review import DiffReviewService
 from .storage import PackageExchangeAuditRepository, RawGroundingRepository
 
@@ -151,7 +151,7 @@ class ResultExchangeApplication:
         incoming_root: str | Path = DEFAULT_INCOMING_ROOT,
         force: bool = False,
     ):
-        return ResultValidationService(self.repository, self.audit).validate_receipt(
+        return VersionedResultValidationService(self.repository, self.audit).validate_receipt(
             receipt_id,
             incoming_root=Path(incoming_root),
             force=force,
