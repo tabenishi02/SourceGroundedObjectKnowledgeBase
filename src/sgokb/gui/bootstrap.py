@@ -9,6 +9,8 @@ from typing import Sequence
 from PySide6.QtCore import QCoreApplication, QSettings
 from PySide6.QtWidgets import QApplication
 
+from sgokb.runtime import preload_local_semantic_native_dependencies
+
 from .views import MainWindow
 from .worker import BackendCoordinator
 from .workspace import WorkspaceSettings
@@ -39,6 +41,12 @@ def create_runtime(
     QCoreApplication.setOrganizationDomain("sgokb.local")
     QCoreApplication.setApplicationName("SGOKB")
     QCoreApplication.setApplicationVersion("1.1.0")
+
+    # Load PyTorch / Transformers / Sentence Transformers native modules on the
+    # Qt main thread before BackendCoordinator starts its worker QThread. Any
+    # ordinary dependency failure is cached and surfaced only if Semantic runtime
+    # is requested; GUI startup itself remains available for lexical workflows.
+    preload_local_semantic_native_dependencies()
 
     workspace_settings = WorkspaceSettings(settings)
     backend = BackendCoordinator()
