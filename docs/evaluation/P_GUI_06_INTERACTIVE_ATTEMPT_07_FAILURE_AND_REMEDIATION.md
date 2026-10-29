@@ -4,7 +4,8 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
-- Status: **Interactive FAIL / Remediation Implemented / Automated Re-verification Pending**
+- Status: **Interactive FAIL Recorded / Remediation Implemented / Automated Verification PASS / Interactive Re-smoke Pending**
+- Current automated authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`
 - Previous automated authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md`
 
 ## Interactive observations
@@ -26,7 +27,7 @@ GPU              = NVIDIA GeForce RTX 4090
 pip check        = No broken requirements found
 ```
 
-Therefore the Attempt 06 automated PASS is historical evidence only and is not closure authority.
+Therefore Attempt 06 remains historical automated evidence only and is not closure authority.
 
 ## A. Range identity defect still present
 
@@ -34,7 +35,7 @@ The prior implementation moved the From/To boundary toward the frozen R2 contrac
 
 That means an Object with no current accepted Version could be discovered normally by Registry lexical search but disappear only when From/To was supplied.
 
-This still violates the frozen contract:
+This still violated the frozen contract:
 
 ```text
 Registry name / alias identity discovery
@@ -62,9 +63,7 @@ This is stronger and simpler than converting Registry rows into range-eligible V
 
 The Python-level `nn` dependency failure from the previous attempt was corrected, but the operator then observed a process-level GUI crash when Semantic runtime was enabled.
 
-SGOKB currently constructs the semantic runtime lazily from the backend Qt worker thread. On Windows this means the first import/loading of PyTorch / Transformers / Sentence Transformers native components may happen off the main thread.
-
-Recent external Windows reports show that first loading a local embedding/native ML backend from a worker thread can fail below Python's exception boundary; moving the native import to the main thread before worker startup avoids that loader/thread boundary.
+SGOKB previously constructed the semantic runtime lazily from the backend Qt worker thread. On Windows this meant the first import/loading of PyTorch / Transformers / Sentence Transformers native components could happen off the main thread.
 
 ### Remediation
 
@@ -104,20 +103,37 @@ New coverage proves:
 
 Existing Attempt 06 coverage remains relevant for accepted-Version range identity, runtime error normalization, real Qdrant range semantics, and GUI request state.
 
+## Automated re-verification
+
+Attempt 07 measured:
+
+```text
+focused regression = 42 / 42 PASS
+Ruff               = All checks passed!
+full regression    = 831 / 831 PASS
+warnings           = 2 known local-Qdrant warnings
+```
+
+Authority:
+
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`
+
+The new production-path and preload-order regressions both passed.
+
 ## Current disposition
 
 ```text
 Attempt 06 automated gate           = Historical PASS
-Attempt 07 interactive From/To      = FAIL
-Attempt 07 interactive semantic GUI = CRASH
+Attempt 07 interactive From/To      = FAIL, historical observation
+Attempt 07 interactive semantic GUI = CRASH, historical observation
 R2 unversioned identity defect      = Remediated
-GUI native first-load boundary      = Remediated / verification pending
-automated re-verification           = Pending
+GUI native first-load boundary      = Remediated
+Attempt 07 automated re-verification= PASS
 interactive re-smoke                = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
