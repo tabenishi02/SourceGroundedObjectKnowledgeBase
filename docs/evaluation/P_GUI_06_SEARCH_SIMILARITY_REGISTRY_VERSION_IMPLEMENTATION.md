@@ -8,7 +8,8 @@ Updated: 2026-10-29
 - Baseline: P-GUI-05 **Complete / Accepted**
 - Task authority: `docs/planning/phases/P/PHASE_P_TASKS.md`
 - Compatibility authority: `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
-- Current automated verification: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md`
+- Current automated verification: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`
+- Current interactive remediation: `docs/evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`
 - Current range/runtime remediation: `docs/evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`
 - Search selector/range authority: `docs/evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`
 - Historical first validity-range remediation: `docs/evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`
@@ -109,6 +110,7 @@ The frozen R2 contract defines the final boundary:
 Registry name / alias identity
     -> canonical identity discovery
     -> From/To alone does not remove the identity result
+    -> no Version or Statement identity is required
 
 Knowledge lexical Statement channel
     -> From/To temporal-overlap filter
@@ -119,9 +121,9 @@ Semantic Statement channel
 
 `knowledge_valid_at`, `temporal_scope_id`, and `derivation_kind` remain Statement-scoped conditions. Facet / Derivation / Temporal Scope combinations therefore still require a matching Statement where their narrowed semantics apply.
 
-Earlier stale-generation and Statement-less exception-based remediations remain historical evidence. The final implementation corrects the underlying identity-vs-Statement contract boundary directly.
+Earlier stale-generation, Statement-less, and Version-pair exception remediations remain historical evidence. The final implementation bypasses Registry re-qualification entirely for From/To-only searches.
 
-### Local semantic runtime dependency
+### Local semantic runtime dependency and GUI preload
 
 The local embedding profile declares:
 
@@ -133,7 +135,7 @@ transformers>=5.2,<6
 
 Dependency initialization failures are normalized to `RetrievalRuntimeUnavailableError`. The known external Transformers failure `name 'nn' is not defined` is reported as a runtime dependency problem with PyTorch guidance rather than `internal/internal_error`.
 
-The verified operator environment for Attempt 06 is:
+The verified operator environment is:
 
 ```text
 PyTorch           = 2.6.0+cu124
@@ -142,6 +144,17 @@ CUDA available    = True
 GPU               = NVIDIA GeForce RTX 4090
 pip check         = No broken requirements found
 ```
+
+After a process-level GUI crash was observed when Semantic runtime was enabled, GUI startup was amended to preload the native ML stack on the Qt main thread before the backend QThread is created:
+
+```text
+QApplication
+    -> preload PyTorch / Transformers / Sentence Transformers native imports
+    -> CUDA availability probe
+    -> BackendCoordinator / backend QThread
+```
+
+The Harrier model remains lazily constructed in the backend lane. Lexical-only GUI startup still works when optional semantic dependencies are unavailable because preload failures are cached and later normalized through the runtime boundary.
 
 ## 3. Similarity GUI
 
@@ -195,11 +208,9 @@ The page supports accepted Version Show and Before / After Version Diff, includi
 
 The page renders current Object Knowledge or an explicit Version to derived Markdown, exposes path/digest/byte metadata, and previews the generated artifact. Render output is not a canonical write surface.
 
-The user request that introduced the Search selector amendment contained an unfinished bullet beginning `Registryタブの`; no unspecified Registry change was inferred.
-
 ## 5. Automated acceptance coverage
 
-P-GUI-06 coverage now includes:
+P-GUI-06 coverage includes:
 
 ```text
 tests/test_p_gui_06_search_registry_version.py
@@ -212,74 +223,35 @@ tests/test_search_validity_range_identity.py
 tests/test_search_validity_range_qdrant_r2.py
 ```
 
-Coverage verifies Registry/Version/Render wiring, selector population, fixed Derivation Kind choices, Object-scoped Similarity choices, GUI From/To request construction, invalid-range rejection, lexical/semantic temporal overlap, one-sided ranges, timeless Statements, Registry identity preservation under non-overlapping From/To, GUI runtime-state reset/failure presentation, runtime dependency normalization, OperatorSession error boundary behavior, GUI end-to-end range Search, real Qdrant + R2 range-semantic execution, and preservation of generation isolation.
+Coverage verifies Registry/Version/Render wiring, selector population, fixed Derivation Kind choices, Object-scoped Similarity choices, GUI From/To request construction, invalid-range rejection, lexical/semantic temporal overlap, one-sided ranges, timeless Statements, Registry identity preservation under non-overlapping From/To, unversioned Object identity preservation on the production `KnowledgeReadApplication` + active R2 generation path, GUI runtime-state reset/failure presentation, runtime dependency normalization, OperatorSession error boundary behavior, main-thread semantic native preload ordering, GUI end-to-end range Search, real local-Qdrant + R2 range-semantic execution, and preservation of generation isolation.
 
 ## 6. Automated verification history
 
-### Attempt 01 — pre-amendment
-
 ```text
-focused regression = 16 / 16 PASS
-Ruff               = PASS
-full pytest         = 811 / 811 PASS
-warnings            = 2 known local-Qdrant warnings
+Attempt 01 = 16 / 16 focused PASS, 811 / 811 full PASS
+Attempt 02 = 18 / 18 focused PASS, 813 / 813 full PASS
+Attempt 03 = 19 passed / 5 failed + Ruff failures; fixture/static defects
+Attempt 04 = 24 / 24 focused PASS, 819 / 819 full PASS
+Attempt 05 = 31 / 31 focused PASS, 826 / 826 full PASS
+Attempt 06 = 40 / 40 focused PASS, 829 / 829 full PASS
+Attempt 07 = 42 / 42 focused PASS, 831 / 831 full PASS
 ```
 
-### Attempt 02 — selector/range baseline
+Interactive testing after Attempt 05 and Attempt 06 exposed defects not covered by their automated gates. Attempt 07 therefore expands coverage to the production R2 unversioned-identity path and GUI native-preload ordering.
+
+Current authority:
+
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`
+- `docs/evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`
+
+Current measured result:
 
 ```text
-focused regression = 18 / 18 PASS
-Ruff               = PASS
-full pytest         = 813 / 813 PASS
-warnings            = 2 known local-Qdrant warnings
-```
-
-### Attempt 03 — historical verification-harness failure
-
-```text
-focused regression = 19 passed / 5 failed
-Ruff               = 7 errors
-```
-
-All five pytest failures occurred in stale-generation fixture setup before the product assertion. Ruff errors were import-order/static-layout defects. Both were remediated; Attempt 03 remains historical evidence.
-
-### Attempt 04 — post first-range-remediation PASS
-
-```text
-focused regression = 24 / 24 PASS
+focused regression = 42 / 42 PASS
 Ruff               = All checks passed!
-full pytest         = 819 / 819 PASS
+full pytest         = 831 / 831 PASS
 warnings            = 2 known local-Qdrant warnings
 ```
-
-Interactive testing after Attempt 04 exposed additional range identity and stale Search runtime presentation defects.
-
-### Attempt 05 — historical PASS before final contract/runtime correction
-
-```text
-focused regression = 31 / 31 PASS
-Ruff               = All checks passed!
-full pytest         = 826 / 826 PASS
-warnings            = 2 known local-Qdrant warnings
-```
-
-Interactive testing after Attempt 05 proved that From/To still hid Registry identity and that Semantic runtime surfaced `name 'nn' is not defined` in the operator environment. Attempt 05 therefore remains historical automated evidence only.
-
-### Attempt 06 — current authority
-
-After correcting the frozen R2 Registry/Statement temporal boundary, adding the PyTorch dependency floor and runtime normalization, and correcting the operator `.venv`, the operator measured:
-
-```text
-focused regression = 40 / 40 PASS
-Ruff               = All checks passed!
-full pytest         = 829 / 829 PASS
-warnings            = 2 known local-Qdrant warnings
-```
-
-Authority:
-
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md`
-- `docs/evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`
 
 Automated disposition:
 
@@ -289,7 +261,7 @@ P-GUI-06 automated verification = PASS
 
 ## 7. Interactive smoke acceptance
 
-Interactive smoke remains the final gate. Confirm at minimum:
+Interactive re-smoke remains the final gate. Confirm at minimum:
 
 ### Search
 
@@ -298,9 +270,9 @@ Interactive smoke remains the final gate. Confirm at minimum:
 - historical values can be typed where the selector is editable;
 - Derivation Kind exposes only the schema-defined fixed values plus `Any`;
 - `Knowledge valid From` / `To` work for bounded and one-sided ranges;
-- Object-name/alias Registry identity remains visible when From/To excludes all Statement valid times;
-- Lexical Search returns expected accepted Objects;
-- Semantic runtime ON does not reproduce the prior `name 'nn' is not defined` failure in the verified `.venv`;
+- Object-name/alias Registry identity remains visible even when the Object has no current accepted Version or the range excludes all Statement valid times;
+- Lexical Search returns expected Objects;
+- Semantic runtime ON no longer crashes the GUI process;
 - Semantic / Hybrid runtime failure or degradation is explicit and reflects the current request rather than stale presentation;
 - `Require full runtime` does not silently degrade;
 - result details render correctly.
@@ -329,7 +301,7 @@ implementation         = Complete
 desk audit             = Complete
 operation wiring       = 14 / 14
 automated acceptance   = PASS
-interactive smoke      = Pending
+interactive re-smoke   = Pending
 ```
 
 Therefore:
