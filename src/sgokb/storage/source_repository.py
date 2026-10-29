@@ -399,6 +399,24 @@ class SourceRepository:
         ).fetchall()
         return tuple(dict(row) for row in rows)
 
+    def raw_artifact_by_id(self, artifact_id: str) -> dict:
+        row = self.db.execute("SELECT * FROM raw_artifacts WHERE id=?", (artifact_id,)).fetchone()
+        if not row:
+            raise ValueError("Unknown Raw Artifact ID")
+        return dict(row)
+
+    def normalization_input_raw_artifacts(self, run_id: str) -> tuple[dict, ...]:
+        rows = self.db.execute(
+            """SELECT a.* FROM normalization_run_artifacts n
+               JOIN raw_artifacts a ON a.id=n.artifact_id
+               WHERE n.run_id=? AND n.role='input'
+               ORDER BY a.id""",
+            (run_id,),
+        ).fetchall()
+        if not rows:
+            raise ValueError("Normalization Run has no input Raw Artifact")
+        return tuple(dict(row) for row in rows)
+
     def create_normalization_run(
         self,
         snapshot_id: str,
@@ -699,7 +717,7 @@ class SourceRepository:
             row["artifact_id"]
             for row in self.db.execute(
                 """SELECT artifact_id FROM normalization_run_artifacts
-                   WHERE run_id=? ORDER BY artifact_id""",
+                   WHERE run_id=? AND role='input' ORDER BY artifact_id""",
                 (evidence.run_id,),
             )
         )
@@ -862,101 +880,65 @@ class SourceRepository:
                      GROUP BY snapshot_id
                    ) x ON x.rid=e.rowid
                )
-               SELECT er.*,bm25(evidence_retrieval_fts) AS lexical_rank_score
-               FROM evidence_retrieval_fts
-               JOIN evidence_records er ON er.rowid=evidence_retrieval_fts.rowid
+               SELECT er.* FROM evidence_records er
                JOIN latest_snapshot s
                  ON s.source_id=er.source_id AND s.snapshot_id=er.snapshot_id
                JOIN latest_run r
                  ON r.snapshot_id=er.snapshot_id AND r.run_id=er.run_id
-               WHERE evidence_retrieval_fts MATCH ?"""
+               WHERE 1=1"""
             + source_filter
-            + " ORDER BY lexical_rank_score,er.id LIMIT ?",
+            + " ORDER BY er.source_id,er.snapshot_id,er.ordinal,er.id LIMIT ?",
             parameters,
         ).fetchall()
         return tuple(dict(row) for row in rows)
 
-    def metadata_matching_sources(self, terms: Iterable[str]) -> dict[str, tuple[str, ...]]:
-        normalized = tuple(dict.fromkeys(term.strip().casefold() for term in terms if term.strip()))
-        if not normalized:
-            return {}
-        rows = self.db.execute(
-            """WITH latest_snapshot AS (
-                 SELECT e.source_id,e.snapshot_id
-                 FROM source_selection_events e
-                 JOIN (
-                   SELECT source_id,max(rowid) AS rid
-                   FROM source_selection_events
-                   WHERE selection_kind='snapshot'
-                   GROUP BY source_id
-                 ) x ON x.rid=e.rowid
-               )
-               SELECT source_id,kind,value FROM (
-                 SELECT id AS source_id,'source_label' AS kind,coalesce(label,'') AS value
-                 FROM source_records WHERE status='active'
-                 UNION ALL
-                 SELECT source_id,'locator:' || kind,value
-                 FROM source_locators WHERE status='active'
-                 UNION ALL
-                 SELECT c.source_id,'classification:' || c.axis,c.value
-                 FROM source_classifications c
-                 LEFT JOIN latest_snapshot s ON s.source_id=c.source_id
-                 WHERE c.snapshot_id IS NULL OR c.snapshot_id=s.snapshot_id
-                 UNION ALL
-                 SELECT m.source_id,'metadata:' || m.key,m.value_json
-                 FROM source_metadata_values m
-                 LEFT JOIN latest_snapshot s ON s.source_id=m.source_id
-                 WHERE m.snapshot_id IS NULL OR m.snapshot_id=s.snapshot_id
-                 UNION ALL
-                 SELECT ss.source_id,'snapshot_title',coalesce(ss.title,'')
-                 FROM source_snapshots ss
-                 JOIN latest_snapshot s
-                   ON s.source_id=ss.source_id AND s.snapshot_id=ss.id
-               )
-               ORDER BY source_id,kind,value"""
-        ).fetchall()
-        matches: dict[str, list[str]] = {}
-        for row in rows:
-            value = row["value"].casefold()
-            hit = next((term for term in normalized if term in value), None)
-            if hit is not None:
-                matches.setdefault(row["source_id"], []).append(f"{row['kind']}:{hit}")
-        return {key: tuple(dict.fromkeys(values)) for key, values in matches.items()}
+    def semantic_evidence_rows(
+        self,
+        *,
+        source_ids: Iterable[str] | None = None,
+        include_historical: bool = False,
+        limit: int = 1000,
+    ) -> tuple[dict, ...]:
+        if not 1 <= limit <= 5000:
+            raise ValueError("Evidence semantic limit must be 1..5000")
+        if include_historical:
+            parameters: list[object] = []
+            where = ""
+            source_ids = tuple(dict.fromkeys(source_ids or ()))
+            if source_ids:
+                placeholders = ",".join("?" for _ in source_ids)
+                where = f" WHERE source_id IN ({placeholders})"
+                parameters.extend(source_ids)
+            parameters.append(limit)
+            rows = self.db.execute(
+                "SELECT * FROM evidence_records"
+                + where
+                + " ORDER BY source_id,snapshot_id,ordinal,id LIMIT ?",
+                parameters,
+            ).fetchall()
+            return tuple(dict(row) for row in rows)
+        rows = self.effective_evidence_rows(source_ids)
+        return rows[:limit]
 
-    def evidence_context(self, evidence_id: str) -> dict:
-        row = self.db.execute(
-            """SELECT er.*,ss.title AS snapshot_title,sr.label AS source_label
-               FROM evidence_records er
-               JOIN source_snapshots ss ON ss.id=er.snapshot_id
-               JOIN source_records sr ON sr.id=er.source_id
-               WHERE er.id=?""",
-            (evidence_id,),
-        ).fetchone()
-        if not row:
-            raise ValueError("Unknown evidence ID")
-        locators = [
-            {"kind": item["kind"], "value": item["value"], "preferred": bool(item["is_preferred"])}
-            for item in self.db.execute(
-                """SELECT kind,value,is_preferred FROM source_locators
-                   WHERE source_id=? AND status='active'
-                   ORDER BY is_preferred DESC,rowid""",
-                (row["source_id"],),
+    def search_evidence_rows(
+        self,
+        query: str,
+        *,
+        source_ids: Iterable[str] | None = None,
+        include_historical: bool = False,
+        limit: int = 200,
+    ) -> tuple[dict, ...]:
+        if include_historical:
+            terms = [term.lower() for term in query.split() if term]
+            rows = self.semantic_evidence_rows(
+                source_ids=source_ids, include_historical=True, limit=5000
             )
-        ]
-        locations = [
-            {
-                "kind": item["kind"],
-                "value": json.loads(item["value_json"]),
-                "ordinal": item["ordinal"],
-            }
-            for item in self.db.execute(
-                """SELECT kind,value_json,ordinal FROM evidence_locations
-                   WHERE evidence_id=? ORDER BY ordinal,rowid""",
-                (evidence_id,),
-            )
-        ]
-        result = dict(row)
-        result["metadata"] = json.loads(result.pop("metadata_json"))
-        result["locators"] = locators
-        result["locations"] = locations
-        return result
+            scored = []
+            for row in rows:
+                content = row["content"].lower()
+                score = sum(content.count(term) for term in terms)
+                if score:
+                    scored.append((score, row["source_id"], row["ordinal"], row))
+            scored.sort(key=lambda item: (-item[0], item[1], item[2]))
+            return tuple(item[3] for item in scored[:limit])
+        return self.lexical_evidence_rows(query, source_ids=source_ids, limit=limit)
