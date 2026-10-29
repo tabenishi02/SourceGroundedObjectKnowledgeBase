@@ -4,7 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from sgokb.application_exchange import PackageExchangeApplication, ResultExchangeApplication
+from sgokb.application_exchange import (
+    PackageExchangeApplication,
+    ResultExchangeApplication,
+)
 from sgokb.application_version import VersionReadApplication
 from sgokb.exchange.package_manifest_v2 import validate_package_manifest_v2
 from sgokb.repository import Repository
@@ -95,7 +98,9 @@ def _build_stage_export(repository, tmp_path, object_id, *, include_evidence=())
         build_root=tmp_path / "build",
         include_evidence=include_evidence,
     )
-    manifest = json.loads(Path(built.path, "manifest.json").read_text(encoding="utf-8"))
+    manifest = json.loads(
+        Path(built.path, "manifest.json").read_text(encoding="utf-8")
+    )
     staged = packages.stage(built.path, staging_root=tmp_path / "staging")
     packages.export(staged.path, destination=tmp_path / "export")
     return packages, built, manifest, staged
@@ -195,9 +200,11 @@ def test_package_v2_contains_exact_raw_bytes_and_deduplicates_by_artifact_id(tmp
         assert manifest["schema_version"] == "sgokb.object-evidence-package/2.0"
         assert manifest["evidence"]["included_evidence_ids"] == list(evidence_ids)
         assert manifest["raw_grounding"]["included_raw_artifact_ids"] == [artifact_id]
-        assert [item["evidence_id"] for item in manifest["raw_grounding"]["evidence_bindings"]] == list(
-            evidence_ids
-        )
+        binding_ids = [
+            item["evidence_id"]
+            for item in manifest["raw_grounding"]["evidence_bindings"]
+        ]
+        assert binding_ids == list(evidence_ids)
         raw_path = Path(built.path) / "raw" / "artifact_0001" / "payload"
         assert raw_path.read_bytes() == raw
         assert not (Path(built.path) / "evidence").exists()
@@ -232,8 +239,9 @@ def test_result_v2_validates_reviews_imports_and_persists_only_raw_grounding(tmp
             "SELECT count(*) AS n FROM evidence_links WHERE version_id=?",
             (imported.version_id,),
         )["n"] == 0
-        raw_links = repository.all(
-            "SELECT raw_artifact_id,role,locator_json FROM raw_grounding_links WHERE version_id=?",
+        raw_links = repository.rows(
+            """SELECT raw_artifact_id,role,locator_json
+               FROM raw_grounding_links WHERE version_id=?""",
             (imported.version_id,),
         )
         assert len(raw_links) == 1
