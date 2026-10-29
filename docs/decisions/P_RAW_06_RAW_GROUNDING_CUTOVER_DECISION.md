@@ -3,7 +3,8 @@
 Updated: 2026-10-30
 
 - Task: `P-RAW-06 [P0] RAW Grounding acceptance / compatibility / documentation`
-- Decision status: **Accepted subject to final P-RAW-06 verification gate**
+- Decision status: **Complete / Accepted**
+- Acceptance: `docs/evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md`
 
 ## Decision
 
@@ -76,9 +77,14 @@ Raw      = claim grounding authority
 
 ## Acceptance authority
 
-This decision becomes final when `docs/evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md` records a PASS for:
+The decision is final under `docs/evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md`.
 
-- P-RAW-06 focused acceptance tests;
-- P-RAW/v1 compatibility regression;
-- Ruff;
-- full repository regression.
+Accepted gate:
+
+```text
+P-RAW-06 focused acceptance     = 6 / 6 PASS
+P-RAW / legacy v1 regression    = 91 / 91 PASS
+Ruff                            = PASS
+full repository regression      = 833 / 833 PASS
+warnings                        = 2 known local-Qdrant warnings
+```
