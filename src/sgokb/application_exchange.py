@@ -13,7 +13,7 @@ from .exchange.raw_package_builder import ObjectRawPackageBuilder
 from .exchange.result_import import ObjectVersionImportService
 from .exchange.result_receipt import DEFAULT_INCOMING_ROOT, ResultReceiptService
 from .exchange.result_validation_router import VersionedResultValidationService
-from .review import DiffReviewService
+from .review.router import VersionedDiffReviewService
 from .storage import PackageExchangeAuditRepository, RawGroundingRepository
 
 
@@ -163,7 +163,7 @@ class ResultExchangeApplication:
         *,
         incoming_root: str | Path = DEFAULT_INCOMING_ROOT,
     ):
-        return DiffReviewService(self.repository, self.audit).review_result(
+        return VersionedDiffReviewService(self.repository, self.audit).review_result(
             receipt_id,
             incoming_root=Path(incoming_root),
         )
