@@ -29,7 +29,8 @@ P-GUI-05 = Complete / Accepted
 P-GUI-06 = Complete / Accepted
 P-GUI-07 = Complete / Accepted
 P-RAW-01 = Complete / Accepted
-Next = P-RAW-02 Evidence -> Raw Artifact provenance resolution contract
+P-RAW-02 = Complete / Accepted
+Next = P-RAW-03 RAW-bearing Package v2 design
 ```
 
 Phase PのWorkstream優先順位:
@@ -153,31 +154,53 @@ v1/v2 receive / validation routing
 tests / benchmark fixtures / operations documentation
 ```
 
-Compatibility targets:
-
-```text
-Evidence retrieval / human selection
-Source / Snapshot / Raw canonical storage
-Object / Registry / Association semantics
-core Knowledge semantic fields
-Version lifecycle
-semantic diff core
-Search / Similarity / derived indexing
-```
-
 The survey explicitly requires versioned v1/v2 semantics: legacy Evidence-grounded artifacts must not be silently interpreted as Raw-grounded artifacts.
-
-P-RAW-01 does not choose the physical DB migration or final Package/Result v2 JSON shape; those decisions remain in P-RAW-02..05.
 
 ```text
 P-RAW-01 = Complete / Accepted
+```
+
+### P-RAW-02 accepted authority
+
+- Provenance resolution contract: [`../design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md`](../design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md)
+
+P-RAW-02 fixes the deterministic resolution scope to the complete Raw input set of each selected Evidence's own Normalization Run:
+
+```text
+resolution_scope = normalization_run_inputs
+Evidence -> own run -> ALL run inputs
+```
+
+Accepted rules:
+
+```text
+all run input Raw Artifacts are provenance-required
+same-Snapshot non-input Raw Artifacts are excluded by default
+Package-level identity dedup uses artifact_id
+Evidence -> Raw mapping edges are always retained
+same-hash distinct artifact IDs remain distinct provenance identities
+historical Evidence always resolves through its original run
+current effective generation is not a substitution source
+artifact kind / path / filename / media type are not provenance-selection heuristics
+missing / changed / inconsistent Raw fails closed
+byte-size and SHA-256 are reverified before egress
+Evidence Markdown fallback is prohibited
+partial covering sets cannot be reported as complete provenance
+```
+
+The current schema does not prove an exact per-Evidence Raw subset or byte range. The accepted baseline therefore uses the Normalization Run input set as the `Raw Input Covering Set` rather than inventing finer-grained provenance.
+
+Provenance resolution and Package materialization are separate responsibilities. P-RAW-03 may apply media / budget / privacy / secret / egress rules, but those rules must not silently rewrite the provenance graph.
+
+```text
+P-RAW-02 = Complete / Accepted
 ```
 
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-07 and P-RAW-01 are accepted development baselines.
+P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-02 are accepted development baselines.
 
 ## Phase P GUI architecture
 
@@ -212,7 +235,7 @@ Repository / Retrieval / Exchange
 
 Evidence remains the retrieval / selection unit, while External AI semantic material will move from reconstructed Evidence Markdown to Raw Artifacts traced through provenance.
 
-P-RAW-01 impact survey is accepted. The next task is P-RAW-02, which must define deterministic Evidence -> Raw resolution without yet implementing Package v2.
+P-RAW-01 impact survey and P-RAW-02 deterministic provenance contract are accepted. The next task is P-RAW-03, which designs the versioned RAW-bearing Package contract on top of the frozen resolver semantics.
 
 `P-GUI-08` remains blocked until completion of `P-RAW-01..P-RAW-06`.
 
@@ -234,5 +257,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-RAW-02 — Evidence -> Raw Artifact provenance resolution contract
+P-RAW-03 — RAW-bearing Package v2 design
 ```
