@@ -32,7 +32,8 @@ P-RAW-01 = Complete / Accepted
 P-RAW-02 = Complete / Accepted
 P-RAW-03 = Complete / Accepted
 P-RAW-04 = Complete / Accepted
-Next = P-RAW-05 RAW Grounding implementation
+P-RAW-05 = Complete / Accepted
+Next = P-RAW-06 RAW Grounding acceptance / compatibility / documentation
 ```
 
 Phase PのWorkstream優先順位:
@@ -289,11 +290,35 @@ Review/diff must separately report Knowledge-content changes and grounding chang
 P-RAW-04 = Complete / Accepted
 ```
 
+### P-RAW-05 accepted authority
+
+- Implementation: [`../evaluation/P_RAW_05_RAW_GROUNDING_IMPLEMENTATION.md`](../evaluation/P_RAW_05_RAW_GROUNDING_IMPLEMENTATION.md)
+- Verification Attempt 01: [`../evaluation/P_RAW_05_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_RAW_05_VERIFICATION_ATTEMPT_01.md) — historical FAIL / remediation record
+- Verification Attempt 02: [`../evaluation/P_RAW_05_VERIFICATION_ATTEMPT_02.md`](../evaluation/P_RAW_05_VERIFICATION_ATTEMPT_02.md) — final PASS / acceptance
+
+P-RAW-05 implements and verifies the complete additive Raw-grounding v2 path while retaining the legacy v1 exchange path.
+
+Final automated evidence:
+
+```text
+focused P-RAW/v1 regression = 91 / 91 PASS
+migration regression        = 56 / 56 PASS
+Ruff                        = PASS
+full regression             = 827 / 827 PASS
+warnings                    = 2 known local-Qdrant warnings
+```
+
+The accepted implementation includes Migration 019 Raw persistence, Migration 020 accepted-grounding compatibility, deterministic Evidence -> Raw resolution, Package v2, Result v2, version-dispatched validation/review/import, Raw-aware accepted provenance, historical carry-forward, and v1/v2 compatibility enforcement.
+
+```text
+P-RAW-05 = Complete / Accepted
+```
+
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-04 are accepted development baselines.
+P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-05 are accepted development baselines.
 
 ## Phase P GUI architecture
 
@@ -328,7 +353,7 @@ Repository / Retrieval / Exchange
 
 Evidence remains the retrieval / selection unit, while External AI semantic material moves from reconstructed Evidence Markdown to exact Raw Artifacts traced through provenance.
 
-P-RAW-01 impact survey, P-RAW-02 deterministic provenance contract, P-RAW-03 RAW-bearing Package v2 design, and P-RAW-04 Raw-grounded Result v2 design are accepted. The next task is P-RAW-05, which implements the complete resolver -> Package v2 -> Result v2 -> validation/review/import path.
+P-RAW-01 through P-RAW-05 are accepted. The next task is P-RAW-06, which performs formal RAW Grounding operational acceptance, compatibility/cutover disposition, real-Object end-to-end acceptance, and documentation closure.
 
 `P-GUI-08` remains blocked until completion of `P-RAW-01..P-RAW-06`.
 
@@ -350,5 +375,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-RAW-05 — RAW Grounding implementation
+P-RAW-06 — RAW Grounding acceptance / compatibility / documentation
 ```
