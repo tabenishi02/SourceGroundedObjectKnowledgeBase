@@ -17,6 +17,8 @@ from .retrieval import (
     route_generation_vector_index,
 )
 
+_SEMANTIC_PRELOAD_FAILURE: str | None = None
+
 
 @dataclass(frozen=True, slots=True)
 class RuntimeConfig:
@@ -73,6 +75,8 @@ class RuntimeFactory:
     def semantic_runtime(self) -> tuple[object, object]:
         if self._cached_semantic is not None:
             return self._cached_semantic
+        if _SEMANTIC_PRELOAD_FAILURE is not None:
+            raise RetrievalRuntimeUnavailableError(_SEMANTIC_PRELOAD_FAILURE)
         try:
             if self._semantic_builder is not None:
                 pair = self._semantic_builder()
@@ -115,3 +119,37 @@ class RuntimeFactory:
 
     def clear_cache(self) -> None:
         self._cached_semantic = None
+
+
+def preload_local_semantic_native_dependencies() -> str | None:
+    """Load the local ML native stack on the caller thread before GUI worker startup.
+
+    On Windows, first importing PyTorch / Sentence Transformers from a secondary
+    worker thread can fail below Python's exception boundary in some dependency
+    combinations. The GUI calls this function on its main thread before creating
+    the backend QThread. CLI composition remains lazy and unchanged.
+
+    The function never requires the optional local-embedding extra for GUI startup:
+    import/runtime failures are remembered and later surfaced as an explicit
+    RetrievalRuntimeUnavailableError if Semantic runtime is requested.
+    """
+
+    global _SEMANTIC_PRELOAD_FAILURE
+
+    os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+    os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+    try:
+        torch = __import__("torch")
+        from transformers.utils import logging as transformers_logging
+
+        transformers_logging.disable_progress_bar()
+        __import__("sentence_transformers")
+        # Probe the CUDA driver on the same main thread without allocating a model
+        # or tensor. Model construction remains lazy on the backend lane.
+        torch.cuda.is_available()
+    except (ImportError, RuntimeError, NameError) as exc:
+        _SEMANTIC_PRELOAD_FAILURE = str(RuntimeFactory._runtime_dependency_error(exc))
+        return _SEMANTIC_PRELOAD_FAILURE
+
+    _SEMANTIC_PRELOAD_FAILURE = None
+    return None
