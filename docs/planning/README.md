@@ -17,10 +17,9 @@ Phase P = In Progress
 
 P-GUI-01..08 = Complete / Accepted
 P-RAW-01..06 = Complete / Accepted
-P-RUNTIME-01..02 = Complete / Accepted
-P-RUNTIME-03 = Not Started / Next
+P-RUNTIME-01..03 = Complete / Accepted
 P-RUNTIME-04..06 = Not Started
-P-GUI-09 = Not Started / blocked by P-RUNTIME-03
+P-GUI-09 = Not Started / Next
 P-GUI-10 = Not Started
 P-CLOSE-01 = Not Started
 ```
@@ -33,7 +32,7 @@ Priority 2: RAW Grounding
 Priority 3: Runtime / Qdrant auto-start
 ```
 
-GUI と RAW Grounding の優先作業は P-GUI-08 まで完了しています。Runtime reference design と repository-owned Qdrant Compose assets も P-RUNTIME-01 / 02 で確定・受入済みです。残る GUI の P-GUI-09 は P-RUNTIME-03 に依存するため、現在の次Taskは P-RUNTIME-03 です。
+GUI と RAW Grounding の優先作業は P-GUI-08 まで完了しています。Runtime reference design、repository-owned Qdrant Compose assets、shared runtime health/status Application boundary は P-RUNTIME-01..03 で確定・受入済みです。P-GUI-09 の P-RUNTIME-03 dependency は解消され、現在の次Taskは P-GUI-09 です。
 
 ## Phase P planning authority
 
@@ -239,7 +238,41 @@ readiness                = /readyz -> HTTP 200
 operator local override  = QDRANT_LOG_LEVEL only
 ```
 
-P-RUNTIME-02 establishes reproducible runtime construction and persistence. Windows login auto-start remains P-RUNTIME-04 scope; shared CLI/GUI health/status remains P-RUNTIME-03 scope.
+### P-RUNTIME-03 — Runtime health/status Application boundary
+
+- Design / contract: [`../design/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_APPLICATION_BOUNDARY.md`](../design/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_APPLICATION_BOUNDARY.md)
+- Final acceptance: [`../evaluation/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_ACCEPTANCE.md`](../evaluation/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_ACCEPTANCE.md)
+
+Accepted shared observation boundary:
+
+```text
+operation                  = system.status
+projection                 = data.runtime_health
+schema                     = sgokb.runtime-health/1.0
+components                 = sqlite / embedding / qdrant / generation / derived
+qdrant lifecycle owner     = external
+observe                    = true
+start / stop / restart     = false / false / false
+embedding status           = shallow / no model load / no download
+qdrant readiness authority = /readyz
+```
+
+Final P-RUNTIME-03 gate:
+
+```text
+GitHub Actions run          = 40968417323
+verified branch source      = 90f699a094d9426a7b26c1995b46fdb7ce377150
+verified synthetic merge    = 1cbf1cabca97477e9932795c2ce5700ebe058897
+focused contract tests      = 3 / 3 PASS
+Ruff src/tests              = PASS
+real Qdrant v1.20.0         = healthy
+live system.status probe    = PASS
+reported Qdrant version     = 1.20.0
+Windows full regression     = 842 / 842 PASS
+warnings                    = 2 known local-Qdrant warnings
+```
+
+P-RUNTIME-03 preserves external Qdrant lifecycle ownership and gives CLI/GUI the same read-only runtime status model. Windows login auto-start remains P-RUNTIME-04 scope.
 
 ## Phase P architecture summary
 
@@ -251,6 +284,7 @@ SQLite                 = Repository per operation in worker thread
 Backend concurrency    = serialized per Workspace initially
 Qdrant                 = independent shared runtime
 Qdrant Windows ref     = Docker Desktop / WSL2 / Compose / named volume
+Runtime health         = shared system.status.runtime_health observation model
 Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 ```
 
@@ -258,11 +292,11 @@ Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 
 ### GUI
 
-`P-GUI-09` remains Not Started and depends on `P-RUNTIME-03`. `P-GUI-10` is the final GUI parity / regression acceptance task.
+`P-GUI-09` is now the next executable task. Its P-RUNTIME-03 dependency is satisfied. `P-GUI-10` remains the final GUI parity / regression acceptance task.
 
 ### Runtime
 
-`P-RUNTIME-01` and `P-RUNTIME-02` are Complete / Accepted. `P-RUNTIME-03` is now the next executable task and establishes the shared runtime health/status Application boundary required by P-GUI-09. P-RUNTIME-04 retains Windows login auto-start integration/acceptance ownership.
+`P-RUNTIME-01` through `P-RUNTIME-03` are Complete / Accepted. P-RUNTIME-04 retains Windows login auto-start integration/acceptance ownership; later Runtime Dashboard/recovery work must consume the accepted observation boundary without moving Qdrant lifecycle ownership into the GUI.
 
 ### Closure
 
@@ -271,5 +305,5 @@ Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 ## Next
 
 ```text
-P-RUNTIME-03 — Runtime health/status application boundary
+P-GUI-09 — System / Maintenance / MCP / Advanced GUI
 ```
