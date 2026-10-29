@@ -58,6 +58,18 @@ class RuntimeFactory:
         self._semantic_builder = semantic_builder
         self._cached_semantic: tuple[object, object] | None = None
 
+    @staticmethod
+    def _runtime_dependency_error(exc: Exception) -> RetrievalRuntimeUnavailableError:
+        message = str(exc)
+        if isinstance(exc, NameError) and "nn" in message:
+            message = (
+                "Local semantic runtime dependency initialization failed: name 'nn' is not "
+                "defined. This is a known Transformers failure mode when the installed PyTorch "
+                "is below the version supported by Transformers 5.x. SGOKB local-embedding "
+                "requires PyTorch >=2.6; upgrade the local embedding environment."
+            )
+        return RetrievalRuntimeUnavailableError(message)
+
     def semantic_runtime(self) -> tuple[object, object]:
         if self._cached_semantic is not None:
             return self._cached_semantic
@@ -76,10 +88,10 @@ class RuntimeFactory:
                     collection_prefix=self.config.qdrant_collection_prefix,
                 )
                 pair = (provider, vector)
-        except (ImportError, RuntimeError) as exc:
-            if isinstance(exc, ImportError) or isinstance(exc.__cause__, ImportError):
-                raise RetrievalRuntimeUnavailableError(str(exc)) from exc
+        except RetrievalRuntimeUnavailableError:
             raise
+        except (ImportError, RuntimeError, NameError) as exc:
+            raise self._runtime_dependency_error(exc) from exc
         self._cached_semantic = pair
         return pair
 
