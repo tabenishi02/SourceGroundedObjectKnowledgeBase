@@ -61,9 +61,10 @@ def _setup_raw_object(
     for index in range(artifact_count):
         raw_path = tmp_path / f"goku-raw-{index + 1}.html"
         raw_path.write_bytes(raw)
+        artifact_kind = "rendered_dom" if index == 0 else f"source_html_{index + 1}"
         artifact_id = repository.source_store.add_raw_artifact(
             snapshot_id,
-            "rendered_dom",
+            artifact_kind,
             str(raw_path),
             _sha256(raw),
             len(raw),
@@ -276,12 +277,19 @@ def _valid_v2_result(repository, manifest, *, raw_id=None, locator=None):
     }
 
 
-def _receive_validate_import(repository, tmp_path, manifest, result, *, suffix):
-    result_path = tmp_path / f"result-{suffix}.json"
+def _write_result(tmp_path, result, *, suffix):
+    result_dir = tmp_path / f"result-{suffix}"
+    result_dir.mkdir()
+    result_path = result_dir / "result.json"
     result_path.write_text(
         json.dumps(result, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    return result_path
+
+
+def _receive_validate_import(repository, tmp_path, manifest, result, *, suffix):
+    result_path = _write_result(tmp_path, result, suffix=suffix)
     incoming = tmp_path / f"incoming-{suffix}"
     results = ResultExchangeApplication(repository)
     receipt = results.receive(
@@ -392,7 +400,10 @@ def test_package_v2_integrity_preflight_and_egress_are_fail_closed(tmp_path):
         )
         manifest_check = inspect_package_v2(manifest_tamper)
         assert manifest_check.disposition == "blocked"
-        assert any(reason.startswith("manifest_invalid:") for reason in manifest_check.reasons)
+        assert any(
+            reason.startswith("manifest_invalid:")
+            for reason in manifest_check.reasons
+        )
 
         raw_tamper = tmp_path / "raw-tamper"
         shutil.copytree(staged.path, raw_tamper)
@@ -425,18 +436,14 @@ def test_result_v2_membership_and_grounding_set_binding_are_enforced(tmp_path):
             suffix="membership",
         )
         results = ResultExchangeApplication(repository)
+        incoming = tmp_path / "incoming-membership"
 
         outside = _valid_v2_result(
             repository,
             manifest,
             raw_id="raw-not-in-package",
         )
-        outside_path = tmp_path / "outside-result.json"
-        outside_path.write_text(
-            json.dumps(outside, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
-        incoming = tmp_path / "incoming-membership"
+        outside_path = _write_result(tmp_path, outside, suffix="outside")
         outside_receipt = results.receive(
             outside_path,
             package_id=manifest["package_id"],
@@ -453,11 +460,7 @@ def test_result_v2_membership_and_grounding_set_binding_are_enforced(tmp_path):
 
         mismatched = _valid_v2_result(repository, manifest)
         mismatched["binding"]["grounding_set_sha256"] = "0" * 64
-        mismatch_path = tmp_path / "mismatch-result.json"
-        mismatch_path.write_text(
-            json.dumps(mismatched, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
+        mismatch_path = _write_result(tmp_path, mismatched, suffix="mismatch")
         mismatch_receipt = results.receive(
             mismatch_path,
             package_id=manifest["package_id"],
