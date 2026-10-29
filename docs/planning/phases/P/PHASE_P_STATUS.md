@@ -29,15 +29,15 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | **Complete / Accepted** | Search / Similarity / Registry / Version GUI; Attempt 09 + interactive PASS |
 | GUI | P-GUI-07 | **Complete / Accepted** | Progress / error / safety / audit UX; automated + interactive PASS |
-| GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
+| GUI | P-GUI-08 | **Not Started / Unblocked / Next** | Package / Result GUI against accepted v2 Raw boundary |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
 | GUI | P-GUI-10 | Not Started | GUI parity / regression acceptance |
 | RAW | P-RAW-01 | **Complete / Accepted** | Current Evidence Package / Result impact survey |
 | RAW | P-RAW-02 | **Complete / Accepted** | Deterministic Evidence -> Raw Artifact provenance resolution contract |
 | RAW | P-RAW-03 | **Complete / Accepted** | Versioned RAW-bearing Package v2 design |
 | RAW | P-RAW-04 | **Complete / Accepted** | Raw-grounded Object Result v2 design |
-| RAW | P-RAW-05 | **Complete / Accepted** | Resolver -> Package v2 -> Result v2 -> Raw provenance implementation; final automated gate PASS |
-| RAW | P-RAW-06 | **Not Started / Unblocked / Next** | RAW Grounding acceptance / compatibility / documentation |
+| RAW | P-RAW-05 | **Complete / Accepted** | Resolver -> Package v2 -> Result v2 -> Raw provenance implementation |
+| RAW | P-RAW-06 | **Complete / Accepted** | Formal Raw operational acceptance, compatibility/cutover disposition, documentation closure |
 | Runtime | P-RUNTIME-01..06 | Not Started | Windows Qdrant auto-start / health / GUI integration |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
@@ -78,11 +78,11 @@ interactive smoke  = PASS in accepted scope
 P-GUI-07 final evidence:
 
 ```text
-focused GUI gate = 34 / 34 PASS
-Ruff             = PASS
-full regression  = 823 / 823 PASS
-warnings         = 2 known local-Qdrant warnings
-interactive smoke = PASS in accepted scope
+focused GUI gate   = 34 / 34 PASS
+Ruff               = PASS
+full regression    = 823 / 823 PASS
+warnings           = 2 known local-Qdrant warnings
+interactive smoke  = PASS in accepted scope
 ```
 
 Final GUI authority includes:
@@ -92,232 +92,76 @@ Final GUI authority includes:
 - `docs/evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
 - `docs/evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md`
 
-## P-RAW-01 accepted impact survey
+## P-RAW accepted baseline
+
+### P-RAW-01 — impact survey
 
 Authority:
 
 - `docs/evaluation/P_RAW_01_CURRENT_EVIDENCE_PACKAGE_RESULT_IMPACT_SURVEY.md`
 
-The survey confirms that Raw Grounding impact is concentrated at the external exchange / grounding boundary rather than the core accepted Knowledge model.
+Accepted conclusion: Raw Grounding changes the external exchange / grounding boundary while preserving the core accepted Knowledge model. Evidence-Markdown external semantic authority, Evidence-only grounding membership, Evidence-ID-only Result grounding, and Evidence-only validation were identified as versioned breaking contracts.
 
-Breaking contracts:
-
-```text
-Evidence-Markdown external semantic payload
-Evidence-only Package grounding membership
-Evidence-ID-only analysis grounding instructions
-Evidence-ID-only Result grounding representation
-Evidence-only Result membership validation
-```
-
-Migration-required contracts:
-
-```text
-Evidence -> Raw provenance resolution
-Package audit / Raw membership trace
-Package budget / preflight / egress coverage
-review grounding presentation
-import grounding persistence / accepted provenance
-v1/v2 receive and validation routing
-tests / fixtures / grounded-generation benchmarks
-operator / acceptance documentation
-```
-
-P-RAW-01 requires richer provenance logically but deliberately does not select a physical DB schema migration. That is deferred to P-RAW-04/05.
-
-Therefore:
-
-```text
-P-RAW-01 = Complete / Accepted
-```
-
-## P-RAW-02 accepted provenance resolution contract
+### P-RAW-02 — deterministic provenance resolution
 
 Authority:
 
 - `docs/design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md`
 
-P-RAW-02 freezes the deterministic Raw resolution scope at the complete input set of the Evidence's own Normalization Run:
-
-```text
-resolution scope = normalization_run_inputs
-```
-
-For each selected or protected Evidence:
+Accepted resolver scope:
 
 ```text
 Evidence
-  -> its own Normalization Run
+  -> its own historical Normalization Run
   -> ALL normalization_run_artifacts
   -> exact Snapshot / Source generation
-  -> physical byte-size / SHA-256 verification before egress
+  -> byte-size / SHA-256 verification
 ```
 
-The current schema does not store an exact per-Evidence Raw subset or byte range. Therefore P-RAW-02 deliberately avoids invented precision and treats the run input set as a provenance-complete Raw Input Covering Set.
+Same Raw ID is deduplicated at Package identity level; distinct Raw IDs are never collapsed merely because hashes match. Missing or inconsistent provenance fails closed and has no Evidence-Markdown fallback.
 
-Key rules:
-
-1. every run input Raw Artifact is provenance-required;
-2. same-Snapshot artifacts not used by the run are excluded by default;
-3. multiple Evidence pointing to one Raw Artifact are deduplicated by `artifact_id` at Package identity level while every Evidence -> Raw edge is preserved;
-4. distinct artifact IDs are never collapsed merely because SHA-256 matches;
-5. historical carry-forward Evidence resolves through its original historical run, never the currently effective generation;
-6. artifact kind, path, filename, media type or content similarity are not provenance-selection heuristics;
-7. missing Raw, missing provenance, Snapshot mismatch, byte-size mismatch or hash mismatch fail closed;
-8. there is no Evidence-Markdown fallback and no partial covering set may be presented as complete;
-9. optional Package auxiliary artifacts remain separate from provenance-required grounding material.
-
-The resolver contract is intentionally separated from Package v2 materialization policy. P-RAW-03 may block an otherwise valid provenance set because of media, budget, privacy, secret or egress rules, but it must not silently alter provenance to make packaging succeed.
-
-No source code, runtime behavior, Package schema, Result schema, or DB schema changed in P-RAW-02. It is a design-contract task, so the regression suite was not rerun.
-
-Therefore:
-
-```text
-P-RAW-02 = Complete / Accepted
-```
-
-## P-RAW-03 accepted RAW-bearing Package v2 design
+### P-RAW-03 — Package v2
 
 Authority:
 
 - `docs/design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md`
 
-Package v2 is explicitly versioned rather than redefining v1:
+Accepted Package family:
 
 ```text
 Package schema     = sgokb.object-evidence-package/2.0
-schema ID          = urn:sgokb:schema:object-evidence-package:2.0
 instructions       = sgokb.object-analysis/2.0
 expected Result    = sgokb.object-result/2.0
 Raw grounding      = sgokb.raw-grounding/1.0
 resolver contract  = sgokb.evidence-to-raw/1.0
 ```
 
-The authoritative semantic payload changes from generated Evidence Markdown to exact Raw bytes:
+Package v2 transports exact Raw bytes at safe deterministic paths such as `raw/artifact_0001/payload`. Evidence remains selection/provenance metadata; semantic grounding membership authority is `manifest.raw_grounding.included_raw_artifact_ids`.
 
-```text
-v1: evidence/source_*.md
-v2: raw/artifact_NNNN/payload
-```
-
-Evidence remains present as selection/provenance metadata, but grounding membership authority becomes:
-
-```text
-manifest.raw_grounding.included_raw_artifact_ids
-```
-
-Accepted v2 invariants include:
-
-1. one direct Evidence -> Raw binding exists for every selected Evidence;
-2. every binding contains the complete P-RAW-02 Raw Input Covering Set;
-3. physical Raw payload is deduplicated by `artifact_id`, while all Evidence -> Raw edges remain;
-4. distinct artifact IDs remain distinct even when hashes match;
-5. local `storage_path` is never exported; safe deterministic Package paths are allocated independently;
-6. Raw bytes are copied exactly without normalization, conversion, truncation or Evidence-Markdown fallback;
-7. Evidence selection budget and Raw materialization budget are separate;
-8. unsupported media, Raw budget overflow, credential/secret policy, missing or modified Raw can block materialization/export but cannot rewrite provenance;
-9. `files[]` remains the exhaustive transport/hash inventory and adds role `raw_grounding`;
-10. `manifest_sha256` identifies one Package instance while `raw_grounding.integrity.grounding_set_sha256` provides a stable Raw provenance/material fingerprint;
-11. historical carry-forward resolves and packages the original historical Raw generation;
-12. v1 and v2 are explicitly dispatched and are never silently reinterpreted or downgraded.
-
-Baseline v2 layout:
-
-```text
-manifest.json
-instructions.md
-current_object.json                    # update Package only
-schema/object-result-v2.schema.json
-raw/artifact_0001/payload
-raw/artifact_0002/payload
-...
-```
-
-P-RAW-03 reserves `sgokb.object-result/2.0` only as the expected Result family. P-RAW-04 owns the exact statement/attribute/relation Raw grounding reference schema, locator semantics, accepted provenance persistence design, and v1/v2 Result coexistence rules.
-
-No source code, runtime behavior, implemented Package/Result schema, or DB schema changed in P-RAW-03. It is a design task, so the regression suite was not rerun.
-
-Therefore:
-
-```text
-P-RAW-03 = Complete / Accepted
-```
-
-## P-RAW-04 accepted Raw-grounded Object Result v2 design
+### P-RAW-04 — Result v2
 
 Authority:
 
 - `docs/design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md`
 
-Result v2 is explicitly versioned:
+Accepted Result family:
 
 ```text
-Result schema       = sgokb.object-result/2.0
-schema ID           = urn:sgokb:schema:object-result:2.0
-Package schema      = sgokb.object-evidence-package/2.0
-instructions        = sgokb.object-analysis/2.0
-grounding contract  = sgokb.raw-grounding/1.0
+Result schema      = sgokb.object-result/2.0
+grounding target   = Package-member raw_artifact_id
+grounding field    = grounding[]
 ```
 
-The Result grounding target becomes the exact Package-member `raw_artifact_id`. The v1 `evidence[]` field is replaced by v2 `grounding[]`; Result v2 contains no Evidence IDs for claim grounding.
-
-Baseline Raw reference:
-
-```json
-{
-  "raw_artifact_id": "raw-...",
-  "role": "supports"
-}
-```
-
-Optional locator precision supports only mechanically verifiable baseline kinds:
+Optional mechanically verifiable locators are `byte_range` and `text_quote`. Import persistence remains version-specific:
 
 ```text
-byte_range   zero-based half-open [start,end) over exact Raw bytes
-text_quote   exact decoded Raw text with optional prefix/suffix disambiguation
+v1 -> evidence_links
+v2 -> raw_grounding_links
 ```
 
-An invalid asserted locator is a validation error; producers may omit locator rather than invent precision.
+Result v2 import must not synthesize Evidence claim links.
 
-Package/Result binding additionally includes:
-
-```text
-grounding_contract
-grounding_set_sha256
-```
-
-so a Result is bound to the exact Raw membership/material fingerprint.
-
-Accepted persistence boundary:
-
-```text
-v1 claim grounding -> evidence_links
-v2 claim grounding -> new raw_grounding_links family
-```
-
-A v2 import MUST NOT synthesize Evidence links by mapping Raw references back through Package Evidence selection metadata. Evidence remains selection lineage, not claim grounding.
-
-P-RAW-04 also fixes the post-v2 historical carry-forward rule. For a v2 current Version, SGOKB collects accepted Raw grounding IDs, reopens the originating Package Evidence->Raw bindings, conservatively recovers every matching Evidence as carry-forward **selection lineage**, and resolves those Evidence records through their original historical runs under P-RAW-02. This preserves historical Raw provenance without claiming the AI cited those Evidence records.
-
-Compatibility direction is therefore:
-
-```text
-v1 accepted Version -> v2 update = supported
-v2 accepted Version -> v1 update = blocked by default
-```
-
-Review/diff must separate semantic Knowledge changes from grounding changes so an Evidence-v1 -> Raw-v2 grounding-model transition is not itself treated as destructive Knowledge deletion.
-
-No source code, runtime behavior, implemented JSON Schema, or DB schema changed in P-RAW-04. It is a design-only task, so the regression suite was not rerun.
-
-Therefore:
-
-```text
-P-RAW-04 = Complete / Accepted
-```
-
-## P-RAW-05 accepted implementation / verification
+### P-RAW-05 — implementation
 
 Authority:
 
@@ -325,31 +169,7 @@ Authority:
 - `docs/evaluation/P_RAW_05_VERIFICATION_ATTEMPT_01.md` — historical FAIL / remediation record
 - `docs/evaluation/P_RAW_05_VERIFICATION_ATTEMPT_02.md` — final PASS / acceptance
 
-The accepted P-RAW-02..04 contracts are implemented as an additive v2 exchange path while the legacy v1 path remains supported.
-
-Implemented and accepted areas:
-
-```text
-migration 019 Raw grounding persistence
-migration 020 accepted-grounding compatibility gate
-Evidence -> Raw resolver with exact byte/hash verification
-Package v2 schema / builder / instructions / transfer / preflight
-Package Raw membership and Evidence -> Raw audit
-Result v2 schema / validation / locator verification
-version-dispatched Result validation / review / import
-Raw-aware content-vs-grounding diff
-raw_grounding_links accepted provenance
-historical carry-forward selection-lineage recovery
-Raw-aware accepted Object / Version reads
-Package v1 / Result v1 compatibility path retained
-v2 current -> legacy v1 Package build blocked
-CLI --package-version v1|v2
-focused P-RAW-05 regression coverage
-```
-
-During this implementation gate the CLI default intentionally remains `v1`. P-RAW-06 acceptance owns the release/cutover disposition; no script is silently switched before the operational v2 boundary is accepted.
-
-Final automated evidence on Windows reference semantics:
+Final P-RAW-05 evidence:
 
 ```text
 focused P-RAW/v1 regression = 91 / 91 PASS
@@ -359,13 +179,59 @@ full regression             = 827 / 827 PASS
 warnings                    = 2 known local-Qdrant warnings
 ```
 
-Attempt 01 failures were remediated rather than waived. The final gate also covers the SourceRepository retrieval-contract restoration, Raw resolver provenance-field correction, Result-v2 `$defs` schema construction fix, Migration 020 acceptance-trigger compatibility, and stale migration expectations.
+### P-RAW-06 — formal acceptance / compatibility / documentation
+
+Authorities:
+
+- `docs/requirements/RAW_GROUNDING_REQUIREMENTS.md`
+- `docs/decisions/P_RAW_06_RAW_GROUNDING_CUTOVER_DECISION.md`
+- `docs/design/P_RAW_06_ACCEPTED_EXTERNAL_AI_BOUNDARY.md`
+- `docs/operations/P_RAW_06_RAW_GROUNDING_WORKFLOW.md`
+- `docs/evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md`
+
+Accepted operational boundary:
+
+```text
+selected Evidence
+  -> original Normalization Run
+  -> exact verified Raw bytes
+  -> Package v2
+  -> external AI
+  -> Result v2 raw_artifact_id grounding
+  -> validate / review / import
+  -> raw_grounding_links
+  -> accepted Version
+```
+
+Final Windows acceptance evidence:
+
+```text
+P-RAW-06 focused acceptance       = 6 / 6 PASS
+P-RAW / legacy v1 exchange gate   = 91 / 91 PASS
+Ruff src/tests                    = PASS
+full repository regression        = 833 / 833 PASS
+warnings                          = 2 known local-Qdrant warnings
+GitHub Actions run                = 40937273709
+verified branch source            = 5e4c8729f8d79c3f3fa956af9208aae98b1a2a48
+```
+
+Compatibility/cutover disposition:
+
+```text
+v1 accepted Version -> v2 update = supported
+v2 accepted Version -> v2 update = supported
+v2 accepted Version -> v1 update = blocked by default
+Result v2 -> Evidence claim-link synthesis = forbidden
+Phase P Raw operation = explicit --package-version v2
+no-option package default = v1 until P-CLOSE-01 release/default decision
+```
 
 Therefore:
 
 ```text
-P-RAW-05 = Complete / Accepted
-P-RAW-06 = Unblocked / Next
+P-RAW-01..06 = Complete / Accepted
+P-RAW workstream = Complete / Accepted for Phase P
+P-GUI-08 = Unblocked / Next
 ```
 
 ## Sequencing
@@ -373,23 +239,25 @@ P-RAW-06 = Unblocked / Next
 ```text
 P-GUI-01..07 Complete / Accepted
         ↓
-P-RAW-01..05 Complete / Accepted
+P-RAW-01..06 Complete / Accepted
         ↓
-P-RAW-06 RAW Grounding acceptance   <- NEXT
+P-GUI-08 Package / Result GUI   <- NEXT
         ↓
-P-GUI-08 Package / Result GUI
+P-GUI-09 / P-GUI-10 and Runtime dependencies
+        ↓
+P-CLOSE-01
 ```
 
-`P-GUI-08` remains blocked until `P-RAW-01..P-RAW-06` complete. `P-GUI-09` also depends on `P-RUNTIME-03`.
+`P-GUI-09` also depends on `P-RUNTIME-03`.
 
 ## Current authority boundary
 
-Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
+Phase P remains in development. Released system semantics continue to be governed by release `v1.1.0` until Phase P closure/release integration.
 
-P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-05 are accepted development baselines. P-RAW-06 is the next RAW Grounding task and owns formal operational acceptance, compatibility/cutover disposition, and documentation closure for the external Raw-grounding boundary.
+P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-06 are accepted development baselines. The Raw external-AI boundary is now formally accepted and no longer blocks Package / Result GUI work.
 
 ## Next
 
 ```text
-P-RAW-06 — RAW Grounding acceptance / compatibility / documentation
+P-GUI-08 — Package / Result GUI
 ```
