@@ -5,7 +5,8 @@ Updated: 2026-10-29
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
 - Decision: **Remove the experimental GUI From/To date filter**
-- Status: **Implemented / Automated Verification Refresh Pending / Interactive Smoke Pending**
+- Status: **Implemented / Automated Verification PASS / Interactive Smoke Pending**
+- Current automated authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_08.md`
 
 ## Operator decision
 
@@ -95,23 +96,36 @@ The following documents remain historical records of the experimental range work
 - `P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`
 - `P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`
 
-Attempt 07 automated PASS also predates this removal and is historical until the reduced surface is re-verified.
+Attempt 07 automated PASS is historical because it predates this removal.
+
+## Post-removal verification
+
+Attempt 08 re-verified the reduced surface after the removal:
+
+```text
+focused regression = 28 / 28 PASS
+Ruff               = PASS
+full regression    = 817 / 817 PASS
+warnings           = 2 known local-Qdrant warnings
+```
+
+Therefore the From/To removal and preserved semantic-runtime remediation are accepted at the automated-verification level.
 
 ## Current disposition
 
 ```text
-From/To GUI controls              = Removed from operator surface
-GUI range argument construction   = Removed
-range retrieval adapters          = Removed
-range-specific tests              = Removed
-single-point valid_at contract     = Preserved
-semantic runtime crash remediation= Preserved
-automated verification refresh    = Pending
-interactive smoke                 = Pending
+From/To GUI controls               = Removed from operator surface
+GUI range argument construction    = Removed
+range retrieval adapters           = Removed
+range-specific tests               = Removed
+single-point valid_at contract      = Preserved
+semantic runtime crash remediation = Preserved
+automated verification refresh     = PASS
+interactive smoke                  = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
