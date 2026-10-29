@@ -72,6 +72,17 @@ class RuntimeFactory:
             )
         return RetrievalRuntimeUnavailableError(message)
 
+    def cached_semantic_runtime(self) -> tuple[object, object] | None:
+        """Return an already-built semantic runtime without constructing one."""
+
+        return self._cached_semantic
+
+    @staticmethod
+    def semantic_preload_failure() -> str | None:
+        """Return a GUI main-thread preload failure without retrying native imports."""
+
+        return _SEMANTIC_PRELOAD_FAILURE
+
     def semantic_runtime(self) -> tuple[object, object]:
         if self._cached_semantic is not None:
             return self._cached_semantic
