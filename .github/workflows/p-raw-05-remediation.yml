@@ -6,94 +6,30 @@ on:
       - p-raw-05-verification-remediation
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  focused:
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: ubuntu-latest
+  verify:
+    runs-on: windows-latest
     env:
       QT_QPA_PLATFORM: offscreen
     steps:
       - uses: actions/checkout@v4
         with:
           ref: p-raw-05-verification-remediation
-      - name: Align stale migration expectations with Migration 020
-        shell: python
+          fetch-depth: 0
+      - name: Match reference Windows checkout semantics
+        shell: pwsh
         run: |
-          from pathlib import Path
-
-          replacements = {
-              "tests/test_embedding_space.py": [
-                  (
-                      'assert upgraded.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 19',
-                      'assert upgraded.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 20',
-                  )
-              ],
-              "tests/test_f03_object_evidence_retrieval.py": [
-                  (
-                      'assert repository.one("SELECT count(*) n FROM schema_migrations")["n"] == 17',
-                      'assert repository.one("SELECT count(*) n FROM schema_migrations")["n"] == 18',
-                  )
-              ],
-              "tests/test_hybrid_search.py": [
-                  (
-                      'assert repo.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 19',
-                      'assert repo.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 20',
-                  )
-              ],
-              "tests/test_l05_canonical_bootstrap.py": [
-                  ("list(range(3, 20))", "list(range(3, 21))"),
-              ],
-              "tests/test_m01_cli.py": [
-                  ('assert payload["data"]["schema_migrations"][-1] == 19',
-                   'assert payload["data"]["schema_migrations"][-1] == 20'),
-              ],
-              "tests/test_m03_standard_workflow.py": [
-                  ("list(range(3, 20))", "list(range(3, 21))"),
-              ],
-              "tests/test_search_generation_migration.py": [
-                  ("list(range(3, 20))", "list(range(3, 21))"),
-              ],
-              "tests/test_versioning.py": [
-                  (
-                      'assert upgraded.one("SELECT count(*) n FROM schema_migrations")["n"] == 17',
-                      'assert upgraded.one("SELECT count(*) n FROM schema_migrations")["n"] == 18',
-                  )
-              ],
-          }
-
-          changed = []
-          for name, items in replacements.items():
-              path = Path(name)
-              text = path.read_text(encoding="utf-8")
-              original = text
-              for old, new in items:
-                  if old in text:
-                      text = text.replace(old, new)
-                  elif new not in text:
-                      raise SystemExit(f"Expected migration assertion not found in {name}: {old}")
-              if text != original:
-                  path.write_text(text, encoding="utf-8")
-                  changed.append(name)
-          print("changed:", changed)
-      - name: Commit deterministic test remediation
-        run: |
-          if git diff --quiet; then
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tests
-          git commit -m "test: align migration expectations with 020 [skip ci]"
-          git push origin HEAD:p-raw-05-verification-remediation
+          git config core.autocrlf true
+          git checkout -f HEAD -- .
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
       - run: python -m pip install --upgrade pip
       - name: Install verification dependencies
-        run: python -m pip install -e ".[dev,vector-qdrant,gui,mcp]" numpy
+        shell: pwsh
+        run: |
+          python -m pip install -e ".[dev,vector-qdrant,gui,mcp]" numpy
+          python -m pip install "sentence-transformers>=6.1,<7" --no-deps
       - name: Focused P-RAW and v1 exchange regression
         run: >-
           python -m pytest
