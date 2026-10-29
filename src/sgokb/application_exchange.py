@@ -14,7 +14,7 @@ from .exchange.result_import import ObjectVersionImportService
 from .exchange.result_receipt import DEFAULT_INCOMING_ROOT, ResultReceiptService
 from .exchange.result_validation import ResultValidationService
 from .review import DiffReviewService
-from .storage import PackageExchangeAuditRepository
+from .storage import PackageExchangeAuditRepository, RawGroundingRepository
 
 
 def _manifest(path: Path) -> dict:
@@ -29,6 +29,7 @@ class PackageExchangeApplication:
     def __init__(self, repository) -> None:
         self.repository = repository
         self.audit = PackageExchangeAuditRepository(repository.db)
+        self.raw_audit = RawGroundingRepository(repository.db)
 
     def build(
         self,
@@ -85,6 +86,7 @@ class PackageExchangeApplication:
         staged = transfer.stage_from_directory(source_path, Path(staging_root))
         manifest = _manifest(Path(staged.path))
         self.audit.record_staged(manifest, staged.path, staged.preflight.to_dict())
+        self.raw_audit.record_package(manifest)
         return staged
 
     def preflight(self, package: str | Path, *, destination: str | Path | None = None):
