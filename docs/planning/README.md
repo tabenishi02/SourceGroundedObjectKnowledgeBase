@@ -27,7 +27,8 @@ P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
 P-GUI-05 = Complete / Accepted
 P-GUI-06 = Complete / Accepted
-Next = P-GUI-07 Progress / error / safety / audit UX
+P-GUI-07 = Implementation Complete / Automated Verification Pending / Interactive Smoke Pending
+Next = verify P-GUI-07
 ```
 
 Phase PのWorkstream優先順位:
@@ -87,7 +88,6 @@ Priority 3: Runtime / Qdrant auto-start
 - Final interactive acceptance: [`../evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md`](../evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md)
 - Search mode / Semantic runtime coupling remediation: [`../evaluation/P_GUI_06_SEMANTIC_RUNTIME_MODE_COUPLING_REMEDIATION.md`](../evaluation/P_GUI_06_SEMANTIC_RUNTIME_MODE_COUPLING_REMEDIATION.md)
 - From/To removal: [`../evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md`](../evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md)
-- Semantic GUI crash remediation: [`../evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`](../evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md)
 
 P-GUI-06 final automated evidence:
 
@@ -98,17 +98,60 @@ full regression    = 818 / 818 PASS
 known local-Qdrant warnings = 2
 ```
 
-Final interactive verification confirmed that the reported Semantic / Hybrid Search issues were resolved and the exercised P-GUI-06 functions showed no remaining problem in the verified scope.
-
 ```text
 P-GUI-06 = Complete / Accepted
 ```
+
+### P-GUI-07 current authority
+
+- Design: [`../design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md`](../design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md)
+- Implementation / verification procedure: [`../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md`](../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md)
+
+Implemented P-GUI-07 surface:
+
+```text
+indeterminate progress
+operation safety class
+cancellation availability
+partial / blocked state visibility
+normalized error category/code
+warning / degradation / error center
+high-impact WRITE / EXTERNAL / MAINTENANCE confirmation
+form-only Undo / Redo
+Equivalent CLI command
+session-local operation history / audit surface
+```
+
+Current cancellation contract:
+
+```text
+cooperative cancellation contract = none
+current dispatched operations      = non-cancellable
+QThread.terminate()                 = prohibited
+```
+
+GUI Undo/Redo applies only to unsubmitted form edits and never maps to canonical Version rollback or inverse mutation.
+
+Current status:
+
+```text
+P-GUI-07 = Implementation Complete / Automated Verification Pending / Interactive Smoke Pending
+```
+
+Expected verification inventory if no unrelated test changes occurred:
+
+```text
+focused GUI gate ~= 34 tests
+full regression   ~= 823 tests
+```
+
+These counts are expectations only until measured locally.
 
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-06 are accepted development baselines.
+P-GUI-01 through P-GUI-06 are accepted development baselines. P-GUI-07 implementation is not yet accepted until automated and interactive verification pass.
 
 ## Phase P GUI architecture
 
@@ -119,6 +162,7 @@ GUI backend           = QObject worker on dedicated QThread
 SQLite                = Repository per operation, created in worker thread
 Backend concurrency   = serialized per Workspace initially
 Semantic runtime      = native stack preloaded on main thread; model lazy-cached in backend
+Operation UX          = session Operation Center + safety metadata
 Windows deployment    = pyside6-deploy / Nuitka
 Deployment mode       = standalone directory / portable ZIP
 Qt linking            = dynamic / separate shared libraries
@@ -158,5 +202,8 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-GUI-07 — Progress / error / safety / audit UX
+1. run P-GUI-07 focused GUI regression + Ruff
+2. run full regression
+3. perform P-GUI-07 interactive smoke
+4. if PASS, close P-GUI-07 as Complete / Accepted
 ```
