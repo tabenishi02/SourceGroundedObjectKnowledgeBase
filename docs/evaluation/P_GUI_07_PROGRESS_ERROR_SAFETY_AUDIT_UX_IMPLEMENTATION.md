@@ -4,10 +4,11 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-07 [P0] Progress / error / safety / audit UX`
-- Status: **Automated Verification PASS / Interactive Smoke Pending**
+- Status: **Complete / Accepted**
 - Dependency baseline: `P-GUI-06 = Complete / Accepted`
 - Design: `docs/design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md`
 - Automated authority: `docs/evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
+- Interactive authority: `docs/evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md`
 
 ## 1. Implemented scope
 
@@ -128,7 +129,7 @@ Coverage includes:
 
 ## 10. Automated verification
 
-Current measured authority:
+Final measured authority:
 
 ```text
 focused GUI gate = 34 / 34 PASS
@@ -145,29 +146,26 @@ The two warnings are the existing local-Qdrant limitations and are not P-GUI-07 
 
 Earlier failed focused attempts were isolated to the new headless Undo test and one Ruff line-length issue; neither represented an Application/Repository behavior defect. The final passing test isolates the focused-form Undo contract from Qt offscreen focus acquisition behavior.
 
-## 11. Interactive smoke gate
+## 11. Interactive smoke
 
-Confirm at minimum:
+Final interactive authority:
 
-1. Operation Center is available from View/Home and records ordinary READ operations.
-2. Warning/degradation automatically reveals the center.
-3. Running operation shows indeterminate progress and `cancellation unavailable`.
-4. high-impact WRITE confirmation shows safety class and Equivalent CLI.
-5. canceling that dialog prevents submission.
-6. local text edit Undo/Redo works before submission.
-7. Undo does not imply reversal of submitted canonical state.
-8. existing Object / Source / Search / Registry workflows remain usable.
+- `docs/evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md`
 
-## 12. Current disposition
+The operator completed the defined interactive smoke and reported no problem in the exercised scope. This closes the manual gate for Operation Center / progress / confirmation / Undo and representative existing GUI workflow usability.
+
+## 12. Final disposition
 
 ```text
 implementation          = Complete
 automated verification  = PASS
-interactive smoke       = Pending
+interactive smoke       = PASS
 ```
 
 Therefore:
 
 ```text
-P-GUI-07 = Automated Verification PASS / Interactive Smoke Pending
+P-GUI-07 = Complete / Accepted
 ```
+
+The next executable priority task is `P-RAW-01 — Current Evidence Package / Result impact survey` because `P-GUI-08` is blocked by completion of the P-RAW workstream and `P-GUI-09` depends on `P-RUNTIME-03`.
