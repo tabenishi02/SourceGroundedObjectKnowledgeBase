@@ -5,6 +5,7 @@ from .exchange_repository import PackageExchangeAuditRepository
 from .markdown_repository import MarkdownRenderReadRepository
 from .object_repository import ObjectRepository
 from .package_repository import PackageBuildReadRepository
+from .raw_grounding_repository import RawGroundingRepository
 from .registry_proposal_repository import RegistryProposalRepository
 from .result_import_repository import ResultImportRepository
 from .semantic_repository import SemanticRepository
@@ -17,6 +18,7 @@ __all__ = [
     "ObjectRepository",
     "PackageBuildReadRepository",
     "PackageExchangeAuditRepository",
+    "RawGroundingRepository",
     "RegistryProposalRepository",
     "ResultImportRepository",
     "SemanticRepository",
