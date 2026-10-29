@@ -27,7 +27,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
-| GUI | P-GUI-06 | **Automated Verification PASS / Interactive Smoke Pending** | Final From/To Registry boundary + semantic runtime dependency remediation verified; 40/40 focused + 829/829 full PASS |
+| GUI | P-GUI-06 | **Automated Verification PASS / Interactive Smoke Pending** | Attempt 07: unversioned From/To identity + GUI native-preload remediation verified; 42/42 focused + 831/831 full PASS |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
@@ -112,12 +112,13 @@ Total       14 / 14
 
 Search Hard Filters provide Registry-backed Class selectors, Facet / Version / Temporal Scope selectors, `Knowledge valid From` / `Knowledge valid To`, fixed-value Derivation Kind, and archived-Object scope.
 
-The frozen R2 Search contract governs the final From/To boundary:
+The frozen R2 Search contract governs the From/To boundary:
 
 ```text
 Registry name / alias identity
     -> canonical identity discovery
     -> From/To alone does not remove the identity result
+    -> no current Version or Statement is required
 
 Knowledge lexical Statement channel
     -> From/To temporal-overlap filter
@@ -126,13 +127,11 @@ Semantic Statement channel
     -> From/To temporal-overlap filter
 ```
 
-`knowledge_valid_at`, `temporal_scope_id`, and `derivation_kind` remain Statement-scoped conditions. Facet / Derivation / Temporal Scope combinations still require a matching Statement where their narrowed semantics apply.
+`knowledge_valid_at`, `temporal_scope_id`, and `derivation_kind` remain Statement-scoped conditions. Facet / Derivation / Temporal Scope combinations still require matching Statements where their narrowed semantics apply.
 
-The earlier stale-generation and Statement-less exception-based remediations remain historical. The current implementation corrects the underlying contract boundary.
+Search presentation clears previous result/degradation state for every new request and displays the current normalized failure rather than retaining stale state.
 
-Search presentation also clears previous results/degradation state for every new request and displays the current normalized failure rather than retaining stale state.
-
-### Local semantic runtime dependency
+### Local semantic runtime / GUI native preload
 
 The local embedding profile declares:
 
@@ -142,9 +141,7 @@ sentence-transformers>=6.1,<7
 transformers>=5.2,<6
 ```
 
-Dependency initialization failures are normalized to `RetrievalRuntimeUnavailableError`; the known external `name 'nn' is not defined` failure produces actionable PyTorch guidance instead of `internal/internal_error`.
-
-Attempt 06 operator environment:
+The operator `.venv` is verified as:
 
 ```text
 PyTorch           = 2.6.0+cu124
@@ -154,23 +151,21 @@ GPU               = NVIDIA GeForce RTX 4090
 pip check         = No broken requirements found
 ```
 
+Dependency failures are normalized to `RetrievalRuntimeUnavailableError`.
+
+After production GUI testing exposed a process-level crash when Semantic runtime was enabled, GUI startup now preloads PyTorch / Transformers / Sentence Transformers native dependencies on the Qt main thread before `BackendCoordinator` creates the backend QThread. The Harrier model remains lazy.
+
 ### Registry / Version / Render
 
 Registry behavior remains Class/Relation Type browse, Proposal review with Accept/Reject separated from Apply, Version Show/Diff, and derived Markdown Render/export.
 
 ## P-GUI-06 verification history
 
-Current automated authority:
+Current authority:
 
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md`
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`
+- `docs/evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`
 - `docs/evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`
-
-Historical authority:
-
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`
-- `docs/evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md`
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_03.md`
 
 Attempt history:
 
@@ -180,16 +175,18 @@ Attempt 02 = PASS, selector/range baseline
 Attempt 03 = FAIL, verification fixture + Ruff defects; product assertion not reached
 Attempt 04 = PASS, first validity-range remediation
 Attempt 05 = PASS, range identity/runtime-state/Qdrant regression set
-interactive smoke after Attempt 05 = FAIL, final contract/runtime defects exposed
-Attempt 06 = PASS, final R2 range contract + semantic dependency remediation
+interactive after Attempt 05 = FAIL
+Attempt 06 = PASS, contract/runtime dependency remediation
+interactive after Attempt 06 = FAIL / Semantic GUI crash
+Attempt 07 = PASS, unversioned identity + GUI native-preload remediation
 ```
 
 Measured current result:
 
 ```text
-focused P-GUI-03R / 04 / 05 / 06 regression = 40 / 40 PASS
+focused P-GUI-03R / 04 / 05 / 06 regression = 42 / 42 PASS
 Ruff                                           = All checks passed!
-full pytest                                     = 829 / 829 PASS
+full pytest                                     = 831 / 831 PASS
 known local-Qdrant warnings                     = 2
 ```
 
@@ -202,7 +199,7 @@ implementation         = Complete
 desk audit             = Complete
 operation wiring       = 14 / 14
 automated verification = PASS
-interactive smoke      = Pending
+interactive re-smoke   = Pending
 ```
 
 Therefore:
@@ -227,7 +224,7 @@ P-GUI-04 Complete / Accepted
 P-GUI-05 Complete / Accepted
         ↓
 P-GUI-06 Automated Verification PASS / Interactive Smoke Pending   <- CURRENT
-        ↓ repeat production smoke for From/To + Semantic runtime
+        ↓ repeat production GUI smoke for From/To + Semantic runtime
 P-GUI-06 Complete / Accepted
         ↓
 P-GUI-07 Progress / error / safety / audit UX
@@ -245,7 +242,7 @@ P-GUI-10 / P-CLOSE-01
 
 Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed the current automated gate and remains open only for interactive smoke acceptance. None of these tasks alone advance the formal released version.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed the current automated gate and remains open for interactive re-smoke acceptance. None of these tasks alone advance the formal released version.
 
 ## Next
 
