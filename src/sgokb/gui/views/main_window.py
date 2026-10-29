@@ -108,14 +108,14 @@ class MainWindow(QMainWindow):
         self.undo_action = QAction("Undo form edit", self)
         self.undo_action.setShortcut("Ctrl+Z")
         self.undo_action.setStatusTip(
-            "Undo only the focused form edit; never reverse a submitted operation."
+            "Undo only the focused form edit; never reverse submitted operations."
         )
         self.undo_action.triggered.connect(lambda: self._edit_focused_widget("undo"))
 
         self.redo_action = QAction("Redo form edit", self)
         self.redo_action.setShortcut("Ctrl+Y")
         self.redo_action.setStatusTip(
-            "Redo only the focused form edit; never replay a submitted operation."
+            "Redo only the focused form edit; never replay submitted operations."
         )
         self.redo_action.triggered.connect(lambda: self._edit_focused_widget("redo"))
 
@@ -177,6 +177,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(root)
 
         self.operation_center = OperationCenter(self.backend, self)
+        self.operation_center.setObjectName("OperationCenter")
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.operation_center)
         self.operation_center.hide()
         self.operation_center_action.toggled.connect(self.operation_center.setVisible)
@@ -466,8 +467,11 @@ class MainWindow(QMainWindow):
         if self.backend.is_busy:
             self._show_failure(
                 "Operation in progress",
-                "The application cannot close while a backend operation is running. "
-                "The current operation is non-cancellable unless its contract explicitly says otherwise.",
+                (
+                    "The application cannot close while a backend operation is running. "
+                    "The current operation is non-cancellable unless its contract "
+                    "explicitly says otherwise."
+                ),
             )
             event.ignore()
             return
