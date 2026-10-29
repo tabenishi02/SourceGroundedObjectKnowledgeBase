@@ -10,7 +10,7 @@ from .exchange.package_manifest_v2 import PACKAGE_SCHEMA_VERSION_V2
 from .exchange.package_transfer import PackageTransferService
 from .exchange.package_transfer_v2 import RawPackageTransferService
 from .exchange.raw_package_builder import ObjectRawPackageBuilder
-from .exchange.result_import import ObjectVersionImportService
+from .exchange.result_import_router import VersionedObjectVersionImportService
 from .exchange.result_receipt import DEFAULT_INCOMING_ROOT, ResultReceiptService
 from .exchange.result_validation_router import VersionedResultValidationService
 from .review.router import VersionedDiffReviewService
@@ -69,6 +69,16 @@ class PackageExchangeApplication:
             )
         if str(package_version) not in {"1", "v1", "sgokb.object-evidence-package/1.0"}:
             raise ValueError(f"Unsupported Package version: {package_version}")
+        current_version_id = self.repository.object_store.get_object(object_id).current_version_id
+        if current_version_id is not None:
+            has_raw_grounding = self.repository.db.execute(
+                "SELECT 1 FROM raw_grounding_links WHERE version_id=? LIMIT 1",
+                (current_version_id,),
+            ).fetchone()
+            if has_raw_grounding:
+                raise ValueError(
+                    "Legacy Package v1 build is blocked for a Raw-grounded current Version"
+                )
         return ObjectEvidencePackageBuilder(self.repository).build(object_id, **common)
 
     @staticmethod
@@ -175,7 +185,7 @@ class ResultExchangeApplication:
         incoming_root: str | Path = DEFAULT_INCOMING_ROOT,
         acknowledge_review: bool = False,
     ):
-        return ObjectVersionImportService(self.repository, self.audit).import_receipt(
+        return VersionedObjectVersionImportService(self.repository, self.audit).import_receipt(
             receipt_id,
             incoming_root=Path(incoming_root),
             acknowledge_review=acknowledge_review,
