@@ -41,7 +41,12 @@ class ObjectKnowledgeReader:
 
         requested_facets = self._normalize_facets(facets)
         allowed_facet_ids = self._facet_ids(requested_facets)
-        evidence = self._evidence_by_target(resolved_version_id) if include_evidence_refs else {}
+        if include_evidence_refs:
+            evidence = self._evidence_by_target(resolved_version_id)
+            grounding = self._raw_grounding_by_target(resolved_version_id)
+        else:
+            evidence = {}
+            grounding = {}
         metadata = self._result_metadata(resolved_version_id)
 
         primary_class = self._class_payload(version.classification.primary_class_id)
@@ -54,7 +59,7 @@ class ObjectKnowledgeReader:
         summary = []
         statements_by_facet: dict[str, list[dict]] = defaultdict(list)
         for row in statement_rows:
-            statement = self._statement_payload(row, evidence)
+            statement = self._statement_payload(row, evidence, grounding)
             if row["facet_id"] is None:
                 summary.append(statement)
             elif allowed_facet_ids is None or row["facet_id"] in allowed_facet_ids:
@@ -73,12 +78,17 @@ class ObjectKnowledgeReader:
         ]
 
         attributes = [
-            self._attribute_payload(row, evidence)
+            self._attribute_payload(row, evidence, grounding)
             for row in self._attribute_rows(resolved_version_id)
         ]
         relations = (
             [
-                self._relation_payload(row, evidence, perspective_object_id=object_id)
+                self._relation_payload(
+                    row,
+                    evidence,
+                    grounding,
+                    perspective_object_id=object_id,
+                )
                 for row in self._relation_rows(resolved_version_id)
             ]
             if include_relations
@@ -88,6 +98,7 @@ class ObjectKnowledgeReader:
         warnings = []
         if metadata is None:
             warnings.append("result_metadata_unavailable")
+        grounding_kind = "raw" if grounding else ("evidence" if evidence else "none")
 
         return {
             "object_id": object_record.object_id,
@@ -107,6 +118,7 @@ class ObjectKnowledgeReader:
             "version_number": version.version_number,
             "primary_class": primary_class,
             "additional_classes": additional_classes,
+            "grounding_kind": grounding_kind,
             "scope": {
                 "facets": None if requested_facets is None else list(requested_facets),
                 "include_relations": include_relations,
@@ -160,6 +172,7 @@ class ObjectKnowledgeReader:
 
         rows = self._current_relation_rows(object_id)
         evidence_by_version: dict[str, dict[tuple[str, str], list[dict]]] = {}
+        grounding_by_version: dict[str, dict[tuple[str, str], list[dict]]] = {}
         relations = []
         for row in rows:
             owner_version_id = row["version_id"]
@@ -168,11 +181,21 @@ class ObjectKnowledgeReader:
                     evidence_by_version[owner_version_id] = self._evidence_by_target(
                         owner_version_id
                     )
+                    grounding_by_version[owner_version_id] = self._raw_grounding_by_target(
+                        owner_version_id
+                    )
                 evidence = evidence_by_version[owner_version_id]
+                grounding = grounding_by_version[owner_version_id]
             else:
                 evidence = {}
+                grounding = {}
             relations.append(
-                self._relation_payload(row, evidence, perspective_object_id=object_id)
+                self._relation_payload(
+                    row,
+                    evidence,
+                    grounding,
+                    perspective_object_id=object_id,
+                )
             )
 
         return {
@@ -333,6 +356,21 @@ class ObjectKnowledgeReader:
             )
         return grouped
 
+    def _raw_grounding_by_target(self, version_id: str) -> dict[tuple[str, str], list[dict]]:
+        rows = self.db.execute(
+            """SELECT target_kind,target_id,raw_artifact_id,role,locator_json
+               FROM raw_grounding_links WHERE version_id=?
+               ORDER BY target_kind,target_id,raw_artifact_id,role,rowid""",
+            (version_id,),
+        ).fetchall()
+        grouped: dict[tuple[str, str], list[dict]] = defaultdict(list)
+        for row in rows:
+            item = {"raw_artifact_id": row["raw_artifact_id"], "role": row["role"]}
+            if row["locator_json"] is not None:
+                item["locator"] = json.loads(row["locator_json"])
+            grouped[(row["target_kind"], row["target_id"])].append(item)
+        return grouped
+
     @staticmethod
     def _temporal_payload(row: dict) -> dict | None:
         if row.get("temporal_scope_id") is None:
@@ -346,7 +384,7 @@ class ObjectKnowledgeReader:
             "label": row.get("label"),
         }
 
-    def _statement_payload(self, row: dict, evidence: dict) -> dict:
+    def _statement_payload(self, row: dict, evidence: dict, grounding: dict) -> dict:
         attribution = None
         if row.get("attribution_kind") is not None:
             attribution = {
@@ -365,6 +403,7 @@ class ObjectKnowledgeReader:
             "temporal_scope": self._temporal_payload(row),
             "attribution": attribution,
             "evidence": evidence.get(("statement", row["id"]), []),
+            "grounding": grounding.get(("statement", row["id"]), []),
         }
 
     @staticmethod
@@ -384,7 +423,7 @@ class ObjectKnowledgeReader:
             return json.loads(row["value_json"])
         raise RuntimeError(f"Unsupported Attribute value type: {kind}")
 
-    def _attribute_payload(self, row: dict, evidence: dict) -> dict:
+    def _attribute_payload(self, row: dict, evidence: dict, grounding: dict) -> dict:
         return {
             "attribute_value_id": row["id"],
             "attribute_id": row["attribute_id"],
@@ -397,12 +436,14 @@ class ObjectKnowledgeReader:
             "language": row["language"],
             "temporal_scope": self._temporal_payload(row),
             "evidence": evidence.get(("attribute", row["id"]), []),
+            "grounding": grounding.get(("attribute", row["id"]), []),
         }
 
     def _relation_payload(
         self,
         row: dict,
         evidence: dict,
+        grounding: dict,
         *,
         perspective_object_id: str | None = None,
     ) -> dict:
@@ -433,4 +474,5 @@ class ObjectKnowledgeReader:
             "owner_version_id": row["version_id"],
             "temporal_scope": self._temporal_payload(row),
             "evidence": evidence.get(("relation", row["id"]), []),
+            "grounding": grounding.get(("relation", row["id"]), []),
         }
