@@ -5,8 +5,9 @@ Updated: 2026-10-29
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
 - Trigger: interactive Search smoke after Attempt 08
-- Status: **Implemented / Automated Verification PASS / Interactive Re-smoke Pending**
-- Current automated authority: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`
+- Status: **Complete / Accepted**
+- Final automated authority: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`
+- Final interactive authority: `docs/evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md`
 
 ## Interactive symptom
 
@@ -97,9 +98,9 @@ Unchanged:
 4. pure Semantic request construction remains ON even after programmatic checkbox desynchronization;
 5. Hybrid explicit opt-out remains supported and disables `require_full_runtime`.
 
-## Verification authority
+## Final verification
 
-Attempt 09 is the current automated authority:
+Attempt 09:
 
 ```text
 focused = 29 / 29 PASS
@@ -108,19 +109,19 @@ full    = 818 / 818 PASS
 warnings = 2 known local-Qdrant warnings
 ```
 
-Attempt 08 remains historical evidence for the From/To-removal baseline and predates this remediation.
+Interactive re-smoke then confirmed that the reported Semantic / Hybrid Search problem was resolved.
 
-Current disposition:
+## Final disposition
 
 ```text
 semantic/runtime GUI contract = corrected
 automated verification        = PASS
-interactive Semantic re-smoke = pending
-interactive Hybrid re-smoke   = pending
+interactive Semantic re-smoke = PASS
+interactive Hybrid re-smoke   = PASS
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+P-GUI-06 semantic runtime mode coupling remediation = Complete / Accepted
 ```
