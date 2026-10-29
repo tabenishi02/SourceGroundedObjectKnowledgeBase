@@ -4,7 +4,8 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
-- Status: **Remediation Implemented / Automated Verification Refresh Pending / Interactive Smoke Pending**
+- Status: **Remediation Verified / Automated Verification PASS / Interactive Smoke Pending**
+- Current automated authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`
 - Previous automated authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_04.md`
 
 ## Operator observations
@@ -19,7 +20,7 @@ hybrid, semantic OFF+range-> zero results; semantic:RuntimeError degradation
 hybrid, semantic ON       -> previous Search presentation appeared to remain visible
 ```
 
-The lexical failure proves the From/To false negative is independent of Qdrant or the semantic runtime.
+The lexical failure proved the From/To false negative was independent of Qdrant or the semantic runtime.
 
 ## Root-cause refinement
 
@@ -45,7 +46,7 @@ Added:
 src/sgokb/retrieval/search_range_identity.py
 ```
 
-The canonical `HybridObjectSearch` export now layers this completion over the existing range-aware R2 implementation.
+The canonical `HybridObjectSearch` export layers this completion over the existing range-aware R2 implementation.
 
 Behavior:
 
@@ -71,11 +72,11 @@ Updated:
 src/sgokb/gui/views/search_page_derivation.py
 ```
 
-Every submitted Search now clears the previous result model, detail pane, and runtime-state display before the new result is accepted. The runtime label shows the current running mode.
+Every submitted Search clears the previous result model, detail pane, and runtime-state display before the new result is accepted. The runtime label shows the current running mode.
 
-If the Search operation fails before a Search response is produced, the Search runtime-state area now displays the current normalized failure instead of retaining the previous Search/degradation text.
+If the Search operation fails before a Search response is produced, the Search runtime-state area displays the current normalized failure instead of retaining the previous Search/degradation text.
 
-This is particularly important for semantic-runtime startup/Qdrant failures, where the prior GUI could leave an old `semantic:RuntimeError` or old results visible while only the generic operation-status label changed.
+This is particularly important for semantic-runtime startup/Qdrant failures, where the prior GUI could leave old degradation text or old results visible while only the generic operation-status label changed.
 
 ## Regression additions
 
@@ -96,33 +97,47 @@ Coverage adds:
 
 The Qdrant test closes a previous verification gap: earlier range-semantic coverage used a fake Vector Index, while Qdrant R2 tests covered generation lifecycle but did not execute a From/To semantic query.
 
-## Verification state
+## Automated verification
 
-The previous measured result was:
+Attempt 05 was executed on Windows with Python 3.10.6 / pytest 9.1.1 after this remediation.
+
+Measured result:
 
 ```text
-focused regression = 24 / 24 PASS
-Ruff               = PASS
-full regression    = 819 / 819 PASS
+focused regression = 31 / 31 PASS
+Ruff               = All checks passed!
+full regression    = 826 / 826 PASS
 known warnings     = 2 local-Qdrant warnings
 ```
 
-That result predates this remediation and is historical evidence only.
+Focused coverage includes:
 
-Current disposition:
+```text
+test_search_validity_range_identity.py   = 5 PASS
+test_p_gui_06_search_runtime_state.py     = 1 PASS
+test_search_validity_range_qdrant_r2.py  = 1 PASS
+```
+
+The Qdrant range-semantic regression passed with the real in-memory Qdrant adapter and R2 generation routing. The two warnings are the existing local-Qdrant payload-index and brute-force-search limitations and are not failures.
+
+Authority:
+
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`
+
+## Current disposition
 
 ```text
 interactive reproduction evidence = Accepted
-second range false-negative cause  = Identified
-product remediation                = Implemented
-GUI stale-state remediation        = Implemented
-Qdrant range-semantic coverage     = Added
-automated verification refresh     = Pending
+second range false-negative cause  = Confirmed
+product remediation                = PASS
+GUI stale-state remediation        = PASS
+Qdrant range-semantic coverage     = PASS
+automated verification             = PASS
 interactive smoke                  = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
