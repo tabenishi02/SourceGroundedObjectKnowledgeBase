@@ -1,9 +1,9 @@
-"""Registry-identity completion for range-aware Object Search.
+"""Registry-identity boundary for range-aware Object Search.
 
-A Knowledge validity range constrains temporal Knowledge. An accepted Version with
-no Knowledge Statements has no statement-level temporal restriction, so a range
-must not make its canonical Object name/alias identity disappear. Statement-
-specific filters still require a matching Statement.
+Knowledge validity is a Statement-scoped hard filter. Registry lexical identity
+(Object name / alias) is canonical identity discovery and must remain available
+independently of Statement temporal eligibility. Knowledge lexical/semantic
+channels continue to apply the range to Statement representations.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from .search_range import RangeAwareHybridObjectSearch as _BaseRangeAwareHybridO
 
 
 class RangeAwareHybridObjectSearch(_BaseRangeAwareHybridObjectSearch):
-    """Keep statement-less accepted Versions identity-visible under From/To."""
+    """Keep canonical Registry identity independent of From/To-only filtering."""
 
     def _canonical_range_pairs(
         self,
@@ -22,10 +22,9 @@ class RangeAwareHybridObjectSearch(_BaseRangeAwareHybridObjectSearch):
         filters: ObjectSearchFilters,
         validity: tuple[str | None, str | None],
     ) -> set[tuple[str, str]]:
-        allowed = super()._canonical_range_pairs(rows, filters, validity)
-
         # Facet / Derivation / Temporal Scope are Statement-specific constraints.
-        # A Version without Statements cannot satisfy those filters.
+        # When any of them is requested, Registry identity may only represent an
+        # Object/Version that has a matching canonical Statement under the range.
         if any(
             value is not None
             for value in (
@@ -34,28 +33,13 @@ class RangeAwareHybridObjectSearch(_BaseRangeAwareHybridObjectSearch):
                 filters.temporal_scope_id,
             )
         ):
-            return allowed
+            return super()._canonical_range_pairs(rows, filters, validity)
 
-        version_ids = tuple(
-            dict.fromkeys(
-                str(row["version_id"])
-                for row in rows
-                if isinstance(row.get("version_id"), str) and row["version_id"]
-            )
-        )
-        if not version_ids:
-            return allowed
-
-        marks = ",".join("?" for _ in version_ids)
-        sql = f"""SELECT v.object_id,v.id AS version_id
-                  FROM object_versions v
-                  JOIN object_version_lifecycle l ON l.version_id=v.id
-                  WHERE v.id IN ({marks}) AND l.state='accepted'
-                    AND NOT EXISTS (
-                      SELECT 1 FROM knowledge_statements s WHERE s.version_id=v.id
-                    )"""
-        allowed.update(
+        # knowledge_valid_at / GUI From-To alone constrains Statement channels,
+        # not canonical Object identity. This follows the frozen R2 Search contract:
+        # Registry name/alias discovery is possible even without Knowledge.
+        return {
             (str(row["object_id"]), str(row["version_id"]))
-            for row in self.db.execute(sql, version_ids)
-        )
-        return allowed
+            for row in rows
+            if isinstance(row.get("version_id"), str) and row["version_id"]
+        }
