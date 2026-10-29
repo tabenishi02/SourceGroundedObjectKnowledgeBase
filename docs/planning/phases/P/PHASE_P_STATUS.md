@@ -28,7 +28,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | **Complete / Accepted** | Search / Similarity / Registry / Version GUI; Attempt 09 + interactive PASS |
-| GUI | P-GUI-07 | **Implementation Complete / Automated Verification Pending / Interactive Smoke Pending** | Progress / error / safety / audit UX implemented |
+| GUI | P-GUI-07 | **Automated Verification PASS / Interactive Smoke Pending** | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
 | GUI | P-GUI-10 | Not Started | GUI parity / regression acceptance |
@@ -104,19 +104,26 @@ Current authority:
 
 - Design: `docs/design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md`
 - Implementation: `docs/evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md`
+- Automated verification: `docs/evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
 
-## P-GUI-07 verification gate
+## P-GUI-07 automated verification
 
-Because shared `worker.py`, `OperationPage`, and `MainWindow` changed, the refreshed gate covers P-GUI-03R through P-GUI-07.
-
-Expected inventory, assuming no unrelated test changes:
+Measured result:
 
 ```text
-focused GUI gate ~= 34 tests
-full regression   ~= 823 tests
+focused GUI gate = 34 / 34 PASS
+Ruff             = PASS
+full regression  = 823 / 823 PASS
+warnings         = 2 known local-Qdrant warnings
 ```
 
-These counts are expectations only until measured locally.
+The warning set is unchanged from prior accepted local-Qdrant runs and does not represent a P-GUI-07 regression.
+
+Therefore:
+
+```text
+P-GUI-07 automated verification = PASS
+```
 
 ## Sequencing
 
@@ -133,10 +140,8 @@ P-GUI-05 Complete / Accepted
         ↓
 P-GUI-06 Complete / Accepted
         ↓
-P-GUI-07 Implementation Complete   <- CURRENT
-        ↓ focused + Ruff + full regression PASS
-P-GUI-07 Interactive Smoke
-        ↓ PASS
+P-GUI-07 Automated Verification PASS   <- CURRENT
+        ↓ interactive smoke PASS
 P-GUI-07 Complete / Accepted
 ```
 
@@ -144,13 +149,12 @@ P-GUI-07 Complete / Accepted
 
 Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-P-GUI-01 through P-GUI-06 are accepted development baselines. P-GUI-07 implementation is complete but is not accepted until refreshed automated and interactive verification pass.
+P-GUI-01 through P-GUI-06 are accepted development baselines. P-GUI-07 implementation and automated verification are complete, but final acceptance still requires interactive smoke.
 
 ## Next
 
 ```text
-1. run P-GUI-07 focused GUI regression + Ruff
-2. run full regression
-3. run Operation Center / progress / confirmation / Undo interactive smoke
-4. if all PASS, close P-GUI-07 as Complete / Accepted
+1. run Operation Center / progress / confirmation / Undo interactive smoke
+2. verify existing Object / Source / Search / Registry workflows remain usable
+3. if PASS, close P-GUI-07 as Complete / Accepted
 ```
