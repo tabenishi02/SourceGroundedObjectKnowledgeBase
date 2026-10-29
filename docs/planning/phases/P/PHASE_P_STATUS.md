@@ -33,8 +33,9 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
 | GUI | P-GUI-10 | Not Started | GUI parity / regression acceptance |
 | RAW | P-RAW-01 | **Complete / Accepted** | Current Evidence Package / Result impact survey |
-| RAW | P-RAW-02 | **Not Started / Next** | Evidence -> Raw Artifact provenance resolution contract |
-| RAW | P-RAW-03..06 | Not Started | Raw-bearing Package / Result design, implementation, acceptance |
+| RAW | P-RAW-02 | **Complete / Accepted** | Deterministic Evidence -> Raw Artifact provenance resolution contract |
+| RAW | P-RAW-03 | **Not Started / Next** | RAW-bearing Package v2 design |
+| RAW | P-RAW-04..06 | Not Started | Raw-grounded Result design, implementation, acceptance |
 | Runtime | P-RUNTIME-01..06 | Not Started | Windows Qdrant auto-start / health / GUI integration |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
@@ -97,7 +98,7 @@ Authority:
 
 The survey confirms that Raw Grounding impact is concentrated at the external exchange / grounding boundary rather than the core accepted Knowledge model.
 
-### Breaking contracts
+Breaking contracts:
 
 ```text
 Evidence-Markdown external semantic payload
@@ -107,9 +108,7 @@ Evidence-ID-only Result grounding representation
 Evidence-only Result membership validation
 ```
 
-These contracts must be versioned rather than silently changing the semantics of `sgokb.object-evidence-package/1.0` or the v1 Result schema.
-
-### Migration-required contracts
+Migration-required contracts:
 
 ```text
 Evidence -> Raw provenance resolution
@@ -124,35 +123,56 @@ operator / acceptance documentation
 
 P-RAW-01 requires richer provenance logically but deliberately does not select a physical DB schema migration. That is deferred to P-RAW-04/05.
 
-### Compatible targets
-
-```text
-Evidence retrieval / operator selection intent
-Source / Snapshot / Raw canonical storage
-Object / Registry / Association semantics
-core statement / attribute / relation semantics
-derivation / attribution / temporal semantics
-Version lifecycle
-semantic diff core
-Search / Similarity / derived indexing
-```
-
-Key compatibility constraints established by P-RAW-01:
-
-1. Evidence remains the retrieval / human-selection unit.
-2. Raw becomes the authoritative external semantic material in v2.
-3. grounding must still belong to the exact bound Package.
-4. Evidence <-> Raw traceability must be preserved.
-5. accepted historical grounding must remain protected across Source-generation changes.
-6. v1 Evidence-grounded artifacts must never be silently reinterpreted as v2 Raw-grounded artifacts.
-7. canonical Knowledge semantics should remain stable unless later design finds a concrete blocker.
-
-No source code changed and no regression suite was rerun for P-RAW-01; it is a documentation/design survey task.
-
 Therefore:
 
 ```text
 P-RAW-01 = Complete / Accepted
+```
+
+## P-RAW-02 accepted provenance resolution contract
+
+Authority:
+
+- `docs/design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md`
+
+P-RAW-02 freezes the deterministic Raw resolution scope at the complete input set of the Evidence's own Normalization Run:
+
+```text
+resolution scope = normalization_run_inputs
+```
+
+For each selected or protected Evidence:
+
+```text
+Evidence
+  -> its own Normalization Run
+  -> ALL normalization_run_artifacts
+  -> exact Snapshot / Source generation
+  -> physical byte-size / SHA-256 verification before egress
+```
+
+The current schema does not store an exact per-Evidence Raw subset or byte range. Therefore P-RAW-02 deliberately avoids invented precision and treats the run input set as a provenance-complete Raw Input Covering Set.
+
+Key rules:
+
+1. every run input Raw Artifact is provenance-required;
+2. same-Snapshot artifacts not used by the run are excluded by default;
+3. multiple Evidence pointing to one Raw Artifact are deduplicated by `artifact_id` at Package identity level while every Evidence -> Raw edge is preserved;
+4. distinct artifact IDs are never collapsed merely because SHA-256 matches;
+5. historical carry-forward Evidence resolves through its original historical run, never the currently effective generation;
+6. artifact kind, path, filename, media type or content similarity are not provenance-selection heuristics;
+7. missing Raw, missing provenance, Snapshot mismatch, byte-size mismatch or hash mismatch fail closed;
+8. there is no Evidence-Markdown fallback and no partial covering set may be presented as complete;
+9. optional Package auxiliary artifacts remain separate from provenance-required grounding material.
+
+The resolver contract is intentionally separated from Package v2 materialization policy. P-RAW-03 may block an otherwise valid provenance set because of media, budget, privacy, secret or egress rules, but it must not silently alter provenance to make packaging succeed.
+
+No source code, runtime behavior, Package schema, Result schema, or DB schema changed in P-RAW-02. It is a design-contract task, so the regression suite was not rerun.
+
+Therefore:
+
+```text
+P-RAW-02 = Complete / Accepted
 ```
 
 ## Sequencing
@@ -162,9 +182,9 @@ P-GUI-01..07 Complete / Accepted
         ↓
 P-RAW-01 Complete / Accepted
         ↓
-P-RAW-02 Evidence -> Raw Artifact provenance resolution contract   <- NEXT
+P-RAW-02 Complete / Accepted
         ↓
-P-RAW-03 RAW-bearing Package v2 design
+P-RAW-03 RAW-bearing Package v2 design   <- NEXT
         ↓
 P-RAW-04 Raw-grounded Object Result v2 design
         ↓
@@ -181,10 +201,10 @@ P-GUI-08 Package / Result GUI
 
 Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-P-GUI-01 through P-GUI-07 and P-RAW-01 are accepted development baselines. The current active design task is P-RAW-02.
+P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-02 are accepted development baselines. The current active design task is P-RAW-03.
 
 ## Next
 
 ```text
-P-RAW-02 — Evidence -> Raw Artifact provenance resolution contract
+P-RAW-03 — RAW-bearing Package v2 design
 ```
