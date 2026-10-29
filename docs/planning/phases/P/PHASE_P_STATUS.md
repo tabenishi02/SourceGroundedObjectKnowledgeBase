@@ -27,8 +27,8 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
-| GUI | P-GUI-06 | **Complete / Accepted** | Search / Similarity / Registry / Version GUI; Attempt 09 automated PASS + final interactive PASS |
-| GUI | P-GUI-07 | **Not Started / Next** | Progress / error / safety / audit UX |
+| GUI | P-GUI-06 | **Complete / Accepted** | Search / Similarity / Registry / Version GUI; Attempt 09 + interactive PASS |
+| GUI | P-GUI-07 | **Implementation Complete / Automated Verification Pending / Interactive Smoke Pending** | Progress / error / safety / audit UX implemented |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
 | GUI | P-GUI-10 | Not Started | GUI parity / regression acceptance |
@@ -59,109 +59,64 @@ P-GUI-05      = Complete / Accepted
 P-GUI-06      = Complete / Accepted
 ```
 
-P-GUI-05 final evidence remains:
+P-GUI-06 final evidence:
 
 ```text
-focused GUI regression = 12 / 12 PASS
-Ruff                   = PASS
-full regression         = 807 / 807 PASS
-visual smoke            = PASS
-functional smoke        = PASS
-```
-
-## P-GUI-06 final accepted implementation
-
-P-GUI-06 provides operator-backed Search / Similarity / Registry / Version / Render pages.
-
-```text
-Search       1 / 1
-Similarity   1 / 1
-Registry     9 / 9
-Version      2 / 2
-Render       1 / 1
-------------------
-Total       14 / 14
-```
-
-### Search / Similarity
-
-Accepted Search hard filters are:
-
-```text
-Primary Class
-Additional Class
-Ancestor Class
-Facet
-Version ID
-Temporal Scope ID
-Derivation Kind
-Include archived Objects
-```
-
-The experimental From/To date range is removed. The accepted Search mode/runtime contract is:
-
-```text
-Lexical  -> Semantic runtime OFF / disabled
-Semantic -> Semantic runtime ON / disabled
-Hybrid   -> Semantic runtime ON by default; explicit opt-out remains available
-```
-
-The previous independent controls allowed `mode=semantic` with `semantic_runtime=false`, producing the missing EmbeddingProvider/VectorIndexAdapter error. This GUI contract defect is corrected in `src/sgokb/gui/views/search_page_derivation.py` and covered by `tests/test_p_gui_06_search_runtime_state.py`.
-
-Accepted amendment authorities:
-
-- `docs/evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md`
-- `docs/evaluation/P_GUI_06_SEMANTIC_RUNTIME_MODE_COUPLING_REMEDIATION.md`
-
-### Local semantic runtime / GUI native preload
-
-The local embedding profile remains:
-
-```text
-torch>=2.6,<3
-sentence-transformers>=6.1,<7
-transformers>=5.2,<6
-```
-
-Verified operator environment:
-
-```text
-PyTorch           = 2.6.0+cu124
-CUDA runtime      = 12.4
-CUDA available    = True
-GPU               = NVIDIA GeForce RTX 4090
-pip check         = No broken requirements found
-```
-
-The GUI process-level native crash remediation remains: PyTorch / Transformers / Sentence Transformers native dependencies are preloaded on the Qt main thread before the backend QThread starts. Harrier model construction remains lazy.
-
-### Registry / Version / Render
-
-Registry behavior remains Class/Relation Type browse, Proposal review with Accept/Reject separated from Apply, Version Show/Diff, and derived Markdown Render/export.
-
-## P-GUI-06 final verification authority
-
-Final automated authority:
-
-```text
-Attempt 09
 focused regression = 29 / 29 PASS
 Ruff               = PASS
 full regression    = 818 / 818 PASS
 warnings           = 2 known local-Qdrant warnings
+interactive smoke  = PASS in accepted scope
 ```
 
-Final interactive authority:
+Final authority:
 
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`
 - `docs/evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md`
 
-Interactive verification confirmed that the reported Semantic / Hybrid Search problems were resolved and that the functions exercised in the acceptance scope showed no remaining problem.
+## P-GUI-07 current implementation
 
-Therefore:
+P-GUI-07 adds desktop operation safety and observability without changing canonical Application semantics.
+
+Implemented:
 
 ```text
-P-GUI-06 = Complete / Accepted
+indeterminate progress for queued/running work
+operation identity + READ/DERIVED/WRITE/EXTERNAL/MAINTENANCE class
+explicit cancellation availability
+partial / blocked outcome visibility
+normalized error category/code visibility
+warning / degradation / error center
+high-impact WRITE + EXTERNAL + MAINTENANCE confirmation boundary
+form-only Undo / Redo
+no canonical rollback through GUI Undo
+Equivalent CLI command display
+session-local operation history / audit surface
 ```
+
+Current operations remain non-cancellable after dispatch because no cooperative cancellation contract exists. P-GUI-07 does not use `QThread.terminate()` or forced process termination.
+
+Operation Center history is presentation-only session state; canonical Object events, provenance and audit records remain owned by existing Application/Repository contracts.
+
+Safety behavior follows the accepted P-GUI-01 contract: an explicit commit action can be sufficient for ordinary WRITE, while high-impact WRITE, EXTERNAL and MAINTENANCE mutation receive stronger confirmation.
+
+Current authority:
+
+- Design: `docs/design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md`
+- Implementation: `docs/evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md`
+
+## P-GUI-07 verification gate
+
+Because shared `worker.py`, `OperationPage`, and `MainWindow` changed, the refreshed gate covers P-GUI-03R through P-GUI-07.
+
+Expected inventory, assuming no unrelated test changes:
+
+```text
+focused GUI gate ~= 34 tests
+full regression   ~= 823 tests
+```
+
+These counts are expectations only until measured locally.
 
 ## Sequencing
 
@@ -170,9 +125,7 @@ P-GUI-01 Complete / Accepted
         ↓
 P-GUI-02 Complete / Accepted
         ↓
-P-GUI-03 Complete / Accepted
-        ↓
-P-GUI-03R Complete / Accepted
+P-GUI-03 / 03R Complete / Accepted
         ↓
 P-GUI-04 Complete / Accepted
         ↓
@@ -180,17 +133,24 @@ P-GUI-05 Complete / Accepted
         ↓
 P-GUI-06 Complete / Accepted
         ↓
-P-GUI-07 Progress / error / safety / audit UX   <- NEXT
+P-GUI-07 Implementation Complete   <- CURRENT
+        ↓ focused + Ruff + full regression PASS
+P-GUI-07 Interactive Smoke
+        ↓ PASS
+P-GUI-07 Complete / Accepted
 ```
 
 ## Current authority boundary
 
 Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-P-GUI-01 through P-GUI-06 are accepted development baselines. The next GUI task is P-GUI-07.
+P-GUI-01 through P-GUI-06 are accepted development baselines. P-GUI-07 implementation is complete but is not accepted until refreshed automated and interactive verification pass.
 
 ## Next
 
 ```text
-P-GUI-07 — Progress / error / safety / audit UX
+1. run P-GUI-07 focused GUI regression + Ruff
+2. run full regression
+3. run Operation Center / progress / confirmation / Undo interactive smoke
+4. if all PASS, close P-GUI-07 as Complete / Accepted
 ```
