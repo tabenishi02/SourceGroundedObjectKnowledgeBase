@@ -1,7 +1,7 @@
 # P-RUNTIME-02 — Qdrant Compose Runtime Operations
 
 Date: 2026-10-30
-Status: **Implemented / acceptance pending**
+Status: **Complete / Accepted**
 Task: `P-RUNTIME-02 [P1] Qdrant Compose / configuration assets`
 
 ## 1. Scope
@@ -16,6 +16,8 @@ runtime/qdrant/.env.example
 ```
 
 The reference Windows environment is Docker Desktop with the WSL 2 backend. Qdrant remains an independent shared runtime. SGOKB CLI / GUI / MCP are clients and observers; they do not own the Qdrant process lifecycle.
+
+P-RUNTIME-02 acceptance is recorded in `docs/evaluation/P_RUNTIME_02_QDRANT_COMPOSE_CONFIGURATION_ACCEPTANCE.md`.
 
 ## 2. Fixed reference contract
 
@@ -282,9 +284,27 @@ docker volume inspect sgokb_qdrant_storage
 
 Successful completion means the P-RUNTIME-02 reproducibility boundary is satisfied. Windows login ordering/recovery after reboot is a separate P-RUNTIME-04 acceptance concern.
 
-## 13. Authority
+## 13. Acceptance authority
+
+Final P-RUNTIME-02 gate:
+
+```text
+GitHub Actions run         = 40961873913
+verified branch source     = 1732322b7a0d40dbd4838e3b62cebea1fb458baf
+verified synthetic merge   = 56b2ee1d1c83e0f4c84c27575ed8fdbcbb7bade9
+focused contract tests     = 2 / 2 PASS
+real Qdrant runtime        = PASS
+normal-down volume retain  = PASS
+recreate readiness         = PASS
+Ruff src/tests             = PASS
+Windows full regression    = 839 / 839 PASS
+warnings                   = 2 known local-Qdrant warnings
+```
+
+Authority files:
 
 - P-RUNTIME-01 decision: `docs/decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md`
 - Compose asset: `runtime/qdrant/compose.yaml`
 - environment template: `runtime/qdrant/.env.example`
+- acceptance: `docs/evaluation/P_RUNTIME_02_QDRANT_COMPOSE_CONFIGURATION_ACCEPTANCE.md`
 - task authority: `docs/planning/phases/P/PHASE_P_TASKS.md`
