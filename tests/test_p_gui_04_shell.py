@@ -86,6 +86,42 @@ def test_backend_worker_opens_fresh_workspace_on_backend_thread(qt_app, tmp_path
         assert backend.shutdown()
 
 
+def test_gui_bootstrap_preloads_semantic_native_stack_before_backend_thread(
+    qt_app,
+    tmp_path,
+    monkeypatch,
+):
+    import sgokb.gui.bootstrap as bootstrap
+
+    calls: list[str] = []
+    real_backend = bootstrap.BackendCoordinator
+
+    def fake_preload():
+        calls.append("preload")
+        return None
+
+    class RecordingBackend(real_backend):
+        def __init__(self, *args, **kwargs):
+            calls.append("backend")
+            assert calls[0] == "preload"
+            super().__init__(*args, **kwargs)
+
+    monkeypatch.setattr(bootstrap, "preload_local_semantic_native_dependencies", fake_preload)
+    monkeypatch.setattr(bootstrap, "BackendCoordinator", RecordingBackend)
+
+    runtime = bootstrap.create_runtime(
+        [],
+        settings=_settings(tmp_path / "bootstrap.ini"),
+        show_error_dialogs=False,
+    )
+    try:
+        assert calls[:2] == ["preload", "backend"]
+    finally:
+        runtime.window.close()
+        qt_app.processEvents()
+        assert runtime.backend.shutdown()
+
+
 def test_workspace_controller_preserves_current_workspace_when_candidate_fails(qt_app, tmp_path):
     del qt_app
     from sgokb.gui.controllers import WorkspaceController
