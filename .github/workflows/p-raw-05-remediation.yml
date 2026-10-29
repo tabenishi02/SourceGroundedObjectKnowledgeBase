@@ -17,28 +17,47 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: p-raw-05-verification-remediation
-      - name: Align stale migration expectations with Migration 019
+      - name: Align stale migration expectations with Migration 020
         shell: python
         run: |
           from pathlib import Path
 
           replacements = {
-              "tests/test_hybrid_search.py": [
+              "tests/test_embedding_space.py": [
                   (
-                      'assert repo.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 18',
-                      'assert repo.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 19',
+                      'assert upgraded.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 19',
+                      'assert upgraded.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 20',
                   )
               ],
+              "tests/test_f03_object_evidence_retrieval.py": [
+                  (
+                      'assert repository.one("SELECT count(*) n FROM schema_migrations")["n"] == 17',
+                      'assert repository.one("SELECT count(*) n FROM schema_migrations")["n"] == 18',
+                  )
+              ],
+              "tests/test_hybrid_search.py": [
+                  (
+                      'assert repo.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 19',
+                      'assert repo.one("SELECT max(version) AS n FROM schema_migrations")["n"] == 20',
+                  )
+              ],
+              "tests/test_l05_canonical_bootstrap.py": [
+                  ("list(range(3, 20))", "list(range(3, 21))"),
+              ],
+              "tests/test_m01_cli.py": [
+                  ('assert payload["data"]["schema_migrations"][-1] == 19',
+                   'assert payload["data"]["schema_migrations"][-1] == 20'),
+              ],
               "tests/test_m03_standard_workflow.py": [
-                  ("list(range(3, 19))", "list(range(3, 20))"),
+                  ("list(range(3, 20))", "list(range(3, 21))"),
               ],
               "tests/test_search_generation_migration.py": [
-                  ("list(range(3, 19))", "list(range(3, 20))"),
+                  ("list(range(3, 20))", "list(range(3, 21))"),
               ],
               "tests/test_versioning.py": [
                   (
-                      'assert upgraded.one("SELECT count(*) n FROM schema_migrations")["n"] == 16',
                       'assert upgraded.one("SELECT count(*) n FROM schema_migrations")["n"] == 17',
+                      'assert upgraded.one("SELECT count(*) n FROM schema_migrations")["n"] == 18',
                   )
               ],
           }
@@ -65,22 +84,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add tests
-          git commit -m "test: align migration expectations with 019 [skip ci]"
+          git commit -m "test: align migration expectations with 020 [skip ci]"
           git push origin HEAD:p-raw-05-verification-remediation
-      - name: Expose validator findings in focused assertion output
-        shell: python
-        run: |
-          from pathlib import Path
-          path = Path("tests/test_p_raw_05_raw_grounding_v2.py")
-          text = path.read_text(encoding="utf-8")
-          old = '        assert report.validation_state == "valid"\n'
-          new = (
-              '        assert report.validation_state == "valid", '
-              '[(item.code, item.message) for item in report.findings]\n'
-          )
-          if old not in text:
-              raise SystemExit("Focused validation assertion not found")
-          path.write_text(text.replace(old, new, 1), encoding="utf-8")
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
@@ -112,3 +117,5 @@ jobs:
           tests/test_versioning.py
       - name: Ruff
         run: python -m ruff check src tests
+      - name: Full regression
+        run: python -m pytest
