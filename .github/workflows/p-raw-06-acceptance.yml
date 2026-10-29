@@ -1,0 +1,55 @@
+name: P-RAW-06 Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  acceptance:
+    runs-on: windows-2025
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.10.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.10.11
+          cache: pip
+
+      - name: Install project and test dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,vector-qdrant,gui,mcp]"
+          python -m pip install numpy
+          python -m pip install "sentence-transformers>=6.1,<7" --no-deps
+
+      - name: P-RAW-06 acceptance tests
+        shell: pwsh
+        run: python -m pytest tests/test_p_raw_06_acceptance.py -q
+
+      - name: P-RAW and legacy exchange regression
+        shell: pwsh
+        run: |
+          python -m pytest `
+            tests/test_p_raw_05_raw_grounding_v2.py `
+            tests/test_package_manifest.py `
+            tests/test_package_transfer.py `
+            tests/test_object_result_schema.py `
+            tests/test_object_analysis_instructions.py `
+            tests/test_result_receipt.py `
+            tests/test_result_validation.py `
+            tests/test_object_version_import.py `
+            tests/test_diff_review.py `
+            tests/test_phase_g_roundtrip.py -q
+
+      - name: Ruff
+        shell: pwsh
+        run: python -m ruff check src tests
+
+      - name: Full regression
+        shell: pwsh
+        run: python -m pytest -q
