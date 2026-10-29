@@ -1,7 +1,7 @@
 # P-RUNTIME-03 — Runtime Health / Status Application Boundary
 
 Date: 2026-10-30
-Status: Implemented / acceptance pending
+Status: **Complete / Accepted**
 Task: `P-RUNTIME-03 [P1] Runtime health/status application boundary`
 
 ## 1. Purpose
@@ -227,6 +227,7 @@ P-RUNTIME-03 therefore cannot accidentally evolve an observation call into a con
 
 - P-RUNTIME-01: `docs/decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md`
 - P-RUNTIME-02: `docs/evaluation/P_RUNTIME_02_QDRANT_COMPOSE_CONFIGURATION_ACCEPTANCE.md`
+- P-RUNTIME-03 acceptance: `docs/evaluation/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_ACCEPTANCE.md`
 - shared operator decision: `docs/decisions/P_GUI_TRANSPORT_NEUTRAL_APPLICATION_BOUNDARY_DECISION.md`
 - implementation: `src/sgokb/runtime_health.py`
 - shared system surface: `src/sgokb/application_system.py`
