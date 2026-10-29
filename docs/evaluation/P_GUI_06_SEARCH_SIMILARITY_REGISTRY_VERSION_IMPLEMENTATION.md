@@ -4,12 +4,12 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
-- Status: **Automated Verification Refresh Pending / Interactive Smoke Pending**
+- Status: **Automated Verification PASS / Interactive Smoke Pending**
 - Baseline: P-GUI-05 **Complete / Accepted**
 - Task authority: `docs/planning/phases/P/PHASE_P_TASKS.md`
 - Compatibility authority: `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
 - Current amendment: `docs/evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md`
-- Latest historical automated verification: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`
+- Current automated authority: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_08.md`
 - Semantic crash remediation: `docs/evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`
 
 ## 1. Result summary
@@ -170,7 +170,7 @@ tests/test_p_gui_06_runtime_dependency.py
 
 `tests/test_p_gui_04_shell.py` retains GUI semantic-native preload ordering coverage.
 
-The selector test now verifies that the retired From/To compatibility widgets are hidden/disabled and cannot emit a `valid_at` argument even if assigned programmatically.
+The selector test verifies that the retired From/To compatibility widgets are hidden/disabled and cannot emit a `valid_at` argument even if assigned programmatically.
 
 Removed range-only coverage:
 
@@ -192,23 +192,17 @@ Attempt 03 = fixture/static verification failure
 Attempt 04 = 24 / 24 focused PASS, 819 / 819 full PASS
 Attempt 05 = 31 / 31 focused PASS, 826 / 826 full PASS
 Attempt 06 = 40 / 40 focused PASS, 829 / 829 full PASS
-Attempt 07 = 42 / 42 focused PASS, 831 / 831 full PASS
+Attempt 07 = 42 / 42 focused PASS, 831 / 831 full PASS — historical pre-removal surface
+Attempt 08 = 28 / 28 focused PASS, Ruff PASS, 817 / 817 full PASS — current post-removal authority
 ```
 
-Attempt 07 is now historical because the From/To surface and its range adapters were removed after that run.
+Attempt 08 verifies the reduced product surface after the From/To controls, range-aware adapters, and range-specific tests were removed.
 
-Expected post-removal test inventory, assuming no unrelated changes:
-
-```text
-focused P-GUI gate = approximately 28 tests
-full regression    = approximately 817 tests
-```
-
-These counts are expectations only until measured locally.
+The two warnings in the full regression are the known local-Qdrant warnings about payload indexes and brute-force search parameters; they are not failures.
 
 ## 8. Interactive smoke acceptance
 
-After automated re-verification, confirm at minimum:
+Automated verification is complete. Confirm at minimum:
 
 ### Search
 
@@ -242,12 +236,12 @@ From/To GUI range filter            = removed
 canonical R2 Search                 = restored directly
 semantic runtime crash remediation  = retained
 operation wiring                    = 14 / 14
-automated verification refresh      = Pending
+automated verification              = PASS
 interactive smoke                   = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
