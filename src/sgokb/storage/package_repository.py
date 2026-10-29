@@ -73,18 +73,28 @@ class PackageBuildReadRepository:
     def active_attribute_definitions(self) -> tuple[dict, ...]:
         rows = self.db.execute(
             """SELECT id,key,name,description,value_type
-               FROM attribute_definitions WHERE status='active' ORDER BY key,id"""
+               FROM attribute_definitions WHERE status='active' ORDER BY key,id""",
         ).fetchall()
         return tuple(dict(row) for row in rows)
 
     def active_relation_types(self) -> tuple[dict, ...]:
         rows = self.db.execute(
             """SELECT id,key,name,description
-               FROM relation_types WHERE status='active' ORDER BY key,id"""
+               FROM relation_types WHERE status='active' ORDER BY key,id""",
         ).fetchall()
         return tuple(dict(row) for row in rows)
 
-    def current_object_snapshot(self, object_id: str) -> dict | None:
+    def current_object_snapshot(
+        self,
+        object_id: str,
+        *,
+        include_raw_grounding: bool = False,
+    ) -> dict | None:
+        """Return current accepted snapshot.
+
+        The default preserves the historical Package v1/current_object shape exactly.
+        Package v2 opts in to Raw grounding fields explicitly.
+        """
         object_row = self.db.execute(
             "SELECT id,current_version_id FROM objects WHERE id=?", (object_id,)
         ).fetchone()
@@ -150,21 +160,22 @@ class PackageBuildReadRepository:
             )
 
         raw_links: dict[tuple[str, str], list[dict]] = defaultdict(list)
-        for row in self.db.execute(
-            """SELECT target_kind,target_id,raw_artifact_id,role,locator_json
-               FROM raw_grounding_links WHERE version_id=? ORDER BY rowid""",
-            (version_id,),
-        ):
-            item = {"raw_artifact_id": row["raw_artifact_id"], "role": row["role"]}
-            if row["locator_json"] is not None:
-                item["locator"] = json.loads(row["locator_json"])
-            raw_links[(row["target_kind"], row["target_id"])].append(item)
+        if include_raw_grounding:
+            for row in self.db.execute(
+                """SELECT target_kind,target_id,raw_artifact_id,role,locator_json
+                   FROM raw_grounding_links WHERE version_id=? ORDER BY rowid""",
+                (version_id,),
+            ):
+                item = {"raw_artifact_id": row["raw_artifact_id"], "role": row["role"]}
+                if row["locator_json"] is not None:
+                    item["locator"] = json.loads(row["locator_json"])
+                raw_links[(row["target_kind"], row["target_id"])].append(item)
 
-        def grounding(kind: str, target_id: str) -> dict:
-            return {
-                "evidence": evidence_links.get((kind, target_id), []),
-                "grounding": raw_links.get((kind, target_id), []),
-            }
+        def provenance(kind: str, target_id: str) -> dict:
+            result = {"evidence": evidence_links.get((kind, target_id), [])}
+            if include_raw_grounding:
+                result["grounding"] = raw_links.get((kind, target_id), [])
+            return result
 
         facet_rows = self.db.execute(
             """SELECT vf.facet_id,vf.status,f.key,f.name
@@ -195,7 +206,7 @@ class PackageBuildReadRepository:
                 "derivation_kind": row["derivation_kind"],
                 "language": row["language"],
                 "temporal_scope": scopes.get(row["temporal_scope_id"]),
-                **grounding("statement", row["id"]),
+                **provenance("statement", row["id"]),
             }
             if row["id"] in attributions:
                 statement["attribution"] = attributions[row["id"]]
@@ -227,7 +238,7 @@ class PackageBuildReadRepository:
                     "value": self._attribute_value(row),
                     "language": row["language"],
                     "temporal_scope": scopes.get(row["temporal_scope_id"]),
-                    **grounding("attribute", row["id"]),
+                    **provenance("attribute", row["id"]),
                 }
             )
 
@@ -250,7 +261,7 @@ class PackageBuildReadRepository:
                     "relation_name": row["relation_name"],
                     "object_object_id": row["object_object_id"],
                     "temporal_scope": scopes.get(row["temporal_scope_id"]),
-                    **grounding("relation", row["id"]),
+                    **provenance("relation", row["id"]),
                 }
             )
 
@@ -263,19 +274,22 @@ class PackageBuildReadRepository:
         if metadata is not None:
             knowledge["default_language"] = metadata["default_language"]
 
-        grounding_kind = "raw" if raw_links else ("evidence" if evidence_links else "none")
-        return {
+        result = {
             "object_id": object_id,
             "version_id": version_id,
             "version_number": version["version_number"],
             "version_created_at": version["created_at"],
-            "grounding_kind": grounding_kind,
             "classification": {
                 "primary_class_id": version["primary_class_id"],
                 "additional_class_ids": additional,
             },
             "knowledge": knowledge,
         }
+        if include_raw_grounding:
+            result["grounding_kind"] = (
+                "raw" if raw_links else ("evidence" if evidence_links else "none")
+            )
+        return result
 
     @staticmethod
     def _temporal_scope(row: dict) -> dict:
