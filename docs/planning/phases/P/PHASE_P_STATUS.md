@@ -27,8 +27,8 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
-| GUI | P-GUI-06 | **Automated Verification PASS / Interactive Smoke Pending** | Attempt 09: Search mode/runtime coupling verified; 29/29 focused + Ruff + 818/818 full PASS |
-| GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
+| GUI | P-GUI-06 | **Complete / Accepted** | Search / Similarity / Registry / Version GUI; Attempt 09 automated PASS + final interactive PASS |
+| GUI | P-GUI-07 | **Not Started / Next** | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
 | GUI | P-GUI-10 | Not Started | GUI parity / regression acceptance |
@@ -50,12 +50,13 @@ Qt linking            = dynamic / separate shared libraries
 
 GUI is not a CLI subprocess wrapper. Qdrant remains an independent shared runtime.
 
-## P-GUI-01..05 accepted baseline
+## P-GUI-01..06 accepted baseline
 
 ```text
 P-GUI-01..03R = Complete / Accepted
 P-GUI-04      = Complete / Accepted
 P-GUI-05      = Complete / Accepted
+P-GUI-06      = Complete / Accepted
 ```
 
 P-GUI-05 final evidence remains:
@@ -68,7 +69,7 @@ visual smoke            = PASS
 functional smoke        = PASS
 ```
 
-## P-GUI-06 current implementation
+## P-GUI-06 final accepted implementation
 
 P-GUI-06 provides operator-backed Search / Similarity / Registry / Version / Render pages.
 
@@ -84,7 +85,7 @@ Total       14 / 14
 
 ### Search / Similarity
 
-Current Search hard filters are:
+Accepted Search hard filters are:
 
 ```text
 Primary Class
@@ -97,7 +98,7 @@ Derivation Kind
 Include archived Objects
 ```
 
-The experimental From/To date range is removed. The current Search mode/runtime contract is:
+The experimental From/To date range is removed. The accepted Search mode/runtime contract is:
 
 ```text
 Lexical  -> Semantic runtime OFF / disabled
@@ -105,9 +106,9 @@ Semantic -> Semantic runtime ON / disabled
 Hybrid   -> Semantic runtime ON by default; explicit opt-out remains available
 ```
 
-The operator report after Attempt 08 showed that the previous independent controls allowed `mode=semantic` with `semantic_runtime=false`, producing the missing EmbeddingProvider/VectorIndexAdapter error. This GUI contract defect is corrected in `src/sgokb/gui/views/search_page_derivation.py` and covered by `tests/test_p_gui_06_search_runtime_state.py`.
+The previous independent controls allowed `mode=semantic` with `semantic_runtime=false`, producing the missing EmbeddingProvider/VectorIndexAdapter error. This GUI contract defect is corrected in `src/sgokb/gui/views/search_page_derivation.py` and covered by `tests/test_p_gui_06_search_runtime_state.py`.
 
-Current amendment authorities:
+Accepted amendment authorities:
 
 - `docs/evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md`
 - `docs/evaluation/P_GUI_06_SEMANTIC_RUNTIME_MODE_COUPLING_REMEDIATION.md`
@@ -138,22 +139,29 @@ The GUI process-level native crash remediation remains: PyTorch / Transformers /
 
 Registry behavior remains Class/Relation Type browse, Proposal review with Accept/Reject separated from Apply, Version Show/Diff, and derived Markdown Render/export.
 
-## P-GUI-06 current automated authority
+## P-GUI-06 final verification authority
 
-Attempt 09 is the current automated verification authority:
+Final automated authority:
 
 ```text
+Attempt 09
 focused regression = 29 / 29 PASS
 Ruff               = PASS
 full regression    = 818 / 818 PASS
 warnings           = 2 known local-Qdrant warnings
 ```
 
-Authority document:
+Final interactive authority:
 
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`
+- `docs/evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md`
 
-Attempt 08 remains historical evidence for the post-From/To-removal surface before Search mode/runtime coupling was corrected.
+Interactive verification confirmed that the reported Semantic / Hybrid Search problems were resolved and that the functions exercised in the acceptance scope showed no remaining problem.
+
+Therefore:
+
+```text
+P-GUI-06 = Complete / Accepted
+```
 
 ## Sequencing
 
@@ -170,27 +178,19 @@ P-GUI-04 Complete / Accepted
         ↓
 P-GUI-05 Complete / Accepted
         ↓
-P-GUI-06 Automated Verification PASS
-        ↓ interactive Search / Semantic / Similarity / Registry / Version / Render smoke
-P-GUI-06 Interactive Smoke Pending   <- CURRENT
-        ↓ PASS
 P-GUI-06 Complete / Accepted
         ↓
-P-GUI-07 Progress / error / safety / audit UX
+P-GUI-07 Progress / error / safety / audit UX   <- NEXT
 ```
 
 ## Current authority boundary
 
 Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 automated verification is PASS; only refreshed interactive smoke remains open.
+P-GUI-01 through P-GUI-06 are accepted development baselines. The next GUI task is P-GUI-07.
 
 ## Next
 
 ```text
-1. re-run Semantic Search; runtime must be requested automatically
-2. re-run Hybrid Search; semantic channel is attempted by default
-3. confirm Lexical keeps Semantic runtime OFF
-4. finish Similarity / Registry / Version / Render interactive smoke
-5. if all PASS, close P-GUI-06 as Complete / Accepted
+P-GUI-07 — Progress / error / safety / audit UX
 ```
