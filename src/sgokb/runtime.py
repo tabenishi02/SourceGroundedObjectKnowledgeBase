@@ -75,7 +75,7 @@ class RuntimeFactory:
     def semantic_runtime(self) -> tuple[object, object]:
         if self._cached_semantic is not None:
             return self._cached_semantic
-        if _SEMANTIC_PRELOAD_FAILURE is not None:
+        if self._semantic_builder is None and _SEMANTIC_PRELOAD_FAILURE is not None:
             raise RetrievalRuntimeUnavailableError(_SEMANTIC_PRELOAD_FAILURE)
         try:
             if self._semantic_builder is not None:
