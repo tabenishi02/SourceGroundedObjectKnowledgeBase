@@ -4,8 +4,9 @@
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-RAW-06 [P0] RAW Grounding acceptance / compatibility / documentation`
-- Status: **Accepted subject to P-RAW-06 final verification gate**
+- Status: **Complete / Accepted**
 - Applies to: Package v2 / Result v2 external analysis boundary
+- Acceptance: `docs/evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md`
 - Design authorities:
   - `docs/design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md`
   - `docs/design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md`
@@ -162,3 +163,5 @@ P-RAW-06 is complete only when one automated acceptance gate demonstrates all of
 - Package v2 -> external-result simulation -> validate -> review -> import end-to-end;
 - accepted provenance stored only as Raw grounding for the v2 claim path;
 - legacy exchange regression and full repository regression remain green.
+
+The final accepted evidence is `docs/evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md`.
