@@ -1,0 +1,65 @@
+name: P-RUNTIME-02 acceptance
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev,vector-qdrant,gui,mcp]'
+          python -m pip install numpy
+          python -m pip install --no-deps 'sentence-transformers>=6.1,<7'
+
+      - name: Validate Compose rendering
+        run: |
+          docker compose version
+          docker compose -f runtime/qdrant/compose.yaml config
+
+      - name: Focused P-RUNTIME-02 tests
+        run: python -m pytest -q tests/test_p_runtime_02_qdrant_compose_assets.py
+
+      - name: Ruff
+        run: python -m ruff check src tests
+
+      - name: Pull and start Qdrant
+        run: |
+          docker compose -f runtime/qdrant/compose.yaml pull
+          docker compose -f runtime/qdrant/compose.yaml up -d --wait --wait-timeout 180
+          docker compose -f runtime/qdrant/compose.yaml ps
+          curl --fail --show-error --silent http://127.0.0.1:6333/readyz
+          curl --fail --show-error --silent http://127.0.0.1:6333/
+          docker volume inspect sgokb_qdrant_storage
+
+      - name: Verify normal down preserves named volume and restart remains healthy
+        run: |
+          docker compose -f runtime/qdrant/compose.yaml down
+          docker volume inspect sgokb_qdrant_storage
+          docker compose -f runtime/qdrant/compose.yaml up -d --wait --wait-timeout 180
+          curl --fail --show-error --silent http://127.0.0.1:6333/readyz
+          docker compose -f runtime/qdrant/compose.yaml down
+          docker volume inspect sgokb_qdrant_storage
+
+      - name: Full repository regression
+        run: python -m pytest -q
+
+      - name: Acceptance diagnostics
+        if: always()
+        run: |
+          docker compose -f runtime/qdrant/compose.yaml ps -a || true
+          docker compose -f runtime/qdrant/compose.yaml logs --tail 200 qdrant || true
+          docker compose -f runtime/qdrant/compose.yaml down || true
+          docker volume rm sgokb_qdrant_storage || true
