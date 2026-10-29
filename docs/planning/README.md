@@ -17,10 +17,11 @@ Phase P = In Progress
 
 P-GUI-01..08 = Complete / Accepted
 P-RAW-01..06 = Complete / Accepted
+P-RUNTIME-01 = Complete / Accepted
+P-RUNTIME-02 = Not Started / Next
+P-RUNTIME-03..06 = Not Started
 P-GUI-09 = Not Started / blocked by P-RUNTIME-03
 P-GUI-10 = Not Started
-P-RUNTIME-01 = Not Started / Next
-P-RUNTIME-02..06 = Not Started
 P-CLOSE-01 = Not Started
 ```
 
@@ -32,7 +33,7 @@ Priority 2: RAW Grounding
 Priority 3: Runtime / Qdrant auto-start
 ```
 
-GUI と RAW Grounding の優先作業は P-GUI-08 まで完了しています。残る GUI の P-GUI-09 は P-RUNTIME-03 に依存するため、現在の実行順では Runtime workstream が次です。
+GUI と RAW Grounding の優先作業は P-GUI-08 まで完了しています。Runtime reference design も P-RUNTIME-01 で確定しました。残る GUI の P-GUI-09 は P-RUNTIME-03 に依存するため、現在の次Taskは P-RUNTIME-02 です。
 
 ## Phase P planning authority
 
@@ -175,6 +176,32 @@ P-RAW workstream = Complete / Accepted for Phase P
 P-GUI-01..08 = Complete / Accepted
 ```
 
+## Accepted Runtime authority
+
+### P-RUNTIME-01 — Windows Qdrant runtime operational design
+
+- Comparison / external research: [`../evaluation/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_COMPARISON.md`](../evaluation/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_COMPARISON.md)
+- Accepted decision: [`../decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md`](../decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md)
+
+Accepted reference:
+
+```text
+Windows runtime          = Docker Desktop + WSL 2 + Docker Compose
+Qdrant initial pin       = qdrant/qdrant:v1.20.0
+startup                  = Docker Desktop at user sign-in
+restart policy           = unless-stopped
+persistent state         = Docker named volume
+HTTP                     = 127.0.0.1:6333
+preferred gRPC           = 127.0.0.1:6334
+Qdrant distributed port  = not published
+readiness                = /readyz
+SGOKB lifecycle ownership = none; observer/client only
+```
+
+The existing SGOKB adapter defaults to REST `localhost:6333`, gRPC `6334`, and `prefer_grpc=True`, so both local ports are part of the reference contract.
+
+Native Windows Qdrant + Task Scheduler was evaluated but is not a supported Phase P acceptance path. Docker Desktop is an external prerequisite with independent installation/license terms and is not bundled by SGOKB.
+
 ## Phase P architecture summary
 
 ```text
@@ -184,6 +211,7 @@ GUI backend            = QObject worker on dedicated QThread
 SQLite                 = Repository per operation in worker thread
 Backend concurrency    = serialized per Workspace initially
 Qdrant                 = independent shared runtime
+Qdrant Windows ref     = Docker Desktop / WSL2 / Compose / named volume
 Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 ```
 
@@ -195,7 +223,7 @@ Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 
 ### Runtime
 
-`P-RUNTIME-01` is the next executable task. `P-RUNTIME-01..06` establish Windows-login automatic Qdrant availability while keeping Qdrant an independent shared runtime rather than a GUI-owned child process.
+`P-RUNTIME-01` is Complete / Accepted. `P-RUNTIME-02` is now the next executable task and must materialize the accepted Compose/configuration assets. P-RUNTIME-03 then establishes the shared runtime health/status Application boundary required by P-GUI-09.
 
 ### Closure
 
@@ -204,5 +232,5 @@ Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 ## Next
 
 ```text
-P-RUNTIME-01 — Windows auto-start方式比較
+P-RUNTIME-02 — Qdrant Compose / configuration assets
 ```

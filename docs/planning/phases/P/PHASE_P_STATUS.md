@@ -38,8 +38,9 @@ Priority 3: Runtime / Qdrant auto-start
 | RAW | P-RAW-04 | **Complete / Accepted** | Raw-grounded Object Result v2 design |
 | RAW | P-RAW-05 | **Complete / Accepted** | Resolver -> Package v2 -> Result v2 -> Raw provenance implementation |
 | RAW | P-RAW-06 | **Complete / Accepted** | Formal Raw operational acceptance, compatibility/cutover disposition, documentation closure |
-| Runtime | P-RUNTIME-01 | **Not Started / Next** | Windows auto-start approach comparison |
-| Runtime | P-RUNTIME-02..06 | Not Started | Qdrant ownership / health / GUI integration / recovery / acceptance |
+| Runtime | P-RUNTIME-01 | **Complete / Accepted** | Windows Qdrant runtime operational design / reference approach |
+| Runtime | P-RUNTIME-02 | **Not Started / Next** | Qdrant Compose / configuration assets |
+| Runtime | P-RUNTIME-03..06 | Not Started | Runtime health / login auto-start / GUI integration / acceptance |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
 ## GUI baseline
@@ -270,6 +271,44 @@ P-RAW workstream = Complete / Accepted for Phase P
 P-GUI-01..08 = Complete / Accepted
 ```
 
+## P-RUNTIME-01 accepted baseline
+
+Authorities:
+
+- `docs/evaluation/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_COMPARISON.md`
+- `docs/decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md`
+
+Accepted reference Windows runtime:
+
+```text
+container runtime       = Docker Desktop / WSL 2
+runtime definition      = repository-owned Docker Compose
+Qdrant initial pin      = qdrant/qdrant:v1.20.0
+startup                 = Docker Desktop at user sign-in
+container restart       = unless-stopped
+persistent storage      = Docker named volume
+HTTP                     = 127.0.0.1:6333 -> 6333
+gRPC                     = 127.0.0.1:6334 -> 6334
+distributed port 6335    = not published
+readiness                = Qdrant /readyz
+GUI / CLI lifecycle role = client / observer only
+```
+
+The two local ports are required because the current `QdrantVectorIndexAdapter` uses `http://localhost:6333`, `grpc_port=6334`, and `prefer_grpc=True` by default.
+
+Windows host bind mounts are not the reference Qdrant storage path. Qdrant's Windows Docker/WSL filesystem warning makes a named Docker volume the accepted persistence boundary.
+
+Native `qdrant.exe` + Task Scheduler, Windows service wrappers, WSL/systemd-only deployment, and ad-hoc Startup-folder scripts are not Phase P supported acceptance paths. The official native Windows binary is acknowledged only as an operator-controlled manual/experimental alternative.
+
+Docker Desktop remains an external prerequisite with its own installation and subscription terms; SGOKB does not bundle or silently install it.
+
+Therefore:
+
+```text
+P-RUNTIME-01 = Complete / Accepted
+P-RUNTIME-02 = Unblocked / Next
+```
+
 ## Sequencing
 
 ```text
@@ -277,27 +316,29 @@ P-GUI-01..08 Complete / Accepted
         ↓
 P-RAW-01..06 Complete / Accepted
         ↓
-P-RUNTIME-01   <- NEXT
+P-RUNTIME-01 Complete / Accepted
         ↓
-P-RUNTIME-02 -> P-RUNTIME-03
+P-RUNTIME-02   <- NEXT
+        ↓
+P-RUNTIME-03
         ↓
 P-GUI-09
         ↓
-P-GUI-10 + remaining Runtime acceptance
+P-RUNTIME-04..06 / P-GUI-10
         ↓
 P-CLOSE-01
 ```
 
-`P-GUI-09` depends on `P-RUNTIME-03`, so Runtime work must now advance before the remaining GUI workstream can continue.
+`P-GUI-09` depends on `P-RUNTIME-03`, so the reference runtime assets and shared health boundary must now advance before the remaining GUI workstream can continue.
 
 ## Current authority boundary
 
 Phase P remains in development. Released system semantics continue to be governed by release `v1.1.0` until Phase P closure/release integration.
 
-P-GUI-01 through P-GUI-08 and P-RAW-01 through P-RAW-06 are accepted development baselines. The Raw external-AI boundary and its Package / Result GUI are both accepted. Runtime modernization remains the next blocking workstream.
+P-GUI-01 through P-GUI-08, P-RAW-01 through P-RAW-06, and P-RUNTIME-01 are accepted development baselines. Runtime implementation assets are not yet accepted; P-RUNTIME-02 is the next task.
 
 ## Next
 
 ```text
-P-RUNTIME-01 — Windows auto-start方式比較
+P-RUNTIME-02 — Qdrant Compose / configuration assets
 ```
