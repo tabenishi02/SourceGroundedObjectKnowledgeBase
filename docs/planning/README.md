@@ -26,8 +26,8 @@ P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
 P-GUI-05 = Complete / Accepted
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
-Next = verify P-GUI-06 after From/To filter removal
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+Next = finish P-GUI-06 interactive smoke after From/To removal
 ```
 
 Phase PのWorkstream優先順位:
@@ -83,9 +83,10 @@ Priority 3: Runtime / Qdrant auto-start
 ### P-GUI-06 current authority
 
 - Main implementation / interactive procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
-- **Current amendment — From/To removal**: [`../evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md`](../evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md)
-- Latest historical automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md)
+- **Current automated verification — Attempt 08**: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_08.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_08.md)
+- Current amendment — From/To removal: [`../evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md`](../evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md)
 - Semantic GUI crash remediation: [`../evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`](../evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md)
+- Historical pre-removal automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md)
 - Historical range/runtime remediation: [`../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md)
 - Historical range selector amendment: [`../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`](../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md)
 - Derivation Kind selector improvement: [`../evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md)
@@ -126,37 +127,28 @@ transformers>=5.2,<6
 
 GUI startup still preloads the native ML stack on the Qt main thread before the backend QThread starts. The Harrier model remains lazy.
 
-Attempt 07 historical automated evidence:
+Attempt 08 current automated evidence:
 
 ```text
-focused regression = 42 / 42 PASS
+focused regression = 28 / 28 PASS
 Ruff               = PASS
-full regression    = 831 / 831 PASS
+full regression    = 817 / 817 PASS
 known local-Qdrant warnings = 2
 ```
 
-Because the product surface and test inventory changed after that run, Attempt 07 is no longer current closure authority.
-
-Expected post-removal inventory, assuming no unrelated changes:
-
-```text
-focused P-GUI gate ≈ 28 tests
-full regression    ≈ 817 tests
-```
-
-These counts are expectations only until measured locally.
+Attempt 08 supersedes Attempt 07 as current automated closure authority because it verifies the reduced post-removal surface.
 
 Current status:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
 
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 remains open until the reduced Search surface passes automated and interactive verification.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 automated verification is PASS; the refreshed interactive smoke is the remaining closure gate.
 
 ## Phase P GUI architecture
 
@@ -206,9 +198,10 @@ P-CLOSE-01
 ## Next
 
 ```text
-1. refresh P-GUI-06 focused + Ruff gate
-2. refresh full regression
-3. confirm From/To controls are absent
-4. confirm Semantic runtime ON remains crash-free
-5. finish remaining Search / Similarity / Registry / Version / Render smoke
+1. confirm From/To controls are absent
+2. confirm remaining Search hard filters and Lexical Search are usable
+3. confirm Semantic runtime ON remains crash-free
+4. confirm Similarity behavior
+5. confirm Registry / Version / Render behavior
+6. if all PASS, close P-GUI-06 as Complete / Accepted
 ```
