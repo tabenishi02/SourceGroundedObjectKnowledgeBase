@@ -27,7 +27,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
-| GUI | P-GUI-06 | **Automated Verification PASS / Interactive Smoke Pending** | Range identity/runtime-state/Qdrant remediation verified; 31/31 focused + 826/826 full PASS |
+| GUI | P-GUI-06 | **Automated Verification Refresh Pending / Interactive Smoke Pending** | From/To Registry-boundary correction + semantic runtime dependency remediation implemented |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
@@ -96,7 +96,7 @@ functional smoke        = PASS
 
 P-GUI-06 replaces the Search and Registry placeholders with real operator-backed pages. Similarity is grouped with Search; Version / Diff / Render are grouped under Registry. The accepted 11-destination navigation inventory remains unchanged.
 
-Operation wiring:
+Operation wiring remains:
 
 ```text
 Search       1 / 1
@@ -110,84 +110,56 @@ Total       14 / 14
 
 ### Search / Similarity
 
-Search Hard Filters provide:
+Search Hard Filters provide Registry-backed Class selectors, Facet / Version / Temporal Scope selectors, `Knowledge valid From` / `Knowledge valid To`, fixed-value Derivation Kind, and archived-Object scope.
 
-- Registry-backed dropdowns for Primary / Additional / Ancestor Class;
-- Facet dropdown with editable historical fallback;
-- Version dropdown with editable historical fallback;
-- Temporal Scope dropdown with editable historical fallback;
-- `Knowledge valid From` / `Knowledge valid To` date-range fields;
-- fixed-value Derivation Kind dropdown;
-- archived-Object filter.
-
-Candidate composition remains above Repository storage:
+The frozen R2 Search contract now governs the From/To boundary explicitly:
 
 ```text
-registry.class.list
-object.list
-    -> current_version_id
-    -> version.show(current accepted Version)
-    -> Facet / Temporal Scope / Version presentation choices
+Registry name / alias identity
+    -> canonical identity discovery
+    -> From/To alone does not remove the identity result
+
+Knowledge lexical Statement channel
+    -> From/To temporal overlap filter
+
+Semantic Statement channel
+    -> From/To temporal overlap filter
 ```
 
-Similarity uses Object-scoped Facet and Version selectors while retaining its existing semantic contract: Object / optional Facet / optional source Version / cross-Class / archived scope.
+`knowledge_valid_at`, `temporal_scope_id`, and `derivation_kind` remain Statement-scoped conditions. Facet / Derivation / Temporal Scope combinations therefore still require a matching Statement where their narrowed semantics apply.
 
-Knowledge validity range keeps the historical `valid_at` transport slot and accepts:
+The previous Statement-less/stale-generation exception-based remediation is now historical. The current implementation corrects the underlying contract boundary instead of adding further identity exceptions.
+
+Search presentation continues to clear prior result/degradation state for every request and displays the current normalized failure.
+
+### Local semantic runtime dependency
+
+The local embedding profile uses Sentence Transformers / Transformers and now declares:
 
 ```text
-YYYY-MM-DD..YYYY-MM-DD
-YYYY-MM-DD..
-..YYYY-MM-DD
+torch>=2.6,<3
+sentence-transformers>=6.1,<7
+transformers>=5.2,<6
 ```
 
-Plain single-date `valid_at` keeps point-in-time behavior. Range filtering uses temporal overlap, treats `as_of` as a point interval, supports one-sided ranges, and keeps timeless Statements eligible.
+This matches the current Transformers PyTorch floor. Dependency initialization failures are normalized to `RetrievalRuntimeUnavailableError`; the known `name 'nn' is not defined` failure produces actionable PyTorch-upgrade guidance rather than `internal/internal_error`.
 
-The final validity-range boundary is:
-
-```text
-Registry identity range eligibility
-    -> canonical accepted Knowledge
-
-Knowledge lexical / semantic channels
-    -> active R2 Search generation
-```
-
-The remediation covers both observed false-negative classes:
-
-- active derived generation lagging a newer current accepted Version;
-- From/To alone applied to a current accepted Version with zero Knowledge Statements.
-
-A Statement-less Version is treated as having no Statement-level temporal restriction for Registry identity. Facet / Derivation Kind / Temporal Scope remain strict Statement-specific filters.
-
-Search presentation also clears previous results/degradation state for every new request and displays the current normalized failure rather than retaining stale state.
+Existing virtual environments are not modified by Git updates and may require an explicit PyTorch upgrade.
 
 ### Registry / Version / Render
 
-Registry behavior remains:
+Registry behavior remains Class/Relation Type browse, Proposal review with Accept/Reject separated from Apply, Version Show/Diff, and derived Markdown Render/export.
 
-- Class list/detail;
-- Relation Type list/detail;
-- Registry Proposal list/detail and decision filter;
-- Accept / Reject separate from Apply;
-- explicit confirmation before Apply.
+## P-GUI-06 verification history
 
-Version / Render behavior remains:
+Current remediation authority:
 
-- accepted Version Show;
-- Before / After Version Diff;
-- structured and Markdown Diff;
-- Object/Version Markdown render/export and preview.
+- `docs/evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`
 
-## P-GUI-06 automated verification
-
-Current automated authority:
+Historical automated authority before the latest interactive failures:
 
 - `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`
 - `docs/evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md`
-- `docs/evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`
-- `docs/evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md`
-- `docs/evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`
-- `docs/evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`
 
 Attempt history:
 
@@ -195,11 +167,12 @@ Attempt history:
 Attempt 01 = PASS, pre-amendment
 Attempt 02 = PASS, selector/range baseline
 Attempt 03 = FAIL, verification fixture + Ruff defects; product assertion not reached
-Attempt 04 = PASS, first validity-range remediation authority
-Attempt 05 = PASS, current range identity/runtime-state/Qdrant authority
+Attempt 04 = PASS, first validity-range remediation
+Attempt 05 = PASS, range identity/runtime-state/Qdrant regression set
+latest interactive smoke = FAIL, From/To still hid Registry identity; semantic runtime exposed nn dependency failure
 ```
 
-Measured current result:
+Historical Attempt 05 evidence:
 
 ```text
 focused P-GUI-04 / 05 / 06 regression = 31 / 31 PASS
@@ -208,22 +181,23 @@ full pytest                            = 826 / 826 PASS
 known local-Qdrant warnings            = 2
 ```
 
-Focused coverage includes the new Statement-less range identity regressions, GUI runtime-state regression, and an actual in-memory Qdrant + R2 generation + From/To semantic regression. The two warnings are existing local-Qdrant limitations and are not failures.
+That result predates the current contract/runtime changes and is no longer closure authority.
 
 Current disposition:
 
 ```text
-implementation         = Complete
-desk audit             = Complete
-operation wiring       = 14 / 14
-automated verification = PASS
-interactive smoke      = Pending
+implementation amendment        = Complete
+range contract correction       = Implemented
+runtime dependency correction   = Implemented
+automated verification refresh  = Pending
+operator environment torch check= Pending
+interactive smoke               = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
 ```
 
 ## Sequencing
@@ -241,29 +215,25 @@ P-GUI-04 Complete / Accepted
         ↓
 P-GUI-05 Complete / Accepted
         ↓
-P-GUI-06 Automated Verification PASS / Interactive Smoke Pending   <- CURRENT
+P-GUI-06 Automated Verification Refresh Pending   <- CURRENT
+        ↓ dependency/runtime correction + automated PASS
+P-GUI-06 Interactive Smoke Pending
         ↓ interactive smoke PASS
 P-GUI-06 Complete / Accepted
         ↓
 P-GUI-07 Progress / error / safety / audit UX
-        ↓
-P-RAW
-        ↓
-P-GUI-08 Package / Result GUI
-        ↓
-P-RUNTIME / P-GUI-09
-        ↓
-P-GUI-10 / P-CLOSE-01
 ```
 
 ## Current authority boundary
 
 Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed its current automated gate and remains pending interactive smoke acceptance. None of these tasks alone advance the formal released version.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 remains open until the current remediation passes automated and interactive verification.
 
 ## Next
 
 ```text
-P-GUI-06 — interactive GUI smoke acceptance
+1. verify / correct operator PyTorch version
+2. refresh focused + full automated verification
+3. repeat From/To + semantic-runtime interactive smoke
 ```
