@@ -4,8 +4,9 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
-- Status: **Remediation Implemented / Automated Verification Refresh Pending / Interactive Smoke Pending**
-- Previous automated authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`
+- Status: **Automated Verification PASS / Interactive Smoke Pending**
+- Current automated authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md`
+- Previous automated authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md` — historical
 
 ## Interactive evidence
 
@@ -17,7 +18,7 @@ lexical with From/To    -> zero results
 semantic runtime ON     -> Search failed: [internal/internal_error] name 'nn' is not defined
 ```
 
-Therefore Attempt 05 remains valid historical automated evidence but does not certify the interactive behavior under the production Workspace/runtime.
+Attempt 05 therefore remains historical automated evidence but did not certify production Workspace/runtime behavior.
 
 ## Range root-cause correction
 
@@ -47,48 +48,47 @@ Updated:
 src/sgokb/retrieval/search_range_identity.py
 ```
 
-A new regression verifies that even when every Statement is outside the requested range, an exact Object-name Registry result remains visible while the non-overlapping Statement match is absent.
+A regression verifies that even when every Statement is outside the requested range, an exact Object-name Registry result remains visible while the non-overlapping Statement match is absent.
 
 ## Semantic runtime `nn` failure
 
 SGOKB source does not reference `nn`. The failure occurs while constructing the external local embedding stack.
 
-Current SGOKB dependency contract previously required:
+The current local embedding dependency contract is:
 
 ```text
+torch >=2.6,<3
 sentence-transformers >=6.1,<7
 transformers >=5.2,<6
 ```
 
-but did not constrain PyTorch.
+The remediation also normalizes dependency initialization failures through `RetrievalRuntimeUnavailableError`. The known `name 'nn' is not defined` failure produces actionable PyTorch-upgrade guidance rather than `internal/internal_error`.
 
-Current Transformers 5.x requires a supported PyTorch version. A known failure mode when PyTorch is below the supported minimum leaves `torch.nn` unavailable to an evaluated annotation/path and raises:
-
-```text
-NameError: name 'nn' is not defined
-```
-
-Remediation:
+Updated:
 
 ```text
 pyproject.toml
-  local-embedding += torch>=2.6,<3
-
 src/sgokb/runtime.py
-  dependency ImportError / RuntimeError / NameError
-    -> RetrievalRuntimeUnavailableError
-
-  nn NameError
-    -> actionable message explaining the PyTorch >=2.6 requirement
 ```
 
-This changes the operator classification from `internal/internal_error` to the local-runtime failure category and prevents future optional-dependency installs from resolving an unsupported PyTorch version.
+## Operator environment remediation
 
-Existing environments are not mutated by source updates. An already-created venv with PyTorch <2.6 must be upgraded explicitly before Semantic runtime can succeed.
+The operator moved verification to the repository-local SGOKB virtual environment and verified:
 
-## Regression additions
+```text
+Python executable = C:\codex\SourceGroundedObjectKnowledgeBase\.venv\Scripts\python.exe
+PyTorch           = 2.6.0+cu124
+CUDA runtime      = 12.4
+CUDA available    = True
+GPU               = NVIDIA GeForce RTX 4090
+pip check         = No broken requirements found
+```
 
-Added:
+This removes the unsupported/stale PyTorch condition that produced the external Transformers `nn` failure.
+
+## Regression coverage
+
+Added and verified:
 
 ```text
 tests/test_p_gui_06_range_contract_runtime_dependency.py
@@ -98,23 +98,49 @@ Coverage:
 
 1. From/To does not hide exact Registry identity when all Statements are outside the range;
 2. non-overlapping Statement matches remain excluded;
-3. dependency `NameError("name 'nn' is not defined")` becomes `RetrievalRuntimeUnavailableError` with the PyTorch >=2.6 guidance.
+3. dependency `NameError("name 'nn' is not defined")` becomes `RetrievalRuntimeUnavailableError` with PyTorch guidance, including the OperatorSession Search path.
+
+The existing range/Qdrant regressions remain part of the focused gate.
+
+## Automated verification
+
+Current authority:
+
+```text
+P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md
+```
+
+Measured result:
+
+```text
+focused regression = 40 / 40 PASS
+Ruff               = All checks passed!
+full regression    = 829 / 829 PASS
+warnings           = 2 known local-Qdrant warnings
+```
+
+The warnings are existing local-Qdrant limitations and are not failures.
 
 ## Current disposition
 
 ```text
-range contract root cause          = Corrected
-semantic dependency root cause     = Identified
-range remediation                  = Implemented
-runtime error normalization        = Implemented
+range contract root cause          = Corrected / PASS
+semantic dependency root cause     = Identified / environment corrected
+range remediation                  = Automated PASS
+runtime error normalization        = Automated PASS
 local-embedding dependency floor   = torch>=2.6,<3
-existing operator environment      = Requires version check / possible torch upgrade
-automated verification refresh     = Pending
+operator environment               = Verified healthy
+full regression                    = 829 / 829 PASS
 interactive smoke                  = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
+
+Interactive smoke must now repeat the two original production symptoms before closure:
+
+1. Lexical + From/To Object identity discovery;
+2. Semantic runtime ON in the corrected SGOKB `.venv`.
