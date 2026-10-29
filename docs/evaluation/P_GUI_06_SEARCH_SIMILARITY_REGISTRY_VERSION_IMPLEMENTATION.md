@@ -4,12 +4,14 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
-- Status: **Automated Verification PASS / Interactive Smoke Pending**
+- Status: **Automated Verification Refresh Pending / Interactive Smoke Pending**
 - Baseline: P-GUI-05 **Complete / Accepted**
 - Task authority: `docs/planning/phases/P/PHASE_P_TASKS.md`
 - Compatibility authority: `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
-- Current amendment: `docs/evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md`
-- Current automated authority: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_08.md`
+- Current amendments:
+  - `docs/evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md`
+  - `docs/evaluation/P_GUI_06_SEMANTIC_RUNTIME_MODE_COUPLING_REMEDIATION.md`
+- Latest historical automated authority: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_08.md`
 - Semantic crash remediation: `docs/evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`
 
 ## 1. Result summary
@@ -51,8 +53,8 @@ src/sgokb/gui/views/search_page_derivation.py
 The current Search surface exposes:
 
 - Lexical / Semantic / Hybrid modes;
-- local Semantic runtime opt-in;
-- `require_full_runtime` strict-mode control;
+- mode-coupled local Semantic runtime control;
+- `require_full_runtime` strict-mode control for Hybrid;
 - result and candidate limits;
 - Registry-backed Primary / Additional / Ancestor Class selectors;
 - Facet selector with editable historical fallback;
@@ -64,11 +66,31 @@ The current Search surface exposes:
 - explicit degraded-channel display;
 - per-request runtime-state reset.
 
+### Search mode / Semantic runtime contract
+
+Interactive smoke after Attempt 08 exposed that Search mode and `Semantic runtime` were independently selectable. This admitted contradictory requests such as `mode=semantic` with `semantic_runtime=false`, which necessarily failed because no EmbeddingProvider or VectorIndexAdapter was constructed.
+
+The GUI now enforces:
+
+```text
+Lexical  -> semantic runtime OFF / disabled
+Semantic -> semantic runtime ON / disabled
+Hybrid   -> semantic runtime ON by default; explicit operator opt-out remains available
+```
+
+`run_search()` also forces the request contract defensively:
+
+```text
+mode=semantic -> semantic_runtime=true
+mode=lexical  -> semantic_runtime=false
+mode=hybrid   -> semantic_runtime=<Hybrid checkbox state>
+```
+
+Pure Semantic therefore cannot be submitted without its runtime, while Hybrid can still be deliberately degraded to lexical-only behavior.
+
 ### From/To date filter — removed
 
 The experimental P-GUI-06 `Knowledge valid From` / `Knowledge valid To` range filter has been removed by operator decision.
-
-Current GUI contract:
 
 ```text
 From field                    = not exposed
@@ -79,13 +101,7 @@ range-aware Search adapter    = removed
 
 The removal does **not** delete canonical temporal-scope data and does **not** remove the pre-existing non-GUI single-point `knowledge_valid_at` / `valid_at` contract.
 
-Current public retrieval therefore resolves directly to the canonical R2 implementation:
-
-```text
-src/sgokb/retrieval/hybrid_search_r2.py
-```
-
-Historical range work remains documented for audit only and is not current behavior authority.
+Current public retrieval resolves directly to the canonical R2 implementation in `src/sgokb/retrieval/hybrid_search_r2.py`.
 
 ## 3. Local semantic runtime and GUI preload
 
@@ -109,56 +125,19 @@ GPU               = NVIDIA GeForce RTX 4090
 pip check         = No broken requirements found
 ```
 
-GUI startup preloads the native ML stack on the Qt main thread before the backend QThread is created:
-
-```text
-QApplication
-    -> preload PyTorch / Transformers / Sentence Transformers native imports
-    -> CUDA availability probe
-    -> BackendCoordinator / backend QThread
-```
-
-The Harrier model itself remains lazy. This remediation is retained after From/To removal.
+GUI startup preloads the native ML stack on the Qt main thread before the backend QThread is created. The Harrier model itself remains lazy.
 
 ## 4. Similarity GUI
 
-The Similarity tab exposes:
-
-- stable Object selection through `object.list`;
-- overall Similarity;
-- Object-scoped Facet selector;
-- Object-scoped source Version selector;
-- result limit;
-- cross-Class opt-in;
-- archived Object opt-in;
-- ranked result/evidence detail.
-
-Similarity continues to require the configured local Embedding Space and Vector Index. There is no silent lexical or cloud fallback.
+The Similarity tab exposes stable Object selection, overall / Facet-specific Similarity, Object-scoped Facet and source Version selectors, result limit, cross-Class and archived opt-ins, and ranked detail. Similarity requires the configured local Embedding Space and Vector Index; there is no silent lexical or cloud fallback.
 
 ## 5. Registry / Version / Render GUI
 
-The Registry page contains:
+The Registry page contains Classes, Relation Types, Proposals, Versions / Diff, and Render. Proposal Accept / Reject remains separate from Apply. Version Show/Diff is read-only over immutable accepted Versions. Render creates derived Markdown and is not a canonical write surface.
 
-```text
-Classes
-Relation Types
-Proposals
-Versions / Diff
-Render
-```
+## 6. Automated coverage
 
-Proposal review preserves the safety boundary:
-
-```text
-Accept / Reject = review decision
-Apply           = separate canonical mutation
-```
-
-Version Show/Diff is read-only over immutable accepted Versions. Render creates derived Markdown and is not a canonical write surface.
-
-## 6. Current automated coverage
-
-Current P-GUI-06 coverage after From/To removal includes:
+Current P-GUI-06 coverage includes:
 
 ```text
 tests/test_p_gui_06_search_registry_version.py
@@ -168,20 +147,7 @@ tests/test_p_gui_06_search_runtime_state.py
 tests/test_p_gui_06_runtime_dependency.py
 ```
 
-`tests/test_p_gui_04_shell.py` retains GUI semantic-native preload ordering coverage.
-
-The selector test verifies that the retired From/To compatibility widgets are hidden/disabled and cannot emit a `valid_at` argument even if assigned programmatically.
-
-Removed range-only coverage:
-
-```text
-tests/test_search_validity_range.py
-tests/test_search_validity_range_identity.py
-tests/test_search_validity_range_qdrant_r2.py
-tests/test_p_gui_06_range_contract_runtime_dependency.py
-```
-
-The last module's semantic dependency checks were preserved in `test_p_gui_06_runtime_dependency.py`.
+`test_p_gui_06_search_runtime_state.py` now also locks the Search mode / Semantic runtime coupling contract. `tests/test_p_gui_04_shell.py` retains GUI semantic-native preload ordering coverage.
 
 ## 7. Verification history
 
@@ -193,24 +159,22 @@ Attempt 04 = 24 / 24 focused PASS, 819 / 819 full PASS
 Attempt 05 = 31 / 31 focused PASS, 826 / 826 full PASS
 Attempt 06 = 40 / 40 focused PASS, 829 / 829 full PASS
 Attempt 07 = 42 / 42 focused PASS, 831 / 831 full PASS — historical pre-removal surface
-Attempt 08 = 28 / 28 focused PASS, Ruff PASS, 817 / 817 full PASS — current post-removal authority
+Attempt 08 = 28 / 28 focused PASS, Ruff PASS, 817 / 817 full PASS — historical post-removal baseline
 ```
 
-Attempt 08 verifies the reduced product surface after the From/To controls, range-aware adapters, and range-specific tests were removed.
-
-The two warnings in the full regression are the known local-Qdrant warnings about payload indexes and brute-force search parameters; they are not failures.
+Attempt 08 predates the Search mode / Semantic runtime coupling correction and is therefore historical evidence, not current closure authority.
 
 ## 8. Interactive smoke acceptance
 
-Automated verification is complete. Confirm at minimum:
+After automated re-verification, confirm at minimum:
 
 ### Search
 
-- From/To controls are absent from the operator surface;
-- Class / Facet / Version / Temporal Scope / Derivation selectors remain usable;
-- Lexical Search returns expected Objects;
-- Semantic runtime ON does not crash the GUI process;
-- Semantic / Hybrid degradation and runtime failures remain explicit;
+- From/To controls are absent;
+- remaining hard filters are usable;
+- Lexical mode keeps Semantic runtime OFF;
+- Semantic mode automatically requests Semantic runtime and does not show the missing-EmbeddingProvider error caused by an OFF runtime;
+- Hybrid attempts Semantic by default and only degrades when the runtime genuinely fails or the operator explicitly opts out;
 - `Require full runtime` does not silently degrade;
 - result details render correctly.
 
@@ -231,17 +195,17 @@ Automated verification is complete. Confirm at minimum:
 ## 9. Current disposition
 
 ```text
-implementation                     = amended
-From/To GUI range filter            = removed
-canonical R2 Search                 = restored directly
-semantic runtime crash remediation  = retained
-operation wiring                    = 14 / 14
-automated verification              = PASS
-interactive smoke                   = Pending
+implementation                         = amended
+From/To GUI range filter                = removed
+semantic native preload                 = retained
+Search mode / Semantic runtime coupling = corrected
+operation wiring                        = 14 / 14
+automated verification                  = Refresh Pending
+interactive smoke                       = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
 ```
