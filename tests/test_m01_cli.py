@@ -85,13 +85,13 @@ def test_new_domain_parser_has_no_legacy_flat_commands():
     assert args.action == "build"
 
 
-def test_system_integrity_and_migration_18(tmp_path, capsys):
+def test_system_integrity_and_migration_19(tmp_path, capsys):
     db = tmp_path / "integrity.sqlite"
     code = main(["--db", str(db), "system", "integrity"])
     assert code == 0
     payload, _ = _stdout_json(capsys)
     assert payload["data"]["ok"] is True
-    assert payload["data"]["schema_migrations"][-1] == 18
+    assert payload["data"]["schema_migrations"][-1] == 19
 
     repo = Repository(db)
     try:
