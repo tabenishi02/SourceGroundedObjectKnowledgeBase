@@ -1,0 +1,86 @@
+name: P-RUNTIME-03 acceptance
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  runtime-health-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install focused dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev]'
+      - name: Focused P-RUNTIME-03 tests
+        run: python -m pytest -q tests/test_p_runtime_03_runtime_health_boundary.py
+      - name: Ruff
+        run: python -m ruff check src tests
+      - name: Start accepted Qdrant runtime
+        run: |
+          docker compose -f runtime/qdrant/compose.yaml pull
+          docker compose -f runtime/qdrant/compose.yaml up -d --wait --wait-timeout 180
+      - name: Verify system.status against real Qdrant
+        run: |
+          sgokb --db /tmp/p-runtime-03.sqlite system status > /tmp/runtime-status.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path('/tmp/runtime-status.json').read_text())
+          health = payload['data']['runtime_health']
+          assert health['schema_version'] == 'sgokb.runtime-health/1.0'
+          assert health['components']['sqlite']['status'] == 'healthy'
+          assert health['components']['qdrant']['status'] == 'healthy'
+          assert health['components']['qdrant']['details']['ready'] is True
+          assert health['components']['qdrant']['details']['version'] == '1.20.0'
+          assert health['lifecycle']['qdrant_owner'] == 'external'
+          assert health['lifecycle']['start'] is False
+          assert health['lifecycle']['stop'] is False
+          assert health['lifecycle']['restart'] is False
+          PY
+      - name: Diagnostics
+        if: always()
+        run: |
+          docker compose -f runtime/qdrant/compose.yaml ps -a || true
+          docker compose -f runtime/qdrant/compose.yaml logs --tail 100 qdrant || true
+          docker compose -f runtime/qdrant/compose.yaml down || true
+          docker volume rm sgokb_qdrant_storage || true
+
+  windows-regression:
+    runs-on: windows-2025
+    timeout-minutes: 45
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10.11'
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,vector-qdrant,gui,mcp]"
+          python -m pip install numpy
+          python -m pip install --no-deps sentence-transformers
+      - name: Show source
+        shell: pwsh
+        run: |
+          git rev-parse HEAD
+          python --version
+      - name: Focused P-RUNTIME-03 tests
+        shell: pwsh
+        run: python -m pytest -q tests/test_p_runtime_03_runtime_health_boundary.py
+      - name: Ruff
+        shell: pwsh
+        run: python -m ruff check src tests
+      - name: Full repository regression
+        shell: pwsh
+        run: python -m pytest -q
