@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 from datetime import date, datetime, time, timezone
 from pathlib import Path
@@ -13,7 +12,11 @@ from jsonschema import Draft202012Validator, FormatChecker
 from sgokb.storage import PackageBuildReadRepository, RawGroundingRepository
 
 from .object_result import ObjectResultContract, ObjectResultValidationError
-from .object_result_v2 import load_object_result_schema_v2, iter_raw_grounding_refs, validate_object_result_v2
+from .object_result_v2 import (
+    iter_raw_grounding_refs,
+    load_object_result_schema_v2,
+    validate_object_result_v2,
+)
 from .package_manifest_v2 import (
     PACKAGE_SCHEMA_VERSION_V2,
     calculate_grounding_set_sha256,
@@ -32,8 +35,8 @@ from .result_validation import (
     ResultValidationReport,
     ResultValidationService,
     _error,
-    _json_path,
     _iter_temporal_scopes,
+    _json_path,
 )
 
 
@@ -76,7 +79,11 @@ class RawResultValidationService:
             findings.extend(self._domain_findings(result, manifest))
             findings.extend(self.legacy._review_findings(result, receipt))
             findings = self.legacy._deduplicate(findings)
-            state = "invalid" if any(item.severity == "error" for item in findings) else "valid"
+            state = (
+                "invalid"
+                if any(item.severity == "error" for item in findings)
+                else "valid"
+            )
             return self.legacy._finish(receipt, state, findings)
         except Exception as error:
             finding = _error(
@@ -88,14 +95,18 @@ class RawResultValidationService:
             return self.legacy._finish(receipt, "error", [finding])
 
     @staticmethod
-    def _static_schema_findings(result: Mapping[str, Any]) -> list[ResultValidationFinding]:
+    def _static_schema_findings(
+        result: Mapping[str, Any],
+    ) -> list[ResultValidationFinding]:
         validator = Draft202012Validator(
-            load_object_result_schema_v2(), format_checker=FormatChecker()
+            load_object_result_schema_v2(),
+            format_checker=FormatChecker(),
         )
         return [
             _error(STATIC_SCHEMA, _json_path(issue.absolute_path), "schema", issue.message)
             for issue in sorted(
-                validator.iter_errors(result), key=lambda item: list(item.absolute_path)
+                validator.iter_errors(result),
+                key=lambda item: list(item.absolute_path),
             )
         ]
 
@@ -108,11 +119,15 @@ class RawResultValidationService:
         staged = Path(str(package_record["staged_path"])).resolve()
         preflight = inspect_package_v2(staged)
         if preflight.disposition == "blocked":
-            raise ValueError("Staged Package v2 no longer passes integrity/security preflight")
+            raise ValueError(
+                "Staged Package v2 no longer passes integrity/security preflight"
+            )
         manifest = json.loads((staged / "manifest.json").read_text(encoding="utf-8"))
         issues = validate_package_manifest_v2(manifest)
         if issues:
-            raise ValueError("Staged Package v2 manifest is invalid: " + "; ".join(issues))
+            raise ValueError(
+                "Staged Package v2 manifest is invalid: " + "; ".join(issues)
+            )
         if manifest["integrity"]["manifest_sha256"] != package_record["manifest_sha256"]:
             raise ValueError("Staged Package manifest hash differs from audit record")
         raw_audit = self.raw_store.package_grounding(str(receipt["package_id"]))
@@ -123,7 +138,10 @@ class RawResultValidationService:
             raw_audit["included_raw_artifact_ids"]
         ):
             raise ValueError("Staged Package Raw membership differs from audit record")
-        if raw["integrity"]["grounding_set_sha256"] != raw_audit["grounding_set_sha256"]:
+        if (
+            raw["integrity"]["grounding_set_sha256"]
+            != raw_audit["grounding_set_sha256"]
+        ):
             raise ValueError("Staged Package grounding-set hash differs from audit record")
         return package_record, manifest
 
@@ -170,7 +188,10 @@ class RawResultValidationService:
         staged = Path(str(package_record["staged_path"])).resolve()
         cache: dict[str, bytes] = {}
 
-        if raw["integrity"]["grounding_set_sha256"] != calculate_grounding_set_sha256(raw):
+        if (
+            raw["integrity"]["grounding_set_sha256"]
+            != calculate_grounding_set_sha256(raw)
+        ):
             findings.append(
                 _error(
                     GROUNDING_PROVENANCE,
@@ -195,7 +216,9 @@ class RawResultValidationService:
                 continue
             item = item_by_id[raw_id]
             canonical = self.repository.source_store.raw_artifact_by_id(raw_id)
-            canonical_snapshot = self.repository.source_store.snapshot_by_id(canonical["snapshot_id"])
+            canonical_snapshot = self.repository.source_store.snapshot_by_id(
+                canonical["snapshot_id"]
+            )
             if (
                 canonical["snapshot_id"] != item["snapshot_id"]
                 or canonical_snapshot.source_id != item["source_id"]
@@ -251,7 +274,11 @@ class RawResultValidationService:
         return findings
 
     @staticmethod
-    def _locator_issue(locator: Mapping[str, Any], item: Mapping[str, Any], payload: bytes):
+    def _locator_issue(
+        locator: Mapping[str, Any],
+        item: Mapping[str, Any],
+        payload: bytes,
+    ):
         kind = locator.get("kind")
         if kind == "byte_range":
             start, end = int(locator["start"]), int(locator["end"])
@@ -294,7 +321,9 @@ class RawResultValidationService:
         return "unsupported Raw locator kind"
 
     def _domain_findings(
-        self, result: Mapping[str, Any], manifest: Mapping[str, Any]
+        self,
+        result: Mapping[str, Any],
+        manifest: Mapping[str, Any],
     ) -> list[ResultValidationFinding]:
         target = manifest.get("target") or {}
         class_ids = (
@@ -313,7 +342,9 @@ class RawResultValidationService:
             relation_type_ids=frozenset(item["id"] for item in relations),
             package_id=str(manifest.get("package_id")),
             package_schema_version=str(manifest.get("schema_version")),
-            manifest_sha256=str((manifest.get("integrity") or {}).get("manifest_sha256")),
+            manifest_sha256=str(
+                (manifest.get("integrity") or {}).get("manifest_sha256")
+            ),
             base_version_id=(manifest.get("binding") or {}).get("base_version_id"),
         )
         findings: list[ResultValidationFinding] = []
