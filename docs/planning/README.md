@@ -26,8 +26,8 @@ P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
 P-GUI-05 = Complete / Accepted
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
-Next = verify PyTorch/runtime dependency + refresh P-GUI-06 automated gate
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+Next = repeat P-GUI-06 interactive smoke
 ```
 
 Phase PのWorkstream優先順位は次で固定します。
@@ -83,8 +83,9 @@ Priority 3: Runtime / Qdrant auto-start
 ### P-GUI-06 current authority
 
 - Main implementation / interactive procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
-- **Current remediation authority**: [`../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md)
-- Historical automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md)
+- **Current automated verification**: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md)
+- **Current range/runtime remediation**: [`../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md)
+- Historical Attempt 05: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md)
 - Prior range/runtime-state remediation: [`../evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md)
 - Search selector / validity-range amendment: [`../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`](../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md)
 - First validity-range false-negative remediation: [`../evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`](../evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md)
@@ -116,30 +117,40 @@ sentence-transformers>=6.1,<7
 transformers>=5.2,<6
 ```
 
-The observed `name 'nn' is not defined` is treated as a local semantic-runtime dependency failure rather than an internal SGOKB error. Existing venvs may require an explicit PyTorch upgrade; a Git pull does not mutate installed packages.
+The observed external `name 'nn' is not defined` failure is treated as a local semantic-runtime dependency failure rather than an internal SGOKB error.
 
-Historical Attempt 05 evidence was:
+Attempt 06 operator environment:
 
 ```text
-focused P-GUI-04 / 05 / 06 regression = 31 / 31 PASS
-Ruff                                  = All checks passed!
-full regression                        = 826 / 826 PASS
-known local-Qdrant warnings            = 2
+PyTorch           = 2.6.0+cu124
+CUDA runtime      = 12.4
+CUDA available    = True
+GPU               = NVIDIA GeForce RTX 4090
+pip check         = No broken requirements found
 ```
 
-That result predates the latest contract/runtime changes and is not current closure authority.
+Current automated evidence:
+
+```text
+focused P-GUI-03R / 04 / 05 / 06 regression = 40 / 40 PASS
+Ruff                                           = All checks passed!
+full regression                                = 829 / 829 PASS
+known local-Qdrant warnings                    = 2
+```
+
+Attempt 05 remains historical evidence because interactive testing afterward exposed the final Registry/Statement temporal-boundary defect and the semantic-runtime dependency problem. Attempt 06 supersedes it as current automated authority.
 
 Current status:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
 
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 remains open until the latest remediation passes automated verification and interactive acceptance.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed the current automated gate and remains open for interactive acceptance only. These tasks do not by themselves advance the formal release version.
 
 ## Phase P GUI decisions so far
 
@@ -198,7 +209,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-1. verify / correct operator PyTorch version
-2. refresh P-GUI-06 automated verification
-3. repeat From/To and Semantic-runtime interactive smoke
+P-GUI-06 — repeat From/To and Semantic-runtime interactive smoke, then finish the remaining Search / Similarity / Registry / Version / Render smoke
 ```
