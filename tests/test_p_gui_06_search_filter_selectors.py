@@ -1,4 +1,4 @@
-"""P-GUI-06 filter selector and temporal range coverage."""
+"""P-GUI-06 Search / Similarity selector coverage."""
 
 from __future__ import annotations
 
@@ -6,7 +6,6 @@ import os
 
 import pytest
 from test_hybrid_search import _accepted, _class
-from test_hybrid_search_r2 import _accepted_r2, _activate_r2_generation
 
 from sgokb.repository import Repository
 
@@ -55,7 +54,7 @@ def _workspace(path):
     return WorkspaceState.opened(path, {})
 
 
-def test_search_filter_selectors_and_validity_range_arguments(qt_app, tmp_path, monkeypatch):
+def test_search_filter_selectors_omit_removed_from_to_arguments(qt_app, tmp_path, monkeypatch):
     from sgokb.gui.views import SearchPage
     from sgokb.gui.worker import BackendCoordinator
 
@@ -99,6 +98,12 @@ def test_search_filter_selectors_and_validity_range_arguments(qt_app, tmp_path, 
         assert page.version.findData(version_id) >= 0
         assert page.temporal_scope.findData(temporal_scope_id) >= 0
 
+        # P-GUI-06 no longer exposes or transports the experimental From/To range.
+        assert page.valid_from.isHidden()
+        assert page.valid_to.isHidden()
+        assert not page.valid_from.isEnabled()
+        assert not page.valid_to.isEnabled()
+
         object_index = page.similar_object.findData(object_id)
         assert object_index >= 0
         page.similar_object.setCurrentIndex(object_index)
@@ -118,8 +123,11 @@ def test_search_filter_selectors_and_validity_range_arguments(qt_app, tmp_path, 
         page.facet.setCurrentIndex(page.facet.findData("personality"))
         page.version.setCurrentIndex(page.version.findData(version_id))
         page.temporal_scope.setCurrentIndex(page.temporal_scope.findData(temporal_scope_id))
-        page.valid_from.setText("2026-02-01")
-        page.valid_to.setText("2026-11-30")
+
+        # Even programmatic values on the inert compatibility widgets must not leak
+        # into the transport request.
+        page.valid_from.setText("2100-01-01")
+        page.valid_to.setText("2200-01-01")
         page.run_search()
 
         operation_id, arguments, _callback, _summary = captured[-1]
@@ -128,7 +136,7 @@ def test_search_filter_selectors_and_validity_range_arguments(qt_app, tmp_path, 
         assert arguments["facet"] == "personality"
         assert arguments["version"] == version_id
         assert arguments["temporal_scope"] == temporal_scope_id
-        assert arguments["valid_at"] == "2026-02-01..2026-11-30"
+        assert "valid_at" not in arguments
 
         page.similar_facet.setCurrentIndex(page.similar_facet.findData("personality"))
         page.similar_version.setCurrentIndex(page.similar_version.findData(version_id))
@@ -138,71 +146,6 @@ def test_search_filter_selectors_and_validity_range_arguments(qt_app, tmp_path, 
         assert arguments["object_id"] == object_id
         assert arguments["facet"] == "personality"
         assert arguments["version"] == version_id
-
-        before = len(captured)
-        page.valid_from.setText("2027-01-01")
-        page.valid_to.setText("2026-01-01")
-        assert page.run_search() is None
-        assert len(captured) == before
-        assert "From must not be after To" in page.operation_status.text()
-    finally:
-        page.deleteLater()
-        qt_app.processEvents()
-        assert backend.shutdown()
-
-
-def test_gui_range_search_keeps_current_object_when_active_generation_lags(qt_app, tmp_path):
-    from sgokb.gui.views import SearchPage
-    from sgokb.gui.worker import BackendCoordinator
-
-    database = tmp_path / "gui-search-range-stale-generation.sqlite"
-    repository = Repository(database)
-    try:
-        object_id = repository.object_store.create_object(
-            "GUI Lagged Range Hero",
-            _class(repository, "character"),
-        )
-        _accepted_r2(
-            repository,
-            object_id,
-            "gui-lagged-range-v1",
-            [{"facet": "personality", "text": "old generation statement"}],
-        )
-        _activate_r2_generation(repository, generation_id="gui-range-generation")
-        # The fixture writes the active generation with direct SQL. Close that setup
-        # transaction before exercising the next Version lifecycle operation.
-        repository.db.commit()
-        current_version_id = _accepted_r2(
-            repository,
-            object_id,
-            "gui-lagged-range-v2",
-            [{"facet": "personality", "text": "current timeless statement"}],
-        )
-        repository.db.commit()
-    finally:
-        repository.close()
-
-    backend = BackendCoordinator()
-    page = SearchPage(backend)
-    try:
-        page.set_workspace(_workspace(database))
-        _wait_idle(qt_app, backend)
-
-        page.search_query.setText("GUI Lagged Range Hero")
-        page.search_mode.setCurrentText("lexical")
-        page.valid_from.setText("2100-01-01")
-        page.valid_to.setText("2200-01-01")
-        page.run_search()
-        _wait_idle(qt_app, backend)
-
-        rows = [
-            page.search_model.row_data(row)
-            for row in range(page.search_model.rowCount())
-        ]
-        matching = [row for row in rows if row and row.get("object_id") == object_id]
-        assert matching
-        assert matching[0]["version_id"] == current_version_id
-        assert page.operation_status.text() == "search: success"
     finally:
         page.deleteLater()
         qt_app.processEvents()
