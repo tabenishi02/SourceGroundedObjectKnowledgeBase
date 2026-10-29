@@ -65,7 +65,8 @@ def test_operation_policy_and_equivalent_cli_preserve_safety_boundaries(tmp_path
 
     assert operation_policy("search").effect == EFFECT_READ
     assert operation_policy("object.rename").effect == EFFECT_WRITE
-    assert operation_policy("object.rename").confirmation_required is True
+    assert operation_policy("object.rename").confirmation_required is False
+    assert operation_policy("object.status").confirmation_required is True
     assert operation_policy("package.export").effect == EFFECT_EXTERNAL
     assert operation_policy("package.export").confirmation_required is True
     restore = operation_policy("system.restore.apply")
@@ -85,7 +86,11 @@ def test_operation_policy_and_equivalent_cli_preserve_safety_boundaries(tmp_path
     assert "--to 'Renamed Object'" in command
 
 
-def test_operation_page_confirms_write_before_submission(qt_app, tmp_path, monkeypatch):
+def test_operation_page_confirms_high_impact_write_before_submission(
+    qt_app,
+    tmp_path,
+    monkeypatch,
+):
     from PySide6.QtWidgets import QMessageBox
 
     from sgokb.gui.views.operation_page import OperationPage
@@ -105,8 +110,8 @@ def test_operation_page_confirms_write_before_submission(qt_app, tmp_path, monke
     monkeypatch.setattr(QMessageBox, "warning", cancel)
     try:
         request_id = page.submit(
-            "object.rename",
-            {"object_id": "object-1", "to": "New Name"},
+            "object.status",
+            {"object_id": "object-1", "set": "archived"},
         )
         assert request_id is None
         assert not backend.is_busy
@@ -156,7 +161,11 @@ def test_operation_center_surfaces_warning_partial_and_error(qt_app, tmp_path):
 
     backend = BackendCoordinator()
     center = OperationCenter(backend)
-    request = GuiOperationRequest.create(tmp_path / "events.sqlite", "source.import", {"path": "x"})
+    request = GuiOperationRequest.create(
+        tmp_path / "events.sqlite",
+        "source.import",
+        {"path": "x"},
+    )
     try:
         backend.operation_submitted.emit(request.request_id, request)
         backend.operation_warning.emit(request.request_id, "one item failed")
