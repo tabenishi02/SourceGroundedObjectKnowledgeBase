@@ -196,7 +196,7 @@ def test_main_window_exposes_progress_operation_center_and_form_only_undo(
     qt_app,
     tmp_path,
 ):
-    from PySide6.QtWidgets import QLineEdit
+    from PySide6.QtWidgets import QApplication
 
     from sgokb.gui.views import MainWindow
     from sgokb.gui.worker import BackendCoordinator
@@ -209,13 +209,22 @@ def test_main_window_exposes_progress_operation_center_and_form_only_undo(
         show_error_dialogs=False,
         confirm_operations=False,
     )
-    edit = QLineEdit(window)
-    edit.setText("first")
-    edit.setFocus()
-    edit.insert(" second")
     try:
         assert window.operation_center.windowTitle() == "Operation Center"
         assert "submitted operations" in window.undo_action.statusTip()
+
+        # Use a real visible form field. A hidden test-only child cannot reliably
+        # acquire QApplication focus under the offscreen Qt platform.
+        window.navigation.setCurrentRow(5)  # Search
+        window.show()
+        qt_app.processEvents()
+        edit = window.domain_pages["search"].search_query
+        edit.setText("first")
+        edit.setFocus()
+        edit.end(False)
+        edit.insert(" second")
+        qt_app.processEvents()
+        assert QApplication.focusWidget() is edit
 
         window._edit_focused_widget("undo")
         assert edit.text() == "first"
@@ -223,7 +232,7 @@ def test_main_window_exposes_progress_operation_center_and_form_only_undo(
         backend.submit(tmp_path / "progress.sqlite", "system.status")
         qt_app.processEvents()
         if backend.is_busy:
-            assert window.operation_progress.isVisible() or not window.isVisible()
+            assert window.operation_progress.isVisible()
         _wait_idle(qt_app, backend)
         assert window.operation_center.operation_count >= 1
     finally:
