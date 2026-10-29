@@ -35,8 +35,9 @@ Priority 3: Runtime / Qdrant auto-start
 | RAW | P-RAW-01 | **Complete / Accepted** | Current Evidence Package / Result impact survey |
 | RAW | P-RAW-02 | **Complete / Accepted** | Deterministic Evidence -> Raw Artifact provenance resolution contract |
 | RAW | P-RAW-03 | **Complete / Accepted** | Versioned RAW-bearing Package v2 design |
-| RAW | P-RAW-04 | **Not Started / Next** | Raw-grounded Object Result v2 design |
-| RAW | P-RAW-05..06 | Not Started | RAW Grounding implementation / acceptance |
+| RAW | P-RAW-04 | **Complete / Accepted** | Raw-grounded Object Result v2 design |
+| RAW | P-RAW-05 | **Not Started / Next** | RAW Grounding implementation |
+| RAW | P-RAW-06 | Not Started | RAW Grounding acceptance / compatibility / documentation |
 | Runtime | P-RUNTIME-01..06 | Not Started | Windows Qdrant auto-start / health / GUI integration |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
@@ -106,7 +107,7 @@ Evidence-Markdown external semantic payload
 Evidence-only Package grounding membership
 Evidence-ID-only analysis grounding instructions
 Evidence-ID-only Result grounding representation
-Evidence-only Package membership validation
+Evidence-only Result membership validation
 ```
 
 Migration-required contracts:
@@ -243,6 +244,79 @@ Therefore:
 P-RAW-03 = Complete / Accepted
 ```
 
+## P-RAW-04 accepted Raw-grounded Object Result v2 design
+
+Authority:
+
+- `docs/design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md`
+
+Result v2 is explicitly versioned:
+
+```text
+Result schema       = sgokb.object-result/2.0
+schema ID           = urn:sgokb:schema:object-result:2.0
+Package schema      = sgokb.object-evidence-package/2.0
+instructions        = sgokb.object-analysis/2.0
+grounding contract  = sgokb.raw-grounding/1.0
+```
+
+The Result grounding target becomes the exact Package-member `raw_artifact_id`. The v1 `evidence[]` field is replaced by v2 `grounding[]`; Result v2 contains no Evidence IDs for claim grounding.
+
+Baseline Raw reference:
+
+```json
+{
+  "raw_artifact_id": "raw-...",
+  "role": "supports"
+}
+```
+
+Optional locator precision supports only mechanically verifiable baseline kinds:
+
+```text
+byte_range   zero-based half-open [start,end) over exact Raw bytes
+text_quote   exact decoded Raw text with optional prefix/suffix disambiguation
+```
+
+An invalid asserted locator is a validation error; producers may omit locator rather than invent precision.
+
+Package/Result binding additionally includes:
+
+```text
+grounding_contract
+grounding_set_sha256
+```
+
+so a Result is bound to the exact Raw membership/material fingerprint.
+
+Accepted persistence boundary:
+
+```text
+v1 claim grounding -> evidence_links
+v2 claim grounding -> new raw_grounding_links family
+```
+
+A v2 import MUST NOT synthesize Evidence links by mapping Raw references back through Package Evidence selection metadata. Evidence remains selection lineage, not claim grounding.
+
+P-RAW-04 also fixes the post-v2 historical carry-forward rule. For a v2 current Version, SGOKB collects accepted Raw grounding IDs, reopens the originating Package Evidence->Raw bindings, conservatively recovers every matching Evidence as carry-forward **selection lineage**, and resolves those Evidence records through their original historical runs under P-RAW-02. This preserves historical Raw provenance without claiming the AI cited those Evidence records.
+
+Compatibility direction is therefore:
+
+```text
+v1 accepted Version -> v2 update = supported
+v2 accepted Version -> v1 update = blocked by default
+```
+
+Review/diff must separate semantic Knowledge changes from grounding changes so an Evidence-v1 -> Raw-v2 grounding-model transition is not itself treated as destructive Knowledge deletion.
+
+No source code, runtime behavior, implemented JSON Schema, or DB schema changed in P-RAW-04. It is a design-only task, so the regression suite was not rerun.
+
+Therefore:
+
+```text
+P-RAW-04 = Complete / Accepted
+```
+
 ## Sequencing
 
 ```text
@@ -254,9 +328,9 @@ P-RAW-02 Complete / Accepted
         ↓
 P-RAW-03 Complete / Accepted
         ↓
-P-RAW-04 Raw-grounded Object Result v2 design   <- NEXT
+P-RAW-04 Complete / Accepted
         ↓
-P-RAW-05 RAW Grounding implementation
+P-RAW-05 RAW Grounding implementation   <- NEXT
         ↓
 P-RAW-06 RAW Grounding acceptance
         ↓
@@ -269,10 +343,10 @@ P-GUI-08 Package / Result GUI
 
 Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-03 are accepted development baselines. The current active design task is P-RAW-04.
+P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-04 are accepted development baselines. The current active task is P-RAW-05 implementation.
 
 ## Next
 
 ```text
-P-RAW-04 — Raw-grounded Object Result v2 design
+P-RAW-05 — RAW Grounding implementation
 ```
