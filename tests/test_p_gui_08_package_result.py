@@ -173,7 +173,10 @@ def _valid_v2_result(repository, manifest):
                         {
                             "raw_artifact_id": raw_id,
                             "role": "supports",
-                            "locator": {"text_quote": "孫悟空"},
+                            "locator": {
+                                "kind": "text_quote",
+                                "exact": "孫悟空",
+                            },
                         }
                     ],
                 }
@@ -378,7 +381,7 @@ def test_raw_package_to_result_import_round_trip_through_gui(
 
         result_page.validate_result()
         _wait_idle(qt_app, backend)
-        assert "valid" in result_page.result_state.text().lower()
+        assert result_page.result_state.text().lower().startswith("state: validation valid")
 
         result_page.review_result()
         _wait_idle(qt_app, backend)
