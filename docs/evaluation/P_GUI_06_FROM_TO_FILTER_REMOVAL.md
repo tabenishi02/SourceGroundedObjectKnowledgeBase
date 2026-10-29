@@ -5,8 +5,9 @@ Updated: 2026-10-29
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
 - Decision: **Remove the experimental GUI From/To date filter**
-- Status: **Implemented / Automated Verification PASS / Interactive Smoke Pending**
-- Current automated authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_08.md`
+- Status: **Complete / Accepted**
+- Final automated authority: `P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`
+- Final interactive authority: `P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md`
 
 ## Operator decision
 
@@ -61,7 +62,7 @@ valid_at = "YYYY-MM-DD..YYYY-MM-DD"
 
 ### Retrieval
 
-`sgokb.retrieval.HybridObjectSearch` now resolves directly to the canonical R2 implementation in:
+`sgokb.retrieval.HybridObjectSearch` resolves directly to the canonical R2 implementation in:
 
 ```text
 src/sgokb/retrieval/hybrid_search_r2.py
@@ -98,20 +99,20 @@ The following documents remain historical records of the experimental range work
 
 Attempt 07 automated PASS is historical because it predates this removal.
 
-## Post-removal verification
+## Final verification
 
-Attempt 08 re-verified the reduced surface after the removal:
+Post-removal and later Semantic runtime coupling changes were ultimately verified by Attempt 09:
 
 ```text
-focused regression = 28 / 28 PASS
+focused regression = 29 / 29 PASS
 Ruff               = PASS
-full regression    = 817 / 817 PASS
+full regression    = 818 / 818 PASS
 warnings           = 2 known local-Qdrant warnings
 ```
 
-Therefore the From/To removal and preserved semantic-runtime remediation are accepted at the automated-verification level.
+Final interactive verification confirmed the accepted Search surface, including the absence of the From/To controls and the corrected Semantic / Hybrid behavior, within the verified scope.
 
-## Current disposition
+## Final disposition
 
 ```text
 From/To GUI controls               = Removed from operator surface
@@ -120,12 +121,12 @@ range retrieval adapters           = Removed
 range-specific tests               = Removed
 single-point valid_at contract      = Preserved
 semantic runtime crash remediation = Preserved
-automated verification refresh     = PASS
-interactive smoke                  = Pending
+automated verification             = PASS
+interactive smoke                  = PASS
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+P-GUI-06 From/To removal = Complete / Accepted
 ```
