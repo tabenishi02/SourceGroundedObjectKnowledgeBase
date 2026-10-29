@@ -3,7 +3,8 @@
 Updated: 2026-10-30
 
 - Task: `P-RAW-06 [P0] RAW Grounding acceptance / compatibility / documentation`
-- Status: **Design integration complete; final acceptance depends on verification gate**
+- Status: **Complete / Accepted**
+- Acceptance: `docs/evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md`
 - Inputs:
   - `P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md`
   - `P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md`
