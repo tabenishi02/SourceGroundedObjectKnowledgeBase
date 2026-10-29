@@ -15,10 +15,12 @@ Happy-path operational acceptance = Complete / FULL SGOKB PASS
 Current formal release = v1.1.0
 Phase P = In Progress
 
-P-GUI-01..07 = Complete / Accepted
+P-GUI-01..08 = Complete / Accepted
 P-RAW-01..06 = Complete / Accepted
-P-GUI-08 = Not Started / Unblocked / Next
-P-RUNTIME-01..06 = Not Started
+P-GUI-09 = Not Started / blocked by P-RUNTIME-03
+P-GUI-10 = Not Started
+P-RUNTIME-01 = Not Started / Next
+P-RUNTIME-02..06 = Not Started
 P-CLOSE-01 = Not Started
 ```
 
@@ -29,6 +31,8 @@ Priority 1: GUI
 Priority 2: RAW Grounding
 Priority 3: Runtime / Qdrant auto-start
 ```
+
+GUI と RAW Grounding の優先作業は P-GUI-08 まで完了しています。残る GUI の P-GUI-09 は P-RUNTIME-03 に依存するため、現在の実行順では Runtime workstream が次です。
 
 ## Phase P planning authority
 
@@ -75,6 +79,38 @@ Priority 3: Runtime / Qdrant auto-start
 - P-GUI-07 implementation: [`../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md`](../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md)
 - P-GUI-07 automated acceptance: [`../evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
 - P-GUI-07 interactive acceptance: [`../evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md`](../evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md)
+
+### P-GUI-08 — Package / Result GUI
+
+- Implementation: [`../evaluation/P_GUI_08_PACKAGE_RESULT_GUI_IMPLEMENTATION.md`](../evaluation/P_GUI_08_PACKAGE_RESULT_GUI_IMPLEMENTATION.md)
+- Final automated acceptance: [`../evaluation/P_GUI_08_PACKAGE_RESULT_GUI_ACCEPTANCE.md`](../evaluation/P_GUI_08_PACKAGE_RESULT_GUI_ACCEPTANCE.md)
+- Operator workflow: [`../operations/P_GUI_08_PACKAGE_RESULT_GUI_WORKFLOW.md`](../operations/P_GUI_08_PACKAGE_RESULT_GUI_WORKFLOW.md)
+
+Final P-GUI-08 gate:
+
+```text
+P-GUI-08 focused acceptance = 4 / 4 PASS
+GUI regression              = 38 / 38 PASS
+Ruff src/tests              = PASS
+full repository regression  = 837 / 837 PASS
+warnings                    = 2 known local-Qdrant warnings
+GitHub Actions PR run        = 40945757254
+verified branch source       = 3015c01aaaecfe5800032ef25b7c9d92cb30e635
+verified synthetic merge     = 4010fd93efe4e04f20acff8b98068593d0ac44b5
+```
+
+Accepted P-GUI-08 boundary:
+
+```text
+GUI Package v2 = explicit Raw-grounded normal path
+GUI Package v1 = explicit legacy compatibility path
+shared omitted-version Package default = v1, unchanged
+Result v2 review shows Raw grounding references
+Result v2 import persists raw_grounding_links
+Result v2 Evidence claim-link synthesis = forbidden
+```
+
+P-GUI-08 is automated functional/contract acceptance. GUI-wide parity/usability closure remains owned by P-GUI-10.
 
 ## Accepted RAW Grounding authority
 
@@ -136,7 +172,7 @@ Therefore:
 ```text
 P-RAW-01..06 = Complete / Accepted
 P-RAW workstream = Complete / Accepted for Phase P
-P-GUI-08 = Unblocked
+P-GUI-01..08 = Complete / Accepted
 ```
 
 ## Phase P architecture summary
@@ -155,11 +191,11 @@ Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 
 ### GUI
 
-`P-GUI-08` is now unblocked and is the next task. `P-GUI-09` additionally depends on `P-RUNTIME-03`; `P-GUI-10` is the final GUI parity / regression acceptance task.
+`P-GUI-09` remains Not Started and depends on `P-RUNTIME-03`. `P-GUI-10` is the final GUI parity / regression acceptance task.
 
 ### Runtime
 
-`P-RUNTIME-01..06` remain Not Started. The target is Windows-login automatic Qdrant availability while keeping Qdrant an independent shared runtime rather than a GUI-owned child process.
+`P-RUNTIME-01` is the next executable task. `P-RUNTIME-01..06` establish Windows-login automatic Qdrant availability while keeping Qdrant an independent shared runtime rather than a GUI-owned child process.
 
 ### Closure
 
@@ -168,5 +204,5 @@ Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 ## Next
 
 ```text
-P-GUI-08 — Package / Result GUI
+P-RUNTIME-01 — Windows auto-start方式比較
 ```

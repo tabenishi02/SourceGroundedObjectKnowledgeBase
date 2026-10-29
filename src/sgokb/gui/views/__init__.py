@@ -7,13 +7,16 @@ from .search_page_derivation import SearchPage
 # symbol before importing MainWindow so every GUI entry path receives the amended page.
 _search_page.SearchPage = SearchPage
 
-# These imports intentionally follow the SearchPage module patch above. MainWindow imports
-# SearchPage from ``search_page`` while it is defined, so moving them above the patch would
-# bypass the Derivation Kind selector amendment.
+# These imports intentionally follow the SearchPage module patch above. Base MainWindow
+# imports SearchPage from ``search_page`` while it is defined, so moving them above the
+# patch would bypass the Derivation Kind selector amendment.
 from .association_page import AssociationPage  # noqa: E402
 from .evidence_page import EvidencePage  # noqa: E402
-from .main_window import NAVIGATION_ITEMS, MainWindow  # noqa: E402
+from .main_window import NAVIGATION_ITEMS  # noqa: E402
+from .main_window_package_result import MainWindow  # noqa: E402
 from .object_page import ObjectPage  # noqa: E402
+from .package_result_detection import ResultPage  # noqa: E402
+from .package_result_page import PackagePage  # noqa: E402
 from .registry_page import RegistryPage  # noqa: E402
 from .source_page import SourcePage  # noqa: E402
 
@@ -23,7 +26,9 @@ __all__ = [
     "MainWindow",
     "NAVIGATION_ITEMS",
     "ObjectPage",
+    "PackagePage",
     "RegistryPage",
+    "ResultPage",
     "SearchPage",
     "SourcePage",
 ]

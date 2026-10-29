@@ -29,8 +29,8 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
 | GUI | P-GUI-06 | **Complete / Accepted** | Search / Similarity / Registry / Version GUI; Attempt 09 + interactive PASS |
 | GUI | P-GUI-07 | **Complete / Accepted** | Progress / error / safety / audit UX; automated + interactive PASS |
-| GUI | P-GUI-08 | **Not Started / Unblocked / Next** | Package / Result GUI against accepted v2 Raw boundary |
-| GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
+| GUI | P-GUI-08 | **Complete / Accepted** | Package / Result GUI against accepted v2 Raw boundary |
+| GUI | P-GUI-09 | **Not Started / Blocked by P-RUNTIME-03** | System / Maintenance / MCP / Advanced GUI |
 | GUI | P-GUI-10 | Not Started | GUI parity / regression acceptance |
 | RAW | P-RAW-01 | **Complete / Accepted** | Current Evidence Package / Result impact survey |
 | RAW | P-RAW-02 | **Complete / Accepted** | Deterministic Evidence -> Raw Artifact provenance resolution contract |
@@ -38,7 +38,8 @@ Priority 3: Runtime / Qdrant auto-start
 | RAW | P-RAW-04 | **Complete / Accepted** | Raw-grounded Object Result v2 design |
 | RAW | P-RAW-05 | **Complete / Accepted** | Resolver -> Package v2 -> Result v2 -> Raw provenance implementation |
 | RAW | P-RAW-06 | **Complete / Accepted** | Formal Raw operational acceptance, compatibility/cutover disposition, documentation closure |
-| Runtime | P-RUNTIME-01..06 | Not Started | Windows Qdrant auto-start / health / GUI integration |
+| Runtime | P-RUNTIME-01 | **Not Started / Next** | Windows auto-start approach comparison |
+| Runtime | P-RUNTIME-02..06 | Not Started | Qdrant ownership / health / GUI integration / recovery / acceptance |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
 ## GUI baseline
@@ -55,7 +56,7 @@ Qt linking            = dynamic / separate shared libraries
 
 GUI is not a CLI subprocess wrapper. Qdrant remains an independent shared runtime.
 
-## P-GUI-01..07 accepted baseline
+## P-GUI-01..08 accepted baseline
 
 ```text
 P-GUI-01..03R = Complete / Accepted
@@ -63,6 +64,7 @@ P-GUI-04      = Complete / Accepted
 P-GUI-05      = Complete / Accepted
 P-GUI-06      = Complete / Accepted
 P-GUI-07      = Complete / Accepted
+P-GUI-08      = Complete / Accepted
 ```
 
 P-GUI-06 final evidence:
@@ -85,12 +87,46 @@ warnings           = 2 known local-Qdrant warnings
 interactive smoke  = PASS in accepted scope
 ```
 
+P-GUI-08 final evidence:
+
+```text
+focused Package / Result GUI = 4 / 4 PASS
+GUI regression               = 38 / 38 PASS
+Ruff src/tests               = PASS
+full repository regression   = 837 / 837 PASS
+warnings                     = 2 known local-Qdrant warnings
+GitHub Actions PR run         = 40945757254
+verified branch source        = 3015c01aaaecfe5800032ef25b7c9d92cb30e635
+verified synthetic merge      = 4010fd93efe4e04f20acff8b98068593d0ac44b5
+```
+
+P-GUI-08 accepted workflow:
+
+```text
+GUI Evidence selection
+  -> Package v2 build / Raw resolution
+  -> Raw Artifact inclusion + Evidence->Raw inspection
+  -> stage / preflight / acknowledged export
+  -> external Result
+  -> detect / receive / validate
+  -> current Knowledge + Raw grounding review
+  -> acknowledged import when required
+  -> accepted Knowledge Version with raw_grounding_links
+```
+
+The GUI selects v2 explicitly for the accepted Raw-grounded path, while the shared Application/CLI omitted-version default remains v1 until P-CLOSE-01.
+
 Final GUI authority includes:
 
 - `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`
 - `docs/evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md`
 - `docs/evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
 - `docs/evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md`
+- `docs/evaluation/P_GUI_08_PACKAGE_RESULT_GUI_IMPLEMENTATION.md`
+- `docs/evaluation/P_GUI_08_PACKAGE_RESULT_GUI_ACCEPTANCE.md`
+- `docs/operations/P_GUI_08_PACKAGE_RESULT_GUI_WORKFLOW.md`
+
+P-GUI-08 is automated functional/contract acceptance. Final GUI-wide parity/usability closure remains owned by P-GUI-10.
 
 ## P-RAW accepted baseline
 
@@ -231,33 +267,37 @@ Therefore:
 ```text
 P-RAW-01..06 = Complete / Accepted
 P-RAW workstream = Complete / Accepted for Phase P
-P-GUI-08 = Unblocked / Next
+P-GUI-01..08 = Complete / Accepted
 ```
 
 ## Sequencing
 
 ```text
-P-GUI-01..07 Complete / Accepted
+P-GUI-01..08 Complete / Accepted
         ↓
 P-RAW-01..06 Complete / Accepted
         ↓
-P-GUI-08 Package / Result GUI   <- NEXT
+P-RUNTIME-01   <- NEXT
         ↓
-P-GUI-09 / P-GUI-10 and Runtime dependencies
+P-RUNTIME-02 -> P-RUNTIME-03
+        ↓
+P-GUI-09
+        ↓
+P-GUI-10 + remaining Runtime acceptance
         ↓
 P-CLOSE-01
 ```
 
-`P-GUI-09` also depends on `P-RUNTIME-03`.
+`P-GUI-09` depends on `P-RUNTIME-03`, so Runtime work must now advance before the remaining GUI workstream can continue.
 
 ## Current authority boundary
 
 Phase P remains in development. Released system semantics continue to be governed by release `v1.1.0` until Phase P closure/release integration.
 
-P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-06 are accepted development baselines. The Raw external-AI boundary is now formally accepted and no longer blocks Package / Result GUI work.
+P-GUI-01 through P-GUI-08 and P-RAW-01 through P-RAW-06 are accepted development baselines. The Raw external-AI boundary and its Package / Result GUI are both accepted. Runtime modernization remains the next blocking workstream.
 
 ## Next
 
 ```text
-P-GUI-08 — Package / Result GUI
+P-RUNTIME-01 — Windows auto-start方式比較
 ```
