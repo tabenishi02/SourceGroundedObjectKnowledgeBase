@@ -39,8 +39,9 @@ Priority 3: Runtime / Qdrant auto-start
 | RAW | P-RAW-05 | **Complete / Accepted** | Resolver -> Package v2 -> Result v2 -> Raw provenance implementation |
 | RAW | P-RAW-06 | **Complete / Accepted** | Formal Raw operational acceptance, compatibility/cutover disposition, documentation closure |
 | Runtime | P-RUNTIME-01 | **Complete / Accepted** | Windows Qdrant runtime operational design / reference approach |
-| Runtime | P-RUNTIME-02 | **Not Started / Next** | Qdrant Compose / configuration assets |
-| Runtime | P-RUNTIME-03..06 | Not Started | Runtime health / login auto-start / GUI integration / acceptance |
+| Runtime | P-RUNTIME-02 | **Complete / Accepted** | Reproducible pinned Qdrant Compose / configuration assets |
+| Runtime | P-RUNTIME-03 | **Not Started / Next** | Runtime health/status Application boundary |
+| Runtime | P-RUNTIME-04..06 | Not Started | Login auto-start / GUI Runtime Dashboard / recovery acceptance |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
 ## GUI baseline
@@ -271,7 +272,9 @@ P-RAW workstream = Complete / Accepted for Phase P
 P-GUI-01..08 = Complete / Accepted
 ```
 
-## P-RUNTIME-01 accepted baseline
+## P-RUNTIME accepted baseline
+
+### P-RUNTIME-01 — Windows Qdrant runtime operational design
 
 Authorities:
 
@@ -287,10 +290,10 @@ Qdrant initial pin      = qdrant/qdrant:v1.20.0
 startup                 = Docker Desktop at user sign-in
 container restart       = unless-stopped
 persistent storage      = Docker named volume
-HTTP                     = 127.0.0.1:6333 -> 6333
-gRPC                     = 127.0.0.1:6334 -> 6334
-distributed port 6335    = not published
-readiness                = Qdrant /readyz
+HTTP                    = 127.0.0.1:6333 -> 6333
+gRPC                    = 127.0.0.1:6334 -> 6334
+distributed port 6335   = not published
+readiness               = Qdrant /readyz
 GUI / CLI lifecycle role = client / observer only
 ```
 
@@ -302,11 +305,56 @@ Native `qdrant.exe` + Task Scheduler, Windows service wrappers, WSL/systemd-only
 
 Docker Desktop remains an external prerequisite with its own installation and subscription terms; SGOKB does not bundle or silently install it.
 
+### P-RUNTIME-02 — Qdrant Compose / configuration assets
+
+Authorities:
+
+- `runtime/qdrant/compose.yaml`
+- `runtime/qdrant/.env.example`
+- `runtime/qdrant/README.md`
+- `docs/operations/P_RUNTIME_02_QDRANT_COMPOSE_RUNTIME.md`
+- `docs/evaluation/P_RUNTIME_02_QDRANT_COMPOSE_CONFIGURATION_ACCEPTANCE.md`
+
+Accepted repository runtime:
+
+```text
+Compose project          = sgokb-qdrant
+image                    = qdrant/qdrant:v1.20.0
+restart                  = unless-stopped
+HTTP                     = 127.0.0.1:6333
+preferred gRPC           = 127.0.0.1:6334
+6335                     = not published
+persistent volume        = sgokb_qdrant_storage
+container storage        = /qdrant/storage
+health/readiness         = /readyz -> HTTP 200
+local override           = QDRANT_LOG_LEVEL only
+```
+
+Final P-RUNTIME-02 evidence:
+
+```text
+GitHub Actions run         = 40961873913
+verified branch source     = 1732322b7a0d40dbd4838e3b62cebea1fb458baf
+verified synthetic merge   = 56b2ee1d1c83e0f4c84c27575ed8fdbcbb7bade9
+Compose render             = PASS
+focused contract tests     = 2 / 2 PASS
+real Qdrant v1.20.0        = PASS
+/readyz                    = PASS
+named-volume persistence   = PASS
+recreate / second readiness = PASS
+Ruff src/tests             = PASS
+Windows full regression    = 839 / 839 PASS
+warnings                   = 2 known local-Qdrant warnings
+```
+
+P-RUNTIME-02 verifies runtime construction and persistence. P-RUNTIME-04 still owns Windows login auto-start ordering/recovery acceptance, and P-RUNTIME-03 owns the shared CLI/GUI runtime-health Application boundary.
+
 Therefore:
 
 ```text
 P-RUNTIME-01 = Complete / Accepted
-P-RUNTIME-02 = Unblocked / Next
+P-RUNTIME-02 = Complete / Accepted
+P-RUNTIME-03 = Unblocked / Next
 ```
 
 ## Sequencing
@@ -318,9 +366,9 @@ P-RAW-01..06 Complete / Accepted
         ↓
 P-RUNTIME-01 Complete / Accepted
         ↓
-P-RUNTIME-02   <- NEXT
+P-RUNTIME-02 Complete / Accepted
         ↓
-P-RUNTIME-03
+P-RUNTIME-03   <- NEXT
         ↓
 P-GUI-09
         ↓
@@ -329,16 +377,16 @@ P-RUNTIME-04..06 / P-GUI-10
 P-CLOSE-01
 ```
 
-`P-GUI-09` depends on `P-RUNTIME-03`, so the reference runtime assets and shared health boundary must now advance before the remaining GUI workstream can continue.
+`P-GUI-09` depends on `P-RUNTIME-03`, so the shared runtime health/status Application boundary is now the next blocking task for the remaining GUI workstream.
 
 ## Current authority boundary
 
 Phase P remains in development. Released system semantics continue to be governed by release `v1.1.0` until Phase P closure/release integration.
 
-P-GUI-01 through P-GUI-08, P-RAW-01 through P-RAW-06, and P-RUNTIME-01 are accepted development baselines. Runtime implementation assets are not yet accepted; P-RUNTIME-02 is the next task.
+P-GUI-01 through P-GUI-08, P-RAW-01 through P-RAW-06, and P-RUNTIME-01 through P-RUNTIME-02 are accepted development baselines. The Qdrant runtime definition is now repository-owned and accepted; Runtime health/status integration remains unimplemented.
 
 ## Next
 
 ```text
-P-RUNTIME-02 — Qdrant Compose / configuration assets
+P-RUNTIME-03 — Runtime health/status application boundary
 ```
