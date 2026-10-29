@@ -1,3 +1,4 @@
+# ruff: noqa: I001 - sibling test fixture imports intentionally precede project imports.
 from __future__ import annotations
 
 import pytest
