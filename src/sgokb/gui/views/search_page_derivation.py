@@ -17,6 +17,11 @@ _DERIVATION_KINDS = (
 )
 
 
+def _optional(text: str) -> str | None:
+    value = text.strip()
+    return value or None
+
+
 class _DerivationKindCombo(QComboBox):
     """Fixed Derivation Kind selector with QLineEdit-compatible ``text`` access."""
 
@@ -58,10 +63,56 @@ class SearchPage(_BaseSearchPage):
         layout.setWidget(row, role, selector)
         self.derivation_kind = selector
 
+        # The experimental P-GUI-06 From/To range filter was removed after
+        # interactive validation showed that its semantics were not reliable for
+        # operator use. Keep the base widgets inert only for compatibility with
+        # the layered page implementation; they are not presented and cannot
+        # contribute a ``valid_at`` argument to GUI Search requests.
+        for widget in (self.valid_from, self.valid_to):
+            label = layout.labelForField(widget)
+            if label is not None:
+                label.hide()
+            widget.clear()
+            widget.setEnabled(False)
+            widget.hide()
+
     def run_search(self) -> str | None:
-        request_id = super().run_search()
-        if request_id is None:
+        query = self.search_query.text().strip()
+        if not query:
+            self.operation_status.setText("Enter a Search query first.")
             return None
+
+        arguments: dict[str, object] = {
+            "query": query,
+            "mode": self.search_mode.currentText(),
+            "semantic_runtime": self.semantic_runtime.isChecked(),
+            "require_full_runtime": self.require_full_runtime.isChecked(),
+            "limit": self.search_limit.value(),
+            "include_archived": self.include_archived.isChecked(),
+        }
+        if self.candidate_limit.value() > 0:
+            arguments["candidate_limit"] = self.candidate_limit.value()
+        for key, widget in (
+            ("primary_class", self.primary_class),
+            ("additional_class", self.additional_class),
+            ("ancestor_class", self.ancestor_class),
+            ("facet", self.facet),
+            ("version", self.version),
+            ("temporal_scope", self.temporal_scope),
+        ):
+            value = self._combo_value(widget)
+            if value is not None:
+                arguments[key] = value
+        derivation = _optional(self.derivation_kind.text())
+        if derivation is not None:
+            arguments["derivation_kind"] = derivation
+
+        request_id = self.submit(
+            "search",
+            arguments,
+            callback=self._apply_search,
+            summary=f"Searching Objects: {query}",
+        )
         self._active_search_request_id = request_id
         self.search_model.set_rows([])
         self.search_detail.clear()
