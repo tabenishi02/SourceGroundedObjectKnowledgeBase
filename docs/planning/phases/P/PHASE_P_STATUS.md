@@ -32,8 +32,9 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
 | GUI | P-GUI-10 | Not Started | GUI parity / regression acceptance |
-| RAW | P-RAW-01 | **Not Started / Next** | Current Evidence Package / Result impact survey |
-| RAW | P-RAW-02..06 | Not Started | Raw-grounded exchange contract / implementation / acceptance |
+| RAW | P-RAW-01 | **Complete / Accepted** | Current Evidence Package / Result impact survey |
+| RAW | P-RAW-02 | **Not Started / Next** | Evidence -> Raw Artifact provenance resolution contract |
+| RAW | P-RAW-03..06 | Not Started | Raw-bearing Package / Result design, implementation, acceptance |
 | Runtime | P-RUNTIME-01..06 | Not Started | Windows Qdrant auto-start / health / GUI integration |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
@@ -71,93 +72,119 @@ warnings           = 2 known local-Qdrant warnings
 interactive smoke  = PASS in accepted scope
 ```
 
-Final authority:
-
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`
-- `docs/evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md`
-
-## P-GUI-07 accepted implementation
-
-P-GUI-07 adds desktop operation safety and observability without changing canonical Application semantics.
-
-Implemented:
-
-```text
-indeterminate progress for queued/running work
-operation identity + READ/DERIVED/WRITE/EXTERNAL/MAINTENANCE class
-explicit cancellation availability
-partial / blocked outcome visibility
-normalized error category/code visibility
-warning / degradation / error center
-high-impact WRITE + EXTERNAL + MAINTENANCE confirmation boundary
-form-only Undo / Redo
-no canonical rollback through GUI Undo
-Equivalent CLI command display
-session-local operation history / audit surface
-```
-
-Current operations remain non-cancellable after dispatch because no cooperative cancellation contract exists. P-GUI-07 does not use `QThread.terminate()` or forced process termination.
-
-Operation Center history is presentation-only session state; canonical Object events, provenance and audit records remain owned by existing Application/Repository contracts.
-
-Safety behavior follows the accepted P-GUI-01 contract: an explicit commit action can be sufficient for ordinary WRITE, while high-impact WRITE, EXTERNAL and MAINTENANCE mutation receive stronger confirmation.
-
-Final authority:
-
-- Design: `docs/design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md`
-- Implementation: `docs/evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md`
-- Automated verification: `docs/evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
-- Interactive acceptance: `docs/evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md`
-
-## P-GUI-07 final verification
-
-Measured automated result:
+P-GUI-07 final evidence:
 
 ```text
 focused GUI gate = 34 / 34 PASS
 Ruff             = PASS
 full regression  = 823 / 823 PASS
 warnings         = 2 known local-Qdrant warnings
+interactive smoke = PASS in accepted scope
 ```
 
-Interactive smoke completed with no problem reported in the exercised P-GUI-07 scope.
+Final GUI authority includes:
+
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`
+- `docs/evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md`
+- `docs/evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
+- `docs/evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md`
+
+## P-RAW-01 accepted impact survey
+
+Authority:
+
+- `docs/evaluation/P_RAW_01_CURRENT_EVIDENCE_PACKAGE_RESULT_IMPACT_SURVEY.md`
+
+The survey confirms that Raw Grounding impact is concentrated at the external exchange / grounding boundary rather than the core accepted Knowledge model.
+
+### Breaking contracts
+
+```text
+Evidence-Markdown external semantic payload
+Evidence-only Package grounding membership
+Evidence-ID-only analysis grounding instructions
+Evidence-ID-only Result grounding representation
+Evidence-only Result membership validation
+```
+
+These contracts must be versioned rather than silently changing the semantics of `sgokb.object-evidence-package/1.0` or the v1 Result schema.
+
+### Migration-required contracts
+
+```text
+Evidence -> Raw provenance resolution
+Package audit / Raw membership trace
+Package budget / preflight / egress coverage
+review grounding presentation
+import grounding persistence / accepted provenance
+v1/v2 receive and validation routing
+tests / fixtures / grounded-generation benchmarks
+operator / acceptance documentation
+```
+
+P-RAW-01 requires richer provenance logically but deliberately does not select a physical DB schema migration. That is deferred to P-RAW-04/05.
+
+### Compatible targets
+
+```text
+Evidence retrieval / operator selection intent
+Source / Snapshot / Raw canonical storage
+Object / Registry / Association semantics
+core statement / attribute / relation semantics
+derivation / attribution / temporal semantics
+Version lifecycle
+semantic diff core
+Search / Similarity / derived indexing
+```
+
+Key compatibility constraints established by P-RAW-01:
+
+1. Evidence remains the retrieval / human-selection unit.
+2. Raw becomes the authoritative external semantic material in v2.
+3. grounding must still belong to the exact bound Package.
+4. Evidence <-> Raw traceability must be preserved.
+5. accepted historical grounding must remain protected across Source-generation changes.
+6. v1 Evidence-grounded artifacts must never be silently reinterpreted as v2 Raw-grounded artifacts.
+7. canonical Knowledge semantics should remain stable unless later design finds a concrete blocker.
+
+No source code changed and no regression suite was rerun for P-RAW-01; it is a documentation/design survey task.
 
 Therefore:
 
 ```text
-P-GUI-07 = Complete / Accepted
+P-RAW-01 = Complete / Accepted
 ```
 
 ## Sequencing
 
 ```text
-P-GUI-01 Complete / Accepted
+P-GUI-01..07 Complete / Accepted
         ↓
-P-GUI-02 Complete / Accepted
+P-RAW-01 Complete / Accepted
         ↓
-P-GUI-03 / 03R Complete / Accepted
+P-RAW-02 Evidence -> Raw Artifact provenance resolution contract   <- NEXT
         ↓
-P-GUI-04 Complete / Accepted
+P-RAW-03 RAW-bearing Package v2 design
         ↓
-P-GUI-05 Complete / Accepted
+P-RAW-04 Raw-grounded Object Result v2 design
         ↓
-P-GUI-06 Complete / Accepted
+P-RAW-05 RAW Grounding implementation
         ↓
-P-GUI-07 Complete / Accepted
+P-RAW-06 RAW Grounding acceptance
         ↓
-P-RAW-01 Current Evidence Package / Result impact survey   <- NEXT
+P-GUI-08 Package / Result GUI
 ```
 
-`P-GUI-08` cannot begin until `P-RAW-01..P-RAW-06` complete. `P-GUI-09` also depends on `P-RUNTIME-03`. Therefore P-RAW-01 is the next executable task consistent with the Phase P priority order.
+`P-GUI-08` remains blocked until `P-RAW-01..P-RAW-06` complete. `P-GUI-09` also depends on `P-RUNTIME-03`.
 
 ## Current authority boundary
 
 Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-P-GUI-01 through P-GUI-07 are accepted development baselines. The next active workstream is RAW Grounding.
+P-GUI-01 through P-GUI-07 and P-RAW-01 are accepted development baselines. The current active design task is P-RAW-02.
 
 ## Next
 
 ```text
-P-RAW-01 — Current Evidence Package / Result impact survey
+P-RAW-02 — Evidence -> Raw Artifact provenance resolution contract
 ```
