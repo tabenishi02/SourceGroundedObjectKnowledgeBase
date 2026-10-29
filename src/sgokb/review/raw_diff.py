@@ -41,7 +41,10 @@ def _normalized_refs(refs, kind: str):
         else:
             item = {"evidence_id": ref.get("evidence_id"), "role": ref.get("role")}
         result.append(item)
-    return sorted(result, key=lambda item: json.dumps(item, sort_keys=True, ensure_ascii=False))
+    return sorted(
+        result,
+        key=lambda item: json.dumps(item, sort_keys=True, ensure_ascii=False),
+    )
 
 
 class RawDiffReviewService:
@@ -103,12 +106,36 @@ class RawDiffReviewService:
             reasons=tuple(reasons),
             diff=diff,
             imported_version_id=str(imported["version_id"]) if imported else None,
-            review_acknowledged=bool(imported["review_acknowledged"]) if imported else None,
+            review_acknowledged=(
+                bool(imported["review_acknowledged"]) if imported else None
+            ),
         )
+
+    def diff_versions(self, before_version_id: str, after_version_id: str):
+        before = self.read_store.build_model(before_version_id)
+        after = self.read_store.build_model(after_version_id)
+        diff = self.engine.compare(
+            _strip_grounding(before),
+            _strip_grounding(after),
+            before_version_id=before_version_id,
+            after_version_id=after_version_id,
+            after_kind="accepted_version",
+        )
+        before_grounding = self._accepted_grounding(before_version_id)
+        after_grounding = self._accepted_grounding(after_version_id)
+        diff.changes["grounding"] = self._map_grounding_changes(
+            before_grounding,
+            after_grounding,
+        )
+        return diff
 
     def _grounding_changes(self, base_version_id: str | None, result: Mapping[str, Any]):
         before = self._accepted_grounding(base_version_id) if base_version_id else {}
         after = self._result_grounding(result)
+        return self._map_grounding_changes(before, after)
+
+    @staticmethod
+    def _map_grounding_changes(before: Mapping[str, Any], after: Mapping[str, Any]):
         changes = []
         for key in sorted(set(before) | set(after)):
             left = before.get(key)
@@ -143,7 +170,10 @@ class RawDiffReviewService:
             raw[(row["target_kind"], row["target_id"])].append(item)
         for target, key in target_keys.items():
             if raw.get(target):
-                result[key] = {"kind": "raw", "refs": _normalized_refs(raw[target], "raw")}
+                result[key] = {
+                    "kind": "raw",
+                    "refs": _normalized_refs(raw[target], "raw"),
+                }
             elif evidence.get(target):
                 result[key] = {
                     "kind": "evidence",
@@ -163,7 +193,9 @@ class RawDiffReviewService:
                WHERE version_id=?""",
             (version_id,),
         ):
-            keys[("attribute", row["id"])] = f"attribute:{row['attribute_id']}#{row['ordinal']}"
+            keys[("attribute", row["id"])] = (
+                f"attribute:{row['attribute_id']}#{row['ordinal']}"
+            )
         for row in db.execute(
             """SELECT id,subject_object_id,relation_type_id,object_object_id
                FROM object_relations WHERE version_id=?""",
@@ -173,7 +205,11 @@ class RawDiffReviewService:
                 "relation:"
                 + "|".join(
                     str(row[name])
-                    for name in ("subject_object_id", "relation_type_id", "object_object_id")
+                    for name in (
+                        "subject_object_id",
+                        "relation_type_id",
+                        "object_object_id",
+                    )
                 )
             )
         return keys
@@ -205,7 +241,14 @@ class RawDiffReviewService:
         for item in knowledge.get("relations", []):
             key = "relation:" + "|".join(
                 str(item[name])
-                for name in ("subject_object_id", "relation_type_id", "object_object_id")
+                for name in (
+                    "subject_object_id",
+                    "relation_type_id",
+                    "object_object_id",
+                )
             )
-            output[key] = {"kind": "raw", "refs": _normalized_refs(item.get("grounding"), "raw")}
+            output[key] = {
+                "kind": "raw",
+                "refs": _normalized_refs(item.get("grounding"), "raw"),
+            }
         return output
