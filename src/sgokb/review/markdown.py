@@ -160,6 +160,15 @@ class DiffReviewMarkdownRenderer:
                 for item in section:
                     lines.extend(self._change_lines(item))
 
+        if "grounding" in changes:
+            lines.extend(["", "### Grounding", ""])
+            grounding = changes.get("grounding") or []
+            if not grounding:
+                lines.append("_No grounding changes._")
+            else:
+                for item in grounding:
+                    lines.extend(self._change_lines(item))
+
         lines.extend(["", "### Review metadata", ""])
         review = changes.get("review_metadata") or {}
         any_review_changes = False
