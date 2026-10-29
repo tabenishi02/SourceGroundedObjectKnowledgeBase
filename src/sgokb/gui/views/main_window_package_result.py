@@ -5,7 +5,8 @@ from __future__ import annotations
 from PySide6.QtWidgets import QWidget
 
 from .main_window import MainWindow as _BaseMainWindow
-from .package_result_page import PackagePage, ResultPage
+from .package_result_detection import ResultPage
+from .package_result_page import PackagePage
 
 
 class MainWindow(_BaseMainWindow):
