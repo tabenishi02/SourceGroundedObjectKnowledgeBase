@@ -30,7 +30,8 @@ P-GUI-06 = Complete / Accepted
 P-GUI-07 = Complete / Accepted
 P-RAW-01 = Complete / Accepted
 P-RAW-02 = Complete / Accepted
-Next = P-RAW-03 RAW-bearing Package v2 design
+P-RAW-03 = Complete / Accepted
+Next = P-RAW-04 Raw-grounded Object Result v2 design
 ```
 
 Phase PのWorkstream優先順位:
@@ -196,11 +197,52 @@ Provenance resolution and Package materialization are separate responsibilities.
 P-RAW-02 = Complete / Accepted
 ```
 
+### P-RAW-03 accepted authority
+
+- RAW-bearing Package v2 design: [`../design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md`](../design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md)
+
+P-RAW-03 fixes a new versioned Package family rather than changing v1 semantics:
+
+```text
+Package schema     = sgokb.object-evidence-package/2.0
+schema ID          = urn:sgokb:schema:object-evidence-package:2.0
+instructions       = sgokb.object-analysis/2.0
+expected Result    = sgokb.object-result/2.0
+Raw grounding      = sgokb.raw-grounding/1.0
+resolver contract  = sgokb.evidence-to-raw/1.0
+```
+
+Package v2 carries exact Raw bytes at deterministic safe paths such as:
+
+```text
+raw/artifact_0001/payload
+```
+
+and does not emit reconstructed `evidence/source_*.md` as semantic material.
+
+Evidence remains the selection/provenance trace. Raw grounding membership authority becomes:
+
+```text
+manifest.raw_grounding.included_raw_artifact_ids
+```
+
+Every selected Evidence has a direct binding to its complete P-RAW-02 Raw Input Covering Set. Raw payloads are deduplicated by `artifact_id`, but mapping edges are never dropped and same-hash distinct IDs are not collapsed.
+
+The design also separates Evidence selection budget from Raw materialization budget, applies media/size/credential/integrity policy without mutating provenance, and adds `grounding_set_sha256` as a stable Raw membership/material fingerprint alongside Package-instance `manifest_sha256`.
+
+v1 and v2 require explicit version dispatch. No Raw failure may silently downgrade to Evidence Markdown or reinterpret a v1 artifact under v2 rules.
+
+P-RAW-03 reserves `sgokb.object-result/2.0` as the expected Result family. P-RAW-04 defines its exact Raw grounding-reference representation and accepted-provenance persistence design.
+
+```text
+P-RAW-03 = Complete / Accepted
+```
+
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-02 are accepted development baselines.
+P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-03 are accepted development baselines.
 
 ## Phase P GUI architecture
 
@@ -233,9 +275,9 @@ Repository / Retrieval / Exchange
 
 ## Workstream B — RAW Grounding
 
-Evidence remains the retrieval / selection unit, while External AI semantic material will move from reconstructed Evidence Markdown to Raw Artifacts traced through provenance.
+Evidence remains the retrieval / selection unit, while External AI semantic material moves from reconstructed Evidence Markdown to exact Raw Artifacts traced through provenance.
 
-P-RAW-01 impact survey and P-RAW-02 deterministic provenance contract are accepted. The next task is P-RAW-03, which designs the versioned RAW-bearing Package contract on top of the frozen resolver semantics.
+P-RAW-01 impact survey, P-RAW-02 deterministic provenance contract, and P-RAW-03 RAW-bearing Package v2 design are accepted. The next task is P-RAW-04, which defines exactly how Result v2 points to Package Raw membership and how that grounding is preserved through validation/review/import.
 
 `P-GUI-08` remains blocked until completion of `P-RAW-01..P-RAW-06`.
 
@@ -257,5 +299,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-RAW-03 — RAW-bearing Package v2 design
+P-RAW-04 — Raw-grounded Object Result v2 design
 ```
