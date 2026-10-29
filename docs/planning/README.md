@@ -26,11 +26,11 @@ P-GUI-03 = Complete / Accepted
 P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
 P-GUI-05 = Complete / Accepted
-P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
-Next = repeat P-GUI-06 interactive smoke
+P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+Next = verify P-GUI-06 after From/To filter removal
 ```
 
-Phase PのWorkstream優先順位は次で固定します。
+Phase PのWorkstream優先順位:
 
 ```text
 Priority 1: GUI
@@ -83,34 +83,40 @@ Priority 3: Runtime / Qdrant auto-start
 ### P-GUI-06 current authority
 
 - Main implementation / interactive procedure: [`../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md`](../evaluation/P_GUI_06_SEARCH_SIMILARITY_REGISTRY_VERSION_IMPLEMENTATION.md)
-- **Current automated verification**: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md)
-- **Current interactive remediation**: [`../evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`](../evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md)
-- Current range/runtime dependency remediation: [`../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md)
-- Historical Attempt 06: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_06.md)
-- Historical Attempt 05: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_05.md)
-- Prior range/runtime-state remediation: [`../evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md)
-- Search selector / validity-range amendment: [`../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`](../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md)
-- First validity-range false-negative remediation: [`../evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`](../evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md)
+- **Current amendment — From/To removal**: [`../evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md`](../evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md)
+- Latest historical automated verification: [`../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`](../evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md)
+- Semantic GUI crash remediation: [`../evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`](../evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md)
+- Historical range/runtime remediation: [`../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`](../evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md)
+- Historical range selector amendment: [`../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`](../evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md)
 - Derivation Kind selector improvement: [`../evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md`](../evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md)
 
 P-GUI-06 keeps all 14 assigned Search / Similarity / Registry / Version / Render operations wired.
 
-Current From/To contract is:
+Current GUI Search filters are:
 
 ```text
-Registry exact/lexical identity
-  -> canonical name/alias identity discovery
-  -> From/To alone does not remove the result
-  -> no current Version or Statement is required
-
-Knowledge lexical Statement
-  -> From/To temporal-overlap filter
-
-Semantic Statement
-  -> From/To temporal-overlap filter
+Primary Class
+Additional Class
+Ancestor Class
+Facet
+Version ID
+Temporal Scope ID
+Derivation Kind
+Include archived Objects
 ```
 
-Current local semantic dependency contract is:
+The experimental GUI From/To date range has been removed:
+
+```text
+From/To controls             = removed from operator surface
+GUI valid_at="FROM..TO"      = no longer emitted
+range-aware search adapters  = removed
+canonical R2 search          = restored directly
+```
+
+The existing non-GUI single-point `valid_at` / `knowledge_valid_at` contract and canonical Temporal Scope data remain unchanged.
+
+Current local semantic dependency contract remains:
 
 ```text
 torch>=2.6,<3
@@ -118,42 +124,44 @@ sentence-transformers>=6.1,<7
 transformers>=5.2,<6
 ```
 
-The operator environment is verified with PyTorch `2.6.0+cu124`, CUDA 12.4 available on RTX 4090, and `pip check` clean. After production GUI testing exposed a process-level Semantic-runtime crash, GUI startup now preloads PyTorch / Transformers / Sentence Transformers native imports on the Qt main thread before the backend QThread starts; the model remains lazy.
+GUI startup still preloads the native ML stack on the Qt main thread before the backend QThread starts. The Harrier model remains lazy.
 
-Current automated evidence from Attempt 07:
+Attempt 07 historical automated evidence:
 
 ```text
-focused P-GUI-03R / 04 / 05 / 06 regression = 42 / 42 PASS
-Ruff                                           = All checks passed!
-full regression                                = 831 / 831 PASS
-known local-Qdrant warnings                    = 2
+focused regression = 42 / 42 PASS
+Ruff               = PASS
+full regression    = 831 / 831 PASS
+known local-Qdrant warnings = 2
 ```
 
-Attempt 07 adds production `KnowledgeReadApplication` + active-R2 coverage for unversioned Registry identity under From/To and verifies main-thread semantic native preload ordering. Attempt 06 remains historical because interactive testing afterward exposed those two additional defects.
+Because the product surface and test inventory changed after that run, Attempt 07 is no longer current closure authority.
+
+Expected post-removal inventory, assuming no unrelated changes:
+
+```text
+focused P-GUI gate ≈ 28 tests
+full regression    ≈ 817 tests
+```
+
+These counts are expectations only until measured locally.
 
 Current status:
 
 ```text
-P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
 ```
 
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 has passed the current automated gate and remains open for interactive re-smoke acceptance only. These tasks do not by themselves advance the formal release version.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 remains open until the reduced Search surface passes automated and interactive verification.
 
-## Phase P GUI decisions so far
-
-### Compatibility
-
-All 67 public CLI operations are mapped to GUI capability inventory. GUI compatibility means same use case / target identity / canonical effect / validation / safety / degradation / failure semantics, not replaying CLI strings.
-
-### Technical architecture
+## Phase P GUI architecture
 
 ```text
-Framework            = PySide6
-UI                    = Qt Widgets
+Framework            = PySide6 / Qt Widgets
 CLI/GUI boundary      = shared Application / Service layer
 GUI backend           = QObject worker on dedicated QThread
 SQLite                = Repository per operation, created in worker thread
@@ -164,7 +172,7 @@ Deployment mode       = standalone directory / portable ZIP
 Qt linking            = dynamic / separate shared libraries
 ```
 
-### Application boundary
+Application boundary:
 
 ```text
 CLI parser / GUI worker
@@ -177,8 +185,6 @@ Application facades
         ↓
 Repository / Retrieval / Exchange
 ```
-
-P-GUI-04 established the queued QThread foundation. P-GUI-05 and P-GUI-06 reuse it without GUI direct SQL or a CLI-subprocess business path.
 
 ## Workstream B — RAW Grounding
 
@@ -200,5 +206,9 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-GUI-06 — repeat From/To and Semantic-runtime interactive smoke, then finish the remaining Search / Similarity / Registry / Version / Render smoke
+1. refresh P-GUI-06 focused + Ruff gate
+2. refresh full regression
+3. confirm From/To controls are absent
+4. confirm Semantic runtime ON remains crash-free
+5. finish remaining Search / Similarity / Registry / Version / Render smoke
 ```
