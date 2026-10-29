@@ -31,7 +31,8 @@ P-GUI-07 = Complete / Accepted
 P-RAW-01 = Complete / Accepted
 P-RAW-02 = Complete / Accepted
 P-RAW-03 = Complete / Accepted
-Next = P-RAW-04 Raw-grounded Object Result v2 design
+P-RAW-04 = Complete / Accepted
+Next = P-RAW-05 RAW Grounding implementation
 ```
 
 Phase PのWorkstream優先順位:
@@ -238,11 +239,61 @@ P-RAW-03 reserves `sgokb.object-result/2.0` as the expected Result family. P-RAW
 P-RAW-03 = Complete / Accepted
 ```
 
+### P-RAW-04 accepted authority
+
+- Raw-grounded Object Result v2 design: [`../design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md`](../design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md)
+
+P-RAW-04 fixes Result v2 as:
+
+```text
+Result schema      = sgokb.object-result/2.0
+schema ID          = urn:sgokb:schema:object-result:2.0
+grounding target   = Package-member raw_artifact_id
+grounding field    = grounding[]
+```
+
+Result v2 does not emit `evidence_id` as claim grounding. Evidence remains upstream selection/provenance lineage in the Package manifest.
+
+Optional Raw locator precision is deliberately narrow and mechanically verifiable:
+
+```text
+byte_range
+text_quote
+```
+
+Invalid asserted precision is a validation error; locator may be omitted.
+
+Binding adds `grounding_contract` and `grounding_set_sha256`, so membership validation is against the exact audited Package Raw set. A canonical Raw Artifact outside that Package remains illegal even if its hash matches another member.
+
+Accepted persistence model keeps the grounding families separate:
+
+```text
+v1 -> evidence_links
+v2 -> raw_grounding_links
+```
+
+No Result v2 import may synthesize `evidence_links` from Package Evidence->Raw mappings.
+
+To preserve historical carry-forward after a v2 Version becomes current, SGOKB uses the accepted Raw grounding set plus the originating Package's preserved Evidence->Raw selection bindings to recover conservative carry-forward Evidence candidates. Those Evidence IDs remain selection lineage only and are resolved through their original historical Normalization Runs under P-RAW-02.
+
+Normal migration direction is one-way at the current-Version boundary:
+
+```text
+v1 -> v2 supported
+v2 -> v1 blocked by default
+```
+
+Review/diff must separately report Knowledge-content changes and grounding changes so a grounding-model migration is not mislabeled as destructive Knowledge deletion.
+
+```text
+P-RAW-04 = Complete / Accepted
+```
+
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-03 are accepted development baselines.
+P-GUI-01 through P-GUI-07 and P-RAW-01 through P-RAW-04 are accepted development baselines.
 
 ## Phase P GUI architecture
 
@@ -277,7 +328,7 @@ Repository / Retrieval / Exchange
 
 Evidence remains the retrieval / selection unit, while External AI semantic material moves from reconstructed Evidence Markdown to exact Raw Artifacts traced through provenance.
 
-P-RAW-01 impact survey, P-RAW-02 deterministic provenance contract, and P-RAW-03 RAW-bearing Package v2 design are accepted. The next task is P-RAW-04, which defines exactly how Result v2 points to Package Raw membership and how that grounding is preserved through validation/review/import.
+P-RAW-01 impact survey, P-RAW-02 deterministic provenance contract, P-RAW-03 RAW-bearing Package v2 design, and P-RAW-04 Raw-grounded Result v2 design are accepted. The next task is P-RAW-05, which implements the complete resolver -> Package v2 -> Result v2 -> validation/review/import path.
 
 `P-GUI-08` remains blocked until completion of `P-RAW-01..P-RAW-06`.
 
@@ -299,5 +350,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-RAW-04 — Raw-grounded Object Result v2 design
+P-RAW-05 — RAW Grounding implementation
 ```
