@@ -27,8 +27,8 @@ P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
 P-GUI-05 = Complete / Accepted
 P-GUI-06 = Complete / Accepted
-P-GUI-07 = Automated Verification PASS / Interactive Smoke Pending
-Next = P-GUI-07 interactive smoke
+P-GUI-07 = Complete / Accepted
+Next = P-RAW-01 Current Evidence Package / Result impact survey
 ```
 
 Phase PのWorkstream優先順位:
@@ -102,11 +102,12 @@ known local-Qdrant warnings = 2
 P-GUI-06 = Complete / Accepted
 ```
 
-### P-GUI-07 current authority
+### P-GUI-07 accepted authority
 
 - Design: [`../design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md`](../design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md)
-- Implementation: [`../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md`](../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md)
+- Final implementation: [`../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md`](../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md)
 - Automated verification — Attempt 01: [`../evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
+- Final interactive acceptance: [`../evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md`](../evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md)
 
 Implemented P-GUI-07 surface:
 
@@ -133,7 +134,7 @@ QThread.terminate()                 = prohibited
 
 GUI Undo/Redo applies only to unsubmitted form edits and never maps to canonical Version rollback or inverse mutation.
 
-Measured automated verification:
+Final automated verification:
 
 ```text
 focused GUI gate = 34 / 34 PASS
@@ -142,17 +143,17 @@ full regression  = 823 / 823 PASS
 warnings         = 2 known local-Qdrant warnings
 ```
 
-Current status:
+Final interactive smoke completed with no problem reported in the exercised scope.
 
 ```text
-P-GUI-07 = Automated Verification PASS / Interactive Smoke Pending
+P-GUI-07 = Complete / Accepted
 ```
 
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-06 are accepted development baselines. P-GUI-07 automated verification is accepted; final acceptance remains pending interactive smoke.
+P-GUI-01 through P-GUI-07 are accepted development baselines.
 
 ## Phase P GUI architecture
 
@@ -187,9 +188,13 @@ Repository / Retrieval / Exchange
 
 Evidence remains the retrieval / selection unit, while External AI semantic material will move from reconstructed Evidence Markdown to Raw Artifacts traced through provenance.
 
+`P-GUI-08` depends on completion of `P-RAW-01..P-RAW-06`, so the next executable priority task is P-RAW-01.
+
 ## Workstream C — Runtime
 
 Windows login should make Qdrant automatically available. Qdrant remains an independent shared runtime rather than a GUI-owned process.
+
+`P-GUI-09` depends on `P-RUNTIME-03`, so that GUI task remains unavailable until the runtime workstream advances.
 
 ## Phase P task families
 
@@ -203,6 +208,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-1. perform P-GUI-07 interactive smoke
-2. if PASS, close P-GUI-07 as Complete / Accepted
+P-RAW-01 — Current Evidence Package / Result impact survey
 ```
