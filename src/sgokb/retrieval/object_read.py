@@ -98,9 +98,8 @@ class ObjectKnowledgeReader:
         warnings = []
         if metadata is None:
             warnings.append("result_metadata_unavailable")
-        grounding_kind = "raw" if grounding else ("evidence" if evidence else "none")
 
-        return {
+        payload = {
             "object_id": object_record.object_id,
             "name": object_record.name,
             "aliases": [
@@ -118,7 +117,6 @@ class ObjectKnowledgeReader:
             "version_number": version.version_number,
             "primary_class": primary_class,
             "additional_classes": additional_classes,
-            "grounding_kind": grounding_kind,
             "scope": {
                 "facets": None if requested_facets is None else list(requested_facets),
                 "include_relations": include_relations,
@@ -134,6 +132,9 @@ class ObjectKnowledgeReader:
             },
             "warnings": warnings,
         }
+        if grounding:
+            payload["grounding_kind"] = "raw"
+        return payload
 
     def get_relations(
         self,
@@ -393,7 +394,7 @@ class ObjectKnowledgeReader:
                 "object_id": row.get("attribution_object_id"),
                 "label": row.get("attribution_label"),
             }
-        return {
+        payload = {
             "statement_id": row["id"],
             "local_key": row["local_key"],
             "text": row["text"],
@@ -403,8 +404,11 @@ class ObjectKnowledgeReader:
             "temporal_scope": self._temporal_payload(row),
             "attribution": attribution,
             "evidence": evidence.get(("statement", row["id"]), []),
-            "grounding": grounding.get(("statement", row["id"]), []),
         }
+        raw_refs = grounding.get(("statement", row["id"]), [])
+        if raw_refs:
+            payload["grounding"] = raw_refs
+        return payload
 
     @staticmethod
     def _attribute_value(row: dict):
@@ -424,7 +428,7 @@ class ObjectKnowledgeReader:
         raise RuntimeError(f"Unsupported Attribute value type: {kind}")
 
     def _attribute_payload(self, row: dict, evidence: dict, grounding: dict) -> dict:
-        return {
+        payload = {
             "attribute_value_id": row["id"],
             "attribute_id": row["attribute_id"],
             "key": row["attribute_key"],
@@ -436,8 +440,11 @@ class ObjectKnowledgeReader:
             "language": row["language"],
             "temporal_scope": self._temporal_payload(row),
             "evidence": evidence.get(("attribute", row["id"]), []),
-            "grounding": grounding.get(("attribute", row["id"]), []),
         }
+        raw_refs = grounding.get(("attribute", row["id"]), [])
+        if raw_refs:
+            payload["grounding"] = raw_refs
+        return payload
 
     def _relation_payload(
         self,
@@ -459,7 +466,7 @@ class ObjectKnowledgeReader:
             elif row["object_object_id"] == perspective_object_id:
                 perspective = "incoming"
 
-        return {
+        payload = {
             "relation_id": row["id"],
             "relation_type_id": row["relation_type_id"],
             "relation_key": row["relation_key"],
@@ -474,5 +481,8 @@ class ObjectKnowledgeReader:
             "owner_version_id": row["version_id"],
             "temporal_scope": self._temporal_payload(row),
             "evidence": evidence.get(("relation", row["id"]), []),
-            "grounding": grounding.get(("relation", row["id"]), []),
         }
+        raw_refs = grounding.get(("relation", row["id"]), [])
+        if raw_refs:
+            payload["grounding"] = raw_refs
+        return payload
