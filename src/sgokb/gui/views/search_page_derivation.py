@@ -91,19 +91,23 @@ class SearchPage(_BaseSearchPage):
                 self.semantic_runtime.setChecked(True)
                 self.semantic_runtime.setEnabled(False)
                 self.semantic_runtime.setToolTip(
-                    "Semantic Search requires the local semantic runtime and enables it automatically."
+                    "Semantic Search requires the local semantic runtime and enables it "
+                    "automatically."
                 )
                 self.require_full_runtime.setChecked(False)
                 self.require_full_runtime.setEnabled(False)
                 self.require_full_runtime.setToolTip(
-                    "Pure Semantic Search already fails explicitly if the semantic runtime is unavailable."
+                    "Pure Semantic Search already fails explicitly if the semantic runtime "
+                    "is unavailable."
                 )
                 return
 
             if mode == "lexical":
                 self.semantic_runtime.setChecked(False)
                 self.semantic_runtime.setEnabled(False)
-                self.semantic_runtime.setToolTip("Lexical Search does not use the semantic runtime.")
+                self.semantic_runtime.setToolTip(
+                    "Lexical Search does not use the semantic runtime."
+                )
                 self.require_full_runtime.setChecked(False)
                 self.require_full_runtime.setEnabled(False)
                 self.require_full_runtime.setToolTip(
