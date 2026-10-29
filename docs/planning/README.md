@@ -27,8 +27,8 @@ P-GUI-03R = Complete / Accepted
 P-GUI-04 = Complete / Accepted
 P-GUI-05 = Complete / Accepted
 P-GUI-06 = Complete / Accepted
-P-GUI-07 = Implementation Complete / Automated Verification Pending / Interactive Smoke Pending
-Next = verify P-GUI-07
+P-GUI-07 = Automated Verification PASS / Interactive Smoke Pending
+Next = P-GUI-07 interactive smoke
 ```
 
 Phase PのWorkstream優先順位:
@@ -105,7 +105,8 @@ P-GUI-06 = Complete / Accepted
 ### P-GUI-07 current authority
 
 - Design: [`../design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md`](../design/P_GUI_OPERATION_SAFETY_AUDIT_UX.md)
-- Implementation / verification procedure: [`../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md`](../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md)
+- Implementation: [`../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md`](../evaluation/P_GUI_07_PROGRESS_ERROR_SAFETY_AUDIT_UX_IMPLEMENTATION.md)
+- Automated verification — Attempt 01: [`../evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
 
 Implemented P-GUI-07 surface:
 
@@ -132,26 +133,26 @@ QThread.terminate()                 = prohibited
 
 GUI Undo/Redo applies only to unsubmitted form edits and never maps to canonical Version rollback or inverse mutation.
 
+Measured automated verification:
+
+```text
+focused GUI gate = 34 / 34 PASS
+Ruff             = PASS
+full regression  = 823 / 823 PASS
+warnings         = 2 known local-Qdrant warnings
+```
+
 Current status:
 
 ```text
-P-GUI-07 = Implementation Complete / Automated Verification Pending / Interactive Smoke Pending
+P-GUI-07 = Automated Verification PASS / Interactive Smoke Pending
 ```
-
-Expected verification inventory if no unrelated test changes occurred:
-
-```text
-focused GUI gate ~= 34 tests
-full regression   ~= 823 tests
-```
-
-These counts are expectations only until measured locally.
 
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-06 are accepted development baselines. P-GUI-07 implementation is not yet accepted until automated and interactive verification pass.
+P-GUI-01 through P-GUI-06 are accepted development baselines. P-GUI-07 automated verification is accepted; final acceptance remains pending interactive smoke.
 
 ## Phase P GUI architecture
 
@@ -202,8 +203,6 @@ P-CLOSE-01
 ## Next
 
 ```text
-1. run P-GUI-07 focused GUI regression + Ruff
-2. run full regression
-3. perform P-GUI-07 interactive smoke
-4. if PASS, close P-GUI-07 as Complete / Accepted
+1. perform P-GUI-07 interactive smoke
+2. if PASS, close P-GUI-07 as Complete / Accepted
 ```
