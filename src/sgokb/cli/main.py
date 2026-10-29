@@ -215,6 +215,7 @@ def parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path(os.environ.get("SGOKB_PACKAGE_BUILD_ROOT", DEFAULT_BUILD_ROOT)),
     )
+    build.add_argument("--package-version", choices=("v1", "v2"), default="v1")
     build.add_argument("--include-evidence", action="append", default=[])
     build.add_argument("--exclude-evidence", action="append", default=[])
     build.add_argument("--max-estimated-tokens", type=int, default=12000)
@@ -222,6 +223,9 @@ def parser() -> argparse.ArgumentParser:
     build.add_argument("--max-items", type=int, default=64)
     build.add_argument("--max-candidates", type=int, default=500)
     build.add_argument("--knowledge-language", default="ja")
+    build.add_argument("--max-total-raw-bytes", type=int, default=16 * 1024 * 1024)
+    build.add_argument("--max-single-raw-bytes", type=int, default=8 * 1024 * 1024)
+    build.add_argument("--max-raw-artifacts", type=int, default=64)
     stage = package_actions.add_parser("stage")
     stage.add_argument("source", type=Path)
     stage.add_argument(
