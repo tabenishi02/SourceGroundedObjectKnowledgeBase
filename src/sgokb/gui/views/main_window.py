@@ -7,6 +7,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import QAction, QCloseEvent
 from PySide6.QtWidgets import (
+    QApplication,
     QFileDialog,
     QHBoxLayout,
     QLabel,
@@ -15,6 +16,7 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMenu,
     QMessageBox,
+    QProgressBar,
     QPushButton,
     QStackedWidget,
     QVBoxLayout,
@@ -22,16 +24,19 @@ from PySide6.QtWidgets import (
 )
 
 from sgokb.gui.controllers import WorkspaceController
+from sgokb.gui.operation_ux import operation_policy
+from sgokb.gui.operations import GuiOperationRequest
 from sgokb.gui.views.association_page import AssociationPage
 from sgokb.gui.views.evidence_page import EvidencePage
 from sgokb.gui.views.object_page import ObjectPage
+from sgokb.gui.views.operation_center import OperationCenter
 from sgokb.gui.views.operation_page import OperationPage
 from sgokb.gui.views.registry_page import RegistryPage
 from sgokb.gui.views.search_page import SearchPage
 from sgokb.gui.views.source_page import SourcePage
 from sgokb.gui.worker import BackendCoordinator
 from sgokb.gui.workspace import WorkspaceSettings, WorkspaceState
-from sgokb.operation_contracts import OperationFailure
+from sgokb.operation_contracts import OperationFailure, OperationOutcome
 
 NAVIGATION_ITEMS = (
     ("home", "Home / Dashboard"),
@@ -64,11 +69,15 @@ class MainWindow(QMainWindow):
         settings: WorkspaceSettings,
         *,
         show_error_dialogs: bool = True,
+        confirm_operations: bool | None = None,
     ) -> None:
         super().__init__()
         self.backend = backend
         self.settings = settings
         self.show_error_dialogs = show_error_dialogs
+        self.confirm_operations = (
+            show_error_dialogs if confirm_operations is None else confirm_operations
+        )
         self.workspace_controller = WorkspaceController(backend, settings, self)
         self._page_index: dict[str, int] = {}
         self.domain_pages: dict[str, OperationPage] = {}
@@ -77,8 +86,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("SGOKB")
         self.resize(1180, 760)
         self._build_actions()
-        self._build_menu()
         self._build_shell()
+        self._build_menu()
         self._connect_signals()
         self._restore_ui_state()
         self._apply_workspace_state(self._workspace)
@@ -96,6 +105,23 @@ class MainWindow(QMainWindow):
         self.exit_action.setShortcut("Ctrl+Q")
         self.exit_action.triggered.connect(self.close)
 
+        self.undo_action = QAction("Undo form edit", self)
+        self.undo_action.setShortcut("Ctrl+Z")
+        self.undo_action.setStatusTip(
+            "Undo only the focused form edit; never reverse a submitted operation."
+        )
+        self.undo_action.triggered.connect(lambda: self._edit_focused_widget("undo"))
+
+        self.redo_action = QAction("Redo form edit", self)
+        self.redo_action.setShortcut("Ctrl+Y")
+        self.redo_action.setStatusTip(
+            "Redo only the focused form edit; never replay a submitted operation."
+        )
+        self.redo_action.triggered.connect(lambda: self._edit_focused_widget("redo"))
+
+        self.operation_center_action = QAction("Operation Center", self)
+        self.operation_center_action.setCheckable(True)
+
     def _build_menu(self) -> None:
         file_menu = self.menuBar().addMenu("File")
         file_menu.addAction(self.new_action)
@@ -105,6 +131,13 @@ class MainWindow(QMainWindow):
         file_menu.addSeparator()
         file_menu.addAction(self.exit_action)
         self._refresh_recent_menu()
+
+        edit_menu = self.menuBar().addMenu("Edit")
+        edit_menu.addAction(self.undo_action)
+        edit_menu.addAction(self.redo_action)
+
+        view_menu = self.menuBar().addMenu("View")
+        view_menu.addAction(self.operation_center_action)
 
     def _build_shell(self) -> None:
         root = QWidget(self)
@@ -143,7 +176,21 @@ class MainWindow(QMainWindow):
         root_layout.addWidget(body, 1)
         self.setCentralWidget(root)
 
+        self.operation_center = OperationCenter(self.backend, self)
+        self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.operation_center)
+        self.operation_center.hide()
+        self.operation_center_action.toggled.connect(self.operation_center.setVisible)
+        self.operation_center.visibilityChanged.connect(self.operation_center_action.setChecked)
+
+        self.operation_activity = QLabel("")
+        self.operation_progress = QProgressBar()
+        self.operation_progress.setRange(0, 0)
+        self.operation_progress.setMaximumWidth(140)
+        self.operation_progress.setTextVisible(False)
+        self.operation_progress.hide()
         self.workspace_status = QLabel("No workspace")
+        self.statusBar().addPermanentWidget(self.operation_activity)
+        self.statusBar().addPermanentWidget(self.operation_progress)
         self.statusBar().addPermanentWidget(self.workspace_status)
 
     def _build_page(self, key: str, label: str) -> QWidget:
@@ -163,6 +210,7 @@ class MainWindow(QMainWindow):
         elif key == "registry":
             page = RegistryPage(self.backend, self)
         if page is not None:
+            page.set_confirmation_enabled(self.confirm_operations)
             self.domain_pages[key] = page
             return page
         return self._build_placeholder(label, key)
@@ -185,6 +233,14 @@ class MainWindow(QMainWindow):
         self.home_summary.setWordWrap(True)
         layout.addWidget(self.home_summary)
 
+        safety = QLabel(
+            "GUI Undo/Redo is limited to unsubmitted form edits. Submitted canonical operations "
+            "are never reversed by GUI Undo; use explicit version/maintenance workflows.",
+            page,
+        )
+        safety.setWordWrap(True)
+        layout.addWidget(safety)
+
         actions = QWidget(page)
         actions_layout = QHBoxLayout(actions)
         actions_layout.setContentsMargins(0, 0, 0, 0)
@@ -192,8 +248,11 @@ class MainWindow(QMainWindow):
         open_button.clicked.connect(self._choose_existing_workspace)
         new_button = QPushButton("Create Workspace...", actions)
         new_button.clicked.connect(self._choose_new_workspace)
+        operation_center_button = QPushButton("Operation Center", actions)
+        operation_center_button.clicked.connect(lambda: self.operation_center.setVisible(True))
         actions_layout.addWidget(open_button)
         actions_layout.addWidget(new_button)
+        actions_layout.addWidget(operation_center_button)
         actions_layout.addStretch(1)
         layout.addWidget(actions)
         layout.addStretch(1)
@@ -216,7 +275,10 @@ class MainWindow(QMainWindow):
         self.navigation.currentRowChanged.connect(self._on_navigation_changed)
         self.workspace_controller.state_changed.connect(self._apply_workspace_state)
         self.workspace_controller.open_failed.connect(self._on_workspace_failed)
+        self.backend.operation_started.connect(self._on_operation_started)
         self.backend.operation_warning.connect(self._on_backend_warning)
+        self.backend.operation_failed.connect(self._on_backend_failure)
+        self.backend.operation_finished.connect(self._on_backend_finished)
         self.backend.busy_changed.connect(self._on_busy_changed)
 
     def _restore_ui_state(self) -> None:
@@ -237,6 +299,16 @@ class MainWindow(QMainWindow):
         self.pages.setCurrentIndex(row)
         key = str(self.navigation.item(row).data(Qt.ItemDataRole.UserRole))
         self.settings.save_last_page(key)
+
+    def _edit_focused_widget(self, method_name: str) -> None:
+        widget = QApplication.focusWidget()
+        method = getattr(widget, method_name, None) if widget is not None else None
+        if callable(method):
+            method()
+            self.statusBar().showMessage(
+                "Form edit updated. Submitted operations are never changed by GUI Undo/Redo.",
+                3500,
+            )
 
     def _choose_existing_workspace(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
@@ -318,16 +390,51 @@ class MainWindow(QMainWindow):
         if self.show_error_dialogs:
             QMessageBox.critical(self, "Workspace open failed", message)
 
+    @Slot(str, object)
+    def _on_operation_started(self, _request_id: str, request: object) -> None:
+        if not isinstance(request, GuiOperationRequest):
+            return
+        policy = operation_policy(request.operation.operation_id)
+        cancellation = "cancellable" if policy.cancellable else "cancellation unavailable"
+        self.operation_activity.setText(
+            f"{request.operation.operation_id} [{policy.effect}; {cancellation}]"
+        )
+        self.operation_progress.show()
+        self.statusBar().showMessage(f"Running {request.operation.operation_id}...")
+
     @Slot(str, str)
     def _on_backend_warning(self, _request_id: str, message: str) -> None:
-        self._set_warning(message)
+        self._set_warning(f"Warning / degradation: {message}")
+
+    @Slot(str, object)
+    def _on_backend_failure(self, _request_id: str, failure: object) -> None:
+        if isinstance(failure, OperationFailure):
+            self._set_warning(
+                f"[{failure.category}/{failure.code}] {failure.operation_id}: {failure.message}"
+            )
+        else:
+            self._set_warning(str(failure))
+
+    @Slot(str, object)
+    def _on_backend_finished(self, _request_id: str, outcome: object) -> None:
+        if isinstance(outcome, OperationOutcome) and outcome.state in {"partial", "blocked"}:
+            self._set_warning(
+                f"{outcome.operation_id} completed with state={outcome.state}; "
+                "inspect Operation Center for details."
+            )
 
     @Slot(bool)
     def _on_busy_changed(self, busy: bool) -> None:
         self.open_action.setEnabled(not busy)
         self.new_action.setEnabled(not busy)
         if busy:
+            if not self.operation_activity.text():
+                self.operation_activity.setText("Backend operation queued")
+            self.operation_progress.show()
             self.statusBar().showMessage("Backend operation running...")
+        else:
+            self.operation_activity.clear()
+            self.operation_progress.hide()
 
     def _set_warning(self, message: str) -> None:
         self.warning_label.setText(message)
@@ -359,7 +466,8 @@ class MainWindow(QMainWindow):
         if self.backend.is_busy:
             self._show_failure(
                 "Operation in progress",
-                "The application cannot close while a backend operation is running.",
+                "The application cannot close while a backend operation is running. "
+                "The current operation is non-cancellable unless its contract explicitly says otherwise.",
             )
             event.ignore()
             return
