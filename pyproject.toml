@@ -54,6 +54,11 @@ known-first-party = ["benchmark"]
 # The operator module is a deliberately explicit 67-operation routing table. Keep
 # R9 focused on semantic parity rather than reflowing the dispatch matrix.
 "src/sgokb/application_operator.py" = ["E501", "I001"]
+# Package v2 integrity/transfer expressions are kept visually aligned with the
+# accepted P-RAW contract; line wrapping is not semantically relevant to the gate.
+"src/sgokb/exchange/package_manifest_v2.py" = ["E501"]
+"src/sgokb/exchange/package_transfer_v2.py" = ["E501"]
+"src/sgokb/exchange/raw_package_builder.py" = ["E501"]
 # These test modules intentionally re-export pytest fixtures from sibling modules;
 # function parameters then consume those fixture names, which Ruff reports as F811.
 "tests/test_hybrid_search_r2_semantic_fusion.py" = ["F811"]
