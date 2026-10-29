@@ -5,7 +5,8 @@ Updated: 2026-10-29
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
 - Trigger: interactive Search smoke after Attempt 08
-- Status: **Implemented / Automated Verification Refresh Pending / Interactive Re-smoke Pending**
+- Status: **Implemented / Automated Verification PASS / Interactive Re-smoke Pending**
+- Current automated authority: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`
 
 ## Interactive symptom
 
@@ -88,7 +89,7 @@ Unchanged:
 
 ## Regression coverage
 
-`tests/test_p_gui_06_search_runtime_state.py` now verifies:
+`tests/test_p_gui_06_search_runtime_state.py` verifies:
 
 1. Hybrid default requests `semantic_runtime=True`;
 2. Lexical forces runtime OFF;
@@ -98,21 +99,22 @@ Unchanged:
 
 ## Verification authority
 
-Attempt 08 remains historical evidence for the From/To-removal baseline:
+Attempt 09 is the current automated authority:
 
 ```text
-focused = 28 / 28 PASS
+focused = 29 / 29 PASS
 Ruff    = PASS
-full    = 817 / 817 PASS
+full    = 818 / 818 PASS
+warnings = 2 known local-Qdrant warnings
 ```
 
-Because GUI Search request construction changed after Attempt 08, those counts are not current closure authority.
+Attempt 08 remains historical evidence for the From/To-removal baseline and predates this remediation.
 
 Current disposition:
 
 ```text
 semantic/runtime GUI contract = corrected
-automated verification        = refresh pending
+automated verification        = PASS
 interactive Semantic re-smoke = pending
 interactive Hybrid re-smoke   = pending
 ```
@@ -120,5 +122,5 @@ interactive Hybrid re-smoke   = pending
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
