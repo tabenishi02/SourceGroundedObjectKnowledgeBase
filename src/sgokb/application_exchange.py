@@ -1,9 +1,4 @@
-"""Transport-neutral Package / Result exchange applications.
-
-These facades own audit sequencing that previously lived in the CLI adapter.
-P-RAW may replace the underlying Package/Result schemas later without changing
-this operator-facing lifecycle boundary.
-"""
+"""Transport-neutral Package / Result exchange applications."""
 
 from __future__ import annotations
 
@@ -11,7 +6,10 @@ import json
 from pathlib import Path
 
 from .exchange.package_builder import DEFAULT_BUILD_ROOT, ObjectEvidencePackageBuilder
+from .exchange.package_manifest_v2 import PACKAGE_SCHEMA_VERSION_V2
 from .exchange.package_transfer import PackageTransferService
+from .exchange.package_transfer_v2 import RawPackageTransferService
+from .exchange.raw_package_builder import ObjectRawPackageBuilder
 from .exchange.result_import import ObjectVersionImportService
 from .exchange.result_receipt import DEFAULT_INCOMING_ROOT, ResultReceiptService
 from .exchange.result_validation import ResultValidationService
@@ -23,10 +21,13 @@ def _manifest(path: Path) -> dict:
     return json.loads((path / "manifest.json").read_text(encoding="utf-8"))
 
 
+def _is_v2(value: object) -> bool:
+    return str(value) in {"2", "v2", PACKAGE_SCHEMA_VERSION_V2}
+
+
 class PackageExchangeApplication:
     def __init__(self, repository) -> None:
         self.repository = repository
-        self.transfer = PackageTransferService()
         self.audit = PackageExchangeAuditRepository(repository.db)
 
     def build(
@@ -41,9 +42,12 @@ class PackageExchangeApplication:
         max_items: int = 64,
         max_candidates: int = 500,
         knowledge_language: str = "ja",
+        package_version: str = "v1",
+        max_total_raw_bytes: int = 16 * 1024 * 1024,
+        max_single_raw_bytes: int = 8 * 1024 * 1024,
+        max_raw_artifacts: int = 64,
     ):
-        return ObjectEvidencePackageBuilder(self.repository).build(
-            object_id,
+        common = dict(
             build_root=Path(build_root),
             max_estimated_tokens=max_estimated_tokens,
             max_bytes=max_bytes,
@@ -54,16 +58,39 @@ class PackageExchangeApplication:
             manual_exclude=exclude_evidence,
             knowledge_language=knowledge_language,
         )
+        if _is_v2(package_version):
+            return ObjectRawPackageBuilder(self.repository).build(
+                object_id,
+                **common,
+                max_total_raw_bytes=max_total_raw_bytes,
+                max_single_raw_bytes=max_single_raw_bytes,
+                max_raw_artifacts=max_raw_artifacts,
+            )
+        if str(package_version) not in {"1", "v1", "sgokb.object-evidence-package/1.0"}:
+            raise ValueError(f"Unsupported Package version: {package_version}")
+        return ObjectEvidencePackageBuilder(self.repository).build(object_id, **common)
+
+    @staticmethod
+    def _transfer(package: str | Path):
+        manifest = _manifest(Path(package))
+        if manifest.get("schema_version") == PACKAGE_SCHEMA_VERSION_V2:
+            return RawPackageTransferService()
+        if manifest.get("schema_version") == "sgokb.object-evidence-package/1.0":
+            return PackageTransferService()
+        raise ValueError(f"Unsupported Package schema version: {manifest.get('schema_version')}")
 
     def stage(self, source: str | Path, *, staging_root: str | Path = "exchange/staging"):
-        staged = self.transfer.stage_from_directory(Path(source), Path(staging_root))
+        source_path = Path(source)
+        transfer = self._transfer(source_path)
+        staged = transfer.stage_from_directory(source_path, Path(staging_root))
         manifest = _manifest(Path(staged.path))
         self.audit.record_staged(manifest, staged.path, staged.preflight.to_dict())
         return staged
 
     def preflight(self, package: str | Path, *, destination: str | Path | None = None):
+        package_path = Path(package)
         resolved_destination = None if destination is None else Path(destination)
-        return self.transfer.preflight(Path(package), resolved_destination)
+        return self._transfer(package_path).preflight(package_path, resolved_destination)
 
     def export(
         self,
@@ -73,7 +100,7 @@ class PackageExchangeApplication:
         acknowledge_review: bool = False,
     ):
         package_path = Path(package)
-        exported = self.transfer.export(
+        exported = self._transfer(package_path).export(
             package_path,
             Path(destination),
             acknowledge_review=acknowledge_review,
