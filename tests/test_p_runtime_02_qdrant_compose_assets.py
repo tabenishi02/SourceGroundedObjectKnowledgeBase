@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 COMPOSE_PATH = REPO_ROOT / "runtime" / "qdrant" / "compose.yaml"
 ENV_EXAMPLE_PATH = REPO_ROOT / "runtime" / "qdrant" / ".env.example"
