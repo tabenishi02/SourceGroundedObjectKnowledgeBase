@@ -4,23 +4,17 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
-- Status: **Automated Verification PASS / Interactive Smoke Pending**
+- Status: **Automated Verification Refresh Pending / Interactive Smoke Pending**
 - Baseline: P-GUI-05 **Complete / Accepted**
 - Task authority: `docs/planning/phases/P/PHASE_P_TASKS.md`
 - Compatibility authority: `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
-- Current automated verification: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`
-- Current interactive remediation: `docs/evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`
-- Current range/runtime remediation: `docs/evaluation/P_GUI_06_RANGE_CONTRACT_SEMANTIC_RUNTIME_DEPENDENCY_REMEDIATION.md`
-- Search selector/range authority: `docs/evaluation/P_GUI_06_SEARCH_FILTER_SELECTOR_RANGE_IMPROVEMENT.md`
-- Historical first validity-range remediation: `docs/evaluation/P_GUI_06_VALIDITY_RANGE_FALSE_NEGATIVE_REMEDIATION.md`
-- Historical range identity / GUI runtime-state remediation: `docs/evaluation/P_GUI_06_RANGE_IDENTITY_RUNTIME_STATE_REMEDIATION.md`
-- Derivation selector amendment: `docs/evaluation/P_GUI_06_DERIVATION_KIND_SELECTOR_IMPROVEMENT.md`
+- Current amendment: `docs/evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md`
+- Latest historical automated verification: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`
+- Semantic crash remediation: `docs/evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`
 
 ## 1. Result summary
 
-P-GUI-06 replaces the accepted shell placeholders for `Search` and `Registry` with real operator-backed GUI surfaces.
-
-Operation wiring remains:
+P-GUI-06 replaces the Search and Registry placeholders with operator-backed GUI surfaces.
 
 ```text
 Search       1 / 1
@@ -32,7 +26,7 @@ Render       1 / 1
 Total       14 / 14
 ```
 
-All operations continue through the accepted transport-neutral boundary:
+The accepted transport-neutral boundary remains:
 
 ```text
 Qt page
@@ -43,7 +37,7 @@ Qt page
   -> Repository / Retrieval / Rendering
 ```
 
-No GUI direct SQL path or CLI-subprocess business path was introduced.
+No GUI direct SQL path or CLI-subprocess business path is used.
 
 ## 2. Search GUI
 
@@ -54,76 +48,46 @@ src/sgokb/gui/views/search_page.py
 src/sgokb/gui/views/search_page_derivation.py
 ```
 
-The `Search` tab exposes:
+The current Search surface exposes:
 
 - Lexical / Semantic / Hybrid modes;
-- local semantic-runtime opt-in;
+- local Semantic runtime opt-in;
 - `require_full_runtime` strict-mode control;
 - result and candidate limits;
-- Registry-backed dropdowns for Primary / Additional / Ancestor Class;
+- Registry-backed Primary / Additional / Ancestor Class selectors;
 - Facet selector with editable historical fallback;
 - Version selector with editable historical fallback;
 - Temporal Scope selector with editable historical fallback;
-- `Knowledge valid From` / `Knowledge valid To` range fields;
-- fixed-value Derivation Kind selector (`Any`, `direct_statement`, `synthesis`, `interpretation`, `reported_view`);
+- fixed Derivation Kind selector (`Any`, `direct_statement`, `synthesis`, `interpretation`, `reported_view`);
 - archived Object opt-in;
 - ranked result table and selected-result detail;
 - explicit degraded-channel display;
-- per-request runtime-state reset so failed semantic/runtime requests cannot leave stale prior results/degradation text visible.
+- per-request runtime-state reset.
 
-Selector composition remains above Repository storage:
+### From/To date filter — removed
 
-```text
-registry.class.list
-object.list
-    -> current_version_id
-    -> version.show(current accepted Version)
-    -> Facet / Temporal Scope / Version choices
-```
+The experimental P-GUI-06 `Knowledge valid From` / `Knowledge valid To` range filter has been removed by operator decision.
 
-Facet / Version / Temporal Scope selectors remain editable because full historical list operations are not part of the current public operator inventory. Derivation Kind is non-editable because its vocabulary is fixed by the schema.
-
-### Knowledge validity range
-
-Existing single-date `valid_at` callers remain backward compatible. GUI `From` / `To` values are encoded in that slot using `..` and interpreted as temporal overlap.
-
-Supported forms:
+Current GUI contract:
 
 ```text
-YYYY-MM-DD..YYYY-MM-DD
-YYYY-MM-DD..
-..YYYY-MM-DD
+From field                    = not exposed
+To field                      = not exposed
+GUI valid_at="FROM..TO"       = not emitted
+range-aware Search adapter    = removed
 ```
 
-Invalid dates and `From > To` are rejected. `as_of` is treated as a point interval and timeless Statements remain eligible.
+The removal does **not** delete canonical temporal-scope data and does **not** remove the pre-existing non-GUI single-point `knowledge_valid_at` / `valid_at` contract.
 
-Range retrieval is implemented through:
+Current public retrieval therefore resolves directly to the canonical R2 implementation:
 
 ```text
-src/sgokb/retrieval/search_range.py
-src/sgokb/retrieval/search_range_identity.py
+src/sgokb/retrieval/hybrid_search_r2.py
 ```
 
-The frozen R2 contract defines the final boundary:
+Historical range work remains documented for audit only and is not current behavior authority.
 
-```text
-Registry name / alias identity
-    -> canonical identity discovery
-    -> From/To alone does not remove the identity result
-    -> no Version or Statement identity is required
-
-Knowledge lexical Statement channel
-    -> From/To temporal-overlap filter
-
-Semantic Statement channel
-    -> From/To temporal-overlap filter
-```
-
-`knowledge_valid_at`, `temporal_scope_id`, and `derivation_kind` remain Statement-scoped conditions. Facet / Derivation / Temporal Scope combinations therefore still require a matching Statement where their narrowed semantics apply.
-
-Earlier stale-generation, Statement-less, and Version-pair exception remediations remain historical evidence. The final implementation bypasses Registry re-qualification entirely for From/To-only searches.
-
-### Local semantic runtime dependency and GUI preload
+## 3. Local semantic runtime and GUI preload
 
 The local embedding profile declares:
 
@@ -133,9 +97,9 @@ sentence-transformers>=6.1,<7
 transformers>=5.2,<6
 ```
 
-Dependency initialization failures are normalized to `RetrievalRuntimeUnavailableError`. The known external Transformers failure `name 'nn' is not defined` is reported as a runtime dependency problem with PyTorch guidance rather than `internal/internal_error`.
+Dependency initialization failures are normalized to `RetrievalRuntimeUnavailableError`. The external Transformers `name 'nn' is not defined` failure is reported as a runtime dependency problem rather than `internal/internal_error`.
 
-The verified operator environment is:
+Verified operator environment before the latest UI amendment:
 
 ```text
 PyTorch           = 2.6.0+cu124
@@ -145,7 +109,7 @@ GPU               = NVIDIA GeForce RTX 4090
 pip check         = No broken requirements found
 ```
 
-After a process-level GUI crash was observed when Semantic runtime was enabled, GUI startup was amended to preload the native ML stack on the Qt main thread before the backend QThread is created:
+GUI startup preloads the native ML stack on the Qt main thread before the backend QThread is created:
 
 ```text
 QApplication
@@ -154,28 +118,26 @@ QApplication
     -> BackendCoordinator / backend QThread
 ```
 
-The Harrier model remains lazily constructed in the backend lane. Lexical-only GUI startup still works when optional semantic dependencies are unavailable because preload failures are cached and later normalized through the runtime boundary.
+The Harrier model itself remains lazy. This remediation is retained after From/To removal.
 
-## 3. Similarity GUI
+## 4. Similarity GUI
 
-The `Similarity` tab exposes:
+The Similarity tab exposes:
 
 - stable Object selection through `object.list`;
 - overall Similarity;
-- Object-scoped Facet selector with editable historical fallback;
-- Object-scoped source Version selector with editable historical fallback;
+- Object-scoped Facet selector;
+- Object-scoped source Version selector;
 - result limit;
 - cross-Class opt-in;
 - archived Object opt-in;
-- ranked result and evidence/contribution detail.
-
-Similarity keeps its existing operation contract: Object / optional Facet / optional source Version / cross-Class / archived scope. Search-only Class and Temporal-Scope filter semantics were not added.
+- ranked result/evidence detail.
 
 Similarity continues to require the configured local Embedding Space and Vector Index. There is no silent lexical or cloud fallback.
 
-## 4. Registry GUI
+## 5. Registry / Version / Render GUI
 
-The `Registry` page contains:
+The Registry page contains:
 
 ```text
 Classes
@@ -185,105 +147,85 @@ Versions / Diff
 Render
 ```
 
-### Classes / Relation Types
-
-Both are read-only Registry browse/detail surfaces using existing public operations.
-
-### Proposals
-
-Proposal review preserves the critical boundary:
+Proposal review preserves the safety boundary:
 
 ```text
 Accept / Reject = review decision
 Apply           = separate canonical mutation
 ```
 
-Apply is offered only for accepted unapplied proposals and requires explicit confirmation.
+Version Show/Diff is read-only over immutable accepted Versions. Render creates derived Markdown and is not a canonical write surface.
 
-### Versions / Diff
+## 6. Current automated coverage
 
-The page supports accepted Version Show and Before / After Version Diff, including structured and Markdown representations. Diff is derived/read-only and does not mutate immutable accepted Versions.
-
-### Render
-
-The page renders current Object Knowledge or an explicit Version to derived Markdown, exposes path/digest/byte metadata, and previews the generated artifact. Render output is not a canonical write surface.
-
-## 5. Automated acceptance coverage
-
-P-GUI-06 coverage includes:
+Current P-GUI-06 coverage after From/To removal includes:
 
 ```text
 tests/test_p_gui_06_search_registry_version.py
 tests/test_p_gui_06_search_filter_selectors.py
 tests/test_p_gui_06_derivation_kind_selector.py
 tests/test_p_gui_06_search_runtime_state.py
-tests/test_p_gui_06_range_contract_runtime_dependency.py
+tests/test_p_gui_06_runtime_dependency.py
+```
+
+`tests/test_p_gui_04_shell.py` retains GUI semantic-native preload ordering coverage.
+
+The selector test now verifies that the retired From/To compatibility widgets are hidden/disabled and cannot emit a `valid_at` argument even if assigned programmatically.
+
+Removed range-only coverage:
+
+```text
 tests/test_search_validity_range.py
 tests/test_search_validity_range_identity.py
 tests/test_search_validity_range_qdrant_r2.py
+tests/test_p_gui_06_range_contract_runtime_dependency.py
 ```
 
-Coverage verifies Registry/Version/Render wiring, selector population, fixed Derivation Kind choices, Object-scoped Similarity choices, GUI From/To request construction, invalid-range rejection, lexical/semantic temporal overlap, one-sided ranges, timeless Statements, Registry identity preservation under non-overlapping From/To, unversioned Object identity preservation on the production `KnowledgeReadApplication` + active R2 generation path, GUI runtime-state reset/failure presentation, runtime dependency normalization, OperatorSession error boundary behavior, main-thread semantic native preload ordering, GUI end-to-end range Search, real local-Qdrant + R2 range-semantic execution, and preservation of generation isolation.
+The last module's semantic dependency checks were preserved in `test_p_gui_06_runtime_dependency.py`.
 
-## 6. Automated verification history
+## 7. Verification history
 
 ```text
 Attempt 01 = 16 / 16 focused PASS, 811 / 811 full PASS
 Attempt 02 = 18 / 18 focused PASS, 813 / 813 full PASS
-Attempt 03 = 19 passed / 5 failed + Ruff failures; fixture/static defects
+Attempt 03 = fixture/static verification failure
 Attempt 04 = 24 / 24 focused PASS, 819 / 819 full PASS
 Attempt 05 = 31 / 31 focused PASS, 826 / 826 full PASS
 Attempt 06 = 40 / 40 focused PASS, 829 / 829 full PASS
 Attempt 07 = 42 / 42 focused PASS, 831 / 831 full PASS
 ```
 
-Interactive testing after Attempt 05 and Attempt 06 exposed defects not covered by their automated gates. Attempt 07 therefore expands coverage to the production R2 unversioned-identity path and GUI native-preload ordering.
+Attempt 07 is now historical because the From/To surface and its range adapters were removed after that run.
 
-Current authority:
-
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_07.md`
-- `docs/evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`
-
-Current measured result:
+Expected post-removal test inventory, assuming no unrelated changes:
 
 ```text
-focused regression = 42 / 42 PASS
-Ruff               = All checks passed!
-full pytest         = 831 / 831 PASS
-warnings            = 2 known local-Qdrant warnings
+focused P-GUI gate = approximately 28 tests
+full regression    = approximately 817 tests
 ```
 
-Automated disposition:
+These counts are expectations only until measured locally.
 
-```text
-P-GUI-06 automated verification = PASS
-```
+## 8. Interactive smoke acceptance
 
-## 7. Interactive smoke acceptance
-
-Interactive re-smoke remains the final gate. Confirm at minimum:
+After automated re-verification, confirm at minimum:
 
 ### Search
 
-- Class selectors expose Registry choices;
-- Facet / Version / Temporal Scope selectors expose expected current accepted choices;
-- historical values can be typed where the selector is editable;
-- Derivation Kind exposes only the schema-defined fixed values plus `Any`;
-- `Knowledge valid From` / `To` work for bounded and one-sided ranges;
-- Object-name/alias Registry identity remains visible even when the Object has no current accepted Version or the range excludes all Statement valid times;
+- From/To controls are absent from the operator surface;
+- Class / Facet / Version / Temporal Scope / Derivation selectors remain usable;
 - Lexical Search returns expected Objects;
-- Semantic runtime ON no longer crashes the GUI process;
-- Semantic / Hybrid runtime failure or degradation is explicit and reflects the current request rather than stale presentation;
+- Semantic runtime ON does not crash the GUI process;
+- Semantic / Hybrid degradation and runtime failures remain explicit;
 - `Require full runtime` does not silently degrade;
 - result details render correctly.
 
 ### Similarity
 
-- a current accepted Object can be selected;
+- current accepted Object selection works;
 - Facet and Version selectors update for that Object;
-- leaving Version unspecified means current accepted Version;
 - overall / Facet-specific Similarity preserves requested scope;
-- runtime-unavailable state remains explicit rather than falling back.
+- runtime-unavailable state remains explicit.
 
 ### Registry / Version / Render
 
@@ -292,22 +234,20 @@ Interactive re-smoke remains the final gate. Confirm at minimum:
 - Version Show / Diff render correctly;
 - Object/Version Render writes and previews derived Markdown.
 
-The GUI must remain responsive while backend operations execute.
-
-## 8. Current disposition
+## 9. Current disposition
 
 ```text
-implementation         = Complete
-desk audit             = Complete
-operation wiring       = 14 / 14
-automated acceptance   = PASS
-interactive re-smoke   = Pending
+implementation                     = amended
+From/To GUI range filter            = removed
+canonical R2 Search                 = restored directly
+semantic runtime crash remediation  = retained
+operation wiring                    = 14 / 14
+automated verification refresh      = Pending
+interactive smoke                   = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
+P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
 ```
-
-P-GUI-06 becomes `Complete / Accepted` only after interactive acceptance is measured PASS.
