@@ -13,6 +13,7 @@ from .composite_recovery import (
     verify_composite_backup,
 )
 from .retrieval import KnowledgeVectorIndexBuilder
+from .runtime_health import RuntimeHealthApplication
 from .system_ops import (
     backup_status,
     create_backup,
@@ -32,6 +33,13 @@ class SystemOperatorApplication:
 
     def status(self):
         return system_status(self.repository, self.db_path)
+
+    def runtime_status(self):
+        return RuntimeHealthApplication(
+            self.repository,
+            self.db_path,
+            self.runtime_factory,
+        ).status()
 
     def integrity(self):
         return integrity(self.repository)
