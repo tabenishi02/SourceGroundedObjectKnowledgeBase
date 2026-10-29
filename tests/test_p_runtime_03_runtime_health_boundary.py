@@ -4,7 +4,7 @@ import json
 
 import httpx
 
-from sgokb.application_operator import OperatorSession, SHARED_OPERATION_IDS
+from sgokb.application_operator import SHARED_OPERATION_IDS, OperatorSession
 from sgokb.application_system import SystemOperatorApplication
 from sgokb.cli import main
 from sgokb.operation_contracts import OperationRequest
