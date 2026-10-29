@@ -1,6 +1,6 @@
 """Presentation-only safety metadata for desktop operations.
 
-P-GUI-07 keeps these rules outside the canonical Application layer.  They describe
+P-GUI-07 keeps these rules outside the canonical Application layer. They describe
 how an already-public operator request should be presented in the GUI; they do not
 change the operation's backend semantics.
 """
@@ -65,9 +65,22 @@ _MAINTENANCE_OPERATIONS = frozenset(
     }
 )
 
-# Registry Apply already has a dedicated impact confirmation in RegistryPage.  Keeping
-# that confirmation as the single interactive gate avoids presenting two consecutive
-# confirmation dialogs while preserving WRITE classification in the audit surface.
+# The accepted P-GUI-01 contract does not require a second modal dialog for every WRITE.
+# Explicit Add/Apply/Import buttons already form a commit action. These higher-impact
+# writes receive an additional common modal gate.
+_STRONG_WRITE_CONFIRMATION_OPERATIONS = frozenset(
+    {
+        "source.select-snapshot",
+        "source.select-run",
+        "object.status",
+        "association.clear",
+        "result.validate",
+        "result.import",
+    }
+)
+
+# Registry Apply already has a dedicated impact confirmation in RegistryPage. Keeping
+# that confirmation as the single interactive gate avoids two consecutive dialogs.
 _DEDICATED_CONFIRMATION_OPERATIONS = frozenset({"registry.proposal.apply"})
 
 _POSITIONAL_ARGUMENTS: dict[str, tuple[str, ...]] = {
@@ -119,12 +132,19 @@ def operation_policy(operation_id: str) -> OperationUXPolicy:
     if operation_id in _MAINTENANCE_OPERATIONS:
         note = "Maintenance operation; inspect targets and scope before continuing."
         if operation_id in {"system.restore.apply", "system.restore.composite.apply"}:
-            note = "Restore apply can overwrite existing targets and requires explicit acknowledgement."
+            note = (
+                "Restore apply can overwrite existing targets and requires explicit "
+                "acknowledgement."
+            )
         return OperationUXPolicy(EFFECT_MAINTENANCE, True, note=note)
     if operation_id in _WRITE_OPERATIONS:
+        confirmation_required = (
+            operation_id in _STRONG_WRITE_CONFIRMATION_OPERATIONS
+            and operation_id not in _DEDICATED_CONFIRMATION_OPERATIONS
+        )
         return OperationUXPolicy(
             EFFECT_WRITE,
-            operation_id not in _DEDICATED_CONFIRMATION_OPERATIONS,
+            confirmation_required,
             note="This operation can change canonical or audit state.",
         )
     if operation_id in _DERIVED_OPERATIONS:
@@ -157,7 +177,7 @@ def equivalent_cli_command(
 ) -> str:
     """Render an executable-style CLI equivalent for a GUI operator request.
 
-    The formatter follows ``src/sgokb/cli/main.py`` argument shape.  It is a
+    The formatter follows ``src/sgokb/cli/main.py`` argument shape. It is a
     presentation aid only; the GUI still calls OperatorSession directly.
     """
 
