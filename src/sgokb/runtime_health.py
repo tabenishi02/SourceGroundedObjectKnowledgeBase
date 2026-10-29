@@ -105,9 +105,7 @@ class RuntimeHealthApplication:
     def _sqlite(self) -> RuntimeComponentHealth:
         details: dict[str, Any] = {"path": str(self._db_path)}
         try:
-            row = self._repository.db.execute(
-                "SELECT 1 AS ok"
-            ).fetchone()
+            row = self._repository.db.execute("SELECT 1 AS ok").fetchone()
             details["query_ok"] = bool(row and row["ok"] == 1)
             details["foreign_keys"] = bool(
                 self._repository.db.execute("PRAGMA foreign_keys").fetchone()[0]
@@ -317,7 +315,10 @@ class RuntimeHealthApplication:
                 self._issue(
                     CATEGORY_RUNTIME,
                     "derived_state_incomplete",
-                    "One or more current Objects have pending, stale, failed, or missing derived state",
+                    (
+                        "One or more current Objects have pending, stale, failed, "
+                        "or missing derived state"
+                    ),
                 ),
             )
         return RuntimeComponentHealth(STATUS_HEALTHY, details)
@@ -360,10 +361,14 @@ class RuntimeHealthApplication:
                 root = client.get(endpoint + "/")
                 root.raise_for_status()
                 root_payload = root.json()
+                if not isinstance(root_payload, dict):
+                    raise ValueError("Qdrant root response must be an object")
                 details["version"] = root_payload.get("version")
                 collections = client.get(endpoint + "/collections")
                 collections.raise_for_status()
                 collection_payload = collections.json()
+                if not isinstance(collection_payload, dict):
+                    raise ValueError("Qdrant collections response must be an object")
         except (httpx.HTTPError, ValueError, KeyError, TypeError) as exc:
             return RuntimeComponentHealth(
                 STATUS_UNAVAILABLE,
