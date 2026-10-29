@@ -28,7 +28,8 @@ P-GUI-04 = Complete / Accepted
 P-GUI-05 = Complete / Accepted
 P-GUI-06 = Complete / Accepted
 P-GUI-07 = Complete / Accepted
-Next = P-RAW-01 Current Evidence Package / Result impact survey
+P-RAW-01 = Complete / Accepted
+Next = P-RAW-02 Evidence -> Raw Artifact provenance resolution contract
 ```
 
 Phase PのWorkstream優先順位:
@@ -109,31 +110,6 @@ P-GUI-06 = Complete / Accepted
 - Automated verification — Attempt 01: [`../evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`](../evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md)
 - Final interactive acceptance: [`../evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md`](../evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md)
 
-Implemented P-GUI-07 surface:
-
-```text
-indeterminate progress
-operation safety class
-cancellation availability
-partial / blocked state visibility
-normalized error category/code
-warning / degradation / error center
-high-impact WRITE / EXTERNAL / MAINTENANCE confirmation
-form-only Undo / Redo
-Equivalent CLI command
-session-local operation history / audit surface
-```
-
-Current cancellation contract:
-
-```text
-cooperative cancellation contract = none
-current dispatched operations      = non-cancellable
-QThread.terminate()                 = prohibited
-```
-
-GUI Undo/Redo applies only to unsubmitted form edits and never maps to canonical Version rollback or inverse mutation.
-
 Final automated verification:
 
 ```text
@@ -149,11 +125,59 @@ Final interactive smoke completed with no problem reported in the exercised scop
 P-GUI-07 = Complete / Accepted
 ```
 
+### P-RAW-01 accepted authority
+
+- Impact survey: [`../evaluation/P_RAW_01_CURRENT_EVIDENCE_PACKAGE_RESULT_IMPACT_SURVEY.md`](../evaluation/P_RAW_01_CURRENT_EVIDENCE_PACKAGE_RESULT_IMPACT_SURVEY.md)
+
+P-RAW-01 confirms that the Raw Grounding redesign primarily affects the external exchange / grounding boundary.
+
+Breaking v1 assumptions:
+
+```text
+Evidence Markdown as authoritative external semantic payload
+included_evidence_ids as the complete grounding membership authority
+Evidence-ID-only analysis instructions
+Evidence-ID-only Result grounding
+Evidence-only Package membership validation
+```
+
+Migration-required areas:
+
+```text
+Evidence -> Raw deterministic provenance resolution
+Raw membership / Package audit trace
+budget / preflight / egress coverage
+review grounding presentation
+import grounding persistence / accepted provenance
+v1/v2 receive / validation routing
+tests / benchmark fixtures / operations documentation
+```
+
+Compatibility targets:
+
+```text
+Evidence retrieval / human selection
+Source / Snapshot / Raw canonical storage
+Object / Registry / Association semantics
+core Knowledge semantic fields
+Version lifecycle
+semantic diff core
+Search / Similarity / derived indexing
+```
+
+The survey explicitly requires versioned v1/v2 semantics: legacy Evidence-grounded artifacts must not be silently interpreted as Raw-grounded artifacts.
+
+P-RAW-01 does not choose the physical DB migration or final Package/Result v2 JSON shape; those decisions remain in P-RAW-02..05.
+
+```text
+P-RAW-01 = Complete / Accepted
+```
+
 ### Current released system
 
 Phase P remains in development. Released `v1.1.0` semantics remain governed by current architecture, decision, operations and release documents.
 
-P-GUI-01 through P-GUI-07 are accepted development baselines.
+P-GUI-01 through P-GUI-07 and P-RAW-01 are accepted development baselines.
 
 ## Phase P GUI architecture
 
@@ -188,7 +212,9 @@ Repository / Retrieval / Exchange
 
 Evidence remains the retrieval / selection unit, while External AI semantic material will move from reconstructed Evidence Markdown to Raw Artifacts traced through provenance.
 
-`P-GUI-08` depends on completion of `P-RAW-01..P-RAW-06`, so the next executable priority task is P-RAW-01.
+P-RAW-01 impact survey is accepted. The next task is P-RAW-02, which must define deterministic Evidence -> Raw resolution without yet implementing Package v2.
+
+`P-GUI-08` remains blocked until completion of `P-RAW-01..P-RAW-06`.
 
 ## Workstream C — Runtime
 
@@ -208,5 +234,5 @@ P-CLOSE-01
 ## Next
 
 ```text
-P-RAW-01 — Current Evidence Package / Result impact survey
+P-RAW-02 — Evidence -> Raw Artifact provenance resolution contract
 ```
