@@ -27,7 +27,7 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
-| GUI | P-GUI-06 | **Automated Verification Refresh Pending / Interactive Smoke Pending** | From/To range filter removed by operator decision; semantic native-preload remediation retained |
+| GUI | P-GUI-06 | **Automated Verification PASS / Interactive Smoke Pending** | Attempt 08: From/To removed; 28/28 focused + 817/817 full PASS |
 | GUI | P-GUI-07 | Not Started | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | Blocked by P-RAW | Package / Result GUI |
 | GUI | P-GUI-09 | Not Started | System / Maintenance / MCP / Advanced GUI |
@@ -106,7 +106,7 @@ range-aware retrieval adapters  = removed
 canonical R2 HybridObjectSearch = restored directly
 ```
 
-The pre-existing non-GUI single-point `valid_at` / `knowledge_valid_at` contract remains intact. Canonical Temporal Scope data and the Temporal Scope ID filter are also unchanged.
+The pre-existing non-GUI single-point `valid_at` / `knowledge_valid_at` contract remains intact. Canonical Temporal Scope data and the Temporal Scope ID filter are unchanged.
 
 Current amendment authority:
 
@@ -138,28 +138,22 @@ The GUI process-level Semantic runtime crash was remediated by preloading PyTorc
 
 Registry behavior remains Class/Relation Type browse, Proposal review with Accept/Reject separated from Apply, Version Show/Diff, and derived Markdown Render/export.
 
-## P-GUI-06 verification history
+## P-GUI-06 current automated authority
 
-Latest historical automated authority before From/To removal:
+Attempt 08 is the current post-removal automated verification authority:
 
 ```text
-Attempt 07
-focused regression = 42 / 42 PASS
+focused regression = 28 / 28 PASS
 Ruff               = PASS
-full regression    = 831 / 831 PASS
+full regression    = 817 / 817 PASS
 warnings           = 2 known local-Qdrant warnings
 ```
 
-Attempt 07 is no longer current closure authority because the product surface and test inventory changed afterward.
+Authority document:
 
-Current expected post-removal inventory, assuming no unrelated changes:
+- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_08.md`
 
-```text
-focused P-GUI gate ≈ 28 tests
-full regression    ≈ 817 tests
-```
-
-These are expectations only until local execution is measured.
+Attempt 07 remains historical evidence for the pre-removal surface.
 
 ## Sequencing
 
@@ -176,10 +170,10 @@ P-GUI-04 Complete / Accepted
         ↓
 P-GUI-05 Complete / Accepted
         ↓
-P-GUI-06 Automated Verification Refresh Pending   <- CURRENT
-        ↓ focused + Ruff + full regression PASS
-P-GUI-06 Interactive Smoke Pending
-        ↓ Search / Semantic / Similarity / Registry / Version / Render smoke PASS
+P-GUI-06 Automated Verification PASS
+        ↓ interactive Search / Semantic / Similarity / Registry / Version / Render smoke
+P-GUI-06 Interactive Smoke Pending   <- CURRENT
+        ↓ PASS
 P-GUI-06 Complete / Accepted
         ↓
 P-GUI-07 Progress / error / safety / audit UX
@@ -189,14 +183,15 @@ P-GUI-07 Progress / error / safety / audit UX
 
 Phase P remains in development. Released system semantics continue to be governed by current architecture/decision/operations documents and release `v1.1.0`.
 
-P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 remains open after the From/To removal until automated and interactive verification are refreshed.
+P-GUI-01 through P-GUI-05 are accepted development baselines. P-GUI-06 automated verification is PASS; only the refreshed interactive smoke gate remains open.
 
 ## Next
 
 ```text
-1. run reduced P-GUI-06 focused gate + Ruff
-2. run full regression
-3. confirm From/To controls are absent
-4. confirm Semantic runtime ON remains crash-free
-5. finish remaining Search / Similarity / Registry / Version / Render interactive smoke
+1. confirm From/To controls are absent
+2. confirm remaining Search hard filters and Lexical Search are usable
+3. confirm Semantic runtime ON remains crash-free
+4. confirm Similarity behavior
+5. confirm Registry / Version / Render behavior
+6. if all PASS, close P-GUI-06 as Complete / Accepted
 ```
