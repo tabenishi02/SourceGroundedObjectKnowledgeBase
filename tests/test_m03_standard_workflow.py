@@ -107,7 +107,7 @@ def workflow(tmp_path, make_bundle, request):
     root.mkdir(parents=True, exist_ok=True)
     assert not (root / "acceptance.sqlite").exists(), "Acceptance requires a fresh DB"
     cli = WorkflowCLI(root)
-    assert cli("system", "integrity")["schema_migrations"] == list(range(3, 20))
+    assert cli("system", "integrity")["schema_migrations"] == list(range(3, 21))
     cli("registry", "class", "show", "character")
     obj = cli("object", "add", "--name", "M03 Example", "--primary-class", "character")
     oid = obj["object_id"]

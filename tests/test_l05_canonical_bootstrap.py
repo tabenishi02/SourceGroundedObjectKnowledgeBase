@@ -58,7 +58,7 @@ def test_fresh_canonical_database_and_reopen(tmp_path):
             assert [
                 r["version"]
                 for r in repo.rows("SELECT version FROM schema_migrations ORDER BY version")
-            ] == list(range(3, 20))
+            ] == list(range(3, 21))
             tables = {
                 r["name"] for r in repo.rows("SELECT name FROM sqlite_master WHERE type='table'")
             }

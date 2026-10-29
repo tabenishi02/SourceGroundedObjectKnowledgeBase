@@ -91,7 +91,7 @@ def test_system_integrity_and_migration_19(tmp_path, capsys):
     assert code == 0
     payload, _ = _stdout_json(capsys)
     assert payload["data"]["ok"] is True
-    assert payload["data"]["schema_migrations"][-1] == 19
+    assert payload["data"]["schema_migrations"][-1] == 20
 
     repo = Repository(db)
     try:
