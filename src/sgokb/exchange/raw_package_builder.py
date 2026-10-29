@@ -296,7 +296,7 @@ class ObjectRawPackageBuilder:
             },
             "evidence": {
                 "included_source_ids": included_sources,
-                "included_evidence_ids": evidence_ids,
+                "included_evidence_ids": list(evidence_ids),
                 "items": evidence_items,
             },
             "raw_grounding": raw_grounding,
