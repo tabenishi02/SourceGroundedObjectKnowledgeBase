@@ -4,14 +4,14 @@ Updated: 2026-10-29
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-GUI-06 [P0] Search / Similarity / Registry / Version GUI`
-- Status: **Automated Verification Refresh Pending / Interactive Smoke Pending**
+- Status: **Automated Verification PASS / Interactive Smoke Pending**
 - Baseline: P-GUI-05 **Complete / Accepted**
 - Task authority: `docs/planning/phases/P/PHASE_P_TASKS.md`
 - Compatibility authority: `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
 - Current amendments:
   - `docs/evaluation/P_GUI_06_FROM_TO_FILTER_REMOVAL.md`
   - `docs/evaluation/P_GUI_06_SEMANTIC_RUNTIME_MODE_COUPLING_REMEDIATION.md`
-- Latest historical automated authority: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_08.md`
+- Current automated authority: `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`
 - Semantic crash remediation: `docs/evaluation/P_GUI_06_INTERACTIVE_ATTEMPT_07_FAILURE_AND_REMEDIATION.md`
 
 ## 1. Result summary
@@ -115,7 +115,7 @@ transformers>=5.2,<6
 
 Dependency initialization failures are normalized to `RetrievalRuntimeUnavailableError`. The external Transformers `name 'nn' is not defined` failure is reported as a runtime dependency problem rather than `internal/internal_error`.
 
-Verified operator environment before the latest UI amendment:
+Verified operator environment:
 
 ```text
 PyTorch           = 2.6.0+cu124
@@ -147,7 +147,7 @@ tests/test_p_gui_06_search_runtime_state.py
 tests/test_p_gui_06_runtime_dependency.py
 ```
 
-`test_p_gui_06_search_runtime_state.py` now also locks the Search mode / Semantic runtime coupling contract. `tests/test_p_gui_04_shell.py` retains GUI semantic-native preload ordering coverage.
+`test_p_gui_06_search_runtime_state.py` locks the Search mode / Semantic runtime coupling contract. `tests/test_p_gui_04_shell.py` retains GUI semantic-native preload ordering coverage.
 
 ## 7. Verification history
 
@@ -160,13 +160,14 @@ Attempt 05 = 31 / 31 focused PASS, 826 / 826 full PASS
 Attempt 06 = 40 / 40 focused PASS, 829 / 829 full PASS
 Attempt 07 = 42 / 42 focused PASS, 831 / 831 full PASS — historical pre-removal surface
 Attempt 08 = 28 / 28 focused PASS, Ruff PASS, 817 / 817 full PASS — historical post-removal baseline
+Attempt 09 = 29 / 29 focused PASS, Ruff PASS, 818 / 818 full PASS — current authority
 ```
 
-Attempt 08 predates the Search mode / Semantic runtime coupling correction and is therefore historical evidence, not current closure authority.
+Attempt 09 verifies the Search mode / Semantic runtime coupling remediation. The two full-regression warnings are the known local-Qdrant warnings and are not failures.
 
 ## 8. Interactive smoke acceptance
 
-After automated re-verification, confirm at minimum:
+Automated verification is complete. Confirm at minimum:
 
 ### Search
 
@@ -195,17 +196,17 @@ After automated re-verification, confirm at minimum:
 ## 9. Current disposition
 
 ```text
-implementation                         = amended
+implementation                         = Complete for current P-GUI-06 scope
 From/To GUI range filter                = removed
 semantic native preload                 = retained
 Search mode / Semantic runtime coupling = corrected
 operation wiring                        = 14 / 14
-automated verification                  = Refresh Pending
+automated verification                  = PASS
 interactive smoke                       = Pending
 ```
 
 Therefore:
 
 ```text
-P-GUI-06 = Automated Verification Refresh Pending / Interactive Smoke Pending
+P-GUI-06 = Automated Verification PASS / Interactive Smoke Pending
 ```
