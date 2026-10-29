@@ -376,6 +376,14 @@ class OperatorSession:
                     max_items=int(a.get("max_items", 64)),
                     max_candidates=int(a.get("max_candidates", 500)),
                     knowledge_language=a.get("knowledge_language", "ja"),
+                    package_version=a.get("package_version", "v1"),
+                    max_total_raw_bytes=int(
+                        a.get("max_total_raw_bytes", 16 * 1024 * 1024)
+                    ),
+                    max_single_raw_bytes=int(
+                        a.get("max_single_raw_bytes", 8 * 1024 * 1024)
+                    ),
+                    max_raw_artifacts=int(a.get("max_raw_artifacts", 64)),
                 )
                 return OperationOutcome(op, data.to_dict())
             if op == "package.stage":
