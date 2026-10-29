@@ -32,6 +32,7 @@ class BackendSession:
 class BackendWorker(QObject):
     """Execute one request at a time on the dedicated backend QThread."""
 
+    started = Signal(str)
     finished = Signal(str, object)
     failed = Signal(str, object)
     warning = Signal(str, str)
@@ -50,6 +51,7 @@ class BackendWorker(QObject):
 
     @Slot(object)
     def execute(self, request: GuiOperationRequest) -> None:
+        self.started.emit(request.request_id)
         try:
             session = self._session_for(request.workspace_path)
             operator = OperatorSession(
@@ -79,6 +81,8 @@ class BackendCoordinator(QObject):
     _submit_requested = Signal(object)
     _dispose_requested = Signal()
 
+    operation_submitted = Signal(str, object)
+    operation_started = Signal(str, object)
     operation_finished = Signal(str, object)
     operation_failed = Signal(str, object)
     operation_warning = Signal(str, str)
@@ -87,11 +91,13 @@ class BackendCoordinator(QObject):
     def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
         self._pending: set[str] = set()
+        self._requests: dict[str, GuiOperationRequest] = {}
         self._thread = QThread(self)
         self._worker = BackendWorker()
         self._worker.moveToThread(self._thread)
         self._submit_requested.connect(self._worker.execute)
         self._dispose_requested.connect(self._worker.dispose)
+        self._worker.started.connect(self._on_started)
         self._worker.finished.connect(self._on_finished)
         self._worker.failed.connect(self._on_failed)
         self._worker.warning.connect(self.operation_warning)
@@ -107,8 +113,10 @@ class BackendCoordinator(QObject):
 
         was_busy = self.is_busy
         self._pending.add(request.request_id)
+        self._requests[request.request_id] = request
         if not was_busy:
             self.busy_changed.emit(True)
+        self.operation_submitted.emit(request.request_id, request)
         self._submit_requested.emit(request)
         return request.request_id
 
@@ -121,9 +129,16 @@ class BackendCoordinator(QObject):
         request = GuiOperationRequest.create(workspace_path, operation_id, arguments)
         return self.submit_request(request)
 
+    @Slot(str)
+    def _on_started(self, request_id: str) -> None:
+        request = self._requests.get(request_id)
+        if request is not None:
+            self.operation_started.emit(request_id, request)
+
     def _complete(self, request_id: str) -> None:
         was_busy = self.is_busy
         self._pending.discard(request_id)
+        self._requests.pop(request_id, None)
         if was_busy and not self.is_busy:
             self.busy_changed.emit(False)
 
