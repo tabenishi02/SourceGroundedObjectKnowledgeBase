@@ -123,7 +123,10 @@ class ObjectRawPackageBuilder:
             raise ValueError("Package build requires an active Object")
 
         base_version_id = object_record.current_version_id
-        current_snapshot = self.package_store.current_object_snapshot(object_id)
+        current_snapshot = self.package_store.current_object_snapshot(
+            object_id,
+            include_raw_grounding=True,
+        )
         if base_version_id is None and current_snapshot is not None:
             raise ValueError("Initial Package cannot contain current Knowledge")
         if base_version_id is not None and current_snapshot is None:
