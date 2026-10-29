@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import pytest
 from test_hybrid_search import _accepted, _class, _engine
+from test_hybrid_search_r2 import _activate_r2_generation
 
 from sgokb.application_operator import OperatorSession
-from sgokb.application_read import RetrievalRuntimeUnavailableError
+from sgokb.application_read import KnowledgeReadApplication, RetrievalRuntimeUnavailableError
 from sgokb.domain import EmbeddingSpaceSpec, ObjectSearchChannel, ObjectSearchFilters
 from sgokb.operation_contracts import OperationFailure, OperationRequest
 from sgokb.repository import Repository
@@ -67,6 +68,26 @@ def test_from_to_does_not_hide_registry_identity_when_statements_do_not_overlap(
     assert matching
     assert ObjectSearchChannel.EXACT_NAME in matching[0].channels
     assert all(match.statement_id is None for match in matching[0].matches)
+
+
+def test_from_to_keeps_unversioned_registry_identity_through_production_r2_application(repo):
+    object_id = repo.object_store.create_object(
+        "Unversioned Temporal Identity",
+        _class(repo, "character"),
+    )
+    _activate_r2_generation(repo, generation_id="range-contract-production-r2")
+    repo.db.commit()
+
+    response = KnowledgeReadApplication(repo).search_objects(
+        "Unversioned Temporal Identity",
+        mode="lexical",
+        filters=ObjectSearchFilters(knowledge_valid_at="2100-01-01..2200-01-01"),
+    )
+
+    matching = [result for result in response.results if result.object_id == object_id]
+    assert matching
+    assert matching[0].version_id is None
+    assert ObjectSearchChannel.EXACT_NAME in matching[0].channels
 
 
 def _broken_nn_runtime():
