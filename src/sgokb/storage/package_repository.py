@@ -18,6 +18,7 @@ class PackageBuildReadRepository:
         self.db = db
 
     def current_grounding_evidence_ids(self, version_id: str | None) -> tuple[str, ...]:
+        """Return direct v1 Evidence grounding only (legacy compatibility helper)."""
         if version_id is None:
             return ()
         rows = self.db.execute(
@@ -26,6 +27,48 @@ class PackageBuildReadRepository:
             (version_id,),
         ).fetchall()
         return tuple(dict.fromkeys(row["evidence_id"] for row in rows))
+
+    def current_grounding_selection_evidence_ids(
+        self, version_id: str | None
+    ) -> tuple[str, ...]:
+        """Recover Evidence selection lineage for either v1 or v2 accepted grounding.
+
+        v1 uses direct Evidence links. v2 intentionally does not fabricate Evidence
+        grounding; it traces actually grounded Raw IDs back through the originating
+        Package's Evidence -> Raw bindings and returns only bindings intersecting the
+        accepted claim-level Raw grounding set.
+        """
+        if version_id is None:
+            return ()
+        direct = self.current_grounding_evidence_ids(version_id)
+        if direct:
+            return direct
+
+        raw_rows = self.db.execute(
+            """SELECT package_id,raw_artifact_id FROM raw_grounding_links
+               WHERE version_id=? ORDER BY rowid""",
+            (version_id,),
+        ).fetchall()
+        if not raw_rows:
+            return ()
+        grounded_by_package: dict[str, set[str]] = defaultdict(set)
+        for row in raw_rows:
+            grounded_by_package[row["package_id"]].add(row["raw_artifact_id"])
+
+        result: list[str] = []
+        for package_id in dict.fromkeys(row["package_id"] for row in raw_rows):
+            grounded = grounded_by_package[package_id]
+            bindings = self.db.execute(
+                """SELECT evidence_id,raw_artifact_ids_json
+                   FROM package_evidence_raw_bindings
+                   WHERE package_id=? ORDER BY ordinal""",
+                (package_id,),
+            ).fetchall()
+            for binding in bindings:
+                raw_ids = set(json.loads(binding["raw_artifact_ids_json"]))
+                if raw_ids.intersection(grounded):
+                    result.append(binding["evidence_id"])
+        return tuple(dict.fromkeys(result))
 
     def active_attribute_definitions(self) -> tuple[dict, ...]:
         rows = self.db.execute(
@@ -72,14 +115,12 @@ class PackageBuildReadRepository:
                 (version_id,),
             )
         ]
-
         scopes = {
             row["id"]: self._temporal_scope(dict(row))
             for row in self.db.execute(
                 "SELECT * FROM temporal_scopes WHERE version_id=? ORDER BY rowid", (version_id,)
             )
         }
-
         attributions: dict[str, dict] = {}
         for row in self.db.execute(
             "SELECT * FROM knowledge_statement_attributions WHERE statement_id IN "
@@ -91,13 +132,12 @@ class PackageBuildReadRepository:
                 if row[key] is not None:
                     value[key] = row[key]
             attributions[row["statement_id"]] = value
-
         metadata = self.db.execute(
             "SELECT default_language FROM object_version_result_metadata WHERE version_id=?",
             (version_id,),
         ).fetchone()
 
-        links: dict[tuple[str, str], list[dict]] = defaultdict(list)
+        evidence_links: dict[tuple[str, str], list[dict]] = defaultdict(list)
         for row in self.db.execute(
             """SELECT l.target_kind,l.target_id,l.evidence_id,r.key AS role
                FROM evidence_links l
@@ -105,9 +145,26 @@ class PackageBuildReadRepository:
                WHERE l.version_id=? ORDER BY l.rowid""",
             (version_id,),
         ):
-            links[(row["target_kind"], row["target_id"])].append(
+            evidence_links[(row["target_kind"], row["target_id"])].append(
                 {"evidence_id": row["evidence_id"], "role": row["role"]}
             )
+
+        raw_links: dict[tuple[str, str], list[dict]] = defaultdict(list)
+        for row in self.db.execute(
+            """SELECT target_kind,target_id,raw_artifact_id,role,locator_json
+               FROM raw_grounding_links WHERE version_id=? ORDER BY rowid""",
+            (version_id,),
+        ):
+            item = {"raw_artifact_id": row["raw_artifact_id"], "role": row["role"]}
+            if row["locator_json"] is not None:
+                item["locator"] = json.loads(row["locator_json"])
+            raw_links[(row["target_kind"], row["target_id"])].append(item)
+
+        def grounding(kind: str, target_id: str) -> dict:
+            return {
+                "evidence": evidence_links.get((kind, target_id), []),
+                "grounding": raw_links.get((kind, target_id), []),
+            }
 
         facet_rows = self.db.execute(
             """SELECT vf.facet_id,vf.status,f.key,f.name
@@ -129,9 +186,7 @@ class PackageBuildReadRepository:
 
         summary_statements: list[dict] = []
         for row in self.db.execute(
-            """SELECT * FROM knowledge_statements
-               WHERE version_id=? ORDER BY rowid""",
-            (version_id,),
+            "SELECT * FROM knowledge_statements WHERE version_id=? ORDER BY rowid", (version_id,)
         ):
             statement = {
                 "statement_id": row["id"],
@@ -140,7 +195,7 @@ class PackageBuildReadRepository:
                 "derivation_kind": row["derivation_kind"],
                 "language": row["language"],
                 "temporal_scope": scopes.get(row["temporal_scope_id"]),
-                "evidence": links.get(("statement", row["id"]), []),
+                **grounding("statement", row["id"]),
             }
             if row["id"] in attributions:
                 statement["attribution"] = attributions[row["id"]]
@@ -172,7 +227,7 @@ class PackageBuildReadRepository:
                     "value": self._attribute_value(row),
                     "language": row["language"],
                     "temporal_scope": scopes.get(row["temporal_scope_id"]),
-                    "evidence": links.get(("attribute", row["id"]), []),
+                    **grounding("attribute", row["id"]),
                 }
             )
 
@@ -195,7 +250,7 @@ class PackageBuildReadRepository:
                     "relation_name": row["relation_name"],
                     "object_object_id": row["object_object_id"],
                     "temporal_scope": scopes.get(row["temporal_scope_id"]),
-                    "evidence": links.get(("relation", row["id"]), []),
+                    **grounding("relation", row["id"]),
                 }
             )
 
@@ -208,11 +263,13 @@ class PackageBuildReadRepository:
         if metadata is not None:
             knowledge["default_language"] = metadata["default_language"]
 
+        grounding_kind = "raw" if raw_links else ("evidence" if evidence_links else "none")
         return {
             "object_id": object_id,
             "version_id": version_id,
             "version_number": version["version_number"],
             "version_created_at": version["created_at"],
+            "grounding_kind": grounding_kind,
             "classification": {
                 "primary_class_id": version["primary_class_id"],
                 "additional_class_ids": additional,
