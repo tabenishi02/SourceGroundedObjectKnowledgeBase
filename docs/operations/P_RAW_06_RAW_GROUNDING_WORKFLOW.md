@@ -3,9 +3,10 @@
 Updated: 2026-10-30
 
 - Scope: Package v2 / Result v2 external AI workflow
-- Status: **Accepted subject to P-RAW-06 final verification gate**
+- Status: **Complete / Accepted**
 - Requirements: `docs/requirements/RAW_GROUNDING_REQUIREMENTS.md`
 - Decision: `docs/decisions/P_RAW_06_RAW_GROUNDING_CUTOVER_DECISION.md`
+- Acceptance: `docs/evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md`
 
 ## 1. Purpose
 
