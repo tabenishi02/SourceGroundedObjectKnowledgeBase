@@ -59,6 +59,9 @@ known-first-party = ["benchmark"]
 "src/sgokb/exchange/package_manifest_v2.py" = ["E501"]
 "src/sgokb/exchange/package_transfer_v2.py" = ["E501"]
 "src/sgokb/exchange/raw_package_builder.py" = ["E501"]
+# P-GUI-08 keeps a small number of operator-facing safety messages and manifest
+# projection expressions intact; only line-length is exempted for this view module.
+"src/sgokb/gui/views/package_result_page.py" = ["E501"]
 # These test modules intentionally re-export pytest fixtures from sibling modules;
 # function parameters then consume those fixture names, which Ruff reports as F811.
 "tests/test_hybrid_search_r2_semantic_fusion.py" = ["F811"]
