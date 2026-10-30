@@ -24,7 +24,16 @@ def qt_app():
     yield app
 
 
-def _wait_for(signal, trigger, timeout_ms: int = 5000):
+def _wait_for(signal, trigger, timeout_ms: int = 10000):
+    """Wait for an asynchronous GUI signal without imposing a performance SLA.
+
+    Since P-RUNTIME-03, opening a Workspace runs ``system.status`` with a bounded
+    external Qdrant health probe. Five seconds was a historical shell-test helper
+    timeout, not an accepted latency contract, and can expire on a loaded Windows
+    runner while the backend is still correctly working. Ten seconds matches the
+    later GUI asynchronous-operation acceptance budget without relaxing semantics.
+    """
+
     _require_qt()
     from PySide6.QtCore import QEventLoop, QTimer
 
