@@ -223,7 +223,9 @@ def test_runtime_dashboard_system_page_binds_snapshot_without_lifecycle_controls
         assert "HEALTHY" in page.runtime_component_labels["qdrant"].text()
         assert "external" in page.runtime_lifecycle_note.text()
         assert "MCP runtime state is not part" in page.runtime_mcp_note.text()
-        assert page.runtime_troubleshooting.toPlainText() == "No runtime issue requires troubleshooting."
+        assert page.runtime_troubleshooting.toPlainText() == (
+            "No runtime issue requires troubleshooting."
+        )
         assert not hasattr(page, "qdrant_start_button")
         assert not hasattr(page, "qdrant_stop_button")
         assert not hasattr(page, "qdrant_restart_button")
@@ -242,7 +244,9 @@ def test_main_window_uses_runtime_dashboard_system_page(qt_app, tmp_path):
     from sgokb.gui.workspace import WorkspaceSettings
 
     backend = BackendCoordinator()
-    settings = WorkspaceSettings(QSettings(str(tmp_path / "runtime.ini"), QSettings.Format.IniFormat))
+    settings = WorkspaceSettings(
+        QSettings(str(tmp_path / "runtime.ini"), QSettings.Format.IniFormat)
+    )
     window = MainWindow(backend, settings, show_error_dialogs=False)
     try:
         assert isinstance(window.domain_pages["system"], RuntimeDashboardSystemPage)
