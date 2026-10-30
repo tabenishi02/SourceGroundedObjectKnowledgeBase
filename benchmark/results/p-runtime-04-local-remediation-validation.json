@@ -1,0 +1,105 @@
+{
+  "schema_version": "sgokb.p-runtime-04-local-remediation-validation/1.0",
+  "run_id": "20261031T041657+0900",
+  "tested_git_head": "ad9c3b29d2d6571534d6bb72fcabe3e88255ca85",
+  "branch": "phase-p/runtime-04-crash-recovery-remediation",
+  "host": "Windows 11 reference host",
+  "powershell_version": "7.6.9",
+  "parse": {
+    "Register-SgokbQdrantAutoStart.ps1": 0,
+    "Test-SgokbQdrantAutoStart.ps1": 0
+  },
+  "dynamic": {
+    "result": "PASS",
+    "task_path": "\\SGOKB-Acceptance-Local\\QdrantRecoverySmoke",
+    "initial_pid": 38356,
+    "recovered_pid": 42796,
+    "manual_starts_after_crash": 0,
+    "recovery_interval_seconds": 60,
+    "mechanism": "repeating TimeTrigger",
+    "task_state": "Running",
+    "ready_status": 200
+  },
+  "verifier": {
+    "schema_version": "sgokb.qdrant-windows-autostart-check/1.1",
+    "principal_logon_type": "Interactive",
+    "trigger_count": 2,
+    "recovery_interval": "PT1M",
+    "recovery_interval_seconds": 60,
+    "restart_count": 10,
+    "restart_interval": "PT1M",
+    "ready_status": 200
+  },
+  "multiple_instances": "IgnoreNew",
+  "cleanup": {
+    "task_remaining": false,
+    "temp_remaining": false,
+    "disposable_folder_remaining": false,
+    "worker_process_remaining": false,
+    "synthetic_port_listening": false
+  },
+  "focused": {
+    "return_code": 0,
+    "log": "focused.log",
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0
+  },
+  "ruff": {
+    "return_code": 0,
+    "log": "ruff.log"
+  },
+  "full": {
+    "return_code": 0,
+    "log": "full.log",
+    "passed": 858,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 2,
+    "warning_messages": [
+      "Payload indexes have no effect in the local Qdrant. Please use server Qdrant if you need payload indexes.",
+      "Local mode performs exact (brute-force) search, so `search_params` has no effect, with the exception of `idf`."
+    ],
+    "warning_classification": "Existing accepted local-Qdrant warnings; no new warning observed"
+  },
+  "production": {
+    "pids": [
+      41480
+    ],
+    "ready": 200,
+    "task_unchanged": true,
+    "config_unchanged": true,
+    "qdrant_status": "healthy",
+    "qdrant_ready": true,
+    "version": "1.19.2",
+    "overall_runtime": "degraded",
+    "canonical_before": "bdf0f7987d3968836879346fb845f3c1a10a9f17d0ffa7810cd05b2995f4d4c3",
+    "canonical_after": "bdf0f7987d3968836879346fb845f3c1a10a9f17d0ffa7810cd05b2995f4d4c3",
+    "lifecycle": {
+      "qdrant_owner": "external",
+      "observe": true,
+      "start": false,
+      "stop": false,
+      "restart": false
+    }
+  },
+  "local_remediation_validation": "PASS",
+  "github_actions": {
+    "disposition": "Pending / runner infrastructure blocked",
+    "observed_run_id": 41112893738,
+    "job_id": 124259546071,
+    "runner_id": 0,
+    "steps": [],
+    "workflow_conclusion": "failure",
+    "product_tests_executed": false
+  },
+  "formal_disposition": {
+    "reference_host_acceptance": "Complete / Accepted",
+    "local_remediation_validation": "PASS",
+    "github_actions_remediation_ci": "Pending / runner infrastructure blocked",
+    "P-RUNTIME-04 overall": "In Progress / Repository CI Pending",
+    "P-RUNTIME-05": "Blocked / Not Started"
+  },
+  "raw_evidence_root": ".local/p-runtime-04-remediation/20261031T041657+0900/",
+  "scope": "Production Task/process/configuration unchanged. Crash injection restricted to disposable worker. Local results are not GitHub Actions CI evidence."
+}

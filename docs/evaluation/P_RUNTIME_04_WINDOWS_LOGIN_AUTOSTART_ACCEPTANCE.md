@@ -305,3 +305,96 @@ P-RUNTIME-05                                        = blocked until formal repos
 ```
 
 The historical Gate 2 failures remain part of the acceptance record because they explain why the recovery contract changed from RestartOnFailure-only to a repeating recovery trigger.
+
+
+## 15. Local Windows remediation validation — PASS (2026-10-31)
+
+This is **local Windows acceptance evidence**, separate from GitHub Actions.
+Tested branch: `phase-p/runtime-04-crash-recovery-remediation`.
+Tested clean Git HEAD: `ad9c3b29d2d6571534d6bb72fcabe3e88255ca85`.
+Local run: `20261031T041657+0900`; Windows 11 reference host; PowerShell **7.6.9**.
+
+| Check | Local result |
+|---|---|
+| Registration script PowerShell parser | PASS / 0 syntax errors |
+| Verification script PowerShell parser | PASS / 0 syntax errors |
+| Dynamic disposable crash-recovery smoke | PASS |
+| Focused P-RUNTIME pytest | **9 passed / 0 failed / 0 skipped** |
+| `python -m ruff check src tests` | PASS |
+| Full pytest | **858 passed / 0 failed / 0 skipped / 2 warnings**, 234.40 s |
+| Production Qdrant post-test `/readyz` | HTTP 200 |
+| SGOKB `system status` Qdrant component | healthy / ready=true / version=1.19.2 |
+
+### Disposable dynamic test
+
+The current workflow's dynamic smoke was reused with a run-owned disposable Task
+`\SGOKB-Acceptance-Local\QdrantRecoverySmoke`, a long-running PowerShell worker,
+and an independent ephemeral loopback HTTP `/readyz` endpoint. Port 6333/6334 and
+the production Task were not used for fault injection. No native Qdrant instance
+was installed, reconfigured, stopped or restarted by this validation.
+
+The repository registration/verifier assets established schema
+`sgokb.qdrant-windows-autostart-check/1.1`, Interactive principal, exactly two
+triggers, indefinite recovery repetition `PT1M` / 60 seconds, and
+`MultipleInstances=IgnoreNew`.
+
+```text
+initial worker PID              = 38356
+force-terminated worker PID      = 38356
+manual Start-ScheduledTask after crash = none
+recovered worker PID            = 42796
+recovery mechanism              = repeating TimeTrigger
+replacement Task state          = Running
+synthetic /readyz after recovery = HTTP 200
+```
+
+Both successful and failing paths used finally cleanup. The disposable task was
+disabled, stopped and unregistered; its synthetic HTTP server and remaining
+workers were stopped; temporary files and the run-owned Task Scheduler folder
+were removed. Review confirmed no task, worker, temporary directory or listening
+synthetic endpoint remained. Raw receipts/logs remain Git-ignored.
+
+### Warning review and production safety
+
+Both full-suite warnings originated in
+`tests/test_generation_lifecycle_qdrant_r2.py::test_qdrant_generation_cutover_rollback_and_recutover`:
+
+- local Qdrant payload indexes have no effect;
+- local mode uses exact/brute-force search, so search parameters have no effect
+  except `idf`.
+
+The actual messages were checked against the existing accepted local-Qdrant
+warning categories. No new warning was observed.
+
+Production Qdrant PID **41480** remained unchanged, with `/readyz` HTTP 200 and
+SGOKB reporting Qdrant healthy/ready. Production Task XML and config hash were
+identical before/after. The canonical content digest of the requested
+`.local/acceptance/sgokb-happy-path.sqlite` remained identical:
+`bdf0f7987d3968836879346fb845f3c1a10a9f17d0ffa7810cd05b2995f4d4c3`.
+
+Top-level runtime status was `degraded` for separate generation/derived reasons;
+this does not invalidate the healthy Qdrant component. The P-RUNTIME-03 projection
+remains `qdrant_owner=external`, `observe=true`, and
+`start/stop/restart=false/false/false`. No product code changes were necessary.
+
+### Repository CI remains pending
+
+GitHub was checked independently. At publication review, the tested PR HEAD was
+`ad9c3b29d2d6571534d6bb72fcabe3e88255ca85`. Workflow run
+[41112893738](https://github.com/tabenishi02/SourceGroundedObjectKnowledgeBase/actions/runs/41112893738)
+ended with job `124259546071`, `runner_id=0`, empty runner name and `steps=[]`.
+The failed run did not execute product/tests; **local PASS is not CI PASS**.
+A documentation push may create another CI run, which requires its own actual
+runner/step result before repository acceptance can change.
+
+```text
+reference-host acceptance       = Complete / Accepted
+local remediation validation    = PASS
+GitHub Actions remediation CI   = Pending / runner infrastructure blocked
+P-RUNTIME-04 overall            = In Progress / Repository CI Pending
+P-RUNTIME-05                    = Blocked / Not Started
+```
+
+Aggregate: `benchmark/results/p-runtime-04-local-remediation-validation.json`.
+Raw evidence: `.local/p-runtime-04-remediation/20261031T041657+0900/` (not committed).
+PR #81 remains unmerged; no later Phase P task was started.

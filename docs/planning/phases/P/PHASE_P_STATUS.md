@@ -219,6 +219,36 @@ P-RUNTIME-04 overall                       = In Progress / Repository CI Pending
 
 P-RUNTIME-05 remains blocked until P-RUNTIME-04 repository acceptance closes.
 
+## Local Windows remediation validation (2026-10-31)
+
+Tested HEAD `ad9c3b29d2d6571534d6bb72fcabe3e88255ca85`; local run `20261031T041657+0900`;
+Windows 11 / PowerShell 7.6.9.
+
+- Registration and verification PowerShell parse: PASS / 0 syntax errors each.
+- Disposable `\SGOKB-Acceptance-Local\QdrantRecoverySmoke`: PASS; worker
+  **38356 -> 42796**, no manual restart after force termination, 60-second
+  repeating trigger, recovered Running and synthetic `/readyz` HTTP 200.
+- Focused P-RUNTIME: **9 passed / 0 failed**; Ruff `src tests`: PASS.
+- Full repository: **858 passed / 0 failed / 0 skipped / 2 existing local-Qdrant
+  warnings**, verified from the actual warning messages.
+- All disposable task/process/server/temp/folder resources cleaned up.
+- Production PID **41480**, Task definition, config and canonical digest unchanged;
+  production `/readyz` HTTP 200; SGOKB Qdrant healthy / ready=true / version 1.19.2.
+
+```text
+reference-host acceptance       = Complete / Accepted
+local remediation validation    = PASS
+GitHub Actions remediation CI   = Pending / runner infrastructure blocked
+P-RUNTIME-04 overall            = In Progress / Repository CI Pending
+P-RUNTIME-05                    = Blocked / Not Started
+```
+
+Local Windows validation does not substitute for hosted CI. Latest observed
+remediation run `41112893738` had `runner_id=0` / `steps=[]`. A later push-triggered
+run must be assessed independently. PR #81 is not merged by this validation.
+Details: `docs/evaluation/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART_ACCEPTANCE.md`
+section 15 and `benchmark/results/p-runtime-04-local-remediation-validation.json`.
+
 ## Sequencing
 
 ```text
