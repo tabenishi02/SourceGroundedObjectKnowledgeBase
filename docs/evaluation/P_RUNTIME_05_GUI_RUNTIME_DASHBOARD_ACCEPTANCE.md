@@ -24,6 +24,14 @@ start/stop/restart     = false / false / false
 
 The dashboard adds Semantic Search readiness, component-level status, issue reasons and troubleshooting entrypoints without changing the P-RUNTIME-03 backend contract.
 
+## Operator procedure
+
+The exact manual procedure for starting the GUI, opening the reference Workspace, reaching `System > Overview`, refreshing status, interpreting every dashboard field, and recording the smoke-test result is documented in:
+
+[`P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_OPERATOR_GUIDE.md`](../operations/P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_OPERATOR_GUIDE.md)
+
+For the GUI acceptance gate below, follow that guide from section 1 through the acceptance checklist. The Runtime Dashboard procedure is read-only; no Qdrant lifecycle or maintenance action is required.
+
 ## Local acceptance evidence — 2026-10-31
 
 ### Focused P-RUNTIME-05 / System / runtime boundary
@@ -167,9 +175,9 @@ Required: all PASS.
 
 ### 2. GUI reference-workspace smoke
 
-Open the same Workspace in the Desktop GUI and navigate to `System > Overview`.
+Follow [`P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_OPERATOR_GUIDE.md`](../operations/P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_OPERATOR_GUIDE.md) and record the final checklist result.
 
-Verify:
+The essential acceptance points remain:
 
 - `Semantic Search readiness` is visible before opening the Search page;
 - SQLite, Embedding, Qdrant, Search generation and Derived state are individually visible;
