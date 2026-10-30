@@ -7,6 +7,10 @@ from pathlib import Path
 
 from PySide6.QtCore import QObject, QThread, Signal, Slot
 
+from sgokb.application_generation_operator import (
+    GENERATION_OPERATION_IDS,
+    GenerationOperatorSession,
+)
 from sgokb.application_operator import OperatorSession
 from sgokb.operation_contracts import OperationFailure, normalize_operation_error
 from sgokb.runtime import RuntimeFactory
@@ -54,10 +58,16 @@ class BackendWorker(QObject):
         self.started.emit(request.request_id)
         try:
             session = self._session_for(request.workspace_path)
-            operator = OperatorSession(
-                session.workspace_path,
-                runtime_factory=session.runtime_factory,
-            )
+            if request.operation.operation_id in GENERATION_OPERATION_IDS:
+                operator = GenerationOperatorSession(
+                    session.workspace_path,
+                    runtime_factory=session.runtime_factory,
+                )
+            else:
+                operator = OperatorSession(
+                    session.workspace_path,
+                    runtime_factory=session.runtime_factory,
+                )
             outcome = operator.execute(request.operation)
             for message in outcome.warnings:
                 self.warning.emit(request.request_id, message)
