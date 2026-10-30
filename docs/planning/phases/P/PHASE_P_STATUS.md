@@ -27,24 +27,28 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-03R | **Complete / Accepted** | Shared Application/operator boundary refactor; R9 regression PASS |
 | GUI | P-GUI-04 | **Complete / Accepted** | GUI shell / Workspace / navigation foundation |
 | GUI | P-GUI-05 | **Complete / Accepted** | Object / Source / Evidence / Association GUI |
-| GUI | P-GUI-06 | **Complete / Accepted** | Search / Similarity / Registry / Version GUI; Attempt 09 + interactive PASS |
-| GUI | P-GUI-07 | **Complete / Accepted** | Progress / error / safety / audit UX; automated + interactive PASS |
+| GUI | P-GUI-06 | **Complete / Accepted** | Search / Similarity / Registry / Version GUI |
+| GUI | P-GUI-07 | **Complete / Accepted** | Progress / error / safety / audit UX |
 | GUI | P-GUI-08 | **Complete / Accepted** | Package / Result GUI against accepted v2 Raw boundary |
-| GUI | P-GUI-09 | **Complete / Accepted** | System / Maintenance / MCP / Advanced GUI; Windows acceptance PASS |
-| GUI | P-GUI-10 | **Not Started / Next** | GUI parity / usability / regression acceptance |
+| GUI | P-GUI-09 | **Complete / Accepted** | System / Maintenance / MCP / Advanced GUI |
+| GUI | P-GUI-10 | **Complete / Accepted** | Final GUI parity / usability / regression acceptance |
 | RAW | P-RAW-01 | **Complete / Accepted** | Current Evidence Package / Result impact survey |
 | RAW | P-RAW-02 | **Complete / Accepted** | Deterministic Evidence -> Raw Artifact provenance resolution contract |
 | RAW | P-RAW-03 | **Complete / Accepted** | Versioned RAW-bearing Package v2 design |
 | RAW | P-RAW-04 | **Complete / Accepted** | Raw-grounded Object Result v2 design |
 | RAW | P-RAW-05 | **Complete / Accepted** | Resolver -> Package v2 -> Result v2 -> Raw provenance implementation |
-| RAW | P-RAW-06 | **Complete / Accepted** | Formal Raw operational acceptance, compatibility/cutover disposition, documentation closure |
+| RAW | P-RAW-06 | **Complete / Accepted** | Formal Raw operational acceptance / compatibility / docs closure |
 | Runtime | P-RUNTIME-01 | **Complete / Accepted** | Windows Qdrant runtime operational design / reference approach |
 | Runtime | P-RUNTIME-02 | **Complete / Accepted** | Reproducible pinned Qdrant Compose / configuration assets |
 | Runtime | P-RUNTIME-03 | **Complete / Accepted** | Shared CLI/GUI runtime health/status Application boundary |
-| Runtime | P-RUNTIME-04..06 | Not Started | Login auto-start / GUI Runtime Dashboard / recovery acceptance |
+| Runtime | P-RUNTIME-04 | **Not Started / Next** | Windows login auto-start integration |
+| Runtime | P-RUNTIME-05 | Not Started | GUI Runtime Dashboard integration |
+| Runtime | P-RUNTIME-06 | Not Started | Runtime failure / recovery acceptance |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
-## GUI baseline
+## GUI workstream — Complete / Accepted
+
+### Accepted architecture
 
 ```text
 Framework             = PySide6 / Qt Widgets
@@ -58,213 +62,69 @@ Qt linking            = dynamic / separate shared libraries
 
 GUI is not a CLI subprocess wrapper. Qdrant remains an independent shared runtime.
 
-## P-GUI-01..09 accepted baseline
+### Final public capability parity
+
+Normative inventory:
+
+- `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
+- `docs/reference/GUI_CLI_CAPABILITY_MATRIX_P_GUI_09_AMENDMENT.md`
+
+Accepted final inventory:
 
 ```text
-P-GUI-01..03R = Complete / Accepted
-P-GUI-04      = Complete / Accepted
-P-GUI-05      = Complete / Accepted
-P-GUI-06      = Complete / Accepted
-P-GUI-07      = Complete / Accepted
-P-GUI-08      = Complete / Accepted
-P-GUI-09      = Complete / Accepted
+PUBLIC_OPERATION_IDS    = 67
+SHARED_OPERATION_IDS    = 66
+TRANSPORT_OPERATION_IDS = {mcp.serve}
+shared GUI reachability = 66 / 66
+MCP GUI reachability    = 1 / 1 via external-client-owned stdio command/configuration surface
+unassigned operations   = 0
 ```
 
-P-GUI-06 final evidence:
+All canonical GUI operations continue through `OperatorSession` or, for the separate Advanced Search Generation inventory, `GenerationOperatorSession`. The GUI does not gain a hidden SQLite/Repository/shell canonical-write path.
+
+### P-GUI-10 final evidence
+
+Authority:
+
+- `docs/evaluation/P_GUI_10_GUI_PARITY_USABILITY_REGRESSION_ACCEPTANCE.md`
+- `tests/test_p_gui_10_parity_usability_acceptance.py`
+
+Final Windows acceptance:
 
 ```text
-focused regression = 29 / 29 PASS
-Ruff               = PASS
-full regression    = 818 / 818 PASS
-warnings           = 2 known local-Qdrant warnings
-interactive smoke  = PASS in accepted scope
-```
-
-P-GUI-07 final evidence:
-
-```text
-focused GUI gate   = 34 / 34 PASS
-Ruff               = PASS
-full regression    = 823 / 823 PASS
-warnings           = 2 known local-Qdrant warnings
-interactive smoke  = PASS in accepted scope
-```
-
-P-GUI-08 final evidence:
-
-```text
-focused Package / Result GUI = 4 / 4 PASS
-GUI regression               = 38 / 38 PASS
-Ruff src/tests               = PASS
-full repository regression   = 837 / 837 PASS
-warnings                     = 2 known local-Qdrant warnings
-GitHub Actions PR run         = 40945757254
-verified branch source        = 3015c01aaaecfe5800032ef25b7c9d92cb30e635
-verified synthetic merge      = 4010fd93efe4e04f20acff8b98068593d0ac44b5
-```
-
-P-GUI-08 accepted workflow:
-
-```text
-GUI Evidence selection
-  -> Package v2 build / Raw resolution
-  -> Raw Artifact inclusion + Evidence->Raw inspection
-  -> stage / preflight / acknowledged export
-  -> external Result
-  -> detect / receive / validate
-  -> current Knowledge + Raw grounding review
-  -> acknowledged import when required
-  -> accepted Knowledge Version with raw_grounding_links
-```
-
-The GUI selects v2 explicitly for the accepted Raw-grounded path, while the shared Application/CLI omitted-version default remains v1 until P-CLOSE-01.
-
-P-GUI-09 accepted boundary:
-
-```text
-public System operations         = 14 / 14 GUI-reachable
-Advanced Search Generation       = 6 / 6 GUI-reachable
-System execution                 = shared OperatorSession
-Generation execution             = shared GenerationOperatorSession
-Restore                          = Plan -> preview -> acknowledgement -> Apply
-MCP transport                    = stdio
-MCP lifecycle owner              = external MCP client / launcher
-GUI detached MCP start/stop      = no
-Qdrant lifecycle owner           = external
-system.status runtime projection = P-RUNTIME-03 data.runtime_health
-```
-
-P-GUI-09 final evidence:
-
-```text
-GitHub Actions run                = 41049707411 (#8)
-verified branch source            = e0456b12dfdfc8897ed21358dbc4c04ffef6c43d
-verified synthetic PR merge       = bfcd5caf63c5e072a1e844c85e47bc2411d57c19
-focused P-GUI-09                  = 6 / 6 PASS
-GUI regression                    = 44 / 44 PASS
+GitHub Actions run                = 41066089220 (#2)
+runner                            = Microsoft Windows Server 2025
+Python                            = 3.10.11
+verified branch source            = 225c99293e3fb346098e42d66625ddac3b30a501
+verified synthetic PR merge       = 7ec7dddfd6e5a2f5cb35df0c0f449fd33993fc7a
+focused P-GUI-10                  = 6 / 6 PASS
+scaled DPI smoke (1.5x)           = 1 / 1 PASS
+complete P-GUI regression         = 50 / 50 PASS
+CLI + MCP focused regression      = 59 / 59 PASS
 Ruff src/tests                    = PASS
-full repository regression        = 848 / 848 PASS
+full repository regression        = 854 / 854 PASS
 warnings                          = 2 known local-Qdrant warnings
 ```
 
-Final GUI authority includes:
+Historical run `41065681837 (#1)` failed only because the new acceptance test incorrectly expected a single literal `"mcp serve"` source string. The MCP assertion was replaced with live `SystemPage` behavior verification; product code and runtime semantics were not relaxed.
 
-- `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`
-- `docs/evaluation/P_GUI_06_FINAL_INTERACTIVE_ACCEPTANCE.md`
-- `docs/evaluation/P_GUI_07_DYNAMIC_VERIFICATION_ATTEMPT_01.md`
-- `docs/evaluation/P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md`
-- `docs/evaluation/P_GUI_08_PACKAGE_RESULT_GUI_IMPLEMENTATION.md`
-- `docs/evaluation/P_GUI_08_PACKAGE_RESULT_GUI_ACCEPTANCE.md`
-- `docs/operations/P_GUI_08_PACKAGE_RESULT_GUI_WORKFLOW.md`
-- `docs/design/P_GUI_09_SYSTEM_MAINTENANCE_MCP_ADVANCED_DESIGN.md`
-- `docs/decisions/P_GUI_09_MCP_STDIO_LIFECYCLE_DECISION.md`
-- `docs/reference/GUI_CLI_CAPABILITY_MATRIX_P_GUI_09_AMENDMENT.md`
-- `docs/evaluation/P_GUI_09_SYSTEM_MAINTENANCE_MCP_ADVANCED_ACCEPTANCE.md`
-
-P-GUI-09 is automated functional/contract acceptance. Final GUI-wide parity/usability closure remains owned by P-GUI-10.
-
-## P-RAW accepted baseline
-
-### P-RAW-01 — impact survey
-
-Authority:
-
-- `docs/evaluation/P_RAW_01_CURRENT_EVIDENCE_PACKAGE_RESULT_IMPACT_SURVEY.md`
-
-Accepted conclusion: Raw Grounding changes the external exchange / grounding boundary while preserving the core accepted Knowledge model. Evidence-Markdown external semantic authority, Evidence-only grounding membership, Evidence-ID-only Result grounding, and Evidence-only validation were identified as versioned breaking contracts.
-
-### P-RAW-02 — deterministic provenance resolution
-
-Authority:
-
-- `docs/design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md`
-
-Accepted resolver scope:
+Therefore:
 
 ```text
-Evidence
-  -> its own historical Normalization Run
-  -> ALL normalization_run_artifacts
-  -> exact Snapshot / Source generation
-  -> byte-size / SHA-256 verification
+P-GUI-01..10 = Complete / Accepted
+P-GUI workstream = Complete / Accepted for Phase P
 ```
 
-Same Raw ID is deduplicated at Package identity level; distinct Raw IDs are never collapsed merely because hashes match. Missing or inconsistent provenance fails closed and has no Evidence-Markdown fallback.
+Earlier GUI implementation and acceptance authorities remain authoritative for their task-local contracts, including P-GUI-06/07 interactive acceptance, P-GUI-08 Raw-grounded Package/Result workflow, and P-GUI-09 System/Maintenance/MCP/Advanced behavior.
 
-### P-RAW-03 — Package v2
+## P-RAW workstream — Complete / Accepted
 
-Authority:
-
-- `docs/design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md`
-
-Accepted Package family:
-
-```text
-Package schema     = sgokb.object-evidence-package/2.0
-instructions       = sgokb.object-analysis/2.0
-expected Result    = sgokb.object-result/2.0
-Raw grounding      = sgokb.raw-grounding/1.0
-resolver contract  = sgokb.evidence-to-raw/1.0
-```
-
-Package v2 transports exact Raw bytes at safe deterministic paths such as `raw/artifact_0001/payload`. Evidence remains selection/provenance metadata; semantic grounding membership authority is `manifest.raw_grounding.included_raw_artifact_ids`.
-
-### P-RAW-04 — Result v2
-
-Authority:
-
-- `docs/design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md`
-
-Accepted Result family:
-
-```text
-Result schema      = sgokb.object-result/2.0
-grounding target   = Package-member raw_artifact_id
-grounding field    = grounding[]
-```
-
-Optional mechanically verifiable locators are `byte_range` and `text_quote`. Import persistence remains version-specific:
-
-```text
-v1 -> evidence_links
-v2 -> raw_grounding_links
-```
-
-Result v2 import must not synthesize Evidence claim links.
-
-### P-RAW-05 — implementation
-
-Authority:
-
-- `docs/evaluation/P_RAW_05_RAW_GROUNDING_IMPLEMENTATION.md`
-- `docs/evaluation/P_RAW_05_VERIFICATION_ATTEMPT_01.md` — historical FAIL / remediation record
-- `docs/evaluation/P_RAW_05_VERIFICATION_ATTEMPT_02.md` — final PASS / acceptance
-
-Final P-RAW-05 evidence:
-
-```text
-focused P-RAW/v1 regression = 91 / 91 PASS
-migration regression        = 56 / 56 PASS
-Ruff                        = PASS
-full regression             = 827 / 827 PASS
-warnings                    = 2 known local-Qdrant warnings
-```
-
-### P-RAW-06 — formal acceptance / compatibility / documentation
-
-Authorities:
-
-- `docs/requirements/RAW_GROUNDING_REQUIREMENTS.md`
-- `docs/decisions/P_RAW_06_RAW_GROUNDING_CUTOVER_DECISION.md`
-- `docs/design/P_RAW_06_ACCEPTED_EXTERNAL_AI_BOUNDARY.md`
-- `docs/operations/P_RAW_06_RAW_GROUNDING_WORKFLOW.md`
-- `docs/evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md`
-
-Accepted operational boundary:
+### Accepted external AI boundary
 
 ```text
 selected Evidence
   -> original Normalization Run
+  -> ALL input Raw Artifacts
   -> exact verified Raw bytes
   -> Package v2
   -> external AI
@@ -274,17 +134,27 @@ selected Evidence
   -> accepted Version
 ```
 
-Final Windows acceptance evidence:
+Accepted contract family:
 
 ```text
-P-RAW-06 focused acceptance       = 6 / 6 PASS
-P-RAW / legacy v1 exchange gate   = 91 / 91 PASS
-Ruff src/tests                    = PASS
-full repository regression        = 833 / 833 PASS
-warnings                          = 2 known local-Qdrant warnings
-GitHub Actions run                = 40937273709
-verified branch source            = 5e4c8729f8d79c3f3fa956af9208aae98b1a2a48
+Package schema     = sgokb.object-evidence-package/2.0
+instructions       = sgokb.object-analysis/2.0
+Result schema      = sgokb.object-result/2.0
+Raw grounding      = sgokb.raw-grounding/1.0
+resolver contract  = sgokb.evidence-to-raw/1.0
 ```
+
+Key authorities:
+
+- `docs/requirements/RAW_GROUNDING_REQUIREMENTS.md`
+- `docs/design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md`
+- `docs/design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md`
+- `docs/design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md`
+- `docs/evaluation/P_RAW_05_VERIFICATION_ATTEMPT_02.md`
+- `docs/decisions/P_RAW_06_RAW_GROUNDING_CUTOVER_DECISION.md`
+- `docs/design/P_RAW_06_ACCEPTED_EXTERNAL_AI_BOUNDARY.md`
+- `docs/operations/P_RAW_06_RAW_GROUNDING_WORKFLOW.md`
+- `docs/evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md`
 
 Compatibility/cutover disposition:
 
@@ -302,19 +172,13 @@ Therefore:
 ```text
 P-RAW-01..06 = Complete / Accepted
 P-RAW workstream = Complete / Accepted for Phase P
-P-GUI-01..09 = Complete / Accepted
 ```
 
 ## P-RUNTIME accepted baseline
 
 ### P-RUNTIME-01 — Windows Qdrant runtime operational design
 
-Authorities:
-
-- `docs/evaluation/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_COMPARISON.md`
-- `docs/decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md`
-
-Accepted reference Windows runtime:
+Accepted reference runtime:
 
 ```text
 container runtime        = Docker Desktop / WSL 2
@@ -330,15 +194,26 @@ readiness                = Qdrant /readyz
 GUI / CLI lifecycle role = client / observer only
 ```
 
-The two local ports are required because the current `QdrantVectorIndexAdapter` uses `http://localhost:6333`, `grpc_port=6334`, and `prefer_grpc=True` by default.
+Authorities:
 
-Windows host bind mounts are not the reference Qdrant storage path. Qdrant's Windows Docker/WSL filesystem warning makes a named Docker volume the accepted persistence boundary.
-
-Native `qdrant.exe` + Task Scheduler, Windows service wrappers, WSL/systemd-only deployment, and ad-hoc Startup-folder scripts are not Phase P supported acceptance paths. The official native Windows binary is acknowledged only as an operator-controlled manual/experimental alternative.
-
-Docker Desktop remains an external prerequisite with its own installation and subscription terms; SGOKB does not bundle or silently install it.
+- `docs/evaluation/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_COMPARISON.md`
+- `docs/decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md`
 
 ### P-RUNTIME-02 — Qdrant Compose / configuration assets
+
+Accepted repository runtime:
+
+```text
+Compose project        = sgokb-qdrant
+image                  = qdrant/qdrant:v1.20.0
+restart                = unless-stopped
+HTTP                   = 127.0.0.1:6333
+preferred gRPC         = 127.0.0.1:6334
+persistent volume      = sgokb_qdrant_storage
+container storage      = /qdrant/storage
+health/readiness       = /readyz -> HTTP 200
+local override         = QDRANT_LOG_LEVEL only
+```
 
 Authorities:
 
@@ -348,48 +223,7 @@ Authorities:
 - `docs/operations/P_RUNTIME_02_QDRANT_COMPOSE_RUNTIME.md`
 - `docs/evaluation/P_RUNTIME_02_QDRANT_COMPOSE_CONFIGURATION_ACCEPTANCE.md`
 
-Accepted repository runtime:
-
-```text
-Compose project           = sgokb-qdrant
-image                     = qdrant/qdrant:v1.20.0
-restart                   = unless-stopped
-HTTP                      = 127.0.0.1:6333
-preferred gRPC            = 127.0.0.1:6334
-6335                      = not published
-persistent volume         = sgokb_qdrant_storage
-container storage         = /qdrant/storage
-health/readiness          = /readyz -> HTTP 200
-local override            = QDRANT_LOG_LEVEL only
-```
-
-Final P-RUNTIME-02 evidence:
-
-```text
-GitHub Actions run          = 40961873913
-verified branch source      = 1732322b7a0d40dbd4838e3b62cebea1fb458baf
-verified synthetic merge    = 56b2ee1d1c83e0f4c84c27575ed8fdbcbb7bade9
-Compose render              = PASS
-focused contract tests      = 2 / 2 PASS
-real Qdrant v1.20.0         = PASS
-/readyz                     = PASS
-named-volume persistence    = PASS
-recreate / second readiness = PASS
-Ruff src/tests              = PASS
-Windows full regression     = 839 / 839 PASS
-warnings                    = 2 known local-Qdrant warnings
-```
-
-P-RUNTIME-02 verifies runtime construction and persistence. P-RUNTIME-04 still owns Windows login auto-start ordering/recovery acceptance.
-
 ### P-RUNTIME-03 — Runtime health/status Application boundary
-
-Authorities:
-
-- `docs/design/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_APPLICATION_BOUNDARY.md`
-- `docs/evaluation/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_ACCEPTANCE.md`
-- `src/sgokb/runtime_health.py`
-- `src/sgokb/application_system.py`
 
 Accepted shared observation contract:
 
@@ -405,23 +239,12 @@ embedding status read      = shallow / no model load / no download
 qdrant readiness authority = /readyz
 ```
 
-Final P-RUNTIME-03 evidence:
+Authorities:
 
-```text
-GitHub Actions run          = 40968417323
-workflow run                = #5 PASS
-verified branch source      = 90f699a094d9426a7b26c1995b46fdb7ce377150
-verified synthetic merge    = 1cbf1cabca97477e9932795c2ce5700ebe058897
-focused contract tests      = 3 / 3 PASS
-Ruff src/tests              = PASS
-real Qdrant v1.20.0         = healthy
-live system.status probe    = PASS
-reported Qdrant version     = 1.20.0
-Windows full regression     = 842 / 842 PASS
-warnings                    = 2 known local-Qdrant warnings
-```
-
-Component runtime failures remain observable state with stable issue category/code/message instead of normally failing the complete `system.status` call. The boundary performs no Docker/Qdrant lifecycle action and no derived rebuild.
+- `docs/design/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_APPLICATION_BOUNDARY.md`
+- `docs/evaluation/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_ACCEPTANCE.md`
+- `src/sgokb/runtime_health.py`
+- `src/sgokb/application_system.py`
 
 Therefore:
 
@@ -429,35 +252,36 @@ Therefore:
 P-RUNTIME-01 = Complete / Accepted
 P-RUNTIME-02 = Complete / Accepted
 P-RUNTIME-03 = Complete / Accepted
-P-GUI-09     = Complete / Accepted
 ```
+
+P-RUNTIME-04 still owns actual Windows login/restart startup ordering, readiness/retry, troubleshooting, and unexpected-stop recovery verification. P-RUNTIME-05 owns the dedicated GUI Runtime Dashboard; P-RUNTIME-06 owns failure/recovery acceptance.
 
 ## Sequencing
 
 ```text
-P-GUI-01..09 Complete / Accepted
+P-GUI-01..10 Complete / Accepted
         ↓
 P-RAW-01..06 Complete / Accepted
         ↓
 P-RUNTIME-01..03 Complete / Accepted
         ↓
-P-GUI-10   <- NEXT (GUI priority)
+P-RUNTIME-04   <- NEXT
         ↓
-P-RUNTIME-04..06
+P-RUNTIME-05
+        ↓
+P-RUNTIME-06
         ↓
 P-CLOSE-01
 ```
 
-P-GUI-09 has consumed the accepted shared `system.status.runtime_health` model without taking Qdrant lifecycle ownership. The final GUI-wide coverage/usability closure now belongs to P-GUI-10. Runtime login auto-start/dashboard/recovery remain P-RUNTIME-04..06 scope.
-
 ## Current authority boundary
 
-Phase P remains in development. Released system semantics continue to be governed by release `v1.1.0` until Phase P closure/release integration.
+Phase P remains in development. Released-system semantics continue to be governed by release `v1.1.0` until Phase P closure/release integration.
 
-P-GUI-01 through P-GUI-09, P-RAW-01 through P-RAW-06, and P-RUNTIME-01 through P-RUNTIME-03 are accepted development baselines. The Qdrant runtime remains an independent external runtime; `system.status.runtime_health` is the accepted shared observation boundary for CLI/GUI, while MCP stdio lifecycle remains external-client-owned.
+P-GUI-01 through P-GUI-10, P-RAW-01 through P-RAW-06, and P-RUNTIME-01 through P-RUNTIME-03 are accepted development baselines. The Qdrant runtime remains independently owned outside SGOKB; `system.status.runtime_health` is the accepted shared observation boundary for CLI/GUI, while MCP stdio lifecycle remains external-client-owned.
 
 ## Next
 
 ```text
-P-GUI-10 — GUI parity / usability / regression acceptance
+P-RUNTIME-04 — Windows login auto-start integration
 ```
