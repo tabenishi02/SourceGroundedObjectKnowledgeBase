@@ -1,7 +1,8 @@
 """Explicit operator entrypoint for R2 Derived Search generation lifecycle.
 
 This module is intentionally separate from normal read commands. It can be invoked
-with ``python -m sgokb.cli.generation`` during R2-07 operational verification.
+with ``python -m sgokb.cli.generation``.  P-GUI-09 keeps CLI and GUI on the same
+transport-neutral generation operator session.
 """
 
 from __future__ import annotations
@@ -12,11 +13,10 @@ import json
 from enum import Enum
 from pathlib import Path
 
-from sgokb.application_generation import (
-    LEGACY_GENERATION_ID,
-    KnowledgeSearchGenerationApplication,
-)
-from sgokb.repository import Repository
+from sgokb.application_generation import LEGACY_GENERATION_ID
+from sgokb.application_generation_operator import GenerationOperatorSession
+from sgokb.operation_contracts import OperationRequest
+from sgokb.runtime import RuntimeFactory
 
 from .runtime import semantic_runtime
 
@@ -59,43 +59,23 @@ def parser() -> argparse.ArgumentParser:
     return root
 
 
+def _request(args) -> OperationRequest:
+    arguments: dict[str, object] = {}
+    if args.action in {"bootstrap", "cutover", "rollback", "recover"}:
+        arguments["reason"] = args.reason
+    if args.action in {"cutover", "rollback"}:
+        arguments["generation_id"] = args.generation_id
+        arguments["smoke"] = not args.no_smoke
+    return OperationRequest(f"generation.{args.action}", arguments)
+
+
 def run(arguments=None):
     args = parser().parse_args(arguments)
-    repository = Repository(args.db)
-    try:
-        if args.action == "status":
-            app = KnowledgeSearchGenerationApplication(repository)
-            return app.status()
-
-        provider, vector = semantic_runtime()
-        app = KnowledgeSearchGenerationApplication(
-            repository,
-            embedding_provider=provider,
-            vector_index=vector,
-        )
-        if args.action == "bootstrap":
-            return app.bootstrap_legacy(reason=args.reason)
-        if args.action == "build":
-            return app.build_r2_candidate()
-        if args.action == "cutover":
-            return app.cutover(
-                args.generation_id,
-                reason=args.reason,
-                smoke=not args.no_smoke,
-            )
-        if args.action == "rollback":
-            return app.rollback(
-                args.generation_id,
-                reason=args.reason,
-                smoke=not args.no_smoke,
-            )
-        if args.action == "recover":
-            return {
-                "recovered_generation_count": app.recover_interrupted_builds(reason=args.reason)
-            }
-        raise AssertionError(f"Unknown generation action: {args.action}")
-    finally:
-        repository.close()
+    # Keep the historical module-level ``semantic_runtime`` hook patchable for tests
+    # while sharing the actual lifecycle dispatcher with the GUI.
+    factory = RuntimeFactory(semantic_builder=lambda: semantic_runtime())
+    outcome = GenerationOperatorSession(args.db, runtime_factory=factory).execute(_request(args))
+    return outcome.data
 
 
 def main() -> int:
