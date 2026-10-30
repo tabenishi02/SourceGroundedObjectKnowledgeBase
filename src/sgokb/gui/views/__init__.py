@@ -13,12 +13,13 @@ _search_page.SearchPage = SearchPage
 from .association_page import AssociationPage  # noqa: E402
 from .evidence_page import EvidencePage  # noqa: E402
 from .main_window import NAVIGATION_ITEMS  # noqa: E402
-from .main_window_package_result import MainWindow  # noqa: E402
+from .main_window_system import MainWindow  # noqa: E402
 from .object_page import ObjectPage  # noqa: E402
 from .package_result_detection import ResultPage  # noqa: E402
 from .package_result_page import PackagePage  # noqa: E402
 from .registry_page import RegistryPage  # noqa: E402
 from .source_page import SourcePage  # noqa: E402
+from .system_page import SystemPage  # noqa: E402
 
 __all__ = [
     "AssociationPage",
@@ -31,4 +32,5 @@ __all__ = [
     "ResultPage",
     "SearchPage",
     "SourcePage",
+    "SystemPage",
 ]
