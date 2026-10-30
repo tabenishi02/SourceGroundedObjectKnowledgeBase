@@ -10,6 +10,7 @@ Updated: 2026-10-31
 - Task authority: [`PHASE_P_TASKS.md`](PHASE_P_TASKS.md)
 - P-RUNTIME-04 runtime-form amendment: [`P_RUNTIME_04_NATIVE_WINDOWS_TASK_AMENDMENT.md`](P_RUNTIME_04_NATIVE_WINDOWS_TASK_AMENDMENT.md)
 - P-RUNTIME-04 crash-recovery remediation: [`P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md`](../../../design/P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md)
+- P-RUNTIME-04 hosted-CI blocker evidence: [`P_RUNTIME_04_GITHUB_ACTIONS_BILLING_BLOCKER.md`](../../../evaluation/P_RUNTIME_04_GITHUB_ACTIONS_BILLING_BLOCKER.md)
 
 ## Accepted modernization direction
 
@@ -28,7 +29,7 @@ Priority 3: Runtime / Qdrant auto-start
 | Runtime | P-RUNTIME-01 | **Complete / Accepted / Amended** | Windows reference = native Qdrant + Task Scheduler; recovery mechanism amended |
 | Runtime | P-RUNTIME-02 | **Complete / Accepted** | Compose retained as optional/historical Docker profile |
 | Runtime | P-RUNTIME-03 | **Complete / Accepted** | Shared CLI/GUI runtime health/status Application boundary |
-| Runtime | P-RUNTIME-04 | **In Progress / Repository CI Pending** | Reference-host reboot/sign-in and remediated crash recovery both PASS; only executable Windows CI remains unresolved |
+| Runtime | P-RUNTIME-04 | **In Progress / Repository CI Pending** | Reference-host and local remediation validation PASS; hosted Windows CI cannot start because GitHub billing/spending state blocks runner assignment |
 | Runtime | P-RUNTIME-05 | **Blocked / Not Started** | GUI Runtime Dashboard integration; blocked until P-RUNTIME-04 formal repository acceptance |
 | Runtime | P-RUNTIME-06 | Not Started | Runtime failure / recovery acceptance |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
@@ -194,60 +195,48 @@ reference-host Gate 2 SGOKB Qdrant health       = PASS
 P-RUNTIME-04 reference-host acceptance          = Complete / Accepted
 ```
 
-### Current automated acceptance state
-
-The remediation Windows workflow has repeatedly terminated before runner assignment. Observed jobs have:
-
-```text
-runner_id = 0
-steps     = []
-```
-
-These are runner-start/infrastructure failures, not executed product/test failures. They also do not provide repository acceptance evidence.
-
-Current state:
-
-```text
-remediation design                         = Complete
-remediation implementation                 = Complete on PR #81
-reference-host Gate 1                      = PASS
-reference-host Gate 2 remediated design    = PASS
-reference-host acceptance                  = Complete / Accepted
-remediated Windows CI                      = Pending / runner infrastructure blocked
-P-RUNTIME-04 overall                       = In Progress / Repository CI Pending
-```
-
-P-RUNTIME-05 remains blocked until P-RUNTIME-04 repository acceptance closes.
-
 ## Local Windows remediation validation (2026-10-31)
 
 Tested HEAD `ad9c3b29d2d6571534d6bb72fcabe3e88255ca85`; local run `20261031T041657+0900`;
 Windows 11 / PowerShell 7.6.9.
 
 - Registration and verification PowerShell parse: PASS / 0 syntax errors each.
-- Disposable `\SGOKB-Acceptance-Local\QdrantRecoverySmoke`: PASS; worker
-  **38356 -> 42796**, no manual restart after force termination, 60-second
-  repeating trigger, recovered Running and synthetic `/readyz` HTTP 200.
+- Disposable `\SGOKB-Acceptance-Local\QdrantRecoverySmoke`: PASS; worker **38356 -> 42796**, no manual restart after force termination, 60-second repeating trigger, recovered Running and synthetic `/readyz` HTTP 200.
 - Focused P-RUNTIME: **9 passed / 0 failed**; Ruff `src tests`: PASS.
-- Full repository: **858 passed / 0 failed / 0 skipped / 2 existing local-Qdrant
-  warnings**, verified from the actual warning messages.
+- Full repository: **858 passed / 0 failed / 0 skipped / 2 existing local-Qdrant warnings**.
 - All disposable task/process/server/temp/folder resources cleaned up.
-- Production PID **41480**, Task definition, config and canonical digest unchanged;
-  production `/readyz` HTTP 200; SGOKB Qdrant healthy / ready=true / version 1.19.2.
+- Production PID **41480**, Task definition, config and canonical digest unchanged; production `/readyz` HTTP 200; SGOKB Qdrant healthy / ready=true / version 1.19.2.
+
+Local Windows validation does not substitute for hosted CI.
+
+### Hosted GitHub Actions blocker — billing/spending state
+
+The latest remediation workflow run `41115542118`, attempt 2, did not start a runner. GitHub CLI exposed the authoritative job annotation:
+
+```text
+The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings
+```
+
+Observed job state:
+
+```text
+runner_id = 0
+steps     = []
+```
+
+This is not a product/test failure and is more specific than the earlier generic runner-infrastructure classification. The repository CI gate is blocked by the GitHub account billing/spending state before runner assignment.
+
+Current state:
 
 ```text
 reference-host acceptance       = Complete / Accepted
 local remediation validation    = PASS
-GitHub Actions remediation CI   = Pending / runner infrastructure blocked
+GitHub Actions remediation CI   = Pending / billing-spending blocker
 P-RUNTIME-04 overall            = In Progress / Repository CI Pending
 P-RUNTIME-05                    = Blocked / Not Started
 ```
 
-Local Windows validation does not substitute for hosted CI. Latest observed
-remediation run `41112893738` had `runner_id=0` / `steps=[]`. A later push-triggered
-run must be assessed independently. PR #81 is not merged by this validation.
-Details: `docs/evaluation/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART_ACCEPTANCE.md`
-section 15 and `benchmark/results/p-runtime-04-local-remediation-validation.json`.
+Evidence: `docs/evaluation/P_RUNTIME_04_GITHUB_ACTIONS_BILLING_BLOCKER.md`.
 
 ## Sequencing
 
@@ -258,7 +247,7 @@ P-RAW-01..06 Complete / Accepted
         ↓
 P-RUNTIME-01..03 Complete / Accepted
         ↓
-P-RUNTIME-04 reference-host PASS / repository CI pending  <- CURRENT
+P-RUNTIME-04 reference-host PASS / local PASS / hosted CI billing-blocked  <- CURRENT
         ↓
 P-RUNTIME-05
         ↓
@@ -274,9 +263,10 @@ Phase P remains in development; released-system semantics continue to be governe
 ## Next
 
 ```text
-1. obtain one executable Windows CI run for PR #81;
-2. require dynamic scheduled-worker crash-recovery smoke PASS;
-3. require focused P-RUNTIME tests, Ruff, and full regression PASS;
-4. if PASS, merge PR #81 and close P-RUNTIME-04 as Complete / Accepted;
-5. unblock P-RUNTIME-05.
+1. resolve the GitHub account billing / Actions budget condition;
+2. rerun P-RUNTIME-04 Windows acceptance and require an actual hosted Windows runner;
+3. require dynamic scheduled-worker crash-recovery smoke PASS;
+4. require focused P-RUNTIME tests, Ruff, and full regression PASS;
+5. if PASS, merge PR #81 and close P-RUNTIME-04 as Complete / Accepted;
+6. unblock P-RUNTIME-05.
 ```
