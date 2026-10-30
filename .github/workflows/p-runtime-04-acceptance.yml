@@ -40,6 +40,58 @@ jobs:
             exit 1
           }
 
+      - name: Dynamic readiness observer smoke
+        shell: pwsh
+        run: |
+          $fakeBin = Join-Path $env:RUNNER_TEMP "fake-docker"
+          New-Item -ItemType Directory -Force $fakeBin | Out-Null
+          @'
+          param([Parameter(ValueFromRemainingArguments=$true)][string[]]$DockerArgs)
+          if ($DockerArgs[0] -eq "info") { "27.5.1"; exit 0 }
+          if ($DockerArgs[0] -eq "compose") { "p-runtime-04-test-container"; exit 0 }
+          if ($DockerArgs[0] -eq "inspect") {
+              $format = $DockerArgs[2]
+              if ($format -match "RestartPolicy") { "unless-stopped"; exit 0 }
+              if ($format -match "State.Status") { "running"; exit 0 }
+              if ($format -match "State.Health") { "healthy"; exit 0 }
+          }
+          exit 1
+          '@ | Set-Content -Encoding utf8 (Join-Path $fakeBin "docker.ps1")
+          $env:PATH = "$fakeBin;$env:PATH"
+
+          $serverPath = Join-Path $env:RUNNER_TEMP "readyz_server.py"
+          @'
+          from http.server import BaseHTTPRequestHandler, HTTPServer
+
+          class Handler(BaseHTTPRequestHandler):
+              def do_GET(self):
+                  if self.path == "/readyz":
+                      self.send_response(200)
+                  else:
+                      self.send_response(404)
+                  self.end_headers()
+
+              def log_message(self, format, *args):
+                  pass
+
+          HTTPServer(("127.0.0.1", 6333), Handler).serve_forever()
+          '@ | Set-Content -Encoding utf8 $serverPath
+
+          $server = Start-Process python -ArgumentList $serverPath -PassThru
+          try {
+            Start-Sleep -Seconds 1
+            $receipt = & ./runtime/qdrant/verify-windows-login-readiness.ps1 `
+              -TimeoutSeconds 10 -PollIntervalSeconds 1 | ConvertFrom-Json
+            if (-not $receipt.ready) { throw "observer did not report ready=true" }
+            if ($receipt.restart_policy -ne "unless-stopped") { throw "restart policy mismatch" }
+            if ($receipt.lifecycle_owner -ne "external") { throw "lifecycle ownership mismatch" }
+            if ($receipt.readiness_status -ne 200) { throw "readiness status mismatch" }
+            $receipt | ConvertTo-Json -Depth 3
+          }
+          finally {
+            if ($server -and -not $server.HasExited) { Stop-Process -Id $server.Id -Force }
+          }
+
       - name: Focused P-RUNTIME regression
         shell: pwsh
         run: python -m pytest -q tests/test_p_runtime_02_qdrant_compose_assets.py tests/test_p_runtime_03_runtime_health_boundary.py tests/test_p_runtime_04_windows_login_autostart.py
