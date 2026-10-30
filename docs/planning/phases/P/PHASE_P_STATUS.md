@@ -10,7 +10,8 @@ Updated: 2026-10-31
 - Task authority: [`PHASE_P_TASKS.md`](PHASE_P_TASKS.md)
 - P-RUNTIME-04 runtime-form amendment: [`P_RUNTIME_04_NATIVE_WINDOWS_TASK_AMENDMENT.md`](P_RUNTIME_04_NATIVE_WINDOWS_TASK_AMENDMENT.md)
 - P-RUNTIME-04 crash-recovery remediation: [`P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md`](../../../design/P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md)
-- P-RUNTIME-04 hosted-CI blocker evidence: [`P_RUNTIME_04_GITHUB_ACTIONS_BILLING_BLOCKER.md`](../../../evaluation/P_RUNTIME_04_GITHUB_ACTIONS_BILLING_BLOCKER.md)
+- P-RUNTIME-04 acceptance: [`P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART_ACCEPTANCE.md`](../../../evaluation/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART_ACCEPTANCE.md)
+- P-RUNTIME-04 hosted-CI deferred verification: [`P_RUNTIME_04_GITHUB_ACTIONS_BILLING_BLOCKER.md`](../../../evaluation/P_RUNTIME_04_GITHUB_ACTIONS_BILLING_BLOCKER.md)
 
 ## Accepted modernization direction
 
@@ -26,11 +27,11 @@ Priority 3: Runtime / Qdrant auto-start
 |---|---|---|---|
 | GUI | P-GUI-01..10 | **Complete / Accepted** | PySide6 GUI, shared Application boundary, parity/usability/regression acceptance |
 | RAW | P-RAW-01..06 | **Complete / Accepted** | Raw-bearing Package/Result v2 and raw provenance workflow |
-| Runtime | P-RUNTIME-01 | **Complete / Accepted / Amended** | Windows reference = native Qdrant + Task Scheduler; recovery mechanism amended |
+| Runtime | P-RUNTIME-01 | **Complete / Accepted / Amended** | Windows reference = native Qdrant + Task Scheduler; repeating-trigger crash recovery accepted |
 | Runtime | P-RUNTIME-02 | **Complete / Accepted** | Compose retained as optional/historical Docker profile |
 | Runtime | P-RUNTIME-03 | **Complete / Accepted** | Shared CLI/GUI runtime health/status Application boundary |
-| Runtime | P-RUNTIME-04 | **In Progress / Repository CI Pending** | Reference-host and local remediation validation PASS; hosted Windows CI cannot start because GitHub billing/spending state blocks runner assignment |
-| Runtime | P-RUNTIME-05 | **Blocked / Not Started** | GUI Runtime Dashboard integration; blocked until P-RUNTIME-04 formal repository acceptance |
+| Runtime | P-RUNTIME-04 | **Complete / Accepted** | Reference-host and local remediation validation PASS; hosted Windows CI deferred as non-blocking verification debt due GitHub billing/spending limit |
+| Runtime | P-RUNTIME-05 | **Unblocked / Ready** | GUI Runtime Dashboard integration is now the next Runtime task |
 | Runtime | P-RUNTIME-06 | Not Started | Runtime failure / recovery acceptance |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
@@ -102,141 +103,93 @@ start / stop / restart     = false / false / false
 qdrant readiness authority = /readyz
 ```
 
-## P-RUNTIME-04 — Windows login auto-start / crash recovery
+## P-RUNTIME-04 — Complete / Accepted
 
-### Historical evidence
+### Historical root-cause evidence
 
-Original Windows CI run `41091876482 (#43)` accepted the initial native Task Scheduler repository assets:
-
-```text
-PowerShell parse                   = PASS
-Task Scheduler registration smoke = PASS
-focused P-RUNTIME regression       = 8 / 8 PASS
-Ruff                               = PASS
-full repository regression         = 857 / 857 PASS
-```
-
-Real-host lifecycle evidence then showed:
+Original Windows CI run `41091876482 (#43)` accepted the initial native Task Scheduler repository assets, but the real host later proved `RestartOnFailure` alone did not restart an already-running long-lived Qdrant process after forced termination.
 
 ```text
-Gate 1 reboot -> sign-in -> automatic Qdrant start
-= PASS
-
-Gate 2 attempt A / S4U / RestartOnFailure-only
-= FAIL
-
-Gate 2 attempt B / InteractiveToken / RestartOnFailure-only
-= FAIL
+Gate 1 reboot -> sign-in -> automatic Qdrant start                    = PASS
+Gate 2 attempt A / S4U / RestartOnFailure-only                         = FAIL
+Gate 2 attempt B / Interactive / RestartOnFailure-only                 = FAIL
 ```
 
-Attempt B established that the S4U mismatch was not the root cause. `RestartOnFailure` was rejected as the sole long-running-process crash supervisor.
+Attempt B established that the S4U drift was not the crash-recovery root cause.
 
-### Accepted remediation design
+### Accepted remediation
 
 ```text
 Task      = \SGOKB\Qdrant
 Trigger A = AtLogOn
-Trigger B = repeating time trigger / recovery pulse
+Trigger B = repeating TimeTrigger / recovery pulse
             default interval = 60 seconds
-            Duration omitted = indefinite repetition
+            duration = indefinite
 Action    = qdrant.exe directly
 Principal = Interactive / Limited
 Policy    = MultipleInstances=IgnoreNew
 ```
 
-Normal operation:
+### Reference-host acceptance
 
 ```text
-Qdrant Running -> recovery pulse -> IgnoreNew -> no duplicate instance
+verifier schema                         = sgokb.qdrant-windows-autostart-check/1.1
+principal                              = Interactive
+trigger count                           = 2
+recovery interval                       = 60 seconds
+forced qdrant.exe termination           = performed
+manual Start-ScheduledTask after crash  = none
+replacement qdrant.exe                  = PID 41480
+recovered /readyz                       = HTTP 200 / all shards are ready
+SGOKB qdrant.status                     = healthy
+SGOKB qdrant.ready                      = true
+SGOKB qdrant.version                    = 1.19.2
+reference-host acceptance               = Complete / Accepted
 ```
 
-Unexpected process exit:
+### Local workflow-equivalent validation
+
+Windows 11 / PowerShell 7.6.9 validation passed:
 
 ```text
-qdrant.exe exits -> task Ready -> next recovery pulse -> new qdrant.exe -> /readyz
+Register/Test script parse      = PASS / 0 syntax errors
+Disposable recovery smoke       = PASS / PID 38356 -> 42796
+Manual restart after crash      = none
+Focused P-RUNTIME               = 9 passed / 0 failed
+Ruff                            = PASS
+Full regression                 = 858 passed / 0 failed / 0 skipped
+Warnings                        = 2 existing local-Qdrant warnings / no new warning
+Production Qdrant after test    = unchanged / readyz 200 / SGOKB healthy
 ```
 
-### Remediated reference-host acceptance
+### Hosted CI deferred verification
 
-The supported workstation was re-registered from PR #81 with verifier schema `sgokb.qdrant-windows-autostart-check/1.1`.
-
-Pre-crash verification:
+GitHub-hosted remediation jobs did not execute workflow steps. Run `41115542118`, attempt 2, was blocked before runner assignment with GitHub's billing/spending annotation:
 
 ```text
-principal_logon_type      = Interactive
-trigger_count             = 2
-recovery_interval         = PT1M
-recovery_interval_seconds = 60
-ready_status              = 200
+The job was not started because recent account payments have failed or your spending limit needs to be increased.
 ```
 
-Crash-recovery retest:
-
-```text
-force-terminate qdrant.exe
--> no manual Start-ScheduledTask
--> next recovery pulse executes task
--> replacement qdrant.exe PID = 41480
--> /readyz = HTTP 200 / all shards are ready
--> SGOKB system.status qdrant.status = healthy
--> qdrant.ready = true
--> qdrant.version = 1.19.2
-```
-
-The SGOKB top-level `runtime_health.overall_status` was `degraded` only because unrelated generation and derived-state components were degraded. The Qdrant component itself was healthy, so P-RUNTIME-04 reference-host acceptance is unaffected.
-
-Therefore:
-
-```text
-reference-host Gate 1                          = PASS
-reference-host Gate 2 automatic process        = PASS
-reference-host Gate 2 /readyz                   = PASS
-reference-host Gate 2 SGOKB Qdrant health       = PASS
-P-RUNTIME-04 reference-host acceptance          = Complete / Accepted
-```
-
-## Local Windows remediation validation (2026-10-31)
-
-Tested HEAD `ad9c3b29d2d6571534d6bb72fcabe3e88255ca85`; local run `20261031T041657+0900`;
-Windows 11 / PowerShell 7.6.9.
-
-- Registration and verification PowerShell parse: PASS / 0 syntax errors each.
-- Disposable `\SGOKB-Acceptance-Local\QdrantRecoverySmoke`: PASS; worker **38356 -> 42796**, no manual restart after force termination, 60-second repeating trigger, recovered Running and synthetic `/readyz` HTTP 200.
-- Focused P-RUNTIME: **9 passed / 0 failed**; Ruff `src tests`: PASS.
-- Full repository: **858 passed / 0 failed / 0 skipped / 2 existing local-Qdrant warnings**.
-- All disposable task/process/server/temp/folder resources cleaned up.
-- Production PID **41480**, Task definition, config and canonical digest unchanged; production `/readyz` HTTP 200; SGOKB Qdrant healthy / ready=true / version 1.19.2.
-
-Local Windows validation does not substitute for hosted CI.
-
-### Hosted GitHub Actions blocker — billing/spending state
-
-The latest remediation workflow run `41115542118`, attempt 2, did not start a runner. GitHub CLI exposed the authoritative job annotation:
-
-```text
-The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings
-```
-
-Observed job state:
+Observed state:
 
 ```text
 runner_id = 0
 steps     = []
 ```
 
-This is not a product/test failure and is more specific than the earlier generic runner-infrastructure classification. The repository CI gate is blocked by the GitHub account billing/spending state before runner assignment.
+The task authority for P-RUNTIME-04 does not require GitHub-hosted CI as a mandatory completion condition. Because reference-host lifecycle acceptance and local workflow-equivalent validation both passed, hosted CI is retained as **non-blocking deferred verification debt**, not counted as a CI PASS.
 
-Current state:
+Formal closure:
 
 ```text
 reference-host acceptance       = Complete / Accepted
 local remediation validation    = PASS
-GitHub Actions remediation CI   = Pending / billing-spending blocker
-P-RUNTIME-04 overall            = In Progress / Repository CI Pending
-P-RUNTIME-05                    = Blocked / Not Started
+GitHub Actions remediation CI   = Deferred / external billing-spending constraint
+P-RUNTIME-04 overall            = Complete / Accepted
+P-RUNTIME-05                    = Unblocked / Ready
 ```
 
-Evidence: `docs/evaluation/P_RUNTIME_04_GITHUB_ACTIONS_BILLING_BLOCKER.md`.
+When GitHub Actions capacity returns, run the hosted Windows workflow. A later genuine product/portability failure becomes new remediation work; it does not invalidate the fact that P-RUNTIME-04 met its accepted reference-host completion criteria at closure.
 
 ## Sequencing
 
@@ -245,11 +198,9 @@ P-GUI-01..10 Complete / Accepted
         ↓
 P-RAW-01..06 Complete / Accepted
         ↓
-P-RUNTIME-01..03 Complete / Accepted
+P-RUNTIME-01..04 Complete / Accepted
         ↓
-P-RUNTIME-04 reference-host PASS / local PASS / hosted CI billing-blocked  <- CURRENT
-        ↓
-P-RUNTIME-05
+P-RUNTIME-05  <- NEXT / UNBLOCKED
         ↓
 P-RUNTIME-06
         ↓
@@ -258,15 +209,12 @@ P-CLOSE-01
 
 ## Current authority boundary
 
-Phase P remains in development; released-system semantics continue to be governed by `v1.1.0` until Phase P closure/release integration. Qdrant remains independently owned outside SGOKB. `system.status.runtime_health` remains the shared CLI/GUI observation boundary and exposes no Qdrant lifecycle actions. The P-RUNTIME-04 remediation changes only the external Windows Task Scheduler configuration and operator procedure.
+Phase P remains in development; released-system semantics continue to be governed by `v1.1.0` until Phase P closure/release integration. Qdrant remains independently owned outside SGOKB. `system.status.runtime_health` remains the shared CLI/GUI observation boundary and exposes no Qdrant lifecycle actions.
 
 ## Next
 
 ```text
-1. resolve the GitHub account billing / Actions budget condition;
-2. rerun P-RUNTIME-04 Windows acceptance and require an actual hosted Windows runner;
-3. require dynamic scheduled-worker crash-recovery smoke PASS;
-4. require focused P-RUNTIME tests, Ruff, and full regression PASS;
-5. if PASS, merge PR #81 and close P-RUNTIME-04 as Complete / Accepted;
-6. unblock P-RUNTIME-05.
+1. begin P-RUNTIME-05 GUI Runtime Dashboard integration;
+2. retain hosted P-RUNTIME-04 CI as deferred verification debt;
+3. when GitHub Actions capacity returns, execute the deferred hosted Windows verification and record its result without blocking current Phase P progression.
 ```
