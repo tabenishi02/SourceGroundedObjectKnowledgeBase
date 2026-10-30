@@ -74,8 +74,9 @@ if ($task.Settings.MultipleInstances -ne "IgnoreNew") {
 if ($task.Settings.RestartCount -lt 1) {
     throw "Scheduled task must enable restart-on-failure."
 }
-if ($task.Settings.RestartInterval.TotalMinutes -lt 1) {
-    throw "Scheduled task restart interval must be at least one minute."
+$restartInterval = [string]$task.Settings.RestartInterval
+if ([string]::IsNullOrWhiteSpace($restartInterval)) {
+    throw "Scheduled task must configure a restart interval."
 }
 
 $action = $task.Actions[0]
@@ -97,7 +98,7 @@ $result = [ordered]@{
     arguments = [string]$action.Arguments
     working_directory = [string]$action.WorkingDirectory
     restart_count = [int]$task.Settings.RestartCount
-    restart_interval = [string]$task.Settings.RestartInterval
+    restart_interval = $restartInterval
     last_run_time = $taskInfo.LastRunTime.ToString("o")
     last_task_result = [int64]$taskInfo.LastTaskResult
     ready_url = $ReadyUrl
