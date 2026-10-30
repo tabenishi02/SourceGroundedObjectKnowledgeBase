@@ -1,244 +1,315 @@
 # P-RUNTIME-04 — Windows Login Auto-start Integration
 
 Date: 2026-10-31
+Status: **Implementation Complete / Device Acceptance Pending**
 Task: `P-RUNTIME-04 [P1] Windows login auto-start integration`
 
 ## 1. Purpose
 
-The Phase P reference runtime must become available after Windows sign-in without requiring the operator to manually start Qdrant.
+This procedure is the Phase P Windows operational authority for a Qdrant server that runs **directly on the local Windows host as `qdrant.exe`**.
 
-The accepted lifecycle remains:
+The target behavior is:
 
 ```text
 Windows sign-in
-  -> Docker Desktop starts automatically
-  -> Docker Engine becomes ready
-  -> persisted Qdrant container returns under restart: unless-stopped
-  -> Qdrant /readyz returns HTTP 200
-  -> SGOKB CLI / GUI may use semantic runtime
+  -> Windows Task Scheduler starts native qdrant.exe
+  -> Qdrant /readyz becomes HTTP 200
+  -> SGOKB system.status.runtime_health reports Qdrant healthy
 ```
 
-SGOKB does not start Docker Desktop or Qdrant. Docker Desktop / Docker Engine remains the lifecycle owner and SGOKB remains a client / observer.
+No Docker runtime is required for this Windows path. The earlier P-RUNTIME-02 Compose assets remain an optional Docker/development profile only.
 
-## 2. Required one-time configuration
-
-### Docker Desktop sign-in startup
-
-In Docker Desktop, enable:
+## 2. Lifecycle ownership boundary
 
 ```text
-Settings
-  -> General
-  -> Start Docker Desktop when you sign in to your computer
+Qdrant binary installation      = operator-owned
+Qdrant process startup/restart  = Windows Task Scheduler-owned
+Qdrant storage/configuration    = operator-owned native Qdrant runtime state
+SGOKB CLI / GUI / MCP           = client / observer only
+SGOKB start/stop/restart Qdrant = forbidden by the accepted Application boundary
+Readiness authority             = GET http://127.0.0.1:6333/readyz -> HTTP 200
 ```
 
-This is the supported outer startup trigger for the Phase P Windows reference environment.
+The GUI must not become a hidden process supervisor. P-RUNTIME-03 remains the shared observation boundary.
 
-### Qdrant must already be initialized
+## 3. Repository assets
 
-The Docker restart policy applies to an existing container. Perform the P-RUNTIME-02 initialization once before testing login auto-start:
-
-```powershell
-Set-Location runtime/qdrant
-Copy-Item .env.example .env
-docker compose config
-docker compose pull
-docker compose up -d --wait --wait-timeout 120
+```text
+runtime/qdrant/windows/Register-SgokbQdrantAutoStart.ps1
+runtime/qdrant/windows/Test-SgokbQdrantAutoStart.ps1
+tests/test_p_runtime_04_windows_login_autostart.py
 ```
 
-Confirm the accepted runtime:
+Default scheduled-task identity:
+
+```text
+TaskPath = \SGOKB\
+TaskName = Qdrant
+```
+
+The registration script creates the `\SGOKB\` Task Scheduler folder if it does not yet exist.
+
+## 4. Prerequisites
+
+Before registration, verify all of the following once:
+
+1. native Qdrant is already installed;
+2. the exact `qdrant.exe` path is known;
+3. any required Qdrant arguments/configuration are known;
+4. the existing working directory and storage configuration are known and preserved;
+5. launching that same native configuration manually reaches `http://127.0.0.1:6333/readyz`;
+6. port 6333 is not owned by an unrelated process.
+
+P-RUNTIME-04 does not download Qdrant, choose a storage path, migrate storage, or invent command-line arguments.
+
+## 5. Register the auto-start task
+
+Open PowerShell as the Windows user that will run SGOKB. Elevation is not part of the contract, but local security policy may require it to register Task Scheduler entries.
+
+Set the real native binary path:
 
 ```powershell
-docker compose ps
+$QdrantExe = 'C:\path\to\qdrant.exe'
+$QdrantArgs = ''
+```
+
+If a manually launched Qdrant instance is currently using the same endpoint, stop that manual instance before using `-StartNow`; the scheduled task must become the process owner rather than creating a second server competing for port 6333.
+
+Register/update the task and start it immediately for an initial readiness check:
+
+```powershell
+.\runtime\qdrant\windows\Register-SgokbQdrantAutoStart.ps1 `
+  -QdrantExe $QdrantExe `
+  -QdrantArguments $QdrantArgs `
+  -StartNow
+```
+
+If the Qdrant working directory is not the executable directory, pass it explicitly:
+
+```powershell
+-WorkingDirectory 'C:\path\to\qdrant-working-directory'
+```
+
+The registration is idempotent for `\SGOKB\Qdrant`; `-Force` replaces the task definition while leaving Qdrant storage untouched.
+
+## 6. Accepted task settings
+
+The registration script creates a direct `qdrant.exe` action with:
+
+```text
+Trigger                = AtLogOn for the current Windows user
+Principal logon type   = Interactive
+Run level              = Limited
+Restart on failure     = enabled
+Restart attempts       = 10 by default
+Restart interval       = 60 seconds by default
+Multiple instances     = IgnoreNew
+Execution time limit   = unlimited
+Start when available   = enabled
+Battery start/continue = allowed
+```
+
+Windows Task Scheduler requires restart intervals of at least one minute, so values below 60 seconds are rejected by the script.
+
+The task directly executes `qdrant.exe`. It does not invoke SGOKB, the GUI, Docker, Compose, `cmd.exe`, or a persistent PowerShell runtime wrapper as the production supervisor.
+
+## 7. Verify without reboot
+
+Inspect the task:
+
+```powershell
+Get-ScheduledTask -TaskPath '\SGOKB\' -TaskName 'Qdrant' |
+  Format-List TaskName,TaskPath,State,Actions,Triggers,Settings
+```
+
+Run the repository verifier:
+
+```powershell
+.\runtime\qdrant\windows\Test-SgokbQdrantAutoStart.ps1 `
+  -ExpectedQdrantExe $QdrantExe
+```
+
+A successful result is JSON with:
+
+```text
+schema_version = sgokb.qdrant-windows-autostart-check/1.0
+ready_status   = 200
+```
+
+Also confirm the shared SGOKB observation path:
+
+```powershell
+.\.venv\Scripts\sgokb.exe --db <DB_PATH> system status
+```
+
+Expected Qdrant projection:
+
+```text
+data.runtime_health.components.qdrant.status = healthy
+```
+
+## 8. Reboot/login acceptance procedure
+
+This is the P-RUNTIME-04 completion gate and must be executed on the actual supported Windows machine.
+
+### A. Pre-reboot state
+
+1. Verify `\SGOKB\Qdrant` exists.
+2. Verify Qdrant is ready.
+3. Record the current Qdrant version from runtime health or the root endpoint.
+4. Do not intentionally disable or stop the scheduled task before reboot.
+
+### B. Reboot and sign in
+
+Restart Windows normally, then sign in as the user bound to the task. Do not manually launch Qdrant, SGOKB GUI, Docker, or a Qdrant shortcut.
+
+### C. Verify readiness
+
+From the repository root:
+
+```powershell
+.\runtime\qdrant\windows\Test-SgokbQdrantAutoStart.ps1 `
+  -ExpectedQdrantExe $QdrantExe `
+  -ReadyTimeoutSeconds 120
+```
+
+Then verify:
+
+```powershell
 Invoke-WebRequest http://127.0.0.1:6333/readyz -UseBasicParsing
 ```
 
-The repository Compose definition is authoritative and must retain `restart: unless-stopped`.
+Acceptance requires HTTP 200 with no manual Qdrant launch after sign-in.
 
-## 3. Observer-only readiness probe
+### D. Verify SGOKB observation
 
-After sign-in, use the repository probe:
+Run `system status` and confirm the Qdrant component is healthy. A short startup interval where the component is unavailable/degraded is allowed; login completion itself is not the readiness authority. The final state within the acceptance timeout must be ready.
 
-```powershell
-.\runtime\qdrant\verify-windows-login-readiness.ps1
-```
+## 9. Unexpected process-stop recovery acceptance
 
-The probe waits for startup ordering rather than assuming that Windows sign-in means Docker Engine is already ready. It:
+This check validates Task Scheduler's restart-on-failure behavior. It is intentionally different from an operator-requested `Stop-ScheduledTask`.
 
-1. waits for the Docker Engine to answer `docker info`;
-2. locates the persisted `sgokb-qdrant` Qdrant service;
-3. verifies the container restart policy is `unless-stopped`;
-4. observes container state and health;
-5. waits for `http://127.0.0.1:6333/readyz` to return HTTP 200;
-6. emits a JSON readiness receipt.
+1. Confirm Qdrant is ready and the task is running.
+2. Record the current Qdrant process ID.
+3. Terminate the Qdrant process unexpectedly, for example with `Stop-Process -Id <PID> -Force`.
+4. Do not invoke `Start-ScheduledTask` manually.
+5. Allow at least the configured restart interval plus normal Qdrant startup time.
+6. Run `Test-SgokbQdrantAutoStart.ps1`.
+7. Confirm `/readyz` returns HTTP 200 again and that a new Qdrant process exists.
 
-Default timeout is 180 seconds. It can be changed for slower reference hosts:
+Expected default recovery begins after the 60-second Task Scheduler restart interval. P-RUNTIME-04 does not require sub-minute crash recovery because Windows Task Scheduler does not support a shorter restart-on-failure interval.
 
-```powershell
-.\runtime\qdrant\verify-windows-login-readiness.ps1 -TimeoutSeconds 300
-```
+An intentional `Stop-ScheduledTask` is maintenance, not a crash-recovery test. Restart it explicitly when maintenance is complete.
 
-The probe intentionally does not execute `docker compose up`, `start`, or `restart`, does not launch Docker Desktop, and does not create a Scheduled Task. Passing the probe therefore demonstrates observed automatic recovery rather than recovery caused by the test itself.
+## 10. Startup ordering and retry behavior
 
-## 4. Formal restart / login acceptance procedure
-
-Before restarting Windows:
-
-```powershell
-Set-Location runtime/qdrant
-docker compose ps
-Invoke-WebRequest http://127.0.0.1:6333/readyz -UseBasicParsing
-```
-
-The Qdrant service must be running normally. Do not use `docker compose stop` immediately before this acceptance because a deliberately stopped service is outside the automatic-restart expectation for the accepted `unless-stopped` policy.
-
-Then:
-
-1. restart Windows normally;
-2. sign in to the same Windows user account;
-3. do not manually launch Docker Desktop;
-4. do not execute a Qdrant start/up/restart command;
-5. run the observer-only readiness probe;
-6. retain the JSON receipt plus `docker compose ps` output as acceptance evidence.
-
-Pass criteria:
+The startup order is deliberately minimal:
 
 ```text
-Docker Desktop manual launch after sign-in = none
-Qdrant manual start/up/restart              = none
-Docker Engine                               = becomes observable
-Qdrant restart policy                       = unless-stopped
-Qdrant readiness                            = /readyz HTTP 200
-probe                                        = exit 0 / ready=true
+Windows user session
+  -> Task Scheduler
+  -> qdrant.exe
+  -> Qdrant local ports/storage
+  -> /readyz
+  -> SGOKB clients
 ```
 
-## 5. Startup ordering and retry behavior
+There is no Docker Engine dependency and no SGOKB-before-Qdrant ordering dependency. SGOKB clients must tolerate Qdrant being temporarily unavailable and use the P-RUNTIME-03 health projection rather than assuming readiness from process existence.
 
-Docker Desktop startup, WSL 2 initialization, Docker Engine readiness, container restart, and Qdrant readiness are asynchronous. SGOKB must not assume a fixed ordering delay.
+Both repository scripts poll `/readyz` where readiness is required; they do not treat process creation or Windows sign-in completion as sufficient readiness evidence.
 
-The accepted strategy is bounded observation:
+## 11. Troubleshooting
 
-```text
-sign-in
-  -> Docker Desktop startup may still be in progress
-  -> retry Docker Engine observation
-  -> once Engine is ready, observe existing Qdrant container
-  -> retry /readyz until ready or timeout
-```
-
-The default observer budget is 180 seconds. A timeout is reported as a runtime availability failure; it does not trigger a hidden lifecycle mutation.
-
-## 6. Unexpected-stop recovery
-
-Docker restart policy recovery must be distinguished from an intentional operator stop.
-
-For an explicit crash-style recovery check, first ensure Qdrant has been running successfully for more than 10 seconds, then resolve its container ID and terminate it without using the normal stop path:
+### Task does not exist
 
 ```powershell
-Set-Location runtime/qdrant
-$ContainerId = docker compose ps -q qdrant
-docker kill $ContainerId
-.\verify-windows-login-readiness.ps1
+Get-ScheduledTask -TaskPath '\SGOKB\' -TaskName 'Qdrant'
 ```
 
-Expected result: Docker applies `restart: unless-stopped`, the container returns, and `/readyz` becomes HTTP 200 without an SGOKB start/restart action.
+Re-run the registration script with the real executable path.
 
-This is an acceptance/diagnostic procedure, not a normal operating command.
-
-## 7. Intentional stop semantics
-
-The following is an operator intent to stop the service:
+### Task exists but is not running
 
 ```powershell
-docker compose stop
+Get-ScheduledTaskInfo -TaskPath '\SGOKB\' -TaskName 'Qdrant' |
+  Format-List LastRunTime,LastTaskResult,NextRunTime,NumberOfMissedRuns
 ```
 
-A service deliberately stopped under `restart: unless-stopped` is not required by this contract to become ready automatically at the next sign-in. If an operator intentionally stopped Qdrant, resume it explicitly:
+Inspect **Event Viewer -> Applications and Services Logs -> Microsoft -> Windows -> TaskScheduler -> Operational** for start/action failures.
+
+### Wrong executable or working directory
 
 ```powershell
-docker compose start
-docker compose ps
+(Get-ScheduledTask -TaskPath '\SGOKB\' -TaskName 'Qdrant').Actions
 ```
 
-Do not classify this case as a P-RUNTIME-04 auto-start defect.
+Re-register with the correct `-QdrantExe`, `-QdrantArguments`, and `-WorkingDirectory` values.
 
-## 8. Troubleshooting
-
-### Docker Engine does not become ready
-
-Check:
-
-- Docker Desktop is installed and its terms have been accepted;
-- `Start Docker Desktop when you sign in to your computer` is enabled;
-- WSL 2 / virtualization prerequisites are healthy;
-- Docker Desktop diagnostics and logs.
-
-Useful probes:
+### Port 6333 conflict
 
 ```powershell
-docker version
-docker info
+Get-NetTCPConnection -LocalPort 6333 -ErrorAction SilentlyContinue |
+  Select-Object LocalAddress,LocalPort,State,OwningProcess
 ```
 
-### Qdrant container does not exist
+Resolve the conflicting process or align the Qdrant/SGOKB endpoint configuration. Do not launch a second Qdrant instance to work around the conflict.
 
-P-RUNTIME-04 does not create the runtime. Run the documented P-RUNTIME-02 one-time initialization.
+### Process exists but `/readyz` is not 200
 
-### Container exists but remains stopped
+Check native Qdrant logs/configuration and storage state. Process existence is not acceptance evidence.
 
-Check whether it was deliberately stopped:
+### Task repeatedly restarts
+
+Treat this as a Qdrant startup/runtime failure, not proof that auto-start works. Inspect `LastTaskResult`, Task Scheduler history, native Qdrant logs, configuration, storage permissions, and port conflicts before increasing the retry count.
+
+## 12. Intentional maintenance / removal
+
+Stop the scheduled task only for intentional maintenance:
 
 ```powershell
-docker compose ps -a
+Stop-ScheduledTask -TaskPath '\SGOKB\' -TaskName 'Qdrant'
 ```
 
-If it was intentionally stopped, use `docker compose start`. If it exited unexpectedly, inspect restart count and logs before changing state:
+Start it again:
 
 ```powershell
-$ContainerId = docker compose ps -q qdrant
-docker inspect --format '{{.RestartCount}}' $ContainerId
-docker compose logs --tail 200 qdrant
+Start-ScheduledTask -TaskPath '\SGOKB\' -TaskName 'Qdrant'
 ```
 
-### Engine is ready but `/readyz` times out
-
-Inspect:
+Remove only the auto-start definition:
 
 ```powershell
-docker compose ps
-docker compose logs --tail 200 qdrant
-Invoke-WebRequest http://127.0.0.1:6333/healthz -UseBasicParsing
-Invoke-WebRequest http://127.0.0.1:6333/livez -UseBasicParsing
-Invoke-WebRequest http://127.0.0.1:6333/readyz -UseBasicParsing
+Unregister-ScheduledTask -TaskPath '\SGOKB\' -TaskName 'Qdrant' -Confirm:$false
 ```
 
-`/readyz` remains the readiness authority.
+Unregistering the task does **not** delete Qdrant binaries or storage.
 
-### Port conflict
+## 13. Safety boundary
 
-The accepted runtime owns loopback ports `6333` and `6334`. Do not silently change repository ports as a local workaround. Identify the conflicting process and resolve the conflict before restarting the accepted runtime.
+P-RUNTIME-04 changes only Qdrant process lifecycle integration. It must not:
 
-## 9. Safety boundary
+- mutate canonical SGOKB SQLite data;
+- move/delete Qdrant storage;
+- install or upgrade Qdrant automatically;
+- expose Qdrant ports beyond the local configuration;
+- add GUI/CLI start/stop/restart actions;
+- redefine Qdrant as canonical Knowledge storage.
 
-P-RUNTIME-04 adds no new canonical state and no new SGOKB lifecycle owner.
+## 14. Acceptance boundary
 
-```text
-Docker Desktop / Engine = runtime lifecycle owner
-Compose restart policy  = automatic container recovery mechanism
-SGOKB CLI / GUI          = client / observer
-readiness probe          = observer only
-canonical Knowledge      = SQLite; unaffected by runtime startup ordering
-```
+Repository/Windows-runner acceptance can prove that the Task Scheduler assets are syntactically valid, register correctly, and preserve the intended contract. It **cannot** prove a real machine reboot/login sequence.
 
-P-RUNTIME-05 may surface these observations in a dedicated GUI Runtime Dashboard, but it must preserve the same ownership boundary.
+P-RUNTIME-04 may be marked `Complete / Accepted` only after the actual supported Windows machine passes both:
 
-## 10. Authority
+1. reboot -> login -> Qdrant `/readyz` HTTP 200 without manual launch;
+2. unexpected Qdrant process failure -> Task Scheduler restart -> `/readyz` HTTP 200 without manual restart.
+
+Until those device checks are recorded, the task remains **Implementation Complete / Device Acceptance Pending**.
+
+## 15. Authority
 
 - `docs/decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md`
-- `docs/operations/P_RUNTIME_02_QDRANT_COMPOSE_RUNTIME.md`
 - `docs/design/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_APPLICATION_BOUNDARY.md`
-- `runtime/qdrant/compose.yaml`
-- `runtime/qdrant/verify-windows-login-readiness.ps1`
+- `runtime/qdrant/windows/Register-SgokbQdrantAutoStart.ps1`
+- `runtime/qdrant/windows/Test-SgokbQdrantAutoStart.ps1`
 - `tests/test_p_runtime_04_windows_login_autostart.py`
-- Docker Desktop settings documentation
-- Docker restart-policy documentation
