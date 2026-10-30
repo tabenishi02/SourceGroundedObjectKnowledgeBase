@@ -33,11 +33,11 @@ jobs:
       - name: Focused P-GUI-09 tests
         shell: pwsh
         run: python -m pytest -q tests/test_p_gui_09_system_maintenance.py
-      - name: GUI regression
+      - name: GUI regression diagnostic
         shell: pwsh
         run: |
           $GuiTests = Get-ChildItem tests -Filter 'test_p_gui_*.py' | ForEach-Object { $_.FullName }
-          python -m pytest -q $GuiTests
+          python -m pytest -vv --maxfail=1 $GuiTests
       - name: Ruff
         shell: pwsh
         run: python -m ruff check src tests
