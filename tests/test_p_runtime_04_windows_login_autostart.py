@@ -1,55 +1,82 @@
+from __future__ import annotations
+
+import os
+import subprocess
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-RUNTIME_DIR = REPO_ROOT / "runtime" / "qdrant"
-PROBE_PATH = RUNTIME_DIR / "verify-windows-login-readiness.ps1"
-COMPOSE_PATH = RUNTIME_DIR / "compose.yaml"
-OPS_PATH = REPO_ROOT / "docs" / "operations" / "P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART.md"
+import pytest
 
 
-def test_login_readiness_probe_is_observer_only() -> None:
-    probe = PROBE_PATH.read_text(encoding="utf-8")
-
-    assert '"info", "--format"' in probe
-    assert (
-        '"compose", "-f", $ComposePath, "-p", $ProjectName, "ps", "-a", "-q"'
-        in probe
-    )
-    assert '"inspect", "--format"' in probe
-    assert "http://127.0.0.1:6333/readyz" in probe
-    assert 'lifecycle_owner = "external"' in probe
-
-    forbidden_invocations = (
-        '"compose", "-f", $ComposePath, "-p", $ProjectName, "up"',
-        '"compose", "-f", $ComposePath, "-p", $ProjectName, "start"',
-        '"compose", "-f", $ComposePath, "-p", $ProjectName, "restart"',
-        "Start-Process",
-        "Register-ScheduledTask",
-        "schtasks /",
-    )
-    for invocation in forbidden_invocations:
-        assert invocation not in probe
+ROOT = Path(__file__).resolve().parents[1]
+REGISTER = ROOT / "runtime" / "qdrant" / "windows" / "Register-SgokbQdrantAutoStart.ps1"
+VERIFY = ROOT / "runtime" / "qdrant" / "windows" / "Test-SgokbQdrantAutoStart.ps1"
+OPERATIONS = ROOT / "docs" / "operations" / "P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART.md"
+DECISION = ROOT / "docs" / "decisions" / "P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md"
 
 
-def test_login_autostart_keeps_accepted_compose_contract() -> None:
-    compose = COMPOSE_PATH.read_text(encoding="utf-8")
+def test_registration_asset_preserves_external_native_windows_lifecycle_boundary() -> None:
+    text = REGISTER.read_text(encoding="utf-8")
 
-    assert "name: sgokb-qdrant" in compose
-    assert "restart: unless-stopped" in compose
-    assert '"127.0.0.1:6333:6333"' in compose
-    assert '"127.0.0.1:6334:6334"' in compose
-    assert "/readyz" in compose
+    assert "New-ScheduledTaskTrigger -AtLogOn" in text
+    assert "New-ScheduledTaskAction" in text
+    assert "New-ScheduledTaskPrincipal" in text
+    assert "-LogonType Interactive" in text
+    assert "-RestartCount $RestartCount" in text
+    assert "-RestartInterval (New-TimeSpan -Seconds $RestartIntervalSeconds)" in text
+    assert "-MultipleInstances IgnoreNew" in text
+    assert "-ExecutionTimeLimit ([TimeSpan]::Zero)" in text
+    assert "-StartWhenAvailable" in text
+    assert 'New-Object -ComObject "Schedule.Service"' in text
+    assert "Ensure-ScheduledTaskFolder -Path $normalizedTaskPath" in text
+    assert 'ReadyUrl = "http://127.0.0.1:6333/readyz"' in text
+    assert "Register-ScheduledTask" in text
+    assert "Start-ScheduledTask" in text
+    assert "docker" not in text.lower()
+    assert "compose" not in text.lower()
 
 
-def test_login_autostart_operations_document_safety_boundaries() -> None:
-    operations = OPS_PATH.read_text(encoding="utf-8")
+def test_verification_asset_checks_task_contract_and_qdrant_readiness() -> None:
+    text = VERIFY.read_text(encoding="utf-8")
 
-    assert "Start Docker Desktop when you sign in to your computer" in operations
-    assert "Windows sign-in" in operations
-    assert "Docker Engine" in operations
-    assert "restart: unless-stopped" in operations
-    assert "verify-windows-login-readiness.ps1" in operations
-    assert "docker compose stop" in operations
-    assert "docker kill" in operations
-    assert "SGOKB does not start Docker Desktop or Qdrant" in operations
-    assert "P-RUNTIME-05" in operations
+    assert "Get-ScheduledTask" in text
+    assert "Get-ScheduledTaskInfo" in text
+    assert '"MSFT_TaskLogonTrigger"' in text
+    assert '"IgnoreNew"' in text
+    assert "RestartCount" in text
+    assert "/readyz" in text
+    assert '"sgokb.qdrant-windows-autostart-check/1.0"' in text
+
+
+def test_native_windows_operations_and_decision_are_the_runtime_authority() -> None:
+    operations = OPERATIONS.read_text(encoding="utf-8")
+    decision = DECISION.read_text(encoding="utf-8")
+
+    assert "Windows Task Scheduler" in operations
+    assert "qdrant.exe" in operations
+    assert "AtLogOn" in operations
+    assert "P-RUNTIME-04" in operations
+    assert "client / observer only" in operations
+    assert "Docker Compose" in decision
+    assert "optional" in decision.lower()
+    assert "Windows Task Scheduler" in decision
+    assert "native" in decision.lower()
+
+
+@pytest.mark.skipif(os.name != "nt", reason="PowerShell 5.1 parser gate is Windows-only")
+def test_powershell_assets_parse_on_windows() -> None:
+    powershell = os.environ.get("SystemRoot", r"C:\Windows") + r"\System32\WindowsPowerShell\v1.0\powershell.exe"
+    for script in (REGISTER, VERIFY):
+        escaped = str(script).replace("'", "''")
+        command = (
+            "$tokens=$null; $errors=$null; "
+            f"[System.Management.Automation.Language.Parser]::ParseFile('{escaped}', [ref]$tokens, [ref]$errors) | Out-Null; "
+            "if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }"
+        )
+        completed = subprocess.run(
+            [powershell, "-NoProfile", "-NonInteractive", "-Command", command],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert completed.returncode == 0, completed.stderr or completed.stdout
