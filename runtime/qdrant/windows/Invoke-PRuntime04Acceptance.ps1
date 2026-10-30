@@ -33,7 +33,7 @@ function Invoke-DockerCommand {
     $exitCode = $LASTEXITCODE
     $text = ($output | ForEach-Object { [string]$_ }) -join "`n"
     if (($exitCode -ne 0) -and -not $AllowFailure) {
-        throw "docker $($Arguments -join ' ') failed with exit code $exitCode: $text"
+        throw "docker $($Arguments -join ' ') failed with exit code ${exitCode}: $text"
     }
     return [pscustomobject]@{
         ExitCode = $exitCode
