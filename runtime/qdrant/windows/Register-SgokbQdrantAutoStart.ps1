@@ -18,6 +18,9 @@ param(
     [ValidateRange(60, 2678400)]
     [int]$RestartIntervalSeconds = 60,
 
+    [ValidateRange(60, 2678400)]
+    [int]$RecoveryIntervalSeconds = 60,
+
     [switch]$StartNow,
 
     [ValidateRange(1, 3600)]
@@ -125,7 +128,20 @@ if (-not [string]::IsNullOrWhiteSpace($QdrantArguments)) {
     $actionParameters.Argument = $QdrantArguments
 }
 $action = New-ScheduledTaskAction @actionParameters
-$trigger = New-ScheduledTaskTrigger -AtLogOn -User $currentUser
+
+# AtLogOn provides immediate startup after sign-in. The independent repeating time
+# trigger is the crash-recovery mechanism. While qdrant.exe is still running,
+# MultipleInstances=IgnoreNew suppresses each recovery pulse. If the process exits,
+# the next pulse starts a fresh instance. RestartOnFailure is retained only as a
+# best-effort fallback for task/action start failures; real-host acceptance proved
+# that it is not a reliable long-running-process crash supervisor.
+$logonTrigger = New-ScheduledTaskTrigger -AtLogOn -User $currentUser
+$recoveryTrigger = New-ScheduledTaskTrigger `
+    -Once `
+    -At (Get-Date).AddSeconds($RecoveryIntervalSeconds) `
+    -RepetitionInterval (New-TimeSpan -Seconds $RecoveryIntervalSeconds)
+$triggers = @($logonTrigger, $recoveryTrigger)
+
 $principal = New-ScheduledTaskPrincipal `
     -UserId $currentUser `
     -LogonType Interactive `
@@ -141,7 +157,7 @@ $settings = New-ScheduledTaskSettingsSet `
 
 $task = New-ScheduledTask `
     -Action $action `
-    -Trigger $trigger `
+    -Trigger $triggers `
     -Principal $principal `
     -Settings $settings `
     -Description "SGOKB native Windows Qdrant runtime. Lifecycle owner: Windows Task Scheduler."
@@ -160,7 +176,9 @@ if ($PSCmdlet.ShouldProcess($target, "Register native Qdrant auto-start task")) 
     Write-Host "Registered $target for user $currentUser"
     Write-Host "Executable: $resolvedExe"
     Write-Host "Working directory: $resolvedWorkingDirectory"
-    Write-Host "Restart policy: $RestartCount attempt(s), interval ${RestartIntervalSeconds}s"
+    Write-Host "Logon type: Interactive (Qdrant run level: Limited)"
+    Write-Host "Crash recovery pulse: every ${RecoveryIntervalSeconds}s while the interactive user session is available"
+    Write-Host "Restart-on-failure fallback: $RestartCount attempt(s), interval ${RestartIntervalSeconds}s"
 
     if ($StartNow) {
         if ($registered.State -ne "Running") {
