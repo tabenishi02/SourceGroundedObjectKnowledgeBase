@@ -86,7 +86,7 @@ All canonical GUI operations continue through `OperatorSession` or, for the sepa
 
 Authority:
 
-- `docs/evaluation/P_GUI_10_GUI_PARITY_USABILITY_REGRESSION_ACCEPTANCE.md`
+- `docs/evaluation/P_GUI_10_PARITY_USABILITY_REGRESSION_ACCEPTANCE.md`
 - `tests/test_p_gui_10_parity_usability_acceptance.py`
 
 Final Windows acceptance:
