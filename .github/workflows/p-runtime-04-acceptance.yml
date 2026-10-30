@@ -25,57 +25,30 @@ jobs:
         shell: pwsh
         run: python -m pip install -e ".[dev,mcp,gui,vector-qdrant]"
 
-      - name: Parse PowerShell readiness observer
+      - name: Parse PowerShell native auto-start assets
         shell: pwsh
         run: |
-          $tokens = $null
-          $errors = $null
-          [void][System.Management.Automation.Language.Parser]::ParseFile(
-            (Resolve-Path runtime/qdrant/verify-windows-login-readiness.ps1),
-            [ref]$tokens,
-            [ref]$errors
+          $scripts = @(
+            "runtime/qdrant/windows/Register-SgokbQdrantAutoStart.ps1",
+            "runtime/qdrant/windows/Test-SgokbQdrantAutoStart.ps1"
           )
-          if ($errors.Count -ne 0) {
-            $errors | Format-List | Out-String | Write-Error
-            exit 1
+          foreach ($script in $scripts) {
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $script),
+              [ref]$tokens,
+              [ref]$errors
+            )
+            if ($errors.Count -ne 0) {
+              $errors | Format-List | Out-String | Write-Error
+              exit 1
+            }
           }
 
-      - name: Dynamic readiness observer smoke
+      - name: Dynamic Task Scheduler registration smoke
         shell: pwsh
         run: |
-          $fakeBin = Join-Path $env:RUNNER_TEMP "fake-docker"
-          New-Item -ItemType Directory -Force $fakeBin | Out-Null
-          @'
-          import sys
-
-          args = sys.argv[1:]
-          if not args:
-              raise SystemExit(1)
-          if args[0] == "info":
-              print("27.5.1")
-              raise SystemExit(0)
-          if args[0] == "compose":
-              print("p-runtime-04-test-container")
-              raise SystemExit(0)
-          if args[0] == "inspect":
-              fmt = args[2]
-              if "RestartPolicy" in fmt:
-                  print("unless-stopped")
-                  raise SystemExit(0)
-              if "State.Status" in fmt:
-                  print("running")
-                  raise SystemExit(0)
-              if "State.Health" in fmt:
-                  print("healthy")
-                  raise SystemExit(0)
-          raise SystemExit(1)
-          '@ | Set-Content -Encoding utf8 (Join-Path $fakeBin "docker_fake.py")
-          @'
-          @echo off
-          python "%~dp0docker_fake.py" %*
-          '@ | Set-Content -Encoding ascii (Join-Path $fakeBin "docker.cmd")
-          $env:PATH = "$fakeBin;$env:PATH"
-
           $serverPath = Join-Path $env:RUNNER_TEMP "readyz_server.py"
           @'
           from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -94,19 +67,39 @@ jobs:
           HTTPServer(("127.0.0.1", 6333), Handler).serve_forever()
           '@ | Set-Content -Encoding utf8 $serverPath
 
+          $taskPath = "\SGOKB-Acceptance\"
+          $taskName = "Qdrant"
+          $cmdExe = Join-Path $env:SystemRoot "System32\cmd.exe"
           $server = Start-Process python -ArgumentList $serverPath -PassThru
           try {
             Start-Sleep -Seconds 1
-            $receipt = & ./runtime/qdrant/verify-windows-login-readiness.ps1 `
-              -TimeoutSeconds 10 -PollIntervalSeconds 1 | ConvertFrom-Json
-            if (-not $receipt.ready) { throw "observer did not report ready=true" }
-            if ($receipt.restart_policy -ne "unless-stopped") { throw "restart policy mismatch" }
-            if ($receipt.lifecycle_owner -ne "external") { throw "lifecycle ownership mismatch" }
-            if ($receipt.readiness_status -ne 200) { throw "readiness status mismatch" }
-            $receipt | ConvertTo-Json -Depth 3
+            & ./runtime/qdrant/windows/Register-SgokbQdrantAutoStart.ps1 `
+              -QdrantExe $cmdExe `
+              -TaskPath $taskPath `
+              -TaskName $taskName
+
+            $receipt = & ./runtime/qdrant/windows/Test-SgokbQdrantAutoStart.ps1 `
+              -TaskPath $taskPath `
+              -TaskName $taskName `
+              -ExpectedQdrantExe $cmdExe `
+              -ReadyTimeoutSeconds 10 | ConvertFrom-Json
+
+            if ($receipt.ready_status -ne 200) { throw "readiness status mismatch" }
+            if ($receipt.task_path -ne "\SGOKB-Acceptance\Qdrant") { throw "task path mismatch" }
+            if ($receipt.restart_count -lt 1) { throw "restart policy missing" }
+            $receipt | ConvertTo-Json -Depth 4
           }
           finally {
+            Unregister-ScheduledTask -TaskPath $taskPath -TaskName $taskName -Confirm:$false -ErrorAction SilentlyContinue
             if ($server -and -not $server.HasExited) { Stop-Process -Id $server.Id -Force }
+            try {
+              $service = New-Object -ComObject "Schedule.Service"
+              $service.Connect()
+              $service.GetFolder("\").DeleteFolder("SGOKB-Acceptance", 0)
+            }
+            catch {
+              Write-Warning "Task Scheduler test folder cleanup skipped: $($_.Exception.Message)"
+            }
           }
 
       - name: Focused P-RUNTIME regression
