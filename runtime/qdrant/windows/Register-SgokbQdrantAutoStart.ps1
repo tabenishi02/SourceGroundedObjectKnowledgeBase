@@ -42,6 +42,33 @@ function Get-NormalizedTaskPath {
     return $normalized
 }
 
+function Ensure-ScheduledTaskFolder {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    if ($Path -eq "\") {
+        return
+    }
+
+    $service = New-Object -ComObject "Schedule.Service"
+    $service.Connect()
+    $currentFolder = $service.GetFolder("\")
+    $currentPath = ""
+
+    foreach ($segment in $Path.Trim("\").Split("\")) {
+        if ([string]::IsNullOrWhiteSpace($segment)) {
+            continue
+        }
+
+        $currentPath = "$currentPath\$segment"
+        try {
+            $currentFolder = $service.GetFolder($currentPath)
+        }
+        catch {
+            $currentFolder = $currentFolder.CreateFolder($segment)
+        }
+    }
+}
+
 function Wait-QdrantReady {
     param(
         [Parameter(Mandatory = $true)][string]$Url,
@@ -108,6 +135,7 @@ $settings = New-ScheduledTaskSettingsSet `
     -RestartInterval (New-TimeSpan -Seconds $RestartIntervalSeconds) `
     -MultipleInstances IgnoreNew `
     -ExecutionTimeLimit ([TimeSpan]::Zero) `
+    -StartWhenAvailable `
     -AllowStartIfOnBatteries `
     -DontStopIfGoingOnBatteries
 
@@ -120,6 +148,8 @@ $task = New-ScheduledTask `
 
 $target = "$normalizedTaskPath$TaskName"
 if ($PSCmdlet.ShouldProcess($target, "Register native Qdrant auto-start task")) {
+    Ensure-ScheduledTaskFolder -Path $normalizedTaskPath
+
     Register-ScheduledTask `
         -TaskName $TaskName `
         -TaskPath $normalizedTaskPath `
