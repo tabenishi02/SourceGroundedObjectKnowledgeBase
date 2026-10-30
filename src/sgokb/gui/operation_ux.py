@@ -62,6 +62,11 @@ _MAINTENANCE_OPERATIONS = frozenset(
         "system.backup.composite.create",
         "system.restore.apply",
         "system.restore.composite.apply",
+        "generation.bootstrap",
+        "generation.build",
+        "generation.cutover",
+        "generation.rollback",
+        "generation.recover",
     }
 )
 
@@ -113,6 +118,8 @@ _POSITIONAL_ARGUMENTS: dict[str, tuple[str, ...]] = {
     "system.restore.apply": ("backup",),
     "system.restore.composite.plan": ("backup",),
     "system.restore.composite.apply": ("backup",),
+    "generation.cutover": ("generation_id",),
+    "generation.rollback": ("generation_id",),
 }
 
 _FLAG_NAMES = {
@@ -121,7 +128,7 @@ _FLAG_NAMES = {
 
 
 def operation_policy(operation_id: str) -> OperationUXPolicy:
-    """Return the desktop safety presentation policy for one public operation."""
+    """Return the desktop safety presentation policy for one public/advanced operation."""
 
     if operation_id in _EXTERNAL_OPERATIONS:
         return OperationUXPolicy(
@@ -135,6 +142,11 @@ def operation_policy(operation_id: str) -> OperationUXPolicy:
             note = (
                 "Restore apply can overwrite existing targets and requires explicit "
                 "acknowledgement."
+            )
+        elif operation_id.startswith("generation."):
+            note = (
+                "Advanced Search Generation maintenance can rebuild or switch the active "
+                "Derived Search generation. Inspect generation identity and runtime state first."
             )
         return OperationUXPolicy(EFFECT_MAINTENANCE, True, note=note)
     if operation_id in _WRITE_OPERATIONS:
@@ -170,28 +182,23 @@ def _flag_name(key: str) -> str:
     return "--" + _FLAG_NAMES.get(key, key).replace("_", "-")
 
 
-def equivalent_cli_command(
-    workspace_path: str | Path,
+def _append_arguments(
+    tokens: list[str],
     operation_id: str,
-    arguments: Mapping[str, object] | None = None,
-) -> str:
-    """Render an executable-style CLI equivalent for a GUI operator request.
-
-    The formatter follows ``src/sgokb/cli/main.py`` argument shape. It is a
-    presentation aid only; the GUI still calls OperatorSession directly.
-    """
-
-    arguments = dict(arguments or {})
-    tokens = ["sgokb", "--db", _ps_quote(Path(workspace_path)), *operation_id.split(".")]
+    arguments: Mapping[str, object],
+) -> None:
     positional_keys = _POSITIONAL_ARGUMENTS.get(operation_id, ())
-
     for key in positional_keys:
         value = arguments.get(key)
-        if value is not None:
+        if value is not None and value != "":
             tokens.append(_ps_quote(value))
 
     for key, value in arguments.items():
         if key in positional_keys or value is None:
+            continue
+        if operation_id.startswith("generation.") and key == "smoke":
+            if value is False:
+                tokens.append("--no-smoke")
             continue
         flag = _flag_name(key)
         if isinstance(value, bool):
@@ -203,6 +210,34 @@ def equivalent_cli_command(
                 tokens.extend((flag, _ps_quote(item)))
             continue
         tokens.extend((flag, _ps_quote(value)))
+
+
+def equivalent_cli_command(
+    workspace_path: str | Path,
+    operation_id: str,
+    arguments: Mapping[str, object] | None = None,
+) -> str:
+    """Render an executable-style CLI equivalent for a GUI operator request.
+
+    The formatter follows the public CLI argument shape. Advanced generation actions
+    retain their separate ``python -m sgokb.cli.generation`` entrypoint. The string is
+    a presentation aid only; the GUI never uses it as its execution backend.
+    """
+
+    arguments = dict(arguments or {})
+    if operation_id.startswith("generation."):
+        action = operation_id.removeprefix("generation.")
+        tokens = [
+            "python",
+            "-m",
+            "sgokb.cli.generation",
+            "--db",
+            _ps_quote(Path(workspace_path)),
+            action,
+        ]
+    else:
+        tokens = ["sgokb", "--db", _ps_quote(Path(workspace_path)), *operation_id.split(".")]
+    _append_arguments(tokens, operation_id, arguments)
     return " ".join(tokens)
 
 
