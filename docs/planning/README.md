@@ -15,12 +15,11 @@ Happy-path operational acceptance = Complete / FULL SGOKB PASS
 Current formal release = v1.1.0
 Phase P = In Progress
 
-P-GUI-01..08 = Complete / Accepted
+P-GUI-01..09 = Complete / Accepted
 P-RAW-01..06 = Complete / Accepted
 P-RUNTIME-01..03 = Complete / Accepted
 P-RUNTIME-04..06 = Not Started
-P-GUI-09 = Not Started / Next
-P-GUI-10 = Not Started
+P-GUI-10 = Not Started / Next
 P-CLOSE-01 = Not Started
 ```
 
@@ -32,7 +31,7 @@ Priority 2: RAW Grounding
 Priority 3: Runtime / Qdrant auto-start
 ```
 
-GUI と RAW Grounding の優先作業は P-GUI-08 まで完了しています。Runtime reference design、repository-owned Qdrant Compose assets、shared runtime health/status Application boundary は P-RUNTIME-01..03 で確定・受入済みです。P-GUI-09 の P-RUNTIME-03 dependency は解消され、現在の次Taskは P-GUI-09 です。
+GUI は P-GUI-09 まで、Raw Grounding は P-RAW-06 まで完了しています。Runtime reference design、repository-owned Qdrant Compose assets、shared runtime health/status Application boundary は P-RUNTIME-01..03 で確定・受入済みです。P-GUI-09 では System / Maintenance / MCP / Advanced GUI が受入済みとなり、現在の次Taskは P-GUI-10 です。
 
 ## Phase P planning authority
 
@@ -110,7 +109,42 @@ Result v2 import persists raw_grounding_links
 Result v2 Evidence claim-link synthesis = forbidden
 ```
 
-P-GUI-08 is automated functional/contract acceptance. GUI-wide parity/usability closure remains owned by P-GUI-10.
+### P-GUI-09 — System / Maintenance / MCP / Advanced GUI
+
+- Design: [`../design/P_GUI_09_SYSTEM_MAINTENANCE_MCP_ADVANCED_DESIGN.md`](../design/P_GUI_09_SYSTEM_MAINTENANCE_MCP_ADVANCED_DESIGN.md)
+- MCP lifecycle decision: [`../decisions/P_GUI_09_MCP_STDIO_LIFECYCLE_DECISION.md`](../decisions/P_GUI_09_MCP_STDIO_LIFECYCLE_DECISION.md)
+- Capability-matrix amendment: [`../reference/GUI_CLI_CAPABILITY_MATRIX_P_GUI_09_AMENDMENT.md`](../reference/GUI_CLI_CAPABILITY_MATRIX_P_GUI_09_AMENDMENT.md)
+- Final acceptance: [`../evaluation/P_GUI_09_SYSTEM_MAINTENANCE_MCP_ADVANCED_ACCEPTANCE.md`](../evaluation/P_GUI_09_SYSTEM_MAINTENANCE_MCP_ADVANCED_ACCEPTANCE.md)
+
+Accepted P-GUI-09 boundary:
+
+```text
+public System operations         = 14 / 14 GUI-reachable
+Advanced Search Generation       = 6 / 6 GUI-reachable
+System execution                 = shared OperatorSession
+Generation execution             = shared GenerationOperatorSession
+Restore                          = Plan -> preview -> acknowledgement -> Apply
+MCP transport                    = stdio
+MCP lifecycle owner              = external MCP client / launcher
+GUI detached MCP start/stop      = no
+Qdrant lifecycle owner           = external
+system.status runtime projection = P-RUNTIME-03 data.runtime_health
+```
+
+Final P-GUI-09 gate:
+
+```text
+GitHub Actions run               = 41049707411 (#8)
+verified branch source           = e0456b12dfdfc8897ed21358dbc4c04ffef6c43d
+verified synthetic merge         = bfcd5caf63c5e072a1e844c85e47bc2411d57c19
+focused P-GUI-09                 = 6 / 6 PASS
+GUI regression                   = 44 / 44 PASS
+Ruff src/tests                   = PASS
+full repository regression       = 848 / 848 PASS
+warnings                         = 2 known local-Qdrant warnings
+```
+
+P-GUI-09 is automated functional/contract acceptance. GUI-wide parity/usability closure remains owned by P-GUI-10.
 
 ## Accepted RAW Grounding authority
 
@@ -172,7 +206,7 @@ Therefore:
 ```text
 P-RAW-01..06 = Complete / Accepted
 P-RAW workstream = Complete / Accepted for Phase P
-P-GUI-01..08 = Complete / Accepted
+P-GUI-01..09 = Complete / Accepted
 ```
 
 ## Accepted Runtime authority
@@ -285,6 +319,8 @@ Backend concurrency    = serialized per Workspace initially
 Qdrant                 = independent shared runtime
 Qdrant Windows ref     = Docker Desktop / WSL2 / Compose / named volume
 Runtime health         = shared system.status.runtime_health observation model
+MCP transport          = stdio; external client-owned lifecycle
+Generation maintenance = shared GenerationOperatorSession
 Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 ```
 
@@ -292,7 +328,7 @@ Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 
 ### GUI
 
-`P-GUI-09` is now the next executable task. Its P-RUNTIME-03 dependency is satisfied. `P-GUI-10` remains the final GUI parity / regression acceptance task.
+`P-GUI-01` through `P-GUI-09` are Complete / Accepted. `P-GUI-10` is now the next GUI task and owns final CLI↔GUI capability coverage, representative canonical-state equivalence, usability, keyboard/DPI/restart scenarios, and GUI-wide regression closure.
 
 ### Runtime
 
@@ -305,5 +341,5 @@ Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 ## Next
 
 ```text
-P-GUI-09 — System / Maintenance / MCP / Advanced GUI
+P-GUI-10 — GUI parity / usability / regression acceptance
 ```
