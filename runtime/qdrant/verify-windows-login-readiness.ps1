@@ -52,7 +52,7 @@ if (-not (Test-Path -LiteralPath $ComposePath)) {
 $DockerServerVersion = Wait-DockerEngine
 
 $ContainerId = Invoke-DockerText -Arguments @(
-    "compose", "-f", $ComposePath, "-p", $ProjectName, "ps", "-q", $ServiceName
+    "compose", "-f", $ComposePath, "-p", $ProjectName, "ps", "-a", "-q", $ServiceName
 )
 if ([string]::IsNullOrWhiteSpace($ContainerId)) {
     throw "The persisted SGOKB Qdrant container does not exist. Perform the one-time P-RUNTIME-02 initialization with 'docker compose up -d --wait --wait-timeout 120'. This probe intentionally does not create or start runtime state."
@@ -105,4 +105,4 @@ while ((Get-Date) -lt $Deadline) {
     Start-Sleep -Seconds $PollIntervalSeconds
 }
 
-throw "Qdrant did not reach $ReadyUri within $TimeoutSeconds seconds after Docker Engine became available. Last container state='$LastState', health='$LastHealth', readiness error='$LastReadyError'. Inspect 'docker compose ps' and 'docker compose logs --tail 200 qdrant'. If the service was intentionally stopped, 'unless-stopped' requires an explicit operator start; that state is not an auto-start failure."
+throw "Qdrant did not reach $ReadyUri within $TimeoutSeconds seconds after Docker Engine became available. Last container state='$LastState', health='$LastHealth', readiness error='$LastReadyError'. Inspect 'docker compose ps -a' and 'docker compose logs --tail 200 qdrant'. If the service was intentionally stopped, 'unless-stopped' requires an explicit operator start; that state is not an auto-start failure."
