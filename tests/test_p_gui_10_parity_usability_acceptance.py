@@ -69,12 +69,15 @@ def _backend_outcome(qt_app, backend, database: Path, operation_id: str, argumen
     return result[0]
 
 
-def test_all_67_public_operations_have_final_gui_reachability_contract():
+def test_all_67_public_operations_have_final_gui_reachability_contract(qt_app, tmp_path):
     from sgokb.application_operator import (
         PUBLIC_OPERATION_IDS,
         SHARED_OPERATION_IDS,
         TRANSPORT_OPERATION_IDS,
     )
+    from sgokb.gui.views.system_page import SystemPage
+    from sgokb.gui.worker import BackendCoordinator
+    from sgokb.gui.workspace import WorkspaceState
 
     assert len(PUBLIC_OPERATION_IDS) == 67
     assert TRANSPORT_OPERATION_IDS == {"mcp.serve"}
@@ -92,10 +95,23 @@ def test_all_67_public_operations_have_final_gui_reachability_contract():
     )
     assert not missing, f"Shared public operations without GUI reachability: {missing}"
 
-    system_source = (view_root / "system_page.py").read_text(encoding="utf-8")
-    assert "mcp serve" in system_source
-    assert "external client-managed stdio" in system_source
-    assert "detached MCP daemon" in system_source
+    database = tmp_path / "mcp-parity.sqlite"
+    _fresh_db(database)
+    backend = BackendCoordinator()
+    page = SystemPage(backend)
+    page.set_workspace(WorkspaceState.opened(database, {}))
+    try:
+        assert page.mcp_command.text().startswith("sgokb --db ")
+        assert page.mcp_command.text().endswith("mcp serve")
+        assert "external client-managed stdio" in page.mcp_state.text()
+        assert "detached MCP daemon" in page.mcp_state.text()
+        page.mcp_semantic.setChecked(True)
+        qt_app.processEvents()
+        assert page.mcp_command.text().endswith("mcp serve --semantic-runtime")
+    finally:
+        page.deleteLater()
+        qt_app.processEvents()
+        assert backend.shutdown()
 
 
 def test_gui_views_have_no_direct_canonical_persistence_or_shell_write_bypass():
