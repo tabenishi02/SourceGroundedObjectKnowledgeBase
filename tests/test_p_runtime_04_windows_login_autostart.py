@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 REGISTER = ROOT / "runtime" / "qdrant" / "windows" / "Register-SgokbQdrantAutoStart.ps1"
 VERIFY = ROOT / "runtime" / "qdrant" / "windows" / "Test-SgokbQdrantAutoStart.ps1"
