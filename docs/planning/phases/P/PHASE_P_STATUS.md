@@ -1,6 +1,6 @@
 # Phase P — GUI / RAW Grounding / Runtime Modernization Status
 
-Updated: 2026-10-30
+Updated: 2026-10-31
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Status: **In Progress**
@@ -41,7 +41,7 @@ Priority 3: Runtime / Qdrant auto-start
 | Runtime | P-RUNTIME-01 | **Complete / Accepted** | Windows Qdrant runtime operational design / reference approach |
 | Runtime | P-RUNTIME-02 | **Complete / Accepted** | Reproducible pinned Qdrant Compose / configuration assets |
 | Runtime | P-RUNTIME-03 | **Complete / Accepted** | Shared CLI/GUI runtime health/status Application boundary |
-| Runtime | P-RUNTIME-04 | **Not Started / Next** | Windows login auto-start integration |
+| Runtime | P-RUNTIME-04 | **In Progress / Acceptance Pending** | Windows login auto-start implementation complete; real restart/sign-in gate pending |
 | Runtime | P-RUNTIME-05 | Not Started | GUI Runtime Dashboard integration |
 | Runtime | P-RUNTIME-06 | Not Started | Runtime failure / recovery acceptance |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
@@ -254,7 +254,39 @@ P-RUNTIME-02 = Complete / Accepted
 P-RUNTIME-03 = Complete / Accepted
 ```
 
-P-RUNTIME-04 still owns actual Windows login/restart startup ordering, readiness/retry, troubleshooting, and unexpected-stop recovery verification. P-RUNTIME-05 owns the dedicated GUI Runtime Dashboard; P-RUNTIME-06 owns failure/recovery acceptance.
+### P-RUNTIME-04 — Windows login auto-start integration
+
+Repository implementation is complete and preserves the accepted external lifecycle boundary:
+
+```text
+Windows sign-in
+  -> Docker Desktop auto-start
+  -> Docker Engine becomes ready
+  -> existing Qdrant container returns under restart: unless-stopped
+  -> /readyz HTTP 200
+  -> SGOKB observes/uses the runtime
+```
+
+Implemented authority:
+
+- `runtime/qdrant/verify-windows-login-readiness.ps1`
+- `docs/operations/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART.md`
+- `docs/evaluation/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART_ACCEPTANCE.md`
+- `tests/test_p_runtime_04_windows_login_autostart.py`
+
+The readiness probe is observer-only: it waits for Docker Engine, resolves the persisted Qdrant container including stopped state, verifies `unless-stopped`, polls container health and `/readyz`, and emits a structured receipt. It does not launch Docker Desktop or execute Qdrant `up`, `start`, or `restart` actions.
+
+Formal task closure still requires a supported Windows reference-host restart/sign-in transition with no manual Docker Desktop or Qdrant startup, plus the crash-style restart-policy check. Hosted Windows CI cannot substitute for that host lifecycle transition.
+
+Therefore:
+
+```text
+P-RUNTIME-04 repository implementation = Complete
+P-RUNTIME-04 reference-host acceptance = Pending
+P-RUNTIME-04 overall                    = In Progress / Acceptance Pending
+```
+
+P-RUNTIME-05 owns the dedicated GUI Runtime Dashboard only after the P-RUNTIME-04 reference-host acceptance gate closes. P-RUNTIME-06 owns broader failure/recovery acceptance.
 
 ## Sequencing
 
@@ -265,7 +297,7 @@ P-RAW-01..06 Complete / Accepted
         ↓
 P-RUNTIME-01..03 Complete / Accepted
         ↓
-P-RUNTIME-04   <- NEXT
+P-RUNTIME-04 implementation Complete / reference-host acceptance Pending  <- CURRENT
         ↓
 P-RUNTIME-05
         ↓
@@ -278,10 +310,10 @@ P-CLOSE-01
 
 Phase P remains in development. Released-system semantics continue to be governed by release `v1.1.0` until Phase P closure/release integration.
 
-P-GUI-01 through P-GUI-10, P-RAW-01 through P-RAW-06, and P-RUNTIME-01 through P-RUNTIME-03 are accepted development baselines. The Qdrant runtime remains independently owned outside SGOKB; `system.status.runtime_health` is the accepted shared observation boundary for CLI/GUI, while MCP stdio lifecycle remains external-client-owned.
+P-GUI-01 through P-GUI-10, P-RAW-01 through P-RAW-06, and P-RUNTIME-01 through P-RUNTIME-03 are accepted development baselines. P-RUNTIME-04 has a complete repository implementation but is not yet formally accepted until the real Windows restart/sign-in gate is recorded. The Qdrant runtime remains independently owned outside SGOKB; `system.status.runtime_health` is the accepted shared observation boundary for CLI/GUI, while MCP stdio lifecycle remains external-client-owned.
 
 ## Next
 
 ```text
-P-RUNTIME-04 — Windows login auto-start integration
+P-RUNTIME-04 — execute and record supported Windows reference-host restart/sign-in acceptance
 ```
