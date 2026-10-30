@@ -23,6 +23,12 @@ docker compose up -d --wait --wait-timeout 120
 Invoke-WebRequest http://127.0.0.1:6333/readyz -UseBasicParsing
 ```
 
+For the Phase P Windows login auto-start configuration, enable Docker Desktop **Settings > General > Start Docker Desktop when you sign in to your computer**. After sign-in, the repository observer can verify the asynchronous Engine -> container -> `/readyz` sequence without starting or restarting runtime state:
+
+```powershell
+.\verify-windows-login-readiness.ps1
+```
+
 Normal shutdown preserves persistent data:
 
 ```powershell
@@ -31,9 +37,10 @@ docker compose down
 
 Do **not** use `docker compose down -v` as routine cleanup. The `-v` form removes the persistent Qdrant volume and is destructive.
 
-Authoritative operating and upgrade procedure:
+Authoritative operating procedures:
 
 - `docs/operations/P_RUNTIME_02_QDRANT_COMPOSE_RUNTIME.md`
+- `docs/operations/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART.md`
 
 Architecture decision:
 
