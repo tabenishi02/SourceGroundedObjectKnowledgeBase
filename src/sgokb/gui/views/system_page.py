@@ -8,7 +8,6 @@ from enum import Enum
 from pathlib import Path
 from typing import Mapping
 
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -111,7 +110,10 @@ class SystemPage(OperationPage):
     def _build_overview_tab(self) -> QWidget:
         page = QWidget(self)
         layout = QVBoxLayout(page)
-        self.runtime_summary = QLabel("Runtime health is available after opening a Workspace.", page)
+        self.runtime_summary = QLabel(
+            "Runtime health is available after opening a Workspace.",
+            page,
+        )
         self.runtime_summary.setWordWrap(True)
         layout.addWidget(self.runtime_summary)
         self.system_status_button = QPushButton("Refresh system status", page)
@@ -185,7 +187,9 @@ class SystemPage(OperationPage):
         self.backup_create_button = QPushButton("Create SQLite backup", sqlite_group)
         self.backup_status_button.clicked.connect(self._run_backup_status)
         self.backup_create_button.clicked.connect(self._run_backup_create)
-        sqlite_layout.addWidget(self._button_row(self.backup_status_button, self.backup_create_button))
+        sqlite_layout.addWidget(
+            self._button_row(self.backup_status_button, self.backup_create_button)
+        )
         layout.addWidget(sqlite_group)
 
         composite_group = QGroupBox("Composite canonical backup", page)
@@ -245,7 +249,9 @@ class SystemPage(OperationPage):
         self.restore_plan_button.clicked.connect(self._run_restore_plan)
         self.restore_apply_button.clicked.connect(self._run_restore_apply)
         self.restore_backup.textChanged.connect(self._invalidate_restore_plan)
-        sqlite_layout.addWidget(self._button_row(self.restore_plan_button, self.restore_apply_button))
+        sqlite_layout.addWidget(
+            self._button_row(self.restore_plan_button, self.restore_apply_button)
+        )
         self.restore_plan_output = self._readout(sqlite_group)
         self.restore_plan_output.setMaximumHeight(190)
         sqlite_layout.addWidget(self.restore_plan_output)
@@ -269,7 +275,10 @@ class SystemPage(OperationPage):
         cform.addRow("Acknowledgement", self.composite_restore_ack)
         composite_layout.addLayout(cform)
         self.composite_plan_button = QPushButton("Plan composite restore", composite_group)
-        self.composite_apply_button = QPushButton("Apply planned composite restore", composite_group)
+        self.composite_apply_button = QPushButton(
+            "Apply planned composite restore",
+            composite_group,
+        )
         self.composite_apply_button.setEnabled(False)
         self.composite_plan_button.clicked.connect(self._run_composite_restore_plan)
         self.composite_apply_button.clicked.connect(self._run_composite_restore_apply)
@@ -280,7 +289,9 @@ class SystemPage(OperationPage):
             self.composite_restore_incoming,
         ):
             field.textChanged.connect(self._invalidate_composite_plan)
-        composite_layout.addWidget(self._button_row(self.composite_plan_button, self.composite_apply_button))
+        composite_layout.addWidget(
+            self._button_row(self.composite_plan_button, self.composite_apply_button)
+        )
         self.composite_plan_output = self._readout(composite_group)
         self.composite_plan_output.setMaximumHeight(210)
         composite_layout.addWidget(self.composite_plan_output)
@@ -292,17 +303,18 @@ class SystemPage(OperationPage):
         page = QWidget(self)
         layout = QVBoxLayout(page)
         self.mcp_state = QLabel(
-            "Lifecycle state: external client-managed stdio process; GUI does not own a detached MCP daemon.",
+            "Lifecycle state: external client-managed stdio process; GUI does not own a detached "
+            "MCP daemon.",
             page,
         )
         self.mcp_state.setWordWrap(True)
         layout.addWidget(self.mcp_state)
         lifecycle = QLabel(
             "The current MCP transport is stdio. A useful server process is therefore launched and "
-            "owned by the MCP client that connects to its stdin/stdout. Starting a detached copy from "
-            "the SGOKB GUI would not expose a connectable endpoint, so P-GUI-09 provides the exact "
-            "serve configuration/command instead of a misleading Start/Stop button. Closing the GUI "
-            "does not stop MCP processes launched by external clients.",
+            "owned by the MCP client that connects to its stdin/stdout. Starting a detached copy "
+            "from the SGOKB GUI would not expose a connectable endpoint, so P-GUI-09 provides the "
+            "exact serve configuration/command instead of a misleading Start/Stop button. Closing "
+            "the GUI does not stop MCP processes launched by external clients.",
             page,
         )
         lifecycle.setWordWrap(True)
@@ -331,8 +343,9 @@ class SystemPage(OperationPage):
         page = QWidget(self)
         layout = QVBoxLayout(page)
         warning = QLabel(
-            "Advanced / Search Generation Maintenance. These actions are outside the public 67-operation "
-            "sgokb parity surface and are intentionally isolated from the normal Search page.",
+            "Advanced / Search Generation Maintenance. These actions are outside the public "
+            "67-operation sgokb parity surface and are intentionally isolated from the normal "
+            "Search page.",
             page,
         )
         warning.setWordWrap(True)
@@ -341,7 +354,9 @@ class SystemPage(OperationPage):
 
         form = QFormLayout()
         self.generation_id = QLineEdit(page)
-        self.generation_id.setPlaceholderText("generation ID; rollback blank uses legacy generation")
+        self.generation_id.setPlaceholderText(
+            "generation ID; rollback blank uses legacy generation"
+        )
         self.generation_reason = QLineEdit("GUI Advanced Search Generation maintenance", page)
         self.generation_smoke = QCheckBox("Run post-switch smoke verification", page)
         self.generation_smoke.setChecked(True)
@@ -403,7 +418,9 @@ class SystemPage(OperationPage):
         runtime = status.get("runtime_health", {}) if isinstance(status, Mapping) else {}
         components = runtime.get("components", {}) if isinstance(runtime, Mapping) else {}
         if not isinstance(components, Mapping) or not components:
-            self.runtime_summary.setText("Runtime health snapshot unavailable in current status data.")
+            self.runtime_summary.setText(
+                "Runtime health snapshot unavailable in current status data."
+            )
             return
         parts = []
         for name in ("sqlite", "embedding", "qdrant", "generation", "derived"):
@@ -413,7 +430,11 @@ class SystemPage(OperationPage):
         self.runtime_summary.setText("Runtime health: " + " | ".join(parts))
 
     def _run_system_status(self) -> None:
-        self.submit("system.status", callback=self._on_system_status, summary="Refreshing system status...")
+        self.submit(
+            "system.status",
+            callback=self._on_system_status,
+            summary="Refreshing system status...",
+        )
 
     def _on_system_status(self, outcome: OperationOutcome) -> None:
         self._display(self.overview_output, outcome)
@@ -481,7 +502,11 @@ class SystemPage(OperationPage):
         )
 
     def _run_composite_backup_verify(self) -> None:
-        backup = _required_text(self.composite_verify_path, "Composite backup", self.operation_status)
+        backup = _required_text(
+            self.composite_verify_path,
+            "Composite backup",
+            self.operation_status,
+        )
         if backup is None:
             return
         self.submit(
@@ -519,18 +544,23 @@ class SystemPage(OperationPage):
         self.restore_apply_button.setEnabled(True)
         if self._restore_requires_ack:
             self.operation_status.setText(
-                "Restore plan ready. Existing target detected; overwrite acknowledgement is required."
+                "Restore plan ready. Existing target detected; overwrite acknowledgement "
+                "is required."
             )
         else:
             self.operation_status.setText("Restore plan ready. Review it before Apply.")
 
     def _run_restore_apply(self) -> None:
         if self._restore_plan_key is None or self._restore_plan_key != self._restore_key():
-            self.operation_status.setText("Run Restore Plan again for the current inputs before Apply.")
+            self.operation_status.setText(
+                "Run Restore Plan again for the current inputs before Apply."
+            )
             self.restore_apply_button.setEnabled(False)
             return
         if self._restore_requires_ack and not self.restore_ack.isChecked():
-            self.operation_status.setText("Explicit overwrite acknowledgement is required by the plan.")
+            self.operation_status.setText(
+                "Explicit overwrite acknowledgement is required by the plan."
+            )
             return
         backup = self.restore_backup.text().strip()
         self.submit(
@@ -603,7 +633,8 @@ class SystemPage(OperationPage):
         self.composite_apply_button.setEnabled(True)
         if self._composite_requires_ack:
             self.operation_status.setText(
-                "Composite plan ready. Existing target(s) detected; overwrite acknowledgement is required."
+                "Composite plan ready. Existing target(s) detected; overwrite acknowledgement "
+                "is required."
             )
         else:
             self.operation_status.setText("Composite plan ready. Review every target before Apply.")
@@ -616,7 +647,9 @@ class SystemPage(OperationPage):
             self.composite_apply_button.setEnabled(False)
             return
         if self._composite_requires_ack and not self.composite_restore_ack.isChecked():
-            self.operation_status.setText("Explicit overwrite acknowledgement is required by the plan.")
+            self.operation_status.setText(
+                "Explicit overwrite acknowledgement is required by the plan."
+            )
             return
         arguments = self._composite_arguments()
         if arguments is None:
@@ -652,7 +685,9 @@ class SystemPage(OperationPage):
         command = self.mcp_command.text()
         if command:
             QApplication.clipboard().setText(command)
-            self.operation_status.setText("MCP serve command copied. Lifecycle remains external/client-owned.")
+            self.operation_status.setText(
+                "MCP serve command copied. Lifecycle remains external/client-owned."
+            )
 
     def _run_generation(self, operation_id: str, arguments: dict[str, object]) -> None:
         self.submit(
