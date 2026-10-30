@@ -1,0 +1,121 @@
+name: P-RUNTIME-04 Windows acceptance
+
+on:
+  push:
+    branches:
+      - phase-p/runtime-04-windows-login-autostart
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  acceptance:
+    runs-on: windows-2025
+    timeout-minutes: 35
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.11"
+
+      - name: Install test dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,mcp,gui,vector-qdrant]"
+          python -m pip install numpy
+          python -m pip install --no-deps sentence-transformers
+
+      - name: Parse PowerShell native auto-start assets
+        shell: pwsh
+        run: |
+          $scripts = @(
+            "runtime/qdrant/windows/Register-SgokbQdrantAutoStart.ps1",
+            "runtime/qdrant/windows/Test-SgokbQdrantAutoStart.ps1"
+          )
+          foreach ($script in $scripts) {
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $script),
+              [ref]$tokens,
+              [ref]$errors
+            )
+            if ($errors.Count -ne 0) {
+              $errors | Format-List | Out-String | Write-Error
+              exit 1
+            }
+          }
+
+      - name: Dynamic Task Scheduler registration smoke
+        shell: pwsh
+        run: |
+          $serverPath = Join-Path $env:RUNNER_TEMP "readyz_server.py"
+          @'
+          from http.server import BaseHTTPRequestHandler, HTTPServer
+
+          class Handler(BaseHTTPRequestHandler):
+              def do_GET(self):
+                  if self.path == "/readyz":
+                      self.send_response(200)
+                  else:
+                      self.send_response(404)
+                  self.end_headers()
+
+              def log_message(self, format, *args):
+                  pass
+
+          HTTPServer(("127.0.0.1", 6333), Handler).serve_forever()
+          '@ | Set-Content -Encoding utf8 $serverPath
+
+          $taskPath = "\SGOKB-Acceptance\"
+          $taskName = "Qdrant"
+          $cmdExe = Join-Path $env:SystemRoot "System32\cmd.exe"
+          $server = Start-Process python -ArgumentList $serverPath -PassThru
+          try {
+            Start-Sleep -Seconds 1
+            & ./runtime/qdrant/windows/Register-SgokbQdrantAutoStart.ps1 `
+              -QdrantExe $cmdExe `
+              -TaskPath $taskPath `
+              -TaskName $taskName
+
+            $receipt = & ./runtime/qdrant/windows/Test-SgokbQdrantAutoStart.ps1 `
+              -TaskPath $taskPath `
+              -TaskName $taskName `
+              -ExpectedQdrantExe $cmdExe `
+              -ReadyTimeoutSeconds 10 | ConvertFrom-Json
+
+            if ($receipt.ready_status -ne 200) { throw "readiness status mismatch" }
+            if ($receipt.task_path -ne "\SGOKB-Acceptance\Qdrant") { throw "task path mismatch" }
+            if ($receipt.restart_count -lt 1) { throw "restart policy missing" }
+            $receipt | ConvertTo-Json -Depth 4
+          }
+          finally {
+            Unregister-ScheduledTask -TaskPath $taskPath -TaskName $taskName -Confirm:$false -ErrorAction SilentlyContinue
+            if ($server -and -not $server.HasExited) { Stop-Process -Id $server.Id -Force }
+            try {
+              $service = New-Object -ComObject "Schedule.Service"
+              $service.Connect()
+              $service.GetFolder("\").DeleteFolder("SGOKB-Acceptance", 0)
+            }
+            catch {
+              Write-Warning "Task Scheduler test folder cleanup skipped: $($_.Exception.Message)"
+            }
+          }
+
+      - name: Focused P-RUNTIME regression
+        shell: pwsh
+        run: python -m pytest -q tests/test_p_runtime_02_qdrant_compose_assets.py tests/test_p_runtime_03_runtime_health_boundary.py tests/test_p_runtime_04_windows_login_autostart.py
+
+      - name: Ruff
+        shell: pwsh
+        run: python -m ruff check src tests
+
+      - name: Full repository regression
+        shell: pwsh
+        run: python -m pytest -q
