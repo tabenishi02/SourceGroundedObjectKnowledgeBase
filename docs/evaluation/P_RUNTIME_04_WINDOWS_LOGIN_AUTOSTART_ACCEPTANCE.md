@@ -4,107 +4,149 @@ Date: 2026-10-31
 Task: `P-RUNTIME-04 [P1] Windows login auto-start integration`
 Disposition: **Implementation Complete / Formal Reference-host Acceptance Pending**
 
-## 1. Scope
+## 1. Acceptance objective
 
-P-RUNTIME-04 verifies that the accepted Phase P Qdrant runtime can become ready after Windows sign-in without a manual Docker Desktop or Qdrant start action.
+P-RUNTIME-04 removes the need to launch Qdrant manually after Windows sign-in for the supported deployment where Qdrant runs directly on the local Windows host as `qdrant.exe`.
 
-The accepted lifecycle remains:
+The completion condition remains:
+
+> After a normal Windows restart and sign-in, Qdrant reaches `/readyz` HTTP 200 without a manual Qdrant launch.
+
+The task also requires recovery from an unexpected Qdrant process failure through the Windows-owned restart policy.
+
+## 2. Deployment correction and authority
+
+The original P-RUNTIME-01 decision selected Docker Desktop / WSL 2 + Docker Compose. During P-RUNTIME-04 execution the supported deployment constraint was corrected: the actual Windows runtime is native Qdrant, not Docker.
+
+The amended authority is:
 
 ```text
-Windows sign-in
-  -> Docker Desktop auto-start
-  -> Docker Engine ready
-  -> persisted Qdrant container restart under unless-stopped
-  -> /readyz HTTP 200
-  -> SGOKB semantic runtime available
+Windows reference runtime       = native qdrant.exe
+Login startup owner             = Windows Task Scheduler
+Startup trigger                 = AtLogOn
+Failure restart owner           = Windows Task Scheduler
+Qdrant readiness authority      = GET /readyz -> HTTP 200
+SGOKB runtime lifecycle role    = client / observer only
+GUI lifecycle ownership         = none
+Docker Compose                  = retained optional/development profile only
 ```
 
-SGOKB remains an observer/client and does not become a process supervisor.
+Authority documents:
 
-## 2. Repository implementation completed
-
-The task adds:
-
-- `runtime/qdrant/verify-windows-login-readiness.ps1`
-  - bounded Docker Engine readiness polling;
-  - persisted Qdrant service discovery;
-  - `unless-stopped` policy verification;
-  - container state/health observation;
-  - `/readyz` polling;
-  - structured JSON receipt;
-  - no lifecycle mutation.
+- `docs/decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md`
 - `docs/operations/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART.md`
-  - Docker Desktop sign-in startup configuration;
-  - one-time initialization prerequisite;
-  - reboot/login acceptance procedure;
-  - startup ordering and timeout behavior;
-  - crash-style recovery procedure;
-  - intentional-stop distinction;
-  - troubleshooting and safety boundary.
-- `tests/test_p_runtime_04_windows_login_autostart.py`
-  - observer-only probe gate;
-  - accepted Compose contract preservation;
-  - operations/safety documentation gate.
 
-The existing Compose definition remains unchanged because it already owns the accepted `restart: unless-stopped`, loopback ports, named-volume persistence, and `/readyz` health contract.
+P-RUNTIME-03 remains valid because its shared health contract already treats Qdrant as externally owned and observes `/readyz` without start/stop/restart actions.
 
-## 3. External behavior authority
+## 3. Repository implementation completed
 
-Current Docker documentation confirms:
-
-- Docker Desktop provides the General setting `Start Docker Desktop when you sign in to your computer`;
-- Docker recommends restart policies for automatic container restart rather than layering a host process manager over Docker;
-- `unless-stopped` restarts a container after exits/daemon restarts except when the service has been deliberately stopped;
-- restart policy monitoring becomes active after a container has successfully remained running for at least 10 seconds.
-
-These semantics match the P-RUNTIME-01 decision and are reflected in the P-RUNTIME-04 procedures.
-
-## 4. Static / CI-verifiable acceptance gates
-
-Required repository gates:
+Implemented assets:
 
 ```text
-probe is observer-only                         = required PASS
-accepted Compose restart policy preserved      = required PASS
-accepted loopback/readiness contract preserved = required PASS
-login/startup/recovery procedure documented    = required PASS
-intentional stop separated from failure        = required PASS
-existing P-RUNTIME-02/03 regression             = required PASS
-full repository regression                     = required PASS before merge
+runtime/qdrant/windows/Register-SgokbQdrantAutoStart.ps1
+runtime/qdrant/windows/Test-SgokbQdrantAutoStart.ps1
+tests/test_p_runtime_04_windows_login_autostart.py
+docs/operations/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART.md
 ```
 
-These gates can be executed without changing the runtime ownership model.
+The registration asset provides:
 
-## 5. Reference-host gate that cannot be substituted by hosted CI
+- explicit operator-supplied `qdrant.exe` path;
+- optional existing Qdrant arguments and working directory;
+- Task Scheduler folder creation where required;
+- `AtLogOn` trigger for the current Windows user;
+- direct `qdrant.exe` action rather than a GUI/CLI supervisor;
+- restart-on-failure policy;
+- 60-second default restart interval;
+- `MultipleInstances=IgnoreNew`;
+- `StartWhenAvailable` and unlimited execution time;
+- optional immediate start plus `/readyz` polling.
 
-The P-RUNTIME-04 task completion condition is explicitly a real Windows restart/sign-in transition. A GitHub-hosted Windows job cannot prove that the user's supported Docker Desktop installation starts from an interactive Windows sign-in and survives an actual host reboot while preserving the same Docker Desktop/WSL runtime state.
+The verification asset checks the scheduled-task contract and requires `/readyz` HTTP 200 before reporting success.
 
-Formal completion therefore requires evidence from a supported Windows reference host:
+## 4. Safety boundary
 
-1. Qdrant is running and ready before reboot;
-2. Docker Desktop sign-in auto-start is enabled;
-3. Windows is restarted;
-4. the user signs in;
-5. Docker Desktop is not launched manually;
-6. no `docker compose up/start/restart` action is executed;
-7. `verify-windows-login-readiness.ps1` returns exit 0 and `ready=true`;
-8. `/readyz` is HTTP 200;
-9. the receipt and `docker compose ps` output are retained.
+P-RUNTIME-04 does not:
 
-An additional crash-style check should use `docker kill` after Qdrant has been healthy for more than 10 seconds and require the observer-only probe to return to `ready=true` without SGOKB lifecycle action.
+- install or upgrade Qdrant;
+- choose or migrate Qdrant storage;
+- mutate canonical SGOKB SQLite data;
+- make the GUI/CLI a Qdrant process supervisor;
+- add public start/stop/restart operations to the P-RUNTIME-03 Application contract;
+- redefine Qdrant as canonical Knowledge storage.
 
-## 6. Current disposition
+This preserves the existing canonical-data and external-runtime ownership boundaries.
 
-Repository implementation is complete, but a real reference-host restart/sign-in has not been executed by this acceptance record. It would be incorrect to mark the task `Complete / Accepted` based only on static tests or a hosted Windows runner.
+## 5. Windows CI / repository acceptance gates
+
+The P-RUNTIME-04 Windows workflow validates:
+
+```text
+PowerShell 5.1 parse: registration script       = required PASS
+PowerShell 5.1 parse: verification script       = required PASS
+Task Scheduler registration smoke               = required PASS
+focused P-RUNTIME-03/04 regression              = required PASS
+Ruff src/tests                                   = required PASS
+full repository regression                      = required PASS
+```
+
+The Task Scheduler smoke uses a disposable Windows-runner task and a local synthetic `/readyz` endpoint. It validates registration/folder/task-contract mechanics without claiming that a hosted runner reproduced the user's real Qdrant installation or reboot lifecycle.
+
+### Final CI result
+
+Pending the final native-Windows branch run. This section must be updated with the accepted workflow run before repository-level acceptance is claimed.
+
+## 6. Reference-host gate — reboot / sign-in
+
+**Status: PENDING**
+
+Required procedure on the actual supported Windows workstation:
+
+1. register `\SGOKB\Qdrant` with the real local `qdrant.exe` path and existing arguments/configuration;
+2. prove `/readyz` is HTTP 200 before reboot;
+3. restart Windows normally;
+4. sign in as the scheduled-task user;
+5. do not manually launch Qdrant, SGOKB GUI, Docker, or another Qdrant shortcut;
+6. run `Test-SgokbQdrantAutoStart.ps1` within the acceptance timeout;
+7. require `/readyz` HTTP 200;
+8. require `system status` to report the Qdrant component healthy.
+
+A brief interval of `unavailable/degraded` during startup is allowed. The acceptance authority is eventual `/readyz` readiness within the documented timeout, not process existence or sign-in completion.
+
+## 7. Reference-host gate — unexpected process failure
+
+**Status: PENDING**
+
+Required procedure on the actual supported Windows workstation:
+
+1. begin from a healthy scheduled-task-managed Qdrant process;
+2. terminate that Qdrant process unexpectedly (`Stop-Process -Force` or equivalent);
+3. do not invoke `Start-ScheduledTask` manually;
+4. allow the configured Task Scheduler restart interval plus Qdrant startup time;
+5. require a new Qdrant process to appear;
+6. require `/readyz` HTTP 200;
+7. require `system status` to return to healthy.
+
+An intentional `Stop-ScheduledTask` is a maintenance stop and is not interchangeable with this crash-recovery acceptance case.
+
+## 8. Current disposition
+
+Repository implementation can be accepted independently of the physical reboot/crash test, but the **P-RUNTIME-04 task itself is not Complete / Accepted until both reference-host gates pass**.
 
 Current formal state:
 
 ```text
-P-RUNTIME-04 repository implementation = Complete
-P-RUNTIME-04 reference-host acceptance = Pending
+native Windows design correction       = Complete
+Task Scheduler registration asset       = Complete
+Task Scheduler verification asset       = Complete
+operations / troubleshooting            = Complete
+Windows CI / repository acceptance      = Pending final run
+actual reboot -> login -> ready          = Pending reference-host acceptance
+unexpected process failure -> recovery  = Pending reference-host acceptance
+
 P-RUNTIME-04 overall                    = In Progress / Acceptance Pending
-next executable gate                    = real Windows restart/sign-in acceptance
+next executable gate                    = final Windows CI, then real reference-host acceptance
 P-RUNTIME-05                            = not yet unblocked by formal P-RUNTIME-04 acceptance
 ```
 
-Once the reference-host evidence is recorded and all repository regression gates pass, this document can be amended to `Complete / Accepted` and Phase P sequencing can advance to P-RUNTIME-05.
+Once CI is recorded and both reference-host gates pass, this document can be amended to `Complete / Accepted` and Phase P sequencing can advance to P-RUNTIME-05.
