@@ -35,7 +35,9 @@ jobs:
         run: python -m pytest -q tests/test_p_gui_09_system_maintenance.py
       - name: GUI regression
         shell: pwsh
-        run: python -m pytest -q tests/test_p_gui_*.py
+        run: |
+          $GuiTests = Get-ChildItem tests -Filter 'test_p_gui_*.py' | ForEach-Object { $_.FullName }
+          python -m pytest -q $GuiTests
       - name: Ruff
         shell: pwsh
         run: python -m ruff check src tests
