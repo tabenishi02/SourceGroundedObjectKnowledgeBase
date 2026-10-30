@@ -30,8 +30,8 @@ Priority 3: Runtime / Qdrant auto-start
 | GUI | P-GUI-06 | **Complete / Accepted** | Search / Similarity / Registry / Version GUI; Attempt 09 + interactive PASS |
 | GUI | P-GUI-07 | **Complete / Accepted** | Progress / error / safety / audit UX; automated + interactive PASS |
 | GUI | P-GUI-08 | **Complete / Accepted** | Package / Result GUI against accepted v2 Raw boundary |
-| GUI | P-GUI-09 | **Not Started / Next** | System / Maintenance / MCP / Advanced GUI; unblocked by P-RUNTIME-03 |
-| GUI | P-GUI-10 | Not Started | GUI parity / regression acceptance |
+| GUI | P-GUI-09 | **Complete / Accepted** | System / Maintenance / MCP / Advanced GUI; Windows acceptance PASS |
+| GUI | P-GUI-10 | **Not Started / Next** | GUI parity / usability / regression acceptance |
 | RAW | P-RAW-01 | **Complete / Accepted** | Current Evidence Package / Result impact survey |
 | RAW | P-RAW-02 | **Complete / Accepted** | Deterministic Evidence -> Raw Artifact provenance resolution contract |
 | RAW | P-RAW-03 | **Complete / Accepted** | Versioned RAW-bearing Package v2 design |
@@ -58,7 +58,7 @@ Qt linking            = dynamic / separate shared libraries
 
 GUI is not a CLI subprocess wrapper. Qdrant remains an independent shared runtime.
 
-## P-GUI-01..08 accepted baseline
+## P-GUI-01..09 accepted baseline
 
 ```text
 P-GUI-01..03R = Complete / Accepted
@@ -67,6 +67,7 @@ P-GUI-05      = Complete / Accepted
 P-GUI-06      = Complete / Accepted
 P-GUI-07      = Complete / Accepted
 P-GUI-08      = Complete / Accepted
+P-GUI-09      = Complete / Accepted
 ```
 
 P-GUI-06 final evidence:
@@ -118,6 +119,34 @@ GUI Evidence selection
 
 The GUI selects v2 explicitly for the accepted Raw-grounded path, while the shared Application/CLI omitted-version default remains v1 until P-CLOSE-01.
 
+P-GUI-09 accepted boundary:
+
+```text
+public System operations         = 14 / 14 GUI-reachable
+Advanced Search Generation       = 6 / 6 GUI-reachable
+System execution                 = shared OperatorSession
+Generation execution             = shared GenerationOperatorSession
+Restore                          = Plan -> preview -> acknowledgement -> Apply
+MCP transport                    = stdio
+MCP lifecycle owner              = external MCP client / launcher
+GUI detached MCP start/stop      = no
+Qdrant lifecycle owner           = external
+system.status runtime projection = P-RUNTIME-03 data.runtime_health
+```
+
+P-GUI-09 final evidence:
+
+```text
+GitHub Actions run                = 41049707411 (#8)
+verified branch source            = e0456b12dfdfc8897ed21358dbc4c04ffef6c43d
+verified synthetic PR merge       = bfcd5caf63c5e072a1e844c85e47bc2411d57c19
+focused P-GUI-09                  = 6 / 6 PASS
+GUI regression                    = 44 / 44 PASS
+Ruff src/tests                    = PASS
+full repository regression        = 848 / 848 PASS
+warnings                          = 2 known local-Qdrant warnings
+```
+
 Final GUI authority includes:
 
 - `docs/evaluation/P_GUI_06_DYNAMIC_VERIFICATION_ATTEMPT_09.md`
@@ -127,8 +156,12 @@ Final GUI authority includes:
 - `docs/evaluation/P_GUI_08_PACKAGE_RESULT_GUI_IMPLEMENTATION.md`
 - `docs/evaluation/P_GUI_08_PACKAGE_RESULT_GUI_ACCEPTANCE.md`
 - `docs/operations/P_GUI_08_PACKAGE_RESULT_GUI_WORKFLOW.md`
+- `docs/design/P_GUI_09_SYSTEM_MAINTENANCE_MCP_ADVANCED_DESIGN.md`
+- `docs/decisions/P_GUI_09_MCP_STDIO_LIFECYCLE_DECISION.md`
+- `docs/reference/GUI_CLI_CAPABILITY_MATRIX_P_GUI_09_AMENDMENT.md`
+- `docs/evaluation/P_GUI_09_SYSTEM_MAINTENANCE_MCP_ADVANCED_ACCEPTANCE.md`
 
-P-GUI-08 is automated functional/contract acceptance. Final GUI-wide parity/usability closure remains owned by P-GUI-10.
+P-GUI-09 is automated functional/contract acceptance. Final GUI-wide parity/usability closure remains owned by P-GUI-10.
 
 ## P-RAW accepted baseline
 
@@ -269,7 +302,7 @@ Therefore:
 ```text
 P-RAW-01..06 = Complete / Accepted
 P-RAW workstream = Complete / Accepted for Phase P
-P-GUI-01..08 = Complete / Accepted
+P-GUI-01..09 = Complete / Accepted
 ```
 
 ## P-RUNTIME accepted baseline
@@ -284,16 +317,16 @@ Authorities:
 Accepted reference Windows runtime:
 
 ```text
-container runtime       = Docker Desktop / WSL 2
-runtime definition      = repository-owned Docker Compose
-Qdrant initial pin      = qdrant/qdrant:v1.20.0
-startup                 = Docker Desktop at user sign-in
-container restart       = unless-stopped
-persistent storage      = Docker named volume
-HTTP                    = 127.0.0.1:6333 -> 6333
-gRPC                    = 127.0.0.1:6334 -> 6334
-distributed port 6335   = not published
-readiness               = Qdrant /readyz
+container runtime        = Docker Desktop / WSL 2
+runtime definition       = repository-owned Docker Compose
+Qdrant initial pin       = qdrant/qdrant:v1.20.0
+startup                  = Docker Desktop at user sign-in
+container restart        = unless-stopped
+persistent storage       = Docker named volume
+HTTP                     = 127.0.0.1:6333 -> 6333
+gRPC                     = 127.0.0.1:6334 -> 6334
+distributed port 6335    = not published
+readiness                = Qdrant /readyz
 GUI / CLI lifecycle role = client / observer only
 ```
 
@@ -318,33 +351,33 @@ Authorities:
 Accepted repository runtime:
 
 ```text
-Compose project          = sgokb-qdrant
-image                    = qdrant/qdrant:v1.20.0
-restart                  = unless-stopped
-HTTP                     = 127.0.0.1:6333
-preferred gRPC           = 127.0.0.1:6334
-6335                     = not published
-persistent volume        = sgokb_qdrant_storage
-container storage        = /qdrant/storage
-health/readiness         = /readyz -> HTTP 200
-local override           = QDRANT_LOG_LEVEL only
+Compose project           = sgokb-qdrant
+image                     = qdrant/qdrant:v1.20.0
+restart                   = unless-stopped
+HTTP                      = 127.0.0.1:6333
+preferred gRPC            = 127.0.0.1:6334
+6335                      = not published
+persistent volume         = sgokb_qdrant_storage
+container storage         = /qdrant/storage
+health/readiness          = /readyz -> HTTP 200
+local override            = QDRANT_LOG_LEVEL only
 ```
 
 Final P-RUNTIME-02 evidence:
 
 ```text
-GitHub Actions run         = 40961873913
-verified branch source     = 1732322b7a0d40dbd4838e3b62cebea1fb458baf
-verified synthetic merge   = 56b2ee1d1c83e0f4c84c27575ed8fdbcbb7bade9
-Compose render             = PASS
-focused contract tests     = 2 / 2 PASS
-real Qdrant v1.20.0        = PASS
-/readyz                    = PASS
-named-volume persistence   = PASS
+GitHub Actions run          = 40961873913
+verified branch source      = 1732322b7a0d40dbd4838e3b62cebea1fb458baf
+verified synthetic merge    = 56b2ee1d1c83e0f4c84c27575ed8fdbcbb7bade9
+Compose render              = PASS
+focused contract tests      = 2 / 2 PASS
+real Qdrant v1.20.0         = PASS
+/readyz                     = PASS
+named-volume persistence    = PASS
 recreate / second readiness = PASS
-Ruff src/tests             = PASS
-Windows full regression    = 839 / 839 PASS
-warnings                   = 2 known local-Qdrant warnings
+Ruff src/tests              = PASS
+Windows full regression     = 839 / 839 PASS
+warnings                    = 2 known local-Qdrant warnings
 ```
 
 P-RUNTIME-02 verifies runtime construction and persistence. P-RUNTIME-04 still owns Windows login auto-start ordering/recovery acceptance.
@@ -396,39 +429,35 @@ Therefore:
 P-RUNTIME-01 = Complete / Accepted
 P-RUNTIME-02 = Complete / Accepted
 P-RUNTIME-03 = Complete / Accepted
-P-GUI-09     = Unblocked / Next
+P-GUI-09     = Complete / Accepted
 ```
 
 ## Sequencing
 
 ```text
-P-GUI-01..08 Complete / Accepted
+P-GUI-01..09 Complete / Accepted
         ↓
 P-RAW-01..06 Complete / Accepted
         ↓
-P-RUNTIME-01 Complete / Accepted
+P-RUNTIME-01..03 Complete / Accepted
         ↓
-P-RUNTIME-02 Complete / Accepted
+P-GUI-10   <- NEXT (GUI priority)
         ↓
-P-RUNTIME-03 Complete / Accepted
-        ↓
-P-GUI-09   <- NEXT
-        ↓
-P-RUNTIME-04..06 / P-GUI-10
+P-RUNTIME-04..06
         ↓
 P-CLOSE-01
 ```
 
-`P-GUI-09` depended on `P-RUNTIME-03`; that dependency is now satisfied. System / Maintenance / MCP / Advanced GUI can consume the accepted shared `system.status.runtime_health` model without taking Qdrant lifecycle ownership.
+P-GUI-09 has consumed the accepted shared `system.status.runtime_health` model without taking Qdrant lifecycle ownership. The final GUI-wide coverage/usability closure now belongs to P-GUI-10. Runtime login auto-start/dashboard/recovery remain P-RUNTIME-04..06 scope.
 
 ## Current authority boundary
 
 Phase P remains in development. Released system semantics continue to be governed by release `v1.1.0` until Phase P closure/release integration.
 
-P-GUI-01 through P-GUI-08, P-RAW-01 through P-RAW-06, and P-RUNTIME-01 through P-RUNTIME-03 are accepted development baselines. The Qdrant runtime remains an independent external runtime; `system.status.runtime_health` is now the accepted shared observation boundary for CLI/GUI.
+P-GUI-01 through P-GUI-09, P-RAW-01 through P-RAW-06, and P-RUNTIME-01 through P-RUNTIME-03 are accepted development baselines. The Qdrant runtime remains an independent external runtime; `system.status.runtime_health` is the accepted shared observation boundary for CLI/GUI, while MCP stdio lifecycle remains external-client-owned.
 
 ## Next
 
 ```text
-P-GUI-09 — System / Maintenance / MCP / Advanced GUI
+P-GUI-10 — GUI parity / usability / regression acceptance
 ```
