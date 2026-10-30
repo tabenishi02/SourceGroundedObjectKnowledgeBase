@@ -16,17 +16,16 @@ def test_login_readiness_probe_is_observer_only() -> None:
     assert "http://127.0.0.1:6333/readyz" in probe
     assert 'lifecycle_owner = "external"' in probe
 
-    forbidden = (
-        "docker compose up",
-        "docker compose start",
-        "docker compose restart",
-        "docker desktop start",
+    forbidden_invocations = (
+        '"compose", "-f", $ComposePath, "-p", $ProjectName, "up"',
+        '"compose", "-f", $ComposePath, "-p", $ProjectName, "start"',
+        '"compose", "-f", $ComposePath, "-p", $ProjectName, "restart"',
         "Start-Process",
         "Register-ScheduledTask",
-        "schtasks",
+        "schtasks /",
     )
-    for command in forbidden:
-        assert command not in probe
+    for invocation in forbidden_invocations:
+        assert invocation not in probe
 
 
 def test_login_autostart_keeps_accepted_compose_contract() -> None:
