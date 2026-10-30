@@ -1,0 +1,44 @@
+name: P-RUNTIME-04 Windows acceptance
+
+on:
+  pull_request:
+    paths:
+      - "runtime/qdrant/windows/**"
+      - "tests/test_p_runtime_04_windows_autostart_assets.py"
+      - "docs/decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md"
+      - "docs/operations/P_RUNTIME_04_NATIVE_WINDOWS_QDRANT_AUTOSTART.md"
+      - ".github/workflows/p-runtime-04-windows.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused-windows-contract:
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install package and test tools
+        shell: pwsh
+        run: python -m pip install -e ".[dev]"
+
+      - name: Ruff focused test
+        shell: pwsh
+        run: python -m ruff check tests/test_p_runtime_04_windows_autostart_assets.py
+
+      - name: P-RUNTIME-03 and P-RUNTIME-04 focused regression
+        shell: pwsh
+        run: >-
+          python -m pytest -q
+          tests/test_p_runtime_03_runtime_health_boundary.py
+          tests/test_p_runtime_04_windows_autostart_assets.py
