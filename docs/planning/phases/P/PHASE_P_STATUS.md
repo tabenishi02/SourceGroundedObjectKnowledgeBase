@@ -28,8 +28,8 @@ Priority 3: Runtime / Qdrant auto-start
 | Runtime | P-RUNTIME-01 | **Complete / Accepted / Amended** | Windows reference = native Qdrant + Task Scheduler; recovery mechanism amended |
 | Runtime | P-RUNTIME-02 | **Complete / Accepted** | Compose retained as optional/historical Docker profile |
 | Runtime | P-RUNTIME-03 | **Complete / Accepted** | Shared CLI/GUI runtime health/status Application boundary |
-| Runtime | P-RUNTIME-04 | **In Progress / Remediation Acceptance Pending** | Reboot/sign-in PASS; RestartOnFailure crash recovery failed; repeating-trigger remediation implemented; CI/reference-host retest pending |
-| Runtime | P-RUNTIME-05 | **Blocked / Not Started** | GUI Runtime Dashboard integration; blocked by P-RUNTIME-04 formal acceptance |
+| Runtime | P-RUNTIME-04 | **In Progress / Repository CI Pending** | Reference-host reboot/sign-in and remediated crash recovery both PASS; only executable Windows CI remains unresolved |
+| Runtime | P-RUNTIME-05 | **Blocked / Not Started** | GUI Runtime Dashboard integration; blocked until P-RUNTIME-04 formal repository acceptance |
 | Runtime | P-RUNTIME-06 | Not Started | Runtime failure / recovery acceptance |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
@@ -46,17 +46,11 @@ Backend concurrency   = serialized per Workspace initially
 Windows deployment    = pyside6-deploy / Nuitka standalone directory
 ```
 
-Final public capability inventory remains 67 public operations, 66 shared GUI-reachable operations, and the external-client-owned `mcp.serve` transport operation. P-GUI-10 Windows acceptance remains run `41066089220 (#2)`: focused 6/6, scaled-DPI 1/1, complete GUI 50/50, CLI+MCP 59/59, Ruff PASS, full regression 854/854.
-
-Authorities:
-
-- `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
-- `docs/reference/GUI_CLI_CAPABILITY_MATRIX_P_GUI_09_AMENDMENT.md`
-- `docs/evaluation/P_GUI_10_PARITY_USABILITY_REGRESSION_ACCEPTANCE.md`
+P-GUI-10 final Windows acceptance remains run `41066089220 (#2)`: focused 6/6, scaled-DPI 1/1, complete GUI 50/50, CLI+MCP 59/59, Ruff PASS, full regression 854/854.
 
 ## P-RAW workstream — Complete / Accepted
 
-Accepted boundary:
+Accepted boundary remains:
 
 ```text
 selected Evidence
@@ -70,18 +64,6 @@ selected Evidence
   -> raw_grounding_links
   -> accepted Version
 ```
-
-Accepted contract family:
-
-```text
-Package schema     = sgokb.object-evidence-package/2.0
-instructions       = sgokb.object-analysis/2.0
-Result schema      = sgokb.object-result/2.0
-Raw grounding      = sgokb.raw-grounding/1.0
-resolver contract  = sgokb.evidence-to-raw/1.0
-```
-
-Authorities include `docs/requirements/RAW_GROUNDING_REQUIREMENTS.md`, the P-RAW-02/03/04 design documents, and the P-RAW-06 decision/operations/acceptance documents.
 
 ## P-RUNTIME accepted baseline
 
@@ -104,19 +86,9 @@ readiness                = Qdrant /readyz
 GUI / CLI lifecycle role = client / observer only
 ```
 
-Authorities:
-
-- `docs/decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md`
-- `docs/planning/phases/P/P_RUNTIME_04_NATIVE_WINDOWS_TASK_AMENDMENT.md`
-- `docs/design/P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md`
-
-### P-RUNTIME-02 — optional Docker profile
-
-P-RUNTIME-02 remains Complete / Accepted as historical/reproducibility work. `runtime/qdrant/compose.yaml` and related assets remain optional Docker/development assets and are not the supported Windows lifecycle dependency.
-
 ### P-RUNTIME-03 — Runtime health/status boundary
 
-The accepted observer-only contract is unchanged:
+The accepted observer-only contract remains unchanged:
 
 ```text
 operation                  = system.status
@@ -129,18 +101,11 @@ start / stop / restart     = false / false / false
 qdrant readiness authority = /readyz
 ```
 
-Authorities:
-
-- `docs/design/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_APPLICATION_BOUNDARY.md`
-- `docs/evaluation/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_ACCEPTANCE.md`
-- `src/sgokb/runtime_health.py`
-- `src/sgokb/application_system.py`
-
 ## P-RUNTIME-04 — Windows login auto-start / crash recovery
 
-### Previously accepted repository baseline
+### Historical evidence
 
-Original Windows CI run `41091876482 (#43)` accepted the initial native Task Scheduler implementation:
+Original Windows CI run `41091876482 (#43)` accepted the initial native Task Scheduler repository assets:
 
 ```text
 PowerShell parse                   = PASS
@@ -150,29 +115,22 @@ Ruff                               = PASS
 full repository regression         = 857 / 857 PASS
 ```
 
-### Reference-host evidence
+Real-host lifecycle evidence then showed:
 
 ```text
-Gate 1
-Windows restart -> sign-in -> no manual launch -> native Qdrant available
+Gate 1 reboot -> sign-in -> automatic Qdrant start
 = PASS
 
-Gate 2 attempt A
-S4U task -> force qdrant.exe exit -> no automatic recovery
+Gate 2 attempt A / S4U / RestartOnFailure-only
 = FAIL
 
-Gate 2 attempt B
-repository-authoritative InteractiveToken task
--> /readyz HTTP 200
--> force qdrant.exe exit
--> >60 seconds observation
--> no replacement process / no readiness recovery
+Gate 2 attempt B / InteractiveToken / RestartOnFailure-only
 = FAIL
 ```
 
-Attempt B proves that the S4U mismatch was not the crash-recovery root cause. The accepted conclusion is that `RestartOnFailure` cannot be relied upon as the sole long-running-process crash supervisor for the supported host.
+Attempt B established that the S4U mismatch was not the root cause. `RestartOnFailure` was rejected as the sole long-running-process crash supervisor.
 
-### Selected remediation
+### Accepted remediation design
 
 ```text
 Task      = \SGOKB\Qdrant
@@ -197,46 +155,69 @@ Unexpected process exit:
 qdrant.exe exits -> task Ready -> next recovery pulse -> new qdrant.exe -> /readyz
 ```
 
-Microsoft Task Scheduler's repetition schema defines `Duration` as optional; omitting it means the repetition pattern continues indefinitely. `RestartOnFailure` remains only a task/action-start failure fallback.
+### Remediated reference-host acceptance
 
-### Remediation implementation
+The supported workstation was re-registered from PR #81 with verifier schema `sgokb.qdrant-windows-autostart-check/1.1`.
 
-PR #81 updates:
-
-- `runtime/qdrant/windows/Register-SgokbQdrantAutoStart.ps1`
-- `runtime/qdrant/windows/Test-SgokbQdrantAutoStart.ps1`
-- `tests/test_p_runtime_04_windows_login_autostart.py`
-- `.github/workflows/p-runtime-04-acceptance.yml`
-- `docs/design/P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md`
-- P-RUNTIME-01 decision, P-RUNTIME-04 amendment, operations, acceptance, and runtime README
-
-Verifier schema is now:
+Pre-crash verification:
 
 ```text
-sgokb.qdrant-windows-autostart-check/1.1
+principal_logon_type      = Interactive
+trigger_count             = 2
+recovery_interval         = PT1M
+recovery_interval_seconds = 60
+ready_status              = 200
 ```
 
-The verifier requires exactly one LogonTrigger and one repeating TimeTrigger, the expected recovery interval, indefinite repetition, Interactive principal, one direct action, `IgnoreNew`, and `/readyz` HTTP 200.
+Crash-recovery retest:
 
-The Windows workflow now includes a disposable long-running scheduled worker. It force-terminates the worker and requires the next recovery pulse to create a different live PID without a second manual `Start-ScheduledTask`.
+```text
+force-terminate qdrant.exe
+-> no manual Start-ScheduledTask
+-> next recovery pulse executes task
+-> replacement qdrant.exe PID = 41480
+-> /readyz = HTTP 200 / all shards are ready
+-> SGOKB system.status qdrant.status = healthy
+-> qdrant.ready = true
+-> qdrant.version = 1.19.2
+```
+
+The SGOKB top-level `runtime_health.overall_status` was `degraded` only because unrelated generation and derived-state components were degraded. The Qdrant component itself was healthy, so P-RUNTIME-04 reference-host acceptance is unaffected.
+
+Therefore:
+
+```text
+reference-host Gate 1                          = PASS
+reference-host Gate 2 automatic process        = PASS
+reference-host Gate 2 /readyz                   = PASS
+reference-host Gate 2 SGOKB Qdrant health       = PASS
+P-RUNTIME-04 reference-host acceptance          = Complete / Accepted
+```
 
 ### Current automated acceptance state
 
-The remediation workflow has repeatedly failed **before runner assignment**. The observed jobs have `runner_id=0` and `steps=[]`, including an explicit rerun and the latest remediation HEAD. Therefore these are runner-start/infrastructure failures, not executed product/test failures; however they do not provide repository acceptance evidence either.
+The remediation Windows workflow has repeatedly terminated before runner assignment. Observed jobs have:
+
+```text
+runner_id = 0
+steps     = []
+```
+
+These are runner-start/infrastructure failures, not executed product/test failures. They also do not provide repository acceptance evidence.
 
 Current state:
 
 ```text
 remediation design                         = Complete
 remediation implementation                 = Complete on PR #81
-remediated Windows CI                      = Pending / runner infrastructure blocked
 reference-host Gate 1                      = PASS
-reference-host Gate 2 old design           = FAIL / root-cause evidence accepted
-reference-host Gate 2 remediated design    = Pending
-P-RUNTIME-04 overall                       = In Progress / Remediation Acceptance Pending
+reference-host Gate 2 remediated design    = PASS
+reference-host acceptance                  = Complete / Accepted
+remediated Windows CI                      = Pending / runner infrastructure blocked
+P-RUNTIME-04 overall                       = In Progress / Repository CI Pending
 ```
 
-P-RUNTIME-05 remains blocked until P-RUNTIME-04 is formally accepted.
+P-RUNTIME-05 remains blocked until P-RUNTIME-04 repository acceptance closes.
 
 ## Sequencing
 
@@ -247,7 +228,7 @@ P-RAW-01..06 Complete / Accepted
         ↓
 P-RUNTIME-01..03 Complete / Accepted
         ↓
-P-RUNTIME-04 remediation implementation + acceptance  <- CURRENT
+P-RUNTIME-04 reference-host PASS / repository CI pending  <- CURRENT
         ↓
 P-RUNTIME-05
         ↓
@@ -263,8 +244,9 @@ Phase P remains in development; released-system semantics continue to be governe
 ## Next
 
 ```text
-1. obtain an executable Windows CI run for PR #81 and record remediated repository acceptance;
-2. re-register the remediated task on the supported Windows reference host;
-3. rerun Gate 2: force qdrant.exe exit -> no manual task start -> new PID -> /readyz 200 -> system.status healthy;
-4. if PASS, close P-RUNTIME-04 as Complete / Accepted and unblock P-RUNTIME-05.
+1. obtain one executable Windows CI run for PR #81;
+2. require dynamic scheduled-worker crash-recovery smoke PASS;
+3. require focused P-RUNTIME tests, Ruff, and full regression PASS;
+4. if PASS, merge PR #81 and close P-RUNTIME-04 as Complete / Accepted;
+5. unblock P-RUNTIME-05.
 ```
