@@ -94,8 +94,10 @@ function Get-QdrantContainerInfo {
     $inspect = Invoke-DockerCommand -Arguments @("inspect", $ContainerId)
     $record = ($inspect.Output | ConvertFrom-Json)[0]
     $health = $null
-    if (($null -ne $record.State) -and ($null -ne $record.State.Health)) {
-        $health = [string]$record.State.Health.Status
+    if (($null -ne $record.State) -and ($record.State.PSObject.Properties.Name -contains "Health")) {
+        if ($null -ne $record.State.Health) {
+            $health = [string]$record.State.Health.Status
+        }
     }
     $mountNames = @()
     foreach ($mount in @($record.Mounts)) {
@@ -162,7 +164,8 @@ function New-Observation {
 
     $runtime = Wait-QdrantReady
     $desktop = Get-DockerDesktopStatus
-    $settingsPath = Join-Path $env:APPDATA "Docker\settings-store.json"
+    $appData = [Environment]::GetFolderPath([Environment+SpecialFolder]::ApplicationData)
+    $settingsPath = Join-Path $appData "Docker\settings-store.json"
     return [pscustomobject]@{
         schema_version = "sgokb.p-runtime-04-acceptance/1.0"
         mode = $ObservationMode
