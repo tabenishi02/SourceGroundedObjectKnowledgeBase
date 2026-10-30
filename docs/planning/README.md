@@ -15,11 +15,11 @@ Happy-path operational acceptance = Complete / FULL SGOKB PASS
 Current formal release = v1.1.0
 Phase P = In Progress
 
-P-GUI-01..10 = Complete / Accepted
+P-GUI-01..09 = Complete / Accepted
 P-RAW-01..06 = Complete / Accepted
 P-RUNTIME-01..03 = Complete / Accepted
-P-RUNTIME-04 = In Progress / Acceptance Pending
-P-RUNTIME-05..06 = Not Started
+P-RUNTIME-04..06 = Not Started
+P-GUI-10 = Not Started / Next
 P-CLOSE-01 = Not Started
 ```
 
@@ -31,7 +31,7 @@ Priority 2: RAW Grounding
 Priority 3: Runtime / Qdrant auto-start
 ```
 
-GUI は P-GUI-10、Raw Grounding は P-RAW-06 まで完了しています。Runtime reference design、repository-owned Qdrant Compose assets、shared runtime health/status Application boundary は P-RUNTIME-01..03 で確定・受入済みです。P-RUNTIME-04 の repository implementation は完了しており、現在の残gateは supported Windows reference host での実 restart/sign-in acceptance です。
+GUI は P-GUI-09 まで、Raw Grounding は P-RAW-06 まで完了しています。Runtime reference design、repository-owned Qdrant Compose assets、shared runtime health/status Application boundary は P-RUNTIME-01..03 で確定・受入済みです。P-GUI-09 では System / Maintenance / MCP / Advanced GUI が受入済みとなり、現在の次Taskは P-GUI-10 です。
 
 ## Phase P planning authority
 
@@ -144,29 +144,7 @@ full repository regression       = 848 / 848 PASS
 warnings                         = 2 known local-Qdrant warnings
 ```
 
-### P-GUI-10 — parity / usability / regression acceptance
-
-- Final acceptance: [`../evaluation/P_GUI_10_PARITY_USABILITY_REGRESSION_ACCEPTANCE.md`](../evaluation/P_GUI_10_PARITY_USABILITY_REGRESSION_ACCEPTANCE.md)
-
-Final P-GUI-10 gate:
-
-```text
-GitHub Actions run                = 41066089220 (#2)
-focused P-GUI-10                  = 6 / 6 PASS
-scaled DPI smoke                  = 1 / 1 PASS
-complete P-GUI regression         = 50 / 50 PASS
-explicit CLI + MCP regression     = 59 / 59 PASS
-Ruff src/tests                    = PASS
-full repository regression        = 854 / 854 PASS
-warnings                          = 2 known local-Qdrant warnings
-```
-
-Therefore:
-
-```text
-P-GUI-01..10 = Complete / Accepted
-P-GUI workstream = Complete / Accepted for Phase P
-```
+P-GUI-09 is automated functional/contract acceptance. GUI-wide parity/usability closure remains owned by P-GUI-10.
 
 ## Accepted RAW Grounding authority
 
@@ -228,7 +206,7 @@ Therefore:
 ```text
 P-RAW-01..06 = Complete / Accepted
 P-RAW workstream = Complete / Accepted for Phase P
-P-GUI-01..10 = Complete / Accepted
+P-GUI-01..09 = Complete / Accepted
 ```
 
 ## Accepted Runtime authority
@@ -328,24 +306,7 @@ Windows full regression     = 842 / 842 PASS
 warnings                    = 2 known local-Qdrant warnings
 ```
 
-P-RUNTIME-03 preserves external Qdrant lifecycle ownership and gives CLI/GUI the same read-only runtime status model.
-
-### P-RUNTIME-04 — Windows login auto-start integration
-
-- Operations: [`../operations/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART.md`](../operations/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART.md)
-- Acceptance record: [`../evaluation/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART_ACCEPTANCE.md`](../evaluation/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART_ACCEPTANCE.md)
-- Observer: [`../../runtime/qdrant/verify-windows-login-readiness.ps1`](../../runtime/qdrant/verify-windows-login-readiness.ps1)
-
-Current disposition:
-
-```text
-repository implementation = Complete
-observer-only readiness    = implemented
-reference-host reboot gate = Pending
-P-RUNTIME-04 overall       = In Progress / Acceptance Pending
-```
-
-The observer does not start Docker Desktop or Qdrant. Formal closure requires a real Windows restart/sign-in on the supported reference host with no manual runtime launch, plus recovery observation after an unexpected Qdrant stop.
+P-RUNTIME-03 preserves external Qdrant lifecycle ownership and gives CLI/GUI the same read-only runtime status model. Windows login auto-start remains P-RUNTIME-04 scope.
 
 ## Phase P architecture summary
 
@@ -367,11 +328,11 @@ Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 
 ### GUI
 
-`P-GUI-01` through `P-GUI-10` are Complete / Accepted. The Phase P GUI workstream is closed.
+`P-GUI-01` through `P-GUI-09` are Complete / Accepted. `P-GUI-10` is now the next GUI task and owns final CLI↔GUI capability coverage, representative canonical-state equivalence, usability, keyboard/DPI/restart scenarios, and GUI-wide regression closure.
 
 ### Runtime
 
-`P-RUNTIME-01` through `P-RUNTIME-03` are Complete / Accepted. P-RUNTIME-04 repository implementation is complete, but formal closure still requires the real Windows restart/sign-in acceptance gate. P-RUNTIME-05 and P-RUNTIME-06 remain subsequent tasks and must preserve external Qdrant lifecycle ownership.
+`P-RUNTIME-01` through `P-RUNTIME-03` are Complete / Accepted. P-RUNTIME-04 retains Windows login auto-start integration/acceptance ownership; later Runtime Dashboard/recovery work must consume the accepted observation boundary without moving Qdrant lifecycle ownership into the GUI.
 
 ### Closure
 
@@ -380,5 +341,5 @@ Raw semantic boundary  = Package v2 exact Raw -> Result v2 raw_artifact_id
 ## Next
 
 ```text
-P-RUNTIME-04 — execute and record supported Windows reference-host restart/sign-in acceptance
+P-GUI-10 — GUI parity / usability / regression acceptance
 ```
