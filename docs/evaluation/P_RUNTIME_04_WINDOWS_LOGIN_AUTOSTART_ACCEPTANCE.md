@@ -2,7 +2,7 @@
 
 Date: 2026-10-31
 Task: `P-RUNTIME-04 [P1] Windows login auto-start integration`
-Disposition: **Implementation Complete / Formal Reference-host Acceptance Pending**
+Disposition: **Repository Accepted / Formal Reference-host Acceptance Pending**
 
 ## 1. Acceptance objective
 
@@ -82,19 +82,40 @@ This preserves the existing canonical-data and external-runtime ownership bounda
 The P-RUNTIME-04 Windows workflow validates:
 
 ```text
-PowerShell 5.1 parse: registration script       = required PASS
-PowerShell 5.1 parse: verification script       = required PASS
+PowerShell parse: registration script           = required PASS
+PowerShell parse: verification script           = required PASS
 Task Scheduler registration smoke               = required PASS
-focused P-RUNTIME-03/04 regression              = required PASS
+focused P-RUNTIME regression                    = required PASS
 Ruff src/tests                                   = required PASS
 full repository regression                      = required PASS
 ```
 
 The Task Scheduler smoke uses a disposable Windows-runner task and a local synthetic `/readyz` endpoint. It validates registration/folder/task-contract mechanics without claiming that a hosted runner reproduced the user's real Qdrant installation or reboot lifecycle.
 
-### Final CI result
+### Final CI result — PASS
 
-Pending the final native-Windows branch run. This section must be updated with the accepted workflow run before repository-level acceptance is claimed.
+Accepted repository-level evidence:
+
+```text
+GitHub Actions workflow            = P-RUNTIME-04 Windows acceptance
+run                                = 41091876482 (#43)
+runner                             = Microsoft Windows Server 2025
+Python                             = 3.10.11
+verified branch HEAD               = 682f8446a3d00ab120c93fbed40a78aed3dee8e8
+checkout history                   = fetch-depth: 0
+PowerShell parse                   = PASS
+Task Scheduler registration smoke = PASS
+synthetic /readyz                  = HTTP 200
+restart policy smoke               = 10 attempts / PT1M
+focused P-RUNTIME regression       = 8 / 8 PASS
+Ruff src/tests                     = PASS
+full repository regression         = 857 / 857 PASS
+warnings                           = 2 known local-Qdrant warnings
+```
+
+The preceding run failed only because the workflow itself omitted the historical Git data and `sentence-transformers` package metadata required by pre-existing full-suite tests. The workflow was aligned with the already accepted Windows full-regression environment (`fetch-depth: 0` plus metadata-only `sentence-transformers` installation); no product/runtime semantics were relaxed.
+
+Repository implementation and automated Windows acceptance are therefore **Complete / Accepted**.
 
 ## 6. Reference-host gate — reboot / sign-in
 
@@ -136,17 +157,18 @@ Repository implementation can be accepted independently of the physical reboot/c
 Current formal state:
 
 ```text
-native Windows design correction       = Complete
-Task Scheduler registration asset       = Complete
-Task Scheduler verification asset       = Complete
-operations / troubleshooting            = Complete
-Windows CI / repository acceptance      = Pending final run
+native Windows design correction       = Complete / Accepted
+Task Scheduler registration asset       = Complete / Accepted
+Task Scheduler verification asset       = Complete / Accepted
+operations / troubleshooting            = Complete / Accepted
+Windows CI / repository acceptance      = Complete / Accepted
 actual reboot -> login -> ready          = Pending reference-host acceptance
 unexpected process failure -> recovery  = Pending reference-host acceptance
 
-P-RUNTIME-04 overall                    = In Progress / Acceptance Pending
-next executable gate                    = final Windows CI, then real reference-host acceptance
+P-RUNTIME-04 repository side            = Complete / Accepted
+P-RUNTIME-04 overall                    = In Progress / Reference-host Acceptance Pending
+next executable gate                    = real reference-host reboot/sign-in and crash-recovery acceptance
 P-RUNTIME-05                            = not yet unblocked by formal P-RUNTIME-04 acceptance
 ```
 
-Once CI is recorded and both reference-host gates pass, this document can be amended to `Complete / Accepted` and Phase P sequencing can advance to P-RUNTIME-05.
+Once both reference-host gates pass, this document can be amended to `Complete / Accepted` and Phase P sequencing can advance to P-RUNTIME-05.
