@@ -16,10 +16,22 @@ _COMPONENT_LABELS = {
 }
 _TROUBLESHOOTING = {
     "sqlite": "Run the integrity check and verify the selected Workspace database.",
-    "embedding": "Check the local embedding dependencies/model cache and the Search semantic-runtime setting.",
-    "qdrant": "Check the externally owned Qdrant process and /readyz. SGOKB does not start, stop, or restart Qdrant.",
-    "generation": "Use System > Advanced Generation to inspect, build, cut over, or repair Search generation state.",
-    "derived": "Use System > Derived and Vector Index to inspect or rebuild replaceable derived state.",
+    "embedding": (
+        "Check the local embedding dependencies/model cache and the Search "
+        "semantic-runtime setting."
+    ),
+    "qdrant": (
+        "Check the externally owned Qdrant process and /readyz. SGOKB does not "
+        "start, stop, or restart Qdrant."
+    ),
+    "generation": (
+        "Use System > Advanced Generation to inspect, build, cut over, or repair "
+        "Search generation state."
+    ),
+    "derived": (
+        "Use System > Derived and Vector Index to inspect or rebuild replaceable "
+        "derived state."
+    ),
 }
 
 
@@ -74,7 +86,9 @@ def _component_summary(key: str, component: Mapping[str, Any]) -> str:
         return f"{path} · journal={journal}"
     if key == "embedding":
         model = details.get("model", "unknown")
-        readiness = details.get("readiness") or ("loaded" if details.get("loaded") else "configured")
+        readiness = details.get("readiness") or (
+            "loaded" if details.get("loaded") else "configured"
+        )
         return f"{model} · {readiness}"
     if key == "qdrant":
         endpoint = details.get("endpoint", "unknown")
@@ -116,7 +130,10 @@ def _semantic_readiness(
     if schema_version != RUNTIME_HEALTH_SCHEMA:
         return SemanticSearchReadiness(
             "unknown",
-            "Semantic runtime readiness is unknown because the runtime-health schema is unsupported.",
+            (
+                "Semantic runtime readiness is unknown because the runtime-health "
+                "schema is unsupported."
+            ),
             (f"Expected {RUNTIME_HEALTH_SCHEMA}; got {schema_version!r}",),
             (),
         )
@@ -165,7 +182,10 @@ def _semantic_readiness(
     elif derived.get("status") == "degraded":
         warnings.append(
             _issue_message(derived)
-            or "Non-semantic derived state is incomplete; inspect Derived state before maintenance work."
+            or (
+                "Non-semantic derived state is incomplete; inspect Derived state "
+                "before maintenance work."
+            )
         )
 
     if blockers:
