@@ -9,6 +9,7 @@ Updated: 2026-10-31
 - Planning authority: [`PHASE_P_MODERNIZATION_PLAN.md`](PHASE_P_MODERNIZATION_PLAN.md)
 - Task authority: [`PHASE_P_TASKS.md`](PHASE_P_TASKS.md)
 - P-RUNTIME-04 runtime-form amendment: [`P_RUNTIME_04_NATIVE_WINDOWS_TASK_AMENDMENT.md`](P_RUNTIME_04_NATIVE_WINDOWS_TASK_AMENDMENT.md)
+- P-RUNTIME-04 crash-recovery remediation: [`../../design/P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md`](../../design/P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md)
 
 ## Accepted modernization direction
 
@@ -39,17 +40,17 @@ Priority 3: Runtime / Qdrant auto-start
 | RAW | P-RAW-04 | **Complete / Accepted** | Raw-grounded Object Result v2 design |
 | RAW | P-RAW-05 | **Complete / Accepted** | Resolver -> Package v2 -> Result v2 -> Raw provenance implementation |
 | RAW | P-RAW-06 | **Complete / Accepted** | Formal Raw operational acceptance / compatibility / docs closure |
-| Runtime | P-RUNTIME-01 | **Complete / Accepted / Amended** | Windows reference corrected to native Qdrant + Task Scheduler |
+| Runtime | P-RUNTIME-01 | **Complete / Accepted / Amended** | Windows reference = native Qdrant + Task Scheduler; crash recovery amended to repeating recovery pulse |
 | Runtime | P-RUNTIME-02 | **Complete / Accepted** | Compose assets retained as optional/historical Docker profile |
 | Runtime | P-RUNTIME-03 | **Complete / Accepted** | Shared CLI/GUI runtime health/status Application boundary |
-| Runtime | P-RUNTIME-04 | **In Progress / Acceptance Pending** | Native Windows Task Scheduler implementation complete; real restart/sign-in and crash-recovery gates pending |
-| Runtime | P-RUNTIME-05 | Not Started | GUI Runtime Dashboard integration |
+| Runtime | P-RUNTIME-04 | **In Progress / Remediation Acceptance Pending** | Reboot/sign-in PASS; RestartOnFailure crash recovery failed; repeating-trigger remediation implemented; CI/reference-host retest pending |
+| Runtime | P-RUNTIME-05 | **Blocked / Not Started** | GUI Runtime Dashboard integration; blocked by P-RUNTIME-04 formal acceptance |
 | Runtime | P-RUNTIME-06 | Not Started | Runtime failure / recovery acceptance |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
 ## GUI workstream — Complete / Accepted
 
-### Accepted architecture
+Accepted architecture:
 
 ```text
 Framework             = PySide6 / Qt Widgets
@@ -61,53 +62,24 @@ Windows deployment    = pyside6-deploy / Nuitka standalone directory
 Qt linking            = dynamic / separate shared libraries
 ```
 
-GUI is not a CLI subprocess wrapper. Qdrant remains an independent shared runtime.
-
-### Final public capability parity
-
-Normative inventory:
-
-- `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
-- `docs/reference/GUI_CLI_CAPABILITY_MATRIX_P_GUI_09_AMENDMENT.md`
-
-Accepted final inventory:
+Final public capability parity remains:
 
 ```text
 PUBLIC_OPERATION_IDS    = 67
 SHARED_OPERATION_IDS    = 66
 TRANSPORT_OPERATION_IDS = {mcp.serve}
 shared GUI reachability = 66 / 66
-MCP GUI reachability    = 1 / 1 via external-client-owned stdio command/configuration surface
+MCP GUI reachability    = 1 / 1
 unassigned operations   = 0
 ```
 
-All canonical GUI operations continue through `OperatorSession` or, for the separate Advanced Search Generation inventory, `GenerationOperatorSession`. The GUI does not gain a hidden SQLite/Repository/shell canonical-write path.
+Final authority:
 
-### P-GUI-10 final evidence
-
-Authority:
-
+- `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md`
+- `docs/reference/GUI_CLI_CAPABILITY_MATRIX_P_GUI_09_AMENDMENT.md`
 - `docs/evaluation/P_GUI_10_PARITY_USABILITY_REGRESSION_ACCEPTANCE.md`
-- `tests/test_p_gui_10_parity_usability_acceptance.py`
 
-Final Windows acceptance:
-
-```text
-GitHub Actions run                = 41066089220 (#2)
-runner                            = Microsoft Windows Server 2025
-Python                            = 3.10.11
-verified branch source            = 225c99293e3fb346098e42d66625ddac3b30a501
-verified synthetic PR merge       = 7ec7dddfd6e5a2f5cb35df0c0f449fd33993fc7a
-focused P-GUI-10                  = 6 / 6 PASS
-scaled DPI smoke (1.5x)           = 1 / 1 PASS
-complete P-GUI regression         = 50 / 50 PASS
-CLI + MCP focused regression      = 59 / 59 PASS
-Ruff src/tests                    = PASS
-full repository regression        = 854 / 854 PASS
-warnings                          = 2 known local-Qdrant warnings
-```
-
-Historical run `41065681837 (#1)` failed only because the new acceptance test incorrectly expected a single literal `"mcp serve"` source string. The MCP assertion was replaced with live `SystemPage` behavior verification; product code and runtime semantics were not relaxed.
+Accepted P-GUI-10 Windows evidence remains run `41066089220 (#2)`: focused 6/6, scaled-DPI 1/1, complete GUI 50/50, CLI+MCP 59/59, Ruff PASS, full regression 854/854 with two known local-Qdrant warnings.
 
 Therefore:
 
@@ -116,11 +88,9 @@ P-GUI-01..10 = Complete / Accepted
 P-GUI workstream = Complete / Accepted for Phase P
 ```
 
-Earlier GUI implementation and acceptance authorities remain authoritative for their task-local contracts, including P-GUI-06/07 interactive acceptance, P-GUI-08 Raw-grounded Package/Result workflow, and P-GUI-09 System/Maintenance/MCP/Advanced behavior.
-
 ## P-RAW workstream — Complete / Accepted
 
-### Accepted external AI boundary
+Accepted external AI boundary:
 
 ```text
 selected Evidence
@@ -151,22 +121,10 @@ Key authorities:
 - `docs/design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md`
 - `docs/design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md`
 - `docs/design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md`
-- `docs/evaluation/P_RAW_05_VERIFICATION_ATTEMPT_02.md`
 - `docs/decisions/P_RAW_06_RAW_GROUNDING_CUTOVER_DECISION.md`
 - `docs/design/P_RAW_06_ACCEPTED_EXTERNAL_AI_BOUNDARY.md`
 - `docs/operations/P_RAW_06_RAW_GROUNDING_WORKFLOW.md`
 - `docs/evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md`
-
-Compatibility/cutover disposition:
-
-```text
-v1 accepted Version -> v2 update = supported
-v2 accepted Version -> v2 update = supported
-v2 accepted Version -> v1 update = blocked by default
-Result v2 -> Evidence claim-link synthesis = forbidden
-Phase P Raw operation = explicit --package-version v2
-no-option package default = v1 until P-CLOSE-01 release/default decision
-```
 
 Therefore:
 
@@ -179,56 +137,36 @@ P-RAW workstream = Complete / Accepted for Phase P
 
 ### P-RUNTIME-01 — Windows Qdrant runtime operational design
 
-The original Docker reference decision is **amended by P-RUNTIME-04**. The current accepted Windows reference is:
+The current accepted Windows reference is:
 
 ```text
 runtime form             = native Windows qdrant.exe
-startup/restart owner    = Windows Task Scheduler
-startup trigger          = AtLogOn for the configured interactive user
-default task identity    = \SGOKB\Qdrant
-failure restart          = Task Scheduler restart-on-failure
+lifecycle owner          = Windows Task Scheduler
+startup trigger          = AtLogOn for configured interactive user
+crash recovery           = repeating time trigger on same task
+recovery interval        = 60 seconds by default
+recovery duration        = indefinite
 multiple instances       = IgnoreNew
+RestartOnFailure         = start/action-failure fallback only
+default task identity    = \SGOKB\Qdrant
 storage/configuration    = operator-owned native Qdrant runtime state
-HTTP                     = normally 127.0.0.1:6333
-gRPC                     = normally 127.0.0.1:6334
 readiness                = Qdrant /readyz
 GUI / CLI lifecycle role = client / observer only
 ```
 
 Authorities:
 
-- `docs/evaluation/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_COMPARISON.md` — historical comparison
-- `docs/decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md` — amended decision
-- `docs/planning/phases/P/P_RUNTIME_04_NATIVE_WINDOWS_TASK_AMENDMENT.md` — task-local runtime-form amendment
+- `docs/decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md`
+- `docs/planning/phases/P/P_RUNTIME_04_NATIVE_WINDOWS_TASK_AMENDMENT.md`
+- `docs/design/P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md`
 
-### P-RUNTIME-02 — Qdrant Compose / configuration assets
+### P-RUNTIME-02 — optional Docker profile
 
-P-RUNTIME-02 remains **Complete / Accepted** as historical/reproducibility work. Its accepted repository assets remain available as an optional Docker/development profile:
-
-```text
-Compose project        = sgokb-qdrant
-image                  = qdrant/qdrant:v1.20.0
-restart                = unless-stopped
-HTTP                   = 127.0.0.1:6333
-preferred gRPC         = 127.0.0.1:6334
-persistent volume      = sgokb_qdrant_storage
-container storage      = /qdrant/storage
-health/readiness       = /readyz -> HTTP 200
-local override         = QDRANT_LOG_LEVEL only
-Windows reference role = optional / historical; not the P-RUNTIME-04 login auto-start dependency
-```
-
-Authorities:
-
-- `runtime/qdrant/compose.yaml`
-- `runtime/qdrant/.env.example`
-- `runtime/qdrant/README.md`
-- `docs/operations/P_RUNTIME_02_QDRANT_COMPOSE_RUNTIME.md`
-- `docs/evaluation/P_RUNTIME_02_QDRANT_COMPOSE_CONFIGURATION_ACCEPTANCE.md`
+P-RUNTIME-02 remains **Complete / Accepted** as historical/reproducibility work. `runtime/qdrant/compose.yaml` and related assets remain available as an optional Docker/development profile and are not the supported Windows login/recovery dependency.
 
 ### P-RUNTIME-03 — Runtime health/status Application boundary
 
-Accepted shared observation contract remains unchanged:
+Accepted observation contract remains unchanged:
 
 ```text
 operation                  = system.status
@@ -238,7 +176,6 @@ components                 = sqlite / embedding / qdrant / generation / derived
 qdrant lifecycle owner     = external
 observe                    = true
 start / stop / restart     = false / false / false
-embedding status read      = shallow / no model load / no download
 qdrant readiness authority = /readyz
 ```
 
@@ -249,52 +186,98 @@ Authorities:
 - `src/sgokb/runtime_health.py`
 - `src/sgokb/application_system.py`
 
-Therefore:
+## P-RUNTIME-04 — Windows login auto-start / crash recovery
+
+### Accepted evidence before remediation
+
+Original repository implementation was accepted by Windows CI run `41091876482 (#43)`:
 
 ```text
-P-RUNTIME-01 = Complete / Accepted / Amended to native Windows reference
-P-RUNTIME-02 = Complete / Accepted / optional Docker profile
-P-RUNTIME-03 = Complete / Accepted / unchanged external-observer boundary
+PowerShell parse                   = PASS
+Task Scheduler registration smoke = PASS
+focused P-RUNTIME regression       = 8 / 8 PASS
+Ruff                               = PASS
+full repository regression         = 857 / 857 PASS
 ```
 
-### P-RUNTIME-04 — Windows login auto-start integration
-
-Repository implementation is complete for the corrected native-Windows deployment and preserves the external lifecycle boundary:
+Reference-host evidence then established:
 
 ```text
-Windows sign-in
-  -> Windows Task Scheduler AtLogOn
-  -> native qdrant.exe
-  -> /readyz HTTP 200
-  -> SGOKB observes/uses the runtime
+Gate 1: Windows restart -> sign-in -> native Qdrant auto-start
+        = PASS
+
+Gate 2 attempt A: S4U task + forced qdrant.exe exit
+        -> no automatic recovery
+        = FAIL
+
+Gate 2 attempt B: repository-authoritative InteractiveToken task
+        + healthy /readyz 200
+        + forced qdrant.exe exit
+        + >60 seconds observation
+        -> no replacement process / no readiness recovery
+        = FAIL
 ```
 
-Implemented authority:
+The second failure proves that the S4U mismatch was not the root cause. `RestartOnFailure` cannot be the sole long-running-process crash-recovery authority for the supported host.
 
+### Selected remediation
+
+```text
+\SGOKB\Qdrant
+  Trigger A = AtLogOn
+  Trigger B = repeating time trigger / recovery pulse
+              default interval 60 seconds
+              Duration omitted => indefinite repetition
+  Action    = qdrant.exe directly
+  Principal = Interactive / Limited
+  Policy    = MultipleInstances=IgnoreNew
+```
+
+Normal operation:
+
+```text
+Qdrant Running -> recovery pulse -> IgnoreNew -> no duplicate instance
+```
+
+Unexpected process exit:
+
+```text
+qdrant.exe exits -> task Ready -> next recovery pulse -> new qdrant.exe -> /readyz
+```
+
+Microsoft Task Scheduler schema defines repetition `Duration` as optional; when no duration is specified, repetition is indefinite. `RestartOnFailure` remains only as a best-effort task/action-start failure fallback.
+
+### Repository remediation assets
+
+- `docs/design/P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md`
 - `runtime/qdrant/windows/Register-SgokbQdrantAutoStart.ps1`
 - `runtime/qdrant/windows/Test-SgokbQdrantAutoStart.ps1`
+- `tests/test_p_runtime_04_windows_login_autostart.py`
+- `.github/workflows/p-runtime-04-acceptance.yml`
 - `docs/operations/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART.md`
 - `docs/evaluation/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART_ACCEPTANCE.md`
-- `tests/test_p_runtime_04_windows_login_autostart.py`
 
-The registration path is explicit and operator-controlled: SGOKB does not download Qdrant or infer the local installation/storage configuration. Windows Task Scheduler owns process launch and restart-on-failure; SGOKB continues to observe readiness through P-RUNTIME-03.
+The verifier receipt is now `sgokb.qdrant-windows-autostart-check/1.1` and requires two triggers, Interactive principal, expected recovery interval, indefinite repetition, direct action, IgnoreNew, and `/readyz` HTTP 200.
 
-Formal task closure still requires the supported Windows reference host to pass both:
+The Windows workflow now includes a disposable long-running scheduled worker. It force-terminates the worker and requires the next recovery pulse to produce a different live PID without manual `Start-ScheduledTask`.
 
-1. restart -> sign-in -> `/readyz` HTTP 200 with no manual Qdrant launch;
-2. unexpected native Qdrant process termination -> Task Scheduler restart -> `/readyz` HTTP 200 with no manual restart.
+### Current CI state
 
-Hosted Windows CI validates the repository Task Scheduler assets and regression suite but cannot substitute for those physical host lifecycle transitions.
+PR #81 workflow attempts at the remediation HEAD have so far failed **before runner assignment** (`runner_id=0`, zero executed steps), including one explicit rerun. These are runner-start/infrastructure failures and are not product/test failures, but they also do not constitute repository acceptance.
 
 Therefore:
 
 ```text
-P-RUNTIME-04 repository implementation = Complete
-P-RUNTIME-04 reference-host acceptance = Pending
-P-RUNTIME-04 overall                    = In Progress / Acceptance Pending
+P-RUNTIME-04 remediation design                  = Complete
+P-RUNTIME-04 remediation implementation          = Complete on PR branch
+P-RUNTIME-04 remediated Windows CI               = Pending / runner infrastructure blocked
+P-RUNTIME-04 reference-host Gate 1               = PASS
+P-RUNTIME-04 reference-host Gate 2 old design    = FAIL / root-cause evidence accepted
+P-RUNTIME-04 reference-host Gate 2 remediated    = Pending
+P-RUNTIME-04 overall                             = In Progress / Remediation Acceptance Pending
 ```
 
-P-RUNTIME-05 owns the dedicated GUI Runtime Dashboard only after the P-RUNTIME-04 reference-host acceptance gate closes. P-RUNTIME-06 owns broader failure/recovery acceptance.
+P-RUNTIME-05 remains blocked until P-RUNTIME-04 formal acceptance.
 
 ## Sequencing
 
@@ -303,9 +286,9 @@ P-GUI-01..10 Complete / Accepted
         ↓
 P-RAW-01..06 Complete / Accepted
         ↓
-P-RUNTIME-01..03 Complete / Accepted (P-RUNTIME-01 amended to native Windows reference)
+P-RUNTIME-01..03 Complete / Accepted
         ↓
-P-RUNTIME-04 implementation Complete / reference-host acceptance Pending  <- CURRENT
+P-RUNTIME-04 remediation implementation + acceptance  <- CURRENT
         ↓
 P-RUNTIME-05
         ↓
@@ -318,10 +301,13 @@ P-CLOSE-01
 
 Phase P remains in development. Released-system semantics continue to be governed by release `v1.1.0` until Phase P closure/release integration.
 
-P-GUI-01 through P-GUI-10, P-RAW-01 through P-RAW-06, and P-RUNTIME-01 through P-RUNTIME-03 are accepted development baselines, with P-RUNTIME-01 now amended to the native Windows Qdrant reference. P-RUNTIME-04 has a complete repository implementation but is not yet formally accepted until the real Windows restart/sign-in and unexpected-process-recovery gates are recorded. The Qdrant runtime remains independently owned outside SGOKB; `system.status.runtime_health` is the accepted shared observation boundary for CLI/GUI, while MCP stdio lifecycle remains external-client-owned.
+The Qdrant runtime remains independently owned outside SGOKB. `system.status.runtime_health` remains the shared CLI/GUI observation boundary and exposes no Qdrant lifecycle actions. The P-RUNTIME-04 remediation changes only the external Windows Task Scheduler configuration and operator procedure.
 
 ## Next
 
 ```text
-P-RUNTIME-04 — execute and record supported Windows reference-host restart/sign-in and crash-recovery acceptance
+1. obtain a Windows runner execution for PR #81 and record remediated repository acceptance;
+2. re-register the remediated task on the supported Windows reference host;
+3. rerun Gate 2: force qdrant.exe exit -> no manual task start -> new PID -> /readyz 200 -> system.status healthy;
+4. if PASS, close P-RUNTIME-04 as Complete / Accepted and unblock P-RUNTIME-05.
 ```
