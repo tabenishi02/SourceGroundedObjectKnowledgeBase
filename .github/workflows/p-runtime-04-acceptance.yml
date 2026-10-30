@@ -28,10 +28,11 @@ jobs:
       - name: Parse PowerShell readiness observer
         shell: pwsh
         run: |
+          $tokens = $null
           $errors = $null
           [void][System.Management.Automation.Language.Parser]::ParseFile(
             (Resolve-Path runtime/qdrant/verify-windows-login-readiness.ps1),
-            [ref]$null,
+            [ref]$tokens,
             [ref]$errors
           )
           if ($errors.Count -ne 0) {
