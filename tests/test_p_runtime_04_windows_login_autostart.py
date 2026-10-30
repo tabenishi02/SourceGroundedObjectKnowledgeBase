@@ -5,12 +5,19 @@ REGISTER = ROOT / "runtime" / "qdrant" / "windows" / "Register-SgokbQdrantAutoSt
 VERIFY = ROOT / "runtime" / "qdrant" / "windows" / "Test-SgokbQdrantAutoStart.ps1"
 OPERATIONS = ROOT / "docs" / "operations" / "P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART.md"
 DECISION = ROOT / "docs" / "decisions" / "P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md"
+REMEDIATION = ROOT / "docs" / "design" / "P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md"
 
 
 def test_registration_asset_preserves_external_native_windows_lifecycle_boundary() -> None:
     text = REGISTER.read_text(encoding="utf-8")
 
     assert "New-ScheduledTaskTrigger -AtLogOn" in text
+    assert "New-ScheduledTaskTrigger" in text
+    assert "-Once" in text
+    assert "-RepetitionInterval" in text
+    assert "RecoveryIntervalSeconds" in text
+    assert "$triggers = @($logonTrigger, $recoveryTrigger)" in text
+    assert "-Trigger $triggers" in text
     assert "New-ScheduledTaskAction" in text
     assert "New-ScheduledTaskPrincipal" in text
     assert "-LogonType Interactive" in text
@@ -34,10 +41,15 @@ def test_verification_asset_checks_task_contract_and_qdrant_readiness() -> None:
     assert "Get-ScheduledTask" in text
     assert "Get-ScheduledTaskInfo" in text
     assert '"MSFT_TaskLogonTrigger"' in text
+    assert '"MSFT_TaskTimeTrigger"' in text
+    assert "Repetition.Interval" in text
+    assert "ExpectedRecoveryIntervalSeconds" in text
+    assert '"Interactive"' in text
     assert '"IgnoreNew"' in text
     assert "RestartCount" in text
     assert "/readyz" in text
-    assert '"sgokb.qdrant-windows-autostart-check/1.0"' in text
+    assert '"sgokb.qdrant-windows-autostart-check/1.1"' in text
+    assert "recovery_interval_seconds" in text
 
 
 def test_native_windows_operations_and_decision_are_the_runtime_authority() -> None:
@@ -49,7 +61,22 @@ def test_native_windows_operations_and_decision_are_the_runtime_authority() -> N
     assert "AtLogOn" in operations
     assert "P-RUNTIME-04" in operations
     assert "client / observer only" in operations
+    assert "recovery pulse" in operations.lower()
     assert "Docker Compose" in decision
     assert "optional" in decision.lower()
     assert "Windows Task Scheduler" in decision
     assert "native" in decision.lower()
+    assert "repeating" in decision.lower()
+
+
+def test_crash_recovery_remediation_rejects_restart_on_failure_as_runtime_supervision() -> None:
+    remediation = REMEDIATION.read_text(encoding="utf-8")
+
+    assert "RestartOnFailure" in remediation
+    assert "repeating time trigger" in remediation
+    assert "MultipleInstances=IgnoreNew" in remediation
+    assert "Gate 1" in remediation
+    assert "PASS" in remediation
+    assert "Gate 2" in remediation
+    assert "FAIL" in remediation
+    assert "reference-host retest" in remediation.lower()

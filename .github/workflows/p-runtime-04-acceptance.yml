@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - phase-p/runtime-04-windows-login-autostart
+      - phase-p/runtime-04-crash-recovery-remediation
   pull_request:
     branches:
       - main
@@ -11,7 +12,7 @@ on:
 jobs:
   acceptance:
     runs-on: windows-2025
-    timeout-minutes: 35
+    timeout-minutes: 40
     env:
       QT_QPA_PLATFORM: offscreen
     steps:
@@ -52,7 +53,7 @@ jobs:
             }
           }
 
-      - name: Dynamic Task Scheduler registration smoke
+      - name: Dynamic Task Scheduler registration and crash-recovery smoke
         shell: pwsh
         run: |
           $serverPath = Join-Path $env:RUNNER_TEMP "readyz_server.py"
@@ -73,29 +74,91 @@ jobs:
           HTTPServer(("127.0.0.1", 6333), Handler).serve_forever()
           '@ | Set-Content -Encoding utf8 $serverPath
 
+          $workerPath = Join-Path $env:RUNNER_TEMP "scheduled_worker.ps1"
+          @'
+          param([Parameter(Mandatory = $true)][string]$PidFile)
+          Set-Content -LiteralPath $PidFile -Value $PID -NoNewline
+          while ($true) {
+              Start-Sleep -Seconds 5
+          }
+          '@ | Set-Content -Encoding utf8 $workerPath
+
+          $pidFile = Join-Path $env:RUNNER_TEMP "scheduled_worker.pid"
+          Remove-Item -LiteralPath $pidFile -Force -ErrorAction SilentlyContinue
+
           $taskPath = "\SGOKB-Acceptance\"
           $taskName = "Qdrant"
-          $cmdExe = Join-Path $env:SystemRoot "System32\cmd.exe"
+          $pwshExe = (Get-Process -Id $PID).Path
+          $workerArgs = "-NoLogo -NoProfile -File `"$workerPath`" -PidFile `"$pidFile`""
           $server = Start-Process python -ArgumentList $serverPath -PassThru
           try {
             Start-Sleep -Seconds 1
             & ./runtime/qdrant/windows/Register-SgokbQdrantAutoStart.ps1 `
-              -QdrantExe $cmdExe `
+              -QdrantExe $pwshExe `
+              -QdrantArguments $workerArgs `
               -TaskPath $taskPath `
-              -TaskName $taskName
+              -TaskName $taskName `
+              -RecoveryIntervalSeconds 60
 
             $receipt = & ./runtime/qdrant/windows/Test-SgokbQdrantAutoStart.ps1 `
               -TaskPath $taskPath `
               -TaskName $taskName `
-              -ExpectedQdrantExe $cmdExe `
+              -ExpectedQdrantExe $pwshExe `
+              -ExpectedRecoveryIntervalSeconds 60 `
               -ReadyTimeoutSeconds 10 | ConvertFrom-Json
 
+            if ($receipt.schema_version -ne "sgokb.qdrant-windows-autostart-check/1.1") { throw "receipt schema mismatch" }
             if ($receipt.ready_status -ne 200) { throw "readiness status mismatch" }
             if ($receipt.task_path -ne "\SGOKB-Acceptance\Qdrant") { throw "task path mismatch" }
-            if ($receipt.restart_count -lt 1) { throw "restart policy missing" }
+            if ($receipt.principal_logon_type -ne "Interactive") { throw "principal mismatch" }
+            if ($receipt.trigger_count -ne 2) { throw "trigger count mismatch" }
+            if ($receipt.recovery_interval_seconds -ne 60) { throw "recovery interval mismatch" }
+            if ($receipt.restart_count -lt 1) { throw "restart fallback missing" }
+
+            Start-ScheduledTask -TaskPath $taskPath -TaskName $taskName
+
+            $workerDeadline = (Get-Date).AddSeconds(20)
+            do {
+              if (Test-Path -LiteralPath $pidFile) {
+                $oldPid = [int](Get-Content -LiteralPath $pidFile -Raw)
+                if (Get-Process -Id $oldPid -ErrorAction SilentlyContinue) { break }
+              }
+              Start-Sleep -Milliseconds 500
+            } while ((Get-Date) -lt $workerDeadline)
+
+            if (-not $oldPid) { throw "scheduled worker did not start" }
+            Write-Host "Initial scheduled worker PID: $oldPid"
+
+            Stop-Process -Id $oldPid -Force
+
+            $recoveryDeadline = (Get-Date).AddSeconds(95)
+            $newPid = $null
+            do {
+              if (Test-Path -LiteralPath $pidFile) {
+                $candidate = [int](Get-Content -LiteralPath $pidFile -Raw)
+                if ($candidate -ne $oldPid -and (Get-Process -Id $candidate -ErrorAction SilentlyContinue)) {
+                  $newPid = $candidate
+                  break
+                }
+              }
+              Start-Sleep -Seconds 2
+            } while ((Get-Date) -lt $recoveryDeadline)
+
+            if (-not $newPid) {
+              throw "repeating recovery trigger did not launch a replacement process"
+            }
+
+            Write-Host "Recovered scheduled worker PID: $newPid"
+            if ($newPid -eq $oldPid) { throw "recovery reused the previous PID unexpectedly" }
+
+            $task = Get-ScheduledTask -TaskPath $taskPath -TaskName $taskName
+            if ($task.State -ne "Running") { throw "task is not running after recovery" }
+
             $receipt | ConvertTo-Json -Depth 4
           }
           finally {
+            Disable-ScheduledTask -TaskPath $taskPath -TaskName $taskName -ErrorAction SilentlyContinue | Out-Null
+            Stop-ScheduledTask -TaskPath $taskPath -TaskName $taskName -ErrorAction SilentlyContinue
             Unregister-ScheduledTask -TaskPath $taskPath -TaskName $taskName -Confirm:$false -ErrorAction SilentlyContinue
             if ($server -and -not $server.HasExited) { Stop-Process -Id $server.Id -Force }
             try {

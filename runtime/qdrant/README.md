@@ -4,7 +4,7 @@ Phase P has two Qdrant deployment profiles in this directory.
 
 ## Windows reference runtime — native Qdrant
 
-The supported Windows path runs Qdrant directly as a native `qdrant.exe` process. Windows Task Scheduler owns login auto-start and restart-on-failure behavior; SGOKB remains a client / observer only.
+The supported Windows path runs Qdrant directly as a native `qdrant.exe` process. Windows Task Scheduler owns login auto-start and process-exit recovery; SGOKB remains a client / observer only.
 
 Assets:
 
@@ -17,9 +17,24 @@ Authoritative procedure:
 
 - `docs/operations/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART.md`
 
+Crash-recovery remediation:
+
+- `docs/design/P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md`
+
 Architecture decision:
 
 - `docs/decisions/P_RUNTIME_01_WINDOWS_QDRANT_RUNTIME_DECISION.md`
+
+The native task uses:
+
+```text
+AtLogOn startup trigger
++ repeating recovery pulse (60 seconds by default)
++ MultipleInstances=IgnoreNew
++ direct qdrant.exe action
+```
+
+While Qdrant is running, recovery pulses are ignored. After an unexpected process exit, the next pulse can launch a new instance. `RestartOnFailure` is retained only as a start/action-failure fallback; it is not the authoritative long-running process crash supervisor.
 
 The registration script requires the operator to supply the actual local `qdrant.exe` path. SGOKB does not download Qdrant, invent its storage path, or silently replace the installed binary.
 
@@ -28,6 +43,8 @@ Readiness authority remains:
 ```text
 GET http://127.0.0.1:6333/readyz -> HTTP 200
 ```
+
+For intentional maintenance, disable the scheduled task before stopping it; otherwise the repeating recovery pulse may start Qdrant again.
 
 ## Optional Docker / development profile
 
