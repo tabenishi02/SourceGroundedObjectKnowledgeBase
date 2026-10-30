@@ -46,17 +46,34 @@ jobs:
           $fakeBin = Join-Path $env:RUNNER_TEMP "fake-docker"
           New-Item -ItemType Directory -Force $fakeBin | Out-Null
           @'
-          param([Parameter(ValueFromRemainingArguments=$true)][string[]]$DockerArgs)
-          if ($DockerArgs[0] -eq "info") { "27.5.1"; exit 0 }
-          if ($DockerArgs[0] -eq "compose") { "p-runtime-04-test-container"; exit 0 }
-          if ($DockerArgs[0] -eq "inspect") {
-              $format = $DockerArgs[2]
-              if ($format -match "RestartPolicy") { "unless-stopped"; exit 0 }
-              if ($format -match "State.Status") { "running"; exit 0 }
-              if ($format -match "State.Health") { "healthy"; exit 0 }
-          }
-          exit 1
-          '@ | Set-Content -Encoding utf8 (Join-Path $fakeBin "docker.ps1")
+          import sys
+
+          args = sys.argv[1:]
+          if not args:
+              raise SystemExit(1)
+          if args[0] == "info":
+              print("27.5.1")
+              raise SystemExit(0)
+          if args[0] == "compose":
+              print("p-runtime-04-test-container")
+              raise SystemExit(0)
+          if args[0] == "inspect":
+              fmt = args[2]
+              if "RestartPolicy" in fmt:
+                  print("unless-stopped")
+                  raise SystemExit(0)
+              if "State.Status" in fmt:
+                  print("running")
+                  raise SystemExit(0)
+              if "State.Health" in fmt:
+                  print("healthy")
+                  raise SystemExit(0)
+          raise SystemExit(1)
+          '@ | Set-Content -Encoding utf8 (Join-Path $fakeBin "docker_fake.py")
+          @'
+          @echo off
+          python "%~dp0docker_fake.py" %*
+          '@ | Set-Content -Encoding ascii (Join-Path $fakeBin "docker.cmd")
           $env:PATH = "$fakeBin;$env:PATH"
 
           $serverPath = Join-Path $env:RUNNER_TEMP "readyz_server.py"
