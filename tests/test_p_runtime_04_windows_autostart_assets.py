@@ -25,6 +25,9 @@ def test_registration_asset_preserves_external_native_windows_lifecycle_boundary
     assert "-RestartInterval (New-TimeSpan -Seconds $RestartIntervalSeconds)" in text
     assert "-MultipleInstances IgnoreNew" in text
     assert "-ExecutionTimeLimit ([TimeSpan]::Zero)" in text
+    assert "-StartWhenAvailable" in text
+    assert 'New-Object -ComObject "Schedule.Service"' in text
+    assert "Ensure-ScheduledTaskFolder -Path $normalizedTaskPath" in text
     assert 'ReadyUrl = "http://127.0.0.1:6333/readyz"' in text
     assert "Register-ScheduledTask" in text
     assert "Start-ScheduledTask" in text
