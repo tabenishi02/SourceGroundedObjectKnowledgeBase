@@ -5,15 +5,15 @@ from __future__ import annotations
 from PySide6.QtWidgets import QWidget
 
 from .main_window_package_result import MainWindow as _BaseMainWindow
-from .system_page import SystemPage
+from .runtime_dashboard_system_page import RuntimeDashboardSystemPage
 
 
 class MainWindow(_BaseMainWindow):
-    """Extend the accepted shell with the P-GUI-09 System page."""
+    """Extend the accepted shell with the System page and Runtime Dashboard."""
 
     def _build_page(self, key: str, label: str) -> QWidget:
         if key == "system":
-            page = SystemPage(self.backend, self)
+            page = RuntimeDashboardSystemPage(self.backend, self)
             page.set_confirmation_enabled(self.confirm_operations)
             self.domain_pages[key] = page
             return page

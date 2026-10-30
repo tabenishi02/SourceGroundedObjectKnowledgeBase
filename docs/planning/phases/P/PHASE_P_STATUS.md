@@ -12,6 +12,8 @@ Updated: 2026-10-31
 - P-RUNTIME-04 crash-recovery remediation: [`P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md`](../../../design/P_RUNTIME_04_CRASH_RECOVERY_REMEDIATION.md)
 - P-RUNTIME-04 acceptance: [`P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART_ACCEPTANCE.md`](../../../evaluation/P_RUNTIME_04_WINDOWS_LOGIN_AUTOSTART_ACCEPTANCE.md)
 - P-RUNTIME-04 hosted-CI deferred verification: [`P_RUNTIME_04_GITHUB_ACTIONS_BILLING_BLOCKER.md`](../../../evaluation/P_RUNTIME_04_GITHUB_ACTIONS_BILLING_BLOCKER.md)
+- P-RUNTIME-05 design: [`P_RUNTIME_05_GUI_RUNTIME_DASHBOARD.md`](../../../design/P_RUNTIME_05_GUI_RUNTIME_DASHBOARD.md)
+- P-RUNTIME-05 acceptance: [`P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_ACCEPTANCE.md`](../../../evaluation/P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_ACCEPTANCE.md)
 
 ## Accepted modernization direction
 
@@ -31,7 +33,7 @@ Priority 3: Runtime / Qdrant auto-start
 | Runtime | P-RUNTIME-02 | **Complete / Accepted** | Compose retained as optional/historical Docker profile |
 | Runtime | P-RUNTIME-03 | **Complete / Accepted** | Shared CLI/GUI runtime health/status Application boundary |
 | Runtime | P-RUNTIME-04 | **Complete / Accepted** | Reference-host and local remediation validation PASS; hosted Windows CI deferred as non-blocking verification debt due GitHub billing/spending limit |
-| Runtime | P-RUNTIME-05 | **Unblocked / Ready** | GUI Runtime Dashboard integration is now the next Runtime task |
+| Runtime | P-RUNTIME-05 | **In Progress / Final Local Verification Pending** | Runtime Dashboard implemented; focused/full regression and reference CLI projection PASS; Ruff findings remediated; latest-head focused/Ruff and GUI smoke remain |
 | Runtime | P-RUNTIME-06 | Not Started | Runtime failure / recovery acceptance |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
@@ -186,10 +188,32 @@ reference-host acceptance       = Complete / Accepted
 local remediation validation    = PASS
 GitHub Actions remediation CI   = Deferred / external billing-spending constraint
 P-RUNTIME-04 overall            = Complete / Accepted
-P-RUNTIME-05                    = Unblocked / Ready
+P-RUNTIME-05                    = In Progress
 ```
 
 When GitHub Actions capacity returns, run the hosted Windows workflow. A later genuine product/portability failure becomes new remediation work; it does not invalidate the fact that P-RUNTIME-04 met its accepted reference-host completion criteria at closure.
+
+## P-RUNTIME-05 — In Progress / Final Local Verification Pending
+
+The Runtime Dashboard is implemented on PR #82 using only the accepted P-RUNTIME-03 observation boundary.
+
+Current evidence:
+
+```text
+focused runtime/dashboard tests = PASS / 22 passed on pre-style-remediation HEAD
+full regression                 = PASS / 869 passed / 2 known local-Qdrant warnings
+reference CLI projection        = PASS
+Qdrant                          = healthy / ready=true / v1.19.2
+Search generation               = degraded / generation_not_active
+Derived                         = degraded / rendering pending only
+Ruff                            = 9 E501 findings -> remediated by line wrapping
+latest-head focused/Ruff        = pending re-run
+GUI reference-workspace smoke   = pending
+```
+
+The reference snapshot must be presented as Semantic Search `degraded`, not `blocked`: SQLite, Embedding, Qdrant and all semantic derived kinds are ready; the inactive Search generation may use legacy vector routing and the remaining Derived degradation is rendering-only.
+
+Qdrant remains externally owned. The dashboard exposes no start, stop or restart action.
 
 ## Sequencing
 
@@ -200,7 +224,7 @@ P-RAW-01..06 Complete / Accepted
         ↓
 P-RUNTIME-01..04 Complete / Accepted
         ↓
-P-RUNTIME-05  <- NEXT / UNBLOCKED
+P-RUNTIME-05  <- IN PROGRESS / FINAL LOCAL VERIFICATION
         ↓
 P-RUNTIME-06
         ↓
@@ -214,7 +238,9 @@ Phase P remains in development; released-system semantics continue to be governe
 ## Next
 
 ```text
-1. begin P-RUNTIME-05 GUI Runtime Dashboard integration;
-2. retain hosted P-RUNTIME-04 CI as deferred verification debt;
-3. when GitHub Actions capacity returns, execute the deferred hosted Windows verification and record its result without blocking current Phase P progression.
+1. re-run P-RUNTIME-05 focused tests and Ruff on the latest branch HEAD;
+2. perform the reference-workspace GUI smoke in System > Overview;
+3. if both pass, record final P-RUNTIME-05 acceptance and merge PR #82;
+4. then begin P-RUNTIME-06 Runtime failure / recovery acceptance;
+5. retain hosted P-RUNTIME-04 CI as deferred verification debt.
 ```
