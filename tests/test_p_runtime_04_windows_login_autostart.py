@@ -11,7 +11,10 @@ def test_login_readiness_probe_is_observer_only() -> None:
     probe = PROBE_PATH.read_text(encoding="utf-8")
 
     assert '"info", "--format"' in probe
-    assert '"compose", "-f", $ComposePath, "-p", $ProjectName, "ps", "-q"' in probe
+    assert (
+        '"compose", "-f", $ComposePath, "-p", $ProjectName, "ps", "-a", "-q"'
+        in probe
+    )
     assert '"inspect", "--format"' in probe
     assert "http://127.0.0.1:6333/readyz" in probe
     assert 'lifecycle_owner = "external"' in probe
