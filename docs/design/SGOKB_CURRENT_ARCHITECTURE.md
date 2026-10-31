@@ -1,516 +1,243 @@
 # SGOKB Current System Architecture
 
-Updated: 2026-10-25
+Updated: 2026-10-31
 
-- Status: **Current / Accepted**
-- Phase: `Phase O — Documentation / Release / Git cleanup`
-- Task: `O-02 [P0] 現行設計書を更新する`
-- Scope: current SGOKB core architecture after Phase N acceptance
-- Historical Prototype / Grounded Generation research documents do not override this document.
+- Status: **Current / Accepted through Phase P**
+- Release candidate: `2.0.0`
+- Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
+- Closure task: `P-CLOSE-01`
+- Historical Prototype / research documents do not override this document.
 
 ## 1. Purpose and authority
 
-Source Grounded Object Knowledge Base（SGOKB）は、ユーザーが選択・収集したWeb資料を追跡可能なSource / Evidenceとして保存し、Character・Work・Concept等のWorld / Object Knowledgeへ変換して長期保存し、検索・比較・MCP・外部AIから再利用するlocal-first Knowledge Baseである。
+Source Grounded Object Knowledge Base (SGOKB) is a local-first knowledge base that preserves user-selected source material with provenance, transforms reviewed material into versioned Object Knowledge, and exposes that Knowledge through CLI, GUI, Search and read-only MCP interfaces.
 
-本書は、Phase A〜Nで確定した個別要件・Decision・実装設計を**現在の全体Architectureとして統合して読むための正本**である。
+This document is the current end-to-end architecture map. Detailed schema and domain contracts remain authoritative for their own scope.
 
-詳細なschemaやalgorithmは既存の個別contractを正本とし、本書はそれらを置き換えない。矛盾がある場合は次の優先順で解決する。
-
-```text
-current accepted requirement / decision / design contract
-  > Phase N accepted implementation / evaluation evidence
-  > this integrated architecture summary
-  > historical planning / failed experiment / Prototype archive
-```
-
-Phase N closureはC01-C07 PASSとして受理済みであり、本書はそのaccepted system boundaryを前提とする。
-
----
-
-## 2. System boundary
-
-SGOKBの責務は次である。
-
-- Source / Snapshot / Raw Artifactを保存する。
-- Normalized contentとEvidence / Provenanceを管理する。
-- stable Object IdentityとClass / Facet / Relation registryを管理する。
-- Evidenceを選択し、外部意味統合用Packageを構築する。
-- 外部AIが返したStructured Object Resultを検証・reviewし、明示Importによってaccepted Knowledge Versionへ昇格する。
-- accepted KnowledgeからLexical / Semantic / Hybrid / Similarity / Relation / Evidence retrievalを提供する。
-- CLIとread-only MCPを通じて人間・AI・UPDSへKnowledgeを提供する。
-- backup / restore / integrity / derived rebuildを提供する。
-
-SGOKB coreの責務ではないもの:
-
-- Web全体の無差別Crawler。
-- 特定LLM向け巨大Final DocumentをKnowledgeの正本にすること。
-- Packageを外部AIへ無確認で自動送信すること。
-- AI出力をvalidation / reviewなしでcanonical Knowledgeへ書き込むこと。
-- ユーザーの嗜好・価値観・Preference Hypothesisを推論すること。
-- Consumer側の自然言語presentation品質をSGOKB core acceptanceとすること。
-
----
-
-## 3. End-to-end architecture
+Authority order:
 
 ```text
-Web / local capture
-        │
-        ▼
-Capture / Source Import
-        │
-        ▼
-Source ─ Snapshot ─ Raw Artifact
-        │
-        ▼
-Normalize
-        │
-        ▼
-Evidence + Provenance
-        │
-        ├─────────────────────────────────────────────┐
-        │                                             │
-        ▼                                             │
-Object Registry / Association                         │
-        │                                             │
-        ▼                                             │
-Evidence Retrieval / Selection                        │
-        │                                             │
-        ▼                                             │
-Object Evidence Package                               │
-        │                                             │
-        │ explicit preflight + export                 │
-        ▼                                             │
-External ChatGPT / other capable AI                   │
-(manual semantic integration)                         │
-        │                                             │
-        ▼                                             │
-Structured Object Result (`result.json`)              │
-        │                                             │
-        ▼                                             │
-Receive → Validate → Review → explicit Import         │
-        │                                             │
-        ▼                                             │
-Accepted Object Knowledge Version                     │
-        │                                             │
-        ├──────────────┬──────────────┬───────────────┘
-        │              │              │
-        ▼              ▼              ▼
-Lexical read     Search Representation   Markdown / view
-                 + Embedding
-                 + Vector Index
-                        │
-                        ▼
-              Semantic / Hybrid / Similarity
-                        │
-                        ▼
-               KnowledgeReadApplication
-                        │
-                 ┌──────┴──────┐
-                 ▼             ▼
-                CLI       read-only MCP
-                               │
-                               ▼
-                    ChatGPT / Local LLM / UPDS
+accepted requirements / decisions / design contracts
+  -> current implementation contracts
+  -> current operations / acceptance evidence
+  -> this integrated architecture map
+  -> historical / archived material
 ```
 
-Canonical KnowledgeとDerived Searchを分離し、検索・MCP・renderingの障害がcanonical stateを破壊しない構造を維持する。
-
----
-
-## 4. Layer responsibilities
-
-### 4.1 Capture / Source layer
-
-SourceはWeb URLやfile pathそのものではなくstable Source Identityを持つ。取得時点はSnapshotとして世代管理し、Raw ArtifactはEvidence再抽出・監査・再生成の原資料として保持する。
+## 2. Architectural invariants
 
 ```text
-Source
-  └─ Snapshot
-       └─ Raw Artifact
-            └─ Normalized Run
-                 └─ Evidence
+canonical Knowledge        = SQLite Object / Version / Registry / grounding/provenance state
+canonical source material  = Source / Snapshot / Normalization Run / Raw Artifact / Evidence lineage
+accepted external result   = validated + reviewed Result imported into immutable Version history
+rebuildable derived state  = rendering / Search Representation / Embedding / Qdrant Vector Index
+operator interfaces        = CLI + PySide6 GUI over the shared Application/operator layer
+MCP                        = read-only external stdio integration
+Qdrant lifecycle           = external to SGOKB
+external AI                = explicit Human-in-the-loop exchange boundary
 ```
 
-SourceとObjectは多対多であり、associationは`candidate / confirmed / excluded`等の明示状態として扱う。EvidenceをObject Knowledgeへ直接埋め込んで原資料を失わせない。
+GUI, Search, rendering and Vector state MUST NOT become independent canonical truth stores.
 
-Detailed authority:
+## 3. Current end-to-end flow
 
-- `docs/requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`
-- `docs/design/SOURCE_EVIDENCE_SCHEMA.md`
-- `docs/design/SOURCE_INGESTION_PIPELINE.md`
-- `docs/design/OBJECT_EVIDENCE_RETRIEVAL.md`
+The `2.0.0` primary workflow is:
 
-### 4.2 Object / Knowledge layer
+```text
+Web Capture / local input
+  -> Source
+  -> Snapshot
+  -> Raw Artifact
+  -> Normalization Run
+  -> Evidence
+  -> Object association / Evidence selection
+  -> Evidence-to-Raw provenance resolution
+  -> Package v2 with exact verified Raw bytes
+  -> explicit export / external AI
+  -> Result v2 using raw_artifact_id grounding
+  -> receive / validate / review / explicit import
+  -> immutable accepted Knowledge Version
+  -> derived Search Representation / Embedding / Qdrant / rendering
+  -> CLI / GUI / Search / read-only MCP
+```
 
-ObjectはSource・Document・Versionから独立したstable identityを持つ。新規Object IDはUUID系のstable text identityであり、name変更・再分類・Knowledge更新で再発番しない。
+Package v1 / Result v1 remains an explicit legacy compatibility family. Historical v1 artifacts retain their original semantics.
 
-主要論理構造:
+## 4. Object and Knowledge model
+
+Stable identity is `object_id`. Names, aliases, Class membership and status may evolve without changing identity.
+
+Accepted semantic Knowledge is versioned and immutable. A current Version pointer selects the effective accepted state; historical Versions remain addressable. Relations retain canonical direction and provenance rather than synthesizing duplicate inverse canonical facts.
+
+Core semantic organization remains:
 
 ```text
 Object
-  ├─ canonical name / alias
-  ├─ Primary Class
-  ├─ Additional Class
-  ├─ current accepted Version pointer
-  └─ Registry events
-
-Accepted Knowledge Version
-  ├─ Summary / Attribute
-  ├─ Facet
-  │    └─ Statement
-  ├─ Relation
-  └─ Evidence Link
+  -> Class membership
+  -> Facet
+  -> Statement / Attribute / Relation
+  -> grounding / provenance
+  -> immutable Knowledge Version
 ```
 
-accepted Knowledge Versionは論理immutableであり、修正は新Versionとして表現する。rollbackは履歴削除ではなくcurrent pointer / promotionの変更として扱う。
+## 5. Source, Evidence and Raw grounding
 
-Detailed authority:
+Source capture preserves historical generations. A later Snapshot or Normalization Run does not silently replace an explicitly selected effective generation.
 
-- `docs/requirements/OBJECT_REQUIREMENTS.md`
-- `docs/requirements/OBJECT_TYPE_MODEL.md`
-- `docs/requirements/OBJECT_TYPE_BOUNDARIES.md`
-- `docs/design/OBJECT_SCHEMA.md`
-- `docs/design/SEMANTIC_FACET_SCHEMA.md`
-- `docs/design/VERSIONING_SCHEMA.md`
-
-### 4.3 Evidence-grounded exchange layer
-
-高度な意味統合はExternal Human-in-the-loopとして分離する。
+Evidence remains the operator-facing selection and provenance layer. For Package v2, claim-level external semantic authority is the Package-member Raw Artifact set, not generated Evidence Markdown.
 
 ```text
-canonical Evidence
-  ↓
-Package build / stage
-  ↓
-preflight
-  ↓
-explicit export
-  ↓
-ChatGPT / external AI
-  ↓
-Structured Object Result
-  ↓
-receive / validate / review
-  ↓
-explicit import
+Evidence
+  -> its original Normalization Run
+  -> complete run-input Raw Artifact set
+  -> exact byte/hash verification
+  -> Package v2 membership
 ```
 
-Packageは外部AIへ送信するderived exchange artifactでありcanonical Knowledgeではない。Packageはtarget Object、base Version、Evidence membership、instructions / schema等へbindingされる。
+Result v2 claim grounding uses `raw_artifact_id` and optional mechanically verifiable locators. Successful v2 import stores `raw_grounding_links`; it does not synthesize Evidence claim links by reverse mapping.
 
-Resultも受信した時点ではcanonical Knowledgeではない。schema / identity / Evidence membership / stale conditionを検証し、人間review境界を通した後、明示Importで新Knowledge Versionを作る。
+## 6. Exchange contract
 
-Registry proposalはResult Importの副作用として自動applyしない。accept/rejectとapplyを別操作とする。
+Release `2.0.0` changes the default:
 
-Detailed authority:
+```text
+sgokb package build --object <OBJECT_ID>
+  -> Package v2
+```
 
-- `docs/requirements/OBJECT_RESULT_REQUIREMENTS.md`
-- `docs/requirements/WORKFLOW_RESPONSIBILITY_REQUIREMENTS.md`
-- `docs/design/OBJECT_EVIDENCE_PACKAGE_FORMAT.md`
-- `docs/design/OBJECT_EVIDENCE_PACKAGE_MANIFEST_SCHEMA.md`
-- `docs/design/OBJECT_ANALYSIS_INSTRUCTIONS.md`
-- `docs/design/OBJECT_RESULT_JSON_SCHEMA.md`
-- `docs/operations/OBJECT_STANDARD_WORKFLOW.md`
+Legacy behavior remains explicit:
 
-### 4.4 Derived Search layer
+```text
+sgokb package build --object <OBJECT_ID> --package-version v1
+```
 
-Search Representation、Embedding、Vector Indexはcanonical Knowledgeから再構築できるderived stateである。
+Package export remains a Human decision boundary with `allow`, `review_required` and `blocked` dispositions. External Result import remains explicit after validation and review.
 
-Current R2 representation family:
+## 7. Shared Application boundary and interfaces
+
+CLI and GUI are presentation surfaces over the same Application/operator operations.
+
+```text
+CLI -------------------+
+                       |
+PySide6 GUI -----------+-> shared Application / OperatorSession
+                       |        -> Repository / domain services
+MCP read adapter ------+        -> canonical SQLite + derived services
+```
+
+The GUI MUST NOT shell out to the CLI for canonical work and MUST NOT own direct SQLite/Repository writes from view code.
+
+The accepted Phase P capability inventory is 67 public operations: 66 shared Application operations plus external `mcp.serve` transport behavior.
+
+GUI presentation-only state such as window geometry, navigation position and operation history is noncanonical.
+
+## 8. Search and derived state
+
+Current Object semantic representation family:
 
 ```text
 object_overview
 facet
 statement
-evidence
 ```
 
-`object_overall`はlegacy v1 representationであり、current post-R2 retrievalへ参加しない。
+Evidence Search uses its own Evidence representation. Legacy `object_overall` is not active.
 
-Object Knowledge retrievalのactive semantic familyは`object_overview / facet / statement`である。Evidence Searchは別結果型として`evidence` representationを扱う。
-
-Current Embedding Space baseline:
+Accepted embedding baseline:
 
 ```text
-Provider:         sentence-transformers
-Model:            microsoft/harrier-oss-v1-0.6b
-Revision:         f9b9dc8d367d443f2479d27aa5d8d2850c0774ee
-Dimension:        1024
-Normalization:    L2
-CUDA dtype:       bfloat16
-Persisted dtype:  float32
-Fallback:         none
+model     = microsoft/harrier-oss-v1-0.6b
+revision  = f9b9dc8d367d443f2479d27aa5d8d2850c0774ee
+dimension = 1024
 ```
 
-Vector backendのcurrent standardはQdrantである。Vector backendはcanonical Knowledge storeではない。
+Qdrant is the standard Vector backend. Search Representation, Embedding, Vector Index and rendering are rebuildable derived state. Canonical restore/recovery does not depend on preserving those derived artifacts.
 
-Detailed authority:
+## 9. Runtime architecture
 
-- `docs/requirements/SEARCH_REQUIREMENTS.md`
-- `docs/design/SEARCH_REPRESENTATION_SCHEMA.md`
-- `docs/design/EMBEDDING_PROVIDER_MODEL_EVALUATION.md`
-- `docs/design/VECTOR_INDEX_ADAPTER_BACKEND_EVALUATION.md`
-- `docs/design/HYBRID_SEARCH_OBJECT_AGGREGATION.md`
-- `docs/design/OBJECT_SIMILARITY_SEARCH.md`
-
-### 4.5 Search semantics
-
-Object Searchは用途を分離する。
+### Windows reference
 
 ```text
-Identity lookup
-Lexical Object Search
-Semantic Object Search
-Hybrid Object Search
-Object / Facet Similarity
-Relation traversal
-Evidence Search
+runtime form             = native qdrant.exe
+lifecycle owner          = Windows Task Scheduler
+Task                     = \SGOKB\Qdrant
+startup                  = AtLogOn
+crash recovery           = repeating TimeTrigger, 60 s default
+principal                = Interactive / Limited
+multiple instances       = IgnoreNew
+readiness authority      = GET /readyz -> HTTP 200
+SGOKB lifecycle actions  = none
 ```
 
-通常free-text Object Searchでは1 Object = 1 resultへbounded aggregationする。R2 semantic channelsはoverview / facet / statementを独立にcandidate generationし、Object単位へbounded aggregationした後にcross-channel fusionする。
+Docker Compose remains optional/historical and is not Windows authority.
 
-Exact name / aliasはSemantic resultに埋没させない。Facet-specific SimilarityでFacetが存在しない場合、overallへsilent fallbackしない。
+### Runtime health
 
-Current / historical Version scopeを混在させず、normal retrievalはcurrent accepted Knowledgeを既定scopeとする。
-
-### 4.6 Application / CLI layer
-
-operator-facing public CLIは`sgokb`へ統一する。
+CLI and GUI share:
 
 ```text
-sgokb source ...
-sgokb object ...
-sgokb association ...
-sgokb evidence ...
-sgokb registry ...
-sgokb package ...
-sgokb result ...
-sgokb version ...
-sgokb search ...
-sgokb similar ...
-sgokb render ...
-sgokb mcp ...
-sgokb system ...
+operation   = system.status
+projection  = data.runtime_health
+schema      = sgokb.runtime-health/1.0
+components  = sqlite / embedding / qdrant / generation / derived
 ```
 
-raw SQLをoperator-facing public APIとしない。write operationはApplication / Repository contractを通す。
-
-CLI machine-readable contractは`sgokb.cli/1.0`。Semantic runtime不足等は明示error/degradationとして扱い、cloudへsilent fallbackしない。
-
-Authority: `docs/decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md`。
-
-### 4.7 MCP Knowledge Access layer
-
-MCP MVPは**read-only**である。
+Qdrant lifecycle projection remains:
 
 ```text
-Repository / Retrieval Core
-        ↓
-KnowledgeReadApplication
-        ↓
-MCPReadAdapter
-        ↓
-MCP Server
-        ↓
-stdio
+qdrant_owner = external
+observe      = true
+start        = false
+stop         = false
+restart      = false
 ```
 
-MCP transportからSQLite / Qdrantへ直接アクセスしない。current active read capabilityは次の8 Toolである。
+Runtime failure degrades or blocks affected derived capabilities without rewriting accepted canonical Knowledge.
+
+## 10. Recovery boundary
+
+Operational priority remains:
 
 ```text
-search_objects
-find_similar_objects
-get_object
-get_objects
-get_object_relations
-get_object_evidence
-search_evidence
-build_context
+integrity / provenance
+  > recoverability
+  > explicit Human decision boundary
+  > availability / graceful degradation
+  > performance
 ```
 
-`build_context`はLLM推論・要約生成を行わず、保存済みKnowledgeをpurpose profileと明示optionから決定論的に選別する。
+Canonical recovery uses SQLite plus required Raw/Result provenance closure. Derived search state may be rebuilt separately with `system derived sync` and `system index rebuild`.
 
-Canonical write、Result Import、Registry mutation、Package exportはMCP read Toolの責務外である。
+P-RUNTIME-06 accepted real-host Qdrant outage, wrong-service fail-closed behavior, automatic/native recovery, collection persistence, Vector rebuild and post-recovery canonical integrity.
 
-Detailed authority:
+## 11. MCP and external consumers
 
-- `docs/decisions/J02_MCP_READ_TOOL_CONTRACT.md`
-- `docs/decisions/J04_CONTEXT_BUILDER_CONTRACT.md`
-- Phase J MCP server / resource decisions
+MCP remains read-only for canonical operations. It resolves accepted Object Knowledge through the same current/historical Version semantics rather than exposing SQLite tables as an integration contract.
 
-### 4.8 SGOKB / UPDS boundary
+UPDS and other external consumers use stable Object identity and explicit Version identity where reproducibility is required.
 
-SGOKBはWorld / Object Knowledge Provider、UPDSはPersonal Inference Consumerである。
+## 12. GUI distribution boundary
 
-```text
-SGOKB canonical Object Knowledge
-        ↓
-Retrieval / Application Core
-        ↓
-MCP read boundary
-        ↓
-UPDS
-        ↓
-Selection-related Semantic Observation
-Pattern
-Preference Hypothesis
-```
+PySide6/Qt Widgets is the accepted GUI framework. The source/repository release includes the GUI implementation and dependency declaration.
 
-Persistent integration identityはSGOKBのstable `object_id`を使用する。推論再現性が必要な場合、UPDSは実際に取得したimmutable `knowledge_version_id`を記録する。
+P-CLOSE-01 does not certify or publish a standalone GUI binary artifact because the SGOKB project license has not been separately selected and packaged Qt/PySide6 redistribution requires the P-GUI-02 artifact license gate.
 
-禁止境界:
+This distribution limitation does not alter the accepted runtime architecture.
 
-- UPDSがSGOKB SQLite schemaをdirect contractとして読むこと。
-- UPDSがPersonal Preference推論をSGOKB canonical Knowledgeへsilent write-backすること。
-- display nameやsearch rankingをObject identityとして保存すること。
+## 13. Current authoritative references
 
-Detailed authority:
+- Requirements: `docs/requirements/`
+- Current design index: `docs/design/README.md`
+- Raw Grounding: `docs/requirements/RAW_GROUNDING_REQUIREMENTS.md`
+- GUI architecture: `docs/design/P_GUI_APPLICATION_ARCHITECTURE.md`
+- Runtime health: `docs/design/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_CONTRACT.md`
+- Native Windows runtime: `docs/planning/phases/P/P_RUNTIME_04_NATIVE_WINDOWS_TASK_AMENDMENT.md`
+- Runtime failure/recovery: `docs/evaluation/P_RUNTIME_06_RUNTIME_FAILURE_RECOVERY_ACCEPTANCE.md`
+- Standard operator workflow: `docs/operations/OBJECT_STANDARD_WORKFLOW.md`
+- Safety/recovery: `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
+- Release policy: `docs/decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md`
+- Phase P closure: `docs/evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md`
 
-- `docs/requirements/SGOKB_WORLD_OBJECT_KNOWLEDGE_REQUIREMENTS.md`
-- `docs/requirements/UPDS_PERSONAL_INFERENCE_LAYER_REQUIREMENTS.md`
-- `docs/requirements/CONCEPT_OWNERSHIP_BOUNDARY_REQUIREMENTS.md`
-- `docs/requirements/SGOKB_UPDS_INTEGRATION_CONTRACT_REQUIREMENTS.md`
+## 14. Release state
 
----
-
-## 5. Canonical / derived / transient classification
-
-| Class | Examples | Loss handling |
-|---|---|---|
-| Canonical / authoritative | SQLite Object / Version / Registry / Source / Snapshot / Relation / Evidence Link, Raw Artifact | restore required |
-| Provenance-bearing retained data | Evidence, Normalized Run, accepted original Result / audit record | preserve while referenced |
-| Rebuildable derived | Search Representation, Embedding, Qdrant Vector Index, render output | rebuild |
-| Transient / exchange | Package staging, temporary files, caches | cleanup by policy |
-
-Evidenceは再抽出可能な場合でもaccepted Versionが`evidence_id`へgroundingしているため、参照中は単なるcacheとして扱わない。
-
----
-
-## 6. Runtime composition
-
-Core minimum:
-
-```text
-Python 3.10+
-SQLite
-local filesystem
-sgokb CLI
-```
-
-Optional semantic composition:
-
-```text
-sentence-transformers / local Embedding provider
-Qdrant
-CUDA-capable GPU profile (Reference WorkstationではRTX 4090)
-```
-
-Optional MCP composition:
-
-```text
-MCP Python SDK
-stdio MCP server
-```
-
-Core local read pathはInternet、ChatGPT、Google Drive、Qdrant、GPUを必須としない。Lexical readとcanonical Object readはSQLiteだけで成立する。
-
----
-
-## 7. Failure isolation rules
-
-以下の失敗をcanonical Knowledgeのrollback / delete理由にしない。
-
-- Embedding生成失敗。
-- Qdrant / Vector Index障害。
-- FTS / derived rebuild失敗。
-- Markdown render失敗。
-- MCP server停止。
-- Google Drive等の交換先停止。
-- ChatGPT / external AI停止。
-
-Semantic-only operationが必要runtimeを失った場合はexplicit unavailableとし、HybridがLexicalへdegradeする場合もwarningを返す。
-
----
-
-## 8. Security / external boundary
-
-default security postureはlocal-onlyである。
-
-Package Exportは明示的External Egress operationとして扱い、preflightの`allow / review_required / blocked` boundaryを維持する。credential / token / secretは標準Packageへ含めない。
-
-外部AIから返るResultはuntrusted inputであり、JSON内path / URL / stringをcommandやarbitrary filesystem operationとして実行しない。
-
-MCPは初期releaseではlocal read-only surfaceであり、remote network exposureをdefaultにしない。
-
-Operational details: `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`。
-
----
-
-## 9. Acceptance baseline carried forward
-
-Phase Nで次をformal acceptance済みとして扱う。
-
-- Unit / Integration / real-data vertical slice。
-- Knowledge Access boundary。
-- R2 hierarchical multi-vector performance acceptance。
-- Retrieval / Vector quality。
-- Failure / Recovery。
-- Composite canonical backup / alternate-root restore。
-- Phase N closure C01-C07。
-
-Historical failuresは証跡として保持するが、後続accepted remediationでclosureしたものをcurrent failureとして再解釈しない。
-
-Phase N closure authority:
-
-- `docs/evaluation/PHASE_N_CLOSURE_AUDIT.md`
-- `benchmark/results/phase-n-closure-audit.json`
-
----
-
-## 10. Current design document map
-
-### Architecture / data model
-
-- `docs/design/SGOKB_CURRENT_ARCHITECTURE.md` — 本書。
-- `docs/design/OBJECT_SCHEMA.md`
-- `docs/design/SEMANTIC_FACET_SCHEMA.md`
-- `docs/design/SOURCE_EVIDENCE_SCHEMA.md`
-- `docs/design/VERSIONING_SCHEMA.md`
-- `docs/design/OBJECT_RESULT_JSON_SCHEMA.md`
-
-### Evidence / exchange
-
-- `docs/design/SOURCE_INGESTION_PIPELINE.md`
-- `docs/design/OBJECT_EVIDENCE_RETRIEVAL.md`
-- `docs/design/EVIDENCE_SELECTION_BUDGET.md`
-- `docs/design/OBJECT_EVIDENCE_PACKAGE_FORMAT.md`
-- `docs/design/OBJECT_EVIDENCE_PACKAGE_MANIFEST_SCHEMA.md`
-- `docs/design/OBJECT_ANALYSIS_INSTRUCTIONS.md`
-
-### Retrieval
-
-- `docs/design/SEARCH_REPRESENTATION_SCHEMA.md`
-- `docs/design/EMBEDDING_PROVIDER_MODEL_EVALUATION.md`
-- `docs/design/VECTOR_INDEX_ADAPTER_BACKEND_EVALUATION.md`
-- `docs/design/HYBRID_SEARCH_OBJECT_AGGREGATION.md`
-- `docs/design/OBJECT_SIMILARITY_SEARCH.md`
-
-### Access / integration
-
-- `docs/decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md`
-- `docs/decisions/J02_MCP_READ_TOOL_CONTRACT.md`
-- `docs/decisions/J04_CONTEXT_BUILDER_CONTRACT.md`
-- `docs/requirements/SGOKB_UPDS_INTEGRATION_CONTRACT_REQUIREMENTS.md`
-
-### Operations
-
-- `docs/operations/OBJECT_STANDARD_WORKFLOW.md`
-- `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
-
----
-
-## 11. Historical / non-current design warning
-
-`docs/archive/`はhistorical materialでありcurrent specificationではない。
-
-また、Phase N / N-04のGrounded Generation研究資産のうちconsumer-generation implementation / verifier / presentation pipelineはSGOKB core responsibilityから外れている。failure analysisやgold benchmarkはresearch evidenceとして保持するが、本書のcurrent core Architectureをoverrideしない。
+Phase P implementation workstreams are accepted. `P-CLOSE-01` integrates them into the `2.0.0` release line. The formal `v2.0.0` tag is created only after latest-branch full regression, Ruff and merged-main verification pass.
