@@ -53,19 +53,43 @@ class WorkflowCLI:
 def _result(manifest, instructions):
     # Deterministic transport fixture, not a claim about ChatGPT analysis quality.
     target = manifest["target"]
+    result_schema = manifest["binding"]["expected_result_schema_version"]
+    binding = {
+        "package_id": manifest["package_id"],
+        "package_schema_version": manifest["schema_version"],
+        "manifest_sha256": manifest["integrity"]["manifest_sha256"],
+        "package_created_at": manifest["created_at"],
+        "base_version_id": manifest["binding"]["base_version_id"],
+    }
+    summary = {
+        "local_key": "summary-1",
+        "text": "M03 Example is a brave fictional character.",
+        "derivation_kind": "direct_statement",
+    }
+    if result_schema == "sgokb.object-result/2.0":
+        raw_grounding = manifest["raw_grounding"]
+        binding.update(
+            {
+                "grounding_contract": manifest["binding"]["grounding_contract"],
+                "grounding_set_sha256": raw_grounding["integrity"]["grounding_set_sha256"],
+            }
+        )
+        summary["grounding"] = [
+            {"raw_artifact_id": raw_id, "role": "supports"}
+            for raw_id in raw_grounding["included_raw_artifact_ids"]
+        ]
+    else:
+        summary["evidence"] = [
+            {"evidence_id": eid, "role": "supports"}
+            for eid in manifest["evidence"]["included_evidence_ids"]
+        ]
     return {
-        "schema_version": manifest["binding"]["expected_result_schema_version"],
+        "schema_version": result_schema,
         "result_status": "complete",
         "target": {
             key: target[key] for key in ("object_id", "primary_class_id", "additional_class_ids")
         },
-        "binding": {
-            "package_id": manifest["package_id"],
-            "package_schema_version": manifest["schema_version"],
-            "manifest_sha256": manifest["integrity"]["manifest_sha256"],
-            "package_created_at": manifest["created_at"],
-            "base_version_id": manifest["binding"]["base_version_id"],
-        },
+        "binding": binding,
         "generation": {
             "instructions_version": manifest["binding"]["instructions_version"],
             "generator_kind": "interactive_ai",
@@ -74,17 +98,7 @@ def _result(manifest, instructions):
         },
         "knowledge": {
             "default_language": "en",
-            "summary": [
-                {
-                    "local_key": "summary-1",
-                    "text": "M03 Example is a brave fictional character.",
-                    "derivation_kind": "direct_statement",
-                    "evidence": [
-                        {"evidence_id": eid, "role": "supports"}
-                        for eid in manifest["evidence"]["included_evidence_ids"]
-                    ],
-                }
-            ],
+            "summary": [summary],
             "facets": [
                 {"facet_id": facet_id, "status": "not_analyzed", "statements": []}
                 for facet_id in re.findall(r"^- `(facet:[^`]+)` /", instructions, re.MULTILINE)
