@@ -5,9 +5,9 @@ Task: `P-RUNTIME-06 [P1] Runtime failure / recovery acceptance`
 
 ## Status
 
-**Repository gate PASS / Pre-fault baseline PASS / Failure projection PASS / Port-conflict PASS / Recovery acceptance pending**
+**Repository gate PASS / Failure-recovery PASS through G9 / Final rebuild-integrity acceptance pending**
 
-P-RUNTIME-06 is an acceptance/fault-injection task. The repository-side contract tests, design, and operator procedure are prepared on branch `phase-p/runtime-06-failure-recovery-acceptance`. The supported Windows workstation has completed the focused repository gate, the pre-fault canonical/runtime baseline, the CLI/GUI failure-projection gates, and the wrong-service port-conflict gate successfully. The remaining recovery, persistence, rebuild, and final-integrity gates must still be executed before this task can become `Complete / Accepted`.
+P-RUNTIME-06 is an acceptance/fault-injection task. The repository-side contract tests, design, and operator procedure are prepared on branch `phase-p/runtime-06-failure-recovery-acceptance`. The supported Windows workstation has completed the focused repository gate, pre-fault canonical/runtime baseline, CLI/GUI failure projection, wrong-service port-conflict fail-closed test, native Qdrant recovery, collection persistence comparison, and recovered CLI/GUI baseline successfully. Only the final Vector Index rebuild and post-rebuild canonical integrity/count gates remain before this task can become `Complete / Accepted`.
 
 ## Accepted runtime interpretation
 
@@ -113,7 +113,7 @@ observe                    = true
 start / stop / restart    = false / false / false
 ```
 
-The complete pre-fault Qdrant collection inventory was captured in the operator shell as `$BeforeCollections` for the later persistence comparison. The inventory is non-empty and includes the reference SGOKB Vector collection together with historical/evaluation collections already present on the workstation.
+The complete pre-fault Qdrant collection inventory was captured in the operator shell as `$BeforeCollections` for the later persistence comparison. The inventory contained 80 collections, including the reference SGOKB Vector collection together with historical/evaluation collections already present on the workstation.
 
 Result:
 
@@ -182,6 +182,59 @@ Result:
 G6 port 6333 wrong-service / non-ready listener fails closed = PASS
 ```
 
+## Native runtime recovery and persistence — PASS
+
+After the disposable wrong-service listener was removed, port 6333 was confirmed free. The operator re-enabled and started `\SGOKB\Qdrant` through Windows Task Scheduler.
+
+Observed native recovery:
+
+```text
+GET /readyz          = HTTP 200
+response             = all shards are ready
+Scheduled Task       = Running
+qdrant.exe PID       = 41628
+```
+
+Observed recovered CLI runtime:
+
+```text
+Qdrant status        = healthy
+ready                = true
+version              = 1.19.2
+overall_status       = degraded
+qdrant_owner         = external
+observe              = true
+start/stop/restart   = false/false/false
+```
+
+`overall_status=degraded` is the accepted reference-Workspace baseline because inactive Search generation and rendering-only derived state remain intentionally degraded; this is not a Qdrant recovery failure.
+
+Collection persistence comparison:
+
+```text
+collection count before = 80
+collection count after  = 80
+Compare-Object           = no differences
+```
+
+Recovered GUI projection also returned exactly to the accepted P-RUNTIME-05 baseline:
+
+```text
+Qdrant                 = HEALTHY / ready / v1.19.2
+Semantic Search        = DEGRADED, not BLOCKED
+Search generation      = DEGRADED / generation_not_active
+Derived                = DEGRADED / rendering-only warning
+Qdrant lifecycle owner = external
+```
+
+Results:
+
+```text
+G7 native Qdrant recovery to /readyz HTTP 200                  = PASS
+G8 Qdrant collection inventory persists across process restart = PASS
+G9 recovered CLI + GUI return to accepted baseline             = PASS
+```
+
 ## Inherited accepted evidence
 
 ### P-RUNTIME-04 crash recovery
@@ -209,11 +262,9 @@ normal Semantic Search state  = DEGRADED, not BLOCKED
 Qdrant                         = HEALTHY / ready / v1.19.2
 ```
 
-P-RUNTIME-06 must prove the transition from this baseline to `BLOCKED` during Qdrant failure and back to the baseline after recovery.
+P-RUNTIME-06 has now proven the transition from this baseline to `BLOCKED` during Qdrant failure and back to the same baseline after recovery.
 
-## Required new reference-host gates
-
-The operator guide requires the following evidence:
+## Required reference-host gates
 
 ```text
 G1  focused P-RUNTIME tests + Ruff                                  PASS
@@ -222,9 +273,9 @@ G3  controlled native Qdrant unavailable detection in CLI           PASS
 G4  GUI Semantic Search = BLOCKED during Qdrant failure              PASS
 G5  external lifecycle boundary preserved during failure             PASS
 G6  port 6333 wrong-service / non-ready listener fails closed         PASS
-G7  native Qdrant recovery to /readyz HTTP 200                        Pending
-G8  Qdrant collection inventory persists across process restart       Pending
-G9  recovered CLI + GUI return to accepted baseline                   Pending
+G7  native Qdrant recovery to /readyz HTTP 200                        PASS
+G8  Qdrant collection inventory persists across process restart       PASS
+G9  recovered CLI + GUI return to accepted baseline                   PASS
 G10 public system index rebuild succeeds after recovery               Pending
 G11 post-rebuild canonical SQLite integrity PASS                      Pending
 G12 canonical Object count and current-Version count unchanged         Pending
@@ -262,11 +313,14 @@ G3 CLI failure projection            = PASS
 G4 GUI failure projection            = PASS
 G5 external lifecycle boundary       = PASS
 G6 port-conflict fail-closed         = PASS
+G7 native runtime recovery           = PASS
+G8 collection persistence            = PASS / 80 -> 80 / no diff
+G9 CLI + GUI baseline recovery       = PASS
 P-RUNTIME-04 crash-restart evidence  = Reusable / Accepted
-remaining reference-host gates       = G7-G12
+remaining reference-host gates       = G10-G12
 canonical integrity after recovery   = Pending
-P-RUNTIME-06 overall                 = In Progress / Reference-host Acceptance Pending
+P-RUNTIME-06 overall                 = In Progress / Final Rebuild-Integrity Acceptance Pending
 P-CLOSE-01                           = Blocked by P-RUNTIME-06
 ```
 
-After the operator reports G7-G12 PASS, record the exact recovery/rebuild/integrity results here and update P-RUNTIME-06 to `Complete / Accepted`.
+After the operator reports G10-G12 PASS, record the exact rebuild/integrity/count results here and update P-RUNTIME-06 to `Complete / Accepted`.
