@@ -5,9 +5,9 @@ Task: `P-RUNTIME-06 [P1] Runtime failure / recovery acceptance`
 
 ## Status
 
-**Repository gate PASS / Pre-fault baseline PASS / Reference-host fault-recovery acceptance pending**
+**Repository gate PASS / Pre-fault baseline PASS / GUI failure projection PASS / Reference-host fault-recovery acceptance pending**
 
-P-RUNTIME-06 is an acceptance/fault-injection task. The repository-side contract tests, design, and operator procedure are prepared on branch `phase-p/runtime-06-failure-recovery-acceptance`. The supported Windows workstation has completed the focused repository gate and the pre-fault canonical/runtime baseline successfully. The controlled real-host fault/recovery gates must still be executed before this task can become `Complete / Accepted`.
+P-RUNTIME-06 is an acceptance/fault-injection task. The repository-side contract tests, design, and operator procedure are prepared on branch `phase-p/runtime-06-failure-recovery-acceptance`. The supported Windows workstation has completed the focused repository gate, the pre-fault canonical/runtime baseline, and the GUI failure-projection gate successfully. The remaining CLI failure, port-conflict, recovery, persistence, rebuild, and final-integrity gates must still be executed before this task can become `Complete / Accepted`.
 
 ## Accepted runtime interpretation
 
@@ -121,6 +121,28 @@ Result:
 G2 pre-fault canonical SQLite integrity = PASS
 ```
 
+## GUI failure projection — PASS
+
+With the native Qdrant runtime intentionally unavailable under the controlled P-RUNTIME-06 maintenance protocol, the operator reported every GUI failure-state checklist item PASS:
+
+```text
+Qdrant presentation                  = unavailable / not ready
+Semantic Search readiness            = BLOCKED
+blocker / troubleshooting            = explains Qdrant failure
+Qdrant lifecycle owner               = external
+Qdrant Start / Stop / Restart        = not exposed
+raw system.status JSON               = shows the same Qdrant failure state
+```
+
+This proves the GUI consumes the shared runtime-health boundary without taking lifecycle ownership during a real runtime outage.
+
+Result:
+
+```text
+G4 GUI Semantic Search = BLOCKED during Qdrant failure  = PASS
+G5 external lifecycle boundary preserved during failure = PASS
+```
+
 ## Inherited accepted evidence
 
 ### P-RUNTIME-04 crash recovery
@@ -158,8 +180,8 @@ The operator guide requires the following evidence:
 G1  focused P-RUNTIME tests + Ruff                                  PASS
 G2  pre-fault canonical SQLite integrity                            PASS
 G3  controlled native Qdrant unavailable detection in CLI           Pending
-G4  GUI Semantic Search = BLOCKED during Qdrant failure              Pending
-G5  external lifecycle boundary preserved during failure             Pending
+G4  GUI Semantic Search = BLOCKED during Qdrant failure              PASS
+G5  external lifecycle boundary preserved during failure             PASS
 G6  port 6333 wrong-service / non-ready listener fails closed         Pending
 G7  native Qdrant recovery to /readyz HTTP 200                        Pending
 G8  Qdrant collection inventory persists across process restart       Pending
@@ -197,11 +219,13 @@ repository fault-contract tests      = PASS / 22 passed
 Ruff                                 = PASS
 operator procedure                   = Complete
 G2 pre-fault canonical baseline      = PASS
+G4 GUI failure projection            = PASS
+G5 external lifecycle boundary       = PASS
 P-RUNTIME-04 crash-restart evidence  = Reusable / Accepted
-reference-host gates G3-G12          = Pending
+remaining reference-host gates       = G3, G6-G12
 canonical integrity after recovery   = Pending
 P-RUNTIME-06 overall                 = In Progress / Reference-host Acceptance Pending
 P-CLOSE-01                           = Blocked by P-RUNTIME-06
 ```
 
-After the operator reports G3-G12 PASS, record the exact recovery/rebuild/integrity results here and update P-RUNTIME-06 to `Complete / Accepted`.
+After the operator reports the remaining gates PASS, record the exact CLI failure/recovery/rebuild/integrity results here and update P-RUNTIME-06 to `Complete / Accepted`.
