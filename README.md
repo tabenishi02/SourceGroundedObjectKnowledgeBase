@@ -7,18 +7,18 @@ Canonical Knowledge stays in structured SQLite-backed Object/Version state. Raw 
 ## Status
 
 ```text
-Phase A ... Phase O       = Complete
-Phase P GUI workstream    = Complete / Accepted
-Phase P RAW workstream    = Complete / Accepted
-Phase P Runtime workstream= Complete / Accepted
-P-CLOSE-01                = release integration / final regression pending
-Current formal release    = v1.1.0
-Release candidate         = 2.0.0
+Phase A ... Phase O        = Complete
+Phase P GUI workstream     = Complete / Accepted
+Phase P RAW workstream     = Complete / Accepted
+Phase P Runtime workstream = Complete / Accepted
+P-CLOSE-01                 = Complete / Accepted
+Current formal release     = v2.0.0
+Project state              = Paused / no active implementation task
 ```
 
-The formal `v2.0.0` tag is created only after P-CLOSE-01 latest-branch regression and merged-main verification pass.
+The annotated `v2.0.0` tag is frozen on release commit `1adae99ee62c3054a35b1325b8a43716943ff06a`. Later `main` commits may contain post-release documentation bookkeeping without moving that immutable release boundary.
 
-## What changes in 2.0.0
+## What changed in 2.0.0
 
 ### Raw-grounded Package v2 is the default
 
@@ -34,7 +34,7 @@ selected Evidence
   -> accepted Knowledge Version
 ```
 
-The no-option Package command now targets v2:
+The no-option Package command targets v2:
 
 ```powershell
 sgokb --db <db> package build --object <OBJECT_ID>
@@ -48,7 +48,7 @@ sgokb --db <db> package build --object <OBJECT_ID> --package-version v1
 
 ### PySide6 desktop GUI
 
-SGOKB now includes a PySide6/Qt Widgets desktop client over the same Application/operator boundary as the CLI.
+SGOKB includes a PySide6/Qt Widgets desktop client over the same Application/operator boundary as the CLI.
 
 ```powershell
 sgokb-gui
@@ -196,8 +196,12 @@ Start with:
 
 ## Release and distribution boundary
 
-`2.0.0` is a MAJOR release candidate because the default public Package/Result exchange semantics move from v1 to Raw-grounded v2.
+`v2.0.0` is the current formal MAJOR release. The breaking change is that the default public Package/Result exchange semantics move from v1 to Raw-grounded v2.
 
-The repository/source release includes the PySide6 GUI implementation, but P-CLOSE-01 does not publish or certify a standalone GUI binary artifact. The SGOKB project license has not been separately selected, and packaged Qt/PySide6 redistribution remains subject to the P-GUI-02 license/artifact gate.
+The repository/source release includes the PySide6 GUI implementation, but P-CLOSE-01 does not publish or certify a standalone GUI binary artifact. The SGOKB project license has not been separately selected, and packaged Qt/PySide6 redistribution remains subject to the P-GUI-02 license/artifact gate. Those items are deferred future distribution work, not unfinished `v2.0.0` release work.
 
 See `docs/decisions/P_CLOSE_01_RELEASE_INTEGRATION_DECISION.md` and `docs/evaluation/P_CLOSE_01_THIRD_PARTY_LICENSE_INVENTORY.md`.
+
+## Project checkpoint
+
+There is no active implementation task after Phase P / `v2.0.0`. The project is intentionally paused at this stable checkpoint. Future work should begin from the current `main` documentation state while treating tag `v2.0.0` as the immutable released baseline.
