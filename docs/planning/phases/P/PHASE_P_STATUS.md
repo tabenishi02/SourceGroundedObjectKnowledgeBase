@@ -34,8 +34,8 @@ Priority 3: Runtime / Qdrant auto-start
 | Runtime | P-RUNTIME-02 | **Complete / Accepted** | Compose retained as optional/historical Docker profile |
 | Runtime | P-RUNTIME-03 | **Complete / Accepted** | Shared CLI/GUI runtime health/status Application boundary |
 | Runtime | P-RUNTIME-04 | **Complete / Accepted** | Reference-host and local remediation validation PASS; hosted Windows CI deferred as non-blocking verification debt due GitHub billing/spending limit |
-| Runtime | P-RUNTIME-05 | **In Progress / Latest-main Verification Pending** | Runtime Dashboard merged to main; full regression, reference CLI projection, and GUI smoke PASS; only latest-main focused tests + Ruff remain |
-| Runtime | P-RUNTIME-06 | Not Started | Runtime failure / recovery acceptance |
+| Runtime | P-RUNTIME-05 | **Complete / Accepted** | Runtime Dashboard merged to main; focused tests, Ruff, full regression, reference CLI projection, and GUI smoke PASS |
+| Runtime | P-RUNTIME-06 | **Unblocked / Ready** | Runtime failure / recovery acceptance |
 | Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
 
 ## GUI workstream — Complete / Accepted
@@ -191,48 +191,39 @@ GitHub Actions remediation CI   = Deferred / external billing-spending constrain
 P-RUNTIME-04 overall            = Complete / Accepted
 ```
 
-## P-RUNTIME-05 — In Progress / Latest-main Verification Pending
+## P-RUNTIME-05 — Complete / Accepted
 
-The Runtime Dashboard implementation was merged to `main` through PR #82. It uses only the accepted P-RUNTIME-03 observation boundary.
+The Runtime Dashboard implementation was merged to `main` through PR #82 and preserves the accepted P-RUNTIME-03 observer-only boundary.
 
-Current evidence:
+Final local acceptance evidence:
 
 ```text
 implementation                    = Complete / merged to main
-focused runtime/dashboard tests   = PASS / 22 passed on pre-style-remediation HEAD
+focused runtime/dashboard tests   = PASS / 22 passed on latest tested main
+Ruff                              = PASS / All checks passed
 full regression                   = PASS / 869 passed / 2 known local-Qdrant warnings
 reference CLI projection          = PASS
 GUI reference-workspace smoke     = PASS
+Semantic Search                   = DEGRADED, not BLOCKED, for the reference Workspace
 Qdrant                            = healthy / ready=true / v1.19.2
 Search generation                 = degraded / generation_not_active
 Derived                           = degraded / rendering pending only
-Ruff                              = 9 E501 findings -> remediated by line wrapping
-latest-main focused/Ruff          = pending re-run
+P-RUNTIME-03 lifecycle boundary   = preserved
+new regressions                   = none observed
 ```
 
-The operator completed every GUI smoke checklist item successfully:
+The operator completed every GUI smoke checklist item successfully. The reference snapshot is correctly presented as Semantic Search `degraded`, not `blocked`: SQLite, Embedding, Qdrant and all semantic derived kinds are ready; inactive Search generation can fall back to legacy vector routing and the remaining Derived degradation is rendering-only.
+
+Qdrant remains externally owned. The dashboard exposes no start, stop, or restart action. MCP state is not fabricated inside `sgokb.runtime-health/1.0` and the GUI directs the operator to the existing MCP surface.
+
+Qt font-database warnings observed during one GUI launch did not prevent startup or any smoke-test item from passing and are recorded as non-blocking acceptance warnings.
+
+Formal closure:
 
 ```text
-System > Overview reachable                      = PASS
-Refresh system status                            = PASS
-Semantic Search readiness visible                = PASS
-Semantic Search = DEGRADED, not BLOCKED          = PASS
-SQLite / Embedding / Qdrant status               = PASS
-inactive Search generation guidance              = PASS
-rendering-only Derived warning                    = PASS
-troubleshooting reasons visible                  = PASS
-Qdrant lifecycle owner = external                = PASS
-no Qdrant Start / Stop / Restart controls        = PASS
-MCP note uses existing MCP tab                    = PASS
-raw system.status JSON visible                    = PASS
-structured dashboard matches CLI snapshot         = PASS
+P-RUNTIME-05 overall = Complete / Accepted
+P-RUNTIME-06         = Unblocked / Ready
 ```
-
-The reference snapshot is correctly presented as Semantic Search `degraded`, not `blocked`: SQLite, Embedding, Qdrant and all semantic derived kinds are ready; the inactive Search generation may use legacy vector routing and the remaining Derived degradation is rendering-only.
-
-Qdrant remains externally owned. The dashboard exposes no start, stop, or restart action.
-
-The only remaining P-RUNTIME-05 closure gate is a latest-`main` re-run of the focused P-RUNTIME-05/System/runtime tests and Ruff. A complete full-regression rerun is not required solely for the formatting-only E501 remediation and later documentation-only commits.
 
 ## Sequencing
 
@@ -241,11 +232,9 @@ P-GUI-01..10 Complete / Accepted
         ↓
 P-RAW-01..06 Complete / Accepted
         ↓
-P-RUNTIME-01..04 Complete / Accepted
+P-RUNTIME-01..05 Complete / Accepted
         ↓
-P-RUNTIME-05  <- LATEST-MAIN FOCUSED + RUFF VERIFICATION ONLY
-        ↓
-P-RUNTIME-06
+P-RUNTIME-06  <- NEXT / READY
         ↓
 P-CLOSE-01
 ```
@@ -257,10 +246,7 @@ Phase P remains in development; released-system semantics continue to be governe
 ## Next
 
 ```text
-1. update local main to the current origin/main;
-2. re-run P-RUNTIME-05 focused tests on current main;
-3. re-run Ruff on current main;
-4. if both pass, mark P-RUNTIME-05 Complete / Accepted;
-5. begin P-RUNTIME-06 Runtime failure / recovery acceptance;
-6. retain hosted P-RUNTIME-04 CI as deferred verification debt.
+1. begin P-RUNTIME-06 Runtime failure / recovery acceptance;
+2. retain hosted P-RUNTIME-04/P-RUNTIME-05 CI as deferred external verification while GitHub Actions capacity remains unavailable;
+3. after P-RUNTIME-06 acceptance, proceed to P-CLOSE-01.
 ```
