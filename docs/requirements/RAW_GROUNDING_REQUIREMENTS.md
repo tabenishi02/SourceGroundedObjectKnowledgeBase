@@ -1,10 +1,10 @@
 # RAW Grounding Requirements
 
-更新日: 2026-10-30
+更新日: 2026-10-31
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Task: `P-RAW-06 [P0] RAW Grounding acceptance / compatibility / documentation`
-- Status: **Complete / Accepted**
+- Status: **Complete / Accepted / Release default finalized by P-CLOSE-01**
 - Applies to: Package v2 / Result v2 external analysis boundary
 - Acceptance: `docs/evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md`
 - Design authorities:
@@ -140,15 +140,27 @@ Historical v1 artifacts remain interpretable under the v1 contract. They MUST NO
 
 Historical Raw-grounded accepted Knowledge must recover carry-forward Evidence only as selection lineage, then resolve that Evidence through its original run. This recovery does not convert Evidence into claim grounding.
 
-## 9. Operational requirement after P-RAW-06
+## 9. Release default after P-CLOSE-01
 
-For Phase P development operations, Raw-grounded analysis MUST be requested explicitly with:
+For the `2.0.0` release line, Raw-grounded Package v2 is the default external analysis contract:
+
+```text
+sgokb package build --object <OBJECT_ID>
+```
+
+is equivalent to:
 
 ```text
 sgokb package build --object <OBJECT_ID> --package-version v2
 ```
 
-The no-option CLI/Application default remains `v1` during the unreleased Phase P integration window as an explicit backward-compatibility safeguard. This default is not permission to use v1 for a new Raw-grounded acceptance flow. Final release-default disposition is deferred to `P-CLOSE-01`.
+Package v1 / Result v1 remains supported only as an explicit legacy compatibility path:
+
+```text
+sgokb package build --object <OBJECT_ID> --package-version v1
+```
+
+The default change from v1 to v2 is intentionally treated as a public exchange-contract breaking change and is therefore released under SemVer `2.0.0` according to `docs/decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md`.
 
 ## 10. Acceptance requirement
 
