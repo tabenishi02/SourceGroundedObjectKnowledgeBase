@@ -5,7 +5,7 @@ Updated: 2026-11-01
 - Task: `P-CLOSE-01 [P0] Full regression, documentation integration, release impact`
 - Branch: `phase-p/close-01-release-integration`
 - Target release: `2.0.0`
-- Status: **Second M03 remediation applied / latest-branch re-validation pending**
+- Status: **Second M03 remediation PASS / final closure gates pending**
 
 ## Closure scope
 
@@ -190,7 +190,21 @@ The fixture now extracts Facet IDs from the version-independent bullet prefix:
 
 This supports both accepted v1 and v2 instruction renderings without coupling the deterministic fixture to either separator glyph. No production validator, Package builder, Result importer, or runtime code was changed by this remediation.
 
-Latest-branch re-validation is required before closure.
+## Execution evidence — second remediation re-run
+
+Execution HEAD:
+
+```text
+e786f494fb91a1fd119b8d7e7deafabccf8f55ca
+```
+
+Focused M03 re-run:
+
+```text
+2 passed in 27.68s
+```
+
+This formally closes the M03 remediation gate. The accepted Package-v2 default now passes the installed-public-CLI standard workflow fixture through Result v2 validation/import and the MCP read follow-up path.
 
 ## Required final execution
 
@@ -229,7 +243,8 @@ Before closure:
 | First M03 v2 fixture remediation | Applied / `0177b3c` |
 | First M03 remediation re-run | FAIL / `2 errors` |
 | Second M03 Facet extraction remediation | Applied / `4e520d2` |
-| Latest-branch remediation tests | Pending |
+| Second M03 remediation re-run | PASS / `2 passed in 27.68s` |
+| Latest-branch focused tests | Pending |
 | Latest-branch full regression | Pending re-run |
 | Latest-branch Ruff | Pending |
 | Final release tag | Pending |
