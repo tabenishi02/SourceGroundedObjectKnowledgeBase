@@ -3,10 +3,10 @@
 Updated: 2026-11-01
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
-- Status: **Complete / Accepted**
+- Status: **Complete / Accepted / Released as `v2.0.0`**
 - Previous phase: `Phase O — Documentation / Release / Git cleanup` — **Complete**
-- Current formal release: `v1.1.0`
-- Accepted release target: `2.0.0`
+- Current formal release: `v2.0.0`
+- Release commit: `1adae99ee62c3054a35b1325b8a43716943ff06a`
 - Planning authority: [`PHASE_P_MODERNIZATION_PLAN.md`](PHASE_P_MODERNIZATION_PLAN.md)
 - Task authority: [`PHASE_P_TASKS.md`](PHASE_P_TASKS.md)
 - Closure acceptance: [`P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md`](../../../evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md)
@@ -18,7 +18,7 @@ Updated: 2026-11-01
 | GUI | P-GUI-01..10 | **Complete / Accepted** | PySide6 GUI, shared Application boundary, parity/usability/regression acceptance |
 | RAW | P-RAW-01..06 | **Complete / Accepted** | Raw-bearing Package/Result v2 and Raw provenance workflow |
 | Runtime | P-RUNTIME-01..06 | **Complete / Accepted** | native Windows Qdrant, shared runtime health, dashboard, failure/recovery acceptance |
-| Closure | P-CLOSE-01 | **Complete / Accepted** | full regression, docs/release integration, merge and merged-main verification complete |
+| Closure | P-CLOSE-01 | **Complete / Accepted** | full regression, docs/release integration, merge, main verification and release freeze complete |
 
 ## Accepted Phase P architecture
 
@@ -62,7 +62,7 @@ P-RUNTIME-04 hosted GitHub Actions verification remains deferred due the recorde
 
 ## P-CLOSE-01 release integration
 
-Accepted release-facing state:
+Released state:
 
 ```text
 project version       = 2.0.0
@@ -95,7 +95,7 @@ The two warnings are the known local-Qdrant behavior warnings already documented
 PR #85 accepted head = 41efc5f9661cb2b34eec2cb69b185ff56c8caecc
 merge commit         = 1b8c5ddb145367404e31e4b098d3e462afbfee1d
 GitHub verification  = verified=true
-main release content = verified
+release commit       = 1adae99ee62c3054a35b1325b8a43716943ff06a
 ```
 
 No Phase P product-code remediation remains.
@@ -106,7 +106,16 @@ The source/repository release includes the implemented PySide6 GUI. P-CLOSE-01 d
 
 ## Release-freeze boundary
 
-Phase P itself is now **Complete / Accepted**. The remaining release operation is to create `v2.0.0` on the verified final `main` state. That tag is a release-freeze marker, not an additional Phase P implementation task.
+The release freeze is complete:
+
+```text
+tag                = v2.0.0
+tag object SHA     = 7b9a4d495d8d3238a9159402e991f81589a679c5
+tag target commit  = 1adae99ee62c3054a35b1325b8a43716943ff06a
+remote ref         = refs/tags/v2.0.0
+```
+
+The annotated tag is intentionally fixed to the verified Phase P release commit. Later documentation or roadmap commits on `main` do not move this release boundary.
 
 ## Final sequence
 
@@ -121,9 +130,9 @@ P-CLOSE-01        Complete / Accepted
         ↓
 Phase P            Complete / Accepted
         ↓
-v2.0.0 release tag freeze
+v2.0.0             Released / Frozen
 ```
 
 ## Next
 
-Freeze `v2.0.0` on the verified final `main` release state. After that, any further work belongs to the post-Phase-P roadmap rather than Phase P closure.
+Any further implementation belongs to the post-Phase-P roadmap. `v2.0.0` remains the frozen release boundary for the completed Phase P state.
