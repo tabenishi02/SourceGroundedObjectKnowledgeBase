@@ -3,9 +3,8 @@
 Updated: 2026-11-01
 
 - Task: `P-CLOSE-01 [P0] Full regression, documentation integration, release impact`
-- Branch: `phase-p/close-01-release-integration`
 - Target release: `2.0.0`
-- Status: **Executable gates PASS / merge and merged-main freeze pending**
+- Status: **Complete / Accepted — release tag freeze pending**
 
 ## Closure scope
 
@@ -62,121 +61,55 @@ P-CLOSE-01 changes the release default only; it does not weaken the accepted v2 
 
 P-RUNTIME-06 completed G1-G12 on the supported Windows workstation, including real Qdrant outage/degradation, wrong-service fail-closed behavior, recovery, `80 -> 80` collection persistence, Vector Index rebuild, post-rebuild integrity, and canonical Object/current-Version count stability.
 
-## New P-CLOSE release-contract gates
+## P-CLOSE release-contract gates
 
-The branch adds focused assertions that:
+The closure branch added focused assertions that:
 
 ```text
 package build without --package-version -> v2
 explicit --package-version v1            -> v1
 ```
 
-These must pass together with the full repository regression.
+These passed together with the full repository regression.
 
-## Execution evidence — initial closure candidate
+## Regression remediation history
 
-Execution HEAD:
+The initial closure candidate exposed two M03 standard-workflow fixture errors after the intended Package default switch.
 
-```text
-fc2a0882368bbcbddc50ee04bfbcdc2f51fc5dcd
-```
-
-Repository state:
+### Initial run
 
 ```text
-working tree        = clean
-origin branch sync  = up to date
-git diff --check    = PASS / no output
+focused closure regression = 58 passed in 13.86s
+full repository regression = 874 passed / 2 errors / 2 known local-Qdrant warnings
 ```
 
-Focused closure regression:
-
-```text
-58 passed in 13.86s
-```
-
-Full repository regression:
-
-```text
-874 passed
-2 errors
-2 known local-Qdrant warnings
-234.88s
-```
-
-The two errors were both in `tests/test_m03_standard_workflow.py`:
-
-```text
-test_standard_workflow
-test_standard_workflow_mcp_read
-```
-
-### Initial root cause
-
-The M03 standard-workflow fixture called:
-
-```text
-sgokb package build --object ...
-```
-
-without an explicit Package version, so the P-CLOSE release candidate correctly produced Package v2 after the default change. The deterministic external-Result fixture, however, still populated v1 `evidence[]` claim grounding and omitted the Result v2 grounding binding fields. Result validation therefore correctly rejected the fixture.
-
-This is an integration-test fixture incompatibility exposed by the intended release-contract change, not evidence that the accepted Package v2 / Result v2 validator is incorrect.
+The errors were both in `tests/test_m03_standard_workflow.py` during Result validation.
 
 ### First remediation
 
-Remediation commit:
+Commit:
 
 ```text
 0177b3cef2db24a6854d37b5ef2dd53039b75cbd
 ```
 
-`tests/test_m03_standard_workflow.py` was changed to construct its deterministic Result from the Package manifest contract:
+The deterministic Result fixture was changed to follow the Package manifest contract:
 
 - Result v2 adds `grounding_contract` and `grounding_set_sha256` binding;
 - Result v2 claims ground through audited `raw_artifact_id` members;
-- Result v1 still uses Evidence grounding when explicitly exercised;
-- the normal M03 no-option workflow therefore exercises the new Raw-grounded v2 release default instead of forcing legacy v1.
+- Result v1 still uses Evidence grounding when explicitly exercised.
 
-## Execution evidence — first remediation re-run
-
-Execution HEAD:
-
-```text
-08d889af5830c1c7a87356c96de78bb9b8131e4e
-```
-
-Focused M03 re-run:
+First remediation re-run:
 
 ```text
 2 errors in 20.01s
 ```
 
-Both failures again occurred at `result validate`, so the first remediation was necessary but not sufficient.
-
-### Second root cause
-
-The remaining incompatibility was the Effective Facet extractor inside the M03 deterministic fixture.
-
-The legacy v1 fixture used this separator-specific pattern:
-
-```text
-^- `(facet:[^`]+)` /
-```
-
-Package v2 instructions render Effective Facets as:
-
-```text
-- `facet:...` — Name: description
-```
-
-Therefore the v2 Result fixture emitted an empty `knowledge.facets` array. Result v2 validation correctly rejected that Result because every effective Facet must be returned exactly once.
-
-The v2 binding fields and Raw grounding added by the first remediation were not the remaining cause.
-
 ### Second remediation
 
-Remediation commit:
+The remaining cause was a v1-only Effective Facet extraction pattern. Package v2 instructions use an em dash separator, so the fixture emitted an empty `knowledge.facets` array.
+
+Commit:
 
 ```text
 4e520d2db989f7bebb691dd26abdcb3749f8a41d
@@ -188,27 +121,15 @@ The fixture now extracts Facet IDs from the version-independent bullet prefix:
 ^- `(facet:[^`]+)`
 ```
 
-This supports both accepted v1 and v2 instruction renderings without coupling the deterministic fixture to either separator glyph. No production validator, Package builder, Result importer, or runtime code was changed by this remediation.
+No production validator, Package builder, Result importer, or runtime code was changed by either remediation.
 
-## Execution evidence — second remediation re-run
-
-Execution HEAD:
-
-```text
-e786f494fb91a1fd119b8d7e7deafabccf8f55ca
-```
-
-Focused M03 re-run:
+Second remediation re-run:
 
 ```text
 2 passed in 27.68s
 ```
 
-This formally closes the M03 remediation gate. The accepted Package-v2 default now passes the installed-public-CLI standard workflow fixture through Result v2 validation/import and the MCP read follow-up path.
-
-## Execution evidence — final closure gates
-
-The final executable gates were run after the second remediation. The only intervening branch commit before the full regression was an acceptance-document update; no product or test code changed.
+## Final executable acceptance
 
 Focused closure regression:
 
@@ -216,13 +137,7 @@ Focused closure regression:
 58 passed in 15.78s
 ```
 
-Latest branch full repository regression at:
-
-```text
-d5a06bec3e3c0c24837b4411161c25e852ed431e
-```
-
-Result:
+Latest branch full repository regression at `d5a06bec3e3c0c24837b4411161c25e852ed431e`:
 
 ```text
 876 passed
@@ -237,7 +152,7 @@ Payload indexes have no effect in the local Qdrant.
 Local mode performs exact (brute-force) search, so search_params has no effect except idf.
 ```
 
-They are test-environment behavior already understood by the project and are not new release blockers.
+They are understood test-environment behavior and are not new release blockers.
 
 Ruff:
 
@@ -246,9 +161,27 @@ python -m ruff check src tests
 All checks passed!
 ```
 
-Therefore all latest-branch executable P-CLOSE gates are green.
+## Merge and main verification
 
-## Current gate table
+PR #85 was merged using the exact accepted head:
+
+```text
+accepted PR head = 41efc5f9661cb2b34eec2cb69b185ff56c8caecc
+merge commit     = 1b8c5ddb145367404e31e4b098d3e462afbfee1d
+```
+
+GitHub main was then verified to point to that merge commit and the merge commit signature status was `verified=true`.
+
+Release-facing main content was also verified to contain:
+
+```text
+pyproject.toml project version = 2.0.0
+P-CLOSE accepted code/docs      = merged
+```
+
+No product or test code changed between the accepted branch gate and the merge commit.
+
+## Final gate table
 
 | Gate | Status |
 |---|---|
@@ -263,19 +196,17 @@ Therefore all latest-branch executable P-CLOSE gates are green.
 | README / docs index integration | Complete |
 | SemVer determination | PASS / `2.0.0` |
 | Third-party dependency/license inventory | PASS for source-release scope |
-| Initial focused tests | PASS / `58 passed` |
-| Initial full regression | FAIL / `874 passed, 2 errors` |
-| First M03 v2 fixture remediation | Applied / `0177b3c` |
-| First M03 remediation re-run | FAIL / `2 errors` |
-| Second M03 Facet extraction remediation | Applied / `4e520d2` |
-| Second M03 remediation re-run | PASS / `2 passed in 27.68s` |
+| M03 remediation re-run | PASS / `2 passed in 27.68s` |
 | Final focused closure tests | PASS / `58 passed in 15.78s` |
 | Final full regression | PASS / `876 passed, 2 known warnings` |
 | Final Ruff | PASS / `All checks passed!` |
-| PR merge to main | Pending |
-| Merged-main release verification | Pending |
-| Final `v2.0.0` tag | Pending |
+| PR #85 merge to main | PASS |
+| Merged-main verification | PASS |
+| P-CLOSE-01 | **Complete / Accepted** |
+| Final `v2.0.0` tag | Pending release-freeze action |
 
-## Closure rule
+## Closure disposition
 
-The executable acceptance portion of P-CLOSE-01 is complete. Formal `Complete / Accepted` closure is reached when this accepted branch is merged to `main`, the merged main release commit is verified, and the `v2.0.0` tag is frozen on that verified commit. No tag is claimed before that point.
+P-CLOSE-01 is **Complete / Accepted**. Phase P implementation, documentation integration, regression acceptance, merge, and merged-main verification are complete.
+
+The remaining `v2.0.0` tag creation is the release-freeze action that marks the verified main state as the formal version boundary. No additional Phase P product-code remediation is pending.
