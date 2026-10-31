@@ -4,7 +4,7 @@ Updated: 2026-11-01
 
 - Task: `P-CLOSE-01 [P0] Full regression, documentation integration, release impact`
 - Target release: `2.0.0`
-- Status: **Complete / Accepted — release tag freeze pending**
+- Status: **Complete / Accepted — `v2.0.0` release freeze complete**
 
 ## Closure scope
 
@@ -181,6 +181,26 @@ P-CLOSE accepted code/docs      = merged
 
 No product or test code changed between the accepted branch gate and the merge commit.
 
+## Release freeze
+
+After the merged-main closure documentation was finalized, `main` reached:
+
+```text
+release commit = 1adae99ee62c3054a35b1325b8a43716943ff06a
+```
+
+An annotated tag was then created and pushed:
+
+```text
+tag                    = v2.0.0
+tag object SHA         = 7b9a4d495d8d3238a9159402e991f81589a679c5
+tag target commit      = 1adae99ee62c3054a35b1325b8a43716943ff06a
+message                = SourceGroundedObjectKnowledgeBase v2.0.0
+remote ref             = refs/tags/v2.0.0
+```
+
+GitHub's tag object confirms that `v2.0.0` resolves to the intended release commit. The release-freeze boundary is therefore fixed.
+
 ## Final gate table
 
 | Gate | Status |
@@ -202,11 +222,11 @@ No product or test code changed between the accepted branch gate and the merge c
 | Final Ruff | PASS / `All checks passed!` |
 | PR #85 merge to main | PASS |
 | Merged-main verification | PASS |
+| `v2.0.0` release tag | PASS / frozen on `1adae99ee62c3054a35b1325b8a43716943ff06a` |
 | P-CLOSE-01 | **Complete / Accepted** |
-| Final `v2.0.0` tag | Pending release-freeze action |
 
 ## Closure disposition
 
-P-CLOSE-01 is **Complete / Accepted**. Phase P implementation, documentation integration, regression acceptance, merge, and merged-main verification are complete.
+P-CLOSE-01 is **Complete / Accepted**. Phase P implementation, documentation integration, regression acceptance, merge, merged-main verification, and the `v2.0.0` release freeze are complete.
 
-The remaining `v2.0.0` tag creation is the release-freeze action that marks the verified main state as the formal version boundary. No additional Phase P product-code remediation is pending.
+No additional Phase P product-code remediation or release-freeze action is pending.
