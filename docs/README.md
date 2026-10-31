@@ -1,207 +1,89 @@
 # SGOKB Documentation
 
-`docs/` はSource Grounded Object Knowledge Base（SGOKB）の要件・Decision・設計・評価・運用・計画・Release・歴史資料を用途別に管理します。
+`docs/` contains the current requirements, decisions, design, evaluation, operations, planning, release and historical material for Source Grounded Object Knowledge Base (SGOKB).
 
 ## Current status
 
 ```text
-Phase A ... Phase M = Complete
-Phase N = Complete / PASS
-Phase N closure audit = Complete / PASS
-Phase O = Complete
-O-01 README update = Complete
-O-02 Current design documentation = Complete
-O-03 Prototype Archived / Legacy labels = Complete
-O-04 main integration = Complete
-O-05 Branch cleanup = Complete
-O-06 Release / Tag policy = Complete
-Happy-path operational acceptance = Complete / FULL SGOKB PASS
-Acceptance date = 2026-10-28
-Acceptance execution HEAD = 5eba4629b12cc071dab33d04faa7521a361d6977
-Current formal release = v1.1.0
-Release commit = 7e56080fc63e711e276d8b97d29a88aa9da0a455
+Phase A ... Phase O        = Complete
+P-GUI-01..10               = Complete / Accepted
+P-RAW-01..06               = Complete / Accepted
+P-RUNTIME-01..06           = Complete / Accepted
+P-CLOSE-01                 = release integration / final regression pending
+Current formal release     = v1.1.0
+Release candidate          = 2.0.0
 ```
-
-2026-10-28のSGOKB Happy-Path Operational AcceptanceはA-Tの全適用sectionを完了し、`Core SGOKB Acceptance = PASS`、`Full SGOKB Acceptance = PASS`、overall verdict **FULL SGOKB PASS** と判定しました。T-01ではfresh Object「フリーザ」をnormal workflowでSource / Evidence / Package / external ChatGPT / Result validation-review-import / Render / Lexical-Semantic-Hybrid-Similarity / MCP / Backup / final Integrityまで通し、同一canonical Object/current Version semanticsへ解決されることを確認しています。正式記録は [`evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md`](evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md) を参照してください。
-
-Phase Nのformal closure run `20261025T014024+0900` はC01-C07 PASSとなり、独立ChatGPT reviewで受理済みです。旧N-07 `47 PASS / 3 FAIL`はhistorical evidenceとして保持され、N07-R01 Composite backup / restore remediationの後続PASSでclosureしています。
-
-O-06ではPrototype 0.2から新SGOKBへの正式境界を`v1.0.0`と決定し、repository-side Release NoteとBreaking Change記録、package version `1.0.0`を整備しました。annotated tag `v1.0.0`はrelease commit `0e1a8464e9db98b4e99169cae6292821f3fd410c`を指すことをlive GitHubで確認済みです。これによりPhase OはCompleteです。
-
-Phase O closure stateは [`planning/phases/O/PHASE_O_STATUS.md`](planning/phases/O/PHASE_O_STATUS.md) を参照してください。
 
 ## Start here
 
-システム全体を把握する場合は、次の順で読むことを推奨します。
+For the current system, read in this order:
 
-1. [`../README.md`](../README.md) — SGOKB概要、標準workflow、MCP利用例
-2. [`design/SGOKB_CURRENT_ARCHITECTURE.md`](design/SGOKB_CURRENT_ARCHITECTURE.md) — current end-to-end Architecture / Data Model / Retrieval / Exchange / MCP / UPDS Boundary
-3. [`operations/OPERATIONAL_SAFETY_RECOVERY.md`](operations/OPERATIONAL_SAFETY_RECOVERY.md) — Offline / Backup / Restore / Retention / Security / External Egress / Failure Recovery / Benchmark条件
-4. [`design/README.md`](design/README.md) — current detailed design map
-5. [`operations/OBJECT_STANDARD_WORKFLOW.md`](operations/OBJECT_STANDARD_WORKFLOW.md) — 1 Object標準運用
-6. [`evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md`](evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md) — current happy-path operational acceptance result / FULL SGOKB PASS
-7. [`releases/v1.1.0.md`](releases/v1.1.0.md) — current SGOKB release / happy-path acceptance-backed minor release
-8. [`planning/README.md`](planning/README.md) — current planning / task state
+1. [`design/SGOKB_CURRENT_ARCHITECTURE.md`](design/SGOKB_CURRENT_ARCHITECTURE.md) — integrated current architecture through Phase P.
+2. [`requirements/RAW_GROUNDING_REQUIREMENTS.md`](requirements/RAW_GROUNDING_REQUIREMENTS.md) — Package v2 / Result v2 Raw-grounding requirements and `2.0.0` default.
+3. [`operations/OBJECT_STANDARD_WORKFLOW.md`](operations/OBJECT_STANDARD_WORKFLOW.md) — normal Object -> Source -> Package -> Result -> Search workflow.
+4. [`operations/OPERATIONAL_SAFETY_RECOVERY.md`](operations/OPERATIONAL_SAFETY_RECOVERY.md) — safety, backup, recovery and runtime handling.
+5. [`evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md`](evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md) — Phase P release closure gate.
+6. [`releases/v2.0.0.md`](releases/v2.0.0.md) — `2.0.0` release-candidate note.
 
-要件から確認する場合:
+## Phase P authority
 
-- [`requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md`](requirements/KNOWLEDGE_BASE_PURPOSE_REQUIREMENTS.md)
-- [`requirements/OBJECT_REQUIREMENTS.md`](requirements/OBJECT_REQUIREMENTS.md)
-- [`requirements/SOURCE_EVIDENCE_REQUIREMENTS.md`](requirements/SOURCE_EVIDENCE_REQUIREMENTS.md)
-- [`requirements/SEARCH_REQUIREMENTS.md`](requirements/SEARCH_REQUIREMENTS.md)
-- [`requirements/NON_FUNCTIONAL_REQUIREMENTS.md`](requirements/NON_FUNCTIONAL_REQUIREMENTS.md)
+Planning:
 
-## Documentation map
+- [`planning/phases/P/PHASE_P_MODERNIZATION_PLAN.md`](planning/phases/P/PHASE_P_MODERNIZATION_PLAN.md)
+- [`planning/phases/P/PHASE_P_TASKS.md`](planning/phases/P/PHASE_P_TASKS.md)
+- [`planning/phases/P/PHASE_P_STATUS.md`](planning/phases/P/PHASE_P_STATUS.md)
 
-### [`requirements/`](requirements/)
+GUI:
 
-現在有効な要件定義。
+- [`requirements/GUI_REQUIREMENTS.md`](requirements/GUI_REQUIREMENTS.md)
+- [`design/P_GUI_APPLICATION_ARCHITECTURE.md`](design/P_GUI_APPLICATION_ARCHITECTURE.md)
+- [`evaluation/P_GUI_10_PARITY_USABILITY_REGRESSION_ACCEPTANCE.md`](evaluation/P_GUI_10_PARITY_USABILITY_REGRESSION_ACCEPTANCE.md)
 
-主な内容:
+Raw Grounding:
 
-- SGOKBの目的・責務
-- World / Object KnowledgeとUPDS Personal Inferenceの境界
-- Object / Class / Facet / Relation
-- Source / Evidence / Provenance
-- Object Result
-- Search / Retrieval / Similarity
-- Human / Automation / External Egress boundary
-- local-first / integrity / backup / restore / security / performance
+- [`requirements/RAW_GROUNDING_REQUIREMENTS.md`](requirements/RAW_GROUNDING_REQUIREMENTS.md)
+- [`design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md`](design/P_RAW_02_EVIDENCE_TO_RAW_PROVENANCE_RESOLUTION_CONTRACT.md)
+- [`design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md`](design/P_RAW_03_RAW_BEARING_PACKAGE_V2_DESIGN.md)
+- [`design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md`](design/P_RAW_04_RAW_GROUNDED_OBJECT_RESULT_V2_DESIGN.md)
+- [`evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md`](evaluation/P_RAW_06_RAW_GROUNDING_ACCEPTANCE.md)
 
-### [`decisions/`](decisions/)
+Runtime:
 
-Architecture Decision、Design Freeze、public contract、運用上の固定方針。
+- [`design/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_CONTRACT.md`](design/P_RUNTIME_03_RUNTIME_HEALTH_STATUS_CONTRACT.md)
+- [`planning/phases/P/P_RUNTIME_04_NATIVE_WINDOWS_TASK_AMENDMENT.md`](planning/phases/P/P_RUNTIME_04_NATIVE_WINDOWS_TASK_AMENDMENT.md)
+- [`evaluation/P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_ACCEPTANCE.md`](evaluation/P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_ACCEPTANCE.md)
+- [`evaluation/P_RUNTIME_06_RUNTIME_FAILURE_RECOVERY_ACCEPTANCE.md`](evaluation/P_RUNTIME_06_RUNTIME_FAILURE_RECOVERY_ACCEPTANCE.md)
 
-主要surface:
+Closure / release:
 
-- [`M01_OBJECT_CENTERED_CLI_CONTRACT.md`](decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md)
-- [`J02_MCP_READ_TOOL_CONTRACT.md`](decisions/J02_MCP_READ_TOOL_CONTRACT.md)
-- [`J04_CONTEXT_BUILDER_CONTRACT.md`](decisions/J04_CONTEXT_BUILDER_CONTRACT.md)
-- [`O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md`](decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md)
-
-### [`design/`](design/)
-
-確定した実装設計。
-
-Current entry points:
-
-- [`design/SGOKB_CURRENT_ARCHITECTURE.md`](design/SGOKB_CURRENT_ARCHITECTURE.md) — O-02 current integrated architecture
-- [`design/README.md`](design/README.md) — detailed design index / authority map
-
-主要領域:
-
-- Object / Facet / Version data model
-- Source / Evidence pipeline
-- Object Result / Package exchange
-- Search Representation / Embedding / Vector Index
-- Hybrid Search / Similarity
-- Rendering
-
-Post-R2 current Object semantic representationは`object_overview / facet / statement`であり、legacy `object_overall`はactive retrieval kindではありません。
-
-### [`operations/`](operations/)
-
-実運用手順・運用安全設計。
-
-- [`operations/OBJECT_STANDARD_WORKFLOW.md`](operations/OBJECT_STANDARD_WORKFLOW.md) — Object登録 → Evidence → Package → ChatGPT → Result → Import → Search / MCP
-- [`operations/OPERATIONAL_SAFETY_RECOVERY.md`](operations/OPERATIONAL_SAFETY_RECOVERY.md) — Offline / Backup / Restore / Retention / Security / External Egress / Failure Recovery / Benchmark
-- [`operations/SGOKB_HAPPY_PATH_ACCEPTANCE_TEST_PLAN.md`](operations/SGOKB_HAPPY_PATH_ACCEPTANCE_TEST_PLAN.md) — happy-path operational acceptance plan
-- [`operations/SGOKB_HAPPY_PATH_ACCEPTANCE_TEST_PROCEDURES.md`](operations/SGOKB_HAPPY_PATH_ACCEPTANCE_TEST_PROCEDURES.md) — operator execution procedure
-
-### [`evaluation/`](evaluation/)
-
-試験結果、benchmark、formal acceptance、failure analysis。
-
-Current happy-path operational acceptance authority:
-
-- [`SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md`](evaluation/SGOKB_HAPPY_PATH_ACCEPTANCE_20261028.md) — **FULL SGOKB PASS**
-
-Phase N最終authority:
-
-- [`PHASE_N_CLOSURE_AUDIT.md`](evaluation/PHASE_N_CLOSURE_AUDIT.md)
-- [`N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md`](evaluation/N07_R01_COMPOSITE_BACKUP_RESTORE_REACCEPTANCE.md)
-- [`N06_RETRIEVAL_VECTOR_QUALITY.md`](evaluation/N06_RETRIEVAL_VECTOR_QUALITY.md)
-- [`N05D04R2_R2_10_CLOSURE_AUDIT.md`](evaluation/N05D04R2_R2_10_CLOSURE_AUDIT.md)
-- [`N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md`](evaluation/N04R04_REFERENCE_WORKSTATION_REACCEPTANCE.md)
-
-Historical FAIL / BLOCKED evidenceは削除せず、current authorityと区別して保持します。
-
-### [`releases/`](releases/)
-
-正式Release境界、Breaking Change、migration guidanceをrepository-sideで保持する領域。
-
-- [`releases/README.md`](releases/README.md) — Release index / policy summary
-- [`releases/v1.0.0.md`](releases/v1.0.0.md) — Prototype 0.2から新SGOKBへの初回正式Release Note
-
-Prototype 0.2へretroactive tag / Releaseは作成しません。最初のformal current lineは`v1.0.0`です。
-
-### [`planning/`](planning/)
-
-Project / Phase / Taskの現在状態、handoff、実行計画。
-
-主要入口:
-
-- [`planning/README.md`](planning/README.md)
-- [`planning/phases/O/PHASE_O_STATUS.md`](planning/phases/O/PHASE_O_STATUS.md)
-- [`planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md`](planning/project/KNOWLEDGE_BASE_REDESIGN_TASKS.md)
-- [`planning/phases/N/PHASE_N_CLOSURE_AUDIT.md`](planning/phases/N/PHASE_N_CLOSURE_AUDIT.md)
-
-Phase Oについては`planning/phases/O/PHASE_O_STATUS.md`のclosure stateをcurrent authorityとする。project-wide task masterの古いPhase O checklist記述と状態が異なる場合、このstatus文書を優先する。
-
-### [`reference/`](reference/)
-
-外部分類体系調査、inventory、gold cases、Embedding / Vector技術調査など、設計判断の入力資料。
-
-### [`archive/`](archive/)
-
-旧Prototypeや名称変更等の歴史資料。
-
-Archiveはcurrent specificationの正本として使用しません。
-
-- [`archive/prototype-0.2/`](archive/prototype-0.2/) — O-03でArchived / Legacy stateを明示済み
-- [`archive/rename-2026-10/`](archive/rename-2026-10/)
+- [`decisions/P_CLOSE_01_RELEASE_INTEGRATION_DECISION.md`](decisions/P_CLOSE_01_RELEASE_INTEGRATION_DECISION.md)
+- [`evaluation/P_CLOSE_01_THIRD_PARTY_LICENSE_INVENTORY.md`](evaluation/P_CLOSE_01_THIRD_PARTY_LICENSE_INVENTORY.md)
+- [`evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md`](evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md)
+- [`decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md`](decisions/O06_RELEASE_TAG_AND_BREAKING_CHANGE_POLICY.md)
+- [`releases/README.md`](releases/README.md)
 
 ## Current architecture boundary
 
 ```text
-Source / Raw / Evidence
-        ↓
-Evidence Retrieval / Package
-        ↓
-Explicit External Export
-        ↓
-ChatGPT manual semantic integration
-        ↓
-Structured Object Result
-        ↓
-Validation / Review / Explicit Import
-        ↓
-Versioned Object Knowledge
-        ↓
-Lexical / Semantic / Hybrid / Similarity / Relation
-        ↓
-CLI / read-only MCP
+Source / Snapshot / Raw / Evidence lineage
+  -> Evidence-to-Raw resolution
+  -> Raw-bearing Package v2
+  -> external Human-in-the-loop analysis
+  -> Result v2 raw_artifact grounding
+  -> immutable accepted Object Knowledge Version
+  -> rebuildable Search / Embedding / Qdrant / rendering
+  -> CLI / PySide6 GUI / read-only MCP
 ```
 
-- Raw / Evidence / accepted Knowledgeはcanonical保全対象。
-- Search Representation / Embedding / Vector Index / Markdownはderived。
-- ChatGPT APIはstandard Knowledge generationの成立条件ではない。
-- MCP MVPはread-only。
-- Personal InferenceはUPDSの責務。
-- complete canonical backupにはSQLiteだけでなくRaw / accepted Result provenanceを含むComposite generationを使用する。
+The GUI and CLI share the Application/operator boundary. Qdrant lifecycle is external to SGOKB. MCP remains read-only and externally launched.
 
-## Placement rules
+## Documentation authority rules
 
-```text
-requirement       -> docs/requirements/
-architecture ADR -> docs/decisions/
-design            -> docs/design/
-test / research   -> docs/evaluation/
-operation         -> docs/operations/
-release note      -> docs/releases/
-plan / handoff    -> docs/planning/
-reference         -> docs/reference/
-historical        -> docs/archive/
-```
+- Files under `docs/requirements/`, accepted `docs/decisions/`, current `docs/design/`, and accepted evaluation/operation contracts are active documentation.
+- `docs/archive/` is historical and must not override current architecture.
+- Phase-specific research documents remain evidence for their task but do not override later accepted integration decisions.
+- Release notes describe frozen release boundaries; during P-CLOSE-01, `v2.0.0.md` remains a release candidate until the tag is created.
 
-Planning文書は`docs/planning/`直下へ増やさず、原則として`project/`または`phases/<Phase>/...`へ配置します。
+## Distribution note
+
+The `2.0.0` source/repository release includes the PySide6 GUI implementation. P-CLOSE-01 does not certify a standalone GUI binary distribution because project-license selection and artifact-specific Qt/PySide6 redistribution auditing remain separate gates under P-GUI-02.
