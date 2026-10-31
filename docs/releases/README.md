@@ -6,8 +6,8 @@ This directory stores repository-side Release Notes for Source Grounded Object K
 
 ```text
 Prototype 0.2.x = Archived / Legacy historical line
-SGOKB 1.x       = Current published release line
-SGOKB 2.0.0     = Phase P release candidate / tag pending P-CLOSE-01
+SGOKB 1.x       = Previous published release line
+SGOKB 2.0.0     = Current formal release / frozen
 ```
 
 Prototype 0.2 does not receive a retroactive Git tag or GitHub Release. Its historical authority remains `docs/archive/prototype-0.2/` and Git history.
@@ -16,7 +16,7 @@ Prototype 0.2 does not receive a retroactive Git tag or GitHub Release. Its hist
 
 | Version | Tag | Status | Notes |
 |---|---|---|---|
-| `2.0.0` | pending | P-CLOSE-01 release candidate; final regression/main freeze pending | [Release Note](v2.0.0.md) |
+| `2.0.0` | `v2.0.0` | Published annotated tag / Phase P release frozen | [Release Note](v2.0.0.md) |
 | `1.1.0` | `v1.1.0` | Published tag verified / GitHub Release published | [Release Note](v1.1.0.md) |
 | `1.0.0` | `v1.0.0` | Published tag verified | [Release Note](v1.0.0.md) |
 
@@ -24,13 +24,15 @@ Prototype 0.2 does not receive a retroactive Git tag or GitHub Release. Its hist
 
 `v1.1.0` is an annotated tag whose tag object is `fc764cdc497637bfa8fa03f262903959e579267b` and whose target commit is `7e56080fc63e711e276d8b97d29a88aa9da0a455`.
 
+`v2.0.0` is an annotated tag whose tag object is `7b9a4d495d8d3238a9159402e991f81589a679c5` and whose target release commit is `1adae99ee62c3054a35b1325b8a43716943ff06a`.
+
 ## 2.0.0 release boundary
 
-`2.0.0` is a MAJOR release candidate because the no-option Package build changes from legacy Package v1 semantics to Raw-grounded Package v2 / Result v2 semantics. Explicit `--package-version v1` compatibility remains available.
+`2.0.0` is a MAJOR release because the no-option Package build changes from legacy Package v1 semantics to Raw-grounded Package v2 / Result v2 semantics. Explicit `--package-version v1` compatibility remains available.
 
-The source/repository release includes the PySide6 GUI implementation but does not certify/publish a standalone GUI binary artifact; project-license selection and artifact-specific Qt/PySide6 redistribution auditing remain separate gates.
+The source/repository release includes the PySide6 GUI implementation but does not certify/publish a standalone GUI binary artifact; project-license selection and artifact-specific Qt/PySide6 redistribution auditing remain separate future distribution gates.
 
-Formal `v2.0.0` tagging is allowed only after `docs/evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md` is closed on merged `main`.
+P-CLOSE-01 and Phase P are Complete / Accepted. Later `main` documentation commits do not move or redefine the immutable `v2.0.0` tag boundary.
 
 ## Policy
 
@@ -46,4 +48,4 @@ Rules in brief:
 - published tags are immutable and are not silently moved or reused.
 - Task / Phase completion does not create a tag by itself.
 - Breaking Changes and migration guidance are recorded in the repository-side Release Note.
-- GitHub Release text must preserve the same material compatibility information as the repository-side note.
+- When a GitHub Release is published, its text must preserve the same material compatibility information as the repository-side note.
