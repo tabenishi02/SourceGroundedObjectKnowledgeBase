@@ -3,7 +3,7 @@
 Updated: 2026-10-31
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
-- Status: **In Progress**
+- Status: **In Progress / Closure Ready**
 - Previous phase: `Phase O — Documentation / Release / Git cleanup` — **Complete**
 - Current released baseline: `v1.1.0`
 - Planning authority: [`PHASE_P_MODERNIZATION_PLAN.md`](PHASE_P_MODERNIZATION_PLAN.md)
@@ -15,6 +15,9 @@ Updated: 2026-10-31
 - P-RUNTIME-05 design: [`P_RUNTIME_05_GUI_RUNTIME_DASHBOARD.md`](../../../design/P_RUNTIME_05_GUI_RUNTIME_DASHBOARD.md)
 - P-RUNTIME-05 acceptance: [`P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_ACCEPTANCE.md`](../../../evaluation/P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_ACCEPTANCE.md)
 - P-RUNTIME-05 operator guide: [`P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_OPERATOR_GUIDE.md`](../../../operations/P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_OPERATOR_GUIDE.md)
+- P-RUNTIME-06 design: [`P_RUNTIME_06_RUNTIME_FAILURE_RECOVERY_ACCEPTANCE.md`](../../../design/P_RUNTIME_06_RUNTIME_FAILURE_RECOVERY_ACCEPTANCE.md)
+- P-RUNTIME-06 acceptance: [`P_RUNTIME_06_RUNTIME_FAILURE_RECOVERY_ACCEPTANCE.md`](../../../evaluation/P_RUNTIME_06_RUNTIME_FAILURE_RECOVERY_ACCEPTANCE.md)
+- P-RUNTIME-06 operator guide: [`P_RUNTIME_06_RUNTIME_FAILURE_RECOVERY_OPERATOR_GUIDE.md`](../../../operations/P_RUNTIME_06_RUNTIME_FAILURE_RECOVERY_OPERATOR_GUIDE.md)
 
 ## Accepted modernization direction
 
@@ -35,8 +38,8 @@ Priority 3: Runtime / Qdrant auto-start
 | Runtime | P-RUNTIME-03 | **Complete / Accepted** | Shared CLI/GUI runtime health/status Application boundary |
 | Runtime | P-RUNTIME-04 | **Complete / Accepted** | Reference-host and local remediation validation PASS; hosted Windows CI deferred as non-blocking verification debt due GitHub billing/spending limit |
 | Runtime | P-RUNTIME-05 | **Complete / Accepted** | Runtime Dashboard merged to main; focused tests, Ruff, full regression, reference CLI projection, and GUI smoke PASS |
-| Runtime | P-RUNTIME-06 | **Unblocked / Ready** | Runtime failure / recovery acceptance |
-| Closure | P-CLOSE-01 | Not Started | Full regression / docs / release integration |
+| Runtime | P-RUNTIME-06 | **Complete / Accepted** | Failure/recovery, wrong-service fail-closed, persistence, Vector rebuild, and canonical-integrity acceptance PASS |
+| Closure | P-CLOSE-01 | **Unblocked / Ready** | Full regression / docs / release integration |
 
 ## GUI workstream — Complete / Accepted
 
@@ -108,19 +111,7 @@ qdrant readiness authority = /readyz
 
 ## P-RUNTIME-04 — Complete / Accepted
 
-### Historical root-cause evidence
-
-Original Windows CI run `41091876482 (#43)` accepted the initial native Task Scheduler repository assets, but the real host later proved `RestartOnFailure` alone did not restart an already-running long-lived Qdrant process after forced termination.
-
-```text
-Gate 1 reboot -> sign-in -> automatic Qdrant start        = PASS
-Gate 2 attempt A / S4U / RestartOnFailure-only            = FAIL
-Gate 2 attempt B / Interactive / RestartOnFailure-only    = FAIL
-```
-
-Attempt B established that the S4U drift was not the crash-recovery root cause.
-
-### Accepted remediation
+Accepted remediation:
 
 ```text
 Task      = \SGOKB\Qdrant
@@ -133,16 +124,12 @@ Principal = Interactive / Limited
 Policy    = MultipleInstances=IgnoreNew
 ```
 
-### Reference-host acceptance
+Reference-host acceptance:
 
 ```text
-verifier schema                         = sgokb.qdrant-windows-autostart-check/1.1
-principal                               = Interactive
-trigger count                           = 2
-recovery interval                       = 60 seconds
 forced qdrant.exe termination           = performed
 manual Start-ScheduledTask after crash  = none
-replacement qdrant.exe                  = PID 41480
+replacement qdrant.exe                  = PASS
 recovered /readyz                       = HTTP 200 / all shards are ready
 SGOKB qdrant.status                     = healthy
 SGOKB qdrant.ready                      = true
@@ -150,61 +137,31 @@ SGOKB qdrant.version                    = 1.19.2
 reference-host acceptance               = Complete / Accepted
 ```
 
-### Local workflow-equivalent validation
-
-Windows 11 / PowerShell 7.6.9 validation passed:
+Local workflow-equivalent validation:
 
 ```text
 Register/Test script parse      = PASS / 0 syntax errors
-Disposable recovery smoke       = PASS / PID 38356 -> 42796
-Manual restart after crash      = none
+Disposable recovery smoke       = PASS
 Focused P-RUNTIME               = 9 passed / 0 failed
 Ruff                            = PASS
 Full regression                 = 858 passed / 0 failed / 0 skipped
 Warnings                        = 2 existing local-Qdrant warnings / no new warning
-Production Qdrant after test    = unchanged / readyz 200 / SGOKB healthy
 ```
 
-### Hosted CI deferred verification
-
-GitHub-hosted remediation jobs did not execute workflow steps. Run `41115542118`, attempt 2, was blocked before runner assignment with GitHub's billing/spending annotation:
-
-```text
-The job was not started because recent account payments have failed or your spending limit needs to be increased.
-```
-
-Observed state:
-
-```text
-runner_id = 0
-steps     = []
-```
-
-The task authority for P-RUNTIME-04 does not require GitHub-hosted CI as a mandatory completion condition. Because reference-host lifecycle acceptance and local workflow-equivalent validation both passed, hosted CI is retained as **non-blocking deferred verification debt**, not counted as a CI PASS.
-
-Formal closure:
-
-```text
-reference-host acceptance       = Complete / Accepted
-local remediation validation    = PASS
-GitHub Actions remediation CI   = Deferred / external billing-spending constraint
-P-RUNTIME-04 overall            = Complete / Accepted
-```
+GitHub-hosted remediation CI remains deferred because jobs were blocked before runner assignment by the account billing/spending constraint. This is non-blocking verification debt and is not counted as CI PASS.
 
 ## P-RUNTIME-05 — Complete / Accepted
-
-The Runtime Dashboard implementation was merged to `main` through PR #82 and preserves the accepted P-RUNTIME-03 observer-only boundary.
 
 Final local acceptance evidence:
 
 ```text
 implementation                    = Complete / merged to main
-focused runtime/dashboard tests   = PASS / 22 passed on latest tested main
+focused runtime/dashboard tests   = PASS / 22 passed
 Ruff                              = PASS / All checks passed
 full regression                   = PASS / 869 passed / 2 known local-Qdrant warnings
 reference CLI projection          = PASS
 GUI reference-workspace smoke     = PASS
-Semantic Search                   = DEGRADED, not BLOCKED, for the reference Workspace
+Semantic Search                   = DEGRADED, not BLOCKED
 Qdrant                            = healthy / ready=true / v1.19.2
 Search generation                 = degraded / generation_not_active
 Derived                           = degraded / rendering pending only
@@ -212,17 +169,63 @@ P-RUNTIME-03 lifecycle boundary   = preserved
 new regressions                   = none observed
 ```
 
-The operator completed every GUI smoke checklist item successfully. The reference snapshot is correctly presented as Semantic Search `degraded`, not `blocked`: SQLite, Embedding, Qdrant and all semantic derived kinds are ready; inactive Search generation can fall back to legacy vector routing and the remaining Derived degradation is rendering-only.
+Qt font-database warnings observed during one GUI launch did not prevent startup or any smoke-test item from passing and remain non-blocking acceptance warnings.
 
-Qdrant remains externally owned. The dashboard exposes no start, stop, or restart action. MCP state is not fabricated inside `sgokb.runtime-health/1.0` and the GUI directs the operator to the existing MCP surface.
+## P-RUNTIME-06 — Complete / Accepted
 
-Qt font-database warnings observed during one GUI launch did not prevent startup or any smoke-test item from passing and are recorded as non-blocking acceptance warnings.
+P-RUNTIME-06 validated real runtime failure/recovery without moving Qdrant lifecycle ownership into SGOKB.
+
+Repository gate:
+
+```text
+focused P-RUNTIME tests = PASS / 22 passed in 6.76s
+Ruff                    = PASS / All checks passed!
+```
+
+Controlled failure and fail-closed acceptance:
+
+```text
+pre-fault SQLite integrity                  = PASS
+Qdrant unavailable detection in CLI         = PASS
+GUI Semantic Search during outage           = BLOCKED / PASS
+external lifecycle boundary during outage   = preserved / PASS
+wrong-service listener on port 6333          = HTTP 503
+wrong-service readiness handling             = qdrant_readiness_failed / PASS
+```
+
+Native recovery and persistence:
+
+```text
+Qdrant recovery /readyz          = HTTP 200 / all shards are ready
+Scheduled Task                   = Running
+recovered qdrant.exe             = running
+Qdrant status                    = healthy / ready=true / v1.19.2
+collection inventory             = 80 -> 80 / no diff
+recovered Semantic Search        = DEGRADED, not BLOCKED
+GUI/CLI baseline recovery        = PASS
+```
+
+Vector recovery and canonical integrity:
+
+```text
+system.index.rebuild             = PASS / ok=true
+Qdrant rebuild status            = green
+rebuilt points                   = 126
+post-rebuild SQLite integrity    = PASS
+foreign-key violations           = none
+Object count                     = 5 -> 5
+current-Version count            = 5 -> 5
+```
+
+The rebuild emitted an unauthenticated Hugging Face Hub warning while loading the configured model, but loading and rebuild completed successfully. The observed `indexed_points_count=0` is recorded in the detailed acceptance report and is non-blocking under the P-RUNTIME-06 contract because the public rebuild operation returned `ok=true`, Qdrant was green, and 126 points were present.
+
+P-RUNTIME-04 crash-restart evidence is reused for the crash-recovery sub-gate; the destructive experiment was not repeated.
 
 Formal closure:
 
 ```text
-P-RUNTIME-05 overall = Complete / Accepted
-P-RUNTIME-06         = Unblocked / Ready
+P-RUNTIME-06 overall = Complete / Accepted
+P-CLOSE-01           = Unblocked / Ready
 ```
 
 ## Sequencing
@@ -232,21 +235,19 @@ P-GUI-01..10 Complete / Accepted
         ↓
 P-RAW-01..06 Complete / Accepted
         ↓
-P-RUNTIME-01..05 Complete / Accepted
+P-RUNTIME-01..06 Complete / Accepted
         ↓
-P-RUNTIME-06  <- NEXT / READY
-        ↓
-P-CLOSE-01
+P-CLOSE-01  <- NEXT / READY
 ```
 
 ## Current authority boundary
 
-Phase P remains in development; released-system semantics continue to be governed by `v1.1.0` until Phase P closure/release integration. Qdrant remains independently owned outside SGOKB. `system.status.runtime_health` remains the shared CLI/GUI observation boundary and exposes no Qdrant lifecycle actions.
+Phase P remains in development until P-CLOSE-01 completes release integration. Released-system semantics continue to be governed by `v1.1.0` until that closure/release step. Qdrant remains independently owned outside SGOKB. `system.status.runtime_health` remains the shared CLI/GUI observation boundary and exposes no Qdrant lifecycle actions.
 
 ## Next
 
 ```text
-1. begin P-RUNTIME-06 Runtime failure / recovery acceptance;
-2. retain hosted P-RUNTIME-04/P-RUNTIME-05 CI as deferred external verification while GitHub Actions capacity remains unavailable;
-3. after P-RUNTIME-06 acceptance, proceed to P-CLOSE-01.
+1. begin P-CLOSE-01 full regression / documentation / release integration;
+2. retain hosted P-RUNTIME CI as deferred external verification while GitHub Actions capacity remains unavailable;
+3. close Phase P only after P-CLOSE-01 acceptance and release integration complete.
 ```
