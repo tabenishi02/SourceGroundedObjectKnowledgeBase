@@ -1,11 +1,11 @@
 # P-CLOSE-01 — Phase P Closure Acceptance
 
-Updated: 2026-10-31
+Updated: 2026-11-01
 
 - Task: `P-CLOSE-01 [P0] Full regression, documentation integration, release impact`
 - Branch: `phase-p/close-01-release-integration`
 - Target release: `2.0.0`
-- Status: **Remediation applied / latest-branch re-validation pending**
+- Status: **Second M03 remediation applied / latest-branch re-validation pending**
 
 ## Closure scope
 
@@ -111,7 +111,7 @@ test_standard_workflow
 test_standard_workflow_mcp_read
 ```
 
-### Root cause
+### Initial root cause
 
 The M03 standard-workflow fixture called:
 
@@ -123,7 +123,7 @@ without an explicit Package version, so the P-CLOSE release candidate correctly 
 
 This is an integration-test fixture incompatibility exposed by the intended release-contract change, not evidence that the accepted Package v2 / Result v2 validator is incorrect.
 
-### Remediation
+### First remediation
 
 Remediation commit:
 
@@ -131,12 +131,64 @@ Remediation commit:
 0177b3cef2db24a6854d37b5ef2dd53039b75cbd
 ```
 
-`tests/test_m03_standard_workflow.py` now constructs its deterministic Result from the Package manifest contract:
+`tests/test_m03_standard_workflow.py` was changed to construct its deterministic Result from the Package manifest contract:
 
 - Result v2 adds `grounding_contract` and `grounding_set_sha256` binding;
 - Result v2 claims ground through audited `raw_artifact_id` members;
 - Result v1 still uses Evidence grounding when explicitly exercised;
 - the normal M03 no-option workflow therefore exercises the new Raw-grounded v2 release default instead of forcing legacy v1.
+
+## Execution evidence — first remediation re-run
+
+Execution HEAD:
+
+```text
+08d889af5830c1c7a87356c96de78bb9b8131e4e
+```
+
+Focused M03 re-run:
+
+```text
+2 errors in 20.01s
+```
+
+Both failures again occurred at `result validate`, so the first remediation was necessary but not sufficient.
+
+### Second root cause
+
+The remaining incompatibility was the Effective Facet extractor inside the M03 deterministic fixture.
+
+The legacy v1 fixture used this separator-specific pattern:
+
+```text
+^- `(facet:[^`]+)` /
+```
+
+Package v2 instructions render Effective Facets as:
+
+```text
+- `facet:...` — Name: description
+```
+
+Therefore the v2 Result fixture emitted an empty `knowledge.facets` array. Result v2 validation correctly rejected that Result because every effective Facet must be returned exactly once.
+
+The v2 binding fields and Raw grounding added by the first remediation were not the remaining cause.
+
+### Second remediation
+
+Remediation commit:
+
+```text
+4e520d2db989f7bebb691dd26abdcb3749f8a41d
+```
+
+The fixture now extracts Facet IDs from the version-independent bullet prefix:
+
+```text
+^- `(facet:[^`]+)`
+```
+
+This supports both accepted v1 and v2 instruction renderings without coupling the deterministic fixture to either separator glyph. No production validator, Package builder, Result importer, or runtime code was changed by this remediation.
 
 Latest-branch re-validation is required before closure.
 
@@ -174,7 +226,9 @@ Before closure:
 | Third-party dependency/license inventory | PASS for source-release scope |
 | Initial focused tests | PASS / `58 passed` |
 | Initial full regression | FAIL / `874 passed, 2 errors` |
-| M03 v2 fixture remediation | Applied / `0177b3c` |
+| First M03 v2 fixture remediation | Applied / `0177b3c` |
+| First M03 remediation re-run | FAIL / `2 errors` |
+| Second M03 Facet extraction remediation | Applied / `4e520d2` |
 | Latest-branch remediation tests | Pending |
 | Latest-branch full regression | Pending re-run |
 | Latest-branch Ruff | Pending |
