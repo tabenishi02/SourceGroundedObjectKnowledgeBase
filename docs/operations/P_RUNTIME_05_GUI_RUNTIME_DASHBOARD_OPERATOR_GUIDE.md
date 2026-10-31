@@ -1,122 +1,122 @@
-# P-RUNTIME-05 — GUI Runtime Dashboard Operator Guide
+# P-RUNTIME-05 — GUI Runtime Dashboard 操作ガイド
 
-Date: 2026-10-31  
-Task: `P-RUNTIME-05 [P1] GUI Runtime Dashboard integration`  
-Target GUI surface: `System > Overview`
+日付: 2026-10-31  
+タスク: `P-RUNTIME-05 [P1] GUI Runtime Dashboard integration`  
+対象GUI画面: `System > Overview`
 
-## Purpose
+## 目的
 
-This guide explains how to open the SGOKB Desktop GUI, select the existing acceptance Workspace, inspect the Runtime Dashboard, refresh the runtime snapshot, and interpret the result for P-RUNTIME-05 acceptance.
+このガイドでは、SGOKB Desktop GUIを起動し、既存の受入用Workspaceを選択し、Runtime Dashboardを確認し、runtime snapshotを更新して、P-RUNTIME-05受入に必要な結果を判定する手順を説明します。
 
-This procedure is read-only for the Runtime Dashboard. It does not start, stop, or restart Qdrant and does not require any maintenance action.
+この手順でRuntime Dashboardに対して行う操作は読み取り専用です。Qdrantの起動・停止・再起動は行わず、maintenance操作も必要ありません。
 
-## Preconditions
+## 前提条件
 
-Run from:
+以下のディレクトリから実行します。
 
 ```text
 C:\codex\SourceGroundedObjectKnowledgeBase
 ```
 
-Use branch:
+使用するbranch:
 
 ```text
 phase-p/runtime-05-gui-runtime-dashboard
 ```
 
-Update the branch first:
+最初にbranchを最新化します。
 
 ```powershell
 cd C:\codex\SourceGroundedObjectKnowledgeBase
 git pull
 ```
 
-The reference Workspace used for acceptance is:
+受入で使用するreference Workspaceは以下です。
 
 ```text
 C:\codex\SourceGroundedObjectKnowledgeBase\.local\acceptance\sgokb-happy-path.sqlite
 ```
 
-Qdrant should already be running through the externally owned Windows runtime. P-RUNTIME-05 does not manage Qdrant lifecycle.
+Qdrantは、外部所有のWindows runtimeによってすでに起動している必要があります。P-RUNTIME-05はQdrantのlifecycleを管理しません。
 
-## 1. Start the Desktop GUI
+## 1. Desktop GUIを起動する
 
-From PowerShell:
+PowerShellから以下を実行します。
 
 ```powershell
 .\.venv\Scripts\sgokb-gui.exe
 ```
 
-Alternative launcher, if the generated entrypoint is unavailable:
+生成済みentrypointを使用できない場合は、代わりに以下で起動できます。
 
 ```powershell
 .\.venv\Scripts\python.exe -m sgokb.gui.main
 ```
 
-Expected result:
+期待結果:
 
-- an `SGOKB` desktop window opens;
-- the left navigation contains `Home / Dashboard`, `Objects`, `Sources`, `Evidence`, `Associations`, `Search`, `Packages`, `Results`, `Registry`, `System`, and `Settings`;
-- if no Workspace is open, the status bar shows `No workspace`.
+- `SGOKB` のdesktop windowが開く;
+- 左側navigationに `Home / Dashboard`、`Objects`、`Sources`、`Evidence`、`Associations`、`Search`、`Packages`、`Results`、`Registry`、`System`、`Settings` が表示される;
+- Workspaceをまだ開いていない場合、status barに `No workspace` と表示される。
 
-## 2. Open the reference Workspace
+## 2. reference Workspaceを開く
 
-Use one of these equivalent methods:
+以下のいずれかの方法を使用します。
 
-- menu: `File > Open Workspace...`;
-- shortcut: `Ctrl+O`;
-- `Home / Dashboard > Open Workspace...`.
+- メニュー: `File > Open Workspace...`;
+- ショートカット: `Ctrl+O`;
+- `Home / Dashboard > Open Workspace...`。
 
-In the file chooser, select:
+ファイル選択画面で以下を選択します。
 
 ```text
 C:\codex\SourceGroundedObjectKnowledgeBase\.local\acceptance\sgokb-happy-path.sqlite
 ```
 
-Then click `Open`.
+その後、`Open` をクリックします。
 
-Expected result:
+期待結果:
 
-- the window title changes to include the Workspace name;
-- the status bar shows the Workspace path;
-- a temporary `Workspace ready` message may appear;
-- the Home page shows Object / current Knowledge / migration summary data.
+- window titleにWorkspace名が含まれるようになる;
+- status barにWorkspace pathが表示される;
+- 一時的に `Workspace ready` メッセージが表示される場合がある;
+- Home画面にObject数、current Knowledge、migration summaryなどが表示される。
 
-If the Workspace does not open, stop the acceptance procedure and record the displayed error. Do not create a new Workspace as a substitute.
+Workspaceを開けない場合は、受入手順を中止し、表示されたerrorを記録してください。代替として新しいWorkspaceを作成してはいけません。
 
-## 3. Open the Runtime Dashboard
+## 3. Runtime Dashboardを開く
 
-In the left navigation, click:
+左側navigationで以下をクリックします。
 
 ```text
 System
 ```
 
-The page title is:
+画面タイトルは以下です。
 
 ```text
 System / Maintenance
 ```
 
-Select the first tab:
+最初のtabである以下を選択します。
 
 ```text
 Overview
 ```
 
-For P-RUNTIME-05 acceptance, do not use `Derived`, `Vector Index`, `Backup`, `Restore`, `MCP`, or `Advanced Generation` unless a later troubleshooting step explicitly requires them.
+P-RUNTIME-05受入では、後続のtroubleshooting手順で明示的に必要とされない限り、`Derived`、`Vector Index`、`Backup`、`Restore`、`MCP`、`Advanced Generation` は使用しません。
 
-## 4. Refresh the runtime snapshot
+## 4. runtime snapshotを更新する
 
-On `System > Overview`, click:
+`System > Overview` で以下をクリックします。
 
 ```text
 Refresh system status
 ```
 
-Wait until the operation finishes. The dashboard should update from the same `system.status.runtime_health` projection used by the CLI.
+処理が完了するまで待ちます。DashboardはCLIと同じ `system.status.runtime_health` projectionから更新されます。
 
-The page contains these sections:
+画面には以下のsectionがあります。
 
 1. `Runtime health` summary line;
 2. `Semantic Search readiness`;
@@ -124,28 +124,28 @@ The page contains these sections:
 4. Qdrant lifecycle ownership note;
 5. MCP visibility note;
 6. `Runtime issues / troubleshooting`;
-7. raw `system.status` JSON readout at the bottom.
+7. 最下部のraw `system.status` JSON表示。
 
-The `Run integrity check` button is not required for the normal P-RUNTIME-05 smoke test.
+通常のP-RUNTIME-05 smoke testでは、`Run integrity check` buttonを使用する必要はありません。
 
-## 5. Read the Runtime health summary
+## 5. Runtime health summaryを読む
 
-The top summary uses the form:
+最上部のsummaryは以下の形式で表示されます。
 
 ```text
 Runtime health: overall=<status> | Semantic Search=<status>
 ```
 
-The two statuses are intentionally different concepts.
+この2つのstatusは意図的に異なる意味を持ちます。
 
-- `overall` summarizes the complete runtime-health snapshot;
-- `Semantic Search` answers whether semantic retrieval dependencies are ready, degraded, blocked, or unknown.
+- `overall` はruntime-health snapshot全体の状態を要約する;
+- `Semantic Search` はsemantic retrievalに必要な依存関係がready、degraded、blocked、unknownのいずれであるかを示す。
 
-Therefore an overall `degraded` result does not automatically mean Semantic Search is blocked.
+したがって、`overall` が `degraded` でも、それだけでSemantic Searchがblockedであるとは限りません。
 
-## 6. Read Semantic Search readiness
+## 6. Semantic Search readinessを読む
 
-The readiness box can show:
+readiness boxには以下のいずれかが表示されます。
 
 ```text
 READY
@@ -154,39 +154,39 @@ BLOCKED
 UNKNOWN
 ```
 
-Interpretation:
+意味:
 
-- `READY`: required semantic runtime dependencies are healthy;
-- `DEGRADED`: semantic dependencies are available, but warnings exist;
-- `BLOCKED`: at least one dependency prevents a safe ready claim;
-- `UNKNOWN`: the runtime-health schema or required component data cannot be interpreted.
+- `READY`: 必須のsemantic runtime依存関係がhealthy;
+- `DEGRADED`: semantic依存関係は利用可能だが、warningが存在する;
+- `BLOCKED`: 少なくとも1つの依存関係により、安全にreadyと判定できない;
+- `UNKNOWN`: runtime-health schemaまたは必須component dataを解釈できない。
 
-For the current reference Workspace, the expected result is:
+現在のreference Workspaceで期待される結果は以下です。
 
 ```text
 DEGRADED
 ```
 
-It must not be `BLOCKED` solely because no active Search generation is selected or because only rendering-derived state is pending.
+active Search generationが選択されていないこと、またはrendering由来のstateだけがpendingであることを理由に、`BLOCKED` になってはいけません。
 
-## 7. Read the Runtime components
+## 7. Runtime componentsを読む
 
-The dashboard shows five components separately.
+Dashboardでは5つのcomponentが個別に表示されます。
 
 ### SQLite
 
-Expected reference state:
+reference状態の期待値:
 
 ```text
 HEALTHY
 journal=wal
 ```
 
-A SQLite non-healthy state is a semantic hard blocker.
+SQLiteがnon-healthyの場合はsemantic hard blockerです。
 
 ### Embedding
 
-Expected reference state includes:
+reference状態の期待値には以下が含まれます。
 
 ```text
 HEALTHY
@@ -194,11 +194,11 @@ microsoft/harrier-oss-v1-0.6b
 configured_not_loaded
 ```
 
-`configured_not_loaded` is valid for the shallow health probe. It does not mean the embedding runtime is unavailable.
+`configured_not_loaded` はshallow health probeでは正常な状態です。embedding runtimeが利用不能という意味ではありません。
 
 ### Qdrant
 
-Expected reference state:
+reference状態の期待値:
 
 ```text
 HEALTHY
@@ -207,11 +207,11 @@ ready
 v1.19.2
 ```
 
-The dashboard is an observer only. It must not expose Qdrant Start / Stop / Restart controls.
+Dashboardはobserver専用です。QdrantのStart / Stop / Restart操作を表示してはいけません。
 
 ### Search generation
 
-Expected reference state:
+reference状態の期待値:
 
 ```text
 DEGRADED
@@ -219,11 +219,11 @@ active=none (legacy routing)
 Knowledge exists but no active Search generation is selected
 ```
 
-For this accepted reference state, this is a warning rather than a hard semantic blocker because legacy vector routing remains available.
+このreference状態では、legacy vector routingを引き続き利用できるため、これはhard semantic blockerではなくwarningとして扱います。
 
 ### Derived state
 
-Expected reference state:
+reference状態の期待値:
 
 ```text
 DEGRADED
@@ -231,25 +231,25 @@ current objects=5
 unhealthy states=3
 ```
 
-The current three unhealthy states are expected `rendering` pending states. The semantic kinds `search_representation`, `embedding`, and `vector_index` are ready, so this condition must be presented as a warning, not as a hard Semantic Search blocker.
+現在の3件のunhealthy stateは、想定されている `rendering` pending stateです。semantic kindである `search_representation`、`embedding`、`vector_index` はreadyであるため、この状態はwarningとして表示される必要があり、Semantic Searchのhard blockerとして扱ってはいけません。
 
-## 8. Check Runtime issues / troubleshooting
+## 8. Runtime issues / troubleshootingを確認する
 
-The troubleshooting box should explain degraded or blocked components.
+troubleshooting boxには、degradedまたはblockedとなっているcomponentの理由が説明されている必要があります。
 
-For the current reference Workspace, confirm that it contains guidance for:
+現在のreference Workspaceでは、以下に関する案内が含まれていることを確認します。
 
 - inactive Search generation / legacy routing;
 - incomplete Derived state;
-- the corresponding System tabs to inspect when needed.
+- 必要に応じて確認する対応System tab。
 
-A useful runtime issue must not be represented only by a generic `degraded` label with no reason.
+有用なruntime issueが、理由を示さず単に `degraded` とだけ表示されてはいけません。
 
-## 9. Check Qdrant lifecycle ownership
+## 9. Qdrant lifecycle ownershipを確認する
 
-Confirm that the lifecycle note states that Qdrant is externally owned and that SGOKB only observes runtime health.
+lifecycle noteに、Qdrantは外部所有であり、SGOKBはruntime healthをobserveするだけであることが記載されていることを確認します。
 
-The accepted lifecycle contract is:
+受入済みlifecycle contractは以下です。
 
 ```text
 qdrant_owner = external
@@ -259,25 +259,25 @@ stop         = false
 restart      = false
 ```
 
-There must be no Qdrant Start / Stop / Restart control on the Runtime Dashboard.
+Runtime Dashboard上にQdrantのStart / Stop / Restart操作が存在してはいけません。
 
-## 10. Check the MCP note
+## 10. MCP noteを確認する
 
-Confirm that the Overview page does not invent an MCP health state.
+Overview画面が、存在しないMCP health stateを作り出していないことを確認します。
 
-The note should state that MCP runtime state is not part of `sgokb.runtime-health/1.0` and should direct the operator to the existing `MCP` tab for the stdio launch/configuration contract.
+noteには、MCP runtime stateは `sgokb.runtime-health/1.0` の一部ではないことが記載され、stdioの起動/configuration contractを確認するため既存の `MCP` tabへ案内される必要があります。
 
-## 11. Check the raw system.status JSON
+## 11. raw system.status JSONを確認する
 
-After `Refresh system status`, scroll to the read-only JSON area at the bottom of the Overview tab.
+`Refresh system status` 実行後、Overview tab最下部にあるread-only JSON領域までscrollします。
 
-Confirm that the raw output remains visible and contains:
+raw outputが引き続き表示され、以下を含んでいることを確認します。
 
 ```text
 "runtime_health"
 ```
 
-For the current reference Workspace, the authoritative values should include:
+現在のreference Workspaceでは、authoritativeな値として以下が含まれている必要があります。
 
 ```text
 overall_status          = degraded
@@ -292,44 +292,44 @@ derived                 = degraded
 derived issue           = derived_state_incomplete
 ```
 
-The structured dashboard and raw JSON must describe the same runtime snapshot.
+structured dashboardとraw JSONは、同じruntime snapshotを表していなければなりません。
 
-## 12. P-RUNTIME-05 acceptance checklist
+## 12. P-RUNTIME-05受入チェックリスト
 
-Record PASS / FAIL for each item:
+各項目についてPASS / FAILを記録します。
 
 ```text
-[ ] GUI starts successfully
-[ ] reference Workspace opens successfully
-[ ] System > Overview is reachable
-[ ] Refresh system status completes
-[ ] Runtime health summary is visible
-[ ] Semantic Search readiness is visible
-[ ] Semantic Search = DEGRADED, not BLOCKED, for the reference Workspace
+[ ] GUIが正常に起動する
+[ ] reference Workspaceを正常に開ける
+[ ] System > Overviewを開ける
+[ ] Refresh system statusが完了する
+[ ] Runtime health summaryが表示される
+[ ] Semantic Search readinessが表示される
+[ ] reference WorkspaceでSemantic Search = DEGRADEDとなり、BLOCKEDではない
 [ ] SQLite = HEALTHY
 [ ] Embedding = HEALTHY
 [ ] Qdrant = HEALTHY / ready / v1.19.2
-[ ] Search generation = DEGRADED / inactive generation guidance visible
-[ ] Derived state = DEGRADED / rendering-only warning visible
-[ ] troubleshooting text explains the degraded conditions
-[ ] Qdrant lifecycle owner is external
-[ ] no Qdrant Start / Stop / Restart controls exist
-[ ] MCP note points to the MCP tab without inventing health state
-[ ] raw system.status JSON remains visible after refresh
-[ ] structured dashboard agrees with the CLI runtime-health snapshot
+[ ] Search generation = DEGRADED / inactive generationの案内が表示される
+[ ] Derived state = DEGRADED / rendering-only warningが表示される
+[ ] troubleshooting textにdegradedとなっている理由が説明されている
+[ ] Qdrant lifecycle ownerがexternalである
+[ ] Qdrant Start / Stop / Restart操作が存在しない
+[ ] MCP noteが架空のhealth stateを作らずMCP tabへ案内している
+[ ] refresh後もraw system.status JSONが表示される
+[ ] structured dashboardがCLI runtime-health snapshotと一致している
 ```
 
-If every item passes, report:
+すべての項目がPASSした場合、以下を報告します。
 
 ```text
 GUI reference-workspace smoke = PASS
 ```
 
-If any item fails, record the exact displayed text and which checklist item failed. Do not compensate by changing canonical data or running maintenance operations unless a separate remediation task is opened.
+いずれかの項目がFAILした場合は、実際に表示されたtextと、FAILしたchecklist項目を記録してください。別のremediation taskを開始しない限り、canonical dataを変更したりmaintenance操作を実行して補正してはいけません。
 
-## Troubleshooting startup only
+## 起動時のみのtroubleshooting
 
-If `sgokb-gui.exe` is not found, first confirm the virtual environment and GUI dependency:
+`sgokb-gui.exe` が見つからない場合は、まずvirtual environmentとGUI依存関係を確認します。
 
 ```powershell
 Test-Path .\.venv\Scripts\python.exe
@@ -337,15 +337,15 @@ Test-Path .\.venv\Scripts\sgokb-gui.exe
 .\.venv\Scripts\python.exe -c "import PySide6; print(PySide6.__version__)"
 ```
 
-If the executable is absent but PySide6 imports correctly, use:
+executableが存在しない一方でPySide6を正常にimportできる場合は、以下を使用します。
 
 ```powershell
 .\.venv\Scripts\python.exe -m sgokb.gui.main
 ```
 
-Do not reinstall or modify the environment as part of the acceptance test unless startup actually fails and the cause has been identified.
+実際に起動が失敗し、その原因を特定できた場合を除き、受入試験の一部としてenvironmentを再installしたり変更したりしないでください。
 
-## Related documents
+## 関連文書
 
 - `docs/design/P_RUNTIME_05_GUI_RUNTIME_DASHBOARD.md`
 - `docs/evaluation/P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_ACCEPTANCE.md`
