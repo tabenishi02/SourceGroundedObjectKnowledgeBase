@@ -6,7 +6,7 @@ PR: `#82 P-RUNTIME-05 integrate GUI Runtime Dashboard` — **merged to `main`**
 
 ## Status
 
-**Implementation merged / GUI smoke PASS / latest-head focused + Ruff verification pending**
+**Implementation merged / GUI smoke PASS / latest-main focused PASS / Ruff result pending**
 
 GitHub-hosted Actions remain unavailable under the current account billing/spending limit. P-RUNTIME-05 therefore uses the supported Windows workstation for local acceptance, while hosted CI remains separate deferred verification.
 
@@ -36,17 +36,23 @@ The guide now uses `main` as the authoritative branch.
 
 ### Focused P-RUNTIME-05 / System / runtime boundary
 
-Observed on pre-style-remediation HEAD `3810cab6d228db918f7b30d098037baabecb89e0`:
+Initial result on pre-style-remediation HEAD `3810cab6d228db918f7b30d098037baabecb89e0`:
 
 ```text
 22 passed in 8.96s
 ```
 
-Disposition: **PASS**.
+After the E501-only style remediation, PR #82 merge, and later documentation-only updates, the operator updated local `main` to commit `b10ddbd2e0bb2e16f319e7d8f942066f8ee6a931` and reran the same focused gate:
+
+```text
+22 passed in 7.77s
+```
+
+Disposition: **PASS on latest tested main**.
 
 ### Ruff
 
-Observed on the same pre-style-remediation HEAD:
+Initial result on the pre-style-remediation HEAD:
 
 ```text
 9 x E501 line-too-long findings
@@ -54,7 +60,15 @@ Observed on the same pre-style-remediation HEAD:
 
 All nine findings were confined to P-RUNTIME-05 additions and were remediated by line wrapping only. No readiness logic or runtime-health contract changed.
 
-Disposition: **REMEDIATED / latest-main re-run pending**.
+The operator invoked the latest-main Ruff command:
+
+```powershell
+.\.venv\Scripts\python.exe -m ruff check src tests
+```
+
+but the supplied console transcript ends at the command invocation and does not include the command result or exit status.
+
+Disposition: **REMEDIATED / latest-main result pending evidence**.
 
 ### Full regression
 
@@ -150,25 +164,30 @@ GUI reference-workspace smoke = PASS
 
 This confirms the principal P-RUNTIME-05 user-facing requirement: runtime insufficiency and degradation are visible in `System > Overview` before the operator attempts Semantic Search, without transferring Qdrant lifecycle ownership into SGOKB.
 
+### GUI startup font diagnostics
+
+Launching the GUI through `python -m sgokb.gui.main` emitted Qt font-database diagnostics such as:
+
+```text
+qt.text.font.db: OpenType support missing for "Yu Gothic UI", script 11
+qt.text.font.db: OpenType support missing for "Tahoma", script 11
+...
+```
+
+The GUI nevertheless started successfully and the full reference-workspace smoke passed. These diagnostics are therefore recorded as **non-blocking startup warnings for this acceptance**, not as a P-RUNTIME-05 functional failure.
+
 ## Remaining local gate
 
-Only the latest-main focused test / Ruff re-run remains. From current `main`:
+Only the latest-main Ruff result remains to be recorded. From current `main`:
 
 ```powershell
 cd C:\codex\SourceGroundedObjectKnowledgeBase
 git switch main
 git pull --ff-only
-
-.\.venv\Scripts\python.exe -m pytest -q `
-  tests/test_p_runtime_05_gui_runtime_dashboard.py `
-  tests/test_p_gui_09_system_maintenance.py `
-  tests/test_p_runtime_03_runtime_health_boundary.py `
-  tests/test_p_gui_06_search_runtime_state.py
-
 .\.venv\Scripts\python.exe -m ruff check src tests
 ```
 
-Required: both commands PASS.
+Required: Ruff PASS / exit code 0.
 
 A complete full-regression re-run is not required solely because the post-regression product patch was line wrapping only and later changes are documentation-only.
 
@@ -176,15 +195,15 @@ A complete full-regression re-run is not required solely because the post-regres
 
 ```text
 implementation                    = Complete / merged to main
-focused runtime/dashboard tests   = PASS on pre-style-remediation HEAD
-Ruff                              = remediated / latest-main re-run pending
+focused runtime/dashboard tests   = PASS / 22 passed on latest tested main
+Ruff                              = remediated / latest-main result pending evidence
 full regression                   = PASS / 869 passed / 2 known warnings
 reference CLI projection          = PASS
 GUI reference-workspace smoke     = PASS
 P-RUNTIME-03 lifecycle boundary   = preserved
 new regressions                   = none observed
 
-P-RUNTIME-05 overall              = In Progress / Latest-main Verification Pending
+P-RUNTIME-05 overall              = In Progress / Ruff Verification Pending
 ```
 
-When the latest-main focused tests and Ruff both pass, update this document to `Complete / Accepted`, unblock P-RUNTIME-06, and retain hosted CI only as deferred external verification while the GitHub Actions spending limit remains unavailable.
+When the latest-main Ruff command passes, update this document to `Complete / Accepted`, unblock P-RUNTIME-06, and retain hosted CI only as deferred external verification while the GitHub Actions spending limit remains unavailable.
