@@ -1,6 +1,14 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from sgokb.cli.main import parser
+
+
+def test_release_candidate_version_is_2_0_0() -> None:
+    pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
+
+    assert 'version = "2.0.0"' in pyproject
 
 
 def test_package_build_defaults_to_raw_grounded_v2() -> None:
