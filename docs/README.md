@@ -27,6 +27,7 @@ For the current system, read in this order:
 4. [`operations/OPERATIONAL_SAFETY_RECOVERY.md`](operations/OPERATIONAL_SAFETY_RECOVERY.md) — safety, backup, recovery and runtime handling.
 5. [`evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md`](evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md) — completed Phase P release closure evidence.
 6. [`releases/v2.0.0.md`](releases/v2.0.0.md) — formal `v2.0.0` Release Note.
+7. [`evaluation/SGOKB_GUI_HAPPY_PATH_ACCEPTANCE.md`](evaluation/SGOKB_GUI_HAPPY_PATH_ACCEPTANCE.md) — consolidated GUI normal-path checklist with prior accepted evidence reconciled.
 
 ## Phase P authority
 
@@ -41,6 +42,7 @@ GUI:
 - [`requirements/GUI_REQUIREMENTS.md`](requirements/GUI_REQUIREMENTS.md)
 - [`design/P_GUI_APPLICATION_ARCHITECTURE.md`](design/P_GUI_APPLICATION_ARCHITECTURE.md)
 - [`evaluation/P_GUI_10_PARITY_USABILITY_REGRESSION_ACCEPTANCE.md`](evaluation/P_GUI_10_PARITY_USABILITY_REGRESSION_ACCEPTANCE.md)
+- [`evaluation/SGOKB_GUI_HAPPY_PATH_ACCEPTANCE.md`](evaluation/SGOKB_GUI_HAPPY_PATH_ACCEPTANCE.md) — post-release consolidated normal-path checklist (`48 OK / 2 NOT RUN` at initialization).
 
 Raw Grounding:
 
