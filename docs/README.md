@@ -9,10 +9,13 @@ Phase A ... Phase O        = Complete
 P-GUI-01..10               = Complete / Accepted
 P-RAW-01..06               = Complete / Accepted
 P-RUNTIME-01..06           = Complete / Accepted
-P-CLOSE-01                 = release integration / final regression pending
-Current formal release     = v1.1.0
-Release candidate          = 2.0.0
+P-CLOSE-01                 = Complete / Accepted
+Phase P                    = Complete / Accepted
+Current formal release     = v2.0.0
+Project state              = Paused / no active implementation task
 ```
+
+The annotated `v2.0.0` tag is frozen on release commit `1adae99ee62c3054a35b1325b8a43716943ff06a`. Later `main` changes may document the completed release without moving the tag.
 
 ## Start here
 
@@ -22,8 +25,8 @@ For the current system, read in this order:
 2. [`requirements/RAW_GROUNDING_REQUIREMENTS.md`](requirements/RAW_GROUNDING_REQUIREMENTS.md) — Package v2 / Result v2 Raw-grounding requirements and `2.0.0` default.
 3. [`operations/OBJECT_STANDARD_WORKFLOW.md`](operations/OBJECT_STANDARD_WORKFLOW.md) — normal Object -> Source -> Package -> Result -> Search workflow.
 4. [`operations/OPERATIONAL_SAFETY_RECOVERY.md`](operations/OPERATIONAL_SAFETY_RECOVERY.md) — safety, backup, recovery and runtime handling.
-5. [`evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md`](evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md) — Phase P release closure gate.
-6. [`releases/v2.0.0.md`](releases/v2.0.0.md) — `2.0.0` release-candidate note.
+5. [`evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md`](evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md) — completed Phase P release closure evidence.
+6. [`releases/v2.0.0.md`](releases/v2.0.0.md) — formal `v2.0.0` Release Note.
 
 ## Phase P authority
 
@@ -82,8 +85,12 @@ The GUI and CLI share the Application/operator boundary. Qdrant lifecycle is ext
 - Files under `docs/requirements/`, accepted `docs/decisions/`, current `docs/design/`, and accepted evaluation/operation contracts are active documentation.
 - `docs/archive/` is historical and must not override current architecture.
 - Phase-specific research documents remain evidence for their task but do not override later accepted integration decisions.
-- Release notes describe frozen release boundaries; during P-CLOSE-01, `v2.0.0.md` remains a release candidate until the tag is created.
+- Release notes describe frozen release boundaries. `releases/v2.0.0.md` is the formal Release Note for tag `v2.0.0`.
 
 ## Distribution note
 
-The `2.0.0` source/repository release includes the PySide6 GUI implementation. P-CLOSE-01 does not certify a standalone GUI binary distribution because project-license selection and artifact-specific Qt/PySide6 redistribution auditing remain separate gates under P-GUI-02.
+The `v2.0.0` source/repository release includes the PySide6 GUI implementation. P-CLOSE-01 does not certify a standalone GUI binary distribution because project-license selection and artifact-specific Qt/PySide6 redistribution auditing remain separate future gates under P-GUI-02. They are not unfinished Phase P work.
+
+## Project checkpoint
+
+There is no active implementation task after Phase P / `v2.0.0`. The project is intentionally paused. When work resumes, current `main` is the documentation authority and `v2.0.0` is the immutable released baseline.
