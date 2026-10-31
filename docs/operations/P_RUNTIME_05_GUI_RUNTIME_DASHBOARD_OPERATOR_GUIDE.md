@@ -18,17 +18,19 @@
 C:\codex\SourceGroundedObjectKnowledgeBase
 ```
 
-使用するbranch:
+現在の正本branchは以下です。
 
 ```text
-phase-p/runtime-05-gui-runtime-dashboard
+main
 ```
 
-最初にbranchを最新化します。
+最初に `main` を最新化します。
 
 ```powershell
 cd C:\codex\SourceGroundedObjectKnowledgeBase
-git pull
+git switch main
+git fetch origin --prune
+git pull --ff-only
 ```
 
 受入で使用するreference Workspaceは以下です。
