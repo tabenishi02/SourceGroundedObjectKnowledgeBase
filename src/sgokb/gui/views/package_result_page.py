@@ -184,8 +184,8 @@ class PackagePage(OperationPage):
         self.package_version.currentIndexChanged.connect(self._input_changed)
         contract_row.addWidget(self.package_version)
         self.contract_note = QLabel(
-            "GUI sends an explicit version. The shared CLI/Application no-option default remains v1 "
-            "until P-CLOSE-01.",
+            "v2 is the 2.0.0 release default across GUI and CLI/Application. "
+            "Select v1 only for explicit legacy compatibility.",
             self,
         )
         self.contract_note.setWordWrap(True)
