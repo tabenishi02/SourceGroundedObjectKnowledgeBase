@@ -5,9 +5,9 @@ Task: `P-RUNTIME-06 [P1] Runtime failure / recovery acceptance`
 
 ## Status
 
-**Repository gate PASS / Reference-host fault-recovery acceptance pending**
+**Repository gate PASS / Pre-fault baseline PASS / Reference-host fault-recovery acceptance pending**
 
-P-RUNTIME-06 is an acceptance/fault-injection task. The repository-side contract tests, design, and operator procedure are prepared on branch `phase-p/runtime-06-failure-recovery-acceptance`. The supported Windows workstation has completed the focused repository gate successfully. The controlled real-host fault/recovery gates must still be executed before this task can become `Complete / Accepted`.
+P-RUNTIME-06 is an acceptance/fault-injection task. The repository-side contract tests, design, and operator procedure are prepared on branch `phase-p/runtime-06-failure-recovery-acceptance`. The supported Windows workstation has completed the focused repository gate and the pre-fault canonical/runtime baseline successfully. The controlled real-host fault/recovery gates must still be executed before this task can become `Complete / Accepted`.
 
 ## Accepted runtime interpretation
 
@@ -84,6 +84,43 @@ Result:
 G1 focused P-RUNTIME tests + Ruff = PASS
 ```
 
+## Pre-fault reference-host baseline — PASS
+
+Reported on the supported Windows workstation on 2026-10-31 using:
+
+```text
+Workspace = .local/acceptance/sgokb-happy-path.sqlite
+```
+
+Observed canonical integrity:
+
+```text
+system.integrity.ok       = true
+sqlite_integrity          = ["ok"]
+foreign_key_violations    = []
+Object count              = 5
+current-Version count     = 5
+```
+
+Observed Qdrant/runtime baseline:
+
+```text
+Qdrant status             = healthy
+Qdrant ready              = true
+Qdrant version            = 1.19.2
+qdrant_owner              = external
+observe                    = true
+start / stop / restart    = false / false / false
+```
+
+The complete pre-fault Qdrant collection inventory was captured in the operator shell as `$BeforeCollections` for the later persistence comparison. The inventory is non-empty and includes the reference SGOKB Vector collection together with historical/evaluation collections already present on the workstation.
+
+Result:
+
+```text
+G2 pre-fault canonical SQLite integrity = PASS
+```
+
 ## Inherited accepted evidence
 
 ### P-RUNTIME-04 crash recovery
@@ -119,7 +156,7 @@ The operator guide requires the following evidence:
 
 ```text
 G1  focused P-RUNTIME tests + Ruff                                  PASS
-G2  pre-fault canonical SQLite integrity                            Pending
+G2  pre-fault canonical SQLite integrity                            PASS
 G3  controlled native Qdrant unavailable detection in CLI           Pending
 G4  GUI Semantic Search = BLOCKED during Qdrant failure              Pending
 G5  external lifecycle boundary preserved during failure             Pending
@@ -159,11 +196,12 @@ P-RUNTIME-06 design                  = Complete
 repository fault-contract tests      = PASS / 22 passed
 Ruff                                 = PASS
 operator procedure                   = Complete
+G2 pre-fault canonical baseline      = PASS
 P-RUNTIME-04 crash-restart evidence  = Reusable / Accepted
-reference-host new gates G2-G12      = Pending
+reference-host gates G3-G12          = Pending
 canonical integrity after recovery   = Pending
 P-RUNTIME-06 overall                 = In Progress / Reference-host Acceptance Pending
 P-CLOSE-01                           = Blocked by P-RUNTIME-06
 ```
 
-After the operator reports G2-G12 PASS, record the exact recovery/rebuild/integrity results here and update P-RUNTIME-06 to `Complete / Accepted`.
+After the operator reports G3-G12 PASS, record the exact recovery/rebuild/integrity results here and update P-RUNTIME-06 to `Complete / Accepted`.
