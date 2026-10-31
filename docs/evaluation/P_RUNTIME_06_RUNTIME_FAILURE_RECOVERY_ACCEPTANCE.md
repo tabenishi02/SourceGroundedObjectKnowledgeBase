@@ -5,9 +5,9 @@ Task: `P-RUNTIME-06 [P1] Runtime failure / recovery acceptance`
 
 ## Status
 
-**Repository gate PASS / Failure-recovery PASS through G9 / Final rebuild-integrity acceptance pending**
+**Complete / Accepted**
 
-P-RUNTIME-06 is an acceptance/fault-injection task. The repository-side contract tests, design, and operator procedure are prepared on branch `phase-p/runtime-06-failure-recovery-acceptance`. The supported Windows workstation has completed the focused repository gate, pre-fault canonical/runtime baseline, CLI/GUI failure projection, wrong-service port-conflict fail-closed test, native Qdrant recovery, collection persistence comparison, and recovered CLI/GUI baseline successfully. Only the final Vector Index rebuild and post-rebuild canonical integrity/count gates remain before this task can become `Complete / Accepted`.
+P-RUNTIME-06 is complete. Repository-side fault-contract tests, controlled Windows reference-host failure injection, wrong-service fail-closed behavior, native Qdrant recovery, persistence validation, GUI/CLI baseline recovery, Vector Index rebuild, and final canonical SQLite integrity/count checks all passed.
 
 ## Accepted runtime interpretation
 
@@ -41,7 +41,7 @@ readiness authority = GET /readyz -> HTTP 200
 
 Runtime failure must never require rewriting accepted canonical Knowledge.
 
-## Repository-side coverage
+## Repository-side coverage — PASS
 
 Added:
 
@@ -58,13 +58,10 @@ The focused P-RUNTIME-06 tests verify without touching the real Qdrant process:
 5. runtime observation does not write canonical SQLite;
 6. external lifecycle ownership remains unchanged during failure.
 
-## Repository gate evidence — PASS
-
-Reported on the supported Windows workstation on 2026-10-31:
+Reported on the supported Windows workstation:
 
 ```text
 branch                           = phase-p/runtime-06-failure-recovery-acceptance
-working tree                     = clean
 focused P-RUNTIME test selection = 22 passed in 6.76s
 Ruff                             = All checks passed!
 ```
@@ -86,10 +83,10 @@ G1 focused P-RUNTIME tests + Ruff = PASS
 
 ## Pre-fault reference-host baseline — PASS
 
-Reported on the supported Windows workstation on 2026-10-31 using:
+Workspace:
 
 ```text
-Workspace = .local/acceptance/sgokb-happy-path.sqlite
+.local/acceptance/sgokb-happy-path.sqlite
 ```
 
 Observed canonical integrity:
@@ -109,11 +106,11 @@ Qdrant status             = healthy
 Qdrant ready              = true
 Qdrant version            = 1.19.2
 qdrant_owner              = external
-observe                    = true
+observe                   = true
 start / stop / restart    = false / false / false
 ```
 
-The complete pre-fault Qdrant collection inventory was captured in the operator shell as `$BeforeCollections` for the later persistence comparison. The inventory contained 80 collections, including the reference SGOKB Vector collection together with historical/evaluation collections already present on the workstation.
+The pre-fault Qdrant collection inventory contained 80 collections and was retained in the operator shell for persistence comparison.
 
 Result:
 
@@ -174,7 +171,7 @@ observe                  = true
 start/stop/restart       = false/false/false
 ```
 
-The runtime therefore fails closed: an open HTTP port alone is not treated as Qdrant readiness, and SGOKB does not take lifecycle ownership of the foreign listener.
+An open HTTP port alone was therefore not treated as Qdrant readiness, and SGOKB did not take lifecycle ownership of the foreign listener.
 
 Result:
 
@@ -184,7 +181,7 @@ G6 port 6333 wrong-service / non-ready listener fails closed = PASS
 
 ## Native runtime recovery and persistence — PASS
 
-After the disposable wrong-service listener was removed, port 6333 was confirmed free. The operator re-enabled and started `\SGOKB\Qdrant` through Windows Task Scheduler.
+After the disposable listener was removed, port 6333 was confirmed free. The operator re-enabled and started `\SGOKB\Qdrant` through Windows Task Scheduler.
 
 Observed native recovery:
 
@@ -195,7 +192,7 @@ Scheduled Task       = Running
 qdrant.exe PID       = 41628
 ```
 
-Observed recovered CLI runtime:
+Recovered CLI runtime:
 
 ```text
 Qdrant status        = healthy
@@ -217,7 +214,7 @@ collection count after  = 80
 Compare-Object           = no differences
 ```
 
-Recovered GUI projection also returned exactly to the accepted P-RUNTIME-05 baseline:
+Recovered GUI projection returned exactly to the accepted P-RUNTIME-05 baseline:
 
 ```text
 Qdrant                 = HEALTHY / ready / v1.19.2
@@ -235,11 +232,70 @@ G8 Qdrant collection inventory persists across process restart = PASS
 G9 recovered CLI + GUI return to accepted baseline             = PASS
 ```
 
-## Inherited accepted evidence
+## Vector Index recovery rebuild — PASS
 
-### P-RUNTIME-04 crash recovery
+After native Qdrant had fully recovered, the public recovery operation was executed:
 
-Already accepted on the supported Windows workstation:
+```text
+command = system.index.rebuild
+ok      = true
+```
+
+Observed result metadata:
+
+```text
+backend_key          = qdrant
+backend_version      = 1.19.2
+space_id             = 832920052e1d1a6d3bbe2a5ef9d3b0d09785b0e0f26bf3081b8728de2897d591
+dimension            = 1024
+distance             = cosine
+points_count          = 126
+indexed_points_count  = 0
+approximate           = false
+status                = green
+```
+
+The command emitted an unauthenticated Hugging Face Hub warning while loading the configured Harrier model, but model loading completed and the rebuild returned `ok=true`. Under the P-RUNTIME-06 acceptance contract this warning is non-blocking.
+
+`indexed_points_count=0` is recorded as observed backend metadata; it is not treated as a P-RUNTIME-06 failure because the public recovery operation completed successfully, Qdrant reported `status=green`, and the rebuilt collection contained 126 points.
+
+Result:
+
+```text
+G10 public system index rebuild succeeds after recovery = PASS
+```
+
+## Post-rebuild canonical integrity — PASS
+
+After Vector Index rebuild:
+
+```text
+system.integrity.ok       = true
+sqlite_integrity          = ["ok"]
+foreign_key_violations    = []
+```
+
+Canonical counts remained unchanged:
+
+```text
+BeforeObjectCount   = 5
+AfterObjectCount    = 5
+BeforeCurrentCount  = 5
+AfterCurrentCount   = 5
+```
+
+Results:
+
+```text
+G11 post-rebuild canonical SQLite integrity PASS              = PASS
+G12 canonical Object count and current-Version count unchanged = PASS
+```
+
+Derived-state metadata and replaceable Vector backend contents may change during a legitimate Vector Index rebuild. No accepted canonical Knowledge identity/count change was observed.
+
+## Inherited accepted crash-recovery evidence
+
+P-RUNTIME-04 had already accepted the supported-workstation crash-recovery sub-gate:
 
 ```text
 forced qdrant.exe exit                   = performed
@@ -249,22 +305,9 @@ recovered /readyz                        = HTTP 200
 SGOKB Qdrant health                      = healthy / ready=true
 ```
 
-This satisfies the P-RUNTIME-06 `restart after crash` sub-gate without repeating the same destructive experiment.
+This evidence satisfies the P-RUNTIME-06 `restart after crash` requirement without repeating the same destructive experiment.
 
-### P-RUNTIME-05 GUI baseline
-
-Already accepted:
-
-```text
-GUI reference-workspace smoke = PASS
-CLI / GUI runtime projection  = consistent
-normal Semantic Search state  = DEGRADED, not BLOCKED
-Qdrant                         = HEALTHY / ready / v1.19.2
-```
-
-P-RUNTIME-06 has now proven the transition from this baseline to `BLOCKED` during Qdrant failure and back to the same baseline after recovery.
-
-## Required reference-host gates
+## Final gate matrix
 
 ```text
 G1  focused P-RUNTIME tests + Ruff                                  PASS
@@ -276,51 +319,32 @@ G6  port 6333 wrong-service / non-ready listener fails closed         PASS
 G7  native Qdrant recovery to /readyz HTTP 200                        PASS
 G8  Qdrant collection inventory persists across process restart       PASS
 G9  recovered CLI + GUI return to accepted baseline                   PASS
-G10 public system index rebuild succeeds after recovery               Pending
-G11 post-rebuild canonical SQLite integrity PASS                      Pending
-G12 canonical Object count and current-Version count unchanged         Pending
+G10 public system index rebuild succeeds after recovery               PASS
+G11 post-rebuild canonical SQLite integrity PASS                      PASS
+G12 canonical Object count and current-Version count unchanged         PASS
 ```
-
-## Expected canonical integrity result
-
-Before and after fault/recovery:
-
-```text
-system.integrity.ok       = true
-sqlite_integrity          = ["ok"]
-foreign_key_violations    = []
-```
-
-Object and current-Version counts must also remain unchanged.
-
-Derived-state metadata and Vector backend contents may change during a legitimate Vector Index rebuild. That is not canonical Knowledge mutation.
 
 ## Hosted CI status
 
 The account's GitHub-hosted Actions capacity remains unavailable due the previously recorded billing/spending constraint. P-RUNTIME-06 does not claim hosted CI PASS.
 
-The real-host fault/recovery transitions are inherently workstation lifecycle tests and remain the formal acceptance source for this task.
+This does not block closure because the task authority requires the real supported Windows host for lifecycle/failure/recovery acceptance, and that acceptance is complete.
 
-## Current disposition
+## Formal closure
 
 ```text
-P-RUNTIME-06 design                  = Complete
 repository fault-contract tests      = PASS / 22 passed
 Ruff                                 = PASS
-operator procedure                   = Complete
-G2 pre-fault canonical baseline      = PASS
-G3 CLI failure projection            = PASS
-G4 GUI failure projection            = PASS
-G5 external lifecycle boundary       = PASS
-G6 port-conflict fail-closed         = PASS
-G7 native runtime recovery           = PASS
-G8 collection persistence            = PASS / 80 -> 80 / no diff
-G9 CLI + GUI baseline recovery       = PASS
-P-RUNTIME-04 crash-restart evidence  = Reusable / Accepted
-remaining reference-host gates       = G10-G12
-canonical integrity after recovery   = Pending
-P-RUNTIME-06 overall                 = In Progress / Final Rebuild-Integrity Acceptance Pending
-P-CLOSE-01                           = Blocked by P-RUNTIME-06
+reference-host fault injection       = PASS
+wrong-service fail-closed            = PASS
+native runtime recovery              = PASS
+collection persistence               = PASS / 80 -> 80 / no diff
+CLI + GUI baseline recovery          = PASS
+Vector Index rebuild                 = PASS / 126 points / Qdrant green
+post-rebuild SQLite integrity        = PASS
+canonical Object count               = 5 -> 5
+canonical current-Version count      = 5 -> 5
+P-RUNTIME-04 crash-restart evidence  = Reused / Accepted
+P-RUNTIME-06 overall                 = Complete / Accepted
+P-CLOSE-01                           = Unblocked / Ready
 ```
-
-After the operator reports G10-G12 PASS, record the exact rebuild/integrity/count results here and update P-RUNTIME-06 to `Complete / Accepted`.
