@@ -5,7 +5,7 @@ Updated: 2026-10-31
 - Task: `P-CLOSE-01 [P0] Full regression, documentation integration, release impact`
 - Branch: `phase-p/close-01-release-integration`
 - Target release: `2.0.0`
-- Status: **Repository integration in progress / latest-branch regression pending**
+- Status: **Remediation applied / latest-branch re-validation pending**
 
 ## Closure scope
 
@@ -73,19 +73,88 @@ explicit --package-version v1            -> v1
 
 These must pass together with the full repository regression.
 
+## Execution evidence — initial closure candidate
+
+Execution HEAD:
+
+```text
+fc2a0882368bbcbddc50ee04bfbcdc2f51fc5dcd
+```
+
+Repository state:
+
+```text
+working tree        = clean
+origin branch sync  = up to date
+git diff --check    = PASS / no output
+```
+
+Focused closure regression:
+
+```text
+58 passed in 13.86s
+```
+
+Full repository regression:
+
+```text
+874 passed
+2 errors
+2 known local-Qdrant warnings
+234.88s
+```
+
+The two errors were both in `tests/test_m03_standard_workflow.py`:
+
+```text
+test_standard_workflow
+test_standard_workflow_mcp_read
+```
+
+### Root cause
+
+The M03 standard-workflow fixture called:
+
+```text
+sgokb package build --object ...
+```
+
+without an explicit Package version, so the P-CLOSE release candidate correctly produced Package v2 after the default change. The deterministic external-Result fixture, however, still populated v1 `evidence[]` claim grounding and omitted the Result v2 grounding binding fields. Result validation therefore correctly rejected the fixture.
+
+This is an integration-test fixture incompatibility exposed by the intended release-contract change, not evidence that the accepted Package v2 / Result v2 validator is incorrect.
+
+### Remediation
+
+Remediation commit:
+
+```text
+0177b3cef2db24a6854d37b5ef2dd53039b75cbd
+```
+
+`tests/test_m03_standard_workflow.py` now constructs its deterministic Result from the Package manifest contract:
+
+- Result v2 adds `grounding_contract` and `grounding_set_sha256` binding;
+- Result v2 claims ground through audited `raw_artifact_id` members;
+- Result v1 still uses Evidence grounding when explicitly exercised;
+- the normal M03 no-option workflow therefore exercises the new Raw-grounded v2 release default instead of forcing legacy v1.
+
+Latest-branch re-validation is required before closure.
+
 ## Required final execution
 
 Before closure:
 
 ```text
 1. working tree clean
-2. P-CLOSE focused release-contract tests PASS
-3. full `pytest -q` PASS
-4. `ruff check src tests` PASS
-5. no new unexplained warnings/failures
-6. release-facing docs consistent with 2.0.0
-7. main merge completed
-8. v2.0.0 tag created only after merged main is verified
+2. remediated M03 workflow tests PASS
+3. P-CLOSE focused release-contract tests PASS on remediation HEAD
+4. full `pytest -q` PASS
+5. `ruff check src tests` PASS
+6. no new unexplained warnings/failures
+7. release-facing docs consistent with 2.0.0
+8. main merge completed
+9. merged-main release verification PASS
+10. v2.0.0 tag created only after merged main is verified
 ```
 
 ## Current gate table
@@ -95,16 +164,19 @@ Before closure:
 | P-GUI accepted workstream | PASS / inherited |
 | P-RAW accepted workstream | PASS / inherited |
 | P-RUNTIME accepted workstream | PASS / inherited |
-| Package v2 default implementation | Implemented / execution pending |
-| Package v1 explicit compatibility | Implemented / execution pending |
-| Current architecture integration | In progress |
-| Requirements integration | In progress |
-| Operations integration | In progress |
-| README / docs index integration | In progress |
+| Package v2 default implementation | PASS / focused gate |
+| Package v1 explicit compatibility | PASS / focused gate |
+| Current architecture integration | Complete |
+| Requirements integration | Complete |
+| Operations integration | Complete |
+| README / docs index integration | Complete |
 | SemVer determination | PASS / `2.0.0` |
 | Third-party dependency/license inventory | PASS for source-release scope |
-| Latest-branch focused tests | Pending |
-| Latest-branch full regression | Pending |
+| Initial focused tests | PASS / `58 passed` |
+| Initial full regression | FAIL / `874 passed, 2 errors` |
+| M03 v2 fixture remediation | Applied / `0177b3c` |
+| Latest-branch remediation tests | Pending |
+| Latest-branch full regression | Pending re-run |
 | Latest-branch Ruff | Pending |
 | Final release tag | Pending |
 
