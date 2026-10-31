@@ -6,7 +6,7 @@ Updated: 2026-11-01
 - Release commit: `1adae99ee62c3054a35b1325b8a43716943ff06a`
 - Checklist creation baseline: `main` at `2ca4902de7944e6aaefcda0dd86baa9f0fa1dbb7`
 - Scope: PySide6 desktop GUI normal-path acceptance
-- Status: **Prior accepted evidence reconciled / remaining integrated checks identified**
+- Status: **Prior accepted evidence reconciled / GUI-HP-14 interactive PASS / one integrated check remains**
 
 ## 1. Purpose
 
@@ -27,21 +27,20 @@ Evidence type:
 - `Automated`: accepted Windows/Qt automated functional or contract evidence.
 - `Interactive + Automated`: both forms of evidence exist for the relevant behavior.
 
-An `OK` entry does **not** imply that the exact scenario was manually rerun after the `v2.0.0` tag. Phase P acceptance remains the evidence source. P-CLOSE-01 subsequently passed the final repository regression (`876 passed`, two known local-Qdrant warnings) and Ruff before the release freeze.
+An `OK` entry does **not** imply that the exact scenario was manually rerun after the `v2.0.0` tag unless an explicit post-release interactive record is identified. Phase P acceptance remains the evidence source for inherited entries. P-CLOSE-01 subsequently passed the final repository regression (`876 passed`, two known local-Qdrant warnings) and Ruff before the release freeze.
 
 ## 3. Summary
 
 ```text
 Total happy-path scenarios = 50
-OK                         = 48
-NOT RUN                    = 2
-Remaining                  = #14, #49
+OK                         = 49
+NOT RUN                    = 1
+Remaining                  = #49
 ```
 
 The remaining work is intentionally integration-focused:
 
-1. Evidence Search normal-path confirmation including Semantic / Hybrid modes.
-2. One continuous real-data GUI workflow in a single Workspace from Object/Source preparation through Result import, Search, Render, and final integrity verification.
+1. One continuous real-data GUI workflow in a single Workspace from Object/Source preparation through Result import, Search, Render, and final integrity verification.
 
 ## 4. Happy-path checklist
 
@@ -60,7 +59,7 @@ The remaining work is intentionally integration-focused:
 | 11 | Evidence candidates | Candidate retrieval and candidate inspection work | **OK** | Interactive + Automated | `P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md` |
 | 12 | Evidence provenance | Evidence detail can trace Source / Snapshot / Run / Raw provenance | **OK** | Interactive + Automated | `P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md` |
 | 13 | Evidence selection | Bounded selection, manual include/exclude/automatic state, and budget display work | **OK** | Interactive + Automated | `P_GUI_05_FINAL_INTERACTIVE_ACCEPTANCE.md` |
-| 14 | Evidence Search — Lexical / Semantic / Hybrid | Evidence Search modes execute normally with the expected local runtime/degradation semantics | **NOT RUN** | — | Existing interactive P-GUI-05 evidence explicitly confirms lexical Evidence search only; exact Semantic/Hybrid Evidence Search normal path should be rerun |
+| 14 | Evidence Search — Lexical / Semantic / Hybrid | Evidence Search modes execute normally with the expected local runtime/degradation semantics | **OK** | Interactive | Post-`v2.0.0` GUI-HP-14 operator run, 2026-11-01; all checklist items PASS |
 | 15 | Package v2 Build | Package page selects the accepted Raw-grounded v2 path; build succeeds and Raw/binding information is visible | **OK** | Automated | `P_GUI_08_PACKAGE_RESULT_GUI_ACCEPTANCE.md`; P-CLOSE-01 focused regression |
 | 16 | Package Stage | Built Package can be staged and stage state is shown | **OK** | Automated | `P_GUI_08_PACKAGE_RESULT_GUI_ACCEPTANCE.md` |
 | 17 | Package Preflight | Destination-aware preflight succeeds on a valid Package and returns an allowed/non-blocked disposition | **OK** | Automated | `P_GUI_08_PACKAGE_RESULT_GUI_ACCEPTANCE.md` |
@@ -114,24 +113,37 @@ P-GUI-08 already used v2 as the first explicit GUI Package selection. P-CLOSE-01
 
 P-GUI-08 and P-GUI-09 provide strong Windows automated functional acceptance, but their automated PASS is not rewritten here as an interactive manual PASS. The `Evidence type` column preserves that distinction.
 
-## 6. Remaining normal-path execution
+## 6. Normal-path execution records
 
-### GUI-HP-14 — Evidence Search Semantic / Hybrid
+### GUI-HP-14 — Evidence Search Lexical / Semantic / Hybrid — PASS
 
-Goal: close the only Evidence-page search-mode gap not explicitly demonstrated by the prior interactive acceptance record.
+The operator completed the post-`v2.0.0` GUI-HP-14 checklist on 2026-11-01 and reported every required item as successful:
 
-Procedure:
+```text
+Workspace opened normally                         PASS
+SQLite HEALTHY                                    PASS
+Embedding HEALTHY                                 PASS
+Qdrant HEALTHY / ready                            PASS
+Lexical search completed normally                 PASS
+Lexical results returned                          PASS
+Semantic search completed normally                PASS
+Semantic results returned                         PASS
+Hybrid + Full local semantic runtime ON completed PASS
+Hybrid results returned                           PASS
+Hybrid Lexical / Semantic scores both visible     PASS
+Evidence Detail opened                            PASS
+Provenance opened                                 PASS
+Degraded channel absent                           PASS
+Unexpected error absent                           PASS
+```
 
-1. Open a Workspace containing processed Evidence and healthy local semantic runtime.
-2. Open `Evidence` search.
-3. Run a known query in `Lexical`; confirm expected candidates are returned.
-4. Run the same query in `Semantic`; confirm the local semantic path executes and results are displayed.
-5. Run the same query in `Hybrid`; confirm combined results/degradation status are displayed correctly.
-6. Confirm no silent cloud fallback and no unreported mode downgrade occurs.
+Disposition:
 
-PASS criterion: all three modes complete with behavior consistent with their selected mode and runtime state.
+```text
+GUI-HP-14 = OK / Interactive PASS
+```
 
-### GUI-HP-49 — Continuous real-data GUI standard workflow
+### GUI-HP-49 — Continuous real-data GUI standard workflow — NOT RUN
 
 Goal: demonstrate the complete normal operator path once, in order, through the real desktop GUI and one test Workspace.
 
@@ -175,9 +187,10 @@ Primary accepted evidence used to initialize this checklist:
 ## 8. Current disposition
 
 ```text
-Existing accepted evidence reconciled = 48 / 50 OK
-Remaining normal-path checks          = 2 / 50 NOT RUN
+Existing accepted evidence reconciled = 49 / 50 OK
+Remaining normal-path checks          = 1 / 50 NOT RUN
+Remaining                             = GUI-HP-49
 Blocking product defect identified    = none
 ```
 
-This checklist remains open only for the two integration checks above. Their `NOT RUN` state is not a regression against the already accepted `v2.0.0` release.
+GUI-HP-14 is closed by the post-release interactive run above. The checklist remains open only for GUI-HP-49. Its `NOT RUN` state is not a regression against the already accepted `v2.0.0` release.
