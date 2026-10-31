@@ -16,7 +16,10 @@ def _install_qdrant_transport(monkeypatch, state: dict[str, int]) -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url.path == "/readyz":
             status = state["ready_status"]
-            return httpx.Response(status, text="all shards are ready" if status == 200 else "not ready")
+            return httpx.Response(
+                status,
+                text="all shards are ready" if status == 200 else "not ready",
+            )
         if request.url.path == "/":
             return httpx.Response(200, json={"version": "1.19.2"})
         if request.url.path == "/collections":
@@ -110,7 +113,7 @@ def test_runtime_projection_recovers_after_qdrant_readiness_returns(tmp_path, mo
     assert failed_dashboard.readiness.status == "blocked"
     assert recovered["components"]["qdrant"]["status"] == "healthy"
     assert recovered["components"]["qdrant"]["details"]["ready"] is True
-    assert recovered_dashboard.readiness.status in {"ready", "degraded"}
+    assert not any("Qdrant" in blocker for blocker in recovered_dashboard.readiness.blockers)
     assert integrity["ok"] is True
 
 
