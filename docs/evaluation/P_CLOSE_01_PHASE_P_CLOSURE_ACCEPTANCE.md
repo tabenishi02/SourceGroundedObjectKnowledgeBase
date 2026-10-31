@@ -5,7 +5,7 @@ Updated: 2026-11-01
 - Task: `P-CLOSE-01 [P0] Full regression, documentation integration, release impact`
 - Branch: `phase-p/close-01-release-integration`
 - Target release: `2.0.0`
-- Status: **Second M03 remediation PASS / final closure gates pending**
+- Status: **Executable gates PASS / merge and merged-main freeze pending**
 
 ## Closure scope
 
@@ -206,22 +206,47 @@ Focused M03 re-run:
 
 This formally closes the M03 remediation gate. The accepted Package-v2 default now passes the installed-public-CLI standard workflow fixture through Result v2 validation/import and the MCP read follow-up path.
 
-## Required final execution
+## Execution evidence — final closure gates
 
-Before closure:
+The final executable gates were run after the second remediation. The only intervening branch commit before the full regression was an acceptance-document update; no product or test code changed.
+
+Focused closure regression:
 
 ```text
-1. working tree clean
-2. remediated M03 workflow tests PASS
-3. P-CLOSE focused release-contract tests PASS on remediation HEAD
-4. full `pytest -q` PASS
-5. `ruff check src tests` PASS
-6. no new unexplained warnings/failures
-7. release-facing docs consistent with 2.0.0
-8. main merge completed
-9. merged-main release verification PASS
-10. v2.0.0 tag created only after merged main is verified
+58 passed in 15.78s
 ```
+
+Latest branch full repository regression at:
+
+```text
+d5a06bec3e3c0c24837b4411161c25e852ed431e
+```
+
+Result:
+
+```text
+876 passed
+2 warnings
+257.85s
+```
+
+The two warnings are the already-known local-Qdrant test warnings from `tests/test_generation_lifecycle_qdrant_r2.py`:
+
+```text
+Payload indexes have no effect in the local Qdrant.
+Local mode performs exact (brute-force) search, so search_params has no effect except idf.
+```
+
+They are test-environment behavior already understood by the project and are not new release blockers.
+
+Ruff:
+
+```text
+python -m ruff check src tests
+All checks passed!
+```
+
+Therefore all latest-branch executable P-CLOSE gates are green.
 
 ## Current gate table
 
@@ -230,8 +255,8 @@ Before closure:
 | P-GUI accepted workstream | PASS / inherited |
 | P-RAW accepted workstream | PASS / inherited |
 | P-RUNTIME accepted workstream | PASS / inherited |
-| Package v2 default implementation | PASS / focused gate |
-| Package v1 explicit compatibility | PASS / focused gate |
+| Package v2 default implementation | PASS |
+| Package v1 explicit compatibility | PASS |
 | Current architecture integration | Complete |
 | Requirements integration | Complete |
 | Operations integration | Complete |
@@ -244,11 +269,13 @@ Before closure:
 | First M03 remediation re-run | FAIL / `2 errors` |
 | Second M03 Facet extraction remediation | Applied / `4e520d2` |
 | Second M03 remediation re-run | PASS / `2 passed in 27.68s` |
-| Latest-branch focused tests | Pending |
-| Latest-branch full regression | Pending re-run |
-| Latest-branch Ruff | Pending |
-| Final release tag | Pending |
+| Final focused closure tests | PASS / `58 passed in 15.78s` |
+| Final full regression | PASS / `876 passed, 2 known warnings` |
+| Final Ruff | PASS / `All checks passed!` |
+| PR merge to main | Pending |
+| Merged-main release verification | Pending |
+| Final `v2.0.0` tag | Pending |
 
 ## Closure rule
 
-P-CLOSE-01 becomes `Complete / Accepted` only after all latest-branch executable gates are green and the merged `main` release commit is frozen. Until then, `2.0.0` is a release candidate and no formal `v2.0.0` tag is claimed.
+The executable acceptance portion of P-CLOSE-01 is complete. Formal `Complete / Accepted` closure is reached when this accepted branch is merged to `main`, the merged main release commit is verified, and the `v2.0.0` tag is frozen on that verified commit. No tag is claimed before that point.
