@@ -101,7 +101,7 @@ def _result(manifest, instructions):
             "summary": [summary],
             "facets": [
                 {"facet_id": facet_id, "status": "not_analyzed", "statements": []}
-                for facet_id in re.findall(r"^- `(facet:[^`]+)` /", instructions, re.MULTILINE)
+                for facet_id in re.findall(r"^- `(facet:[^`]+)`", instructions, re.MULTILINE)
             ],
             "attributes": [],
             "relations": [],
