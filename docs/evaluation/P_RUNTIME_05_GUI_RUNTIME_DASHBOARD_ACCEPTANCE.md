@@ -6,9 +6,9 @@ PR: `#82 P-RUNTIME-05 integrate GUI Runtime Dashboard` — **merged to `main`**
 
 ## Status
 
-**Implementation merged / GUI smoke PASS / latest-main focused PASS / Ruff result pending**
+**Complete / Accepted**
 
-GitHub-hosted Actions remain unavailable under the current account billing/spending limit. P-RUNTIME-05 therefore uses the supported Windows workstation for local acceptance, while hosted CI remains separate deferred verification.
+GitHub-hosted Actions remain unavailable under the current account billing/spending limit. P-RUNTIME-05 therefore used the supported Windows workstation for final local acceptance. Hosted CI remains separate deferred external verification and is not represented as passing.
 
 ## Implemented contract
 
@@ -30,7 +30,7 @@ The manual procedure is documented in:
 
 [`P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_OPERATOR_GUIDE.md`](../operations/P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_OPERATOR_GUIDE.md)
 
-The guide now uses `main` as the authoritative branch.
+The guide uses `main` as the authoritative branch.
 
 ## Local acceptance evidence — 2026-10-31
 
@@ -60,15 +60,19 @@ Initial result on the pre-style-remediation HEAD:
 
 All nine findings were confined to P-RUNTIME-05 additions and were remediated by line wrapping only. No readiness logic or runtime-health contract changed.
 
-The operator invoked the latest-main Ruff command:
+The operator then ran on current local `main`:
 
 ```powershell
 .\.venv\Scripts\python.exe -m ruff check src tests
 ```
 
-but the supplied console transcript ends at the command invocation and does not include the command result or exit status.
+Observed result:
 
-Disposition: **REMEDIATED / latest-main result pending evidence**.
+```text
+All checks passed!
+```
+
+Disposition: **PASS**.
 
 ### Full regression
 
@@ -80,7 +84,7 @@ Observed on pre-style-remediation HEAD:
 
 The two warnings are the previously accepted local-Qdrant warnings. No test failures or new warnings were observed.
 
-Disposition: **PASS**. The subsequent product-code change was formatting-only line wrapping; later commits after PR #82 merge are documentation-only.
+Disposition: **PASS**. The only subsequent product-code change was formatting-only line wrapping; later commits after PR #82 merge are documentation-only.
 
 ### Reference Workspace CLI projection
 
@@ -176,34 +180,21 @@ qt.text.font.db: OpenType support missing for "Tahoma", script 11
 
 The GUI nevertheless started successfully and the full reference-workspace smoke passed. These diagnostics are therefore recorded as **non-blocking startup warnings for this acceptance**, not as a P-RUNTIME-05 functional failure.
 
-## Remaining local gate
-
-Only the latest-main Ruff result remains to be recorded. From current `main`:
-
-```powershell
-cd C:\codex\SourceGroundedObjectKnowledgeBase
-git switch main
-git pull --ff-only
-.\.venv\Scripts\python.exe -m ruff check src tests
-```
-
-Required: Ruff PASS / exit code 0.
-
-A complete full-regression re-run is not required solely because the post-regression product patch was line wrapping only and later changes are documentation-only.
-
-## Current disposition
+## Final disposition
 
 ```text
 implementation                    = Complete / merged to main
 focused runtime/dashboard tests   = PASS / 22 passed on latest tested main
-Ruff                              = remediated / latest-main result pending evidence
+Ruff                              = PASS / All checks passed
 full regression                   = PASS / 869 passed / 2 known warnings
 reference CLI projection          = PASS
 GUI reference-workspace smoke     = PASS
 P-RUNTIME-03 lifecycle boundary   = preserved
 new regressions                   = none observed
+hosted CI                         = Deferred / external billing-spending constraint
 
-P-RUNTIME-05 overall              = In Progress / Ruff Verification Pending
+P-RUNTIME-05 overall              = Complete / Accepted
+P-RUNTIME-06                      = Unblocked / Ready
 ```
 
-When the latest-main Ruff command passes, update this document to `Complete / Accepted`, unblock P-RUNTIME-06, and retain hosted CI only as deferred external verification while the GitHub Actions spending limit remains unavailable.
+P-RUNTIME-05 is closed. P-RUNTIME-06 may proceed using the accepted runtime-health observation boundary and the existing externally owned Qdrant lifecycle contract.
