@@ -1,9 +1,9 @@
 # Phase P — GUI / RAW Grounding / Runtime Modernization Status
 
-Updated: 2026-10-31
+Updated: 2026-11-01
 
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
-- Status: **In Progress / P-CLOSE-01 final regression pending**
+- Status: **Closure accepted on branch / merge and release freeze pending**
 - Previous phase: `Phase O — Documentation / Release / Git cleanup` — **Complete**
 - Current formal release: `v1.1.0`
 - Release candidate: `2.0.0`
@@ -18,7 +18,7 @@ Updated: 2026-10-31
 | GUI | P-GUI-01..10 | **Complete / Accepted** | PySide6 GUI, shared Application boundary, parity/usability/regression acceptance |
 | RAW | P-RAW-01..06 | **Complete / Accepted** | Raw-bearing Package/Result v2 and Raw provenance workflow |
 | Runtime | P-RUNTIME-01..06 | **Complete / Accepted** | native Windows Qdrant, shared runtime health, dashboard, failure/recovery acceptance |
-| Closure | P-CLOSE-01 | **In Progress / Final Regression Pending** | docs/release integration implemented; latest-branch executable gate remains |
+| Closure | P-CLOSE-01 | **Accepted on branch / Merge Pending** | final focused/full regression/Ruff all PASS; merge and main freeze remain |
 
 ## Accepted Phase P architecture
 
@@ -62,7 +62,7 @@ P-RUNTIME-04 hosted GitHub Actions verification remains deferred due the recorde
 
 ## P-CLOSE-01 release integration
 
-Repository-side closure integration now targets `2.0.0`:
+Repository-side closure integration targets `2.0.0`:
 
 ```text
 project version       = 2.0.0
@@ -75,21 +75,31 @@ GUI binary publishing = outside P-CLOSE source-release scope
 
 The Package default change is the breaking release reason. Existing accepted v1 artifacts are not reinterpreted and explicit `--package-version v1` remains supported.
 
-## Closure gate still required
+## P-CLOSE executable acceptance
 
-Before Phase P can become `Complete / Accepted`:
+Final accepted branch evidence:
 
 ```text
-latest branch clean checkout
-P-CLOSE focused release-contract tests PASS
-full repository pytest PASS
-Ruff src/tests PASS
-no new unexplained failures/warnings
-closure evidence updated
-PR merged to main
-merged main verified
-v2.0.0 tag created only after the frozen main release commit is confirmed
+M03 remediation                 = PASS / 2 passed in 27.68s
+focused closure regression      = PASS / 58 passed in 15.78s
+full repository regression      = PASS / 876 passed, 2 known warnings
+Ruff src/tests                  = PASS / All checks passed!
+new unexplained blockers        = none
 ```
+
+The two warnings are the known local-Qdrant behavior warnings already documented by the project and are not new release blockers.
+
+## Remaining release-freeze steps
+
+Before Phase P is frozen as the formal `2.0.0` release state:
+
+```text
+PR #85 merged to main
+merged main commit verified
+v2.0.0 tag created on the verified main release commit
+```
+
+No further product-code remediation is pending from P-CLOSE-01.
 
 ## Distribution boundary
 
@@ -104,13 +114,13 @@ P-RAW-01..06      Complete / Accepted
         ↓
 P-RUNTIME-01..06  Complete / Accepted
         ↓
-P-CLOSE-01        <- CURRENT / FINAL REGRESSION PENDING
+P-CLOSE-01        Accepted on branch / merge pending
         ↓
-Phase P Complete / Accepted
+main verification
         ↓
-v2.0.0 tag / publication boundary
+v2.0.0 tag / Phase P frozen release boundary
 ```
 
 ## Next
 
-Execute the P-CLOSE-01 focused release-contract tests, full repository regression and Ruff on `phase-p/close-01-release-integration`. If all gates pass, record exact evidence, merge to `main`, verify the merged release commit, then freeze the `v2.0.0` tag according to O06.
+Merge PR #85 using its exact accepted HEAD, verify the merged `main` release commit, then freeze `v2.0.0` on that verified commit.
