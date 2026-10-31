@@ -215,7 +215,7 @@ def parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path(os.environ.get("SGOKB_PACKAGE_BUILD_ROOT", DEFAULT_BUILD_ROOT)),
     )
-    build.add_argument("--package-version", choices=("v1", "v2"), default="v1")
+    build.add_argument("--package-version", choices=("v1", "v2"), default="v2")
     build.add_argument("--include-evidence", action="append", default=[])
     build.add_argument("--exclude-evidence", action="append", default=[])
     build.add_argument("--max-estimated-tokens", type=int, default=12000)

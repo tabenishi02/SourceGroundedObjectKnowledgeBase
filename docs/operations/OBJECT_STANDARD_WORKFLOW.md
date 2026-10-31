@@ -1,19 +1,15 @@
 # 1 Object Standard Workflow
 
-更新日: 2026-10-27
+更新日: 2026-10-31
 
-- Phase: `Phase M — CLI / 操作フロー`
-- Task: `M-03 [P1] 1 Object標準手順を1ページで実行可能にする`
-- Status: **Complete (2026-10-16)**
+- Status: **Current / Accepted through Phase P**
+- Release candidate: `2.0.0`
 - CLI contract: `docs/decisions/M01_OBJECT_CENTERED_CLI_CONTRACT.md`
+- Raw-grounding authority: `docs/requirements/RAW_GROUNDING_REQUIREMENTS.md`
 
-> 目的: 1 Objectを、内部SQLite操作・Python REPL・旧`sgokb-package`を使わず、Object登録からaccepted Knowledge、検索、MCP read確認まで新しい`sgokb`だけで処理する。
+> 目的: 1 ObjectをObject登録からSource/Raw/Evidence、Raw-grounded Package v2、external analysis、Result v2 import、derived sync、Search、GUI/MCP readまで、public SGOKB interfacesだけで処理する。
 
----
-
-## 0. PowerShell変数
-
-実値へ置換する。`$Db`は通常の運用DBを指定する。受入試験では必ず隔離DBを使う。
+## 0. PowerShell variables
 
 ```powershell
 $Db = ".local/sgokb.sqlite"
@@ -24,20 +20,19 @@ $ExportRoot = "C:\path\to\sgokb-export"
 $IncomingRoot = "exchange/incoming"
 ```
 
-ClassとDB状態を先に確認する。
+Start with:
 
 ```powershell
-sgokb --db $Db registry class show $PrimaryClass
 sgokb --db $Db system integrity
+sgokb --db $Db system status
+sgokb --db $Db registry class show $PrimaryClass
 ```
 
-以降、exit codeが`0`以外ならその工程で停止する。意味はM-01 contractどおり、`3=not found/ambiguity`、`4=blocked/review-required`、`5=optional runtime unavailable`、`6=I/O/external failure`、`7=integrity failure`、`8=batch partial failure`である。
+Non-zero exit codes must be handled at the operation that produced them; do not continue a blocked/review-required/integrity-failed workflow silently.
 
----
+## 1. Object -> Source -> Raw / Evidence
 
-## 1. Object → Source → Evidence
-
-### Object登録
+Create or resolve the Object:
 
 ```powershell
 $ObjectResult = sgokb --db $Db object add --name $ObjectName --primary-class $PrimaryClass | ConvertFrom-Json
@@ -45,9 +40,7 @@ if ($LASTEXITCODE -ne 0) { throw "object add failed" }
 $ObjectId = $ObjectResult.data.object_id
 ```
 
-既存Objectを使う場合は`object show --name <exact>`でstable `object_id`を取得する。write操作では以降`$ObjectId`を使う。
-
-### Web Capture import / Normalize
+Import and normalize the capture:
 
 ```powershell
 $ImportResult = sgokb --db $Db source import $Bundle | ConvertFrom-Json
@@ -60,93 +53,104 @@ if ($LASTEXITCODE -ne 0) { throw "source process failed" }
 $RunId = $ProcessResult.data[0].run
 ```
 
-最初のusable Snapshot / successful Runは`automatic_initial`としてeffectiveになる。既にeffective世代が存在するSourceへ後続Captureを追加した場合は、自動で置換しない。operatorが後続CaptureとNormalization結果を確認し、採用する場合だけ次を明示実行する。
+For a follow-up generation on an existing Source, review it and explicitly select the accepted Snapshot/Run when appropriate:
 
 ```powershell
-sgokb --db $Db source select-snapshot `
-  --source $SourceId --snapshot $SnapshotId `
-  --reason "operator reviewed follow-up capture"
-sgokb --db $Db source select-run `
-  --snapshot $SnapshotId --run $RunId `
-  --reason "operator reviewed normalization"
+sgokb --db $Db source select-snapshot --source $SourceId --snapshot $SnapshotId --reason "operator reviewed follow-up capture"
+sgokb --db $Db source select-run --snapshot $SnapshotId --run $RunId --reason "operator reviewed normalization"
 ```
 
-この選択はappend-only selection eventであり、旧Snapshot / Run / Evidenceを削除しない。
-
-### Source↔Object association
-
-候補を確認し、対象SourceがこのObjectの根拠であるとoperatorが判断した場合だけ`confirmed`へする。
+Confirm Source/Object association and select Evidence:
 
 ```powershell
 sgokb --db $Db association list --object $ObjectId
 sgokb --db $Db association set --object $ObjectId --source $SourceId --status confirmed
-```
-
-### Evidence確認
-
-```powershell
 sgokb --db $Db evidence candidates --object $ObjectId
 sgokb --db $Db evidence select --object $ObjectId
 ```
 
-必要なEvidenceが不足する場合は、Source追加・association修正・`--include-evidence` / `--exclude-evidence`指定を行い、Package工程へ進まない。
+Evidence is the selection/provenance layer. Package v2 resolves selected Evidence through each Evidence's original Normalization Run to the complete input Raw Artifact set.
 
----
+## 2. Build Raw-grounded Package v2
 
-## 2. Package → External ChatGPT
-
-### Build / Stage
+In `2.0.0`, v2 is the no-option default:
 
 ```powershell
 $Build = sgokb --db $Db package build --object $ObjectId | ConvertFrom-Json
 if ($LASTEXITCODE -ne 0) { throw "package build failed" }
 $PackageId = $Build.data.package_id
 $BuildPath = $Build.data.path
+```
 
+Equivalent explicit form:
+
+```powershell
+sgokb --db $Db package build --object $ObjectId --package-version v2
+```
+
+Legacy v1 is retained only when explicitly requested:
+
+```powershell
+sgokb --db $Db package build --object $ObjectId --package-version v1
+```
+
+Do not use v1 for a new Raw-grounded workflow.
+
+Package v2 contains exact verified Package-member Raw bytes and binds the Raw grounding set. It does not make generated Evidence Markdown the claim-level semantic authority.
+
+## 3. Stage / preflight / explicit export
+
+```powershell
 $Stage = sgokb --db $Db package stage $BuildPath | ConvertFrom-Json
 if ($LASTEXITCODE -ne 0) { throw "package stage failed" }
 $StagedPath = $Stage.data.path
-```
 
-### Preflight / explicit Export
-
-```powershell
 $Preflight = sgokb --db $Db package preflight $StagedPath --destination $ExportRoot | ConvertFrom-Json
 $Preflight.data
 ```
 
-- `disposition = blocked`: exportしない。
-- `disposition = review_required`: 内容・destination・warningを人間が確認し、承認した場合だけ`--acknowledge-review`を付ける。
-- その他の正常状態: 通常exportする。
+Disposition handling:
+
+```text
+allow            -> export command may be executed explicitly
+review_required  -> inspect and use --acknowledge-review only after Human approval
+blocked          -> do not export
+```
+
+Normal export:
 
 ```powershell
 $Export = sgokb --db $Db package export $StagedPath --destination $ExportRoot | ConvertFrom-Json
-# review_requiredを明示承認した場合のみ:
-# $Export = sgokb --db $Db package export $StagedPath --destination $ExportRoot --acknowledge-review | ConvertFrom-Json
-
 if ($LASTEXITCODE -ne 0) { throw "package export failed" }
 $ExportedPath = $Export.data.path
 ```
 
-### ChatGPT手動工程
+Export remains a Human decision boundary.
 
-1. `$ExportedPath`のPackageをChatGPTへ渡す。
-2. `instructions.md`を分析指示の正本として扱う。
-3. Package外の情報をEvidenceとして混入させない。
-4. ChatGPTが生成したStructured Object Resultを`result.json`として保存する。
-5. Resultを次へ配置する。
+## 4. External analysis
+
+Give `$ExportedPath` to the external AI and treat the Package `instructions.md` as the authoritative analysis instruction.
+
+For Package v2:
+
+```text
+new semantic claim grounding = Package-member raw_artifact_id only
+current_object.json           = accepted base Knowledge context, not new evidence
+locator                        = only when mechanically justifiable
+Package-external knowledge    = not valid grounding
+```
+
+Save the resulting Structured Object Result as:
 
 ```text
 <IncomingRoot>/drop/<PackageId>/result.json
 ```
 
-この工程はSGOKB runtime内で自動化しない。
+External AI analysis remains outside the SGOKB runtime and Human-in-the-loop.
 
----
+## 5. Result v2 -> accepted Knowledge Version
 
-## 3. Result → accepted Version
-
-### Detect / Receive
+Detect and receive:
 
 ```powershell
 sgokb --db $Db result detect --incoming-root $IncomingRoot
@@ -157,45 +161,29 @@ if ($LASTEXITCODE -ne 0) { throw "result receive failed" }
 $ReceiptId = $Receipt.data.receipt_id
 ```
 
-### Validate / Review
+Validate and review:
 
 ```powershell
 sgokb --db $Db result validate $ReceiptId --incoming-root $IncomingRoot
-if ($LASTEXITCODE -ne 0) { throw "result validation did not reach valid state" }
+if ($LASTEXITCODE -ne 0) { throw "result validation failed" }
 
 sgokb --db $Db result review $ReceiptId --incoming-root $IncomingRoot --review-format markdown
 ```
 
-`blocked` / invalid / staleならImportしない。review-requiredで内容を承認する場合だけ次のImportに`--acknowledge-review`を付ける。
-
-### Explicit Import
+Import only after validation/review and required Human acknowledgement:
 
 ```powershell
 $Imported = sgokb --db $Db result import $ReceiptId --incoming-root $IncomingRoot | ConvertFrom-Json
-# review-requiredを明示承認した場合のみ:
-# $Imported = sgokb --db $Db result import $ReceiptId --incoming-root $IncomingRoot --acknowledge-review | ConvertFrom-Json
-
 if ($LASTEXITCODE -ne 0) { throw "result import failed" }
 ```
 
-Result Importでaccepted Versionが作成・promoteされると、Search Representationなどのderived stateは新しいcurrent Versionをtargetとして`pending`へqueueされる。Import transaction内ではderived artifact自体を生成しないため、Knowledge本文をLexical Searchする前に明示的なderived syncが必要である。
+For v2 claim grounding, successful import stores Raw grounding as Raw grounding. Do not synthesize Evidence claim links by reverse-mapping Package selection lineage.
 
-Registry proposalはResult Importの副作用として適用しない。pendingがある場合だけ個別にreviewする。
+Registry proposals remain a separate explicit review/apply workflow.
 
-```powershell
-sgokb --db $Db registry proposal list --decision pending
-# 内容確認後、proposal-refごとにどちらかを実行する。
-# sgokb --db $Db registry proposal accept <proposal-ref> --note "reviewed"
-# sgokb --db $Db registry proposal reject <proposal-ref> --note "reason"
-# accepted proposalだけ、別操作として:
-# sgokb --db $Db registry proposal apply <proposal-ref>
-```
+## 6. Accepted Knowledge and derived state
 
----
-
-## 4. accepted Knowledge確認
-
-### Object / Relation / Render
+Verify canonical Knowledge:
 
 ```powershell
 sgokb --db $Db object show --object $ObjectId --knowledge
@@ -203,80 +191,84 @@ sgokb --db $Db object relations --object $ObjectId
 sgokb --db $Db render --object $ObjectId
 ```
 
-### Derived Search Representation sync — Lexical Search前の必須工程
-
-accepted/current VersionのKnowledge本文をLexical Searchする前に、Search Representation derived stateを同期する。
+Synchronize lexical derived state before expecting Knowledge-body lexical retrieval:
 
 ```powershell
-$DerivedBefore = sgokb --db $Db system derived status --object $ObjectId | ConvertFrom-Json
-$DerivedBefore.data
-
+sgokb --db $Db system derived status --object $ObjectId
 sgokb --db $Db system derived sync --object $ObjectId
-if ($LASTEXITCODE -ne 0) { throw "derived search representation sync failed" }
-
-$DerivedAfter = sgokb --db $Db system derived status --object $ObjectId | ConvertFrom-Json
-$DerivedAfter.data
+sgokb --db $Db system derived status --object $ObjectId
 ```
 
-**確認**:
-
-- `search_representation.target_version_id`がcurrent accepted Versionと一致する。
-- `search_representation.status = ready`である。
-- `search_representations.membership_count > 0`である。
-- Lexical-only確認では`--semantic-runtime`を付けない。Embedding / Vector Indexが`pending`のままでもLexical Searchの失敗とは扱わない。
-
-このsyncはcanonical Knowledgeを書き換えず、accepted canonical stateからrebuild可能なderived Search Representationを生成する。
-
-### Lexical Search — 必須確認
-
-canonical nameだけでなく、accepted Knowledge本文に存在する特徴的なtermでも確認する。
+Then verify lexical retrieval:
 
 ```powershell
 sgokb --db $Db search $ObjectName --mode lexical
 sgokb --db $Db search "<distinctive accepted-knowledge term>" --mode lexical
 ```
 
-**PASS**: canonical identity queryとKnowledge本文queryの両方でcurrent Objectを取得できる。Knowledge本文queryは`knowledge_lexical` channelから返ることを確認する。
-
-### Similarity / Semantic Search — runtime構成済み環境で追加確認
-
-Similarity / Semantic Searchはlocal Embedding provider + Vector runtimeを必要とする。構成済みなら、先にsemantic derived stateを同期してから確認する。
+With the accepted local semantic runtime configured:
 
 ```powershell
 sgokb --db $Db system derived sync --object $ObjectId --semantic-runtime
-if ($LASTEXITCODE -ne 0) { throw "semantic derived sync failed" }
-
 sgokb --db $Db search $ObjectName --mode semantic --semantic-runtime --require-full-runtime
 sgokb --db $Db similar --object $ObjectId
 ```
 
-optional runtime未構成によるexit `5`は、M-03のLexical workflow失敗とは扱わない。ただしSemantic/Similarityを日常利用する環境では別途runtime受入を完了させる。
+Search Representation, Embedding, Qdrant Vector Index and rendering are derived/rebuildable; they must not overwrite accepted canonical Knowledge.
 
-### MCP read — 必須確認
+## 7. GUI verification
 
-MCP clientのstdio server commandを次へ設定する。
+Launch:
+
+```powershell
+sgokb-gui
+```
+
+Open the same Workspace. GUI reads/writes must resolve through the shared Application/operator layer and therefore the same canonical state as the CLI.
+
+Use `System > Overview` to inspect the shared runtime-health projection. Qdrant lifecycle owner must remain `external`; no Start/Stop/Restart control is part of the accepted GUI boundary.
+
+## 8. MCP read verification
+
+Configure an MCP client to launch:
 
 ```text
 sgokb --db <DB_PATH> mcp serve
 ```
 
-clientから`$ObjectId`を指定してObject readを1回実行し、CLIの`object show --knowledge`と同じaccepted Versionを解決できることを確認する。MCPはread-onlyであり、この確認中にcanonical writeを行わない。
+Read the Object and confirm that it resolves the same accepted Version as `object show --knowledge`.
 
----
+MCP is read-only for canonical operations and is externally launched; the GUI does not own a detached MCP daemon.
 
-## 5. M-03完了条件
+## 9. Runtime / recovery checks
 
-次をすべて満たしたらM-03をCompleteとする。
+Minimum operational checks:
 
-- 新しい`sgokb`だけでObject登録からaccepted Version確認まで完走する。
-- SQLite直接操作、Python REPL、`sgokb-package`を使用しない。
-- Package ExportとResult ImportのHuman decision boundaryを迂回しない。
-- Result Validation / Reviewを経由してaccepted Versionを作成する。
-- pending Registry proposalを自動applyしない。
-- accepted Version作成後、Lexical Search前に`system derived sync --object <ObjectId>`を実行し、Search Representationをcurrent Versionへ同期する。
-- `search_representation` derived stateが`ready`で、current Versionのmembershipが存在する。
-- Renderとcanonical identity / Knowledge本文のLexical Searchでcurrent Knowledgeを確認する。
-- read-only MCP clientから同じObject Knowledgeを取得できる。
-- focused end-to-end integration testまたはReference Workstationでの同等受入が成功する。
+```powershell
+sgokb --db $Db system status
+sgokb --db $Db system integrity
+sgokb --db $Db system index status
+```
 
-ローカル受入の具体的手順と記録形式は`docs/planning/M03_LOCAL_ACCEPTANCE.md`を正本とする。
+If Qdrant-derived Vector state must be rebuilt after runtime recovery:
+
+```powershell
+sgokb --db $Db system index rebuild
+```
+
+On Windows, Qdrant is externally owned by Task Scheduler task `\SGOKB\Qdrant`; SGOKB observes `/readyz` but does not start/stop/restart Qdrant itself.
+
+## 10. Completion criteria
+
+A normal `2.0.0` Object workflow is complete when:
+
+- Object identity and Source/Raw/Evidence provenance are preserved;
+- Package v2 is built from exact Raw material resolved from selected Evidence lineage;
+- export and import Human decision boundaries are not bypassed;
+- Result v2 validates and claim grounding is Package-member Raw grounding;
+- accepted Version is created without rewriting history;
+- derived state can be synchronized/rebuilt from canonical state;
+- CLI and GUI resolve the same canonical state;
+- MCP read resolves the same accepted Version;
+- runtime degradation does not mutate canonical Knowledge;
+- final `system integrity` is successful.

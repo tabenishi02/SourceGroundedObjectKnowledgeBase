@@ -1,511 +1,122 @@
 # P-GUI Application Architecture
 
-Updated: 2026-10-28
+Updated: 2026-10-31
 
-- Status: **Accepted design / not yet implemented**
+- Status: **Implemented / Complete / Accepted**
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
-- Task: `P-GUI-02`
+- Original design task: `P-GUI-02`
+- Final acceptance: `docs/evaluation/P_GUI_10_PARITY_USABILITY_REGRESSION_ACCEPTANCE.md`
 - Decision: `docs/decisions/P_GUI_PYSIDE6_APPLICATION_PACKAGING_LICENSE_DECISION.md`
 - Requirement: `docs/requirements/GUI_REQUIREMENTS.md`
 
 ## 1. Scope
 
-This document defines the target technical architecture for the PySide6 desktop client. It is a Phase P planned design and does not claim that the current v1.1.0 implementation already contains these modules.
-
----
+This document records the implemented PySide6 desktop architecture accepted by Phase P. It is no longer a future-only design.
 
 ## 2. Layering
 
 ```text
-┌─────────────────────────────────────────────────────┐
-│ PySide6 Presentation                               │
-│ QMainWindow / Views / Dialogs / Qt Models          │
-│ Controllers / Workspace / Operation UI             │
-└───────────────────────────┬─────────────────────────┘
-                            │ typed operation request
-                            ▼
-┌─────────────────────────────────────────────────────┐
-│ GUI Backend Execution Boundary                     │
-│ BackendWorker(QObject) on dedicated QThread        │
-│ BackendSession / runtime cache                     │
-└───────────────────────────┬─────────────────────────┘
-                            │ transport-neutral call
-                            ▼
-┌─────────────────────────────────────────────────────┐
-│ Application / Service layer                        │
-│ Application / ObjectAdminApplication               │
-│ KnowledgeReadApplication / exchange / maintenance  │
-│ future shared composition factories                │
-└───────────────────────────┬─────────────────────────┘
-                            ▼
-┌─────────────────────────────────────────────────────┐
-│ Repository / Retrieval / Exchange / Filesystem     │
-│ SQLite / Embedding / Qdrant / package/result files │
-└─────────────────────────────────────────────────────┘
+PySide6 Presentation
+QMainWindow / Views / Dialogs / Qt Models
+        |
+        | operation request
+        v
+BackendCoordinator / QObject worker on dedicated QThread
+        |
+        | shared operation boundary
+        v
+OperatorSession / Application services
+        |
+        v
+Repository / Retrieval / Exchange / Filesystem
+SQLite / Embedding / Qdrant / Package/Result files
 ```
 
-No arrow goes from GUI Views directly to SQLite.
+No canonical arrow goes from a GUI View directly to SQLite, direct Repository mutation or a CLI subprocess wrapper.
 
----
+## 3. Shared CLI / GUI contract
 
-## 3. GUI package layout
+The GUI is an operator presentation over the same Application/operator operation inventory used by the CLI.
 
-Target package:
+Final accepted inventory:
 
 ```text
-src/sgokb/gui/
-├─ __init__.py
-├─ main.py
-├─ bootstrap.py
-├─ workspace.py
-├─ operations.py
-├─ worker.py
-├─ controllers/
-├─ models/
-├─ views/
-├─ dialogs/
-├─ widgets/
-└─ resources/
+PUBLIC_OPERATION_IDS    = 67
+SHARED_OPERATION_IDS    = 66
+TRANSPORT_OPERATION_IDS = {mcp.serve}
 ```
 
-### `main.py`
+The 66 shared operations are GUI-reachable through domain/System surfaces. `mcp.serve` remains an externally launched stdio transport surface; the GUI exposes configuration/lifecycle information without pretending to own a detached daemon.
 
-Responsibilities:
+## 4. Backend execution
 
-- GUI entrypoint
-- minimal exception guard before Qt event loop
-- delegates construction to bootstrap
+Long-running/canonical operations execute off the Qt UI thread through the accepted worker/coordinator boundary. Repository lifetime is operation/session controlled rather than shared as an unsafe cross-thread SQLite connection.
 
-Must not contain business dispatch.
+Initial concurrency policy remains serialized per Workspace unless a later accepted contract changes it.
 
-### `bootstrap.py`
+GUI presentation state such as navigation position, window geometry, recent Workspace paths and Operation Center history is noncanonical.
 
-Responsibilities:
+## 5. Domain surfaces
 
-- create `QApplication`
-- application identity / icon / metadata
-- create GUI-level services
-- create backend thread / worker
-- create top-level window
-- application shutdown sequence
-
-### `workspace.py`
-
-Contains noncanonical workspace/session state:
+The accepted Phase P GUI includes operator surfaces for:
 
 ```text
-WorkspaceState
-- db_path
-- display label
-- open/closed state
-- current operation summary
-- runtime availability snapshot
-```
-
-It does not mirror canonical Object/Source tables.
-
-### `operations.py`
-
-Defines GUI transport DTOs independent from individual Widgets.
-
-Expected concepts:
-
-```text
-OperationRequest
-OperationResult
-OperationProgress
-OperationWarning
-OperationFailure
-OperationId
-SafetyClass
-CancellationMode
-```
-
-These DTOs are presentation transport objects; canonical domain models remain in existing SGOKB modules.
-
-### `worker.py`
-
-Owns the QObject worker implementation and backend-session lifetime.
-
-It must not own QWidget instances.
-
-### `controllers/`
-
-Coordinates user intent and typed operations.
-
-Controllers:
-
-- validate presentation-level required fields
-- resolve selected rows to stable IDs
-- request confirmation according to SafetyClass
-- submit operations
-- transform result DTOs into presentation state
-
-Controllers do not implement canonical validation already owned by the Application/Service layer.
-
-### `models/`
-
-Qt Model/View adapters.
-
-Examples:
-
-- Object list model
-- Source/Snapshot model
-- Evidence result model
-- Result inbox model
-- Registry proposal model
-- Search result model
-- Version diff model
-
-The model can cache display rows, but it is not canonical storage.
-
-### `views/`, `dialogs/`, `widgets/`
-
-Presentation only.
-
----
-
-## 4. Planned top-level window
-
-Baseline:
-
-```text
-QMainWindow
-├─ left navigation
-├─ central QStackedWidget / page host
-├─ optional QDockWidget utility panels
-├─ menu / command actions
-└─ QStatusBar
-```
-
-Initial page families remain those accepted in P-GUI-01:
-
-```text
-Home / Dashboard
-Objects
-Sources
-Evidence
-Associations
-Search
-Packages
-Results
+Workspace / Object / Source / Evidence
+Package / Result
 Registry
-System
-Settings
+Search / Similarity
+System / Maintenance
+Runtime Dashboard
+MCP external-launch/configuration guidance
 ```
 
-`System -> Advanced` hosts R2 generation maintenance if exposed.
+Package/Result operations preserve the same Human decision boundaries and review-required semantics as the CLI.
 
----
+## 6. Runtime health
 
-## 5. Thread ownership
+`System > Overview` consumes the shared `system.status.runtime_health` projection rather than inventing a GUI-only health model.
 
-### Qt main thread owns
+The accepted runtime-health schema is `sgokb.runtime-health/1.0` for SQLite, Embedding, Qdrant, Search generation and derived state.
+
+Qdrant lifecycle remains:
 
 ```text
-QApplication
-all QWidget/QDialog instances
-Qt presentation models
-controllers
-workspace presentation state
-navigation state
+qdrant_owner = external
+observe      = true
+start        = false
+stop         = false
+restart      = false
 ```
 
-### Backend thread owns
+The GUI provides no Qdrant lifecycle control.
 
-```text
-BackendWorker QObject
-BackendSession runtime objects
-per-operation Repository
-Application/Service instances created for the operation
-blocking filesystem/database/provider execution
-```
+## 7. Failure and usability behavior
 
-### Cross-thread communication
+P-GUI-10 accepted:
 
-Only queued signals/slots or equivalent Qt-safe queued invocation cross the boundary.
+- keyboard navigation and standard shortcuts;
+- presentation-state restoration across restart;
+- scaled-DPI behavior;
+- backend failure followed by successful operation on the same session;
+- absence of hidden GUI-only canonical writes;
+- representative direct-vs-GUI backend state equivalence;
+- complete GUI regression, explicit CLI/MCP regression and full repository regression.
 
-Do not call worker-owned objects directly from the GUI thread.
+P-RUNTIME-05/06 additionally accepted Runtime Dashboard degradation, Qdrant failure -> Semantic Search `BLOCKED`, and return to the normal `DEGRADED` reference-Workspace baseline after recovery.
 
-Do not pass live SQLite connections across the boundary.
+## 8. Packaging / license boundary
 
-Result payloads should be immutable/plain DTO-like Python values whenever practical.
+PySide6/Qt Widgets remains the accepted framework. The accepted packaging direction is a standalone directory using dynamic Qt shared libraries, not a one-file/static-Qt baseline.
 
----
+P-CLOSE-01 includes the GUI source/dependency in the `2.0.0` repository release but does not certify/publish a standalone GUI binary artifact. Public binary redistribution requires the project-license and artifact-specific Qt/PySide6 license gate recorded in `P_GUI_PYSIDE6_APPLICATION_PACKAGING_LICENSE_DECISION.md`.
 
-## 6. Operation lifecycle
+## 9. Authority
 
-```text
-User action
-  ↓
-Controller builds OperationRequest
-  ↓
-Safety confirmation if required
-  ↓
-Operation queued to BackendWorker
-  ↓
-GUI marks operation running
-  ↓
-Worker opens Repository in worker thread
-  ↓
-Worker composes Application / Service
-  ↓
-Worker executes
-  ├─ progress signals
-  ├─ warning signals
-  └─ cancellation check where supported
-  ↓
-Repository closes
-  ↓
-OperationResult / OperationFailure emitted
-  ↓
-GUI model/view update
-```
+Current authority is the combination of:
 
-Every operation receives a unique GUI operation ID for presentation history and correlation.
-
-This ID is not a replacement for canonical audit IDs generated by SGOKB.
-
----
-
-## 7. Safety-class integration
-
-The GUI operation metadata includes the P-GUI-01 side-effect class:
-
-```text
-READ
-DERIVED
-WRITE
-EXTERNAL
-MAINTENANCE
-```
-
-The backend does not trust the visual classification as an authorization mechanism; existing service preconditions remain authoritative.
-
-Presentation uses the class to choose:
-
-- confirmation
-- preview requirements
-- button wording
-- progress persistence
-- cancellation policy
-- completion notification
-
----
-
-## 8. Error model
-
-Backend exceptions are normalized into GUI failure categories compatible with CLI meaning:
-
-```text
-internal
-invalid_input
-not_found_or_ambiguous
-blocked_or_precondition
-runtime_unavailable
-io_or_external
-integrity
-partial_failure
-```
-
-The GUI may show a user-friendly title, but must retain:
-
-- stable category
-- technical message
-- relevant details
-- operation context
-
-No generic error dialog may discard an integrity or blocked distinction.
-
-P-GUI-03 determines whether the shared error normalization should be extracted from current CLI-only code.
-
----
-
-## 9. Repository and SQLite model
-
-Current Repository connection is thread-affine.
-
-Therefore:
-
-```text
-one operation
-  -> one Repository connection
-  -> connection created in backend thread
-  -> connection closed in backend thread
-```
-
-No application-global shared SQLite connection.
-
-No `check_same_thread=False` shortcut.
-
-WAL and `busy_timeout` remain repository concerns.
-
-Initial backend operation serialization avoids concurrent GUI writers. External CLI processes may still operate concurrently subject to existing SQLite/SGOKB consistency boundaries; GUI must surface resulting lock/precondition failures rather than hiding them.
-
----
-
-## 10. BackendSession
-
-A long-lived backend session exists to cache expensive noncanonical runtime objects.
-
-Target shape:
-
-```text
-BackendSession
-- workspace db path
-- runtime configuration snapshot
-- embedding provider: optional/lazy
-- vector client: optional/lazy
-- future runtime health cache
-```
-
-It must not own a long-lived Repository connection.
-
-Workspace switch invalidates the session.
-
-Embedding/provider initialization failures become runtime-unavailable operation failures; there is no cloud fallback.
-
----
-
-## 11. Cancellation contract
-
-Each operation advertises:
-
-```text
-not_cancellable
-cooperative_cancellable
-```
-
-No force-kill mode.
-
-A cooperative operation receives a cancellation token/check callback only after its underlying service is designed to stop safely.
-
-Closing the main window while a non-cancellable WRITE/EXTERNAL/MAINTENANCE operation is running must trigger a close workflow rather than terminating the thread abruptly.
-
----
-
-## 12. Shutdown sequence
-
-Normal shutdown:
-
-```text
-request main-window close
-  ↓
-inspect in-flight operation
-  ├─ none -> continue
-  ├─ safely cancellable -> offer cancel/wait
-  └─ non-cancellable mutation -> require completion or explicit OS-level abort outside normal app semantics
-  ↓
-stop accepting new operations
-  ↓
-request worker event-loop quit
-  ↓
-wait for orderly worker shutdown
-  ↓
-release BackendSession
-  ↓
-exit QApplication
-```
-
-The application does not call `QThread.terminate()`.
-
----
-
-## 13. Settings design
-
-Use Qt settings only for presentation state.
-
-Proposed keys:
-
-```text
-workspace/recent_paths
-window/geometry
-window/state
-navigation/last_page
-table/<view>/column_state
-filters/<view>/presentation_filter
-```
-
-Do not store canonical values as an alternative database.
-
-Do not store credentials in QSettings without a future secure-storage Decision.
-
----
-
-## 14. Entry points
-
-Source-installed package target:
-
-```text
-CLI: sgokb
-GUI: sgokb-gui
-```
-
-GUI dependency remains an optional dependency.
-
-Packaged Windows executable may be named `SGOKB.exe`.
-
----
-
-## 15. Packaging layout
-
-Baseline distribution is a directory/ZIP, not one-file.
-
-Conceptual contents:
-
-```text
-SGOKB/
-├─ SGOKB.exe
-├─ Qt shared libraries
-├─ Qt platform plugins
-├─ packaged Python/runtime dependencies
-├─ application resources
-├─ LICENSES/
-├─ THIRD_PARTY_NOTICES.md
-└─ BUILD_MANIFEST.json
-```
-
-`BUILD_MANIFEST.json` should record at least:
-
-```text
-sgokb_version
-source_commit
-build_timestamp
-python_version
-pyside6_version
-qt_version
-deployment_tool_version
-nuitka_version
-platform
-artifact_sha256
-```
-
----
-
-## 16. License boundary in architecture
-
-The UI architecture intentionally minimizes Qt module surface.
-
-Initial imported modules should remain under the QtCore / QtGui / QtWidgets family unless a requirement forces expansion.
-
-Any added Qt module becomes an architecture dependency and triggers:
-
-- license audit
-- binary inventory update
-- deployment smoke test
-- release notice update
-
----
-
-## 17. P-GUI-03 handoff
-
-P-GUI-03 must inspect every CLI dispatch path and answer:
-
-1. Which use cases already have transport-neutral Application methods?
-2. Which CLI dispatch blocks contain business/composition logic that must move?
-3. Which shared runtime factory should replace `sgokb.cli.runtime` ownership?
-4. Which shared error/result concepts should exist below CLI/GUI?
-5. Which operations need progress/cancellation hooks before GUI implementation?
-6. Which maintenance operations cannot safely share normal Repository lifetime?
-
-P-GUI-03 may refine class/module names, but must preserve the architecture constraints in this document.
+- `docs/requirements/GUI_REQUIREMENTS.md`;
+- `docs/reference/GUI_CLI_CAPABILITY_MATRIX.md` and accepted amendments;
+- `docs/evaluation/P_GUI_10_PARITY_USABILITY_REGRESSION_ACCEPTANCE.md`;
+- accepted P-GUI-05..09 evaluation documents;
+- current `src/sgokb/gui/` implementation;
+- this integrated architecture document.
