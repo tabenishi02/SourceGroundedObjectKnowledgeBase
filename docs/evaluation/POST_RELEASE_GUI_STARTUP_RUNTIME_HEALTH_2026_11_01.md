@@ -15,7 +15,7 @@ The post-release update implements three operator requirements:
 2. Show a loading surface immediately during GUI startup.
 3. Stop reporting the supported no-explicit-generation compatibility route as `DEGRADED`; show `Search generation = HEALTHY` when legacy routing is the active valid route.
 
-## 2. Hidden Windows launcher
+## 2. Consoleless Windows launcher
 
 Added:
 
@@ -29,7 +29,8 @@ The launcher:
 - requires `.venv\Scripts\pythonw.exe`;
 - sets the working directory to the repository root;
 - launches `pythonw.exe -m sgokb.gui.main`;
-- uses `WScript.Shell.Run(..., 0, False)` so the launcher/console window is hidden and the script does not wait for GUI termination;
+- relies on the normal Windows `wscript.exe` host for `.vbs` plus `pythonw.exe`, so no console/script window remains open;
+- uses `WScript.Shell.Run(..., 1, False)`: the launched Qt application is allowed to display normally while the script does not wait for GUI termination;
 - reports a visible error only when the expected virtual-environment `pythonw.exe` is missing.
 
 Normal Windows launch path:
@@ -151,7 +152,7 @@ tests/test_post_release_gui_startup_runtime_health.py
 
 Coverage locks:
 
-- hidden VBS launcher uses `pythonw.exe` and hidden non-waiting execution;
+- the VBS launcher uses `pythonw.exe`, a normal visible Qt launch state, and non-waiting execution without a console host;
 - accepted Knowledge with no explicit generation pointer is `HEALTHY` with `routing_mode=legacy`;
 - Runtime Dashboard presents that state as `HEALTHY` and semantic readiness as `ready` when other runtime components are healthy;
 - the splash is shown before SGOKB dependency loading, semantic native preload, and backend construction;
