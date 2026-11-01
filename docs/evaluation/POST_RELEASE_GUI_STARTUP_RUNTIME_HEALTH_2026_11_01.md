@@ -3,7 +3,8 @@
 Updated: 2026-11-01
 
 - Repository authority: current `main`
-- Baseline release: `v2.0.0` (immutable; tag not changed)
+- Baseline release: `v2.0.0` (immutable Phase P baseline)
+- Adopted release: `v2.1.0`
 - Scope: Windows GUI launch UX and Runtime Dashboard Search-generation health semantics
 - Status: **Local Windows regression PASS; implementation accepted on current `main`**
 
@@ -388,4 +389,4 @@ Qdrant lifecycle ownership = unchanged / external
 Documentation consistency disposition = PASS
 ```
 
-The post-release requirements therefore form an additive/current-state amendment rather than a reinterpretation of the frozen `v2.0.0` evidence boundary.
+The post-release requirements therefore form an additive/current-state amendment rather than a reinterpretation of the frozen `v2.0.0` evidence boundary. After successful regression, interactive acceptance, and documentation consistency audit, this update is adopted as the backward-compatible `v2.1.0` MINOR release.

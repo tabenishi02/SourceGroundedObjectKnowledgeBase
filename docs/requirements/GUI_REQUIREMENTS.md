@@ -717,4 +717,4 @@ Implementation, regression, documentation audit, and interactive acceptance are 
 
 `docs/evaluation/POST_RELEASE_GUI_STARTUP_RUNTIME_HEALTH_2026_11_01.md`
 
-Current acceptance state is `Interactive PASS / 15 of 15 OK`.
+Current acceptance state is `Interactive PASS / 15 of 15 OK`. These post-release requirements are included in formal release `v2.1.0`.

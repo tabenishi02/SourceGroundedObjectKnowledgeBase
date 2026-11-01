@@ -5,7 +5,7 @@ Updated: 2026-11-01
 - Phase: `Phase P — GUI / RAW Grounding / Runtime Modernization`
 - Status: **Complete / Accepted / Released as `v2.0.0`**
 - Previous phase: `Phase O — Documentation / Release / Git cleanup` — **Complete**
-- Current formal release: `v2.0.0`
+- Current formal release: `v2.1.0` (post-Phase-P MINOR release; Phase P itself remains frozen as `v2.0.0`)
 - Release commit: `1adae99ee62c3054a35b1325b8a43716943ff06a`
 - Planning authority: [`PHASE_P_MODERNIZATION_PLAN.md`](PHASE_P_MODERNIZATION_PLAN.md)
 - Task authority: [`PHASE_P_TASKS.md`](PHASE_P_TASKS.md)
@@ -135,4 +135,4 @@ v2.0.0             Released / Frozen
 
 ## Next
 
-Any further implementation belongs to the post-Phase-P roadmap. `v2.0.0` remains the frozen release boundary for the completed Phase P state.
+Phase P remains frozen at `v2.0.0`. The accepted post-Phase-P GUI startup/runtime-health update is released separately as `v2.1.0`; future implementation belongs to the subsequent roadmap.

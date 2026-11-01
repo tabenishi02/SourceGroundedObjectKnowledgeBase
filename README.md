@@ -12,11 +12,19 @@ Phase P GUI workstream     = Complete / Accepted
 Phase P RAW workstream     = Complete / Accepted
 Phase P Runtime workstream = Complete / Accepted
 P-CLOSE-01                 = Complete / Accepted
-Current formal release     = v2.0.0
+Current formal release     = v2.1.0
 Project state              = Paused / no active implementation task
 ```
 
-The annotated `v2.0.0` tag is frozen on release commit `1adae99ee62c3054a35b1325b8a43716943ff06a`. Later `main` commits may contain post-release documentation bookkeeping without moving that immutable release boundary.
+The `v2.0.0` Phase P tag remains immutable on release commit `1adae99ee62c3054a35b1325b8a43716943ff06a`. `v2.1.0` is the current formal release and incorporates the accepted post-Phase-P GUI startup/runtime-health improvements without redefining the `v2.0.0` boundary.
+
+## What changed in 2.1.0
+
+- Windows source checkouts can launch the GUI through `scripts\launch-sgokb-gui.vbs` without leaving a console/script window open.
+- A startup splash appears before heavier SGOKB module/native semantic initialization while preserving the Qt-main-thread preload safety boundary.
+- A valid no-explicit-generation compatibility route is reported as `Search generation = HEALTHY / active=none (legacy routing)` instead of a false degradation.
+- GUI normal-path integration is accepted at `50 / 50 OK`; the post-release startup/runtime-health checklist is `15 / 15 OK`.
+- No canonical DB, public CLI, MCP, Package v2, or Result v2 breaking change is introduced.
 
 ## What changed in 2.0.0
 
@@ -200,16 +208,17 @@ Start with:
 - `docs/operations/OBJECT_STANDARD_WORKFLOW.md`
 - `docs/operations/OPERATIONAL_SAFETY_RECOVERY.md`
 - `docs/evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md`
+- `docs/releases/v2.1.0.md`
 - `docs/releases/v2.0.0.md`
 
 ## Release and distribution boundary
 
-`v2.0.0` is the current formal MAJOR release. The breaking change is that the default public Package/Result exchange semantics move from v1 to Raw-grounded v2.
+`v2.1.0` is the current formal MINOR release. It adds backward-compatible GUI startup/operability improvements and corrects the runtime-health classification of the already-supported legacy Search route. `v2.0.0` remains the immutable MAJOR baseline where the default public Package/Result exchange semantics moved from v1 to Raw-grounded v2.
 
-The repository/source release includes the PySide6 GUI implementation, but P-CLOSE-01 does not publish or certify a standalone GUI binary artifact. The SGOKB project license has not been separately selected, and packaged Qt/PySide6 redistribution remains subject to the P-GUI-02 license/artifact gate. Those items are deferred future distribution work, not unfinished `v2.0.0` release work.
+The repository/source release includes the PySide6 GUI implementation, but P-CLOSE-01 does not publish or certify a standalone GUI binary artifact. The SGOKB project license has not been separately selected, and packaged Qt/PySide6 redistribution remains subject to the P-GUI-02 license/artifact gate. Those items remain deferred future distribution work and are not blockers for the `v2.1.0` source/repository release.
 
 See `docs/decisions/P_CLOSE_01_RELEASE_INTEGRATION_DECISION.md` and `docs/evaluation/P_CLOSE_01_THIRD_PARTY_LICENSE_INVENTORY.md`.
 
 ## Project checkpoint
 
-There is no active implementation task after Phase P / `v2.0.0`. The project is intentionally paused at this stable checkpoint. Future work should begin from the current `main` documentation state while treating tag `v2.0.0` as the immutable released baseline.
+There is no active implementation task after the `v2.1.0` release. The project is intentionally paused at this stable checkpoint. Future work should begin from current `main`; `v2.1.0` is the current formal release, while `v2.0.0` remains the immutable Phase P baseline.

@@ -12,14 +12,14 @@ Phase N = Complete / PASS
 Phase N closure audit = Complete / PASS
 Phase O = Complete
 Happy-path operational acceptance = Complete / FULL SGOKB PASS
-Current formal release = v2.0.0
+Current formal release = v2.1.0
 Phase P = Complete / Accepted / Released
 
 P-GUI-01..10 = Complete / Accepted
 P-RAW-01..06 = Complete / Accepted
 P-RUNTIME-01..06 = Complete / Accepted
 P-CLOSE-01 = Complete / Accepted
-Post-release GUI startup/runtime-health update = Interactive PASS
+Post-release GUI startup/runtime-health update = Interactive PASS / released in v2.1.0
 ```
 
 Phase P の Workstream 優先順位は次です。
@@ -30,7 +30,7 @@ Priority 2: RAW Grounding
 Priority 3: Runtime / Qdrant auto-start
 ```
 
-Phase P は P-GUI-01..10、P-RAW-01..06、P-RUNTIME-01..06、P-CLOSE-01 まで完了し、`v2.0.0` として release/freeze 済みです。以後の変更は post-Phase-P roadmap として扱います。2026-11-01 の post-release GUI startup/runtime-health update では consoleless Windows launcher、startup splash、supported legacy Search routing の HEALTHY classification が実装・回帰・Interactive PASS まで完了しています。詳細は `../evaluation/POST_RELEASE_GUI_STARTUP_RUNTIME_HEALTH_2026_11_01.md` を参照します。
+Phase P は P-GUI-01..10、P-RAW-01..06、P-RUNTIME-01..06、P-CLOSE-01 まで完了し、`v2.0.0` として release/freeze 済みです。その後の post-Phase-P update として、2026-11-01 に consoleless Windows launcher、startup splash、supported legacy Search routing の HEALTHY classification、GUI normality verification、documentation consistency audit を完了し、これらを後方互換な MINOR release `v2.1.0` として正式化しました。詳細は `../evaluation/POST_RELEASE_GUI_STARTUP_RUNTIME_HEALTH_2026_11_01.md` と `../releases/v2.1.0.md` を参照します。
 
 ## Phase P planning authority
 

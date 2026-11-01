@@ -7,7 +7,8 @@ This directory stores repository-side Release Notes for Source Grounded Object K
 ```text
 Prototype 0.2.x = Archived / Legacy historical line
 SGOKB 1.x       = Previous published release line
-SGOKB 2.0.0     = Current formal release / frozen
+SGOKB 2.0.0     = Previous MAJOR release / frozen
+SGOKB 2.1.0     = Current formal release / frozen
 ```
 
 Prototype 0.2 does not receive a retroactive Git tag or GitHub Release. Its historical authority remains `docs/archive/prototype-0.2/` and Git history.
@@ -16,6 +17,7 @@ Prototype 0.2 does not receive a retroactive Git tag or GitHub Release. Its hist
 
 | Version | Tag | Status | Notes |
 |---|---|---|---|
+| `2.1.0` | `v2.1.0` | Current formal MINOR release / annotated tag | [Release Note](v2.1.0.md) |
 | `2.0.0` | `v2.0.0` | Published annotated tag / Phase P release frozen | [Release Note](v2.0.0.md) |
 | `1.1.0` | `v1.1.0` | Published tag verified / GitHub Release published | [Release Note](v1.1.0.md) |
 | `1.0.0` | `v1.0.0` | Published tag verified | [Release Note](v1.0.0.md) |
@@ -26,13 +28,17 @@ Prototype 0.2 does not receive a retroactive Git tag or GitHub Release. Its hist
 
 `v2.0.0` is an annotated tag whose tag object is `7b9a4d495d8d3238a9159402e991f81589a679c5` and whose target release commit is `1adae99ee62c3054a35b1325b8a43716943ff06a`.
 
+## 2.1.0 release boundary
+
+`2.1.0` is a backward-compatible MINOR release over the immutable `v2.0.0` Phase P baseline. It adds the consoleless Windows GUI launcher and startup splash, corrects false Search-generation degradation for the supported legacy route, and incorporates completed GUI normal-path/runtime-health acceptance. Canonical DB, CLI, MCP and Package/Result v2 contracts remain compatible.
+
 ## 2.0.0 release boundary
 
 `2.0.0` is a MAJOR release because the no-option Package build changes from legacy Package v1 semantics to Raw-grounded Package v2 / Result v2 semantics. Explicit `--package-version v1` compatibility remains available.
 
 The source/repository release includes the PySide6 GUI implementation but does not certify/publish a standalone GUI binary artifact; project-license selection and artifact-specific Qt/PySide6 redistribution auditing remain separate future distribution gates.
 
-P-CLOSE-01 and Phase P are Complete / Accepted. Later `main` documentation commits do not move or redefine the immutable `v2.0.0` tag boundary.
+P-CLOSE-01 and Phase P remain Complete / Accepted at the immutable `v2.0.0` boundary. `v2.1.0` is a later post-Phase-P MINOR release and does not move or redefine `v2.0.0`.
 
 ## Policy
 

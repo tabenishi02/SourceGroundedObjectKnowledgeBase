@@ -6,7 +6,7 @@ Updated: 2026-11-01
 - Release commit: `1adae99ee62c3054a35b1325b8a43716943ff06a`
 - Checklist creation baseline: `main` at `2ca4902de7944e6aaefcda0dd86baa9f0fa1dbb7`
 - Scope: PySide6 desktop GUI normal-path acceptance
-- Status: **Complete / 50 of 50 OK / GUI-HP-14 and GUI-HP-49 interactive PASS**
+- Status: **Complete / 50 of 50 OK / GUI-HP-14 and GUI-HP-49 interactive PASS / accepted into v2.1.0**
 
 ## 1. Purpose
 

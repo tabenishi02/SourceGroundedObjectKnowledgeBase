@@ -11,11 +11,11 @@ P-RAW-01..06               = Complete / Accepted
 P-RUNTIME-01..06           = Complete / Accepted
 P-CLOSE-01                 = Complete / Accepted
 Phase P                    = Complete / Accepted
-Current formal release     = v2.0.0
+Current formal release     = v2.1.0
 Project state              = Paused / no active implementation task
 ```
 
-The annotated `v2.0.0` tag is frozen on release commit `1adae99ee62c3054a35b1325b8a43716943ff06a`. Later `main` changes may document the completed release without moving the tag.
+The `v2.0.0` Phase P tag remains frozen on release commit `1adae99ee62c3054a35b1325b8a43716943ff06a`. `v2.1.0` is the current formal release and incorporates the accepted post-Phase-P GUI startup/runtime-health improvements.
 
 ## Start here
 
@@ -26,8 +26,9 @@ For the current system, read in this order:
 3. [`operations/OBJECT_STANDARD_WORKFLOW.md`](operations/OBJECT_STANDARD_WORKFLOW.md) — normal Object -> Source -> Package -> Result -> Search workflow.
 4. [`operations/OPERATIONAL_SAFETY_RECOVERY.md`](operations/OPERATIONAL_SAFETY_RECOVERY.md) — safety, backup, recovery and runtime handling.
 5. [`evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md`](evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md) — completed Phase P release closure evidence.
-6. [`releases/v2.0.0.md`](releases/v2.0.0.md) — formal `v2.0.0` Release Note.
-7. [`evaluation/SGOKB_GUI_HAPPY_PATH_ACCEPTANCE.md`](evaluation/SGOKB_GUI_HAPPY_PATH_ACCEPTANCE.md) — consolidated GUI normal-path checklist with prior accepted evidence reconciled.
+6. [`releases/v2.1.0.md`](releases/v2.1.0.md) ? current formal `v2.1.0` Release Note.
+7. [`evaluation/POST_RELEASE_GUI_STARTUP_RUNTIME_HEALTH_2026_11_01.md`](evaluation/POST_RELEASE_GUI_STARTUP_RUNTIME_HEALTH_2026_11_01.md) ? v2.1.0 startup/runtime-health implementation and interactive acceptance.
+8. [`evaluation/SGOKB_GUI_HAPPY_PATH_ACCEPTANCE.md`](evaluation/SGOKB_GUI_HAPPY_PATH_ACCEPTANCE.md) ? consolidated GUI normal-path checklist with prior accepted evidence reconciled.
 
 ## Phase P authority
 
@@ -87,12 +88,12 @@ The GUI and CLI share the Application/operator boundary. Qdrant lifecycle is ext
 - Files under `docs/requirements/`, accepted `docs/decisions/`, current `docs/design/`, and accepted evaluation/operation contracts are active documentation.
 - `docs/archive/` is historical and must not override current architecture.
 - Phase-specific research documents remain evidence for their task but do not override later accepted integration decisions.
-- Release notes describe frozen release boundaries. `releases/v2.0.0.md` is the formal Release Note for tag `v2.0.0`.
+- Release notes describe frozen release boundaries. `releases/v2.1.0.md` is the current formal Release Note; `releases/v2.0.0.md` remains the immutable Phase P release record.
 
 ## Distribution note
 
-The `v2.0.0` source/repository release includes the PySide6 GUI implementation. P-CLOSE-01 does not certify a standalone GUI binary distribution because project-license selection and artifact-specific Qt/PySide6 redistribution auditing remain separate future gates under P-GUI-02. They are not unfinished Phase P work.
+The `v2.1.0` source/repository release includes the PySide6 GUI plus the repository-local consoleless Windows launcher and startup splash. It still does not certify a standalone GUI binary distribution; project-license selection and artifact-specific Qt/PySide6 redistribution auditing remain separate future gates under P-GUI-02.
 
 ## Project checkpoint
 
-There is no active implementation task after Phase P / `v2.0.0`. The project is intentionally paused. When work resumes, current `main` is the documentation authority and `v2.0.0` is the immutable released baseline.
+There is no active implementation task after `v2.1.0`. The project is intentionally paused. When work resumes, current `main` is the documentation authority; `v2.1.0` is the current release and `v2.0.0` remains the immutable Phase P baseline.
