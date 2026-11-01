@@ -215,9 +215,13 @@ Start with:
 
 `v2.1.0` is the current formal MINOR release. It adds backward-compatible GUI startup/operability improvements and corrects the runtime-health classification of the already-supported legacy Search route. `v2.0.0` remains the immutable MAJOR baseline where the default public Package/Result exchange semantics moved from v1 to Raw-grounded v2.
 
-The repository/source release includes the PySide6 GUI implementation, but P-CLOSE-01 does not publish or certify a standalone GUI binary artifact. The SGOKB project license has not been separately selected, and packaged Qt/PySide6 redistribution remains subject to the P-GUI-02 license/artifact gate. Those items remain deferred future distribution work and are not blockers for the `v2.1.0` source/repository release.
+The repository/source release includes the PySide6 GUI implementation, but P-CLOSE-01 does not publish or certify a standalone GUI binary artifact. SGOKB source code is licensed under the MIT License, copyright (c) 2026 tabenishi02. Packaged Qt/PySide6 redistribution remains subject to the P-GUI-02 third-party license/artifact gate.
 
-See `docs/decisions/P_CLOSE_01_RELEASE_INTEGRATION_DECISION.md` and `docs/evaluation/P_CLOSE_01_THIRD_PARTY_LICENSE_INVENTORY.md`.
+See `LICENSE`, `docs/decisions/P_CLOSE_01_RELEASE_INTEGRATION_DECISION.md` and `docs/evaluation/P_CLOSE_01_THIRD_PARTY_LICENSE_INVENTORY.md`.
+
+## License
+
+SGOKB is licensed under the MIT License. Copyright (c) 2026 tabenishi02. See `LICENSE` for the full license text. Third-party dependencies and redistributed binary artifacts remain subject to their respective license terms.
 
 ## Project checkpoint
 

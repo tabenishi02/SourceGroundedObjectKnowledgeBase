@@ -41,9 +41,11 @@ P-CLOSE-01 does not supersede those requirements.
 
 ## 3. SGOKB project-license boundary
 
-The repository does not currently contain an accepted root project `LICENSE` decision. P-CLOSE-01 therefore does not assert an OSS license for SGOKB and does not publish/certify a standalone GUI binary distribution.
+At the original `2.0.0` P-CLOSE-01 closure on 2026-10-31, the project license had not yet been selected. This condition was superseded on 2026-11-01.
 
-The `2.0.0` closure boundary is the source/repository release and dependency declaration. A later public binary artifact requires a separate project-license decision and artifact-specific redistribution audit.
+SGOKB source code is licensed under the MIT License, copyright (c) 2026 tabenishi02. The authoritative project-license text is the repository root `LICENSE` file, and `pyproject.toml` declares the MIT license in project metadata.
+
+This project-license decision does not by itself certify a standalone GUI binary distribution. A later public binary artifact still requires an artifact-specific third-party redistribution audit, including the PySide6/Qt obligations described above.
 
 ## 4. Transitive dependency rule
 
@@ -69,6 +71,6 @@ Transitive dependencies are not certified by this P-CLOSE source-release invento
 direct dependency inventory         = Complete
 PySide6/Qt redistribution decision = Reused from P-GUI-02
 standalone GUI binary publication  = Out of P-CLOSE source-release scope
-project license selection          = Not silently decided
+project license selection          = MIT / accepted 2026-11-01 / copyright tabenishi02
 artifact transitive license audit  = Required before future binary publication
 ```

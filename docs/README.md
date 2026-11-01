@@ -92,7 +92,7 @@ The GUI and CLI share the Application/operator boundary. Qdrant lifecycle is ext
 
 ## Distribution note
 
-The `v2.1.0` source/repository release includes the PySide6 GUI plus the repository-local consoleless Windows launcher and startup splash. It still does not certify a standalone GUI binary distribution; project-license selection and artifact-specific Qt/PySide6 redistribution auditing remain separate future gates under P-GUI-02.
+The `v2.1.0` source/repository release includes the PySide6 GUI plus the repository-local consoleless Windows launcher and startup splash. SGOKB source code is licensed under the MIT License, copyright (c) 2026 tabenishi02. The release still does not certify a standalone GUI binary distribution; artifact-specific Qt/PySide6 redistribution auditing remains a separate future gate under P-GUI-02.
 
 ## Project checkpoint
 

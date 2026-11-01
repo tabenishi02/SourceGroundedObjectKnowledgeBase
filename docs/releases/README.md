@@ -38,7 +38,7 @@ Prototype 0.2 does not receive a retroactive Git tag or GitHub Release. Its hist
 
 `2.0.0` is a MAJOR release because the no-option Package build changes from legacy Package v1 semantics to Raw-grounded Package v2 / Result v2 semantics. Explicit `--package-version v1` compatibility remains available.
 
-The source/repository release includes the PySide6 GUI implementation but does not certify/publish a standalone GUI binary artifact; project-license selection and artifact-specific Qt/PySide6 redistribution auditing remain separate future distribution gates.
+The source/repository release includes the PySide6 GUI implementation and is licensed under the MIT License, copyright (c) 2026 tabenishi02. It does not certify/publish a standalone GUI binary artifact; artifact-specific Qt/PySide6 redistribution auditing remains a separate future distribution gate.
 
 P-CLOSE-01 and Phase P remain Complete / Accepted at the immutable `v2.0.0` boundary. `v2.1.0` is a later post-Phase-P MINOR release and does not move or redefine `v2.0.0`.
 

@@ -220,7 +220,7 @@ UPDS and other external consumers use stable Object identity and explicit Versio
 
 PySide6/Qt Widgets is the accepted GUI framework. The source/repository release includes the GUI implementation and dependency declaration.
 
-P-CLOSE-01 does not certify or publish a standalone GUI binary artifact because the SGOKB project license has not been separately selected and packaged Qt/PySide6 redistribution requires the P-GUI-02 artifact license gate.
+SGOKB source code is licensed under the MIT License, copyright (c) 2026 tabenishi02. P-CLOSE-01 still does not certify or publish a standalone GUI binary artifact because packaged Qt/PySide6 redistribution requires the separate P-GUI-02 artifact license gate.
 
 This distribution limitation does not alter the accepted runtime architecture.
 

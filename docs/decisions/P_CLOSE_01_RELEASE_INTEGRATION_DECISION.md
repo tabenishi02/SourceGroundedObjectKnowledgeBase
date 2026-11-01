@@ -50,13 +50,13 @@ No historical v1 artifact is reinterpreted as v2.
 
 ## GUI distribution boundary
 
-P-GUI-02 accepted PySide6/Qt Widgets and a standalone-directory packaging direction, but also recorded that the SGOKB application's own public OSS license has not been selected and that public binary distribution requires the LGPL/commercial distribution gate.
+At the original P-CLOSE-01 decision on 2026-10-31, P-GUI-02 had accepted PySide6/Qt Widgets and a standalone-directory packaging direction, while the SGOKB application's own public OSS license had not yet been selected. That historical condition was superseded on 2026-11-01: SGOKB source code is now licensed under the MIT License, copyright (c) 2026 tabenishi02, with the authoritative text in the repository root `LICENSE` file.
 
-P-CLOSE-01 therefore closes the source/repository release integration only. It does **not** publish or certify a standalone GUI binary artifact.
+P-CLOSE-01 still closes the source/repository release integration only. It does **not** publish or certify a standalone GUI binary artifact.
 
-This avoids silently selecting a project license or asserting that a binary redistribution audit has been completed. A later packaged-GUI publication must separately satisfy:
+A later packaged-GUI publication must separately satisfy:
 
-- project license decision and root `LICENSE`;
+- preserve the SGOKB MIT license notice and root `LICENSE`;
 - exact bundled/transitive dependency inventory;
 - required Qt/PySide6 license texts and notices;
 - source-availability/written-offer obligations where applicable;
