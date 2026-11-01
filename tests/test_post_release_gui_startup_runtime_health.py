@@ -73,7 +73,7 @@ def _require_qt():
     pytest.importorskip("PySide6", reason="GUI startup tests require the optional gui extra")
 
 
-def test_startup_splash_is_shown_before_semantic_preload_and_backend(
+def test_startup_splash_is_shown_before_runtime_imports_preload_and_backend(
     tmp_path,
     monkeypatch,
 ) -> None:
@@ -82,10 +82,12 @@ def test_startup_splash_is_shown_before_semantic_preload_and_backend(
     from PySide6.QtWidgets import QApplication
 
     import sgokb.gui.bootstrap as bootstrap
+    from sgokb.gui.views import MainWindow
+    from sgokb.gui.worker import BackendCoordinator
+    from sgokb.gui.workspace import WorkspaceSettings
 
     app = QApplication.instance() or QApplication([])
     calls: list[str] = []
-    real_backend = bootstrap.BackendCoordinator
     fake_splash = object()
 
     def fake_show_splash(_app):
@@ -99,15 +101,18 @@ def test_startup_splash_is_shown_before_semantic_preload_and_backend(
     def fake_preload():
         calls.append("preload")
 
-    class RecordingBackend(real_backend):
+    class RecordingBackend(BackendCoordinator):
         def __init__(self, *args, **kwargs):
             calls.append("backend")
             super().__init__(*args, **kwargs)
 
+    def fake_load_dependencies():
+        calls.append("dependencies")
+        return fake_preload, MainWindow, RecordingBackend, WorkspaceSettings
+
     monkeypatch.setattr(bootstrap, "_show_startup_splash", fake_show_splash)
     monkeypatch.setattr(bootstrap, "_update_startup_splash", fake_update)
-    monkeypatch.setattr(bootstrap, "preload_local_semantic_native_dependencies", fake_preload)
-    monkeypatch.setattr(bootstrap, "BackendCoordinator", RecordingBackend)
+    monkeypatch.setattr(bootstrap, "_load_runtime_dependencies", fake_load_dependencies)
 
     runtime = bootstrap.create_runtime(
         [],
@@ -116,8 +121,10 @@ def test_startup_splash_is_shown_before_semantic_preload_and_backend(
     )
     try:
         assert runtime.splash is fake_splash
-        assert calls[:5] == [
+        assert calls[:7] == [
             "splash",
+            "update:Loading application modules...",
+            "dependencies",
             "update:Loading local semantic runtime...",
             "preload",
             "update:Preparing workspace UI...",
