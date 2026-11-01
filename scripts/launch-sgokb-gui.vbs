@@ -15,4 +15,5 @@ End If
 
 shell.CurrentDirectory = repoRoot
 command = """" & pythonw & """ -m sgokb.gui.main"
-shell.Run command, 0, False
+' WScript + pythonw avoid a console window. Keep the Qt application itself normal/visible.
+shell.Run command, 1, False
