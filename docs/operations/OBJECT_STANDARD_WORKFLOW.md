@@ -218,7 +218,13 @@ Search Representation, Embedding, Qdrant Vector Index and rendering are derived/
 
 ## 7. GUI verification
 
-Launch:
+Windows source-checkout normal launch:
+
+```text
+scripts\launch-sgokb-gui.vbs
+```
+
+The launcher must leave no console/script window open and should show the startup Splash before the main window. The package entrypoint remains valid for explicit shell launch:
 
 ```powershell
 sgokb-gui
@@ -226,7 +232,7 @@ sgokb-gui
 
 Open the same Workspace. GUI reads/writes must resolve through the shared Application/operator layer and therefore the same canonical state as the CLI.
 
-Use `System > Overview` to inspect the shared runtime-health projection. Qdrant lifecycle owner must remain `external`; no Start/Stop/Restart control is part of the accepted GUI boundary.
+Use `System > Overview` to inspect the shared runtime-health projection. Qdrant lifecycle owner must remain `external`; no Start/Stop/Restart control is part of the accepted GUI boundary. If current accepted Knowledge exists with no explicit Search-generation pointer, the supported state is `Search generation = HEALTHY / active=none (legacy routing)` and dashboard refresh must not create an explicit generation.
 
 ## 8. MCP read verification
 

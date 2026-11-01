@@ -54,6 +54,14 @@ SGOKB includes a PySide6/Qt Widgets desktop client over the same Application/ope
 sgokb-gui
 ```
 
+For a Windows source checkout with the repository virtual environment installed, the normal consoleless operator launcher is also available:
+
+```text
+scripts\launch-sgokb-gui.vbs
+```
+
+The VBS launcher uses `.venv\Scripts\pythonw.exe`, leaves no PowerShell/CMD/script console open, and shows the SGOKB startup splash before the main window while runtime/view modules and local semantic native dependencies are initialized. The packaged `sgokb-gui` entrypoint remains supported and is not replaced by this repository-local launcher.
+
 The GUI does not shell out to the CLI for canonical work and does not own a parallel SQLite write path. It covers the accepted public operation inventory through domain pages, Package/Result workflow, Search, Registry, System/Maintenance and Runtime Dashboard surfaces.
 
 ### Native Windows Qdrant runtime
@@ -173,7 +181,7 @@ sgokb --db $Db system integrity
 sgokb --db $Db system index status
 ```
 
-`system status` exposes the shared `sgokb.runtime-health/1.0` projection used by the GUI Runtime Dashboard.
+`system status` exposes the shared `sgokb.runtime-health/1.0` projection used by the GUI Runtime Dashboard. When current accepted Knowledge exists without an explicit Search-generation pointer, the supported compatibility route is reported as `Search generation = HEALTHY` with `active=none (legacy routing)`; only a broken/stale explicit generation is degraded.
 
 If the rebuildable Vector Index needs recovery after Qdrant is healthy:
 

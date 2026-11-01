@@ -680,3 +680,41 @@ P-GUI-01では次を確定しない。
 - GUI automated test frameworkの最終選定
 
 これらは後続Taskで決める。
+
+---
+
+## 24. Post-release GUI startup / Runtime-health amendment — 2026-11-01
+
+This section is a post-`v2.0.0` current-state amendment. It does not retroactively change the completed P-GUI-01 acceptance boundary or move the frozen `v2.0.0` tag.
+
+### GUI-PR-001 Consoleless Windows repository launcher
+
+A Windows source checkout with the repository virtual environment MUST provide `scripts\launch-sgokb-gui.vbs` as a normal operator launch path. It MUST launch the GUI through `.venv\Scripts\pythonw.exe` without leaving PowerShell, CMD, or the script host visible for the lifetime of the GUI. The packaged `sgokb-gui` entrypoint remains supported.
+
+### GUI-PR-002 Immediate startup loading surface
+
+After `QApplication` exists, the GUI MUST show and flush a startup Splash before importing the heavier SGOKB runtime/view modules and before semantic native dependency preload. The Splash MUST remain a presentation-only startup surface and MUST NOT create a second backend/runtime path.
+
+### GUI-PR-003 Preload/threading safety preservation
+
+The startup-Splash change MUST preserve the accepted semantic-native safety boundary: PyTorch / Transformers / Sentence Transformers native preload occurs on the Qt main thread before `BackendCoordinator` creates/starts the backend QThread. Splash completion occurs only after the main window is shown.
+
+### GUI-PR-004 Supported legacy Search-generation health
+
+The GUI MUST present the shared `sgokb.runtime-health/1.0` generation component without inventing a warning for the supported no-pointer compatibility route. When current accepted Knowledge exists, no explicit Search generation is active, and the backend reports `routing_mode=legacy`, the expected presentation is:
+
+```text
+Search generation = HEALTHY
+active=none (legacy routing)
+issue = none
+```
+
+Opening or refreshing Runtime Dashboard MUST NOT build, activate, cut over, or otherwise mutate Search-generation state. Explicit missing/stale/not-ready generation or Vector binding state remains degraded according to the shared backend contract.
+
+### GUI-PR-005 Post-release acceptance authority
+
+Implementation, regression, documentation audit, and interactive acceptance are recorded in:
+
+`docs/evaluation/POST_RELEASE_GUI_STARTUP_RUNTIME_HEALTH_2026_11_01.md`
+
+Current acceptance state is `Interactive PASS / 15 of 15 OK`.

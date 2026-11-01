@@ -3,6 +3,8 @@
 Date: 2026-10-31  
 Task: `P-RUNTIME-05 [P1] GUI Runtime Dashboard integration`
 
+> **Current-state amendment — 2026-11-01:** a Workspace with current accepted Knowledge and no explicit Search-generation pointer is a supported legacy-routing state. The generation component is `healthy`, the summary is `active=none (legacy routing)`, and this condition alone does not create a readiness warning. Historical P-RUNTIME-05 acceptance evidence that observed `generation_not_active` remains a record of the pre-amendment implementation.
+
 ## 1. Purpose
 
 Expose semantic-runtime state in the existing Desktop System surface so an operator can judge runtime insufficiency before running Semantic Search, without making the GUI a runtime lifecycle owner.
@@ -64,13 +66,15 @@ Semantic Search is shown as `blocked` when an observed dependency makes semantic
 
 The dashboard shows `degraded` when runtime dependencies remain available but the operator should review state before relying on full semantic freshness:
 
-- Knowledge exists but no active Search generation is selected. Current retrieval code can fall back to legacy vector routing, so this is not automatically classified as a hard runtime block;
 - semantic derived kinds (`search_representation`, `embedding`, `vector_index`) have non-ready state;
-- non-semantic derived state such as rendering is incomplete.
+- non-semantic derived state such as rendering is incomplete;
+- an explicit generation state is present but yields a non-blocking warning that is not already classified as a broken/stale-generation blocker.
+
+The absence of an explicit Search-generation pointer is **not** degraded when the backend reports the supported `routing_mode=legacy` state as healthy.
 
 ### Ready
 
-`ready` requires the observed SQLite, Embedding, Qdrant, generation-integrity and semantic-derived checks to expose no blocker or warning.
+`ready` requires the observed SQLite, Embedding, Qdrant, generation-integrity and semantic-derived checks to expose no blocker or warning. A healthy generation component using `routing_mode=legacy` satisfies the generation-integrity requirement; an explicit generation is not mandatory for readiness.
 
 ### Unknown
 
@@ -85,7 +89,7 @@ Each component shows its status plus selected non-secret details:
 - SQLite: Workspace DB path and journal mode;
 - Embedding: configured model and shallow/load readiness;
 - Qdrant: endpoint, `/readyz` state, version and missing-collection count;
-- Search generation: active generation identity and source-catalog currency;
+- Search generation: explicit active-generation identity and source-catalog currency, or `active=none (legacy routing)` when the supported compatibility route is active;
 - Derived: current Object count and unhealthy derived-state count.
 
 If a component is not healthy, the dashboard shows its authoritative `issue.message` and a GUI troubleshooting entrypoint. Troubleshooting does not mutate runtime automatically.
@@ -112,10 +116,10 @@ The dashboard states that MCP runtime health is not included in the current runt
 
 ## 8. Compatibility
 
-- CLI `system status` output is unchanged.
-- P-RUNTIME-03 schema is unchanged.
+- The post-release correction changes only the generation health classification for the already-supported no-pointer legacy route; `sgokb.runtime-health/1.0` is unchanged.
+- CLI `system status` and the GUI continue to expose the same shared runtime-health snapshot.
 - Existing System / Maintenance operations are unchanged.
-- Existing Search execution semantics are unchanged.
+- Existing Search execution semantics are unchanged; no generation is built or cut over by a health read.
 - The GUI still reaches backend operations through the shared `BackendCoordinator` / Application boundary.
 - The existing raw JSON status remains available.
 

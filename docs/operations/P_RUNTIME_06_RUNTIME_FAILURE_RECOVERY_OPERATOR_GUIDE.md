@@ -4,6 +4,8 @@
 タスク: `P-RUNTIME-06 [P1] Runtime failure / recovery acceptance`  
 対象環境: supported Windows reference workstation
 
+> **2026-11-01 current-state amendment:** Qdrant recovery後、明示Search generationがないsupported compatibility routeは `Search generation = HEALTHY / active=none (legacy routing)` です。reference WorkspaceのSemantic Search/overallが `DEGRADED` の場合、その理由は独立したrendering-only derived warningであり、generation inactivityではありません。
+
 ## 目的
 
 この手順では、native Qdrant runtimeを意図的かつ制御された方法で一時停止し、SGOKBが障害を正しく観測すること、誤ったport occupantをQdrant readyと判定しないこと、Qdrantのpersistent collectionが再起動後も残ること、Vector Indexを再構築できること、そしてcanonical SQLiteが障害前後で正常であることを確認します。
@@ -21,8 +23,10 @@ C:\codex\SourceGroundedObjectKnowledgeBase
 使用branch:
 
 ```text
-phase-p/runtime-06-failure-recovery-acceptance
+main
 ```
+
+Historical P-RUNTIME-06 acceptance was executed from the task branch recorded in the acceptance document; current operational reruns use `main`.
 
 reference Workspace:
 
@@ -337,14 +341,16 @@ version = 1.19.2
 
 GUIを再度開いて `System > Overview > Refresh system status` を実行します。
 
-現在のreference Workspaceでは、P-RUNTIME-05 baselineと同様に以下へ戻ることが期待値です。
+現在のreference Workspaceでは、P-RUNTIME-05 current-state baselineと同様に以下へ戻ることが期待値です。
 
 ```text
 Qdrant                 = HEALTHY / ready / v1.19.2
 Semantic Search        = DEGRADED, not BLOCKED
-Search generation      = DEGRADED / generation_not_active
+Search generation      = HEALTHY / active=none (legacy routing)
 Derived                = DEGRADED / rendering-only warning
 ```
+
+Semantic Searchの `DEGRADED` はrendering-only derived warningによるものであり、supported legacy Search routingは正常です。
 
 ## 12. Vector Indexを再構築する
 

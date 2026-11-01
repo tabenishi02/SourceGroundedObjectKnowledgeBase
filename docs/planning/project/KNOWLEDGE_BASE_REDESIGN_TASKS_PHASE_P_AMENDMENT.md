@@ -2,14 +2,15 @@
 
 Updated: 2026-10-28
 
-- Status: **Current amendment**
+- Status: **Historical Phase P kickoff amendment**
 - Applies after: Phase O closure and SGOKB v1.1.0 happy-path acceptance
 - Supersedes: project-wide task masterの「Next = Phase O」等の古いnext-task記述
 - Detailed plan: `../phases/P/PHASE_P_MODERNIZATION_PLAN.md`
 - Detailed tasks: `../phases/P/PHASE_P_TASKS.md`
-- Current status: `../phases/P/PHASE_P_STATUS.md`
+- Current-state authority: `../phases/P/PHASE_P_STATUS.md`
+- Note: Phase P is now complete/released as `v2.0.0`; the kickoff state below is retained as historical planning context and is not the current task state.
 
-## Current authoritative project state
+## Historical kickoff project-state snapshot
 
 ```text
 Phase A ... Phase M = Complete

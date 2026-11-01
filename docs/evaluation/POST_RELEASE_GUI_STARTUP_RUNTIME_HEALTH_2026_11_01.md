@@ -358,3 +358,34 @@ Final disposition         = Interactive PASS
 The conversation used a temporary numbering offset while stepping through the checklist; this record normalizes those confirmations to the authoritative `POST-GUI-01..15` IDs above. The operator-confirmed splash-before-main-window behavior and post-splash usable-main-window behavior jointly satisfy the startup splash normality checks.
 
 Do not change the frozen `v2.0.0` tag when recording this post-release interactive result.
+
+## 9. Documentation consistency audit — PASS
+
+A repository-wide documentation audit was performed after the implementation and interactive acceptance to ensure the post-release requirements do not conflict with current SGOKB documentation.
+
+Current/normative documentation was aligned as follows:
+
+- `GUI_REQUIREMENTS.md` now carries a post-`v2.0.0` amendment for the consoleless launcher, immediate Splash, preload/threading safety preservation, healthy legacy Search-generation presentation, and read-only dashboard behavior;
+- `README.md` and `OBJECT_STANDARD_WORKFLOW.md` now document the repository-local Windows `scripts\launch-sgokb-gui.vbs` path while preserving `sgokb-gui` as the supported package entrypoint;
+- startup Splash behavior is documented as additive and preserves the accepted semantic-native preload safety rule: Qt main thread preload still occurs before backend QThread creation;
+- `P_RUNTIME_03_RUNTIME_HEALTH_STATUS_APPLICATION_BOUNDARY.md` now defines the supported no-pointer route as `healthy / routing_mode=legacy` and reserves degradation for broken/stale explicit generation state;
+- `P_RUNTIME_05_GUI_RUNTIME_DASHBOARD.md` and its operator guide now treat `active=none (legacy routing)` as a healthy Search-generation state with no generation troubleshooting warning;
+- `P_RUNTIME_06_RUNTIME_FAILURE_RECOVERY_ACCEPTANCE.md` and its operator guide now expect Search generation to recover to `HEALTHY / active=none (legacy routing)`; the historical reference Workspace may remain overall/Semantic `DEGRADED` only because of independent rendering-only derived warnings;
+- `docs/planning/README.md` now reflects Phase P completion and `v2.0.0`, while the Phase P kickoff amendment is explicitly marked historical.
+
+Historical P-RUNTIME-04/05/06 acceptance records retain the values actually observed before the classifier correction. They are explicitly marked as historical evidence and point to this post-release document for the current expected Search-generation behavior; the historical values are not rewritten as if they had been observed differently.
+
+Consistency scan result:
+
+```text
+current/normative docs with no-pointer Search generation described as DEGRADED = 0
+current/normative docs with stale Phase P "In Progress / Next P-GUI-10" state = 0
+historical acceptance records retaining pre-correction DEGRADED evidence = allowed / annotated
+v2.0.0 frozen release boundary = unchanged
+schema sgokb.runtime-health/1.0 = unchanged
+Search execution semantics = unchanged
+Qdrant lifecycle ownership = unchanged / external
+Documentation consistency disposition = PASS
+```
+
+The post-release requirements therefore form an additive/current-state amendment rather than a reinterpretation of the frozen `v2.0.0` evidence boundary.

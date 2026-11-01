@@ -3,6 +3,8 @@
 Date: 2026-10-31  
 Task: `P-RUNTIME-06 [P1] Runtime failure / recovery acceptance`
 
+> **Current-state amendment — 2026-11-01:** after Qdrant recovery, the no-explicit-generation compatibility route is `Search generation = HEALTHY / active=none (legacy routing)`. The historical reference Workspace can still have `Semantic Search = DEGRADED` and `overall_status=degraded` because of independent rendering-only derived warnings. Search-generation inactivity itself is no longer a degradation reason.
+
 ## 1. Purpose
 
 P-RUNTIME-06 verifies that failures in the replaceable/local Semantic runtime do not corrupt canonical SGOKB Knowledge and that an operator can observe, diagnose, and recover the runtime through the accepted Windows operating model.
@@ -149,7 +151,8 @@ After recovery:
 
 - Qdrant is healthy/ready again;
 - GUI and CLI agree on the same runtime snapshot;
-- for the current reference Workspace, Semantic Search returns to its normal `DEGRADED` baseline because inactive Search generation/rendering-only derived warnings remain independent of Qdrant health.
+- supported no-pointer Search routing returns as `Search generation = HEALTHY / active=none (legacy routing)`;
+- for the current reference Workspace, Semantic Search may still return to its normal `DEGRADED` baseline because rendering-only derived warnings remain independent of Qdrant health.
 
 ### F8 — Canonical SQLite integrity
 

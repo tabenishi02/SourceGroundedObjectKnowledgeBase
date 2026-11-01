@@ -7,6 +7,8 @@ Task: `P-RUNTIME-06 [P1] Runtime failure / recovery acceptance`
 
 **Complete / Accepted**
 
+> **Historical-evidence note — 2026-11-01:** the Qdrant failure/recovery evidence below is preserved as executed. Its recovered `generation_not_active` / Search-generation `DEGRADED` rows reflect the pre-correction runtime-health classifier. Current supported no-pointer routing is `Search generation = HEALTHY / active=none (legacy routing)`; independent rendering-only derived warnings can still keep the historical reference Workspace overall/Semantic readiness degraded. See `POST_RELEASE_GUI_STARTUP_RUNTIME_HEALTH_2026_11_01.md`.
+
 P-RUNTIME-06 is complete. Repository-side fault-contract tests, controlled Windows reference-host failure injection, wrong-service fail-closed behavior, native Qdrant recovery, persistence validation, GUI/CLI baseline recovery, Vector Index rebuild, and final canonical SQLite integrity/count checks all passed.
 
 ## Accepted runtime interpretation
@@ -204,7 +206,7 @@ observe              = true
 start/stop/restart   = false/false/false
 ```
 
-`overall_status=degraded` is the accepted reference-Workspace baseline because inactive Search generation and rendering-only derived state remain intentionally degraded; this is not a Qdrant recovery failure.
+At the time of the 2026-10-31 acceptance, `overall_status=degraded` was the accepted reference-Workspace baseline because the pre-correction classifier treated inactive Search generation together with rendering-only derived state as degraded; this was not a Qdrant recovery failure. Under the 2026-11-01 correction, the legacy Search route is healthy and only the independent derived warning remains.
 
 Collection persistence comparison:
 
@@ -214,7 +216,7 @@ collection count after  = 80
 Compare-Object           = no differences
 ```
 
-Recovered GUI projection returned exactly to the accepted P-RUNTIME-05 baseline:
+Recovered GUI projection returned exactly to the then-accepted P-RUNTIME-05 pre-correction baseline:
 
 ```text
 Qdrant                 = HEALTHY / ready / v1.19.2

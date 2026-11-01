@@ -4,6 +4,8 @@ Date: 2026-10-31
 Task: `P-RUNTIME-04 [P1] Windows login auto-start integration`
 Disposition: **Complete / Accepted**
 
+> **Historical-evidence note — 2026-11-01:** references below to generation-related top-level degradation describe the runtime-health classifier as observed during P-RUNTIME-04. The supported no-explicit-generation legacy route is now `HEALTHY`; this does not change the P-RUNTIME-04 Qdrant auto-start/recovery evidence or external lifecycle ownership.
+
 ## 1. Acceptance objective
 
 P-RUNTIME-04 removes the need to launch native Qdrant manually after Windows sign-in and requires automatic recovery after an unexpected `qdrant.exe` process exit.

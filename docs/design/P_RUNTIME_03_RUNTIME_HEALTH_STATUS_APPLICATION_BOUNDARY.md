@@ -4,6 +4,8 @@ Date: 2026-10-30
 Status: **Complete / Accepted**
 Task: `P-RUNTIME-03 [P1] Runtime health/status application boundary`
 
+> **Current-state amendment — 2026-11-01:** the supported no-explicit-generation compatibility route is now `healthy` with `routing_mode=legacy` when current accepted Knowledge exists. Only a broken/stale explicit generation remains degraded. This corrects the original P-RUNTIME-03 classification without changing `sgokb.runtime-health/1.0`. P-RUNTIME-04 also later superseded the historical Docker Windows runtime with native `qdrant.exe` + Task Scheduler; the observer-only lifecycle boundary remains unchanged.
+
 ## 1. Purpose
 
 P-RUNTIME-03 defines one transport-neutral observation model for the runtime state needed by CLI and the future P-GUI-09 Runtime Dashboard.
@@ -109,6 +111,8 @@ generation_runtime_degraded
 derived_state_incomplete
 ```
 
+`generation_not_active` is retained as a historical/presenter-compatibility issue code only. The current runtime-health producer does not emit it for the supported no-pointer legacy route; that route is `healthy` with no issue.
+
 This lets GUI presentation map a component state to badges/actions without parsing exception class names or provider-specific text.
 
 ## 5. SQLite probe
@@ -174,7 +178,7 @@ The generation component reuses the canonical `KnowledgeSearchGenerationApplicat
 - current canonical source-catalog digest;
 - whether the active generation source catalog is current.
 
-A non-empty Knowledge catalog without an active generation is degraded. An empty database without an active generation is `not_configured`.
+A non-empty Knowledge catalog without an explicit active generation uses the supported legacy retrieval route and is `healthy` with `routing_mode=legacy`. An empty database without an active generation is `not_configured`. An explicit active pointer that references a missing generation, or an explicit generation/vector binding that is not current and ready, remains `degraded`.
 
 An active generation is healthy only when:
 

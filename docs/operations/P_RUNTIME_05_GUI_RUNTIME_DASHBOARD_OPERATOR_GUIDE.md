@@ -4,6 +4,8 @@
 タスク: `P-RUNTIME-05 [P1] GUI Runtime Dashboard integration`  
 対象GUI画面: `System > Overview`
 
+> **2026-11-01 current-state amendment:** supported legacy Search routing is now healthy. When current accepted Knowledge exists and no explicit Search generation is selected, expect `Search generation = HEALTHY` with `active=none (legacy routing)` and no generation issue/troubleshooting warning. Historical P-RUNTIME-05 acceptance below predates this correction.
+
 ## 目的
 
 このガイドでは、SGOKB Desktop GUIを起動し、既存の受入用Workspaceを選択し、Runtime Dashboardを確認し、runtime snapshotを更新して、P-RUNTIME-05受入に必要な結果を判定する手順を説明します。
@@ -43,13 +45,21 @@ Qdrantは、外部所有のWindows runtimeによってすでに起動してい�
 
 ## 1. Desktop GUIを起動する
 
-PowerShellから以下を実行します。
+通常のWindowsオペレータ起動では、consoleless launcherを使用できます。
+
+```text
+scripts\launch-sgokb-gui.vbs
+```
+
+このlauncherは `.venv\Scripts\pythonw.exe -m sgokb.gui.main` を非待機で起動し、console/script windowを残しません。Main Windowより先にstartup splashが表示されることが現在の正常系です。
+
+PowerShellから明示的に起動する場合は、従来どおり以下も有効です。
 
 ```powershell
 .\.venv\Scripts\sgokb-gui.exe
 ```
 
-生成済みentrypointを使用できない場合は、代わりに以下で起動できます。
+生成済みentrypointを使用できない場合は、診断用として以下でも起動できます。
 
 ```powershell
 .\.venv\Scripts\python.exe -m sgokb.gui.main
@@ -57,7 +67,8 @@ PowerShellから以下を実行します。
 
 期待結果:
 
-- `SGOKB` のdesktop windowが開く;
+- VBS経由ではconsole/script windowが残らない;
+- startup splashの後に `SGOKB` のdesktop windowが開く;
 - 左側navigationに `Home / Dashboard`、`Objects`、`Sources`、`Evidence`、`Associations`、`Search`、`Packages`、`Results`、`Registry`、`System`、`Settings` が表示される;
 - Workspaceをまだ開いていない場合、status barに `No workspace` と表示される。
 
@@ -169,7 +180,7 @@ UNKNOWN
 DEGRADED
 ```
 
-active Search generationが選択されていないこと、またはrendering由来のstateだけがpendingであることを理由に、`BLOCKED` になってはいけません。
+このreference Workspaceでは rendering由来のnon-semantic derived stateがpendingであるため `DEGRADED` ですが、`BLOCKED` になってはいけません。明示Search generationが選択されていないこと自体は、supported legacy routingとして `HEALTHY` であり、readiness degradationの理由にはなりません。
 
 ## 7. Runtime componentsを読む
 
@@ -216,12 +227,11 @@ Dashboardはobserver専用です。QdrantのStart / Stop / Restart操作を表�
 reference状態の期待値:
 
 ```text
-DEGRADED
+HEALTHY
 active=none (legacy routing)
-Knowledge exists but no active Search generation is selected
 ```
 
-このreference状態では、legacy vector routingを引き続き利用できるため、これはhard semantic blockerではなくwarningとして扱います。
+このreference状態では、明示Search generationがなくてもsupported legacy vector routingを利用するため正常です。generation issueやgeneration troubleshooting warningを表示してはいけません。明示pointerが壊れている、または明示generation / Vector bindingがcurrent/readyでない場合だけ `DEGRADED` とします。
 
 ### Derived state
 
@@ -241,9 +251,10 @@ troubleshooting boxには、degradedまたはblockedとなっているcomponent�
 
 現在のreference Workspaceでは、以下に関する案内が含まれていることを確認します。
 
-- inactive Search generation / legacy routing;
 - incomplete Derived state;
 - 必要に応じて確認する対応System tab。
+
+`active=none (legacy routing)` はhealthyなcompatibility routeなので、それだけを理由とするgeneration troubleshooting案内は表示されないことを確認します。
 
 有用なruntime issueが、理由を示さず単に `degraded` とだけ表示されてはいけません。
 
@@ -288,8 +299,9 @@ embedding               = healthy
 qdrant                  = healthy
 qdrant.ready            = true
 qdrant.version          = 1.19.2
-generation              = degraded
-generation issue        = generation_not_active
+generation              = healthy
+generation routing_mode = legacy
+generation issue        = null
 derived                 = degraded
 derived issue           = derived_state_incomplete
 ```
@@ -307,13 +319,14 @@ structured dashboardとraw JSONは、同じruntime snapshotを表していなけ
 [ ] Refresh system statusが完了する
 [ ] Runtime health summaryが表示される
 [ ] Semantic Search readinessが表示される
-[ ] reference WorkspaceでSemantic Search = DEGRADEDとなり、BLOCKEDではない
+[ ] reference WorkspaceでSemantic Search = DEGRADEDとなり、BLOCKEDではない（rendering-only derived warningによる）
 [ ] SQLite = HEALTHY
 [ ] Embedding = HEALTHY
 [ ] Qdrant = HEALTHY / ready / v1.19.2
-[ ] Search generation = DEGRADED / inactive generationの案内が表示される
+[ ] Search generation = HEALTHY / active=none (legacy routing)
+[ ] Search generationにissue/troubleshooting warningが表示されない
 [ ] Derived state = DEGRADED / rendering-only warningが表示される
-[ ] troubleshooting textにdegradedとなっている理由が説明されている
+[ ] troubleshooting textに実際にdegradedとなっている理由が説明されている
 [ ] Qdrant lifecycle ownerがexternalである
 [ ] Qdrant Start / Stop / Restart操作が存在しない
 [ ] MCP noteが架空のhealth stateを作らずMCP tabへ案内している
