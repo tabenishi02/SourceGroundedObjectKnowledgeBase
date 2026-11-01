@@ -224,19 +224,15 @@ class RuntimeHealthApplication:
             "source_catalog_current": None,
             "generation": None,
             "vector_bindings": [],
+            "routing_mode": "legacy",
         }
         if active_pointer is None:
+            # Generation-aware retrieval intentionally falls back to the Phase-I
+            # representation/vector family when no explicit generation pointer is
+            # active. That is a supported compatibility route, not degraded state.
             if current_object_count == 0:
                 return RuntimeComponentHealth(STATUS_NOT_CONFIGURED, details)
-            return RuntimeComponentHealth(
-                STATUS_DEGRADED,
-                details,
-                self._issue(
-                    CATEGORY_RUNTIME,
-                    "generation_not_active",
-                    "Knowledge exists but no active Search generation is selected",
-                ),
-            )
+            return RuntimeComponentHealth(STATUS_HEALTHY, details)
 
         generation_id = active_pointer["active_generation_id"]
         generation = next(
@@ -252,6 +248,7 @@ class RuntimeHealthApplication:
                 "activation_revision": active_pointer.get("activation_revision"),
                 "generation": generation,
                 "vector_bindings": bindings,
+                "routing_mode": "generation",
             }
         )
         if generation is None:
