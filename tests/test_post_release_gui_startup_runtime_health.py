@@ -15,12 +15,12 @@ LAUNCHER = ROOT / "scripts" / "launch-sgokb-gui.vbs"
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 
-def test_windows_launcher_uses_pythonw_and_hidden_detached_run() -> None:
+def test_windows_launcher_uses_pythonw_without_console_and_keeps_gui_visible() -> None:
     text = LAUNCHER.read_text(encoding="utf-8")
 
     assert ".venv\\Scripts\\pythonw.exe" in text
     assert "-m sgokb.gui.main" in text
-    assert "shell.Run command, 0, False" in text
+    assert "shell.Run command, 1, False" in text
     assert "shell.CurrentDirectory = repoRoot" in text
 
 
