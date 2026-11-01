@@ -101,22 +101,27 @@ def test_gui_bootstrap_preloads_semantic_native_stack_before_backend_thread(
     monkeypatch,
 ):
     import sgokb.gui.bootstrap as bootstrap
+    from sgokb.gui.views import MainWindow
+    from sgokb.gui.worker import BackendCoordinator
+    from sgokb.gui.workspace import WorkspaceSettings
 
     calls: list[str] = []
-    real_backend = bootstrap.BackendCoordinator
 
     def fake_preload():
         calls.append("preload")
         return None
 
-    class RecordingBackend(real_backend):
+    class RecordingBackend(BackendCoordinator):
         def __init__(self, *args, **kwargs):
             calls.append("backend")
             assert calls[0] == "preload"
             super().__init__(*args, **kwargs)
 
-    monkeypatch.setattr(bootstrap, "preload_local_semantic_native_dependencies", fake_preload)
-    monkeypatch.setattr(bootstrap, "BackendCoordinator", RecordingBackend)
+    monkeypatch.setattr(
+        bootstrap,
+        "_load_runtime_dependencies",
+        lambda: (fake_preload, MainWindow, RecordingBackend, WorkspaceSettings),
+    )
 
     runtime = bootstrap.create_runtime(
         [],
