@@ -69,6 +69,72 @@ def test_legacy_search_routing_is_healthy_when_current_knowledge_exists(monkeypa
     assert component.details["current_object_count"] == 1
 
 
+def test_runtime_dashboard_presents_legacy_generation_as_healthy() -> None:
+    from sgokb.gui.runtime_dashboard import build_runtime_dashboard
+
+    health = {
+        "schema_version": "sgokb.runtime-health/1.0",
+        "overall_status": "healthy",
+        "lifecycle": {
+            "qdrant_owner": "external",
+            "observe": True,
+            "start": False,
+            "stop": False,
+            "restart": False,
+        },
+        "components": {
+            "sqlite": {
+                "status": "healthy",
+                "details": {"path": "test.sqlite", "journal_mode": "wal"},
+                "issue": None,
+            },
+            "embedding": {
+                "status": "healthy",
+                "details": {"model": "test-model", "readiness": "configured_not_loaded"},
+                "issue": None,
+            },
+            "qdrant": {
+                "status": "healthy",
+                "details": {
+                    "endpoint": "http://localhost:6333",
+                    "ready": True,
+                    "version": "1.20.0",
+                    "missing_collections": [],
+                },
+                "issue": None,
+            },
+            "generation": {
+                "status": "healthy",
+                "details": {
+                    "active_generation_id": None,
+                    "current_object_count": 1,
+                    "source_catalog_current": None,
+                    "routing_mode": "legacy",
+                },
+                "issue": None,
+            },
+            "derived": {
+                "status": "healthy",
+                "details": {
+                    "current_object_count": 1,
+                    "unhealthy_count": 0,
+                    "kind_counts": {},
+                },
+                "issue": None,
+            },
+        },
+    }
+
+    dashboard = build_runtime_dashboard(health)
+    generation = next(item for item in dashboard.components if item.key == "generation")
+
+    assert generation.status == "healthy"
+    assert generation.issue is None
+    assert generation.troubleshooting is None
+    assert generation.summary.startswith("active=none (legacy routing)")
+    assert dashboard.readiness.status == "ready"
+
+
 def _require_qt():
     pytest.importorskip("PySide6", reason="GUI startup tests require the optional gui extra")
 
