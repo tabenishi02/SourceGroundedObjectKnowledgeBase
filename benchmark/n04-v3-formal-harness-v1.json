@@ -20,7 +20,7 @@
     "canonical_payload_sha256": "01eedf64791b71466cee815ad8f44289d2fd4a5859f1bf76041a5ef91847c034"
   },
   "reference_workstation": {
-    "device": "FNB1Main",
+    "device": "Reference Workstation",
     "os_family": "Windows 11",
     "python": "3.10.6",
     "gpu": "NVIDIA RTX 4090 24GB",

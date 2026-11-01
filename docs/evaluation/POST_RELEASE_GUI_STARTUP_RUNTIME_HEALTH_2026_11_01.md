@@ -201,7 +201,7 @@ The existing GitHub Actions Windows workflow is PR-triggered for `main` and does
 
 ## 7. Local Windows execution verification — PASS
 
-Execution host: `FNB1Main`
+Execution host: `Reference Workstation`
 
 Verified source:
 

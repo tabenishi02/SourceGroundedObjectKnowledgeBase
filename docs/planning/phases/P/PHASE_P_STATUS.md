@@ -59,7 +59,7 @@ post-rebuild integrity              = PASS
 Object/current-Version counts       = 5 -> 5 / 5 -> 5
 ```
 
-P-RUNTIME-04 hosted GitHub Actions verification remains deferred due the recorded billing/spending constraint and is not counted as CI PASS. Reference-host and local accepted evidence remain authoritative.
+P-RUNTIME-04 hosted GitHub Actions verification remains deferred due the recorded hosted-runner availability constraint and is not counted as CI PASS. Reference-host and local accepted evidence remain authoritative.
 
 ## P-CLOSE-01 release integration
 

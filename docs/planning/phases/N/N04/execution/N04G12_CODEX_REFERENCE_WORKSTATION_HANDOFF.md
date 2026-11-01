@@ -408,7 +408,7 @@ Raw model output / local DB / `.local/n04-v2/` evidenceはGitへcommitしない�
 
 ## 3. ChatGPT側からのhandoff理由
 
-2026-10-18時点でReference WorkstationのDesktop Commander device `FNB1Main` はOnlineだが、Desktop Commanderの月間利用上限に達しておりremote command executionが停止している。
+2026-10-18時点でReference WorkstationのDesktop Commander device `Reference Workstation` はOnlineだが、Desktop Commanderの月間利用上限に達しておりremote command executionが停止している。
 
 したがって、このChatGPT sessionからG-11 Frozen harnessをReference Workstation上でformalに実行することはできない。
 

@@ -10,7 +10,7 @@ PR: `#82 P-RUNTIME-05 integrate GUI Runtime Dashboard` — **merged to `main`**
 
 > **Historical-evidence note — 2026-11-01:** this acceptance records the runtime-health behavior actually observed on 2026-10-31, including `generation_not_active`. A post-release correction now classifies the supported no-explicit-generation legacy route as `HEALTHY / active=none (legacy routing)`. Do not use the historical generation-degraded rows below as the current expected state; see `POST_RELEASE_GUI_STARTUP_RUNTIME_HEALTH_2026_11_01.md`.
 
-GitHub-hosted Actions remain unavailable under the current account billing/spending limit. P-RUNTIME-05 therefore used the supported Windows workstation for final local acceptance. Hosted CI remains separate deferred external verification and is not represented as passing.
+GitHub-hosted Actions remain unavailable under the current external GitHub Actions availability constraint. P-RUNTIME-05 therefore used the supported Windows workstation for final local acceptance. Hosted CI remains separate deferred external verification and is not represented as passing.
 
 ## Implemented contract
 
@@ -193,7 +193,7 @@ reference CLI projection          = PASS
 GUI reference-workspace smoke     = PASS
 P-RUNTIME-03 lifecycle boundary   = preserved
 new regressions                   = none observed
-hosted CI                         = Deferred / external billing-spending constraint
+hosted CI                         = Deferred / external hosted-runner availability constraint
 
 P-RUNTIME-05 overall              = Complete / Accepted
 P-RUNTIME-06                      = Unblocked / Ready

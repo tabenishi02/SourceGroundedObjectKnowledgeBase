@@ -12,7 +12,7 @@
   "formal_evaluator_git_blob_sha": "060037e5316dd819472018f54c1d5600786e3e74",
   "source_dataset": "benchmark/n03-real-data-vertical-slice-v1.json",
   "reference_workstation": {
-    "device": "FNB1Main",
+    "device": "Reference Workstation",
     "evaluation_db": ".local/n03/sgokb-n03.sqlite",
     "evidence_root_template": ".local/n04r04/<run_id>",
     "run_id_format": "YYYYMMDDTHHMMSS+0900"

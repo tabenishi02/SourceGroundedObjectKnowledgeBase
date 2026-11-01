@@ -1,4 +1,4 @@
-# P-RUNTIME-04 — GitHub Actions Billing Blocker / Deferred Verification
+# P-RUNTIME-04 — GitHub Actions Availability Blocker / Deferred Verification
 
 Date: 2026-10-31
 Task: `P-RUNTIME-04 [P1] Windows login auto-start integration`
@@ -6,7 +6,7 @@ PR: `#81 P-RUNTIME-04 remediate native Windows crash recovery`
 
 ## Status
 
-Hosted Windows CI is blocked before runner assignment by the GitHub account billing / spending-limit state, not by the SGOKB product or test suite.
+Hosted Windows CI is blocked before runner assignment by the external GitHub Actions availability state, not by the SGOKB product or test suite.
 
 Observed workflow evidence:
 
@@ -23,7 +23,7 @@ steps    = []
 GitHub CLI reported:
 
 ```text
-The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings
+The hosted job was not started because an external GitHub Actions availability constraint prevented runner assignment.
 ```
 
 The job executed no workflow step. The failure is therefore neither product/test failure nor CI acceptance evidence.
@@ -58,7 +58,7 @@ The hosted remediation CI gate was an additional verification gate introduced du
 1. the supported reference host passed the actual lifecycle acceptance;
 2. an isolated local Windows test reproduced the hosted workflow's dynamic crash-recovery smoke;
 3. focused tests, Ruff and full regression all passed locally;
-4. hosted jobs are prevented from starting solely by an external billing/spending constraint;
+4. hosted jobs are prevented from starting solely by an external hosted-runner availability constraint;
 5. no hosted workflow step has produced contradictory product evidence;
 
 the hosted Windows run is reclassified as **non-blocking deferred verification debt**.
@@ -68,7 +68,7 @@ Formal disposition:
 ```text
 reference-host acceptance      = Complete / Accepted
 local remediation validation   = PASS
-GitHub Actions remediation CI  = Deferred / billing-spending external constraint
+GitHub Actions remediation CI  = Deferred / external hosted-runner availability constraint
 P-RUNTIME-04 overall           = Complete / Accepted
 P-RUNTIME-05                   = Unblocked / Ready
 ```
@@ -77,7 +77,7 @@ This is not a CI PASS claim. Hosted CI remains unexecuted for the remediation HE
 
 ## Deferred verification
 
-When GitHub Actions billing/spending capacity becomes available, run the P-RUNTIME-04 Windows workflow and record:
+When GitHub-hosted runner execution becomes available, run the P-RUNTIME-04 Windows workflow and record:
 
 - PowerShell asset parse validation;
 - disposable dynamic scheduled-task crash recovery;

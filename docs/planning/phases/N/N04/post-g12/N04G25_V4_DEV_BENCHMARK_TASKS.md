@@ -52,7 +52,7 @@ git diff --check
 
 All must PASS. Any failure returns to G-24 implementation remediation; do not begin classifier selection with a failing implementation baseline.
 
-In the earlier blocked attempt on 2026-10-21 the authorized Reference Workstation `FNB1Main` was online and paired, but Desktop Commander reported that its monthly execution quota had been reached and explicitly instructed not to retry or reconnect. Therefore none of the four preflight commands was executed.
+In the earlier blocked attempt on 2026-10-21 the authorized Reference Workstation `Reference Workstation` was online and paired, but Desktop Commander reported that its remote command execution was unavailable and explicitly instructed not to retry or reconnect. Therefore none of the four preflight commands was executed.
 
 Preflight result and historical block authority:
 

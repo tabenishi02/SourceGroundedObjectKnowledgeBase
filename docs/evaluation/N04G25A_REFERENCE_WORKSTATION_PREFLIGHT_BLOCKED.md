@@ -54,7 +54,7 @@ Runtime versions:
 
 ## 3. Historical blocked/failed attempts and repair
 
-The earlier remote-command attempt on 2026-10-21 could not start because Desktop Commander reported a monthly execution quota and instructed not to retry/reconnect. That availability block did not establish a G-24 PASS or FAIL. This later verification used the workstation's local terminal, not a retry of that remote service.
+The earlier remote-command attempt on 2026-10-21 could not start because Desktop Commander reported a remote command execution unavailable and instructed not to retry/reconnect. That availability block did not establish a G-24 PASS or FAIL. This later verification used the workstation's local terminal, not a retry of that remote service.
 
 Local run **`20261021T052846+0900`** then produced targeted **22 passed** and full suite **448 passed**, but repository-wide Ruff failed with one **I001** import-order error in `tests/test_n04g24_v4_implementation.py`. It was classified as **G-24 implementation verification failure**; the sequence stopped before diff-check and classifier benchmarking remained prohibited.
 

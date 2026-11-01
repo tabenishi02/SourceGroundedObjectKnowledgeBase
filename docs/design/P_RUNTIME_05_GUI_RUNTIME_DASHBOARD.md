@@ -138,4 +138,4 @@ P-RUNTIME-05 local acceptance requires:
 9. full repository regression passes;
 10. a local GUI smoke confirms an operator can inspect runtime readiness before Semantic Search.
 
-Hosted GitHub Actions are currently unavailable due the documented account billing/spending limit and are not a prerequisite for starting local P-RUNTIME-05 acceptance.
+Hosted GitHub Actions are currently unavailable due the documented external GitHub Actions availability constraint and are not a prerequisite for starting local P-RUNTIME-05 acceptance.

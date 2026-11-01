@@ -146,7 +146,7 @@ The remaining required local proof is:
    - required positive supported = `2/2`;
 3. exact MiniCheck/Torch/Transformers/Hugging Face/NLTK runtime package lock.
 
-The Reference Workstation is connected/Online, but Desktop Commander command execution is currently unavailable because its monthly usage quota is exhausted. Therefore this run does not claim those local facts were measured.
+The Reference Workstation is connected/Online, but Desktop Commander command execution is currently unavailable because its remote command execution is unavailable. Therefore this run does not claim those local facts were measured.
 
 ---
 

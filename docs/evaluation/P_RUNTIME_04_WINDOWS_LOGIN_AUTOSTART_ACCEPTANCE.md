@@ -174,14 +174,14 @@ steps     = []
 GitHub CLI exposed the authoritative annotation:
 
 ```text
-The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings
+The hosted job was not started because an external GitHub Actions availability constraint prevented runner assignment.
 ```
 
 This is neither a product/test failure nor a CI PASS.
 
 The formal Phase P task definition for P-RUNTIME-04 requires automatic Windows startup/readiness and unexpected-stop recovery; it does not make GitHub-hosted Windows CI a mandatory completion condition. The hosted remediation workflow was an additional verification gate introduced during remediation.
 
-Because the supported reference host passed the actual lifecycle acceptance, the isolated local Windows reproduction passed the workflow-equivalent recovery scenario, focused tests/Ruff/full regression passed, and hosted execution is blocked solely by an external billing/spending condition, hosted CI is reclassified as:
+Because the supported reference host passed the actual lifecycle acceptance, the isolated local Windows reproduction passed the workflow-equivalent recovery scenario, focused tests/Ruff/full regression passed, and hosted execution is blocked solely by an external hosted-runner availability condition, hosted CI is reclassified as:
 
 ```text
 GitHub Actions remediation CI = Deferred / non-blocking verification debt
@@ -191,7 +191,7 @@ This is explicitly not a CI success claim.
 
 Evidence:
 
-`docs/evaluation/P_RUNTIME_04_GITHUB_ACTIONS_BILLING_BLOCKER.md`
+`docs/evaluation/P_RUNTIME_04_HOSTED_CI_AVAILABILITY_BLOCKER.md`
 
 ## 8. Deferred verification debt
 
@@ -231,7 +231,7 @@ crash-recovery remediation design         = Complete / Accepted
 remediation implementation                = Complete
 reference-host acceptance                 = Complete / Accepted
 local remediation validation              = PASS
-GitHub Actions remediation CI             = Deferred / external billing-spending constraint
+GitHub Actions remediation CI             = Deferred / external hosted-runner availability constraint
 P-RUNTIME-04 overall                      = Complete / Accepted
 P-RUNTIME-05                              = Unblocked / Ready
 ```

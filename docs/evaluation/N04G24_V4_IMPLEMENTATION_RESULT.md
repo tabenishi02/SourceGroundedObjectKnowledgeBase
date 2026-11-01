@@ -238,7 +238,7 @@ Static Python parsing of the v4 modules also passed in that verification environ
 
 ### Reference Workstation limitation
 
-Full repository verification on the user's Reference Workstation could not be executed in this session because the connected remote-command service reported its monthly execution quota exhausted.
+Full repository verification on the user's Reference Workstation could not be executed in this session because the connected remote-command service reported its remote command execution unavailable.
 
 GitHub also reports no configured commit status checks / workflow runs for these commits, so no repository CI result exists to substitute for the workstation run.
 

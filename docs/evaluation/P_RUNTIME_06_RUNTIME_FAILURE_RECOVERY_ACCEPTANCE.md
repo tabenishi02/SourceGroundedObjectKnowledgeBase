@@ -328,7 +328,7 @@ G12 canonical Object count and current-Version count unchanged         PASS
 
 ## Hosted CI status
 
-The account's GitHub-hosted Actions capacity remains unavailable due the previously recorded billing/spending constraint. P-RUNTIME-06 does not claim hosted CI PASS.
+The account's GitHub-hosted Actions capacity remains unavailable due the previously recorded hosted-runner availability constraint. P-RUNTIME-06 does not claim hosted CI PASS.
 
 This does not block closure because the task authority requires the real supported Windows host for lifecycle/failure/recovery acceptance, and that acceptance is complete.
 

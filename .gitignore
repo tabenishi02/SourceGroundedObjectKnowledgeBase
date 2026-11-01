@@ -3,6 +3,7 @@ old/
 sample/
 
 # Runtime / private state
+/derived/
 .local/
 /generated/
 /exchange/

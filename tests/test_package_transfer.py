@@ -170,7 +170,7 @@ def test_stage_rejects_unexpected_files_and_hash_mismatch(tmp_path):
 
 
 def test_stage_rejects_high_confidence_credential_material(tmp_path):
-    source = _workspace(tmp_path, evidence_text="token sk-ABCDEFGHIJKLMNOPQRSTUVWXYZ123456")
+    source = _workspace(tmp_path, evidence_text="token " + "sk-" + ("A" * 32))
     with pytest.raises(ValueError, match="Credential/secret"):
         PackageTransferService().stage_from_directory(source, tmp_path / "staging")
 

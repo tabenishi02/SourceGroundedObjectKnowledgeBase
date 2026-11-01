@@ -33,7 +33,7 @@ N-04G-21で必要なv3 acceptance spec / Reference Workstation harnessの**freez
 
 G-18およびG-20/G-20R handoffは、source-fact verifierのexact local runtime/profileをReference Workstationで確認してからG-21をfreezeすることを要求している。
 
-2026-10-19の本作業時点ではReference Workstation `FNB1Main`はDesktop Commander上でOnlineだったが、Remote Desktop Commanderの月次利用上限によりcommand executionが拒否された。
+2026-10-19の本作業時点ではReference Workstation `Reference Workstation`はDesktop Commander上でOnlineだったが、Remote Desktop Commanderの月次利用上限によりcommand executionが拒否された。
 
 したがって次の3点を実測できていない。
 
@@ -571,6 +571,6 @@ F. MCP / Harrier / Qdrant / integrity preflight
 - [ ] exact MiniCheck runtime package lock。
 - [ ] final status `frozen`。
 
-**N-04G-21 is not Complete yet. Freeze candidate preparation is complete, but final Reference Workstation verification is blocked by the Desktop Commander monthly usage limit.**
+**N-04G-21 is not Complete yet. Freeze candidate preparation is complete, but final Reference Workstation verification is blocked by the remote-command service availability.**
 
 G-22はunblockしない。
