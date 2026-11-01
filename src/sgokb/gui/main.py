@@ -15,6 +15,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"SGOKB GUI startup failed: {exc}", file=sys.stderr)
         return 1
     runtime.window.show()
+    runtime.app.processEvents()
+    if runtime.splash is not None:
+        runtime.splash.finish(runtime.window)
     return int(runtime.app.exec())
 
 
