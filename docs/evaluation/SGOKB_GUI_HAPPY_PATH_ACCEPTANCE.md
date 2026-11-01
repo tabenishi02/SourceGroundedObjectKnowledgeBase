@@ -6,7 +6,7 @@ Updated: 2026-11-01
 - Release commit: `1adae99ee62c3054a35b1325b8a43716943ff06a`
 - Checklist creation baseline: `main` at `2ca4902de7944e6aaefcda0dd86baa9f0fa1dbb7`
 - Scope: PySide6 desktop GUI normal-path acceptance
-- Status: **Prior accepted evidence reconciled / GUI-HP-14 interactive PASS / one integrated check remains**
+- Status: **Complete / 50 of 50 OK / GUI-HP-14 and GUI-HP-49 interactive PASS**
 
 ## 1. Purpose
 
@@ -33,14 +33,12 @@ An `OK` entry does **not** imply that the exact scenario was manually rerun afte
 
 ```text
 Total happy-path scenarios = 50
-OK                         = 49
-NOT RUN                    = 1
-Remaining                  = #49
+OK                         = 50
+NOT RUN                    = 0
+Remaining                  = none
 ```
 
-The remaining work is intentionally integration-focused:
-
-1. One continuous real-data GUI workflow in a single Workspace from Object/Source preparation through Result import, Search, Render, and final integrity verification.
+The post-release integration verification is complete. GUI-HP-49 demonstrated one continuous real-data GUI workflow in a single Workspace from Object/Source preparation through Result import, Search, Render, final integrity verification, normal exit, and restart persistence.
 
 ## 4. Happy-path checklist
 
@@ -94,7 +92,7 @@ The remaining work is intentionally integration-focused:
 | 46 | Presentation-state persistence | Last page / recent Workspace and presentation-only state survive restart without becoming canonical DB state | **OK** | Interactive + Automated | P-GUI-04; P-GUI-10 |
 | 47 | Scaled-DPI / layout smoke | GUI remains usable under accepted 1.5x DPI smoke and nonzero layout geometry | **OK** | Automated | P-GUI-10 |
 | 48 | Long-running operation UX | Running/progress/busy state, close safety, warning/error surfaces, and available cancellation presentation behave normally | **OK** | Interactive + Automated | `P_GUI_07_FINAL_INTERACTIVE_ACCEPTANCE.md` |
-| 49 | One continuous full real-data GUI happy path | In one real Workspace: Object -> Source -> process -> Association -> Evidence -> Package v2 -> external Result -> validate/review/import -> Version -> Search -> Render -> integrity | **NOT RUN** | — | Individual segments are accepted, and P-GUI-08 has an automated Package/Result round trip, but no authority records this entire sequence as one continuous real-GUI run |
+| 49 | One continuous full real-data GUI happy path | In one real Workspace: Object -> Source -> process -> Association -> Evidence -> Package v2 -> external Result -> validate/review/import -> Version -> Search -> Render -> integrity | **OK** | Interactive | Post-`v2.0.0` GUI-HP-49 operator run, 2026-11-01; continuous real-data workflow PASS |
 | 50 | GUI normal exit / restart | GUI closes cleanly, presentation state can be restored, canonical DB remains usable, and external runtime ownership is preserved | **OK** | Interactive + Automated | P-GUI-04; P-GUI-10; P-RUNTIME lifecycle contract |
 
 ## 5. Important scope corrections
@@ -111,7 +109,7 @@ P-GUI-08 already used v2 as the first explicit GUI Package selection. P-CLOSE-01
 
 ### 5.3 Manual versus automated acceptance
 
-P-GUI-08 and P-GUI-09 provide strong Windows automated functional acceptance, but their automated PASS is not rewritten here as an interactive manual PASS. The `Evidence type` column preserves that distinction.
+P-GUI-08 and P-GUI-09 provide strong Windows automated functional acceptance, but their automated PASS is not rewritten here as an interactive manual PASS. The `Evidence type` column preserves that distinction. GUI-HP-49 separately records the continuous post-release real-GUI integration run without rewriting every inherited row's original evidence classification.
 
 ## 6. Normal-path execution records
 
@@ -143,7 +141,7 @@ Disposition:
 GUI-HP-14 = OK / Interactive PASS
 ```
 
-### GUI-HP-49 — Continuous real-data GUI standard workflow — NOT RUN
+### GUI-HP-49 — Continuous real-data GUI standard workflow — PASS
 
 Goal: demonstrate the complete normal operator path once, in order, through the real desktop GUI and one test Workspace.
 
@@ -168,6 +166,85 @@ Procedure:
 
 PASS criterion: the sequence completes without bypassing review/acknowledgement boundaries, and the final canonical state remains valid after restart.
 
+Execution record, 2026-11-01:
+
+```text
+Workspace
+  C:\codex\SourceGroundedObjectKnowledgeBase\.local\gui-hp-49\sgokb.sqlite
+
+Object
+  name                孫悟空
+  object_id           9554ec93-280e-4c6f-b5e3-86afd1eb5e10
+  primary class       Character / class:character
+
+Source / normalization
+  real Web Capture imported                       PASS
+  Snapshot / Raw Artifact inspection              PASS
+  normalization                                   PASS
+  normalization run_id  aadda1e7-c6b2-4f93-8c61-13ebee52f28e
+  Effective Snapshot / Effective Run              PASS
+  provenance inspection                           PASS
+
+Association / Evidence
+  Object-Source Association confirmed             PASS
+  bounded Evidence candidate retrieval            PASS
+  Evidence selection                              PASS
+  Evidence detail / provenance                    PASS
+
+Package v2
+  build / Raw resolution                          PASS
+  stage                                           PASS
+  preflight                                       allow
+  explicit Raw/preflight acknowledgement          PASS
+  export                                          PASS
+  package_id  pkg_32cdc9c2-d3b5-4fde-be1d-167bae722506
+
+External Result v2
+  Package-only analysis / Result generation       PASS
+  detect                                          PASS
+  receive                                         PASS
+  receipt_id  53cb5a33-c4a2-437f-bfbe-09065a64ae8f
+  validate                                        valid / no findings
+  review                                          ready_to_import / not blocked
+  explicit import                                 PASS
+
+Accepted Knowledge
+  current_version_id  b463a892-cb5d-4653-988d-e9eeb814c7e3
+  Knowledge retained                              PASS
+
+Derived / retrieval
+  semantic Derived Sync                           PASS
+  Lexical Search                                  PASS
+  Semantic Search                                 PASS
+  Hybrid Search                                   PASS
+  Similarity operation                            PASS
+  Similarity result count                         0 (single-Object Workspace; acceptable)
+
+Render / integrity / restart
+  accepted Version Render                         PASS
+  Markdown preview / Knowledge-Facet content      PASS
+  Integrity before restart                        PASS
+  GUI normal exit                                 PASS
+  same Workspace reopened                         PASS
+  Object 孫悟空 retained                          PASS
+  Current Version retained                        PASS
+  Lexical Search after restart                    PASS
+  Integrity after restart                         PASS
+```
+
+Operational observations:
+
+- Pure Semantic Search initially returned no Object before semantic derived state had been synchronized after Result import. Running `System > Derived > Sync derived state` with the local Embedding + Qdrant semantic runtime enabled made `孫悟空` retrievable. This matches the standard workflow requirement to synchronize derived state before semantic retrieval and is not classified as a product defect.
+- Similarity returned zero rows because the acceptance Workspace contained only the source Object. The Similarity operation itself completed normally, so the step is accepted.
+- No review/acknowledgement boundary was bypassed. Package egress acknowledgement and Result validation/review/import boundaries were exercised explicitly.
+- No blocking product defect was identified during the integrated run.
+
+Disposition:
+
+```text
+GUI-HP-49 = OK / Interactive PASS
+```
+
 ## 7. Evidence authority
 
 Primary accepted evidence used to initialize this checklist:
@@ -184,13 +261,18 @@ Primary accepted evidence used to initialize this checklist:
 - [`P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_ACCEPTANCE.md`](P_RUNTIME_05_GUI_RUNTIME_DASHBOARD_ACCEPTANCE.md)
 - [`P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md`](P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md)
 
+Post-release interactive evidence recorded in this checklist:
+
+- GUI-HP-14 — Evidence Search Lexical / Semantic / Hybrid — Interactive PASS, 2026-11-01.
+- GUI-HP-49 — Continuous real-data GUI standard workflow — Interactive PASS, 2026-11-01.
+
 ## 8. Current disposition
 
 ```text
-Existing accepted evidence reconciled = 49 / 50 OK
-Remaining normal-path checks          = 1 / 50 NOT RUN
-Remaining                             = GUI-HP-49
+Existing accepted evidence reconciled = 50 / 50 OK
+Remaining normal-path checks          = 0 / 50 NOT RUN
+Remaining                             = none
 Blocking product defect identified    = none
 ```
 
-GUI-HP-14 is closed by the post-release interactive run above. The checklist remains open only for GUI-HP-49. Its `NOT RUN` state is not a regression against the already accepted `v2.0.0` release.
+GUI-HP-14 and GUI-HP-49 are closed by post-release interactive runs. The GUI happy-path acceptance checklist is complete at `50 / 50 OK`. The immutable `v2.0.0` release tag is not changed by this post-release acceptance-document update.
