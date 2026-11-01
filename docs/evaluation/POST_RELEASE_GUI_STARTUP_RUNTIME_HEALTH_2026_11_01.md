@@ -5,7 +5,7 @@ Updated: 2026-11-01
 - Repository authority: current `main`
 - Baseline release: `v2.0.0` (immutable; tag not changed)
 - Scope: Windows GUI launch UX and Runtime Dashboard Search-generation health semantics
-- Status: **Implemented on `main`; execution verification pending operator/local regression**
+- Status: **Local Windows regression PASS; implementation accepted on current `main`**
 
 ## 1. Requirements
 
@@ -197,3 +197,72 @@ Operator smoke after pulling current `main`:
 ```
 
 The existing GitHub Actions Windows workflow is PR-triggered for `main` and does not run automatically for these direct `main` commits, so this document does not claim an unexecuted CI PASS.
+
+## 7. Local Windows execution verification — PASS
+
+Execution host: `FNB1Main`
+
+Verified source:
+
+```text
+main HEAD = a8ae38d9eb734b1f19e53177b5bf1cc77bdc9664
+```
+
+Focused regression and static checks:
+
+```text
+24 passed in 9.82s
+Ruff src/tests = All checks passed!
+```
+
+Full repository regression:
+
+```text
+881 passed, 2 warnings in 282.06s
+```
+
+The two warnings are the existing local-Qdrant behavior warnings for payload indexes and local-mode search parameters; no new failure or warning class was introduced.
+
+Real Workspace runtime-health verification used:
+
+```text
+C:\codex\SourceGroundedObjectKnowledgeBase\.local\gui-hp-49\sgokb.sqlite
+```
+
+Observed state:
+
+```text
+runtime_health.overall_status = healthy
+generation.status             = healthy
+generation.routing_mode       = legacy
+generation.active_generation  = null
+generation.current_object_count = 1
+derived.status                = healthy
+qdrant.status                 = healthy
+```
+
+This confirms the original false `DEGRADED` Search-generation projection is corrected on the accepted real-data GUI-HP-49 Workspace without creating or cutting over an explicit generation.
+
+The VBS launcher was also executed through `wscript.exe`. Five seconds after invocation:
+
+```text
+matching wscript.exe launcher process = 0
+pythonw.exe -m sgokb.gui.main         = running
+launcher smoke                         = PASS
+```
+
+The spawned GUI processes were terminated after the smoke check. The process-level smoke confirms that the script host does not remain open and that the GUI entry point is launched through `pythonw.exe`. Splash sequencing is covered by the focused Qt regression, which locks `QSplashScreen` before SGOKB runtime imports/native semantic preload/backend construction and finishes it only after the main window is shown.
+
+Disposition:
+
+```text
+Consoleless launcher       PASS
+Startup splash sequencing  PASS
+Search generation health   PASS
+Focused regression         PASS / 24 passed
+Ruff                       PASS
+Full repository regression PASS / 881 passed / 2 known warnings
+Post-release update        ACCEPTED on current main
+```
+
+No change is made to the immutable `v2.0.0` tag; this remains a post-release `main` update.
