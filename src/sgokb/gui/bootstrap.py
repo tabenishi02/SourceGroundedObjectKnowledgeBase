@@ -4,17 +4,15 @@ from __future__ import annotations
 
 import sys
 from dataclasses import dataclass
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 
 from PySide6.QtCore import QCoreApplication, QSettings, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QApplication, QSplashScreen
 
-from sgokb.runtime import preload_local_semantic_native_dependencies
-
-from .views import MainWindow
-from .worker import BackendCoordinator
-from .workspace import WorkspaceSettings
+if TYPE_CHECKING:
+    from .views import MainWindow
+    from .worker import BackendCoordinator
 
 
 @dataclass(slots=True)
@@ -26,7 +24,7 @@ class GuiRuntime:
 
 
 def _show_startup_splash(app: QApplication) -> QSplashScreen:
-    """Show a paintable startup surface before native semantic preload begins."""
+    """Show a paintable startup surface before SGOKB runtime/view imports begin."""
 
     pixmap = QPixmap(520, 180)
     pixmap.fill(app.palette().window().color())
@@ -57,6 +55,23 @@ def _update_startup_splash(
     app.processEvents()
 
 
+def _load_runtime_dependencies():
+    """Import SGOKB runtime/view modules only after the splash is paintable."""
+
+    from sgokb.runtime import preload_local_semantic_native_dependencies
+
+    from .views import MainWindow
+    from .worker import BackendCoordinator
+    from .workspace import WorkspaceSettings
+
+    return (
+        preload_local_semantic_native_dependencies,
+        MainWindow,
+        BackendCoordinator,
+        WorkspaceSettings,
+    )
+
+
 def create_runtime(
     argv: Sequence[str] | None = None,
     *,
@@ -78,6 +93,13 @@ def create_runtime(
     QCoreApplication.setApplicationVersion("1.1.0")
 
     splash = _show_startup_splash(app) if show_splash else None
+    _update_startup_splash(app, splash, "Loading application modules...")
+    (
+        preload_local_semantic_native_dependencies,
+        MainWindow,
+        BackendCoordinator,
+        WorkspaceSettings,
+    ) = _load_runtime_dependencies()
 
     # Load PyTorch / Transformers / Sentence Transformers native modules on the
     # Qt main thread before BackendCoordinator starts its worker QThread. Any
