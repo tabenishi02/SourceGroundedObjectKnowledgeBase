@@ -6,7 +6,8 @@ Updated: 2026-11-01
 - Status: **Complete / Accepted / Released as `v2.0.0`**
 - Previous phase: `Phase O — Documentation / Release / Git cleanup` — **Complete**
 - Current formal release: `v2.1.0` (post-Phase-P MINOR release; Phase P itself remains frozen as `v2.0.0`)
-- Release commit: `1adae99ee62c3054a35b1325b8a43716943ff06a`
+- Current release tag: `v2.1.0` -> `0c5a4e0bda5608f871e63dda6920c930f5ef6112`
+- Phase P release commit: `1adae99ee62c3054a35b1325b8a43716943ff06a`
 - Planning authority: [`PHASE_P_MODERNIZATION_PLAN.md`](PHASE_P_MODERNIZATION_PLAN.md)
 - Task authority: [`PHASE_P_TASKS.md`](PHASE_P_TASKS.md)
 - Closure acceptance: [`P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md`](../../../evaluation/P_CLOSE_01_PHASE_P_CLOSURE_ACCEPTANCE.md)

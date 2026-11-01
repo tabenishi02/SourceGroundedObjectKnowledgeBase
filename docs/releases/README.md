@@ -28,6 +28,8 @@ Prototype 0.2 does not receive a retroactive Git tag or GitHub Release. Its hist
 
 `v2.0.0` is an annotated tag whose tag object is `7b9a4d495d8d3238a9159402e991f81589a679c5` and whose target release commit is `1adae99ee62c3054a35b1325b8a43716943ff06a`.
 
+`v2.1.0` is an annotated tag whose tag object is `7b36a60725899771fd74ce3dacddf2aa03905661` and whose target release commit is `0c5a4e0bda5608f871e63dda6920c930f5ef6112`.
+
 ## 2.1.0 release boundary
 
 `2.1.0` is a backward-compatible MINOR release over the immutable `v2.0.0` Phase P baseline. It adds the consoleless Windows GUI launcher and startup splash, corrects false Search-generation degradation for the supported legacy route, and incorporates completed GUI normal-path/runtime-health acceptance. Canonical DB, CLI, MCP and Package/Result v2 contracts remain compatible.

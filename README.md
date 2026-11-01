@@ -16,7 +16,7 @@ Current formal release     = v2.1.0
 Project state              = Paused / no active implementation task
 ```
 
-The `v2.0.0` Phase P tag remains immutable on release commit `1adae99ee62c3054a35b1325b8a43716943ff06a`. `v2.1.0` is the current formal release and incorporates the accepted post-Phase-P GUI startup/runtime-health improvements without redefining the `v2.0.0` boundary.
+The annotated `v2.1.0` tag is frozen on release commit `0c5a4e0bda5608f871e63dda6920c930f5ef6112`. It is the current backward-compatible post-Phase-P MINOR release. The `v2.0.0` tag remains the immutable Phase P baseline on `1adae99ee62c3054a35b1325b8a43716943ff06a`.
 
 ## What changed in 2.1.0
 
