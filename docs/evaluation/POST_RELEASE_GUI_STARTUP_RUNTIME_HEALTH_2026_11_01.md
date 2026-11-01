@@ -266,3 +266,65 @@ Post-release update        ACCEPTED on current main
 ```
 
 No change is made to the immutable `v2.0.0` tag; this remains a post-release `main` update.
+## 8. Interactive normality confirmation checklist
+
+Purpose: perform an operator-visible normal-path confirmation of the three post-release additions after the automated/local regression above. This checklist is intentionally separate from automated acceptance because it verifies what the operator actually sees and experiences on the Windows desktop.
+
+Recommended Workspace:
+
+```text
+C:\codex\SourceGroundedObjectKnowledgeBase\.local\gui-hp-49\sgokb.sqlite
+```
+
+Before starting, close any already-running SGOKB GUI instance so the launcher behavior is unambiguous.
+
+| ID | Confirmation item | Expected normal result | Status |
+|---|---|---|---|
+| POST-GUI-01 | Double-click `scripts\launch-sgokb-gui.vbs` | SGOKB startup begins without requiring PowerShell/CMD | NOT RUN |
+| POST-GUI-02 | Observe the desktop immediately after launch | No console, PowerShell, CMD, or persistent script window remains visible | NOT RUN |
+| POST-GUI-03 | Observe startup before the main window appears | SGOKB loading splash is displayed before the main GUI | NOT RUN |
+| POST-GUI-04 | Observe the splash during startup | Splash remains responsive/visible while startup progresses; no blank console substitute or fatal error dialog appears | NOT RUN |
+| POST-GUI-05 | Wait for startup completion | Splash closes and the normal SGOKB main window becomes visible and usable | NOT RUN |
+| POST-GUI-06 | Open/reopen the existing GUI-HP-49 Workspace | Workspace opens normally and the accepted `孫悟空` Knowledge state remains available | NOT RUN |
+| POST-GUI-07 | Open `System / Maintenance > Overview` and refresh status | Runtime Dashboard refresh completes without unexpected error | NOT RUN |
+| POST-GUI-08 | Inspect overall runtime state | Overall runtime health is `HEALTHY` when SQLite, Qdrant, derived state, and configured embedding runtime are otherwise normal | NOT RUN |
+| POST-GUI-09 | Inspect `Search generation` | Status is `HEALTHY`, not `DEGRADED` | NOT RUN |
+| POST-GUI-10 | Inspect Search-generation summary/details | Summary identifies `active=none (legacy routing)` / legacy routing; no false generation warning or troubleshooting action is shown | NOT RUN |
+| POST-GUI-11 | Confirm no unintended generation mutation | No explicit active Search generation is created merely by opening/refreshing the dashboard | NOT RUN |
+| POST-GUI-12 | Run Object Search in Lexical mode | Search completes normally and returns the expected `孫悟空` result | NOT RUN |
+| POST-GUI-13 | Run Object Search in Semantic mode | Semantic Search completes normally and returns the expected `孫悟空` result | NOT RUN |
+| POST-GUI-14 | Run Object Search in Hybrid mode | Hybrid Search completes normally and returns the expected `孫悟空` result without a new runtime-health degradation | NOT RUN |
+| POST-GUI-15 | Close SGOKB normally, then launch again with the VBS | GUI closes cleanly; second launch again shows the splash, no console remains, Workspace state persists, and Search generation remains `HEALTHY` | NOT RUN |
+
+### 8.1 PASS criteria
+
+The interactive confirmation is PASS only when all 15 items above are `OK`.
+
+```text
+Total items = 15
+OK          = 0
+NOT RUN     = 15
+FAIL        = 0
+Disposition = NOT RUN
+```
+
+A failure in `POST-GUI-09` or `POST-GUI-10` is specifically a regression of the Search-generation health correction. A failure in `POST-GUI-12` through `POST-GUI-14` means the health presentation may look correct while the actual retrieval path is not healthy, so the update must not be accepted on display state alone.
+
+### 8.2 Operator result recording
+
+When the checklist is executed, record at minimum:
+
+```text
+execution date
+verified main HEAD
+Workspace path
+POST-GUI-01..15 result
+observed Search generation status
+observed Search generation summary
+Lexical / Semantic / Hybrid Search result
+normal exit / relaunch result
+unexpected warnings or errors, if any
+final disposition = Interactive PASS / FAIL
+```
+
+Do not change the frozen `v2.0.0` tag when recording this post-release interactive result.
