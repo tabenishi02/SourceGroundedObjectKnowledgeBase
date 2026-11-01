@@ -122,6 +122,7 @@ def test_gui_bootstrap_preloads_semantic_native_stack_before_backend_thread(
         [],
         settings=_settings(tmp_path / "bootstrap.ini"),
         show_error_dialogs=False,
+        show_splash=False,
     )
     try:
         assert calls[:2] == ["preload", "backend"]
